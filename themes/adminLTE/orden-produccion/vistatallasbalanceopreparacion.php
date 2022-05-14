@@ -23,9 +23,9 @@ use yii\filters\AccessControl;
 /* @var $model app\models\Empleado */
 
 $this->title = 'Confección (Balanceo/Preparación)';
-$this->params['breadcrumbs'][] = ['label' => 'Detalle', 'url' => ['view_balanceo']];
+$this->params['breadcrumbs'][] = ['label' => 'vista balanceo', 'url' => ['view_balanceo','id' =>$detalletallas->iddetalleorden ]];
 $this->params['breadcrumbs'][] = $detalletallas->iddetalleorden;
-$view = 'orden-produccion/vistatallas';
+
 $orden = app\models\Ordenproduccion::findOne($detalletallas->idordenproduccion);
 $operacionModulo = app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $modulo])->orderBy('id_proceso DESC')->all();
 ?>

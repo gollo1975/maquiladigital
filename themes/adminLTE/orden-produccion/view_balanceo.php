@@ -31,7 +31,7 @@ use yii\db\Query;
 /* @var $model app\models\Ordenproduccion */
 
 $this->title = 'Detalle balanceo';
-$this->params['breadcrumbs'][] = ['label' => 'Detalle balanceo', 'url' => ['proceso']];
+$this->params['breadcrumbs'][] = ['label' => 'View', 'url' => ['produccionbalanceo']];
 $this->params['breadcrumbs'][] = $model->idordenproduccion;
 //codigo que permite buscar el si la OP tiene modulo de balanceo
 $varModular = 0;
@@ -346,23 +346,29 @@ if($buscarOrden){
                                              <td align="right"><?= ''.number_format(($model->duracion * 60)* ($val->cantidad),0) ?></td>
                                              <td align="right"><?= ''.number_format($model->duracion  * $val->cantidad,0) ?></td>
                                             <td align="right" style="background: #F5BCA9;"><?= ''.number_format($model->segundosficha / 60 * $val->cantidad,0) ?></td>
-                                            <?php if ($varModular == 0){?>
+                                            <?php
+                                            if ($varModular == 0){?>
                                                 <td style= 'width: 25px; height: 25px;'>
                                                         <a href="<?= Url::toRoute(["orden-produccion/vistatallas", "iddetalleorden" => $val->iddetalleorden]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                                                 </td>
-                                            <?php }else{?>
-                                                 <td style= 'width: 25px; height: 25px;'>
-                                                   <a href="<?= Url::toRoute(["orden-produccion/vistatallas", "iddetalleorden" => $val->iddetalleorden, 'modulo' => $buscarOrden->id_balanceo]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                                                 </td>  
-                                            <?php } ?>    
-                                            <?php if ($varModular == 1){?>
-                                                <td style= 'width: 25px; height: 25px;'>
-                                                        <a href="<?= Url::toRoute(["orden-produccion/recoger_preparacion", "iddetalleorden" => $val->iddetalleorden,'modulo' => $buscarOrden->id_balanceo, 'id'=> $model->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-plus"></span></a>
-                                                </td>
-                                            <?php }else{?>
                                                 <td style= 'width: 25px; height: 25px;'>
                                                 </td>
-                                           <?php } ?>   
+                                            <?php }else{
+                                                    if ($varModular == 1){?>
+                                                        <td style= 'width: 25px; height: 25px;'>
+                                                               <a href="<?= Url::toRoute(["orden-produccion/vistatallasbalanceopreparacion", "iddetalleorden" => $val->iddetalleorden,'modulo' => $buscarOrden->id_balanceo,]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                                       </td>
+                                                        <td style= 'width: 25px; height: 25px;'>
+                                                                <a href="<?= Url::toRoute(["orden-produccion/recoger_preparacion", "iddetalleorden" => $val->iddetalleorden,'modulo' => $buscarOrden->id_balanceo, 'id'=> $model->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-plus"></span></a>
+                                                        </td>
+                                                    <?php }else{?>
+                                                        <td style= 'width: 25px; height: 25px;'>
+                                                           <td></td> 
+                                                        </td>
+                                                   <?php }
+                                                   
+                                            } ?>  
+                                                        
                                         </tr>
                                         <?php
                                             $total_confeccion +=$val->faltante;

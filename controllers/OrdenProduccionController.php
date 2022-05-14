@@ -2196,7 +2196,7 @@ class OrdenProduccionController extends Controller {
     
     //VISTA DE CANTIDADES CONFECCINADAS POR TALLAS
     
-    public function actionVistatallas($iddetalleorden, $modulo)
+    public function actionVistatallas($iddetalleorden)
     {
       $detalletallas = Ordenproducciondetalle::findOne($iddetalleorden);  
       $cantidades = CantidadPrendaTerminadas::find()->where(['=','iddetalleorden', $iddetalleorden])->orderBy('id_entrada DESC')->all();
@@ -2205,13 +2205,27 @@ class OrdenProduccionController extends Controller {
                     'detalletallas' => $detalletallas, 
                     'cantidades' => $cantidades,
                     'cantidad_preparacion' => $cantidad_preparacion,
-                    'modulo' => $modulo,
-                    'iddetalleorden' => $iddetalleorden,
-           
-                    
+                   
         ]);
       
     }
+    
+    //VISTA QUE MUESTRA EL BALACEO-PREPACION DE UNA TALLA
+     public function actionVistatallasbalanceopreparacion($iddetalleorden, $modulo)
+    {
+      $detalletallas = Ordenproducciondetalle::findOne($iddetalleorden);  
+      $cantidades = CantidadPrendaTerminadas::find()->where(['=','iddetalleorden', $iddetalleorden])->orderBy('id_entrada DESC')->all();
+      $cantidad_preparacion = CantidadPrendaTerminadasPreparacion::find()->where(['=','iddetalleorden', $iddetalleorden])->orderBy('id_proceso DESC')->all();
+       return $this->render('vistatallasbalanceopreparacion', [
+                    'detalletallas' => $detalletallas, 
+                    'cantidades' => $cantidades,
+                    'cantidad_preparacion' => $cantidad_preparacion,
+                    'modulo' => $modulo,
+                   
+        ]);
+      
+    }
+    
     
     //VISTA PARA EL REPROCESO DE PRODUCCION
     

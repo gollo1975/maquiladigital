@@ -64,7 +64,8 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Total pagado</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Observacion</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
-                  <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
             </tr>
             </thead>
             <tbody>
@@ -93,6 +94,21 @@ $form = ActiveForm::begin([
                            <td style="width: 25px;">				
                                <a href="<?= Url::toRoute(["imprimircolillaconfeccion",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir "></span></a>
                            </td>
+                            <td style=' width: 25px;'>
+                                <?php if ($val->autorizado == 0){ ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarpago', 'id' => $val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], [
+                                    'class' => '',
+                                    'data' => [
+                                        'confirm' => 'Esta seguro de eliminar el registro?',
+                                        'method' => 'post',
+                                    ],
+                                ])
+                                ?>
+                                <?php }else{ ?>
+                               
+                                <?php } ?>
+                            </td>
+                           
                            <input type="hidden" name="pago_servicio_confeccion[]" value="<?= $val->id_operario ?>">
                            <input type="hidden" name="id_pago[]" value="<?= $val->id_pago ?>">
                        </tr>    
@@ -104,7 +120,7 @@ $form = ActiveForm::begin([
                <td align="right" ><b><?= '$ '.number_format($Devengado,0); ?></b></td>
                <td align="right"><b><?= '$ '.number_format($Deduccion,0); ?></b></td>
                <td align="right"><b><?= '$ '.number_format($Pagar,0); ?></b></td>
-               <td colspan="3"></td>
+               <td colspan="4"></td>
         </tr>
         <tr>
             <td colspan="10"></td>

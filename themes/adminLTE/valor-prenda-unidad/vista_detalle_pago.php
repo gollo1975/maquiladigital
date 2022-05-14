@@ -107,7 +107,7 @@ $this->params['breadcrumbs'][] = $model->id_pago;
                                <a href="<?= Url::toRoute(["valor-prenda-unidad/editarvistadetallepago", 'id_detalle' => $val->id_detalle, 'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado]) ?>" ><span class="glyphicon glyphicon-pencil "></span></a>
                             </td>
                             <td style= 'width: 25px;'>
-                                <?= Html::a('', ['eliminardetallepago', 'id_detalle' => $val->id_detalle, 'id_pago' => $val->id_pago,'fecha_inicio'=>$fecha_inicio, 'fecha_corte' => $fecha_corte], [
+                                <?= Html::a('', ['eliminardetallepago', 'id_detalle' => $val->id_detalle, 'id_pago' => $val->id_pago,'fecha_inicio'=>$fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado], [
                                     'class' => 'glyphicon glyphicon-trash',
                                     'data' => [
                                         'confirm' => 'Esta seguro de eliminar el registro?',
@@ -125,7 +125,7 @@ $this->params['breadcrumbs'][] = $model->id_pago;
                 </table>
                 <?php if($autorizado == 0){?>
                     <div class="panel-footer text-right"> 
-                       <?= Html::a('<span class="glyphicon glyphicon-save"></span> Importar', ['valor-prenda-unidad/importarconceptosalarios', 'id_pago' => $val->id_pago, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio, 'autorizado' => $autorizado], ['class' => 'btn btn-success btn-sm']); ?>      
+                       <?= Html::a('<span class="glyphicon glyphicon-save"></span> Importar', ['valor-prenda-unidad/importarconceptosalarios', 'id_pago' => $id_pago, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio, 'autorizado' => $autorizado], ['class' => 'btn btn-success btn-sm']); ?>      
                     </div>  
                 <?php }?>
             </div>

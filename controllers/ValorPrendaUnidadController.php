@@ -670,6 +670,7 @@ class ValorPrendaUnidadController extends Controller
                     'fecha_inicio' => $fecha_inicio,
                     'fecha_corte' => $fecha_corte,
                     'autorizado' => $autorizado,
+                    'id_pago' => $id_pago,
                     
         ]);
     }
@@ -751,11 +752,11 @@ class ValorPrendaUnidadController extends Controller
     
     // PROCESO QUE ELIMINE EL DETALLE DEL PAGO
     
-     public function actionEliminardetallepago($id_pago,$id_detalle, $fecha_inicio, $fecha_corte)
+     public function actionEliminardetallepago($id_pago,$id_detalle, $fecha_inicio, $fecha_corte, $autorizado)
     {                                
         $detalle = \app\models\PagoNominaServicioDetalle::findOne($id_detalle);
         $detalle->delete();
-        $this->redirect(["vistadetallepago",'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]);        
+        $this->redirect(["vistadetallepago",'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado]);        
     }
     //proceso que imprime la colilla de confeccion
     
@@ -777,6 +778,24 @@ class ValorPrendaUnidadController extends Controller
         $this->Totalpagar($id);
         $this->TotalCantidades($id);
         $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion]);        
+    }
+    
+    //ELIMINA EL REGISTRO D EPAGO
+    
+    public function actionEliminarpago($id, $fecha_inicio, $fecha_corte)
+    {                                
+        try {
+            $detalle = \app\models\PagoNominaServicios::findOne($id);
+            $detalle->delete();
+            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con éxito.');
+            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte]);
+        } catch (IntegrityException $e) {
+            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte]);
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+        } catch (\Exception $e) {            
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte]);
+        }
     }
     
     protected function Totalpagar($id) {

@@ -2206,6 +2206,7 @@ class OrdenProduccionController extends Controller {
                     'cantidades' => $cantidades,
                     'cantidad_preparacion' => $cantidad_preparacion,
                     'modulo' => $modulo,
+                    'iddetalleorden' => $iddetalleorden,
            
                     
         ]);

@@ -177,6 +177,7 @@ $view = 'orden-produccion';
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#detalle_orden" aria-controls="detalle_orden" role="tab" data-toggle="tab">Detalle <span class="badge"><?= count($modeldetalles) ?></span></a></li>
             <li role="presentation"><a href="#costo_adicional" aria-controls="costo_adicional" role="tab" data-toggle="tab">Costos <span class="badge"><?= count($otrosCostosProduccion) ?></span></a></li>
+            <li role="presentation"><a href="#novedadesorden" aria-controls="novedadesorden" role="tab" data-toggle="tab">Novedades <span class="badge"><?= count($novedad_orden) ?></span></a></li>
         </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="detalle_orden">
@@ -356,8 +357,86 @@ $view = 'orden-produccion';
                         </div>
                     </div>
                 </div>    
+                <div role="tabpanel" class="tab-pane" id="novedadesorden">
+                    <div class="table-responsive">
+                        <div class="panel panel-success">
+                            <div class="panel-body">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" align="center" style='background-color:#B9D5CE;'><b>Id</b></th>                        
+                                            <th scope="col" align="center" style='background-color:#B9D5CE; width: 65%;' >Novedad</th>                        
+                                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Fecha proceso</th>       
+                                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Usuario</th>   
+                                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Autorizado</th>  
+                                            <th scope="col" align="center" style='background-color:#B9D5CE;'></th> 
+                                             <th scope="col" style='background-color:#B9D5CE;'></th> 
+                                              <th scope="col" style='background-color:#B9D5CE;'></th> 
+                                        </tr>
+                                    </thead>
+                                    <body>
+                                         <?php
+                                         foreach ($novedad_orden as $val):?>
+                                            <tr style="font-size: 85%;">
+                                                <td><?= $val->id_novedad ?></td>
+                                                <td><?= $val->novedad ?></td>
+                                                <td><?= $val->fecha_proceso ?></td>
+                                                <td><?= $val->usuariosistema ?></td>
+                                                <td><?= $val->autorizarNovedad ?></td>
+                                                <td style= 'width: 25px; height: 25px;'>
+                                                     <a href="<?= Url::toRoute(["orden-produccion/vistanovedadorden",'id_novedad'=>$val->id_novedad,'id' => $model->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-eye-open" title="Ver detalle de la novedad "></span></a>
+                                                </td>
+                                                <?php 
+                                                if($val->autorizado == 0){?>
+                                                   <td style= 'width: 25px; height: 25px;'>
+                                                       <a href="<?= Url::toRoute(["orden-produccion/editarnovedadproduccion",'id_novedad'=>$val->id_novedad,'id' => $model->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-pencil" title="Editar novedad"></span></a>
+                                                                                                                                                                                                        
+                                                   </td>
+                                                    <td style= 'width: 25px; height: 25px;'>
+                                                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarnovedadproduccion', 'id' => $model->idordenproduccion, 'id_novedad' => $val->id_novedad], [
+                                                                   'class' => '',
+                                                                   'data' => [
+                                                                       'confirm' => 'Esta seguro de eliminar el registro?',
+                                                                       'method' => 'post',
+                                                                   ],
+                                                               ])
+                                                        ?>
+                                                    </td>    
+                                                <?php }else{ ?> 
+                                                    <td style="width: 25px;">				
+                                                        <a href="<?= Url::toRoute(["imprimirnovedadorden",'id_novedad'=>$val->id_novedad, 'id' =>$model->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir novedad "></span></a>
+                                                    </td>
+                                                    <td style= 'width: 25px; height: 25px;'></td>
+                                                <?php }?>
+                                            </tr>
+                                         <?php endforeach;?>          
+                                    </body>
+                                </table>
+                            </div>
+                            <div class="panel-footer text-right">  
+                               <!-- Inicio Nuevo Detalle proceso -->
+                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear novedad',
+                                    ['/orden-produccion/crearnovedadordenproduccion','id' => $model->idordenproduccion],
+                                    [
+                                        'title' => 'Novedades de producción',
+                                        'data-toggle'=>'modal',
+                                        'data-target'=>'#modalcrearnovedadordenproduccion'.$model->idordenproduccion,
+                                        'class' => 'btn btn-success btn-xs'
+                                    ])    
+                                ?>
+                                <div class="modal remote fade" id="modalcrearnovedadordenproduccion<?= $model->idordenproduccion ?>">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content"></div>
+                                    </div>
+                                </div>
+                            </div>   
+                        </div>
+                    </div>
+                </div> 
+                  <!-- TERMINA TABS DE NOVEDADES -->
             </div>  
     </div>
   <?php ActiveForm::end(); ?>  
 </div>
 
+   

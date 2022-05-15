@@ -408,6 +408,7 @@ class OrdenProduccionController extends Controller {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
         $modeldetalle = new Ordenproducciondetalle();
         $mensaje = "";
+        $novedad_orden = \app\models\NovedadOrdenProduccion::find()->where(['=','idordenproduccion', $id])->all();
         $otrosCostosProduccion = \app\models\OtrosCostosProduccion::find()->where(['=','idordenproduccion', $id])->orderBy('id_proveedor DESC')->all();
         if (isset($_POST["eliminar"])) {
             if (isset($_POST["seleccion"])) {
@@ -446,6 +447,7 @@ class OrdenProduccionController extends Controller {
                     'modeldetalles' => $modeldetalles,
                     'mensaje' => $mensaje,
                     'otrosCostosProduccion' => $otrosCostosProduccion,
+                    'novedad_orden' => $novedad_orden,
         ]);
     }
    
@@ -884,6 +886,19 @@ class OrdenProduccionController extends Controller {
                 $this->redirect(["orden-produccion/view", 'id' => $id]);
             }
         } else {
+            $model->autorizado = 0;
+            $model->update();
+            $this->redirect(["orden-produccion/view", 'id' => $id]);
+        }
+    }
+    //AUTORIZAR LA NOVEDAD DE PRODUCCION
+    public function actionAutorizadonovedad($id_novedad, $id) {
+        $model = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
+        if($model->autorizado == 0){
+            $model->autorizado = 1;
+            $model->update();
+            $this->redirect(["orden-produccion/view", 'id' => $id]);
+        }else{
             $model->autorizado = 0;
             $model->update();
             $this->redirect(["orden-produccion/view", 'id' => $id]);
@@ -1548,6 +1563,20 @@ class OrdenProduccionController extends Controller {
         ]);
     }
     
+    //IMPRIME EL INFORME DE NOVEDAD
+    
+    public function actionImprimirnovedadorden($id_novedad, $id)
+    {                                
+      //   $model = \app\models\PagoNominaServicios::findOne($id_pago);
+        
+         return $this->render('../formatos/impresionnovedadproduccion', [
+              'model' => \app\models\NovedadOrdenProduccion::findOne($id_novedad),
+             'id' => $id,
+             'id_novedad' => $id_novedad,
+        ]);
+    }
+    
+    
     protected function findModel($id) {
         if (($model = Ordenproduccion::findOne($id)) !== null) {
             return $model;
@@ -2194,6 +2223,37 @@ class OrdenProduccionController extends Controller {
         $this->redirect(["view",'id' => $id]);        
     }
     
+    //ELIMINAR UNA NOVEDAD DE LA PRODUCCION
+    public function actionEliminarnovedadproduccion($id,$id_novedad)
+    {                                
+        $novedad = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
+        $novedad->delete();
+        $this->redirect(["view",'id' => $id]);        
+    }
+    
+    //EDITAR NOVEDA DE PRODUCCION
+    public function actionEditarnovedadproduccion($id, $id_novedad) {
+        $model = new \app\models\NovedadOrdenProduccion();
+         
+        if ($model->load(Yii::$app->request->post())) {  
+            $tabla = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
+            $tabla->novedad = $model->novedad;
+            $tabla->save(false);
+            return $this->redirect(['orden-produccion/view','id' => $id]);
+        }
+        if (Yii::$app->request->get("id_novedad")) {
+             $novedad = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
+             if($novedad){
+                 $model->novedad = $novedad->novedad;
+             }
+         }
+          return $this->render('editarnovedadproduccion', [
+            'model' => $model,
+            'id' => $id,
+            'id_novedad' => $id_novedad,  
+           ]);         
+    }
+    
     //VISTA DE CANTIDADES CONFECCINADAS POR TALLAS
     
     public function actionVistatallas($iddetalleorden)
@@ -2208,6 +2268,17 @@ class OrdenProduccionController extends Controller {
                    
         ]);
       
+    }
+    //PROCESO QUE MUESTRA LA VISTA DE LA NOVEDAD DE PRODUCCION
+    public function actionVistanovedadorden($id, $id_novedad) {
+     $model = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
+     return $this->render('viewnovedadproduccion', [
+                    'model' => $model, 
+                    'id' => $id,
+                    'id_novedad' => $id_novedad,
+                   
+        ]);
+     
     }
     
     //VISTA QUE MUESTRA EL BALACEO-PREPACION DE UNA TALLA
@@ -2485,6 +2556,37 @@ class OrdenProduccionController extends Controller {
             'id_proceso_confeccion' => $id_proceso_confeccion,
             
         ]);      
+    }
+    
+    // PROCESO QUE CREA LAS NOVEDADES DE LAS ORDENES DE PRODUCCION
+    public function actionCrearnovedadordenproduccion($id) {
+        
+        $model = new \app\models\FormNovedadOrden();
+        
+        if ($model->load(Yii::$app->request->post())) {
+          //  if ($model->validate()){
+                if (isset($_POST["enviarnovedadorden"])) {
+                    $table = new \app\models\NovedadOrdenProduccion();
+                    $table->novedad = $model->novedad;
+                    $table->idordenproduccion = $id;
+                    $table->usuariosistema = Yii::$app->user->identity->username;
+                    $table->autorizado =0;
+                    $table->save(false);
+                    return $this->redirect(['view','id' => $id]);
+                }
+          //  }
+        }
+        if (Yii::$app->request->get($id)) {
+            $model->idordenproduccion = $id;
+            
+        }
+        
+       return $this->renderAjax('crearnovedadordenproduccion', [
+            'model' => $model,       
+            'id' => $id,
+            
+        ]);      
+       
     }
         
     protected function ActualizaPorcentajeCantidad($iddetalleorden, $idordenproduccion) {

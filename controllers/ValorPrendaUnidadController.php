@@ -525,7 +525,7 @@ class ValorPrendaUnidadController extends Controller
                     if($datosPago){
                        $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
                     }else{
-                        $operario = Operarios::find()->where(['=','vinculado', 0])
+                        $operario = Operarios::find()->where(['=','aplica_nomina_modulo', 1])
                                                      ->andWhere(['=','estado', 1])->all();
                        
                         foreach ($operario as $operarios):

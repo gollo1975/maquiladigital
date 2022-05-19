@@ -92,6 +92,7 @@ $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Personal activo" >Act.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Polivalente" >Pol.</span></th>
                  <th scope="col" style='background-color:#B9D5CE;'><span title="Vinculado" >Vin.</span></th>
+                  <th scope="col" style='background-color:#B9D5CE;'><span title="Aplica para nomina alterna" >No/Alt.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
               
@@ -114,6 +115,7 @@ $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(
                 <td><?= $val->estadopago?></td>
                 <td><?= $val->polivalenteOperacion?></td>
                  <td><?= $val->vinculadoOperacion?></td>
+                 <td><?= $val->nominaAlterna?></td>
                 <td style= 'width: 25px; height: 25px;'>
                         <a href="<?= Url::toRoute(["operarios/view", "id" => $val->id_operario, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                 </td>

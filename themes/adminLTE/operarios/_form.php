@@ -84,6 +84,7 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
         </div>
         <div class="row">
             <?= $form->field($model, 'salario')->textInput(['maxlength' => true]) ?>
+             <?= $form->field($model, 'nomina_alterna')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>     
         
         <div class="panel-footer text-right">			

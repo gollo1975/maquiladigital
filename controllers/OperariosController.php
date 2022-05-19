@@ -184,6 +184,7 @@ class OperariosController extends Controller
                 $table->idmunicipio = $model->idmunicipio;
                 $table->fecha_ingreso = $model->fecha_ingreso;
                 $table->salario_base = $model->salario;
+                 $table->aplica_nomina_modulo = $model->nomina_alterna;
                 $table->usuariosistema =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["operarios/index"]);
@@ -234,6 +235,7 @@ class OperariosController extends Controller
                    $table->tipo_operaria = $model->tipo_operaria;
                    $table->fecha_ingreso = $model->fecha_ingreso;
                    $table->salario_base = $model->salario;
+                   $table->aplica_nomina_modulo = $model->nomina_alterna;
                    $table->save(false);
                     return $this->redirect(["operarios/index"]);
                }
@@ -259,6 +261,7 @@ class OperariosController extends Controller
                 $model->tipo_operaria = $table->tipo_operaria;
                 $model->fecha_ingreso = $table->fecha_ingreso;
                 $model->salario = $table->salario_base;
+                $model->nomina_alterna = $table->aplica_nomina_modulo;
             }else{
                  return $this->redirect(["operarios/index"]);
             }    

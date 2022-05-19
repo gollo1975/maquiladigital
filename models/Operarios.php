@@ -154,5 +154,14 @@ class Operarios extends \yii\db\ActiveRecord
         }
         return $tipoperaria;
     }
+    public function getNominaAlterna()
+     {
+        if($this->aplica_nomina_modulo == 1){
+            $nominalterna = "SI";
+        }else{
+            $nominalterna = "NO";
+        }
+        return $nominalterna;
+    }
             
 }

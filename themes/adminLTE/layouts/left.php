@@ -149,6 +149,7 @@
                                                 ['label' => 'Calificación Ficha', 'icon' => 'plus-square-o', 'url' => ['/fichatiempocalificacion/index']],
                                                 ['label' => 'Colores', 'icon' => 'plus-square-o', 'url' => ['/color/index']],
                                                 ['label' => 'Operarios', 'icon' => 'plus-square-o', 'url' => ['/operarios/index']],
+                                                ['label' => 'Planta/Bodega', 'icon' => 'plus-square-o', 'url' => ['/planta-empresa/index']],
                                             ],
                                         ],
                                         [

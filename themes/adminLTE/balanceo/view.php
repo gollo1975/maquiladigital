@@ -82,9 +82,9 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Sam_operativo') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion->sam_operativo) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Minuto_operario') ?>:</th>
-                    <td><?= Html::encode($model->tiempo_operario) ?></td>
+                    <td><?= Html::encode($model->tiempo_operario,2) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tiempo_Segundos') ?>:</th>
-                    <td><?= Html::encode($model->tiempo_operario * 60) ?></td>
+                    <td align="right"><?= Html::encode($model->tiempo_operario * 60) ?></td>
                     
                 </tr>
                   <tr style="font-size: 85%;">
@@ -94,8 +94,18 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <td><?= Html::encode($model->tiempo_balanceo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_creación') ?>:</th>
                     <td><?= Html::encode($model->fecha_creacion) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Planta') ?>:</th>
+                    <td colspan="2"><?= Html::encode($model->plantaempresa->nombre_planta) ?></td>
+                </tr>
+                 </tr>
+                  <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tipo_proceso') ?>:</th>
+                    <td><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Proceso_Activo') ?>:</th>
+                    <td><?= Html::encode($model->verreproceso) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Observaciones') ?>:</th>
-                    <td colspan="2"><?= Html::encode($model->observacion) ?></td>
+                    <td colspan="3"><?= Html::encode($model->observacion) ?></td>
+                  
                 </tr>
                 
             </table>

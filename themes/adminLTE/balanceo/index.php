@@ -105,7 +105,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Unidades">Uni.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Proceso de confeccion">Proceso</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Cerrado o abierto el modulo">C/A</span></th>
-                <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th score="col" style='background-color:#B9D5CE;'></th>                              
@@ -132,7 +132,7 @@ $form = ActiveForm::begin([
                       <td style='background-color:#F1E4F4;'><?= $val->procesoconfeccion->descripcion_proceso ?></td> 
                 <?php } ?>      
                 <td><?= $val->estadomodulo ?></td>
-                <td><?= $val->observacion ?></td>
+                <td><?= $val->plantaempresa->nombre_planta ?></td>
                  <?php 
                     if($val->estado_modulo == 0){?>
                         <td style= 'width: 25px; height: 25px;'>

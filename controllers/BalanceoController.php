@@ -471,6 +471,7 @@ class BalanceoController extends Controller
                     $table->fecha_inicio = $model->fecha_inicio;
                     $table->cantidad_empleados = $model->cantidad_empleados;
                     $table->modulo = $model->modulo;
+                    $table->id_planta = $model->id_planta  ;
                     $table->total_minutos = $orden->sam_operativo;
                     $table->tiempo_balanceo = $orden->sam_balanceo;
                     $table->total_segundos = $orden->segundosficha;
@@ -541,6 +542,7 @@ class BalanceoController extends Controller
                         $table->total_minutos = ''.number_format($table->total_segundos /60,2);
                         $table->tiempo_operario = ''.number_format($balanceo->tiempo_balanceo / $table->cantidad_empleados ,3);
                         $table->id_proceso_confeccion = $model->id_proceso_confeccion;
+                        $table->id_planta = $model->id_planta;
                         $table->save(false);
                         $this->actionActualizarfechaterminacion($idordenproduccion);
                         return $this->redirect(["balanceo/index"]);  
@@ -555,6 +557,7 @@ class BalanceoController extends Controller
                $model->cantidad_empleados = $table->cantidad_empleados;
                $model->modulo = $table->modulo;
                $model->id_proceso_confeccion = $table->id_proceso_confeccion;
+               $model->id_planta = $table->id_planta;
                $model->observacion = $table->observacion;
            }else{
                 return $this->redirect(['index']);

@@ -75,7 +75,6 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
             'id_proceso_confeccion' => 'Tipo proceso',
             'debitar_salario_dia' => 'Debitar dia:',
             
-            
         ];
     }
 

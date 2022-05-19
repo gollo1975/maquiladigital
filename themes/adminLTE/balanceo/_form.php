@@ -16,6 +16,7 @@ use kartik\depdrop\DepDrop;
 /* @var $model app\models\Ordenproduccion */
 /* @var $form yii\widgets\ActiveForm */
 $proceso_confeccion = ArrayHelper::map(\app\models\ProcesoConfeccionPrenda::find()->orderBy('id_proceso_confeccion ASC')->all(),'id_proceso_confeccion','descripcion_proceso');
+$plantas = ArrayHelper::map(\app\models\PlantaEmpresa::find()->orderBy('id_planta ASC')->all(),'id_planta','nombre_planta');
 ?>
 <?php
 $form = ActiveForm::begin([
@@ -51,12 +52,20 @@ $form = ActiveForm::begin([
         <div class="row">
             <?= $form->field($model, 'cantidad_empleados')->textInput(['maxlength' => true]) ?>
         </div>
-        <div class="row"
+        <div class="row">
            <?= $form->field($model, 'modulo')->dropDownList(['1'=> 1, '2'=> 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8, '9' => 9, '10' => 10], ['prompt' => 'Seleccione una opcion...']) ?>
          </div>  
         <div class="row">
             <?= $form->field($model, 'id_proceso_confeccion')->widget(Select2::classname(), [
              'data' => $proceso_confeccion,
+             'options' => ['placeholder' => 'Seleccione.... '],
+             'pluginOptions' => [
+             'allowClear' => true ]]);
+            ?>
+        </div>
+        <div class="row">
+            <?= $form->field($model, 'id_planta')->widget(Select2::classname(), [
+             'data' => $plantas,
              'options' => ['placeholder' => 'Seleccione.... '],
              'pluginOptions' => [
              'allowClear' => true ]]);

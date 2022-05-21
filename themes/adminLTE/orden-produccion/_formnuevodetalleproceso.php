@@ -101,7 +101,7 @@ $maquinas = ArrayHelper::map(TiposMaquinas::find()->where(['=','estado', 1])->al
                             <th scope="col">Id</th>
                             <th scope="col">Proceso</th>
                             <th scope="col">Estandar</th>
-                            <th scope="col">Duración</th>
+                            <th scope="col">Segundos</th>
                             <th scope="col">Ponderación</th>
                              <th scope="col">Maquina</th>
                             <th scope="col"></th>

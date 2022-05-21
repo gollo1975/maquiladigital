@@ -109,7 +109,7 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                         <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Progreso</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Confección</th>
-                                        <th></th>
+                                        <th scope="col" style='background-color:#B9D5CE;'></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -188,7 +188,7 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                             $valor_total += $valor->total_pagar;   
                                         endforeach;  
                                         $utilidad = $val->totalorden - $valor_total;
-                                        if($val->tipo->idtipo == 1){
+                                        if($val->tipo->idtipo == 1 or $val->tipo->idtipo == 4){
                                             $buscar1 = $utilidad;
                                             $costo1 = $valor_total;
                                         }

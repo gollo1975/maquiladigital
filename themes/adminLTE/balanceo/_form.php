@@ -7,6 +7,7 @@ use yii\helpers\Url;
 use app\models\Cliente;
 use yii\helpers\ArrayHelper;
 use kartik\date\DatePicker;
+use kartik\time\TimePicker;
 use kartik\select2\Select2;
 use yii\bootstrap\Modal;
 use yii\data\Pagination;
@@ -70,6 +71,9 @@ $form = ActiveForm::begin([
              'pluginOptions' => [
              'allowClear' => true ]]);
             ?>
+        </div>
+        <div class="row">
+            <?= $form->field($model, 'hora_inicio')->widget(TimePicker::classname(), []); ?>
         </div>
         <div class="row">
             <?= $form->field($model, 'observacion')->textArea(['maxlength' => true]) ?>

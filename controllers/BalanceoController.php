@@ -478,6 +478,7 @@ class BalanceoController extends Controller
                     $table->tiempo_operario = ''.number_format($table->tiempo_balanceo /$table->cantidad_empleados,2); 
                     $table->observacion = $model->observacion;
                     $table->id_proceso_confeccion = $model->id_proceso_confeccion;
+                    $table->hora_inicio = $model->hora_inicio;
                     $table->porcentaje = 100;
                     $table->usuariosistema = Yii::$app->user->identity->username;
                     $table->save(false);
@@ -543,6 +544,7 @@ class BalanceoController extends Controller
                         $table->tiempo_operario = ''.number_format($balanceo->tiempo_balanceo / $table->cantidad_empleados ,3);
                         $table->id_proceso_confeccion = $model->id_proceso_confeccion;
                         $table->id_planta = $model->id_planta;
+                        $table->hora_inicio = $model->hora_inicio;
                         $table->save(false);
                         $this->actionActualizarfechaterminacion($idordenproduccion);
                         return $this->redirect(["balanceo/index"]);  
@@ -558,6 +560,7 @@ class BalanceoController extends Controller
                $model->modulo = $table->modulo;
                $model->id_proceso_confeccion = $table->id_proceso_confeccion;
                $model->id_planta = $table->id_planta;
+                $model->hora_inicio = $table->hora_inicio;
                $model->observacion = $table->observacion;
            }else{
                 return $this->redirect(['index']);

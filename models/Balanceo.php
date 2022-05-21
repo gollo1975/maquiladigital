@@ -41,7 +41,7 @@ class Balanceo extends \yii\db\ActiveRecord
         return [
             [['fecha_inicio','id_proceso_confeccion','id_planta'], 'required'],
             [['idordenproduccion', 'cantidad_empleados','idcliente','modulo','id_proceso_confeccion','id_planta'], 'integer'],
-            [['fecha_inicio'], 'safe'],
+            [['fecha_inicio','hora_inicio'], 'safe'],
             [['total_minutos','total_segundos','tiempo_operario','porcentaje','tiempo_balanceo'],'number'],
             [['observacion'],'string', 'max' => 150],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
@@ -69,6 +69,7 @@ class Balanceo extends \yii\db\ActiveRecord
             'tiempo_balanceo' => 'Sam balanceo:',
             'id_proceso_confeccion' => 'Proceso confeccion:',
             'id_planta' => 'Planta:',
+            'hora_inicio' => 'Hora inicio:',
         ];
     }
 

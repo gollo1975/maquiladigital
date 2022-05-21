@@ -68,7 +68,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                 </tr>
                 <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_inicio') ?>:</th>
-                    <td><?= Html::encode($model->fecha_inicio) ?></td>
+                    <td><?= Html::encode($model->fecha_inicio .  '     ('. $model->hora_inicio.')') ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_terminación') ?>:</th>
                     <td><?= Html::encode($model->fecha_terminacion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
@@ -213,9 +213,9 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                    ?>
                                 </tbody>  
                                 <?php if($model->id_proceso_confeccion == 1){?>
-                                      <td colspan="2"></td><td style="font-size: 85%;background: #3B6495; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #4B6C67; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->total_minutos ?></td><td style="font-size: 85%;background: #4B6C67; color: #FFFFFF; width: 149px;"><b>Sam_balanceo:</b> <?= $sam_balanceo ?></td><td colspan="3"></td>
+                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->total_minutos ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_balanceo:</b> <?= $sam_balanceo ?></td><td colspan="3"></td>
                                 <?php }else{ ?>
-                                      <td colspan="2"></td><td style="font-size: 85%;background: #3B6495; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #4B6C67; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->total_minutos ?></td><td style="font-size: 85%;background: #4B6C67; color: #FFFFFF; width: 149px;"><b>Sam_preparación:</b> <?= $sam_balanceo ?></td><td colspan="3"></td>
+                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->total_minutos ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_preparación:</b> <?= $sam_balanceo ?></td><td colspan="3"></td>
                                 <?php } ?>      
                             </table>
                         </div>   
@@ -267,7 +267,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                             <td><?= $val->segundos ?></td>
                                              <td><?= $val->total_minutos ?></td>
                                              <?php if($val->sobrante_faltante >= 0){?>
-                                                 <td style="background: #088A85;"><?= $val->sobrante_faltante ?></td>
+                                                 <td style="background: #0B5345; color: #FFFFFF;"><?= $val->sobrante_faltante ?></td>
                                              <?php }else{ ?>
                                                  <td style="background: #F5BCA9;"><?= $val->sobrante_faltante ?></td>
                                              <?php }?>     
@@ -303,7 +303,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                    endforeach; ?>
                                 </tbody>  
                                 <?php if(count($balanceo_detalle)> 0){?>
-                                    <td colspan="4"></td><td style="font-size: 85%;background: #3B6495; color: #FFFFFF; width: 135px;"><b>Sam_balanceo:</b> <?= $model->tiempo_balanceo?></td><td colspan="4"></td><td style="font-size: 85%;background: #4B6C67; color: #FFFFFF; width: 90px;"><b>Total:</b> <?= ''. number_format((60 / $model->tiempo_balanceo) * $model->cantidad_empleados,2) ?></td><td colspan="5"></td>
+                                    <td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 135px;"><b>Sam_balanceo:</b> <?= $model->tiempo_balanceo?></td><td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 90px;"><b>Total:</b> <?= ''. number_format((60 / $model->tiempo_balanceo) * $model->cantidad_empleados,2) ?></td><td colspan="5"></td>
                                     <?php 
                                      if($total_mi > $model->total_minutos){
                                         Yii::$app->getSession()->setFlash('warning', 'Importante: El tiempo asignado en el listado de operaciones ('. $total_mi .'), es mayor que el tiempo inicial asignado ('. $model->total_minutos .') ');

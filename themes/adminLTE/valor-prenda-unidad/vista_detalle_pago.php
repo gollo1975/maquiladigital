@@ -64,7 +64,7 @@ $this->params['breadcrumbs'][] = $model->id_pago;
                 </tr>
                 <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, "Usuario") ?>:</th>
-                    <td><?= Html::encode($model->usuario) ?></td>
+                    <td><?= Html::encode($model->usuariosistema) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cerrado') ?>:</th>
                     <td><?= Html::encode($model->fecha_corte) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Observación') ?>:</th>

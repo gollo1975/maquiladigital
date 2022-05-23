@@ -536,7 +536,7 @@ class ValorPrendaUnidadController extends Controller
                             $tabla->fecha_inicio = $model->fecha_inicio;
                             $tabla->fecha_corte = $model->fecha_corte;
                             $tabla->observacion = $model->observacion;
-                            $tabla->usuario = Yii::$app->user->identity->username;
+                            $tabla->usuariosistema = Yii::$app->user->identity->username;
                             $tabla->save(false);
                         endforeach;
                        
@@ -1235,7 +1235,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('Q1', 'USUARIO CREADOR')
                     ->setCellValue('R1', 'F. PROCESO')
                     ->setCellValue('S1', 'USUARIO EDITADO')
-                    ->setCellValue('T1', 'F. EDITADO');;
+                    ->setCellValue('T1', 'F. EDITADO');
         $i = 2;
         
         foreach ($tableexcel as $val) {

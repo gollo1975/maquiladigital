@@ -39,7 +39,7 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
             [['id_operario', 'documento', 'Total_pagar','total_dias','devengado','deduccion','autorizado'], 'integer'],
             [['id_operario', 'fecha_inicio', 'fecha_corte', 'Total_pagar'], 'required'],
             [['fecha_inicio', 'fecha_corte', 'fecha_registro'], 'safe'],
-            [['operario','observacion','usuario'], 'string', 'max' => 50],
+            [['operario','observacion','usuariosistema'], 'string', 'max' => 50],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
         ];
     }
@@ -59,7 +59,7 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
             'fecha_registro' => 'Fecha Registro',
             'Total_pagar' => 'Total Pagar',
             'observacion' => 'Observacion',
-            'usuario' => 'Usuario:',
+            'usuariosistema' => 'Usuario:',
             'total_dias' => 'Total dias;',
             'devengado' => 'devengado',
             'deduccion' => 'deduccion',

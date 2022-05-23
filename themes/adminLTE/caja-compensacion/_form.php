@@ -47,6 +47,9 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
             <?= $form->field($model, 'codigo_interfaz')->textInput(['maxlength' => true]) ?>    
         </div>
         <div class="row">
+            <?= $form->field($model, 'porcentaje_caja')->textInput(['maxlength' => true]) ?>    
+        </div>
+        <div class="row">
             <?= $form->field($model, 'idmunicipio')->dropDownList($municipio, ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
         <div class="row">

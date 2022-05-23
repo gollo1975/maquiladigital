@@ -83,7 +83,7 @@ $form = ActiveForm::begin([
                            <td><?= $val->fecha_inicio ?></td>
                            <td><?= $val->fecha_corte?></td>
                              <td><?= $val->total_dias?></td>
-                           <td><?= $val->usuario ?></td>
+                           <td><?= $val->usuariosistema ?></td>
                            <td align="right"><?= ''.number_format($val->devengado,0) ?></td>
                            <td align="right"><?= ''.number_format($val->deduccion,0) ?></td>
                            <td align="right"><?= ''.number_format($val->Total_pagar,0) ?></td>

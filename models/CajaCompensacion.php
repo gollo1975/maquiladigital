@@ -42,8 +42,9 @@ class CajaCompensacion extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['caja','idmunicipio'], 'required'],
+            [['caja','idmunicipio','porcentaje_caja'], 'required'],
             [['estado'], 'integer'],
+            [['porcentaje_caja'], 'number'],
             [['telefono'], 'string', 'max' => 15],
             [['direccion'], 'string', 'max' => 100],
             [['codigo_caja'], 'string', 'max' => 20],
@@ -66,6 +67,7 @@ class CajaCompensacion extends \yii\db\ActiveRecord
             'codigo_interfaz' => 'Cod Interfaz',
             'idmunicipio' => 'Municipio',
             'estado' => 'Estado',
+            'porcentaje_caja' => '% Caja:',
         ];
     }
 

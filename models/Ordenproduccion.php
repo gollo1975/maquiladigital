@@ -96,8 +96,8 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             'sam_balanceo' => 'Sam Balanceo:',
             'sam_preparacion' => 'Sam Preparacion:',
             'sam_operativo' => 'Sam Operativo:',
-            'exportacion' => 'Exportación',
-            'porcentaje_exportacion' => '% Exportacion:',
+            'exportacion' => 'Export/Ppk:',
+            'porcentaje_exportacion' => '% Export/Ppk:',
           
         ];
     }

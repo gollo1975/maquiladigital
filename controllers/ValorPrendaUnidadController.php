@@ -245,7 +245,14 @@ class ValorPrendaUnidadController extends Controller
                                 $table->vlr_prenda = $vlr_unidad;
                                 if($valor_unidad->debitar_salario_dia == 1){ 
                                     $salario = round($operario->salario_base /30);
+                                    $total_dia = ValorPrendaUnidadDetalles::find()->where(['=','id_operario',  $table->id_operario])
+                                                                                 ->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                                  ->andWhere(['=','dia_pago', $_POST["dia_pago"][$intIndice]])->all();
+                                    if(count($total_dia)>0){
+                                        $this->CalculoValorPagar($total_dia, $table, $valor_unidad, $salario);
+                                    }else{
                                     $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
+                                    }
                                 }else{
                                     $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
                                 }    
@@ -253,7 +260,35 @@ class ValorPrendaUnidadController extends Controller
                                 $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
                                 if($valor_unidad->debitar_salario_dia == 1){ 
                                     $salario = round($operario->salario_base /30);
-                                    $table->vlr_pago = ($_POST["vlr_prenda"][$intIndice] * $table->cantidad) - $salario; 
+                                    $total_dia = ValorPrendaUnidadDetalles::find()->where(['=','id_operario',  $table->id_operario])
+                                                                                 ->andWhere(['=','dia_pago', $_POST["dia_pago"][$intIndice]])->all();
+                                    if(count($total_dia) == 1){
+                                        $total_valor = 0; $suma = 0;
+                                        foreach ($total_dia as $total):
+                                            $cantidad = $total->cantidad * $total->vlr_prenda; 
+                                            $total_valor += $cantidad;
+                                        endforeach;
+                                        $suma = $total_valor; 
+                                        if ($salario > $suma ){
+                                           $table->vlr_pago = ($salario - $suma);
+                                        }else{
+                                           $table->vlr_pago = ($suma - $salario);
+                                        }
+                                    }    
+                                    if(count($total_dia) == 2){
+                                        $total_valor = 0; $suma = 0;
+                                        foreach ($total_dia as $total):
+                                            $cantidad = $total->cantidad * $total->vlr_prenda; 
+                                            $total_valor += $cantidad;
+                                        endforeach;
+                                        $suma = $total_valor; 
+                                        if ($salario > $suma ){
+                                           $table->vlr_pago = ($salario - $suma);
+                                        }else{
+                                           $table->vlr_pago = ($suma - $salario);
+                                        }
+                                    }
+                                    
                                 }else{
                                     $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
                                 }    
@@ -292,13 +327,30 @@ class ValorPrendaUnidadController extends Controller
             }
             $this->Totalpagar($id);
             $this->TotalCantidades($id);
-            return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+         return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
         }
-        return $this->render('view', [
+       return $this->render('view', [
             'model' => $this->findModel($id),
             'idordenproduccion' => $idordenproduccion,
             'detalles_pago' => $detalles_pago,
         ]);
+    }
+    
+    //CALCULA LOS VALORES A PAGAR
+    protected function CalculoValorPagar($total_dia, $table, $valor_unidad, $salario) {
+        $total_valor = 0; $suma = 0;
+        foreach ($total_dia as $total):
+            $cantidad = 0;
+            $cantidad = $total->cantidad * $total->vlr_prenda; 
+            $total_valor += $cantidad;
+        endforeach;
+        $suma = ($total_valor + ($table->cantidad * $valor_unidad->vlr_vinculado)); 
+        if ($suma > $salario ){
+            $table->vlr_pago = ($suma - $salario);
+        }else{
+           $table->vlr_pago = ($salario - $suma);
+        }
+        
     }
     /**
      * Creates a new ValorPrendaUnidad model.

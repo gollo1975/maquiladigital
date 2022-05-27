@@ -993,7 +993,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('E' . $i, $val->fecha_corte)
                     ->setCellValue('F' . $i, $val->fecha_registro)
                     ->setCellValue('G' . $i, $val->total_dias)
-                    ->setCellValue('H' . $i, $val->usuario)
+                    ->setCellValue('H' . $i, $val->usuariosistema)
                     ->setCellValue('I' . $i, $val->autorizado)
                     ->setCellValue('J' . $i, $val->devengado)
                     ->setCellValue('K' . $i, $val->deduccion)

@@ -141,10 +141,10 @@
                                             'icon' => 'database',
                                             'url' => '#',
                                             'items' => [
-                                                ['label' => 'Prenda', 'icon' => 'plus-square-o', 'url' => ['prendatipo/index']],
                                                 ['label' => 'Talla', 'icon' => 'plus-square-o', 'url' => ['talla/index']],
-                                                ['label' => 'Operación Producción', 'icon' => 'plus-square-o', 'url' => ['proceso-produccion/index']],
-                                                ['label' => 'Tipo Orden Producción', 'icon' => 'plus-square-o', 'url' => ['/ordenproducciontipo/index']],
+                                                ['label' => 'Prenda', 'icon' => 'plus-square-o', 'url' => ['prendatipo/index']],
+                                                ['label' => 'Operación prenda', 'icon' => 'plus-square-o', 'url' => ['proceso-produccion/index']],
+                                                ['label' => 'Tipos Orden', 'icon' => 'plus-square-o', 'url' => ['/ordenproducciontipo/index']],
                                                 ['label' => 'Productos', 'icon' => 'plus-square-o', 'url' => ['/producto/index']],
                                                 ['label' => 'Calificación Ficha', 'icon' => 'plus-square-o', 'url' => ['/fichatiempocalificacion/index']],
                                                 ['label' => 'Colores', 'icon' => 'plus-square-o', 'url' => ['/color/index']],

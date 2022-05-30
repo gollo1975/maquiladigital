@@ -7,7 +7,7 @@ use yii\grid\GridView;
 /* @var $searchModel app\models\FichatiempocalificacionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Lista Fichas de Tiempos Calificaciones';
+$this->title = 'Tiempos producción';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="fichatiempocalificacion-index">

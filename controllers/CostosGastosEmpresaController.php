@@ -221,6 +221,7 @@ class CostosGastosEmpresaController extends Controller
     public function actionGenerarcostonomina($id, $fecha_inicio, $fecha_corte) {
        
         $costos = CostosGastosEmpresa::findOne($id);
+        $salario = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
         $gasto_nomina = \app\models\CostosGastosEmpresaNomina::find()->where(['=','id_costo_gasto', $id])->one();
         $nomina = \app\models\ProgramacionNomina::find()->where(['=','estado_cerrado', 1])->andWhere(['>=','fecha_desde', $fecha_inicio])
                                                        ->andWhere(['<=','fecha_hasta', $fecha_corte])->all();  
@@ -234,9 +235,9 @@ class CostosGastosEmpresaController extends Controller
                $conPrestacional += $valorNomina->ibc_prestacional; $conAjuste = 0;
            endforeach;
            //calculos
-           $conCesantia = round($conPrestacional * $configuracionEmpresa->porcentaje_cesantias)/100;
+           $conCesantia = round(($conPrestacional + $salario->auxilio_transporte_actual) * $configuracionEmpresa->porcentaje_cesantias)/100;
            $conInteres = round($conCesantia * $configuracionEmpresa->porcentaje_intereses)/100;
-           $conPrima = round($conPrestacional * $configuracionEmpresa->porcentaje_prima)/100;
+           $conPrima = round(($conPrestacional + $salario->auxilio_transporte_actual) * $configuracionEmpresa->porcentaje_prima)/100;
            $conVacacion = round($conPrestacional * $configuracionEmpresa->porcentaje_vacacion)/100;
            $conAjuste = round($conVacacion * $configuracionEmpresa->ajuste_caja)/100;
            if($gasto_nomina){

@@ -59,14 +59,12 @@ class PlantaEmpresaSearch extends PlantaEmpresa
         // grid filtering conditions
         $query->andFilterWhere([
             'id_planta' => $this->id_planta,
-            'telefono_planta' => $this->telefono_planta,
-            'celular_planta' => $this->celular_planta,
-            'fecha_registro' => $this->fecha_registro,
+           
         ]);
 
         $query->andFilterWhere(['like', 'nombre_planta', $this->nombre_planta])
             ->andFilterWhere(['like', 'direccion_planta', $this->direccion_planta])
-            ->andFilterWhere(['like', 'usuariosistema', $this->usuariosistema]);
+            ->andFilterWhere(['like', 'telefono_planta', $this->telefono_planta]);
 
         return $dataProvider;
     }

@@ -25,6 +25,17 @@ class PlantaEmpresa extends \yii\db\ActiveRecord
         return 'planta_empresa';
     }
 
+    public function beforeSave($insert) {
+	if(!parent::beforeSave($insert)){
+            return false;
+        }
+	# ToDo: Cambiar a empleado cargada de configuración.    
+	$this->nombre_planta = strtoupper($this->nombre_planta);
+	$this->direccion_planta = strtoupper($this->direccion_planta);
+        $this->direccion_planta = strtoupper($this->direccion_planta);
+        
+        return true;
+    }
     /**
      * {@inheritdoc}
      */
@@ -45,11 +56,11 @@ class PlantaEmpresa extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id_planta' => 'Id Planta',
-            'nombre_planta' => 'Nombre Planta',
-            'direccion_planta' => 'Direccion Planta',
-            'telefono_planta' => 'Telefono Planta',
-            'celular_planta' => 'Celular Planta',
+            'id_planta' => 'Id',
+            'nombre_planta' => 'Descripcion',
+            'direccion_planta' => 'Direccion',
+            'telefono_planta' => 'Telefono',
+            'celular_planta' => 'Celular',
             'usuariosistema' => 'Usuariosistema',
             'fecha_registro' => 'Fecha Registro',
         ];

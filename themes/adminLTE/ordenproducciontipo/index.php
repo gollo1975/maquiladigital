@@ -8,7 +8,7 @@ use yii\helpers\ArrayHelper;
 /* @var $searchModel app\models\OrdenproducciontipoSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Ordenes producción tipos';
+$this->title = 'Tipos de ordenes';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="ordenproducciontipo-index">

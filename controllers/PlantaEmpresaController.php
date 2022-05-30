@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\PlantaEmpresa;
 use app\models\PlantaEmpresaSearch;
+use app\models\UsuarioDetalle;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -35,13 +36,21 @@ class PlantaEmpresaController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new PlantaEmpresaSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',118])->all()){
+                $searchModel = new PlantaEmpresaSearch();
+                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+                return $this->render('index', [
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dataProvider,
+                ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
+        }else{
+            return $this->redirect(['site/login']);
+        }        
     }
 
     /**
@@ -67,7 +76,7 @@ class PlantaEmpresaController extends Controller
         $model = new PlantaEmpresa();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_planta]);
+            return $this->redirect(['index', 'id' => $model->id_planta]);
         }
 
         return $this->render('create', [
@@ -87,7 +96,7 @@ class PlantaEmpresaController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_planta]);
+            return $this->redirect(['index', 'id' => $model->id_planta]);
         }
 
         return $this->render('update', [
@@ -103,10 +112,18 @@ class PlantaEmpresaController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+    {                        
+        try {
+            $this->findModel($id)->delete();
+            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+            $this->redirect(["planta-empresa/index"]);
+        } catch (IntegrityException $e) {
+            $this->redirect(["planta-empresa/index"]);
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar al eliminar la bodega, tiene registros asociados en otros procesos');
+        } catch (\Exception $e) {            
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar al eliminar la bodega, tiene registros asociados en otros procesos');
+            $this->redirect(["planta-empresa/index"]);
+        }
     }
 
     /**

@@ -1548,17 +1548,18 @@ class ProgramacionNominaController extends Controller {
                     }
                 } else {
 
-                    $total_dias = strtotime($val->fecha_hasta) - strtotime($val->fecha_inicio_contrato);
-                    $total_dias = round($total_dias / 86400)  - $total_dias_vacacion;
-                    if($val->dias_pago == $total_dias){
+                   $total_dias = strtotime($val->fecha_hasta) - strtotime($val->fecha_inicio_contrato);
+                   $total_dias = round($total_dias / 86400) + 1  - $total_dias_vacacion;
+                  //codigo para febrero
+                 /*  if($val->dias_pago == $total_dias){
                           $total_dias = $total_dias; 
+                    }else{
+                        if($total_dias == 13){
+                          $total_dias = $total_dias + 2;
                         }else{
-                            if($total_dias == 13){
-                              $total_dias = $total_dias + 2;
-                            }else{
-                               $total_dias = $total_dias + 1;
-                            }                        
-                    }
+                           $total_dias = $total_dias + 1;
+                        }                        
+                    }*/
                     $table->dias = $total_dias;
                     $table->dias_reales = $total_dias;
                     $table->dias_salario = $total_dias;
@@ -1567,14 +1568,15 @@ class ProgramacionNominaController extends Controller {
                     $table->vlr_devengado = round($table->vlr_hora * $table->horas_periodo);
                     $table->fecha_desde = $val->fecha_inicio_contrato;
                     $table->fecha_hasta = $val->fecha_hasta;
-                    if ($sw == 1) {
+                    $sw = 0;
+                    if($sw == 1) {
                         $table->vlr_ibc_medio_tiempo = round($Vlr_dia_medio_tiempo * $total_dias);
                     }
                 }
             }
-            $table->insert(false);
+           $table->insert(false);
             $val->dia_real_pagado = $table->dias_reales;
-            $val->save(false);
+           $val->save(false);
             return ($total_dias);
         }
     }

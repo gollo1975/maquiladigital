@@ -122,8 +122,8 @@ $form = ActiveForm::begin([
                 <td><?= $val->fecha_inicio ?></td>
                 <td><?= $val->fecha_terminacion ?></td>
                 <td><?= $val->cliente->nombrecorto ?></td>
-                <td><?= $val->total_segundos ?></td>
-                <td><?= $val->total_minutos ?></td>
+                <td><?= $val->ordenproduccion->sam_balanceo * 60,2 ?></td>
+                <td><?= $val->ordenproduccion->sam_balanceo ?></td>
                 <td><?= $val->tiempo_operario ?></td>
                 <td><?= $val->ordenproduccion->cantidad ?></td>
                 <?php if($val->id_proceso_confeccion == 1){?>

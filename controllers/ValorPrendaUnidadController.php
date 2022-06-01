@@ -212,10 +212,10 @@ class ValorPrendaUnidadController extends Controller
     
     public function actionCerrarAbrirRegistro($codigo) {
         $detalle = ValorPrendaUnidadDetalles::findOne($codigo);
-        if($detalle->registro_pagado == 0){
-          $detalle->registro_pagado = 1;
+        if($detalle->exportado == 0){
+          $detalle->exportado = 1;
         }else{
-            $detalle->registro_pagado = 0;
+            $detalle->exportado = 0;
         }  
         $detalle->save(false);
     }
@@ -237,73 +237,39 @@ class ValorPrendaUnidadController extends Controller
                 $vlr_unidad = 0;
                 if($operario){
                     
-                        $conMatricula = \app\models\Matriculaempresa::findOne(1);
-                        $conHorario = \app\models\Horario::findOne(1);
-                        if($operario->vinculado == 1){
-                            $vlr_unidad = $valor_unidad->vlr_vinculado;
-                            if($_POST["vlr_prenda"][$intIndice] == ''){
-                                $table->vlr_prenda = $vlr_unidad;
-                                if($valor_unidad->debitar_salario_dia == 1){ 
-                                    $salario = round($operario->salario_base /30);
-                                    $total_dia = ValorPrendaUnidadDetalles::find()->where(['=','id_operario',  $table->id_operario])
-                                                                                 ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                                  ->andWhere(['=','dia_pago', $_POST["dia_pago"][$intIndice]])->all();
-                                    if(count($total_dia)>0){
-                                        $this->CalculoValorPagar($total_dia, $table, $valor_unidad, $salario);
-                                    }else{
-                                    $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
-                                    }
-                                }else{
-                                    $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
-                                }    
+                    $conMatricula = \app\models\Matriculaempresa::findOne(1);
+                    $conHorario = \app\models\Horario::findOne(1);
+                    if($operario->vinculado == 1){
+                        $vlr_unidad = $valor_unidad->vlr_vinculado;
+                        if($_POST["vlr_prenda"][$intIndice] == ''){
+                            $table->vlr_prenda = $vlr_unidad;
+                            if($valor_unidad->debitar_salario_dia == 1){ 
+                                $salario = round($operario->salario_base /30);
+                                $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
                             }else{
-                                $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
-                                if($valor_unidad->debitar_salario_dia == 1){ 
-                                    $salario = round($operario->salario_base /30);
-                                    $total_dia = ValorPrendaUnidadDetalles::find()->where(['=','id_operario',  $table->id_operario])
-                                                                                 ->andWhere(['=','dia_pago', $_POST["dia_pago"][$intIndice]])->all();
-                                    if(count($total_dia) == 1){
-                                        $total_valor = 0; $suma = 0;
-                                        foreach ($total_dia as $total):
-                                            $cantidad = $total->cantidad * $total->vlr_prenda; 
-                                            $total_valor += $cantidad;
-                                        endforeach;
-                                        $suma = $total_valor; 
-                                        if ($salario > $suma ){
-                                           $table->vlr_pago = ($salario - $suma);
-                                        }else{
-                                           $table->vlr_pago = ($suma - $salario);
-                                        }
-                                    }    
-                                    if(count($total_dia) == 2){
-                                        $total_valor = 0; $suma = 0;
-                                        foreach ($total_dia as $total):
-                                            $cantidad = $total->cantidad * $total->vlr_prenda; 
-                                            $total_valor += $cantidad;
-                                        endforeach;
-                                        $suma = $total_valor; 
-                                        if ($salario > $suma ){
-                                           $table->vlr_pago = ($salario - $suma);
-                                        }else{
-                                           $table->vlr_pago = ($suma - $salario);
-                                        }
-                                    }
-                                    
-                                }else{
-                                    $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
-                                }    
-                            }
-                           //calculo para hallar el % de cumplimiento
-                           $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
-                           $total_diario = round((60/$can_minutos)* $conHorario->total_horas,0);
-                           $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
-                           //fin proceso
-                           $table->usuariosistema = Yii::$app->user->identity->username;
-                           $table->observacion = 'Vinculado';
-                           $table->porcentaje_cumplimiento = $cumplimiento;
-                           $table->save(false);
-                           $intIndice++;
+                                $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
+                            }    
                         }else{
+                            $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
+                            if($valor_unidad->debitar_salario_dia == 1){ 
+                                $salario = round($operario->salario_base /30);
+                                $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
+                            }else{
+                                $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
+                            }    
+                        }
+                       //calculo para hallar el % de cumplimiento
+                        echo $conHorario->total_horas;
+                       $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
+                       $total_diario = round((60/$can_minutos)* $conHorario->total_horas,0);
+                       $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
+                       //fin proceso
+                       $table->usuariosistema = Yii::$app->user->identity->username;
+                       $table->observacion = 'Vinculado';
+                       $table->porcentaje_cumplimiento = $cumplimiento;
+                       $table->save(false);
+                       $intIndice++;
+                    }else{
                            $vlr_unidad = $valor_unidad->vlr_contrato; 
                            if($_POST["vlr_prenda"][$intIndice] == ''){
                                 $table->vlr_prenda = $vlr_unidad;
@@ -322,12 +288,12 @@ class ValorPrendaUnidadController extends Controller
                            $table->porcentaje_cumplimiento = $cumplimiento;
                            $table->save(false);
                            $intIndice++;
-                        }  
+                    }  
                 }
             }
             $this->Totalpagar($id);
             $this->TotalCantidades($id);
-         return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+        return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
         }
        return $this->render('view', [
             'model' => $this->findModel($id),
@@ -336,22 +302,6 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
-    //CALCULA LOS VALORES A PAGAR
-    protected function CalculoValorPagar($total_dia, $table, $valor_unidad, $salario) {
-        $total_valor = 0; $suma = 0;
-        foreach ($total_dia as $total):
-            $cantidad = 0;
-            $cantidad = $total->cantidad * $total->vlr_prenda; 
-            $total_valor += $cantidad;
-        endforeach;
-        $suma = ($total_valor + ($table->cantidad * $valor_unidad->vlr_vinculado)); 
-        if ($suma > $salario ){
-            $table->vlr_pago = ($suma - $salario);
-        }else{
-           $table->vlr_pago = ($salario - $suma);
-        }
-        
-    }
     /**
      * Creates a new ValorPrendaUnidad model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -697,17 +647,35 @@ class ValorPrendaUnidadController extends Controller
         foreach ($pago as $autorizar):
             $autorizar->autorizado = 1;
             $autorizar->save(false);
+            //codigo que actualiza el estado de exportado
             $detalle = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $fecha_inicio])->andWhere(['<=','dia_pago', $fecha_corte])
                                                     ->andWhere(['=','id_operario', $autorizar->id_operario])->all();
             if(count($detalle)> 0){
                 foreach ($detalle as $valor):
                     $valor->exportado = 1;
-                    $valor->save(false);
+                   $valor->save(false);
                 endforeach;
             }
+            // codigo que busca si tiene credito
+            $detallePago = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $autorizar->id_pago])->all();  
+            foreach ($detallePago as $detalle):
+                  $credito = \app\models\CreditoOperarios::find()->where(['=','id_credito', $detalle->id_credito])->one();
+                  if ($credito){
+                      $table_abono = new \app\models\AbonoCreditoOperarios();
+                      $table_abono->id_credito = $credito->id_credito;
+                      $table_abono->vlr_abono = $detalle->deduccion;
+                      $table_abono->saldo = $credito->saldo_credito - $table_abono->vlr_abono;
+                      $table_abono->cuota_pendiente = ($credito->numero_cuotas - $credito->numero_cuota_actual) - 1;
+                      $table_abono->observacion = $autorizar->observacion;
+                      $table_abono->usuariosistema = Yii::$app->user->identity->username;
+                      $table_abono->save(false);
+                     $credito->numero_cuota_actual = $credito->numero_cuota_actual + 1;
+                     $credito->saldo_credito = $credito->saldo_credito - $table_abono->vlr_abono;
+                     $credito->save(false);
+                  }
+            endforeach;
         endforeach;
-       
-          $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
+       $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
     }
     
     

@@ -152,7 +152,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         </table>    
         <div class="panel-footer text-right" >            
                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
-                <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Cerrar-Abrir",['name' => 'cerrar_abrir', 'class' => 'btn btn-success btn-sm']);?>          
+                <?= Html::submitButton("<span class='glyphicon glyphicon-folder-close'></span> Exportado",['name' => 'cerrar_abrir', 'class' => 'btn btn-success btn-sm']);?>          
             <?php $form->end() ?>
         </div>
     </div>

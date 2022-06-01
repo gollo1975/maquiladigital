@@ -142,7 +142,7 @@ $form = ActiveForm::begin([
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col" style='background-color:#B9D5CE; width: 300px;'>Operario</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Operario</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;width: 75px;'>OP</th> 
                                          <th scope="col" style='background-color:#B9D5CE;width: 150px;'>Operación</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Dia</th>

@@ -420,7 +420,7 @@ class ValorPrendaUnidadController extends Controller
                         $prenda->operacion = 2;
                         $prenda->vlr_prenda = $valor;
                         $prenda->observacion = $vinculado;
-                        echo $prenda->save(false);
+                        $prenda->save(false);
                         $intIndice ++;
                     endforeach;
                     return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);

@@ -656,7 +656,7 @@ class ValorPrendaUnidadController extends Controller
                    $valor->save(false);
                 endforeach;
             }
-            // codigo que busca si tiene credito
+            // codigo que busca si tiene credito todos
             $detallePago = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $autorizar->id_pago])->all();  
             foreach ($detallePago as $detalle):
                   $credito = \app\models\CreditoOperarios::find()->where(['=','id_credito', $detalle->id_credito])->one();

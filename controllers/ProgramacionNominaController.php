@@ -944,7 +944,7 @@ class ProgramacionNominaController extends Controller {
               
             }
         }    
-       $this->redirect(["programacion-nomina/view", 'id' => $id,
+     $this->redirect(["programacion-nomina/view", 'id' => $id,
             'id_grupo_pago' => $id_grupo_pago,
             'fecha_desde' => $fecha_desde,
             'fecha_hasta' => $fecha_hasta,
@@ -1431,7 +1431,7 @@ class ProgramacionNominaController extends Controller {
                 $detalle->id_periodo_pago_nomina = $val->id_periodo_pago_nomina;
                 $detalle->codigo_salario = $_transporte;
                 $vlr_dia_auxilio = $auxilio / 30;
-               $detalle->dias_transporte = $total_dias;
+                $detalle->dias_transporte = $total_dias;
                 $detalle->auxilio_transporte = round($total_dias * $vlr_dia_auxilio);
                 $detalle->fecha_desde = $fecha_hasta;
                 $detalle->fecha_hasta = $fecha_desde;
@@ -1439,7 +1439,7 @@ class ProgramacionNominaController extends Controller {
                 $detalle->vlr_dia = $vlr_dia_auxilio;
                 $detalle->id_grupo_pago = $id_grupo_pago;
             }
-           $detalle->save(false);
+        $detalle->save(false);
             
         }
     }
@@ -1478,16 +1478,8 @@ class ProgramacionNominaController extends Controller {
             $fecha_hasta = strtotime($val->fecha_hasta);
             if ($fecha_inicio_contrato < $fecha_desde) {
                 if ($val->fecha_final_contrato != '') {
+                    $total_dias = 0;
                     $total_dias = round((strtotime($val->fecha_final_contrato) - strtotime($val->fecha_desde)) / 86400) + 1 - $total_dias_vacacion;
-                    if($val->dias_pago == $total_dias){
-                          $total_dias = $total_dias; 
-                        }else{
-                            if($total_dias == 13){
-                              $total_dias = $total_dias + 2;
-                            }else{
-                               $total_dias = $total_dias + 1;
-                            }                        
-                    }
                     $table->dias = $total_dias;
                     $table->dias_reales = $total_dias;
                     $table->dias_salario = $total_dias;
@@ -1500,15 +1492,20 @@ class ProgramacionNominaController extends Controller {
                         $table->vlr_ibc_medio_tiempo = round($Vlr_dia_medio_tiempo * $total_dias);
                     }
                 } else {
-                       $total_dias = round((strtotime($val->fecha_hasta) - strtotime($val->fecha_desde)) / 86400) + 1 - $total_dias_vacacion;
-                       if($val->dias_pago == $total_dias){
-                          $total_dias = $total_dias; 
-                        }else{
-                            if($total_dias == 13){
-                              $total_dias = $total_dias + 2;
+                        $total_dias = round((strtotime($val->fecha_hasta) - strtotime($val->fecha_desde)) / 86400) + 1 - $total_dias_vacacion;
+                        //codigo de febrero
+                        $mesFebrero = 0;
+                        $diaFebrero = 0;
+                        $mesFebrero = substr($val->fecha_hasta, 5, 2);
+                        $diaFebrero = substr($val->fecha_hasta, 8, 8);
+                        if($mesFebrero == 02){
+                            if($diaFebrero == 28){
+                                $total_dias = $total_dias + 2;
                             }else{
-                               $total_dias = $total_dias + 1;
-                            }                        
+                                 if($diaFebrero == 29){
+                                    $total_dias = $total_dias + 1;
+                                 }
+                            }
                         }
                         $table->dias = $total_dias;
                         $table->dias_reales = $total_dias;
@@ -1526,15 +1523,6 @@ class ProgramacionNominaController extends Controller {
                 if ($val->fecha_final_contrato != '') {
                     $total_dias = strtotime($val->fecha_final_contrato) - strtotime($val->fecha_inicio_contrato);
                     $total_dias = round($total_dias / 86400) + 1 - $total_dias_vacacion;
-                    if($val->dias_pago == $total_dias){
-                          $total_dias = $total_dias; 
-                        }else{
-                            if($total_dias == 13){
-                              $total_dias = $total_dias + 2;
-                            }else{
-                               $total_dias = $total_dias + 1;
-                            }                        
-                    }
                     $table->dias = $total_dias;
                     $table->dias_reales = $total_dias;
                     $table->dias_salario = $total_dias;
@@ -1547,19 +1535,22 @@ class ProgramacionNominaController extends Controller {
                         $table->vlr_ibc_medio_tiempo = round($Vlr_dia_medio_tiempo * $total_dias);
                     }
                 } else {
-
-                   $total_dias = strtotime($val->fecha_hasta) - strtotime($val->fecha_inicio_contrato);
+                  $total_dias = strtotime($val->fecha_hasta) - strtotime($val->fecha_inicio_contrato);
                    $total_dias = round($total_dias / 86400) + 1  - $total_dias_vacacion;
-                  //codigo para febrero
-                 /*  if($val->dias_pago == $total_dias){
-                          $total_dias = $total_dias; 
-                    }else{
-                        if($total_dias == 13){
-                          $total_dias = $total_dias + 2;
+                    //codigo para febrero
+                    $mesFebrero = 0;
+                    $diaFebrero = 0;
+                    $mesFebrero = substr($val->fecha_hasta, 5, 2);
+                    $diaFebrero = substr($val->fecha_hasta, 8, 8);
+                    if($mesFebrero == 02){
+                        if($diaFebrero == 28){
+                            $total_dias = $total_dias + 2;
                         }else{
-                           $total_dias = $total_dias + 1;
-                        }                        
-                    }*/
+                             if($diaFebrero == 29){
+                                $total_dias = $total_dias + 1;
+                             }
+                        }
+                    }
                     $table->dias = $total_dias;
                     $table->dias_reales = $total_dias;
                     $table->dias_salario = $total_dias;
@@ -1574,9 +1565,9 @@ class ProgramacionNominaController extends Controller {
                     }
                 }
             }
-           $table->insert(false);
+            $table->insert(false);
             $val->dia_real_pagado = $table->dias_reales;
-           $val->save(false);
+            $val->save(false);
             return ($total_dias);
         }
     }

@@ -19,7 +19,7 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => false,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-3 form-group">{input}{error}</div>',
+            'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
             'labelOptions' => ['class' => 'col-sm-2 control-label'],
             'options' => []
             ],
@@ -60,9 +60,9 @@ $proceso_confeccion = ArrayHelper::map(\app\models\ProcesoConfeccionPrenda::find
             <?= $form->field($model, 'vlr_vinculado')->textInput(['maxlength' => true]) ?>  
         </div>
         
-        <div class="row">
+        <div class="row checkbox checkbox-success" align ="right">
             <?= $form->field($model, 'vlr_contrato')->textInput(['maxlength' => true]) ?>
-            <div class="checkbox checkbox-success" align ="right"><?= $form->field($model, 'debitar_salario_dia')->checkbox(['label' => 'Debitar dia laboral', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'debitar_salario_dia']) ?></div>
+            <?= $form->field($model, 'debitar_salario_dia')->checkbox(['label' => 'Debitar dia laboral', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'debitar_salario_dia']) ?>
         </div>
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("valor-prenda-unidad/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>

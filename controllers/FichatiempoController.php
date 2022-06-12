@@ -295,7 +295,6 @@ class FichatiempoController extends Controller
             $totalh = $sumarm / 60;
             $totalminutos = $totalh;
         }
-        
         $totalsegundos = $table->total_segundos * $totalh;
         if ($totalsegundos == 0){
             $totalsegundos = 1;

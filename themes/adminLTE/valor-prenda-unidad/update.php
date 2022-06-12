@@ -10,7 +10,7 @@ use yii\db\ActiveQuery;
 /* @var $this yii\web\View */
 /* @var $model app\models\ValorPrendaUnidad */
 
-$this->title = 'Editar Valor: ' . $model->id_valor;
+$this->title = 'Editar pago: ' . $model->id_valor;
 $this->params['breadcrumbs'][] = ['label' => 'Valor Prenda', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id_valor, 'url' => ['view', 'id' => $model->id_valor]];
 $this->params['breadcrumbs'][] = 'Editar';

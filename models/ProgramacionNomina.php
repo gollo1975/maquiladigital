@@ -57,7 +57,7 @@ class ProgramacionNomina extends \yii\db\ActiveRecord
         return [
             [['id_grupo_pago', 'id_periodo_pago_nomina', 'id_contrato', 'id_empleado', 'cedula_empleado', 'fecha_inicio_contrato', 'fecha_desde', 'total_tiempo_extra', 'total_recargo', 'fecha_hasta', 'fecha_real_corte', 'usuariosistema','id_tipo_nomina'], 'required'],
             [['id_grupo_pago', 'id_periodo_pago_nomina', 'id_contrato', 'id_empleado', 'cedula_empleado', 'nro_pago', 'dias_pago', 'estado_generado', 'estado_liquidado', 'estado_cerrado', 'salario_contrato', 'dia_real_pagado', 'salario_medio_tiempo',
-                'vlr_ibp_medio_tiempo','total_pagar', 'total_auxilio_transporte', 'salario_promedio', 'total_ibc_no_prestacional','id_tipo_nomina','dias_ausentes','dias_vacacion','horas_vacacion','ibc_vacacion','ajuste_incapacidad'], 'integer'],
+                'vlr_ibp_medio_tiempo','total_pagar', 'total_auxilio_transporte', 'salario_promedio', 'total_ibc_no_prestacional','id_tipo_nomina','dias_ausentes','dias_vacacion','horas_vacacion','ibc_vacacion','ajuste_incapacidad','importar_prima'], 'integer'],
             [['fecha_inicio_contrato', 'fecha_desde', 'fecha_hasta', 'fecha_real_corte', 'fecha_creacion', 'fecha_final_contrato', 'fecha_ultima_prima','fecha_ultima_vacacion','fecha_ultima_cesantia','fecha_inicio_vacacion','fecha_final_vacacion'], 'safe'],
             [['total_devengado', 'total_deduccion', 'ibc_prestacional', 'ibc_no_prestacional', 'total_licencia', 'total_incapacidad', 'total_tiempo_extra', 'total_recargo', 'horas_pago'], 'number'],
             [['usuariosistema'], 'string', 'max' => 30],

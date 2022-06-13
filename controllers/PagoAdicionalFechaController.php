@@ -376,7 +376,7 @@ class PagoAdicionalFechaController extends Controller
     
    //PROCESO QUE IMPORTA LOS PAGOS O BONIFICACION DESDE VALOR PRENDA UNIDAD
     
-   public function actionImportarpagoproduccion($id, $fecha_corte) {
+    public function actionImportarpagoproduccion($id, $fecha_corte) {
         $contratos = Contrato::find()->where(['=','tipo_salario', 'VARIABLE'])->orderBy('identificacion DESC')->all();
         $form = new FormBuscarIntereses();
         $documento = null;
@@ -449,8 +449,88 @@ class PagoAdicionalFechaController extends Controller
 
         ]);
    }
+  
+    //PROCESO QUE IMPORTA LAS PRIMAS SEMESTRALES
+    
+    public function actionImportarpagoprimas($id, $fecha_corte) {
+        $primas = \app\models\ProgramacionNomina::find()->where(['=','importar_prima', 0])
+                                                        ->andWhere(['=','id_tipo_nomina', 2])->orderBy('cedula_empleado')->all();
+        $form = new FormBuscarIntereses();
+        $documento = null;
+        $id_grupo_pago = null;
+        $mensaje = ''; 
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $documento = Html::encode($form->documento); 
+                $id_grupo_pago = Html::encode($form->id_grupo_pago);
+                $nominas = \app\models\ProgramacionNomina::find()
+                            ->andFilterWhere(['=','cedula_empleado', $documento])
+                            ->andFilterWhere(['=','id_grupo_pago', $id_grupo_pago])
+                            ->andWhere(['=','id_tipo_nomina', 2])
+                            ->orderBy('cedula_empleado DESC')
+                           ->all();
+            } else {
+                $form->getErrors();
+            }                    
+        } else {
+           $nominas = \app\models\ProgramacionNomina::find()->where(['=','importar_prima', 0])
+                                                            ->andWhere(['=','id_tipo_nomina', 2])->orderBy('cedula_empleado DESC')->all();
+        }
+        if (isset($_POST["id_programacion"])) {
+            $intIndice = 0;
+            $fecha_corte = Html::encode($_POST["fecha_corte"]);
+            $conceptoSalario = ConceptoSalarios::find()->where(['=','concepto_prima', 1])->one();
+            foreach ($_POST["id_programacion"] as $intCodigo) {
+                $nomina = \app\models\ProgramacionNomina::find()->where(['id_programacion' => $intCodigo])->one();
+                $table = new PagoAdicionalPermanente();
+                $table->id_empleado = $nomina->id_empleado;
+                $table->codigo_salario = $conceptoSalario->codigo_salario;
+                $table->id_contrato = $nomina->id_contrato;
+                $table->id_grupo_pago = $nomina->id_grupo_pago;
+                $table->id_pago_fecha = $id;
+                $table->fecha_corte = $fecha_corte;
+                $table->tipo_adicion = 1;
+                $table->vlr_adicion = $nomina->total_pagar;
+                $table->permanente = 2;
+                $table->aplicar_dia_laborado = 0;
+                $table->aplicar_prima = 0;
+                $table->aplicar_cesantias = 0;
+                $table->estado_registro = 1;
+                $table->estado_periodo = 1;
+                $table->detalle = 'Primas semestrales';
+                $table->usuariosistema = Yii::$app->user->identity->username;
+                $table->insert();
+            }
+            $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
+        }
+        return $this->render('_formimportarpagoprimas', [
+            'nominas' => $nominas,            
+            'mensaje' => $mensaje,
+            'id' => $id,
+            'form' => $form,
+            'fecha_corte' => $fecha_corte,
+
+        ]);
+   }
    
-   //PROCESO QUE APLICA LOS PAGOS
+   //PROCESO QUE APLICA LOS PAGOS DE PRIMAS
+   public function actionAplicarpagoprimas($id, $fecha_corte) {
+        $nominas = \app\models\ProgramacionNomina::find()->where(['=','importar_prima', 0])
+                                                        ->andWhere(['=','id_tipo_nomina', 2])->all();
+        if(count($nominas) > 0){
+            foreach ($nominas as $primas):
+                 $primas->importar_prima = 1;
+                 $primas->save(false);
+            endforeach;
+             return $this->redirect(["pago-adicional-fecha/view", 'id'=>$id, 'fecha_corte' => $fecha_corte]);
+        }else{
+             Yii::$app->getSession()->setFlash('warning', 'No hay registros de primas semestrales para aplicar.');
+              return $this->redirect(["pago-adicional-fecha/view", 'id'=>$id, 'fecha_corte' => $fecha_corte]);
+        }
+        
+   }
+   
+   //PROCESO QUE APLICA LOS PAGOS  DE PRODUCCION
    public function actionAplicarpagoproduccion($id, $fecha_corte) {
        
        $operarios = \app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','vinculado', 1])->all();

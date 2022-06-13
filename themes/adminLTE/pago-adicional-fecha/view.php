@@ -55,12 +55,22 @@ $conceptosalario = ArrayHelper::map(ConceptoSalarios::find()->where(['tipo_adici
               Importar pago producción
               <span class="caret"></span>
             </button>
-           <ul class="dropdown-menu">
+            <ul class="dropdown-menu">
                <li><?= Html::a('<span class="glyphicon glyphicon-import"></span> Importar', ['pago-adicional-fecha/importarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-default btn-xs']) ?></li>
                <li><?= Html::a('<span class="glyphicon glyphicon-ok"></span> Aplicar', ['pago-adicional-fecha/aplicarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-info btn-xs']) ?></li>
-           </ul>
-               
-       </div>   
+            </ul>
+       </div> 
+       <div class="btn-group" role="group">
+            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Importar primas
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+               <li><?= Html::a('<span class="glyphicon "></span> Importar primas', ['pago-adicional-fecha/importarpagoprimas', 'id' => $id, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-default btn-xs']) ?></li>
+               <li><?= Html::a('<span class="glyphicon "></span> Aplicar pago', ['pago-adicional-fecha/aplicarpagoprimas', 'id' => $id, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-info btn-xs']) ?></li>
+            </ul>
+       </div> 
+    
   <?php }?>  
 </div>
 <div class="panel panel-success panel-filters">

@@ -296,7 +296,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
 
                                             <?php } ?>    
                                           <input type="hidden" name="listado_operacion[]" value="<?= $val->id_detalle ?>">
-                                             <td style="width: 25px;"><input type="checkbox" name="id_detalle_balanceo[]" value="<?= $val->id_detalle ?>"></td>    
+                                          <td style="width: 25px;"><input type="checkbox" name="id_detalle_balanceo[]" value="<?= $val->id_detalle ?>"></td>    
                                         </tr>
                                    <?php
                                         $total_mi += $val->minutos;

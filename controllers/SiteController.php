@@ -95,7 +95,9 @@ class SiteController extends Controller {
                     ->offset($pages->offset)
                     ->limit($pages->limit)
                     ->all();
+              //PROCESO QUE ACTIVA O DESACTIVA EL ESTADO DEL USUARIO
         }
+       
         $to = $count->count();
         return $this->render('users', [
                     'model' => $model,
@@ -166,6 +168,7 @@ class SiteController extends Controller {
 
         ]);
     }
+      
     
     public function actionSinpermiso() {        
         Yii::$app->getSession()->setFlash('danger', 'No tiene permiso para acceder a este menú, comuniquese con el administrador');

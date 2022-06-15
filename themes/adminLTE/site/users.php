@@ -76,6 +76,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col" style='background-color:#B9D5CE;'></th>                               
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
+                
             </tr>
             </thead>
             <tbody>
@@ -97,12 +98,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td style="width: 60px;">				
                   <?= Html::a('Cambio Clave', ["site/changepassword", "id" => $val->codusuario], ['class' => 'btn btn-default btn-sm' ]) ?>
                 </td>
+                
             </tr>
             </tbody>
             <?php endforeach; ?>
         </table>
         <div class="panel-footer text-right" >
             <a align="right" href="<?= Url::toRoute("site/register") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+           
         </div>
     </div>
 </div>

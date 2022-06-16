@@ -56,7 +56,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 7);
         $this->Cell(30, 5, utf8_decode("MUNICIPIO:"), 0, 0, 'l', 1);
          $this->SetFont('Arial', '', 7);
-        $this->Cell(40, 5, utf8_decode($config->municipio->municipio), 0, 0, 'L', 1);
+        $this->Cell(40, 5, utf8_decode($config->municipio->municipio." - ".$config->departamento->departamento), 0, 0, 'L', 1);
         $this->SetXY(40, 5);
         $this->SetXY(10, 29);
         $this->Cell(190, 7, utf8_decode("_________________________________________________________________________________________________________________________________________"), 0, 0, 'C', 0);
@@ -125,7 +125,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(33, 5, utf8_decode("CIUDAD:"), 0, 0, 'c');
         $this->SetFont('Arial', '', 8);
-        $this->Cell(40, 5, utf8_decode($remision->ordenproduccion->cliente->municipio->municipio.' - '.$remision->ordenproduccion->cliente->departamento->departamento), 0, 0, 'J');
+        $this->Cell(40, 5, utf8_decode($remision->ordenproduccion->cliente->municipio->municipio), 0, 0, 'J');
         //Lineas del encabezado
         //color
         $this->Line(10, 92, 10, 190);//x1,y1,x2,y2 

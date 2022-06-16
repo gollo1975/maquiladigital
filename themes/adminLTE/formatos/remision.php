@@ -268,6 +268,9 @@ class PDF extends FPDF {
             if ($tallasremision->txl == 1){
                 $datostallas[] = 'XL';
             }
+             if ($tallasremision->txxl == 1){
+                $datostallas[] = 'XXL';
+            }
             if ($tallasremision->t2 == 1){
                 $datostallas[] = '2';
             }
@@ -416,13 +419,14 @@ class PDF extends FPDF {
         $pdf->SetX(10);
         $pdf->SetFont('Arial', 'b', 10);
         $items = count($detalles);
-        $txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0;
+        $txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0; $txxl = 0;
         foreach ($detalles as $detalle) {
             $txs = $txs + $detalle->xs;
             $ts = $ts + $detalle->s;
             $tm = $tm + $detalle->m;
             $tl = $tl + $detalle->l;
             $txl = $txl + $detalle->xl;
+            $txxl = $txxl + $detalle->xxl;
             if($detalle->oc == 0){
                 $oc = 'Colombia';
             }else{
@@ -455,6 +459,9 @@ class PDF extends FPDF {
                 }
                 if ($detalle->txl == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle->xl, 1, 0, 'R',1);
+                }
+                 if ($detalle->txxl == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle->xxl, 1, 0, 'R',1);
                 }
                 if ($detalle->t2 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['2'], 1, 0, 'R',1);
@@ -528,6 +535,9 @@ class PDF extends FPDF {
                 if ($detalle->txl == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle->xl, 1, 0, 'R');
                 }
+                if ($detalle->txxl == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle->xxl, 1, 0, 'R');
+                }
                 if ($detalle->t2 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['2'], 1, 0, 'R');
                 }
@@ -588,7 +598,7 @@ class PDF extends FPDF {
             $pdf->Ln();
             $pdf->SetAutoPageBreak(true, 20);
         }
-        $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
+        $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
         $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0; $c42 = 0;
         $cantidadesremision = Remisiondetalle::find()->where(['=','id_remision',$model->id_remision])->all();
         foreach ($cantidadesremision as $val){
@@ -606,6 +616,9 @@ class PDF extends FPDF {
             }
             if ($val->txl == 1){
                 $cxl = $cxl + $val->xl;
+            }
+             if ($val->txxl == 1){
+                $cxxl = $cxxl + $val->xxl;
             }
             if ($val->t2 == 1){
                 $c2 = $c2 + $val['2'];
@@ -690,6 +703,9 @@ class PDF extends FPDF {
         if ($tallasremision->txl == 1){
             $datostallas[] = 'XL';
         }
+        if ($tallasremision->txxl == 1){
+            $datostallas[] = 'XXL';
+        }
         if ($tallasremision->t2 == 1){
             $datostallas[] = '2';
         }
@@ -760,6 +776,9 @@ class PDF extends FPDF {
             }
             if ($val == 'xl' or $val == 'XL') {
                 $pdf->Cell($ancho, 6, $cxl, 1, 0, 'R');
+            }
+            if ($val == 'xxl' or $val == 'XXL') {
+                $pdf->Cell($ancho, 6, $cxxl, 1, 0, 'R');
             }
             if ($val == '2') {
                 $pdf->Cell($ancho, 6, $c2, 1, 0, 'R');

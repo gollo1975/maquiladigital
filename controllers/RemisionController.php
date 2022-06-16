@@ -68,13 +68,12 @@ class RemisionController extends Controller
                 $remisiondetalle = Remisiondetalle::find()->where(['=','id_remision',$remision->id_remision])->all();
                 $count = count($remisiondetalle);
                 $detalleorden = Ordenproducciondetalle::find()->where(['=','idordenproduccion',$id])->all();
-                $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
+                $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
                 $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0; $c42 = 0;
-                
-                $ct = $cxs + $cs + $cm + $cl + $cxl + $c2 + $c4 + $c6 + $c8 + $c10 + $c12 + $c14 + $c16 + $c18 + $c20 + $c22 + $c28 + $c30 + $c32 + $c34 + $c36 + $c38 + $c42;
+                $ct = $cxs + $cs + $cm + $cl + $cxl + $cxxl + $c2 + $c4 + $c6 + $c8 + $c10 + $c12 + $c14 + $c16 + $c18 + $c20 + $c22 + $c28 + $c30 + $c32 + $c34 + $c36 + $c38 + $c42;
                 $datostallas = null;
             }else{
-                $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
+                $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
                 $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0; $c42 = 0; 
                 $table = new Remision();
                 $table->idordenproduccion = $id;
@@ -92,7 +91,7 @@ class RemisionController extends Controller
                 $model = Remision::findOne($table->id_remision);
                 $remisiondetalle = Remisiondetalle::find()->where(['=','id_remision',$id])->all();
                 $count = count($remisiondetalle);
-                $ct = $cxs + $cs + $cm + $cl + $cxl + $c2 + $c4 + $c6 + $c8 + $c10 + $c12 + $c14 + $c16 + $c18 + $c20 + $c22 + $c28 + $c30 + $c32 + $c34 + $c36 + $c38 + $c42;
+                $ct = $cxs + $cs + $cm + $cl + $cxl + $cxxl + $c2 + $c4 + $c6 + $c8 + $c10 + $c12 + $c14 + $c16 + $c18 + $c20 + $c22 + $c28 + $c30 + $c32 + $c34 + $c36 + $c38 + $c42;
                 $datostallas = null;
             }
             if (isset($_POST["actualizar"])) {
@@ -118,6 +117,9 @@ class RemisionController extends Controller
                     }
                     if ($table->txl == 1){
                         $table->xl = $_POST["xl"][$intIndice];
+                    }
+                    if ($table->txxl == 1){
+                        $table->xxl = $_POST["xxl"][$intIndice];
                     }
                     if ($table['t2'] == 1){
                         $table['2'] = $_POST["2"][$intIndice];
@@ -206,6 +208,9 @@ class RemisionController extends Controller
                     if ($table->txl == 1){
                         $table->xl = $_POST["xl"][$intIndice];
                     }
+                    if ($table->txxl == 1){
+                        $table->xxl = $_POST["xxl"][$intIndice];
+                    }
                     if ($table['t2'] == 1){
                         $table['2'] = $_POST["2"][$intIndice];
                     }
@@ -280,7 +285,7 @@ class RemisionController extends Controller
                 $remisiondetalle = Remisiondetalle::find()->where(['=','id_remision',$remision->id_remision])->all();
                 $count = count($remisiondetalle);
             }            
-            $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
+            $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
             $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0; $c42 = 0;
             $tallasremision = Remisiondetalle::find()->where(['=','id_remision',$remision->id_remision])->one();
             $cantidadesremision = Remisiondetalle::find()->where(['=','id_remision',$remision->id_remision])->all();
@@ -300,6 +305,9 @@ class RemisionController extends Controller
                     }
                     if ($val->txl == 1){
                         $cxl = $cxl + $val->xl;
+                    }
+                    if ($val->txxl == 1){
+                        $cxxl = $cxxl + $val->xxl;
                     }
                     if ($val->t2 == 1){
                         $c2 = $c2 + $val['2'];
@@ -373,6 +381,9 @@ class RemisionController extends Controller
                 if ($tallasremision->txl == 1){
                     $datostallas[] = 'XL';
                 }
+                 if ($tallasremision->txxl == 1){
+                    $datostallas[] = 'XXL';
+                }
                 if ($tallasremision->t2 == 1){
                     $datostallas[] = '2';
                 }
@@ -429,7 +440,7 @@ class RemisionController extends Controller
                 }
             }
             
-            $ct = $cxs + $cs + $cm + $cl + $cxl + $c2; $c4 + $c6 + $c8 + $c10 + $c12 + $c14 + $c16 + $c18 + $c20 + $c22 + $c28 + $c30 + $c32 + $c34 + $c36 + $c38 + $c42;
+            $ct = $cxs + $cs + $cm + $cl + $cxl + $cxxl + $c2; $c4 + $c6 + $c8 + $c10 + $c12 + $c14 + $c16 + $c18 + $c20 + $c22 + $c28 + $c30 + $c32 + $c34 + $c36 + $c38 + $c42;
         }    
         
         return $this->render('remision', [
@@ -440,7 +451,7 @@ class RemisionController extends Controller
             'datostallas' => $datostallas,
             //'cantidades' => $cantidades,
             'count' => $count,
-            'cxs' => $cxs, 'cs' => $cs, 'cm' => $cm, 'cl' => $cl, 'cxl' => $cxl, 'c2' => $c2,'c4' => $c4, 'c6' => $c6, 'c8' => $c8, 'c10' => $c10, 'c12' => $c12, 'c14' => $c14, 'c16' => $c16, 'c18' => $c18, 'c20' => $c20, 'c22' => $c22, 'c28' => $c28,'c30' => $c30,'c32' => $c32,'c34' => $c34, 'c36' => $c36,'c38' => $c38, 'c42' => $c42,
+            'cxs' => $cxs, 'cs' => $cs, 'cm' => $cm, 'cl' => $cl, 'cxl' => $cxl, 'cxxl' => $cxxl, 'c2' => $c2,'c4' => $c4, 'c6' => $c6, 'c8' => $c8, 'c10' => $c10, 'c12' => $c12, 'c14' => $c14, 'c16' => $c16, 'c18' => $c18, 'c20' => $c20, 'c22' => $c22, 'c28' => $c28,'c30' => $c30,'c32' => $c32,'c34' => $c34, 'c36' => $c36,'c38' => $c38, 'c42' => $c42,
             'ct' => $ct,
         ]);
     }
@@ -459,7 +470,7 @@ class RemisionController extends Controller
             $talla = 't'.strtolower($val->productodetalle->prendatipo->talla->talla);
             $model->$talla = 1;
         }
-        $model->insert();
+        $model->save(false);
         return $this->redirect(['remision', 'id' => $idordenproduccion]);
     }
     
@@ -474,8 +485,8 @@ class RemisionController extends Controller
     
     protected function Calculos($table)
     {                
-        $table->unidades = $table->xs + $table->s + $table->m + $table->l + $table->xl + $table['2'] + $table['4'] + $table['6'] + $table['8'] + $table['10'] + $table['12'] + $table['14'] + $table['16'] + $table['18'] + $table['20'] + $table['22'] + $table['28'] + $table['30'] + $table['32'] + $table['34'] + $table['36'] + $table['38'] + $table['42'];
-        $table->update();
+        $table->unidades = $table->xs + $table->s + $table->m + $table->l + $table->xl + $table->xxl + $table['2'] + $table['4'] + $table['6'] + $table['8'] + $table['10'] + $table['12'] + $table['14'] + $table['16'] + $table['18'] + $table['20'] + $table['22'] + $table['28'] + $table['30'] + $table['32'] + $table['34'] + $table['36'] + $table['38'] + $table['42'];
+        $table->save(false);
     }
     
     protected function Totales($id)

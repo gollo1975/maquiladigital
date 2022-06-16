@@ -46,7 +46,7 @@ class Remisiondetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_remision', 'oc', 'tula', 'xs', 's', 'm', 'l', 'xl', '28', '30', '32', '34', '38', '40', '42', '44', 'estado', 'unidades'], 'integer'],
+            [['id_remision', 'oc', 'tula', 'xs', 's', 'm', 'l', 'xl', 'xxl' , '28', '30', '32', '34', '38', '40', '42', '44', 'estado', 'unidades'], 'integer'],
             [['color'], 'string', 'max' => 25],
             [['id_remision'], 'exist', 'skipOnError' => true, 'targetClass' => Remision::className(), 'targetAttribute' => ['id_remision' => 'id_remision']],
         ];
@@ -67,7 +67,8 @@ class Remisiondetalle extends \yii\db\ActiveRecord
             's' => 'S',
             'm' => 'M',
             'l' => 'L',
-            'xl' => 'Xl',
+            'xl' => 'XL',
+            'xxl' => 'XXL',
             '28' => '28',
             '30' => '30',
             '32' => '32',

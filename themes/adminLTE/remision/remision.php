@@ -186,6 +186,9 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                             <?php if ($val->txl == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="xl[]" value="<?= $val->xl ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
                             <?php } ?>
+                            <?php if ($val->txxl == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="xxl[]" value="<?= $val->xxl ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
+                            <?php } ?>    
                             <?php if ($val->t2 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="2[]" value="<?= $val['2'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
                             <?php } ?>
@@ -257,6 +260,9 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                             <?php if ($val->txl == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="xl[]" value="<?= $val->xl ?>" size="1" onkeypress="return esInteger(event)" required></td>
                             <?php } ?>
+                            <?php if ($val->txxl == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="xxl[]" value="<?= $val->xxl ?>" size="1" onkeypress="return esInteger(event)" required></td>
+                            <?php } ?>    
                             <?php if ($val->t2 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="2[]" value="<?= $val['2'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
                             <?php } ?>
@@ -375,7 +381,10 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                         <?php } ?>
                         <?php if ($val == 'xl' or $val == 'XL'){ ?>
                             <th scope="col"><?= $cxl ?></th>
-                        <?php } ?> 
+                        <?php } ?>
+                        <?php if ($val == 'xxl' or $val == 'XXL'){ ?>
+                            <th scope="col"><?= $cxxl ?></th>
+                        <?php } ?>    
                         <?php if ($val == '2' or $val == '2'){ ?>
                             <th scope="col"><?= $c2 ?></th>
                         <?php } ?>

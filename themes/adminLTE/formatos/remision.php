@@ -123,7 +123,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', '', 8);
         $this->Cell(100, 5, utf8_decode($remision->ordenproduccion->cliente->contacto), 0, 0, 'J');
         $this->SetFont('Arial', 'B', 8);
-        $this->Cell(33, 5, utf8_decode("CIUDAD:"), 0, 0, 'c');
+        $this->Cell(33, 5, utf8_decode("MUNICIPIO:"), 0, 0, 'c');
         $this->SetFont('Arial', '', 8);
         $this->Cell(40, 5, utf8_decode($remision->ordenproduccion->cliente->municipio->municipio), 0, 0, 'J');
         //Lineas del encabezado

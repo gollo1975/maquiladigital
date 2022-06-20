@@ -31,9 +31,11 @@ $this->params['breadcrumbs'][] = $model->id_pago;
 <div class="valor-prenda-unidad-vista">
 
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
-
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pageserviceoperario', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-primary btn-sm']) ?>              
-        
+      <?php if($token == 1){?>
+           <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pageserviceoperario', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-primary btn-sm']) ?>
+      <?php }else{ ?>
+          <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['searchpageprenda'], ['class' => 'btn btn-primary btn-sm']) ?>              
+      <?php } ?>
     <br>
     <br>    
     <div class="panel panel-success">

@@ -34,7 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return "{$tallas->talla} - {$tallas->sexo}";
                     },
                     'filter' => ArrayHelper::map(Talla::find()->all(),'idtalla','tindex'),
-                 'contentOptions' => ['class' => 'col-lg-3'],
+                 'contentOptions' => ['class' => 'col-lg-5.5'],
             ],            
             [
                 'class' => 'yii\grid\ActionColumn',

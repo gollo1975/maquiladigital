@@ -58,6 +58,7 @@ class Operarios extends \yii\db\ActiveRecord
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
             [['iddepartamento'], 'exist', 'skipOnError' => true, 'targetClass' => Departamento::className(), 'targetAttribute' => ['iddepartamento' => 'iddepartamento']],
             [['idmunicipio'], 'exist', 'skipOnError' => true, 'targetClass' => Municipio::className(), 'targetAttribute' => ['idmunicipio' => 'idmunicipio']],
+            [['id_arl'], 'exist', 'skipOnError' => true, 'targetClass' => Arl::className(), 'targetAttribute' => ['id_arl' => 'id_arl']],
         ];
     }
 
@@ -97,6 +98,10 @@ class Operarios extends \yii\db\ActiveRecord
     public function getDepartamento()
     {
         return $this->hasOne(Departamento::className(), ['iddepartamento' => 'iddepartamento']);
+    }
+    public function getArl()
+    {
+        return $this->hasOne(Arl::className(), ['id_arl' => 'id_arl']);
     }
 
     /**

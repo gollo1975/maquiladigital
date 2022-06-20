@@ -210,6 +210,79 @@ class ValorPrendaUnidadController extends Controller
         }
     } 
     
+    //PERMITE CONSULTAR LOS PAGOS DE SERVICIOS
+    
+      public function actionSearchpageprenda() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 119])->all()) {
+                $form = new \app\models\FormFiltroSearchPagePrenda();
+                $id_operario = null;
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $documento = NULL;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $id_operario = Html::encode($form->id_operario);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $documento = Html::encode($form->documento);
+                        $table = \app\models\PagoNominaServicios::find()
+                                ->andFilterWhere(['=', 'id_operario', $id_operario])
+                                ->andFilterWhere(['=', 'fecha_inicio', $fecha_inicio])
+                                ->andFilterWhere(['=', 'fecha_corte', $fecha_corte])
+                                ->andFilterWhere(['=', 'documento', $documento])
+                                ->andWhere(['=','autorizado', 1]);
+                        $table = $table->orderBy('operario ASC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 120,
+                            'totalCount' => $count->count()
+                        ]);
+                        $modelo = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                        if (isset($_POST['excel'])) {
+                            $check = isset($_REQUEST['id_pago  DESC']);
+                            $this->actionExcelPagoPrendaServicio($tableexcel);
+                        }
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = \app\models\PagoNominaServicios::find()->where(['=','autorizado', 1])
+                             ->orderBy('id_pago DESC');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 120,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $modelo = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if (isset($_POST['excel'])) {
+                        //$table = $table->all();
+                        $this->actionExcelPagoPrendaServicio($tableexcel);
+                    }
+                }
+                $to = $count->count();
+                return $this->render('searchpageprenda', [
+                            'modelo' => $modelo,
+                            'form' => $form,
+                            'pagination' => $pages,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    } 
+    
     public function actionCerrarAbrirRegistro($codigo) {
         $detalle = ValorPrendaUnidadDetalles::findOne($codigo);
         if($detalle->exportado == 0){
@@ -219,7 +292,8 @@ class ValorPrendaUnidadController extends Controller
         }  
         $detalle->save(false);
     }
-   public function actionView($id, $idordenproduccion)
+    //VISTA
+    public function actionView($id, $idordenproduccion)
     {
         $detalles_pago = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->orderBy('consecutivo desc')->all();
         //proceso para actualizar
@@ -245,16 +319,20 @@ class ValorPrendaUnidadController extends Controller
                             if($valor_unidad->debitar_salario_dia == 1){ 
                                 $salario = round($operario->salario_base /30);
                                 $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
+                                $this->CostoOperarioVinculado($table);
                             }else{
                                 $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
+                                $this->CostoOperarioVinculado($table);
                             }    
                         }else{
                             $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
                             if($valor_unidad->debitar_salario_dia == 1){ 
                                 $salario = round($operario->salario_base /30);
                                 $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
+                                $this->CostoOperarioVinculado($table);
                             }else{
                                 $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
+                                $this->CostoOperarioVinculado($table);
                             }    
                         }
                        //calculo para hallar el % de cumplimiento
@@ -269,6 +347,8 @@ class ValorPrendaUnidadController extends Controller
                                 $sumarh = $horah[0] - $horad[0];
                                 $sumarm = $horah[1] + $horad[1];
                                 $totalTiempo = $sumarh;
+                                $totalTiempo = ($sumarh * 60) + $sumarm;
+                                $totalTiempo = $totalTiempo/60;
                                 $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
                                 $total_diario = round((60/$can_minutos)* $totalTiempo,0);
                                 $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
@@ -292,10 +372,12 @@ class ValorPrendaUnidadController extends Controller
                            $vlr_unidad = $valor_unidad->vlr_contrato; 
                            if($_POST["vlr_prenda"][$intIndice] == ''){
                                 $table->vlr_prenda = $vlr_unidad;
-                               $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
+                                $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
+                                $table->costo_dia_operaria = $table->vlr_pago;
                            }else{
                                 $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
                                 $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
+                                $table->costo_dia_operaria = $table->vlr_pago;
                            }
                            //calculo para hallar el % de cumplimiento
                             $balanceoModulo= \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
@@ -308,7 +390,8 @@ class ValorPrendaUnidadController extends Controller
                                      $horah = explode(":", $conHorario->hasta);
                                      $sumarh = $horah[0] - $horad[0];
                                      $sumarm = $horah[1] + $horad[1];
-                                     $totalTiempo = $sumarh;
+                                     $totalTiempo = ($sumarh * 60) + $sumarm;
+                                     $totalTiempo = $totalTiempo/60;
                                      $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato; 
                                      $total_diario = round((60/$can_minutos)* $totalTiempo,0);
                                      $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
@@ -341,7 +424,22 @@ class ValorPrendaUnidadController extends Controller
             'detalles_pago' => $detalles_pago,
         ]);
     }
-    
+    // PROCESO QUE BUSCA EN COSTO DEL PERSONAL VINCULADO
+    protected function CostoOperarioVinculado($table) {
+        $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0; $valorInteres = 0;
+        $totalDia = 0; $valorVacacion = 0; $valorArl = 0;
+        $operario = Operarios::findOne($table->id_operario);
+        $vlrDia = round($operario->salario_base / 30);
+        $porcentaje = \app\models\Matriculaempresa::findOne(1);
+        $valorPrima = round($vlrDia * $porcentaje->porcentaje_prima)/100;
+        $valorCesantia = round($vlrDia * $porcentaje->porcentaje_cesantias)/100;
+        $valorInteres = round($vlrDia * $porcentaje->porcentaje_intereses)/100;
+        $valorVacacion = round($vlrDia * $porcentaje->porcentaje_vacacion)/100;
+        $valorArl = round($vlrDia * $operario->arl->arl)/100;
+        $totalDia = $valorPrima + $valorCesantia + $valorInteres + $valorVacacion + $valorArl + $vlrDia;
+        $table->costo_dia_operaria = $totalDia;
+        $table->save(false);
+    }
     /**
      * Creates a new ValorPrendaUnidad model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -722,7 +820,7 @@ class ValorPrendaUnidadController extends Controller
     
     //CODIGO QUE VA AL DETALLE DEL PAGO
     
-    public function actionVistadetallepago($id_pago, $fecha_corte, $fecha_inicio, $autorizado) {
+    public function actionVistadetallepago($id_pago, $fecha_corte, $fecha_inicio, $autorizado,  $token = 1) {
         $model = \app\models\PagoNominaServicios::findOne($id_pago);
         $detalle_pago = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $model->id_pago])->orderBy('devengado asc')->all();
         return $this->render('vista_detalle_pago', [
@@ -732,9 +830,27 @@ class ValorPrendaUnidadController extends Controller
                     'fecha_corte' => $fecha_corte,
                     'autorizado' => $autorizado,
                     'id_pago' => $id_pago,
+                    'token' => $token,
                     
         ]);
     }
+    
+    //PERMITE CONSULTAR LAS COLILLAS DE PAGO
+    public function actionConsultadetallepago($id_pago, $fecha_corte, $fecha_inicio, $autorizado, $token = 2) {
+        $model = \app\models\PagoNominaServicios::findOne($id_pago);
+        $detalle_pago = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $model->id_pago])->orderBy('devengado asc')->all();
+        return $this->render('vista_detalle_pago', [
+                    'model' => $model,
+                    'detalle_pago' => $detalle_pago,
+                    'fecha_inicio' => $fecha_inicio,
+                    'fecha_corte' => $fecha_corte,
+                    'autorizado' => $autorizado,
+                    'id_pago' => $id_pago,
+                    'token' => $token,
+                    
+        ]);
+    }
+    
     
     //ESTE CODIGO EDITAR EL DETALLE DEL PAGO
     public function actionEditarvistadetallepago($id_pago, $id_detalle, $fecha_inicio, $fecha_corte, $autorizado) {
@@ -867,12 +983,12 @@ class ValorPrendaUnidadController extends Controller
         $operacion = 0;
         foreach ($detalle as $val):
             if($val->operacion == 0){
-               $suma += $val->vlr_pago;
+               $suma += $val->costo_dia_operaria;
             }else{
                 if($val->operacion == 1){
-                    $operacion += $val->vlr_pago;
+                    $operacion += $val->costo_dia_operaria;
                 }else{
-                    $ajuste += $val->vlr_pago;
+                    $ajuste += $val->costo_dia_operaria;
                 }
             }   
         endforeach;
@@ -946,9 +1062,9 @@ class ValorPrendaUnidadController extends Controller
            $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
     }
     
-   //EXCEL QUE ESPORTAR LOS PAGOS DE NOMINA
+    //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
     
-     public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio) {        
+    public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio) {        
         $model = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])->andWhere(['=','fecha_corte', $fecha_corte])->orderBy([ 'operario' =>SORT_ASC ])->all();
         $objPHPExcel = new \PHPExcel();
         // Set document properties
@@ -994,6 +1110,96 @@ class ValorPrendaUnidadController extends Controller
                   
         $i = 3;
         foreach ($model as $val) {                            
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_pago)
+                    ->setCellValue('B' . $i, $val->documento)
+                    ->setCellValue('C' . $i, $val->operario)
+                    ->setCellValue('D' . $i, $val->fecha_inicio)
+                    ->setCellValue('E' . $i, $val->fecha_corte)
+                    ->setCellValue('F' . $i, $val->fecha_registro)
+                    ->setCellValue('G' . $i, $val->total_dias)
+                    ->setCellValue('H' . $i, $val->usuariosistema)
+                    ->setCellValue('I' . $i, $val->autorizado)
+                    ->setCellValue('J' . $i, $val->devengado)
+                    ->setCellValue('K' . $i, $val->deduccion)
+                    ->setCellValue('L' . $i, $val->Total_pagar)
+                    ->setCellValue('M' . $i, $val->observacion);
+              
+                   
+            $i++;                        
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Total pagar');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition: attachment;filename="Valor_Nomina.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0 
+        header("Content-Transfer-Encoding: binary ");
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);        
+        $objWriter->save('php://output');
+        //$objWriter->save($pFilename = 'Descargas');
+        exit; 
+        
+    }
+    
+    //EXCEL QUE ESPORTAR LOS PAGOS DE NOMINA
+    public function actionExcelPagoPrendaServicio($tableexcel) {        
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getStyle('2')->getFont()->setBold(true);        
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true); 
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A2', 'No PAGO')
+                    ->setCellValue('B2', 'DOCUMENTO')
+                    ->setCellValue('C2', 'OPERARIO')
+                    ->setCellValue('D2', 'FECHA INICIO')
+                    ->setCellValue('E2', 'FECHA CORTE')
+                    ->setCellValue('F2', 'FECHA PROCESO')
+                    ->setCellValue('G2', 'No DIAS')
+                    ->setCellValue('H2', 'USUARIO')
+                    ->setCellValue('I2', 'AUTORIZADO')
+                    ->setCellValue('J2', 'DEVENGADO')
+                    ->setCellValue('K2', 'DEDUCCION')
+                    ->setCellValue('L2', 'TOTAL PAGAR')
+                    ->setCellValue('M2', 'OBSERVACION');
+                  
+        $i = 3;
+        foreach ($tableexcel as $val) {                            
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->id_pago)
                     ->setCellValue('B' . $i, $val->documento)

@@ -149,6 +149,7 @@ $form = ActiveForm::begin([
                                         <th scope="col" style='background-color:#B9D5CE;'>Cant.</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Valor</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Vr.Pagar</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Costo</th>
                                           <th scope="col" style='background-color:#B9D5CE;'>Meta</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>% Cum.</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Observación</th> 
@@ -182,6 +183,7 @@ $form = ActiveForm::begin([
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="text" name="cantidad[]" value="<?= $val->cantidad ?>" size="2" required></td>                        
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="text" name="vlr_prenda[]" value="<?= $val->vlr_prenda ?>" size="4" ></td>                        
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="text" name="vlr_pago[]" value="<?= $val->vlr_pago ?>" size="6"> </td>  
+                                                    <td style="padding-left: 1;padding-right: 0; size: 3px"><?= ''.number_format($val->costo_dia_operaria,0)?> </td> 
                                                     <td style="padding-left: 3;padding-right: 0; size: 3px;"> <?= $val->meta_diaria ?> </td>
                                                     <?php if($val->porcentaje_cumplimiento > $conMatricula->porcentaje_empresa){?>
                                                          <td style="padding-left: 1;padding-right: 0;background-color:#45C2CC;"><input type="text" name="porcentaje_cumplimiento[]" value="<?= $val->porcentaje_cumplimiento ?>" size="3" readonly="true"> </td>  

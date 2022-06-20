@@ -186,6 +186,7 @@
                                                     ['label' => 'Reprocesos', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/searchreprocesos']],
                                                 ]],
                                                 ['label' => 'Unidades confeccionadas', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/consultaunidadconfeccionada']],
+                                                ['label' => 'Pago x prenda', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/searchpageprenda']],
                                             ],
                                         ],
                                         [

@@ -153,7 +153,7 @@ $view = 'operarios';
                     </div>   
                 </div>
                 <div class="panel-footer text-right"> 
-                        <?= Html::a('<span class="glyphicon glyphicon-search"></span> Buscar', ['operarios/relacionmaquina', 'id' => $model->id_operario], ['class' => 'btn btn-primary btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-search"></span> Buscar maquinas', ['operarios/relacionmaquina', 'id' => $model->id_operario], ['class' => 'btn btn-primary btn-sm']) ?>
                </div>
             </div>
             <!--INICIO EL OTRO TABS -->

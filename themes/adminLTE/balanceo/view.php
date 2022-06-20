@@ -171,35 +171,37 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                            $sam_balanceo += $val->minutos; 
                                         }else{
                                             $sam_balanceo += $val->minutos;
-                                        }
-                                        ?>
-                                         <tr style="font-size: 85%;">
-                                             <td style="width: 30px;"><input type="checkbox"  name="idproceso[]" value="<?= $val->idproceso ?>"></td>
-                                            <td ><?= $val->proceso->proceso ?></td>
+                                        }?>
+                                        <tr style="font-size: 85%;">
+                                            <td style="width: 30px;"><input type="checkbox"  name="idproceso[]" value="<?= $val->idproceso ?>"></td>  
+                                            <?php $operacionModulo = app\models\BalanceoDetalle::find()->Where(['=','id_balanceo', $model->id_balanceo])->andWhere(['=','id_proceso', $val->idproceso])->one();
+                                                if($operacionModulo){ ?>
+                                                    <td  style='background-color:#BEF1F0;'><?= $val->proceso->proceso ?></td>
+                                                <?php }else{ ?>
+                                                     <td><?= $val->proceso->proceso ?></td>
+                                                <?php }?>     
                                             <td><?= $val->segundos ?></td>
                                             <td><?= $val->minutos ?></td>
-                                             <td><?= $val->orden_aleatorio ?></td>
+                                            <td><?= $val->orden_aleatorio ?></td>
                                             <?php if($val->operacion == 0){?>
-                                                 <td style='background-color:#B9D5CE;'><?= 'BALANCEO' ?></td>
-                                              <?php }else{?>
-                                                 <td style='background-color:#A5D3E6;'><?= 'PREPARACION' ?></td>
-                                            <?php }?>   
-                                                 <?php if($val->pieza == 0){?>
-                                                 <td style='background-color:#ACF1D8;'><?= 'PIEZA 1' ?></td>
-                                              <?php }else{?>
-                                                 <td style='background-color:#E3CDFC;'><?= 'PIEZA 2' ?></td>
-                                            <?php }?>   
-                                             <td><?= $val->tipomaquina->descripcion ?></td>
-                                           
-                                           <input type="hidden" name="id_balanceo[]" value="<?= $model->id_balanceo ?>">
+                                                    <td style='background-color:#B9D5CE;'><?= 'BALANCEO' ?></td>
+                                            <?php }else{?>
+                                                    <td style='background-color:#A5D3E6;'><?= 'PREPARACION' ?></td>
+                                            <?php }
+                                            if($val->pieza == 0){?>
+                                               <td style='background-color:#ACF1D8;'><?= 'PIEZA 1' ?></td>
+                                            <?php }else{?>
+                                               <td style='background-color:#E3CDFC;'><?= 'PIEZA 2' ?></td>
+                                            <?php }?>  
+                                               <td> <?= $val->tipomaquina->descripcion?></td>   
+                                            <input type="hidden" name="id_balanceo[]" value="<?= $model->id_balanceo ?>">
                                             <input type="hidden" name="id_tipo[]" value="<?= $val->id_tipo ?>">
                                             <input type="hidden" name="segundos[]" value="<?= $val->segundos ?>">
                                             <input type="hidden" name="minutos[]" value="<?= $val->minutos ?>">
                                             <input type="hidden" name="totalminutos[]" value="<?= $totalminutos ?>">
                                             <input type="hidden" name="totalsegundos[]" value="<?= $totalsegundos ?>">
                                              <input type="hidden" name="orden_aleatorio[]" value="<?= $val->orden_aleatorio ?>">
-                                             
-                                        </tr>
+                                        </tr>     
                                    <?php endforeach;
                                     $model->tiempo_balanceo = $sam_balanceo;
                                     if($model->cantidad_empleados == 0){
@@ -314,6 +316,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                             
                             <div class="panel-footer text-right">
                                 <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
+                                <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Act./Desact.", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicarestado']) ?>
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Act./Desact.", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicarestado']) ?>
            
                             </div>

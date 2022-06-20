@@ -77,7 +77,9 @@ $view = 'operarios';
                     <td><?= Html::encode($model->fecha_ingreso) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_creacion') ?>:</th>
                     <td><?= Html::encode($model->fecha_creacion) ?></td>
-                    <td colspan="5"></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Arl') ?>:</th>
+                    <td><?= Html::encode($model->arl->arl) ?> %</td>
+                    <td colspan="3"></td>
                     
                  
                 </tr>

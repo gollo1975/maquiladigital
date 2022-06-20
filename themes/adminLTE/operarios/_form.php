@@ -8,6 +8,7 @@ use app\models\Municipio;
 use app\models\Departamento;
 use app\models\Operarios;
 use app\models\TipoDocumento;
+use app\models\Arl;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
 
@@ -32,6 +33,7 @@ $form = ActiveForm::begin([
 $departamento = ArrayHelper::map(Departamento::find()->orderBy('departamento ASC')->all(), 'iddepartamento', 'departamento');
 $municipio = ArrayHelper::map(Municipio::find()->orderBy('municipio ASC')->all(), 'idmunicipio', 'municipio');
 $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documento', 'descripcion');
+$arl = ArrayHelper::map(Arl::find()->all(), 'id_arl', 'arl');
 ?>
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -85,7 +87,11 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
         <div class="row">
             <?= $form->field($model, 'salario')->textInput(['maxlength' => true]) ?>
              <?= $form->field($model, 'nomina_alterna')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
-        </div>     
+        </div>  
+         <div class="row">
+             <?= $form->field($model, 'id_arl')->dropDownList($arl, ['prompt' => 'Seleccione una opcion...']) ?>  
+           
+        </div> 
         
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("operarios/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>

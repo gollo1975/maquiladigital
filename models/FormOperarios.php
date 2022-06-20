@@ -32,6 +32,7 @@ class FormOperarios extends Model
     public $fecha_ingreso;
     public $salario;
     public $nomina_alterna;
+    public $id_arl;
 
     /**
      * {@inheritdoc}
@@ -39,11 +40,11 @@ class FormOperarios extends Model
     public function rules()
     {
         return [
-          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna'], 'required', 'message' => 'Campo requerido'],
+          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl'], 'required', 'message' => 'Campo requerido'],
             ['documento', 'identificacion_existe'],
             ['email', 'email_existe'],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
-            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna'], 'integer'],
+            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['nombres', 'apellidos'], 'string', 'max' => 40],
             [['iddepartamento', 'idmunicipio','celular'], 'string', 'max' => 15],
@@ -74,6 +75,7 @@ class FormOperarios extends Model
             'fecha_nacimiento' => 'Fecha nacimiento:',
             'fecha_ingreso' => 'Fecha ingreso:',
             'salario' => 'Salario',
+            'id_arl' => '% Arl:',
             'nomina_alterna' => 'Aplica nomina alterna:',
             
         ];

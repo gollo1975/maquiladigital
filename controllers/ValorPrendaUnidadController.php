@@ -426,7 +426,7 @@ class ValorPrendaUnidadController extends Controller
     }
     // PROCESO QUE BUSCA EN COSTO DEL PERSONAL VINCULADO
     protected function CostoOperarioVinculado($table) {
-        $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0; $valorInteres = 0;
+        $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0;
         $totalDia = 0; $valorVacacion = 0; $valorArl = 0;
         $operario = Operarios::findOne($table->id_operario);
         $vlrDia = round($operario->salario_base / 30);
@@ -452,7 +452,6 @@ class ValorPrendaUnidadController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()){
             $model->usuariosistema = Yii::$app->user->identity->username;
             $model->estado_valor = 0; 
-            $model->costo_dia_operaria = $model->costo_dia_operaria;
             $ordenproduccion = Ordenproduccion::findOne($model->idordenproduccion);
             $model->cantidad = $ordenproduccion->cantidad;
             $model->update();

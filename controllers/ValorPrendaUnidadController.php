@@ -452,6 +452,7 @@ class ValorPrendaUnidadController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()){
             $model->usuariosistema = Yii::$app->user->identity->username;
             $model->estado_valor = 0; 
+            $model->costo_dia_operaria = $model->costo_dia_operaria;
             $ordenproduccion = Ordenproduccion::findOne($model->idordenproduccion);
             $model->cantidad = $ordenproduccion->cantidad;
             $model->update();

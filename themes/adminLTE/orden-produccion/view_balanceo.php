@@ -311,8 +311,9 @@ if($buscarOrden){
                                     <tr>
                                         <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Producto / Talla</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Unidades x Talla</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Unid. confeccionada</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Confeccionadas</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Faltante</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Total segundos</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Total minutos</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Minutos confección</th>
@@ -328,6 +329,7 @@ if($buscarOrden){
                                      
                                     foreach ($modeldetalles as $val):
                                         $total_c = 0;
+                                        $cantidad = 0;
                                         ?>
                                         <tr style="font-size: 85%;">
                                             <td><?= $val->iddetalleorden ?></td>
@@ -338,11 +340,18 @@ if($buscarOrden){
                                             if(count($cantidad) > 0){
                                                 foreach ($cantidad as $variable):
                                                     $total_c += $variable->cantidad_terminada;
-                                                endforeach;?>   
+                                                endforeach;
+                                                ?>   
                                                  <td align="right" style="background: #F6CECE;"><?= $total_c ?></td>    
                                             <?php }else {?>
                                                   <td align="right"><?= 0 ?></td>
-                                             <?php } ?>
+                                             <?php } 
+                                               $cantidad = $val->cantidad - $total_c;
+                                            if($cantidad == $val->cantidad){?> 
+                                                <td align="center"><?= $val->cantidad - $total_c ?></td>    
+                                            <?php }else{?>
+                                                <td align="center" style="background: #A8E4C9;"><?= $val->cantidad - $total_c ?></td>
+                                            <?php }?>    
                                              <td align="right"><?= ''.number_format(($model->duracion * 60)* ($val->cantidad),0) ?></td>
                                              <td align="right"><?= ''.number_format($model->duracion  * $val->cantidad,0) ?></td>
                                             <td align="right" style="background: #F5BCA9;"><?= ''.number_format($model->segundosficha / 60 * $val->cantidad,0) ?></td>
@@ -376,7 +385,7 @@ if($buscarOrden){
                                             $t_segundos = $t_minutos * 60;
                                             $t_minutos_conf += ($model->segundosficha/60 * $val->cantidad);
                                     endforeach; ?>
-                                     <td colspan="3"><td style="font-size: 85%; width: 220px; text-align: right;"><b>T. Confeccion:</b> <?= ''.number_format($total_confeccion),' <b>Falta:</b> ',($model->cantidad - $total_confeccion) ?> </td></td><td style="font-size: 85%; width: 170px; text-align: right;"><b>T. Segundos:</b> <?= ''.number_format($t_segundos,0) ?> </td><td style="font-size: 85%; width: 170px; text-align: right;"><b>T. Minutos:</b> <?= ''.number_format($t_minutos,0) ?></td> <td style="font-size: 85%; width: 170px; text-align: right; background: #4B6C67; color: #FFFFFF;"><b>T. Minutos conf.:</b> <?= ''.number_format($t_minutos_conf,0) ?></td> <td colspan="2">
+                                <td colspan="3"><td style="font-size: 85%; width: 100px; text-align: right;"><b>Total:</b> <?= ''.number_format($total_confeccion)?> </td><td style="font-size: 85%; width: 100px; text-align: right;"><b>Faltan:</b><?= ''. number_format($model->cantidad - $total_confeccion,0) ?></td><td style="font-size: 85%; width: 160px; text-align: right;"><b>T. Segundos:</b> <?= ''.number_format($t_segundos,0) ?> </td><td style="font-size: 85%; width: 160px; text-align: right;"><b>T. Minutos:</b> <?= ''.number_format($t_minutos,0) ?></td> <td style="font-size: 85%; width: 170px; text-align: right; background: #4B6C67; color: #FFFFFF;"><b>T. Minutos conf.:</b> <?= ''.number_format($t_minutos_conf,0) ?></td> <td colspan="2">
                                 </tbody>     
                             </table>
                         </div>    

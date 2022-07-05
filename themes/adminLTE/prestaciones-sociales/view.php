@@ -22,23 +22,23 @@ $view = 'prestaciones sociales';
     if($model->estado_generado == 0){?>
         <p>
            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-           <?= Html::a('<span class="glyphicon glyphicon-export"></span> Generar', ['generarconceptos', 'id' => $model->id_prestacion, 'pagina' =>$pagina], ['class' => 'btn btn-info btn-xs']) ?>
+           <?= Html::a('<span class="glyphicon glyphicon-export"></span> Generar', ['prestaciones-sociales/generarconceptos', 'id' => $model->id_prestacion, 'pagina' =>$pagina], ['class' => 'btn btn-info btn-xs']) ?>
        </p>
     <?php }else{
         if($model->estado_aplicado == 0){
             ?>   
            <p>
              <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-             <?= Html::a('<span class="glyphicon glyphicon-refresh"></span> Desgenerar', ['desgenerar', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?>  
-             <?= Html::a('<span class="glyphicon glyphicon-import"></span> Aplicar pagos', ['aplicarpagos', 'id' => $model->id_prestacion , 'pagina' => $pagina], ['class' => 'btn btn-warning btn-xs']) ?>
+             <?= Html::a('<span class="glyphicon glyphicon-refresh"></span> Desgenerar', ['prestaciones-sociales/desgenerar', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?>  
+             <?= Html::a('<span class="glyphicon glyphicon-import"></span> Aplicar pagos', ['prestaciones-sociales/aplicarpagos', 'id' => $model->id_prestacion , 'pagina' => $pagina], ['class' => 'btn btn-warning btn-xs']) ?>
         <?php }else{
             if($model->estado_cerrado == 0){
                 ?>
               <p>
                  <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-                 <?= Html::a('<span class="glyphicon glyphicon-refresh"></span> Desgenerar', ['desgeneraraplicar', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?>  
-                 <?= Html::a('<span class="glyphicon glyphicon-remove-circle"></span> Cerrar prestación', ['cerrarprestacion', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?>
-                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?> 
+                 <?= Html::a('<span class="glyphicon glyphicon-refresh"></span> Desgenerar', ['prestaciones-sociales/desgeneraraplicar', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?>  
+                 <?= Html::a('<span class="glyphicon glyphicon-remove-circle"></span> Cerrar prestación', ['prestaciones-sociales/cerrarprestacion', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?>
+                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['prestaciones-sociales/imprimir', 'id' => $model->id_prestacion, 'pagina' => $pagina], ['class' => 'btn btn-default btn-xs']) ?> 
               </p> 
               
             <?php } else

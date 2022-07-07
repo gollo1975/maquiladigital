@@ -492,10 +492,9 @@ class PrestacionesSocialesController extends Controller
     }
     
    
-    public function actionGenerarconceptos($id,  $pagina)
+    public function actionGenerarconceptos($id, $year=NULL, $pagina)
     {
         $model = PrestacionesSociales::find()->where(['=','id_prestacion', $id])->one();
-        $year = NULL;
         $id_prestacion = $model->id_prestacion;
         $configuracion_p = ConfiguracionPrestaciones::findOne(1);
         $concepto_p = ConceptoSalarios::find()->where(['=','concepto_prima', 1])->one();
@@ -571,8 +570,10 @@ class PrestacionesSocialesController extends Controller
         }
         $model->estado_generado = 1;
         $model->save(false);
-        $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina,
+         
+    $this->redirect(["prestaciones-sociales/view", 'id' => $id,
           'model' => $model,
+           'pagina' => $pagina,
           ]);
        
        

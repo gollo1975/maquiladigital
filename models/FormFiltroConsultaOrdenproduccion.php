@@ -17,7 +17,7 @@ class FormFiltroConsultaOrdenproduccion extends Model
     public $facturado;
     public $tipo;
     public $ordenproduccionint;
-    public $ordenproduccionext;
+    public $ordenproduccioncliente;
     
     public function rules()
     {
@@ -29,7 +29,7 @@ class FormFiltroConsultaOrdenproduccion extends Model
             ['codigoproducto', 'default'],
             ['facturado', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             ['tipo', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
-            ['ordenproduccionext', 'default'],
+            ['ordenproduccioncliente', 'default'],
             ['ordenproduccionint', 'default'],
         ];
     }
@@ -38,13 +38,13 @@ class FormFiltroConsultaOrdenproduccion extends Model
     {
         return [
             'idcliente' => 'Cliente:',
-            'codigoproducto' => 'Cod Producto:',
+            'codigoproducto' => 'Referencia:',
             'desde' => 'Desde:',
             'hasta' => 'Hasta:',
             'facturado' => 'Facturado:',
             'tipo' => 'Tipo:',
-            'ordenproduccionint' => 'Orden Prod Int:',
-            'ordenproduccionext' => 'Orden Prod Ext:',
+            'ordenproduccionint' => 'Op interna:',
+            'ordenproduccioncliente' => 'Op cliente:',
         ];
     }
 }

@@ -62,7 +62,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nro_modulo') ?>:</th>
                     <td><?= Html::encode($model->modulo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Orden_Produccion') ?>:</th>
-                    <td><?= Html::encode($model->idordenproduccion)?> - Cliente: <?= Html::encode($model->ordenproduccion->ordenproduccion)?></td>
+                    <td><?= Html::encode($model->idordenproduccion)?> - <h8><b>OP-Cliente:</b></h8> <?= Html::encode($model->ordenproduccion->ordenproduccion)?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Operarios') ?>:</th>
                     <td align="right"><?= Html::encode($model->cantidad_empleados) ?></td>
                 </tr>
@@ -73,7 +73,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <td><?= Html::encode($model->fecha_terminacion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
                     <td><?= Html::encode($model->cliente->nombrecorto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Abierto') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Modulo') ?>:</th>
                     <td><?= Html::encode($model->estadomodulo) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
@@ -101,7 +101,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                   <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tipo_proceso') ?>:</th>
                     <td><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Proceso_Activo') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Proceso') ?>:</th>
                     <td><?= Html::encode($model->verreproceso) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Observaciones') ?>:</th>
                     <td colspan="3"><?= Html::encode($model->observacion) ?></td>
@@ -215,9 +215,9 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                    ?>
                                 </tbody>  
                                 <?php if($model->id_proceso_confeccion == 1){?>
-                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->total_minutos ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_balanceo:</b> <?= $sam_balanceo ?></td><td colspan="3"></td>
+                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->ordenproduccion->sam_operativo ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_balanceo:</b> <?= $model->ordenproduccion->sam_balanceo ?></td><td colspan="3"></td>
                                 <?php }else{ ?>
-                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->total_minutos ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_preparación:</b> <?= $sam_balanceo ?></td><td colspan="3"></td>
+                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->ordenproduccion->sam_operativo ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_preparación:</b> <?= $model->ordenproduccion->sam_preparacion ?></td><td colspan="3"></td>
                                 <?php } ?>      
                             </table>
                         </div>   
@@ -317,8 +317,6 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                             <div class="panel-footer text-right">
                                 <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Act./Desact.", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicarestado']) ?>
-                                <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Act./Desact.", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicarestado']) ?>
-           
                             </div>
                          
                     </div>

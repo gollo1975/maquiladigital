@@ -31,7 +31,7 @@ use yii\filters\AccessControl;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
-$this->title = 'Detalle Orden de Producción';
+$this->title = 'Detalle orden';
 $this->params['breadcrumbs'][] = ['label' => 'Ordenes de Producción', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->idordenproduccion;
 $view = 'orden-produccion';

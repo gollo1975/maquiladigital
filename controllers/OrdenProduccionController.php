@@ -79,18 +79,82 @@ class OrdenProduccionController extends Controller {
      * @return mixed
      */
     public function actionIndex() {
-        if (Yii::$app->user->identity){
-            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',25])->all()){
-                $searchModel = new OrdenproduccionSearch();
-                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-                return $this->render('index', [
-                            'searchModel' => $searchModel,
-                            'dataProvider' => $dataProvider,
+         if (Yii::$app->user->identity){
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',25])->all()){
+            $form = new FormFiltroConsultaOrdenproduccion();
+            $idcliente = null;
+            $desde = null;
+            $hasta = null;
+            $codigoproducto = null;
+            $facturado = null;
+            $tipo = null;
+            $ordenproduccionint = null;
+            $ordenproduccioncliente = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idcliente = Html::encode($form->idcliente);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $codigoproducto = Html::encode($form->codigoproducto);
+                    $facturado = Html::encode($form->facturado);
+                    $tipo = Html::encode($form->tipo);
+                    $ordenproduccionint = Html::encode($form->ordenproduccionint);
+                    $ordenproduccioncliente = Html::encode($form->ordenproduccioncliente);
+                    $table = Ordenproduccion::find()
+                            ->andFilterWhere(['=', 'idcliente', $idcliente])
+                            ->andFilterWhere(['>=', 'fechallegada', $desde])
+                            ->andFilterWhere(['<=', 'fechallegada', $hasta])
+                            ->andFilterWhere(['=', 'facturado', $facturado])
+                            ->andFilterWhere(['=', 'idtipo', $tipo])
+                            ->andFilterWhere(['=', 'idordenproduccion', $ordenproduccionint])
+                            ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
+                            ->andFilterWhere(['=', 'ordenproduccion', $ordenproduccioncliente]);
+                    $table = $table->orderBy('idordenproduccion desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 60,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){
+                        //$table = $table->all();
+                        $this->actionExcelconsulta($tableexcel);
+                    }
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = Ordenproduccion::find()
+                        ->orderBy('idordenproduccion desc');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 60,
+                    'totalCount' => $count->count(),
                 ]);
-            }else{
-                return $this->redirect(['site/sinpermiso']);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                    $this->actionExcelconsulta($tableexcel);
+                }
             }
+            $to = $count->count();
+            return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+            ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
         }else{
             return $this->redirect(['site/login']);
         }
@@ -2612,7 +2676,7 @@ class OrdenProduccionController extends Controller {
         $orden->save(false);
     }
     public function actionIndexconsulta() {
-        if (Yii::$app->user->identity){
+    if (Yii::$app->user->identity){
         if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',95])->all()){
             $form = new FormFiltroConsultaOrdenproduccion();
             $idcliente = null;
@@ -2622,7 +2686,7 @@ class OrdenProduccionController extends Controller {
             $facturado = null;
             $tipo = null;
             $ordenproduccionint = null;
-            $ordenproduccionext = null;
+            $ordenproduccioncliente = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);
@@ -2632,16 +2696,16 @@ class OrdenProduccionController extends Controller {
                     $facturado = Html::encode($form->facturado);
                     $tipo = Html::encode($form->tipo);
                     $ordenproduccionint = Html::encode($form->ordenproduccionint);
-                    $ordenproduccionext = Html::encode($form->ordenproduccionext);
+                    $ordenproduccioncliente = Html::encode($form->ordenproduccioncliente);
                     $table = Ordenproduccion::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['>=', 'fechallegada', $desde])
                             ->andFilterWhere(['<=', 'fechallegada', $hasta])
                             ->andFilterWhere(['=', 'facturado', $facturado])
                             ->andFilterWhere(['=', 'idtipo', $tipo])
-                            ->andFilterWhere(['=', 'ordenproduccion', $ordenproduccionint])
+                            ->andFilterWhere(['=', 'idordenproduccion', $ordenproduccionint])
                             ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
-                            ->andFilterWhere(['=', 'ordenproduccionext', $ordenproduccionext]);
+                            ->andFilterWhere(['=', 'ordenproduccion', $ordenproduccioncliente]);
                     $table = $table->orderBy('idordenproduccion desc');
                     $tableexcel = $table->all();
                     $count = clone $table;
@@ -2846,12 +2910,17 @@ class OrdenProduccionController extends Controller {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
         $modeldetalle = new Ordenproducciondetalle();
         $mensaje = "";
+        $novedad_orden = \app\models\NovedadOrdenProduccion::find()->where(['=','idordenproduccion', $id])->all();
+        $otrosCostosProduccion = \app\models\OtrosCostosProduccion::find()->where(['=','idordenproduccion', $id])->orderBy('id_proveedor DESC')->all();
               
         return $this->render('view_consulta', [
                     'model' => $this->findModel($id),
                     'modeldetalle' => $modeldetalle,
                     'modeldetalles' => $modeldetalles,
                     'mensaje' => $mensaje,
+                    'novedad_orden' => $novedad_orden,
+                    'otrosCostosProduccion' => $otrosCostosProduccion,
+                     
         ]);
     }
     

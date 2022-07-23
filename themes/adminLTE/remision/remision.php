@@ -337,6 +337,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                     
                     $ttula = $ttula + $val->tula;
                     $tunidades = $tunidades + $val->unidades;
+                    
                 ?>
             <?php endforeach; ?>
             <tr>
@@ -351,6 +352,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                                 $total = $val2->cantidad;                                
                             }
                         }
+                        
                         ?>
                         <th scope="col"><?= $total ?></th>
                 <?php endforeach; 
@@ -438,15 +440,18 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                         <?php } ?>
                         <?php if ($val == '42' or $val == '42'){ ?>
                             <th scope="col"><?= $c42 ?></th>
-                        <?php } ?>    
+                        <?php } 
+                        ?>    
                 <?php endforeach; 
                  } else {  ?>
                     <th scope="col"></th>
-                <?php }?>
-                <th scope="col"></th>
-                <th scope="col"><?= $tunidades ?></th>                
-                <td></td>
-            </tr>    
+                <?php } 
+                ?>                    
+                    <th scope="col"></th>
+                    <th scope="col"><?= $tunidades ?>  </th>                
+                    <td></td>
+                </tr>  
+                
         </table>        
     </div>
     <div class="panel-footer text-right">

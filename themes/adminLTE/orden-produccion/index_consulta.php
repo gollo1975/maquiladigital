@@ -78,7 +78,7 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
             ?>
             <?= $formulario->field($form, 'facturado')->dropDownList(['0' => 'NO', '1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
             <?= $formulario->field($form, "ordenproduccionint")->input("search") ?>
-            <?= $formulario->field($form, "ordenproduccionext")->input("search") ?>
+            <?= $formulario->field($form, "ordenproduccioncliente")->input("search") ?>
             <?= $formulario->field($form, 'tipo')->dropDownList($tipos, ['prompt' => 'Seleccione un tipo...']) ?>
         </div>
         <div class="panel-footer text-right">
@@ -97,19 +97,23 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
     </div>
         <table class="table table-bordered table-hover">
             <thead>
-            <tr>                
-                <th scope="col">Id</th>
-                <th scope="col">Cedula/Nit</th>
-                <th scope="col">Cliente</th>
-                <th scope="col">Codigo</th>                
-                <th scope="col">Orden Int.</th>
-                <th scope="col">Orden Ext.</th>
-                <th scope="col">Fecha LLegada</th>
-                <th scope="col">Total</th>                
-                <th scope="col">Aut.</th>
-                <th scope="col">Fact.</th>
-                <th scope="col">Tipo servicio</th>
-                <th scope="col"></th>                               
+            <tr style="font-size: 85%;">                
+                <th style='background-color:#F0F3EF;' scope="col">Op</th>
+                <th style='background-color:#F0F3EF;' scope="col">Cedula/Nit</th>
+                <th style='background-color:#F0F3EF;' scope="col">Cliente</th>
+                <th style='background-color:#F0F3EF;' scope="col">Codigo</th>                
+                <th style='background-color:#F0F3EF;' scope="col">Op cliente</th>
+                <th style='background-color:#F0F3EF;' scope="col">Cant.</th>
+                <th style='background-color:#F0F3EF;' scope="col">Time</th>
+                 <th style='background-color:#F0F3EF;' scope="col">Sam</th>
+                <th style='background-color:#F0F3EF;' scope="col">F. llegada</th>
+                <th style='background-color:#F0F3EF;' scope="col">F. entrega</th>
+                <th style='background-color:#F0F3EF;' scope="col">Total</th>                
+                <th style='background-color:#F0F3EF;' scope="col">Aut.</th>
+                <th style='background-color:#F0F3EF;' scope="col">Fact.</th>
+                <th style='background-color:#F0F3EF; width: 150px;' scope="col">Tipo servicio</th>
+                <th style='background-color:#F0F3EF;' scope="col" colspan="3"></th>                               
+               
             </tr>
             </thead>
             <tbody>
@@ -120,12 +124,19 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <td><?= $val->cliente->nombrecorto ?></td>
                 <td><?= $val->codigoproducto ?></td>
                 <td><?= $val->ordenproduccion ?></td>
-                <td><?= $val->ordenproduccionext ?></td>
+                <td><?= $val->cantidad ?></td>
+                <td><?= $val->duracion ?></td>
+                <td><?= $val->sam_operativo?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
-                <td align = "right"><?= number_format($val->totalorden,0) ?></td>                
+                <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
+                <td align = "right"><?= number_format($val->totalorden,0) ?></td>              
                 <td><?= $val->autorizar ?></td>
                 <td><?= $val->facturar ?></td>
-                <td><?= $val->tipo->tipo ?></td>
+                <?php if($val->idtipo == 1){?>
+                     <td style='background-color:#138D75; color: white;'><?= $val->tipo->tipo ?></td>
+                <?php }else{?>
+                     <td style='background-color:#D3EBDD; color: black;'><?= $val->tipo->tipo ?></td>
+                <?php }?>     
                 <td style="width: 25px;">				
                 <a href="<?= Url::toRoute(["orden-produccion/viewconsulta", "id" => $val->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                 </td>

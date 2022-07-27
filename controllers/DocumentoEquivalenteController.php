@@ -78,12 +78,31 @@ class DocumentoEquivalenteController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             if ($model->porcentaje == 0 or $model->porcentaje == ''){                
                 $model->retencion_fuente = 0;
-                
             }else{                
                 $model->retencion_fuente = $model->valor * $model->porcentaje / 100;                
             }
+            $model->generar_comprobante = $model->generar_comprobante;
             $model->subtotal = $model->valor;
             $model->update();
+            if( $model->generar_comprobante == 1){
+                $proveedor = \app\models\Proveedor::find()->where(['=','cedulanit', $model->identificacion])->one();
+                if($proveedor){
+                    $matricula = \app\models\Matriculaempresa::findOne(1);
+                    $tabla = new \app\models\ComprobanteEgreso();
+                    $tabla->id_municipio = $model->idmunicipio;
+                    $tabla->fecha_comprobante = $model->fecha;
+                    $tabla->id_comprobante_egreso_tipo = $matricula->codigo_concepto_compra;
+                    $tabla->id_proveedor = $proveedor->idproveedor;
+                    $tabla->usuariosistema = Yii::$app->user->identity->username;
+                    $tabla->id_banco = $matricula->id_banco_factura;
+                    $tabla->libre = 1;
+                    $tabla->observacion = $model->descripcion;
+                    $tabla->save(false);
+                    return $this->redirect(['view', 'id' => $model->consecutivo]);
+                }else{
+                   Yii::$app->getSession()->setFlash('warning', 'No se puede generar el comprobante de egreso porque el documento no existe como proveedor.' ); 
+                }    
+            }
             return $this->redirect(['view', 'id' => $model->consecutivo]);
         }
 
@@ -112,7 +131,7 @@ class DocumentoEquivalenteController extends Controller
             }
             $model->subtotal = $model->valor;
             $model->update();
-            return $this->redirect(['view', 'id' => $model->consecutivo]);
+           return $this->redirect(['view', 'id' => $model->consecutivo]);
         }
 
         return $this->render('update', [

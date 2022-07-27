@@ -49,7 +49,7 @@ class DocumentoEquivalente extends \yii\db\ActiveRecord
     {
         return [
             [['identificacion', 'nombre_completo', 'fecha', 'iddepartamento', 'idmunicipio', 'descripcion', 'valor', 'porcentaje'], 'required'],
-            [['identificacion'], 'integer'],
+            [['identificacion','generar_comprobante'], 'integer'],
             [['fecha'], 'safe'],
             [['valor', 'subtotal', 'retencion_fuente', 'porcentaje'], 'number'],
             [['nombre_completo'], 'string', 'max' => 100],
@@ -73,10 +73,11 @@ class DocumentoEquivalente extends \yii\db\ActiveRecord
             'iddepartamento' => 'Departamento',
             'idmunicipio' => 'Municipio',
             'descripcion' => 'Descripción',
-            'valor' => 'Valor:',
+            'valor' => 'Valor',
             'subtotal' => 'Subtotal:',
             'retencion_fuente' => 'Retención Fuente:',
             'porcentaje' => 'Porcentaje:',
+            'generar_comprobante' => 'Generar comprobante:',
         ];
     }
 

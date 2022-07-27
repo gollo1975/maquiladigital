@@ -55,14 +55,17 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
                     'todayHighlight' => true]]) ?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'descripcion')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'descripcion')->textInput(['maxlength' => true])?>
         </div>
         <div class="row">
             <?= $form->field($model, 'valor')->textInput(['maxlength' => true]) ?>
         </div>        
         <div class="row">
             <?= $form->field($model, 'porcentaje')->textInput(['maxlength' => true]) ?>
-        </div>               
+        </div>  
+         <div class="row" style="text-align: right">  
+             <?= $form->field($model, 'generar_comprobante')->checkBox(['label' => 'Generar comprobante',''=>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'generar_comprobante']) ?> 
+       </div>    
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("documento-equivalente/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>

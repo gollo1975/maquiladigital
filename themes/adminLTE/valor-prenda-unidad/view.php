@@ -143,7 +143,7 @@ $form = ActiveForm::begin([
                                 <thead>
                                     <tr style='font-size:85%;'>
                                         <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Operario</th>                        
-                                        <th scope="col" style='background-color:#B9D5CE;width: 75px;'>OP</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;width: 75px;'>Valide</th> 
                                          <th scope="col" style='background-color:#B9D5CE;width: 150px;'>Operación</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Dia</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Cant.</th> 
@@ -162,7 +162,16 @@ $form = ActiveForm::begin([
                                            foreach ($detalles_pago as $val):?>
                                                <tr style='font-size: 85%;'> 
                                                     <td style="padding-left: 1;padding-right: 0;"><?= Html::dropDownList('id_operario[]', $val->id_operario, $operarios, ['class' => 'col-sm-10', 'prompt' => 'Seleccion...', 'required' => true]) ?></td>
-                                                    <td style="padding-left: 3;padding-right: 0;"> <?= $val->idordenproduccion ?>
+                                                     <td style="padding-left: 1;padding-right: 0;"><select name="control_fecha[]">
+                                                            <?php if ($val->control_fecha == 0){
+                                                                   echo $control_fecha = "NO";
+                                                                  }else{
+                                                                    echo $control_fecha ="SI";
+                                                                  }?>      
+                                                            <option value="<?= $val->control_fecha?>"><?= $control_fecha ?></option>
+                                                            <option value="0">NO</option>
+                                                            <option value="1">SI</option>
+                                                    </select></td>  
                                                     </td>   
                                                     <td style="padding-left: 1;padding-right: 0;"><select name="operacion[]">
                                                             <?php if ($val->operacion == 0){

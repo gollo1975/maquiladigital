@@ -300,12 +300,15 @@ class ValorPrendaUnidadController extends Controller
         if (isset($_POST["detalle_pago_prenda"])) {
             $intIndice = 0;
             $salario = 0;
+            $auxiliar = 0;
             foreach ($_POST["detalle_pago_prenda"] as $intCodigo) { 
                 $table = ValorPrendaUnidadDetalles::findOne($intCodigo);
                 $table->id_operario = $_POST["id_operario"][$intIndice];
                 $table->operacion = $_POST["operacion"][$intIndice];
                 $table->dia_pago = $_POST["dia_pago"][$intIndice];
                 $table->cantidad = $_POST["cantidad"][$intIndice];
+                $table->control_fecha = $_POST["control_fecha"][$intIndice];
+                $auxiliar = $table->control_fecha;
                 $operario = Operarios::find()->where(['=','id_operario', $_POST["id_operario"][$intIndice]])->one();
                 $valor_unidad = ValorPrendaUnidad::find()->where(['=','id_valor', $id])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
                 $vlr_unidad = 0;
@@ -319,20 +322,22 @@ class ValorPrendaUnidadController extends Controller
                             if($valor_unidad->debitar_salario_dia == 1){ 
                                 $salario = round($operario->salario_base /30);
                                 $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
-                                $this->CostoOperarioVinculado($table);
+                                   $this->CostoOperarioVinculado($table, $auxiliar);
                             }else{
                                 $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
-                                $this->CostoOperarioVinculado($table);
+                                   $this->CostoOperarioVinculado($table, $auxiliar);
                             }    
                         }else{
                             $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
                             if($valor_unidad->debitar_salario_dia == 1){ 
                                 $salario = round($operario->salario_base /30);
                                 $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
-                                $this->CostoOperarioVinculado($table);
+                                   $this->CostoOperarioVinculado($table, $auxiliar);
+                                
                             }else{
                                 $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
-                                $this->CostoOperarioVinculado($table);
+                                $this->CostoOperarioVinculado($table, $auxiliar);
+                                   
                             }    
                         }
                        //calculo para hallar el % de cumplimiento
@@ -416,7 +421,7 @@ class ValorPrendaUnidadController extends Controller
             }
             $this->Totalpagar($id);
             $this->TotalCantidades($id);
-           return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+            return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
         }
        return $this->render('view', [
             'model' => $this->findModel($id),
@@ -425,7 +430,7 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     // PROCESO QUE BUSCA EN COSTO DEL PERSONAL VINCULADO
-    protected function CostoOperarioVinculado($table) {
+    protected function CostoOperarioVinculado($table, $auxiliar) {
         $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0;
         $totalDia = 0; $valorVacacion = 0; $valorArl = 0;
         $operario = Operarios::findOne($table->id_operario);
@@ -437,7 +442,11 @@ class ValorPrendaUnidadController extends Controller
         $valorVacacion = round($vlrDia * $porcentaje->porcentaje_vacacion)/100;
         $valorArl = round($vlrDia * $operario->arl->arl)/100;
         $totalDia = $valorPrima + $valorCesantia + $valorInteres + $valorVacacion + $valorArl + $vlrDia;
-        $table->costo_dia_operaria = $totalDia;
+        if ($auxiliar == 1){
+            $table->costo_dia_operaria = 0;
+        }else{
+           $table->costo_dia_operaria = $totalDia; 
+        }
         $table->save(false);
     }
     /**

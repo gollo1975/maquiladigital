@@ -121,10 +121,10 @@ if($buscarOrden){
     <div>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#operaciones" aria-controls="operaciones" role="tab" data-toggle="tab">Flujo: <span class="badge"><?= count($operaciones) ?></span></a></li>
-            <li role="presentation"><a href="#modulo" aria-controls="modulo" role="tab" data-toggle="tab">Modulos: <span class="badge"><?= count($modulos) ?></span></a></li>
-            <li role="presentation"><a href="#tallas" aria-controls="tallas" role="tab" data-toggle="tab">Tallas: <span class="badge"><?= count($modeldetalles) ?></span></a></li>
-            <li role="presentation"><a href="#grafica" aria-controls="grafica" role="tab" data-toggle="tab">Gráfica: </a></li>
+            <li role="presentation" class="active"><a href="#operaciones" aria-controls="operaciones" role="tab" data-toggle="tab">Operaciones <span class="badge"><?= count($operaciones) ?></span></a></li>
+            <li role="presentation"><a href="#modulo" aria-controls="modulo" role="tab" data-toggle="tab">Modulos <span class="badge"><?= count($modulos) ?></span></a></li>
+            <li role="presentation"><a href="#tallas" aria-controls="tallas" role="tab" data-toggle="tab">Tallas <span class="badge"><?= count($modeldetalles) ?></span></a></li>
+            <li role="presentation"><a href="#grafica" aria-controls="grafica" role="tab" data-toggle="tab">Gráfica </a></li>
         </ul>
         <div class="tab-content">
            <div role="tabpanel" class="tab-pane active" id="operaciones">

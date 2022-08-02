@@ -48,7 +48,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria'], 'integer'],
+            [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria','control_fecha'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
             [['porcentaje_cumplimiento'], 'number'],
             [['usuariosistema', 'observacion','hora_inicio_modulo'], 'string', 'max' => 20],
@@ -78,7 +78,8 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'observacion' => 'Observacion',
             'operacion' => 'Operacion',
             'registro_pagado' => 'Registro pago',
-            'porcentaje_cumplimiento' => '% cumplimiento'
+            'porcentaje_cumplimiento' => '% cumplimiento',
+            'control_fecha' => 'Control fecha',
         ];
     }
 

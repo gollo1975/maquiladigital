@@ -163,7 +163,7 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                         ]);
                 ?>    
                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary ']); ?>
-            <a align="right" href="<?= Url::toRoute("orden-produccion/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+                <a align="right" href="<?= Url::toRoute("orden-produccion/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
             <?php $form->end() ?>
         </div>
     </div>

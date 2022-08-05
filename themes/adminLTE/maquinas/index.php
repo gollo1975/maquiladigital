@@ -98,12 +98,14 @@ $tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion
         <table class="table table-bordered table-hover">
             <thead>
                 <tr style ='font-size:85%;'>                
+                <th scope="col" style='background-color:#B9D5CE;'>Nro</th>    
+                <th scope="col" style='background-color:#B9D5CE;'>Tipo de maquina</th>
+                  <th scope="col" style='background-color:#B9D5CE;'>Marca</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Serial</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Modelo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Tipo de maquina</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Marca</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fech compra</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Ultimo Mto</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Nuevo Mto</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -113,12 +115,14 @@ $tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion
                 <?php 
                 foreach ($modelo as $val):?>
                     <tr style='font-size:85%;'>  
+                        <td><?= $val->codigo_maquina ?></td>
+                         <td><?= $val->tipo->descripcion ?></td>
+                        <td><?= $val->marca->descripcion?></td>
                         <td><?= $val->codigo ?></td>
                         <td><?= $val->serial ?></td>
                         <td><?= $val->modelo ?></td>
-                        <td><?= $val->tipo->descripcion ?></td>
-                        <td><?= $val->marca->descripcion?></td>
-                        <td><?= $val->fecha_compra ?></td>
+                        <td><?= $val->fecha_ultimo_mantenimiento ?></td>
+                        <td><?= $val->fecha_nuevo_mantenimiento ?></td>
                         <td><?= $val->usuario ?></td>
                         <td style= 'width: 25px; height: 25px;'>
                         <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>

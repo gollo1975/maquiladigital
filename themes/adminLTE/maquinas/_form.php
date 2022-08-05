@@ -43,28 +43,34 @@ $tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion
                     'pluginOptions' => [
                         'allowClear' => true ]]);
             ?>
-            <?= $form->field($model, 'codigo')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'codigo_maquina')->textInput(['maxlength' => true]) ?>
         </div>
         
         <div class="row">
+            <?= $form->field($model, 'codigo')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'serial')->textInput(['maxlength' => true]) ?>    
-            <?= $form->field($model, 'id_marca')->widget(Select2::classname(), [
+           
+        </div>        
+       
+        <div class="row">
+             <?= $form->field($model, 'id_marca')->widget(Select2::classname(), [
                     'data' => $marcas,
                     'options' => ['placeholder' => 'Seleccione...'],
                     'pluginOptions' => [
                         'allowClear' => true ]]);
             ?>
-        </div>        
-       
-        <div class="row">
             <?= $form->field($model, 'modelo')->textInput(['maxlength' => true]) ?>    
-            <?=  $form->field($model, 'fecha_compra')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+           
+        </div>
+        <div  class="row">
+             <?=  $form->field($model, 'fecha_compra')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                            'value' => date('Y-m-d', strtotime('+2 days')),
                            'options' => ['placeholder' => 'Seleccione una fecha ...'],
                            'pluginOptions' => [
                                'format' => 'yyyy-m-d',
                                'todayHighlight' => true]])
             ?>
+            
         </div>
         
         <div class="panel-footer text-right">			

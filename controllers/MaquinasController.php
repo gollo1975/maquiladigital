@@ -150,13 +150,21 @@ class MaquinasController extends Controller
         }
         if ($model->load(Yii::$app->request->post())) {
             if ($model->validate()) {
+                $tipo_maquina = \app\models\TiposMaquinas::find()->where(['=','id_tipo', $model->id_tipo])->one();
                 $table = new Maquinas();
                 $table->id_tipo = $model->id_tipo;
                 $table->codigo = $model->codigo;
                 $table->serial = $model->serial;
                 $table->id_marca = $model->id_marca;
+                $table->codigo_maquina= $model->codigo_maquina ;
                 $table->modelo = $model->modelo;      
                 $table->fecha_compra = $model->fecha_compra;
+                $table->fecha_ultimo_mantenimiento = $model->fecha_compra;
+                //codigo que pone la fecha de mantenimiento
+                $fecha = date($table->fecha_compra);
+                $nuevafecha = strtotime ( '+'.$tipo_maquina->tiempo_mantenimiento.' day' , strtotime ( $fecha ) ) ;
+                $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                $table->fecha_nuevo_mantenimiento = $nuevafecha;
                 $table->usuario =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["maquinas/index"]);
@@ -184,12 +192,34 @@ class MaquinasController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_maquina]);
+         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
         }
 
-        return $this->render('update', [
+        if ($model->load(Yii::$app->request->post())) {
+             if ($model->validate()) {
+                $tipo_maquina = \app\models\TiposMaquinas::find()->where(['=','id_tipo', $model->id_tipo])->one();
+                $table = Maquinas::findOne($id);
+                $table->id_tipo = $model->id_tipo;
+                $table->codigo = $model->codigo;
+                $table->serial = $model->serial;
+                $table->id_marca = $model->id_marca;
+                $table->codigo_maquina= $model->codigo_maquina ;
+                $table->modelo = $model->modelo;      
+                $table->fecha_compra = $model->fecha_compra;
+                $table->fecha_ultimo_mantenimiento = $model->fecha_compra;
+                //codigo que pone la fecha de mantenimiento
+                $fecha = date($table->fecha_compra);
+                $nuevafecha = strtotime ( '+'.$tipo_maquina->tiempo_mantenimiento.' day' , strtotime ( $fecha ) ) ;
+                $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                $table->fecha_nuevo_mantenimiento = $nuevafecha;
+                $table->save();
+                return $this->redirect(['view', 'id' => $model->id_maquina]);
+             }
+        }     
+           
+            return $this->render('update', [
             'model' => $model,
         ]);
     }

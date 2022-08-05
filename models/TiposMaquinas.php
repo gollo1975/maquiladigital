@@ -30,7 +30,7 @@ class TiposMaquinas extends \yii\db\ActiveRecord
     {
         return [
             [['descripcion'], 'required'],
-            [['estado','cantidad'], 'integer'],
+            [['estado','tiempo_mantenimiento'], 'integer'],
             [['descripcion'], 'string', 'max' => 50],
         ];
     }
@@ -44,7 +44,7 @@ class TiposMaquinas extends \yii\db\ActiveRecord
             'id_tipo' => 'Id Tipo',
             'descripcion' => 'Descripcion',
             'estado' => 'Estado',
-            'cantidad' => 'Cantidad',
+            'tiempo_mantenimiento' => 'Tiempo mantenimiento',
         ];
     }
 

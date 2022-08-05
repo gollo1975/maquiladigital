@@ -42,8 +42,8 @@ $view = 'maquinas';
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Id') ?></th>
-                    <td><?= Html::encode($model->id_maquina) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nro') ?></th>
+                    <td><?= Html::encode($model->codigo_maquina) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo') ?></th>
                     <td><?= Html::encode($model->tipo->descripcion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Marca') ?></th>
@@ -56,10 +56,18 @@ $view = 'maquinas';
                     <td><?= Html::encode($model->modelo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Codigo') ?></th>
                     <td><?= Html::encode($model->codigo) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_compra') ?></th>
-                    <td><?= Html::encode($model->fecha_compra) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Id') ?></th>
+                    <td><?= Html::encode($model->id_maquina) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Usuario') ?></th>
                     <td><?= Html::encode($model->usuario) ?></td>
+                </tr>
+                 <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_compra') ?></th>
+                    <td><?= Html::encode($model->fecha_compra) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Ultimo_Mto') ?></th>
+                    <td><?= Html::encode($model->fecha_ultimo_mantenimiento) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nuevo_Mto') ?></th>
+                    <td colspan="3"><?= Html::encode($model->fecha_nuevo_mantenimiento) ?></td>
                 </tr>
                 
             </table>

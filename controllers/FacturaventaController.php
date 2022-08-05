@@ -116,7 +116,7 @@ class FacturaventaController extends Controller
             $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
             $fecha = date( $model->fechainicio);
             $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
-            $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
+            $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
 
             $model->nrofactura = 0;
             $model->fechavcto = $nuevafecha;

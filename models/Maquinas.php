@@ -36,6 +36,7 @@ class Maquinas extends \yii\db\ActiveRecord
         $this->serial = strtoupper($this->serial);
 	$this->codigo = strtoupper($this->codigo);
 	$this->modelo = strtoupper($this->modelo);
+        $this->codigo_maquina = strtoupper($this->codigo_maquina);
         return true;
     }
 
@@ -47,10 +48,11 @@ class Maquinas extends \yii\db\ActiveRecord
         return [
             [['id_tipo', 'id_marca'], 'required'],
             [['id_tipo', 'id_marca'], 'integer'],
-            [['fecha_compra', 'fecha_registro'], 'safe'],
-            [['codigo', 'usuario'], 'string', 'max' => 15],
+            [['fecha_compra', 'fecha_registro','fecha_ultimo_mantenimiento','fecha_nuevo_mantenimiento'], 'safe'],
+            [['codigo', 'usuario'], 'string', 'max' => 20],
             [['serial'], 'string', 'max' => 20],
-            [['modelo'], 'string', 'max' => 10],
+            [['modelo'], 'string', 'max' => 20],
+            [['codigo_maquina'], 'string', 'max' => 20],
             [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => TiposMaquinas::className(), 'targetAttribute' => ['id_tipo' => 'id_tipo']],
             [['id_marca'], 'exist', 'skipOnError' => true, 'targetClass' => MarcaMaquinas::className(), 'targetAttribute' => ['id_marca' => 'id_marca']],
         ];
@@ -70,7 +72,10 @@ class Maquinas extends \yii\db\ActiveRecord
             'modelo' => 'Modelo',
             'fecha_compra' => 'Fecha Compra',
             'usuario' => 'Usuario',
+            'codigo_maquina' => 'Nro maquina:',
             'fecha_registro' => 'Fecha Registro',
+            'fecha_ultimo_mantenimiento' => 'Fecha ultimo mantenimiento',
+            'fecha_nuevo_mantenimiento' => 'Fecha nuevo mantenimiento',
         ];
     }
 

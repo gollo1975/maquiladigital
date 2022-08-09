@@ -82,7 +82,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <tbody>
             <?php foreach ($model as $val): ?>
                 <tr style="font-size: 85%;">   
-                <td><?= $val->tipoDocumento->descripcion ?></td>    
+                <td><?= $val->tipoDocument->descripcion ?></td>    
                 <td><?= $val->documento ?></td>
                 <td><?= $val->nombre_completo ?></td>
                 <td><?= $val->direccion_mecanico ?></td>

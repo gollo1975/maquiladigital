@@ -60,7 +60,7 @@ class Mecanico extends \yii\db\ActiveRecord
             [['email_mecanico'], 'string', 'max' => 45],
             [['direccion_mecanico', 'observacion'], 'string', 'max' => 50],
             [['fecha_registro'], 'safe'],
-            [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => Tipodocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
+            [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
         ];
     }
 
@@ -98,9 +98,9 @@ class Mecanico extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTipoDocumento()
+    public function getTipoDocument()
     {
-        return $this->hasOne(Tipodocumento::className(), ['id_tipo_documento' => 'id_tipo_documento']);
+        return $this->hasOne(TipoDocumento::className(), ['id_tipo_documento' => 'id_tipo_documento']);
     }
     
     public function getDepartamentoMecanico()

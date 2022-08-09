@@ -41,7 +41,7 @@ class ServicioMantenimiento extends \yii\db\ActiveRecord
             [['servicio'], 'required'],
             [['valor_servicio','valide_fecha'], 'integer'],
             [['fecha_registro'], 'safe'],
-            [['servicio'], 'string', 'max' => 30],
+            [['servicio'], 'string', 'max' => 40],
         ];
     }
 

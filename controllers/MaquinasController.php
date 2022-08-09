@@ -13,12 +13,16 @@ use yii\web\Response;
 use yii\helpers\Html;
 use yii\data\Pagination;
 use yii\bootstrap\Modal;
+use yii\helpers\ArrayHelper;
 
 //modelos
 use app\models\Maquinas;
 use app\models\MaquinasSearch;
 use app\models\FormFiltroMaquinas;
 use app\models\UsuarioDetalle;
+use app\models\MantenimientoMaquina;
+use app\models\Mecanico;
+use app\models\ServicioMantenimiento;
 
 
 /**
@@ -62,10 +66,10 @@ class MaquinasController extends Controller
                         $fecha_desde = Html::encode($form->fecha_desde);
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $modelo = Html::encode($form->modelo);
-                        $codigo = Html::encode($form->codigo);
+                        $codigo = Html::encode($form->codigo_maquina);
                         $table = Maquinas::find()
                                 ->andFilterWhere(['=', 'modelo', $modelo])
-                                ->andFilterWhere(['=', 'codigo', $codigo])
+                                ->andFilterWhere(['like', 'codigo_maquina', $codigo])
                                 ->andFilterWhere(['=', 'id_tipo', $id_tipo])
                                 ->andFilterWhere(['=','id_marca', $id_marca])
                                 ->andFilterWhere(['=','id_marca', $id_marca]) 
@@ -130,8 +134,11 @@ class MaquinasController extends Controller
      */
     public function actionView($id)
     {
+        $mantenimiento = MantenimientoMaquina::find()->where(['=','id_maquina', $id])->orderBy('id_mantenimiento DESC')->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'mantenimiento' => $mantenimiento,
+            
         ]);
     }
 
@@ -217,13 +224,85 @@ class MaquinasController extends Controller
                 $table->save();
                 return $this->redirect(['view', 'id' => $model->id_maquina]);
              }
-        }     
-           
-            return $this->render('update', [
-            'model' => $model,
-        ]);
+        }
+        $sw = MantenimientoMaquina::find()->where(['=','id_maquina', $id])->all();
+        if(count($sw) > 0){
+            Yii::$app->getSession()->setFlash('success', 'El registro no se puede modificar.');
+            return $this->redirect(['index']); 
+        }else{
+              return $this->render('update', [
+                'model' => $model,
+                ]);   
+        }         
     }
-
+   
+   // metodo de crea los mantenimientos
+     public function actionMantenimiento_maquina($id) {
+        
+        $model = new MantenimientoMaquina();
+        $servicio= ArrayHelper::map(ServicioMantenimiento::find()->orderBy('servicio ASC')->all(), 'id_servicio', 'servicio');
+        $mecanico= ArrayHelper::map(Mecanico::find()->orderBy('nombre_completo ASC')->all(), 'id_mecanico', 'nombre_completo');
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()){
+                if (isset($_POST["enviardatos"])) {
+                    $maquina = Maquinas::findOne($id);
+                    $tipo_servicio = ServicioMantenimiento::findOne($model->id_servicio);
+                    $tipo_maquina = \app\models\TiposMaquinas::find()->where(['=','id_tipo', $maquina->id_tipo])->one();
+                    $tabla = new MantenimientoMaquina();
+                    $tabla->id_maquina = $id;
+                    $tabla->id_servicio = $model->id_servicio;
+                    $tabla->id_mecanico = $model->id_mecanico;
+                    $tabla->fecha_mantenimiento = $model->fecha_mantenimiento;
+                    $tabla->observacion = $model->observacion;
+                    $tabla->usuario = Yii::$app->user->identity->username;
+                    $tabla->save(false);
+                    if($tipo_servicio->valide_fecha == 1){
+                        $fecha = date($maquina->fecha_nuevo_mantenimiento);
+                        $nuevafecha = strtotime ( '+'.$tipo_maquina->tiempo_mantenimiento.' day' , strtotime ( $fecha ) ) ;
+                        $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                        $maquina->fecha_ultimo_mantenimiento = $maquina->fecha_nuevo_mantenimiento;
+                        $maquina->fecha_nuevo_mantenimiento = $nuevafecha;
+                        $maquina->save(false); 
+                    }
+                    $this->redirect(["view", 'id' => $id]); 
+                }
+            }
+        }
+        return $this->renderAjax('mantenimientomecanica', [
+            'model' => $model,   
+            'servicio' => $servicio,
+            'mecanico' => $mecanico,
+            
+        ]);      
+    }
+    
+    //ESTE PROCESO EDITA UN REGISTRO DE MANTENIMIENTO
+    public function actionEditarobservacion($id, $id_mto)
+    {
+        $model = MantenimientoMaquina::findOne($id_mto);
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()){
+                if (isset($_POST["enviarobservacion"])) {
+                    $tabla = MantenimientoMaquina::findOne($id_mto);
+                    $tabla->observacion = $model->observacion;
+                    $tabla->save(false);
+                    $this->redirect(["view", 'id' => $id]); 
+                }
+            }
+        }
+         return $this->renderAjax('editarmantenimientomaquina', [
+            'model' => $model,   
+           
+        ]);   
+    }  
 
     /**
      * Finds the Maquinas model based on its primary key value.

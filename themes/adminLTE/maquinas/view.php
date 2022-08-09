@@ -76,9 +76,26 @@ $view = 'maquinas';
     <!--INICIO LOS TABS-->
     <div>
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#mantenimiento" aria-controls="mantenimiento" role="tab" data-toggle="tab">Mantenimiento <span class="badge"><?= 1 ?></span></a></li>
-
+            <li role="presentation" class="active"><a href="#mantenimiento" aria-controls="mantenimiento" role="tab" data-toggle="tab">Mantenimiento <span class="badge"><?= count($mantenimiento) ?></span></a></li>
         </ul>
+        <div class="panel-footer text-right">
+                  <!-- Inicio Nuevo Detalle proceso -->
+                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear mantenimiento',
+                        ['/maquinas/mantenimiento_maquina', 'id' =>$model->id_maquina],
+                        [
+                            'title' => 'Crear mantenimiento de maquinas',
+                            'data-toggle'=>'modal',
+                            'data-target'=>'#modalmantenimientomaquina',
+                            'class' => 'btn btn-info btn-xs'
+                        ])    
+                   ?>
+                </div> 
+                <div class="modal remote fade" id="modalmantenimientomaquina"><?= $model->id_maquina?>
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content"></div>
+                    </div>
+                </div>
+        </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="mantenimiento">
                 <div class="table-responsive">
@@ -87,26 +104,54 @@ $view = 'maquinas';
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Código</th>                        
-                                        <th scope="col" style='background-color:#B9D5CE;'>Descripción de maquina</th>                        
-                                        <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th> 
-                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Id</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Servicio</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Mecánico</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha Mto</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Usuario</th> 
+                                        <th scope="col" style='background-color:#B9D5CE; width: 530px;'>Observación</th> 
                                           <th scope="col" style='background-color:#B9D5CE;'></th> 
-                                        
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  
+                                <?php
+                                    foreach ($mantenimiento as $val):?>
+                                        <tr style='font-size:85%;'>
+                                            <td><?= $val->id_mantenimiento?></td>
+                                            <td><?= $val->servicio->servicio?></td>
+                                            <td><?= $val->mecanico->nombre_completo?></td>
+                                            <td><?= $val->fecha_mantenimiento?></td>
+                                            <td><?= $val->usuario?></td>
+                                            <td><?= $val->observacion?></td>
+                                           <td style=' width: 25px;'>
+                                                    <!-- Inicio Nuevo Detalle proceso -->
+                                                      <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> ',
+                                                          ['/maquinas/editarobservacion', 'id' =>$model->id_maquina,'id_mto' => $val->id_mantenimiento],
+                                                          [
+                                                              'title' => 'Editar mantenimiento',
+                                                              'data-toggle'=>'modal',
+                                                              'data-target'=>'#modaleditarmantenimiento',
+                                                              'class' => 'btn btn-success btn-xs'
+                                                          ])    
+                                                     ?>
+                                                  </div> 
+                                                  <div class="modal remote fade" id="modaleditarmantenimiento"><?= $model->id_maquina?>
+                                                      <div class="modal-dialog modal-dialog">
+                                                          <div class="modal-content"></div>
+                                                      </div>
+                                                  </div>
+                                            </td>
+                                        </tr>
+                                <?php endforeach;
+                                ?>
+                                    
                                 </tbody>      
                             </table>
                         </div>
                     </div>   
                 </div>
-                <div class="panel-footer text-right"> 
-                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear', ['maquinas/mantenimiento', 'id' => $model->id_maquina], ['class' => 'btn btn-primary btn-sm']) ?>
-               </div>
-            </div>
+                 
+               
             <!--INICIO EL OTRO TABS -->
         </div>
     </div>    

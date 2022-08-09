@@ -150,7 +150,15 @@
                                                 ['label' => 'Colores', 'icon' => 'plus-square-o', 'url' => ['/color/index']],
                                                 ['label' => 'Operarios', 'icon' => 'plus-square-o', 'url' => ['/operarios/index']],
                                                 ['label' => 'Planta/Bodega', 'icon' => 'plus-square-o', 'url' => ['/planta-empresa/index']],
-                                                ['label' => 'Maquinas', 'icon' => 'plus-square-o', 'url' => ['/maquinas/index']],
+                                                [
+                                                'label' => 'Mantenimiento',
+                                                'icon' => 'database',
+                                                'url' => '#',
+                                                'items' => [
+                                                     ['label' => 'Servicio Mto', 'icon' => 'plus-square-o', 'url' => ['/servicio-mantenimiento/index']],
+                                                    ['label' => 'Mecanicos', 'icon' => 'plus-square-o', 'url' => ['/mecanico/index']],
+                                                    ['label' => 'Maquinas', 'icon' => 'plus-square-o', 'url' => ['/maquinas/index']],
+                                                ]],
                                             ],
                                         ],
                                         [

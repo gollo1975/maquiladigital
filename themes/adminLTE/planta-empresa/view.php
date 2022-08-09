@@ -50,12 +50,5 @@ $this->params['breadcrumbs'][] = $model->id_planta;
             </table>
         </div>
     </div>
-    <!--<?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id_planta',
-            'nombre_planta',            
-        ],
-    ]) ?>-->
 
 </div>

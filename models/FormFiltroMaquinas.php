@@ -15,7 +15,7 @@ class FormFiltroMaquinas extends Model
     public $id_tipo;
     public $fecha_desde;
     public $fecha_corte;
-    public $codigo;
+    public $codigo_maquina;
     public $modelo;
 
     /**
@@ -25,7 +25,7 @@ class FormFiltroMaquinas extends Model
     {
         return [
             [['id_marca', 'id_tipo'], 'integer'],
-            [['codigo','modelo'], 'string'],
+            [['codigo_maquina','modelo'], 'string'],
             [['fecha_desde', 'fecha_corte'], 'safe'],
             
         ];
@@ -39,7 +39,7 @@ class FormFiltroMaquinas extends Model
         return [
             'id_marca' => 'Marca:',
             'id_tipo' => 'Tipo maquina:',
-            'codigo' => 'Codigo maquina:',
+            'codigo_maquina' => 'Nro maquina:',
             'modelo' => 'Modelo:',
             'fecha_desde' => 'Fecha desde:',
             'fecha_corte' => 'Fecha corte:',

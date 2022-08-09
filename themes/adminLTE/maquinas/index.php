@@ -46,7 +46,7 @@ $tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion
 	
     <div class="panel-body" id="filtro" style="display:none">
         <div class="row" >
-            <?= $formulario->field($form, "codigo")->input("search") ?>
+            <?= $formulario->field($form, "codigo_maquina")->input("search") ?>
               <?= $formulario->field($form, "modelo")->input("search") ?>
                <?= $formulario->field($form, 'fecha_desde')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),

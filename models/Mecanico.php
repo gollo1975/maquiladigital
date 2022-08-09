@@ -61,8 +61,6 @@ class Mecanico extends \yii\db\ActiveRecord
             [['direccion_mecanico', 'observacion'], 'string', 'max' => 50],
             [['fecha_registro'], 'safe'],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => Tipodocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
-          //  [['iddepartamento'], 'exist', 'skipOnError' => true, 'targetClass' => Departamento::className(), 'targetAttribute' => ['iddepartamento' => 'iddepartamento']],
-           // [['idmunicipio'], 'exist', 'skipOnError' => true, 'targetClass' => Municipio::className(), 'targetAttribute' => ['idmunicipio' => 'idmunicipio']],
         ];
     }
 

@@ -126,6 +126,7 @@ class MecanicoController extends Controller
      */
     public function actionCreate($token = 0)
     {
+        
         $model = new Mecanico();
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;

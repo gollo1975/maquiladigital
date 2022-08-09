@@ -133,7 +133,7 @@ class MecanicoController extends Controller
             return ActiveForm::validate($model);
         }
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->validate()) {
+         //   if ($model->validate()) {
                 $table = new Mecanico();
                 $table->documento = $model->documento;
                 $table->id_tipo_documento = $model->id_tipo_documento;
@@ -149,9 +149,9 @@ class MecanicoController extends Controller
                 $table->observacion = $model->observacion;
                 $table->save(false);
                 return $this->redirect(['index']);
-            }else{
+            /*}else{
                 $model->getErrors();
-            }    
+            }    */
         }
 
         return $this->render('create', [
@@ -246,6 +246,16 @@ class MecanicoController extends Controller
             }
         } else {
             return $this->redirect(["mecanico/index"]);
+        }
+    }
+    public function actionMunicipio($id) {
+        $rows = Municipio::find()->where(['iddepartamento' => $id])->all();
+
+        echo "<option required>Seleccione...</option>";
+        if (count($rows) > 0) {
+            foreach ($rows as $row) {
+                echo "<option value='$row->idmunicipio' required>$row->municipio</option>";
+            }
         }
     }
     

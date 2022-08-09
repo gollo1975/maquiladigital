@@ -53,7 +53,7 @@ class Mecanico extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento', 'idmunicipio'], 'required'],
+            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento', 'idmunicipio','estado'], 'required'],
             [['id_tipo_documento', 'estado'], 'integer'],
             [['documento', 'celular', 'iddepartamento', 'idmunicipio', 'usuario'], 'string', 'max' => 15],
             [['nombres', 'apellidos'], 'string', 'max' => 30],

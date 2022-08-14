@@ -131,8 +131,10 @@ class ValorPrendaUnidadController extends Controller
                 $dia_pago = null;
                 $fecha_corte = null;
                 $registro = NULL;
+                $validar_eficiencia = 0;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
+                        $validar_eficiencia = Html::encode($form->validar_eficiencia);
                         $id_operario = Html::encode($form->id_operario);
                         $idordenproduccion = Html::encode($form->idordenproduccion);
                         $operacion = Html::encode($form->operacion);
@@ -147,6 +149,7 @@ class ValorPrendaUnidadController extends Controller
                                 ->andFilterWhere(['<=', 'dia_pago', $fecha_corte])
                                 ->andFilterWhere(['=', 'exportado', $registro]);
                         $table = $table->orderBy('consecutivo DESC');
+                      
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
@@ -166,6 +169,7 @@ class ValorPrendaUnidadController extends Controller
                         $form->getErrors();
                     }
                 } else {
+                    $validar_eficiencia = Html::encode($form->validar_eficiencia);
                     $table = ValorPrendaUnidadDetalles::find()
                              ->orderBy('consecutivo DESC');
                     $tableexcel = $table->all();
@@ -201,6 +205,10 @@ class ValorPrendaUnidadController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'validar_eficiencia' => $validar_eficiencia,
+                            'dia_pago' =>$dia_pago,
+                            'fecha_corte' => $fecha_corte,
+                            'id_operario' => $id_operario,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);

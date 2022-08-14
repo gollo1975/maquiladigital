@@ -129,10 +129,7 @@ $form = ActiveForm::begin([
     </div>
     <div>
         <ul class="nav nav-tabs" role="tablist">
-            <?php
-             $con = count($detalles_pago);
-             ?>
-            <li role="presentation" class="active"><a href="#pago" aria-controls="pago" role="tab" data-toggle="tab">Detalle de pago: <span class="badge"><?= $con ?></span></a></li>
+            <li role="presentation" class="active"><a href="#pago" aria-controls="pago" role="tab" data-toggle="tab">Detalle de pago: <span class="badge"><?= count($detalles_pago) ?></span></a></li>
        </ul>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="pago">

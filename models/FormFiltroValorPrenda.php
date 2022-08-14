@@ -37,9 +37,9 @@ class FormFiltroValorPrenda extends Model
             'idordenproduccion' => 'Orden producción:',
             'idtipo' => 'Servicio:',
             'estado_valor' => 'Activo:',
-             'autorizado' => 'Autorizado:',
-             'cerrar_pago' => 'Cerrar pago:',
-            
+            'autorizado' => 'Autorizado:',
+            'cerrar_pago' => 'Cerrar pago:',
+           
         ];
     }
      

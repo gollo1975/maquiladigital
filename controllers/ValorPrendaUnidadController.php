@@ -128,8 +128,8 @@ class ValorPrendaUnidadController extends Controller
                 $id_operario = null;
                 $idordenproduccion = null;
                 $operacion = null;
-                $dia_pago = null;
-                $fecha_corte = null;
+                $dia_pago = '';
+                $fecha_corte = '';
                 $registro = NULL;
                 $validar_eficiencia = 0;
                 if ($form->load(Yii::$app->request->get())) {
@@ -149,7 +149,6 @@ class ValorPrendaUnidadController extends Controller
                                 ->andFilterWhere(['<=', 'dia_pago', $fecha_corte])
                                 ->andFilterWhere(['=', 'exportado', $registro]);
                         $table = $table->orderBy('consecutivo DESC');
-                      
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();

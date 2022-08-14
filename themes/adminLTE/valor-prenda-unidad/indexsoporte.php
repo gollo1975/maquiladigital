@@ -164,7 +164,6 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                         <div class="panel-footer text-right" >            
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-folder-close'></span> Exportado",['name' => 'cerrar_abrir', 'class' => 'btn btn-success btn-sm']);?>          
-                            <?php $form->end() ?>
                         </div>
                     </div>
                 </div>    
@@ -194,11 +193,12 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     if($id_operario > 0){
                                          $modelo2 = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $dia_pago])
                                                   ->andWhere(['<=','dia_pago', $fecha_corte])
-                                                  ->andWhere(['=','id_operario', $id_operario])->orderBy('dia_pago DESC' )->all();
+                                                  ->andWhere(['=','id_operario', $id_operario])->orderBy('dia_pago DESC')->all();
                                     }else{
                                         $modelo2 = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $dia_pago])
-                                                  ->andWhere(['<=','dia_pago', $fecha_corte])->orderBy('dia_pago DESC' )->all();
+                                                  ->andWhere(['<=','dia_pago', $fecha_corte])->groupBy('id_operario')->orderBy('dia_pago DESC')->all();
                                     } 
+                                    
                                     foreach ($modelo2 as $eficiencia): 
                                             $cumplimiento = 0;
                                             $detalle = ValorPrendaUnidadDetalles::find()->where(['=','dia_pago', $eficiencia->dia_pago])
@@ -225,11 +225,12 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                               <?php endforeach; 
                                             }else{
                                                 foreach ($detalle as $contar):
-                                                    $cumplimiento += $contar->porcentaje_cumplimiento;
+                                                   $cumplimiento += $contar->porcentaje_cumplimiento;
                                                 endforeach;
-                                                if($auxiliar <> $contar->dia_pago && $contar->id_operario <> $aux1){
-                                                    $auxiliar = $contar->dia_pago;
-                                                    $aux1 =  $contar->id_operario;       
+                                              
+                                                if($eficiencia->dia_pago != $auxiliar){
+                                                   $auxiliar = $eficiencia->dia_pago;
+                                                   $aux1 =  $eficiencia->id_operario;       
                                                     ?>
                                                     <tr style="font-size: 85%;">
                                                       <td ><?= $contar->operario->documento ?></td>
@@ -245,21 +246,20 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                       <td ><?= $contar->usuariosistema ?></td>
                                                     </tr>
                                                 <?php }else{
-                                                     $aux1 = $contar->id_operario;
-                                                     $auxiliar = $contar->dia_pago;
+                                                     $aux1 = $eficiencia->id_operario;
+                                                     $auxiliar = $eficiencia->dia_pago;
                                                 }
-                                                
-                                            }    
+                                            }   
                                     endforeach; 
                                    ?>
+                                                    
                             </body>    
                         </table>
-                       
+                         <?php $form->end() ?>
                     </div>
                 </div>    
             </div>    
         </div>
-        
     </div>
  </div>
 <?= LinkPager::widget(['pagination' => $pagination]) ?>

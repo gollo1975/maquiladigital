@@ -188,7 +188,6 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                  <?php
                                     $cumplimiento = 0;
                                     $auxiliar = '';
-                                    $aux1 = 0; 
                                     $empresa = Matriculaempresa::findOne(1);
                                     if($id_operario > 0){
                                          $modelo2 = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $dia_pago])
@@ -196,17 +195,19 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                   ->andWhere(['=','id_operario', $id_operario])->orderBy('dia_pago DESC')->all();
                                     }else{
                                         $modelo2 = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $dia_pago])
-                                                  ->andWhere(['<=','dia_pago', $fecha_corte])->groupBy('id_operario')->orderBy('dia_pago DESC')->all();
+                                                  ->andWhere(['<=','dia_pago', $fecha_corte])->orderBy('id_operario DESC')->all();
                                     } 
                                     
                                     foreach ($modelo2 as $eficiencia): 
+                                     //   echo $eficiencia->dia_pago,'<br>';
+                                      // echo $eficiencia->id_operario,'<br>';
+                                    
                                             $cumplimiento = 0;
                                             $detalle = ValorPrendaUnidadDetalles::find()->where(['=','dia_pago', $eficiencia->dia_pago])
                                                                                      ->andWhere(['=','id_operario', $eficiencia->id_operario])->orderBy('dia_pago')->all();
                                             $con = count($detalle);
                                             if($con <= 1){
                                                 foreach ($detalle as $detalles):
-                                                     $aux1 = '';
                                                      $auxiliar = '';
                                                     ?>
                                                     <tr style="font-size: 85%;">
@@ -227,28 +228,47 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 foreach ($detalle as $contar):
                                                    $cumplimiento += $contar->porcentaje_cumplimiento;
                                                 endforeach;
-                                              
-                                                if($eficiencia->dia_pago != $auxiliar){
-                                                   $auxiliar = $eficiencia->dia_pago;
-                                                   $aux1 =  $eficiencia->id_operario;       
-                                                    ?>
-                                                    <tr style="font-size: 85%;">
-                                                      <td ><?= $contar->operario->documento ?></td>
-                                                      <td ><?= $contar->operario->nombrecompleto ?></td>
-                                                      <td ><?= $contar->dia_pago?></td>
-                                                      <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
-                                                            <td style='background-color:#F9F4CB;' ><?= $cumplimiento ?>%</td>
-                                                            <td><?= 'GANA BONIFICACION' ?></td>
-                                                       <?php }else{?> 
-                                                            <td style='background-color:#B6EFF5;' ><?= $cumplimiento ?>%</td>
-                                                            <td><?= 'NO GANA BONIFICACION' ?></td>
-                                                       <?php }?>     
-                                                      <td ><?= $contar->usuariosistema ?></td>
-                                                    </tr>
-                                                <?php }else{
-                                                     $aux1 = $eficiencia->id_operario;
-                                                     $auxiliar = $eficiencia->dia_pago;
-                                                }
+                                                if($id_operario > 0){
+                                                    if($eficiencia->dia_pago != $auxiliar){
+                                                       $auxiliar = $eficiencia->dia_pago;
+                                                        ?>
+                                                        <tr style="font-size: 85%;">
+                                                          <td ><?= $contar->operario->documento ?></td>
+                                                          <td ><?= $contar->operario->nombrecompleto ?></td>
+                                                          <td ><?= $contar->dia_pago?></td>
+                                                          <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
+                                                                <td style='background-color:#F9F4CB;' ><?= $cumplimiento ?>%</td>
+                                                                <td><?= 'GANA BONIFICACION' ?></td>
+                                                           <?php }else{?> 
+                                                                <td style='background-color:#B6EFF5;' ><?= $cumplimiento ?>%</td>
+                                                                <td><?= 'NO GANA BONIFICACION' ?></td>
+                                                           <?php }?>     
+                                                          <td ><?= $contar->usuariosistema ?></td>
+                                                        </tr>
+                                                    <?php }else{
+                                                         $auxiliar = $eficiencia->dia_pago;
+                                                    }  
+                                               }else{
+                                                    if($eficiencia->id_operario != $auxiliar){
+                                                       $auxiliar = $eficiencia->id_operario;
+                                                        ?>
+                                                        <tr style="font-size: 85%;">
+                                                          <td ><?= $contar->operario->documento ?></td>
+                                                          <td ><?= $contar->operario->nombrecompleto ?></td>
+                                                          <td ><?= $contar->dia_pago?></td>
+                                                          <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
+                                                                <td style='background-color:#F9F4CB;' ><?= $cumplimiento ?>%</td>
+                                                                <td><?= 'GANA BONIFICACION' ?></td>
+                                                           <?php }else{?> 
+                                                                <td style='background-color:#B6EFF5;' ><?= $cumplimiento ?>%</td>
+                                                                <td><?= 'NO GANA BONIFICACION' ?></td>
+                                                           <?php }?>     
+                                                          <td ><?= $contar->usuariosistema ?></td>
+                                                        </tr>
+                                                    <?php }else{
+                                                         $auxiliar = $eficiencia->id_operario;
+                                                    }
+                                               }    
                                             }   
                                     endforeach; 
                                    ?>

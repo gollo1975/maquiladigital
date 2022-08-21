@@ -55,7 +55,7 @@ class ConfiguracionSalario extends \yii\db\ActiveRecord
             'salario_incapacidad' => 'Salario incapacidad',
             'porcentaje_incremento' => 'Porcentaje incremento',
             'anio' => 'Año',
-            'estado' => 'Activo:',
+            'estado' => 'Activo',
             'usuario' => 'Usuario',
             'fecha_creacion' => 'Fecha Creacion',
             'fecha_cierre' => 'Fecha cierre:',

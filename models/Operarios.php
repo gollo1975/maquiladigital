@@ -48,8 +48,8 @@ class Operarios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio'], 'required'],
-            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base'], 'integer'],
+            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario'], 'required'],
+            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario'], 'integer'],
             [['nombres', 'apellidos', 'email'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
             [['iddepartamento', 'idmunicipio'], 'string'],
@@ -58,6 +58,7 @@ class Operarios extends \yii\db\ActiveRecord
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
             [['iddepartamento'], 'exist', 'skipOnError' => true, 'targetClass' => Departamento::className(), 'targetAttribute' => ['iddepartamento' => 'iddepartamento']],
             [['idmunicipio'], 'exist', 'skipOnError' => true, 'targetClass' => Municipio::className(), 'targetAttribute' => ['idmunicipio' => 'idmunicipio']],
+            [['id_horario'], 'exist', 'skipOnError' => true, 'targetClass' => Horario::className(), 'targetAttribute' => ['id_horario' => 'id_horario']],
             [['id_arl'], 'exist', 'skipOnError' => true, 'targetClass' => Arl::className(), 'targetAttribute' => ['id_arl' => 'id_arl']],
         ];
     }
@@ -84,6 +85,7 @@ class Operarios extends \yii\db\ActiveRecord
             'fecha_nacimiento' => 'Fecha nacimiento',
             'fecha_ingreso' => 'Fecha Ingreso',
             'salario_base' => 'Salario base:',
+            'id_horario' => 'Horario:',
         ];
     }
 
@@ -102,6 +104,10 @@ class Operarios extends \yii\db\ActiveRecord
     public function getArl()
     {
         return $this->hasOne(Arl::className(), ['id_arl' => 'id_arl']);
+    }
+    public function getHorarios()
+    {
+        return $this->hasOne(Horario::className(), ['id_horario' => 'id_horario']);
     }
 
     /**

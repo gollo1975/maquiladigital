@@ -58,6 +58,10 @@ class Horario extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Fichatiempo::className(), ['id_horario' => 'id_horario']);
     }
+    public function getOperarios()
+    {
+        return $this->hasMany(Operarios::className(), ['id_operario' => 'id_operario']);
+    }
     
     public function getNombreHorario()
     {

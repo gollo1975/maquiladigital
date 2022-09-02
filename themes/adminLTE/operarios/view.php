@@ -79,7 +79,8 @@ $view = 'operarios';
                     <td><?= Html::encode($model->fecha_creacion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Arl') ?>:</th>
                     <td><?= Html::encode($model->arl->arl) ?> %</td>
-                    <td colspan="3"></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Jornada') ?>:</th>
+                    <td><?= Html::encode($model->horarios->horario) ?> </td>
                     
                  
                 </tr>

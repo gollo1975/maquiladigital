@@ -5,8 +5,6 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use app\models\Operarios;
-use app\models\Departamentos;
-use app\models\Municipio;
 
 /**
  * ContactForm is the model behind the contact form.
@@ -33,6 +31,8 @@ class FormOperarios extends Model
     public $salario;
     public $nomina_alterna;
     public $id_arl;
+    public $id_horario;
+
 
     /**
      * {@inheritdoc}
@@ -40,11 +40,11 @@ class FormOperarios extends Model
     public function rules()
     {
         return [
-          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl'], 'required', 'message' => 'Campo requerido'],
+          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl','id_horario'], 'required', 'message' => 'Campo requerido'],
             ['documento', 'identificacion_existe'],
             ['email', 'email_existe'],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
-            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl'], 'integer'],
+            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['nombres', 'apellidos'], 'string', 'max' => 40],
             [['iddepartamento', 'idmunicipio','celular'], 'string', 'max' => 15],
@@ -77,6 +77,7 @@ class FormOperarios extends Model
             'salario' => 'Salario',
             'id_arl' => '% Arl:',
             'nomina_alterna' => 'Aplica nomina alterna:',
+            'id_horario' => 'Horario:',
             
         ];
     }

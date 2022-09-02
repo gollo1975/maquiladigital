@@ -8,6 +8,7 @@ use app\models\Municipio;
 use app\models\Departamento;
 use app\models\Operarios;
 use app\models\TipoDocumento;
+use app\models\Horario;
 use app\models\Arl;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
@@ -34,6 +35,8 @@ $departamento = ArrayHelper::map(Departamento::find()->orderBy('departamento ASC
 $municipio = ArrayHelper::map(Municipio::find()->orderBy('municipio ASC')->all(), 'idmunicipio', 'municipio');
 $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documento', 'descripcion');
 $arl = ArrayHelper::map(Arl::find()->all(), 'id_arl', 'arl');
+$horario = ArrayHelper::map(Horario::find()->all(), 'id_horario', 'horario');
+
 ?>
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -90,6 +93,7 @@ $arl = ArrayHelper::map(Arl::find()->all(), 'id_arl', 'arl');
         </div>  
          <div class="row">
              <?= $form->field($model, 'id_arl')->dropDownList($arl, ['prompt' => 'Seleccione una opcion...']) ?>  
+             <?= $form->field($model, 'id_horario')->dropDownList($horario, ['prompt' => 'Seleccione una opcion...']) ?>  
            
         </div> 
         

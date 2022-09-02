@@ -319,9 +319,10 @@ class ValorPrendaUnidadController extends Controller
                 $operario = Operarios::find()->where(['=','id_operario', $_POST["id_operario"][$intIndice]])->one();
                 $valor_unidad = ValorPrendaUnidad::find()->where(['=','id_valor', $id])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
                 $vlr_unidad = 0;
+               echo $operario->horarios->id_horario,'-';
+               echo $operario->horarios->total_horas;
                 if($operario){
                     $conMatricula = \app\models\Matriculaempresa::findOne(1);
-                    $conHorario = \app\models\Horario::findOne(1);
                     if($operario->vinculado == 1){
                         $vlr_unidad = $valor_unidad->vlr_vinculado;
                         if($_POST["vlr_prenda"][$intIndice] == ''){
@@ -353,9 +354,9 @@ class ValorPrendaUnidadController extends Controller
                        $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos =0; $metaDiaria = 0;
                        $cumplimiento = 0;
                        foreach ($balanceoModulo as $modulo):
-                            if($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $conHorario->desde){
+                            if($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo >  $operario->horarios->desde){
                                 $horad = explode(":", $table->hora_inicio_modulo);
-                                $horah = explode(":", $conHorario->hasta);
+                                $horah = explode(":", $operario->horarios->hasta);
                                 $sumarh = $horah[0] - $horad[0];
                                 $sumarm = $horah[1] + $horad[1];
                                 $totalTiempo = $sumarh;
@@ -370,9 +371,9 @@ class ValorPrendaUnidadController extends Controller
                        endforeach;
                        if ($sw == 0){
                             $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
-                            $total_diario = round((60/$can_minutos)* $conHorario->total_horas,0);
+                            $total_diario = round((60/$can_minutos)* $operario->horarios->total_horas,0);
                             $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
-                            $metaDiaria = round((((60/$can_minutos)* $conHorario->total_horas) * $conMatricula->porcentaje_empresa)/100);
+                            $metaDiaria = round((((60/$can_minutos)* $operario->horarios->total_horas) * $conMatricula->porcentaje_empresa)/100);
                         }
                        $table->usuariosistema = Yii::$app->user->identity->username;
                        $table->observacion = 'Vinculado';
@@ -397,9 +398,9 @@ class ValorPrendaUnidadController extends Controller
                             $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos =0; $metaDiaria = 0;
                             $cumplimiento = 0;
                             foreach ($balanceoModulo as $modulo):
-                                 if($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $conHorario->desde){
+                                 if($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $operario->horarios->desde){
                                      $horad = explode(":", $table->hora_inicio_modulo);
-                                     $horah = explode(":", $conHorario->hasta);
+                                     $horah = explode(":", $operario->horarios->hasta);
                                      $sumarh = $horah[0] - $horad[0];
                                      $sumarm = $horah[1] + $horad[1];
                                      $totalTiempo = ($sumarh * 60) + $sumarm;
@@ -413,9 +414,9 @@ class ValorPrendaUnidadController extends Controller
                             endforeach;
                             if($sw == 0){
                                 $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato; 
-                                $total_diario = round((60/$can_minutos)* $conHorario->total_horas,0);
+                                $total_diario = round((60/$can_minutos)* $operario->horarios->total_horas,0);
                                 $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
-                                $metaDiaria = round((((60/$can_minutos)* $conHorario->total_horas) * $conMatricula->porcentaje_empresa)/100);
+                                $metaDiaria = round((((60/$can_minutos)* $operario->horarios->total_horas) * $conMatricula->porcentaje_empresa)/100);
                             }    
                             $table->usuariosistema = Yii::$app->user->identity->username;
                             $table->observacion = 'No vinculado';

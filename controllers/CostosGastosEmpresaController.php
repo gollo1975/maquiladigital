@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\FormFiltroCostoGastosEmpresa;
 use app\models\UsuarioDetalle;
 use app\models\CostosGastosEmpresa;
+use app\models\CantidadPrendaTerminadas;
 //clases
 use Yii;
 use yii\web\Controller;
@@ -320,8 +321,8 @@ class CostosGastosEmpresaController extends Controller
     //PROCESO QUE SUMA LOS INGRESOS DEL MES
     protected function SumarIngresosEmpresa($id) {
         $costos = CostosGastosEmpresa::findOne($id);
-        $factura = \app\models\Facturaventa::find()->where(['>=','fechainicio', $costos->fecha_inicio])
-                                                   ->andWhere(['<=','fechainicio', $costos->fecha_corte])->all();
+        $factura = CantidadPrendaTerminadas::find()->where(['>=','fecha_entrada', $costos->fecha_inicio])
+                                                   ->andWhere(['<=','fech_entrada', $costos->fecha_corte])->all();
         $suma = 0;
         if(count($factura) > 0){
             foreach ($factura as $ingresos):

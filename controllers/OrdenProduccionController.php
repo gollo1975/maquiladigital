@@ -1793,6 +1793,7 @@ class OrdenProduccionController extends Controller {
                 $table = Ordenproduccion::find()
                         ->where(['=', 'idtipo', 1])
                         ->orWhere(['=', 'idtipo', 4])
+                         ->orWhere(['=', 'idtipo', 2])
                         ->andWhere(['=','aplicar_balanceo', 1])
                         ->orderBy('idordenproduccion desc');
                 $count = clone $table;

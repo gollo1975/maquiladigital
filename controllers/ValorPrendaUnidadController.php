@@ -541,7 +541,6 @@ class ValorPrendaUnidadController extends Controller
     //MODAL QUE BUSCA LAS OPERACIONES DE LOS OPERARIOS EN PREPARACION
     public function actionBuscaroperaciones($id, $idordenproduccion) {
         
-       // $model = new \app\models\FormBuscarOperacionesOperario();
         if (Yii::$app->request->post()) {
             if (isset($_POST["validaroperario"])) {
                 if (isset($_POST["idoperario"])) {
@@ -549,7 +548,8 @@ class ValorPrendaUnidadController extends Controller
                     $empresa = \app\models\Matriculaempresa::find()->where(['=','id', 1])->one();
                     foreach ($_POST["idoperario"] as $intCodigo):
                         $balanceo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])
-                                              ->andWhere(['=','id_proceso_confeccion', 2])->one();
+                                              ->andWhere(['=','id_proceso_confeccion', 2])
+                                              ->orWhere(['=','id_proceso_confeccion', 3])->one();
                         $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo->id_balanceo])
                                                                                ->andWhere(['=','id_operario',  $intCodigo])
                                                                                ->andWhere(['=','estado_operacion', 0])

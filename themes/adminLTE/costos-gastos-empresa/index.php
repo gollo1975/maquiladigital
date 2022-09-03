@@ -94,6 +94,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col" style='background-color:#B9D5CE;'>Total costos</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total ingresos</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Utilidad</th>
+                <th scope="col" style='background-color:#B9D5CE;'>%</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado" >Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'>Observacion</th>
@@ -103,9 +104,10 @@ $this->params['breadcrumbs'][] = $this->title;
             </thead>
             <tbody>
             <?php 
-             $total = 0;
+             $total = 0; $porcentaje = 0;
             foreach ($modelo as $val):
                  $total = $val->total_ingresos- $val->total_costos;
+                 $porcentaje = number_format((100 * $total)/$val->total_ingresos, 2);
                 ?>
                 <tr style='font-size:85%;'>  
                     <td><?= $val->id_costo_gasto ?></td>
@@ -118,7 +120,13 @@ $this->params['breadcrumbs'][] = $this->title;
                       <td align="right"><?= ''.number_format($val->compras,0) ?></td>
                     <td align="right" style='background:#DAF7A6;'><?= ''.number_format($val->total_costos,0) ?></td>
                     <td align="right" style='background:#b3d4fc;'><?= ''.number_format($val->total_ingresos,0) ?></td>
-                    <td align="right" ><?= ''.number_format($val->total_ingresos - $val->total_costos,0) ?></td>
+                    <?php if($total < 0){?>
+                        <td align="right" style='color:#E72F1D;'><?= ''.number_format($total,0) ?></td>
+                        <td align="right" style='color:#E72F1D;'><b><?= ($porcentaje) ?></b></td>
+                    <?php }else{?>
+                        <td align="right" style='color:#0A3DB1;'><b><?= ''.number_format($total,0) ?></b></td>
+                        <td align="right" style='color:#0A3DB1;'><b><?= ($porcentaje) ?></b></td>
+                    <?php }?>    
                     <td><?= $val->fecha_proceso ?></td>
                     <td><?= $val->autorizadoCosto?></td>
                     <td><?= $val->observacion?></td>

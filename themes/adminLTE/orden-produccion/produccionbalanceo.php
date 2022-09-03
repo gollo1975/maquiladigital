@@ -109,7 +109,11 @@ $this->params['breadcrumbs'][] = $this->title;
                                     <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                                     <td><?= date("Y-m-d", strtotime("$val->fechaprocesada")) ?></td>
                                     <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
-                                    <td><?= $val->tipo->tipo ?></td>
+                                    <?php if($val->idtipo == 1){?>
+                                        <td style='background-color:#A1D2D8;'><?= $val->tipo->tipo ?></td>
+                                    <?php }else{?>
+                                        <td style='background-color:#F5DB90;'><?= $val->tipo->tipo ?></td>
+                                    <?php }?>    
                                     <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
                                     <?php if($val->faltante == $val->cantidad){?>
                                     <td style="font-size: 85%;background: #3B9785; color: #FFFFFF;"><?php echo 'PRODUCCION'?></td>

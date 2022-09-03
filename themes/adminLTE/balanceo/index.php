@@ -126,11 +126,15 @@ $form = ActiveForm::begin([
                 <td><?= $val->ordenproduccion->sam_balanceo ?></td>
                 <td><?= $val->tiempo_operario ?></td>
                 <td><?= $val->ordenproduccion->cantidad ?></td>
-                <?php if($val->id_proceso_confeccion == 1){?>
-                      <td style='background-color:#A1D2D8;'><?= $val->procesoconfeccion->descripcion_proceso ?></td>
-                <?php }else{?>
-                      <td style='background-color:#F1E4F4;'><?= $val->procesoconfeccion->descripcion_proceso ?></td> 
-                <?php } ?>      
+                 <?php if($val->id_proceso_confeccion == 1){?>
+                             <td style='background-color:#A1D2D8;'><?= $val->procesoconfeccion->descripcion_proceso ?></td>
+                    <?php }else{
+                          if($val->id_proceso_confeccion == 2){?>
+                                <td style='background-color:#F1E4F4 ;'><?= $val->procesoconfeccion->descripcion_proceso ?></td> 
+                          <?php }else{?> 
+                                <td style='background-color:#F5DB90;'><?= $val->procesoconfeccion->descripcion_proceso ?></td> 
+                          <?php } 
+                 }?>      
                 <td><?= $val->estadomodulo ?></td>
                 <td><?= $val->plantaempresa->nombre_planta ?></td>
                  <?php 

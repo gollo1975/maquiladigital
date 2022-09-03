@@ -15,12 +15,14 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php if($model->autorizado == 0){?>
         <div class="btn-group" role="group" aria-label="...">
             <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'],['class' => 'btn btn-primary btn-xs']) ?></button>
+           <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-send"></span> Generar compras', ['generarcompras','id' =>$model->id_costo_gasto],['class' => 'btn btn-default btn-xs']) ?></button> 
             <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizarcostos','id' =>$model->id_costo_gasto],['class' => 'btn btn-info btn-xs']) ?></button>
+            
         </div>
     <?php }else{ ?>
         <div class="btn-group" role="group" aria-label="...">
               <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'],['class' => 'btn btn-primary btn-xs']) ?></button>
-            <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizarcostos','id' =>$model->id_costo_gasto],['class' => 'btn btn-default btn-xs']) ?></button>
+              <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizarcostos','id' =>$model->id_costo_gasto],['class' => 'btn btn-default btn-xs']) ?></button>
         </div>
     <?php } ?>
     <div class="panel panel-success">

@@ -83,17 +83,19 @@ $this->params['breadcrumbs'][] = $this->title;
         <table class="table table-bordered table-hover">
             <thead>
                 <tr style ='font-size:85%;'>                
-                <th scope="col" style='background-color:#B9D5CE;'>Id Costo</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha corte</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Nómina</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Seguridad</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Gastos fijos</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Servicios</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Compras</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total costos</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total ingresos</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Utilidad</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
-                <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado" >Autorizado</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado" >Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'>Observacion</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -101,8 +103,10 @@ $this->params['breadcrumbs'][] = $this->title;
             </thead>
             <tbody>
             <?php 
-             
-            foreach ($modelo as $val):?>
+             $total = 0;
+            foreach ($modelo as $val):
+                 $total = $val->total_ingresos- $val->total_costos;
+                ?>
                 <tr style='font-size:85%;'>  
                     <td><?= $val->id_costo_gasto ?></td>
                     <td><?= $val->fecha_inicio ?></td>
@@ -111,8 +115,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td align="right"><?= ''.number_format($val->total_seguridad_social, 0) ?></td>
                     <td align="right"><?= ''.number_format($val->gastos_fijos,0) ?></td>
                     <td align="right"><?= ''.number_format($val->servicios,0) ?></td>
+                      <td align="right"><?= ''.number_format($val->compras,0) ?></td>
                     <td align="right" style='background:#DAF7A6;'><?= ''.number_format($val->total_costos,0) ?></td>
                     <td align="right" style='background:#b3d4fc;'><?= ''.number_format($val->total_ingresos,0) ?></td>
+                    <td align="right" ><?= ''.number_format($val->total_ingresos - $val->total_costos,0) ?></td>
                     <td><?= $val->fecha_proceso ?></td>
                     <td><?= $val->autorizadoCosto?></td>
                     <td><?= $val->observacion?></td>

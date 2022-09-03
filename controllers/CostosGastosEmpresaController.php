@@ -152,7 +152,7 @@ class CostosGastosEmpresaController extends Controller
         $costoGasto = CostosGastosEmpresa::findOne($id);
         $conCosto = \app\models\CostoSeguridadsocial::find()->where(['=','id_costo_gasto', $id])->all();
         $totalPension = 0; $totalEps = 0; $totalArl = 0;
-        $totalCaja = 0; $totalCosto = 0; $costoTotal = 0;
+        $totalCaja = 0; $totalCosto = 0;
         foreach ($conCosto as $dato):
             $totalPension += $dato->pension;
             $totalEps += $dato->eps;
@@ -161,7 +161,6 @@ class CostosGastosEmpresaController extends Controller
         endforeach;
         $totalCosto = $totalPension + $totalEps + $totalArl + $totalCaja;  
         $costoGasto->total_seguridad_social = $totalCosto;
-        $costoGasto->total_costos = $totalCosto + $costoGasto->total_nomina + $costoGasto->servicios + $costoGasto->gastos_fijos;
         $costoGasto->save(false);
     }
     
@@ -309,6 +308,7 @@ class CostosGastosEmpresaController extends Controller
        $costos = CostosGastosEmpresa::findOne($id);
        if($costos->autorizado == 0){
            $costos->autorizado = 1;
+           $costos->total_costos = $costos->total_nomina + $costos->total_seguridad_social  + $costos->servicios + $costos->gastos_fijos + $costos->compras;
            $costos->save(false);
            $this->SumarIngresosEmpresa($id);
            return $this->redirect(['view', 'id' => $id]);
@@ -318,16 +318,33 @@ class CostosGastosEmpresaController extends Controller
            return $this->redirect(['view', 'id' => $id]);
        }
     }
+    //proceso que busca las compras
+    public function actionGenerarcompras($id){
+        $costos = CostosGastosEmpresa::findOne($id);
+        $compra = \app\models\Compra::find()->where(['=','id_tipo_compra', 1])
+                                            ->andWhere(['>=','fechainicio', $costos->fecha_inicio])
+                                            ->andWhere(['<=','fechainicio', $costos->fecha_corte])->all();
+       $subtotal = 0;
+        if($compra){    
+            foreach ($compra as $compras):
+                 $subtotal += $compras->subtotal;
+            endforeach;
+        }    
+        $costos->compras = $subtotal;
+        $costos->save(false);
+        return $this->redirect(['view', 'id' => $id]);
+    }
     //PROCESO QUE SUMA LOS INGRESOS DEL MES
     protected function SumarIngresosEmpresa($id) {
         $costos = CostosGastosEmpresa::findOne($id);
-        $factura = CantidadPrendaTerminadas::find()->where(['>=','fecha_entrada', $costos->fecha_inicio])
-                                                   ->andWhere(['<=','fech_entrada', $costos->fecha_corte])->all();
+        $prendas = CantidadPrendaTerminadas::find()->where(['>=','fecha_entrada', $costos->fecha_inicio])
+                                                   ->andWhere(['<=','fecha_entrada', $costos->fecha_corte])->all();
         $suma = 0;
-        if(count($factura) > 0){
-            foreach ($factura as $ingresos):
-                $suma += $ingresos->subtotal;
+        if(count($prendas) > 0){
+            foreach ($prendas as $ingresos):
+                $suma += $ingresos->detalleorden->vlrprecio * $ingresos->cantidad_terminada;
             endforeach;
+            
             $costos->total_ingresos = $suma;
             $costos->save(false);
         }

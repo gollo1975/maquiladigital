@@ -42,7 +42,7 @@ class CostosGastosEmpresa extends \yii\db\ActiveRecord
         return [
             [['fecha_inicio', 'fecha_corte'], 'required'],
             [['fecha_inicio', 'fecha_corte', 'fecha_proceso'], 'safe'],
-            [['id', 'total_nomina','autorizado','total_seguridad_social','servicios','gastos_fijos','total_costos','total_ingresos'], 'integer'],
+            [['id', 'total_nomina','autorizado','total_seguridad_social','servicios','gastos_fijos','total_costos','total_ingresos','compras'], 'integer'],
             [['usuariosistema'], 'string', 'max' => 20],
             [['observacion'], 'string', 'max' => 100],
             [['id'], 'exist', 'skipOnError' => true, 'targetClass' => Matriculaempresa::className(), 'targetAttribute' => ['id' => 'id']],
@@ -67,6 +67,7 @@ class CostosGastosEmpresa extends \yii\db\ActiveRecord
             'autorizado' => 'Autorizado:',
             'servicios' => 'Servicios:',
             'gastos_fijos' => 'Gastos fijos:',
+            'compras' => 'Compras:',
         ];
     }
 

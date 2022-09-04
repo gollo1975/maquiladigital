@@ -47,7 +47,7 @@ class Archivodir extends \yii\db\ActiveRecord
         return [
             [['iddocumentodir', 'numero', 'iddirectorio'], 'integer'],
             [['tamaño'], 'number'],
-            [['descripcion', 'comentarios'], 'string'],
+            [['descripcion', 'comentarios','codigo'], 'string'],
             [['nombre', 'extension', 'tipo'], 'string', 'max' => 50],
             [['iddocumentodir'], 'exist', 'skipOnError' => true, 'targetClass' => Documentodir::className(), 'targetAttribute' => ['iddocumentodir' => 'iddocumentodir']],
             [['iddirectorio'], 'exist', 'skipOnError' => true, 'targetClass' => Directorio::className(), 'targetAttribute' => ['iddirectorio' => 'iddirectorio']],
@@ -65,6 +65,7 @@ class Archivodir extends \yii\db\ActiveRecord
             'numero' => 'Numero',
             'iddirectorio' => 'Iddirectorio',
             'nombre' => 'Nombre',
+            'codigo' => 'Codigo:',
             'extension' => 'Extension',
             'tipo' => 'Tipo',
             'tamaño' => 'Tamaño',

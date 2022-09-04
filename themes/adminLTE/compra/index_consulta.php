@@ -94,7 +94,7 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
         <table class="table table-bordered table-hover">
             <thead>
             <tr style='font-size:85%;'>                
-                <th scope="col" style='background-color:#B9D5CE;'>Factura</th>
+                <th scope="col" style='background-color:#B9D5CE; '>Factura</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cedula/Nit</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Proveedor</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
@@ -109,25 +109,35 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($model as $val): ?>
-                <tr style="font-size: 85%;">                
-                <td><?= $val->factura ?></td>
-                <td><?= $val->proveedor->cedulanit ?></td>
-                <td><?= $val->proveedor->nombrecorto ?></td>
-                <td><?= $val->compraConcepto->concepto ?></td>
-                <td><?= $val->fechainicio ?></td>
-                <td><?= $val->fechavencimiento ?></td>
-                <td><?= number_format($val->subtotal,0) ?></td>
-                <td><?= number_format($val->saldo,0) ?></td>
-                <td><?= number_format($val->total,0) ?></td>
-                <td><?= $val->autorizar ?></td>
-                <td><?= $val->estados ?></td>
-                <td style="width: 25px;">				
-                <a href="<?= Url::toRoute(["compra/viewconsulta", "id" => $val->id_compra]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
-                </td>
+                <?php
+                $saldo = 0;
+                foreach ($model as $val):
+                    $saldo += $val->saldo;
+                    ?>
+                    <tr style="font-size: 85%;">                
+                        <td><?= $val->factura ?></td>
+                        <td><?= $val->proveedor->cedulanit ?></td>
+                        <td><?= $val->proveedor->nombrecorto ?></td>
+                        <td><?= $val->compraConcepto->concepto ?></td>
+                        <td><?= $val->fechainicio ?></td>
+                        <td><?= $val->fechavencimiento ?></td>
+                        <td align="right"><?= number_format($val->subtotal,0) ?></td>
+                        <td align="right"><?= number_format($val->saldo,0) ?></td>
+                        <td align="right"><?= number_format($val->total,0) ?></td>
+                        <td><?= $val->autorizar ?></td>
+                        <td><?= $val->estados ?></td>
+                        <td style="width: 25px;">				
+                           <a href="<?= Url::toRoute(["compra/viewconsulta", "id" => $val->id_compra]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </body>    
+            <tr>
+                <td colspan="6"></td>
+                <td align="right"><b>Saldo</b></td>
+                <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
+                <td colspan="4"></td>
             </tr>
-            </tbody>
-            <?php endforeach; ?>
         </table>    
         <div class="panel-footer text-right" >            
             <?php

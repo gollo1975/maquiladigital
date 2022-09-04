@@ -51,9 +51,6 @@ class ArchivodirController extends \yii\web\Controller
             'pagination' => $pages,
             'view' => $view,
         ]);
-        /* }else{
-             return $this->redirect(["site/login"]);
-         }*/
     }
 
     public function actionSubir()
@@ -66,32 +63,33 @@ class ArchivodirController extends \yii\web\Controller
         $descripcion = '';
         $documentodir = Documentodir::findOne($numero);
         if ($model->load(Yii::$app->request->post()))
-            
             {
-            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            $model->file = UploadedFile::getInstances($model, 'file');
             $descripcion = $_POST['descripcion'];
-            if ($model->upload()) {
-
-                $table = new Archivodir();
-                if ($table) {                    
-                    $table->nombre = $model->imageFile->baseName.'.'.$model->imageFile->extension;
-                    $table->extension = $model->imageFile->extension;
-                    $table->tamaño = $model->imageFile->size;
-                    $table->tipo = $model->imageFile->type;
-                    $table->numero = $numero;
-                    $table->descripcion = $descripcion;
-                    $table->codigo = $codigo;
-                    $table->iddocumentodir = $documentodir->iddocumentodir;
-                    $table->iddirectorio = 1;
-                    $table->insert();
-
-                    $this->redirect([$view."/view",'id' => $codigo]);
-                    // el archivo se subió exitosamente
-                } else {
-                    $msg = "El registro seleccionado no ha sido encontrado";
+            if ($model->file && $model->validate()) {
+                $carpeta = 'Documentos/'.$model->numero.'/'.$model->codigo.'/';
+                if (!file_exists($carpeta)) {
+                    mkdir($carpeta, 0777, true);
                 }
-            }else{
-                Yii::$app->getSession()->setFlash('warning', 'Ya existe el nombre y la extesion del archivo que desea subir');
+                foreach ($model->file as $file):
+                    if(!file_exists($carpeta . $file->baseName . '.' . $file->extension)){
+                        $file->saveAs($carpeta . $file->baseName . '.' . $file->extension);
+                        $table = new Archivodir();
+                        $table->nombre = $file->baseName.'.'.$file->extension;
+                        $table->extension = $file->extension;
+                        $table->tamaño = $file->size;
+                        $table->tipo = $file->type;
+                        $table->numero = $numero;
+                        $table->descripcion = $descripcion;
+                        $table->codigo = $codigo;
+                        $table->iddocumentodir = $documentodir->iddocumentodir;
+                        $table->iddirectorio = 1;
+                        $table->save(false);
+                       $this->redirect([$view."/view",'id' => $codigo]);
+                    } else {
+                        Yii::$app->getSession()->setFlash('warning', 'Ya existe el nombre y la extesion del archivo que desea subir');    
+                    }  
+                endforeach;
             }
         }
         if (Yii::$app->request->get("numero")) {
@@ -102,7 +100,6 @@ class ArchivodirController extends \yii\web\Controller
 
         return $this->render("Subir", ["model" => $model, "msg" => $msg,'view' => $view]);
     }
-
     public function actionDescargar($id,$numero,$codigo)
     {
 

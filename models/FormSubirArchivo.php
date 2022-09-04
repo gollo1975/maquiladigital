@@ -10,7 +10,7 @@ use yii\web\UploadedFile;
 
 class FormSubirArchivo extends Model
 {
-    public $imageFile;
+    public $file;
     public $numero;
     public $codigo;
     public $view;
@@ -18,26 +18,31 @@ class FormSubirArchivo extends Model
     public function rules()
     {
         return [
-            [['imageFile'], 'required', 'message' => 'Campo requerido'],
-            [['imageFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'pdf'],            
-            ['numero', 'default'],
-            ['codigo', 'default'],
+             ['numero', 'default'],
+            ['codigo', 'string'],
             ['view', 'default'],
-            
-        ];
+            ['file', 'file',
+            'skipOnEmpty' => false,
+            'uploadRequired' => 'Debe de seleccionar al menos un archivo.',    
+            'extensions' => 'pdf,docx,txt,jgp,xlsx,png',            
+            'wrongExtension' => 'El archivo no contiene una extension permitida.',
+            'maxFiles' => 4,
+            'tooMany' => 'El maximo de archivos permito son (4)',
+        ],
+     ];           
     }
 
     public function attributeLabels()
     {
         return [
-            'imageFile' => 'Archivo:',            
+            'file' => 'Selecciona el archivo:', 
             'numero' => '',
             'codigo' => '',
             'view' => '',
         ];
     }
 
-    public function upload()
+/*    public function upload()
     {
         if ($this->validate()) {
             $carpeta = 'Documentos/'.$this->numero.'/'.$this->codigo.'/';
@@ -54,5 +59,5 @@ class FormSubirArchivo extends Model
         } else {
             return false;
         }
-    }
+    }*/
 }

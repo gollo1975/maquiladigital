@@ -108,25 +108,35 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($model as $val): ?>
-            <tr style="font-size: 85%;">                
-                <td><?= $val->nrofactura ?></td>
-                 <td><?= $val->nrofacturaelectronica ?></td>
-                <td><?= $val->cliente->cedulanit ?></td>
-                <td><?= $val->cliente->nombrecorto ?></td>
-                <td><?= $val->fechainicio ?></td>
-                <td><?= $val->fechavcto ?></td>
-                <td><?= number_format($val->subtotal,0) ?></td>
-                <td><?= number_format($val->totalpagar,0) ?></td>
-                <td><?= number_format($val->saldo,0) ?></td>
-                <td><?= $val->autorizar ?></td>
-                <td><?= $val->estados ?></td>
-                <td>				
-                <a href="<?= Url::toRoute(["facturaventa/viewconsulta", "id" => $val->idfactura]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
-                </td>
+                <?php
+                $saldo=0;
+                foreach ($model as $val):
+                    $saldo += $val->saldo;
+                    ?>
+                    <tr style="font-size: 85%;">                
+                        <td><?= $val->nrofactura ?></td>
+                         <td><?= $val->nrofacturaelectronica ?></td>
+                        <td><?= $val->cliente->cedulanit ?></td>
+                        <td><?= $val->cliente->nombrecorto ?></td>
+                        <td><?= $val->fechainicio ?></td>
+                        <td><?= $val->fechavcto ?></td>
+                        <td align="right"><?= number_format($val->subtotal,0) ?></td>
+                        <td align="right"><?= number_format($val->totalpagar,0) ?></td>
+                        <td align="right"><?= number_format($val->saldo,0) ?></td>
+                        <td><?= $val->autorizar ?></td>
+                        <td><?= $val->estados ?></td>
+                        <td>				
+                        <a href="<?= Url::toRoute(["facturaventa/viewconsulta", "id" => $val->idfactura]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </body>        
+            <tr>
+                <td colspan="7"></td>
+                <td align="right"><b>Saldo</b></td>
+                <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
+                <td colspan="3"></td>
             </tr>
-            </tbody>
-            <?php endforeach; ?>
         </table>    
         <div class="panel-footer text-right" >            
             <?php

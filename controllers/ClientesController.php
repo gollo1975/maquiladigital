@@ -40,18 +40,22 @@ class ClientesController extends Controller {
                         $nombrecorto = Html::encode($form->nombrecorto);
                         $table = Cliente::find()
                                 ->andFilterWhere(['like', 'cedulanit', $cedulanit])
-                                ->andFilterWhere(['like', 'nombrecorto', $nombrecorto])
-                                ->orderBy('idcliente desc');
+                                ->andFilterWhere(['like', 'nombrecorto', $nombrecorto]);
+                        $table = $table->orderBy('idcliente desc');
+                        $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 10,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
                                 ->offset($pages->offset)
                                 ->limit($pages->limit)
-                                ->all();
+                                    ->all();
+                        if(isset($_POST['excel'])){                    
+                            $this->actionExcelconsulta($tableexcel);
+                        }
                     } else {
                         $form->getErrors();
                     }
@@ -60,13 +64,17 @@ class ClientesController extends Controller {
                             ->orderBy('idcliente desc');
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 10,
+                        'pageSize' => 15,
                         'totalCount' => $count->count(),
                     ]);
+                    $tableexcel = $table->all();
                     $model = $table
                             ->offset($pages->offset)
                             ->limit($pages->limit)
                             ->all();
+                    if(isset($_POST['excel'])){                    
+                            $this->actionExcelconsulta($tableexcel);
+                    }
                 }
                 $to = $count->count();
                 return $this->render('index', [

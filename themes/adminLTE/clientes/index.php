@@ -107,7 +107,14 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php endforeach; ?>
         </table>
         <div class="panel-footer text-right" >
+             <?php
+                $form = ActiveForm::begin([
+                            "method" => "post",                            
+                        ]);
+                ?>    
+            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>
             <a align="right" href="<?= Url::toRoute("clientes/nuevo") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+              <?php $form->end() ?>
         </div>
     </div>
 </div>

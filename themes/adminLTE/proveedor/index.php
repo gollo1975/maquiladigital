@@ -64,22 +64,26 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
         <table class="table table-bordered table-hover">
             <thead>
-            <tr>                
+           <tr style="font-size: 85%;">    
+                <th scope="col">Tipo</th>
                 <th scope="col">Cedula/Nit</th>
                 <th scope="col">Proveedor</th>
-                <th scope="col">Teléfono</th>
                 <th scope="col">Dirección</th>
+                 <th scope="col">Teléfono</th>
+                <th scope="col">Departamento</th>
                 <th scope="col">Municipio</th>
                 <th scope="col"></th>                               
             </tr>
             </thead>
             <tbody>
             <?php foreach ($model as $val): ?>
-            <tr>                
+            <tr style="font-size: 85%;">                   
+                 <td><?= $val->tipo->tipo ?></td>
                 <td><?= $val->cedulanit ?></td>
                 <td><?= $val->nombrecorto ?></td>
-                <td><?= $val->telefonoproveedor ?></td>
                 <td><?= $val->direccionproveedor ?></td>
+                 <td><?= $val->telefonoproveedor ?></td>
+                <td><?= $val->departamento->departamento ?></td>
                 <td><?= $val->municipio->municipio ?></td>
                 <td>				
                 <a href="<?= Url::toRoute(["proveedor/view", "id" => $val->idproveedor]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
@@ -97,7 +101,15 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php endforeach; ?>
         </table>
         <div class="panel-footer text-right" >
-            <a align="right" href="<?= Url::toRoute("proveedor/nuevo") ?>" class="btn btn-success"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+             <?php
+                $form = ActiveForm::begin([
+                            "method" => "post",                            
+                        ]);
+                ?>    
+            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>
+            <a align="right" href="<?= Url::toRoute("proveedor/nuevo") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+              <?php $form->end() ?>
+            
         </div>
     </div>
 </div>

@@ -96,8 +96,8 @@ $form = ActiveForm::begin([
             </table>
         </div>
         <div class="panel-footer text-right">                        
-            <?= Html::a('Nuevo', ['site/newpermiso','id' => $model->codusuario], ['class' => 'btn btn-primary btn-sm']) ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-xs", 'name' => 'eliminar']) ?>
+            <?= Html::a("<span class='glyphicon glyphicon-plus'></span> Nuevo", ['site/newpermiso','id' => $model->codusuario], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminar']) ?>
         </div>
     </div>
 </div>

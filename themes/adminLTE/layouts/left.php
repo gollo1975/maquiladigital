@@ -1,3 +1,4 @@
+
 <aside class="main-sidebar">
 
     <section class="sidebar">
@@ -23,26 +24,25 @@
                 </span>
             </div>
         </form>
-        
+          <?php
+        echo Yii::$app->user->identity->codusuario;
+        ?>
         <!-- /.search form -->
-
         <?=
         dmstr\widgets\Menu::widget(
                 [
+
                     'options' => ['class' => 'sidebar-menu tree', 'data-widget' => 'tree'],
                     'items' => [
                         ['label' => 'MENÚ PRINCIPAL', 'options' => ['class' => 'header']],
-                        //['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii']],
-                        //['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug']],
+                       
                         ['label' => 'Login', 'url' => ['site/login'], 'visible' => Yii::$app->user->isGuest],
                         [
                             'label' => ' Herramientas ',
                             'icon' => 'share',
                             'url' => '#',
                             'items' => [
-                                //['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii'],],
-                                //['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug'],],
-                                [
+                               [
                                     'label' => 'Contratacion',
                                     'icon' => 'database',
                                     'url' => '#',

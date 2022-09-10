@@ -356,12 +356,12 @@ class ProveedorController extends Controller {
             $i++;
         }
 
-        $objPHPExcel->getActiveSheet()->setTitle('cliente');
+        $objPHPExcel->getActiveSheet()->setTitle('Proveedor');
         $objPHPExcel->setActiveSheetIndex(0);
 
         // Redirect output to a client’s web browser (Excel2007)
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="Proveedo.xlsx"');
+        header('Content-Disposition: attachment;filename="Proveedor.xlsx"');
         header('Cache-Control: max-age=0');
         // If you're serving to IE 9, then the following may be needed
         header('Cache-Control: max-age=1');

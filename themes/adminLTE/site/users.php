@@ -50,8 +50,8 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= $formulario->field($form, "nombrecompleto")->input("search") ?>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
-            <a align="right" href="<?= Url::toRoute("site/users") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
+            <a align="right" href="<?= Url::toRoute("site/users") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>

@@ -51,7 +51,7 @@ use dmstr\widgets\Alert;
     <div class="tab-content">
         <!-- Home tab content -->
         <div class="tab-pane" id="control-sidebar-home-tab">
-            <h3 class="control-sidebar-heading">Recent Activity</h3>
+            <h3 class="control-sidebar-heading">Actividad reciente</h3>
             <ul class='control-sidebar-menu'>
                 <li>
                     <a href='javascript::;'>
@@ -159,7 +159,7 @@ use dmstr\widgets\Alert;
         <!-- Settings tab content -->
         <div class="tab-pane" id="control-sidebar-settings-tab">
             <form method="post">
-                <h3 class="control-sidebar-heading">General Settings</h3>
+                <h3 class="control-sidebar-heading">Información general</h3>
 
                 <div class="form-group">
                     <label class="control-sidebar-subheading">

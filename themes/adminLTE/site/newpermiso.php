@@ -41,7 +41,7 @@ if ($mensaje != ""){
             Permisos
         </div>
         <div class="panel-body">
-            <table class="table table-condensed">
+               <table class="table table-bordered table-striped table-hover">
                 <thead>
                 <tr>
                     <th scope="col" style='background-color:#B9D5CE;'>Id</th>
@@ -52,16 +52,29 @@ if ($mensaje != ""){
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($permisos as $val): ?>
-                    <tr style="font-size: 85%;">                    
-                    <td><?= $val->id_permiso ?></td>
-                    <td><?= $val->modulo ?></td>
-                    <td><?= $val->menu_operacion ?></td>
-                    <td><?= $val->permiso ?></td>                    
-                    <td><input type="checkbox" name="idpermiso[]" value="<?= $val->id_permiso ?>"></td>
-                </tr>
-                </tbody>
-                <?php endforeach; ?>
+                    <?php foreach ($permisos as $val): 
+                        $permiso = app\models\UsuarioDetalle::find()->where(['=','id_permiso', $val->id_permiso])
+                                                                               ->andWhere(['=','codusuario', $id])->one();
+                         if($permiso){
+                            ?>
+                            <tr style="font-size: 85%;">                    
+                                <td style='background-color:#E1F1E9;'><?= $val->id_permiso ?></td>
+                                <td style='background-color:#E1F1E9;'><?= $val->modulo ?></td>
+                                <td style='background-color:#E1F1E9;'><?= $val->menu_operacion ?></td>
+                                <td style='background-color:#E1F1E9;'><?= $val->permiso ?></td>                    
+                                <td style='background-color:#E1F1E9;'><input type="checkbox" name="idpermiso[]" disabled="false" value="<?= $val->id_permiso ?>"></td>
+                            </tr>
+                         <?php }else{ ?>    
+                            <tr style="font-size: 85%;">                    
+                                <td><?= $val->id_permiso ?></td>
+                                <td><?= $val->modulo ?></td>
+                                <td><?= $val->menu_operacion ?></td>
+                                <td><?= $val->permiso ?></td>                    
+                                <td><input type="checkbox" name="idpermiso[]" value="<?= $val->id_permiso ?>"></td>
+                            </tr>
+                    <?php }        
+                    endforeach; ?>
+                </tbody>        
             </table>
         </div>
         <div class="panel-footer text-right">

@@ -36,7 +36,6 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
                          <h3 style="text-align: center;"><?= count($operario)?></h3>
                     </div>
                     <div class="icon">
-                       
                     </div>
                 </div>
             </div>
@@ -76,7 +75,12 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
            
         </div>
     </div>
-</section>  
+</section> 
+
+<footer class="main-footer">
+    <strong>Copyright &copy; 2022 | Todos los derechos reservados <a href="https://www.tiendaupfashion.com"> | Maquila Digital sas</a>. <b>Version</b> 2.0</strong>
+</footer>
+
 
 
 

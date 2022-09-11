@@ -6,7 +6,8 @@ use app\models\Users;
 /* @var $this yii\web\View */
 $empresa = Matriculaempresa::findOne(1);
 $operario = app\models\Operarios::find()->where(['=','estado', 1])->all();
-$orden = \app\models\Ordenproduccion::find()->where(['=','cerrar_orden', 0])->all();
+$ordenConfeccion = \app\models\Ordenproduccion::find()->where(['=','cerrar_orden', 0])->andWhere(['=','idtipo', 1])->all();
+$ordenTerminacion = \app\models\Ordenproduccion::find()->where(['=','cerrar_orden', 0])->andWhere(['=','idtipo', 2])->all();
 $cliente = \app\models\Cliente::find()->where(['=','proceso', 1])->all();
 $this->title = $empresa->nombresistema;
 $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
@@ -43,7 +44,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
                 <div class="small-box bg-success">
                   <div class="inner">
                     <h3 style="text-align: center; color: #2B5DB0;">CONFECCION</h3>
-                    <h3 style="text-align: center;"><?= count($orden)?></h3>
+                    <h3 style="text-align: center;"><?= count($ordenConfeccion)?></h3>
                   </div>
                   <div class="icon">
                    
@@ -54,7 +55,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
                 <div class="small-box bg-danger">
                   <div class="inner">
                     <h3 style="text-align: center; color: #7458A7;">TERMINACION</h3>
-                    <h3 style="text-align: center;"><?= count($orden)?></h3>
+                    <h3 style="text-align: center;"><?= count($ordenTerminacion)?></h3>
                   </div>
                  <div class="overlay">
                     <i class="fas fa-2x fa-sync-alt fa-spin"></i>

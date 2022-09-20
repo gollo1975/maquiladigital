@@ -45,7 +45,7 @@ class FormFiltroMaquinas extends Model
             'modelo' => 'Modelo:',
             'fecha_desde' => 'Fecha desde:',
             'fecha_corte' => 'Fecha corte:',
-            'bodega' => 'Bodega:',
+            'bodega' => 'Planta:',
             'estado' => 'Maquina activa:',
             
         ];

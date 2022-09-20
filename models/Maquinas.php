@@ -46,8 +46,8 @@ class Maquinas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo', 'id_marca','id_bodega'], 'required'],
-            [['id_tipo', 'id_marca','id_bodega','estado_maquina'], 'integer'],
+            [['id_tipo', 'id_marca','id_planta'], 'required'],
+            [['id_tipo', 'id_marca','id_planta','estado_maquina'], 'integer'],
             [['fecha_compra', 'fecha_registro','fecha_ultimo_mantenimiento','fecha_nuevo_mantenimiento'], 'safe'],
             [['codigo', 'usuario'], 'string', 'max' => 20],
             [['serial'], 'string', 'max' => 20],
@@ -55,7 +55,7 @@ class Maquinas extends \yii\db\ActiveRecord
             [['codigo_maquina'], 'string', 'max' => 20],
             [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => TiposMaquinas::className(), 'targetAttribute' => ['id_tipo' => 'id_tipo']],
             [['id_marca'], 'exist', 'skipOnError' => true, 'targetClass' => MarcaMaquinas::className(), 'targetAttribute' => ['id_marca' => 'id_marca']],
-            [['id_bodega'], 'exist', 'skipOnError' => true, 'targetClass' => Bodega::className(), 'targetAttribute' => ['id_bodega' => 'id_bodega']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -77,7 +77,7 @@ class Maquinas extends \yii\db\ActiveRecord
             'fecha_registro' => 'Fecha Registro',
             'fecha_ultimo_mantenimiento' => 'Fecha ultimo mantenimiento',
             'fecha_nuevo_mantenimiento' => 'Fecha nuevo mantenimiento',
-            'id_bodega' => 'Bodega/Planta:',
+            'id_planta' => 'Bodega/Planta:',
             'estado_maquina' => 'Activa:',
         ];
     }
@@ -97,9 +97,9 @@ class Maquinas extends \yii\db\ActiveRecord
     {
         return $this->hasOne(MarcaMaquinas::className(), ['id_marca' => 'id_marca']);
     }
-    public function getBodega()
+    public function getPlanta()
     {
-        return $this->hasOne(Bodega::className(), ['id_bodega' => 'id_bodega']);
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
     }
     public function getEstadoMaquina() {
         if($this->estado_maquina == 0){

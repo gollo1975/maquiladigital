@@ -29,7 +29,7 @@ $form = ActiveForm::begin([
 <?php
 $marcas= ArrayHelper::map(\app\models\MarcaMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_marca', 'descripcion');
 $tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_tipo', 'descripcion');
-$bodegas= ArrayHelper::map(\app\models\Bodega::find()->orderBy('descripcion ASC')->all(), 'id_bodega', 'descripcion');
+$bodegas= ArrayHelper::map(\app\models\PlantaEmpresa::find()->orderBy('nombre_planta ASC')->all(), 'id_planta', 'nombre_planta');
 ?>
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -71,7 +71,7 @@ $bodegas= ArrayHelper::map(\app\models\Bodega::find()->orderBy('descripcion ASC'
                                'format' => 'yyyy-m-d',
                                'todayHighlight' => true]])
             ?>
-             <?= $form->field($model, 'id_bodega')->widget(Select2::classname(), [
+             <?= $form->field($model, 'id_planta')->widget(Select2::classname(), [
                     'data' => $bodegas,
                     'options' => ['placeholder' => 'Seleccione...'],
                     'pluginOptions' => [

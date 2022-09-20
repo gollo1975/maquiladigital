@@ -9,7 +9,7 @@ use kartik\date\DatePicker;
 use kartik\select2\Select2;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
-use app\models\Bodega;
+use app\models\PlantaEmpresa;
 use app\models\TiposMaquinas;
 use app\models\MarcaMaquinas;
 
@@ -44,7 +44,7 @@ $mesActual = substr($fecha_mes, 5, 2);
 ]);
 $marcas= ArrayHelper::map(MarcaMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_marca', 'descripcion');
 $tipos= ArrayHelper::map(TiposMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_tipo', 'descripcion');
-$bodegas= ArrayHelper::map(Bodega::find()->orderBy('descripcion ASC')->all(), 'id_bodega', 'descripcion');
+$bodegas= ArrayHelper::map(PlantaEmpresa::find()->orderBy('nombre_planta ASC')->all(), 'id_planta', 'nombre_planta');
 ?>
 <div class="panel panel-success panel-filters">
     <div class="panel-heading" onclick="mostrarfiltro()">
@@ -138,7 +138,7 @@ $bodegas= ArrayHelper::map(Bodega::find()->orderBy('descripcion ASC')->all(), 'i
                         <tr style='font-size:85%;'>  
                             <td><?= $val->codigo_maquina ?></td>
                             <td><?= $val->tipo->descripcion ?></td>
-                            <td><?= $val->bodega->descripcion ?></td>
+                            <td><?= $val->planta->nombre_planta ?></td>
                             <td><?= $val->marca->descripcion?></td>
                             <td><?= $val->codigo ?></td>
                             <td><?= $val->serial ?></td>
@@ -162,7 +162,7 @@ $bodegas= ArrayHelper::map(Bodega::find()->orderBy('descripcion ASC')->all(), 'i
                          <tr style='font-size:85%;'>  
                             <td style='background-color:#BCD7E5'><?= $val->codigo_maquina ?></td>
                             <td style='background-color:#BCD7E5;'><?= $val->tipo->descripcion ?></td>
-                            <td style='background-color:#BCD7E5;'><?= $val->bodega->descripcion ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->planta->nombre_planta ?></td>
                             <td style='background-color:#BCD7E5;'><?= $val->marca->descripcion?></td>
                             <td style='background-color:#BCD7E5;'><?= $val->codigo ?></td>
                             <td style='background-color:#BCD7E5;'><?= $val->serial ?></td>

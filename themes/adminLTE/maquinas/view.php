@@ -118,7 +118,7 @@ $debaja = \app\models\DebajaMaquina::find()->where(['=','id_maquina', $model->id
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nuevo_Mto') ?>:</th>
                     <td ><?= Html::encode($model->fecha_nuevo_mantenimiento) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Bodega') ?>:</th>
-                    <td ><?= Html::encode($model->bodega->descripcion) ?></td>
+                    <td ><?= Html::encode($model->planta->nombre_planta) ?></td>
                 </tr>
                 
             </table>

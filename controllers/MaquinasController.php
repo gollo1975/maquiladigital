@@ -78,7 +78,7 @@ class MaquinasController extends Controller
                                 ->andFilterWhere(['=', 'id_tipo', $id_tipo])
                                 ->andFilterWhere(['=','id_marca', $id_marca])
                                 ->andFilterWhere(['=','id_marca', $id_marca]) 
-                                ->andFilterWhere(['=','id_bodega', $bodega])
+                                ->andFilterWhere(['=','id_planta', $bodega])
                                 ->andFilterWhere(['=','estado_maquina', $estado])
                                 ->andFilterWhere(['>=','fecha_compra', $fecha_desde])
                                 ->andFilterWhere(['<=','fecha_compra', $fecha_corte]); 
@@ -179,7 +179,7 @@ class MaquinasController extends Controller
                 $nuevafecha = strtotime ( '+'.$tipo_maquina->tiempo_mantenimiento.' day' , strtotime ( $fecha ) ) ;
                 $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
                 $table->fecha_nuevo_mantenimiento = $nuevafecha;
-                $table->id_bodega = $model->id_bodega;
+                $table->id_planta = $model->id_planta;
                 $table->usuario =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["maquinas/index"]);
@@ -222,7 +222,7 @@ class MaquinasController extends Controller
                 $table->id_marca = $model->id_marca;
                 $table->codigo_maquina= $model->codigo_maquina ;
                 $table->modelo = $model->modelo;      
-                $table->id_bodega = $model->id_bodega;      
+                $table->id_planta = $model->id_planta;      
                 $table->fecha_compra = $model->fecha_compra;
                 $table->fecha_ultimo_mantenimiento = $model->fecha_compra;
                 //codigo que pone la fecha de mantenimiento
@@ -408,7 +408,7 @@ class MaquinasController extends Controller
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->id_maquina)
                     ->setCellValue('B' . $i, $val->tipo->descripcion)
-                    ->setCellValue('C' . $i, $val->bodega->descripcion)
+                    ->setCellValue('C' . $i, $val->planta->nombre_planta)
                     ->setCellValue('D' . $i, $val->marca->descripcion)                    
                     ->setCellValue('E' . $i, $val->codigo_maquina)
                     ->setCellValue('F' . $i, $val->serial)  

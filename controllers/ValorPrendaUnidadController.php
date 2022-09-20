@@ -548,12 +548,21 @@ class ValorPrendaUnidadController extends Controller
                     $empresa = \app\models\Matriculaempresa::find()->where(['=','id', 1])->one();
                     foreach ($_POST["idoperario"] as $intCodigo):
                         $balanceo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])
-                                              ->andWhere(['=','id_proceso_confeccion', 2])
-                                              ->orWhere(['=','id_proceso_confeccion', 3])->one();
-                        $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo->id_balanceo])
+                                             ->andWhere(['=','id_proceso_confeccion', 2])
+                                             ->one();
+                        $balanceo1 = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])
+                                              ->andWhere(['=','id_proceso_confeccion', 3])->one();
+                        if($balanceo){
+                            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo->id_balanceo])
                                                                                ->andWhere(['=','id_operario',  $intCodigo])
                                                                                ->andWhere(['=','estado_operacion', 0])
                                                                                ->orderBy('id_operario DESC')->all();
+                        }else{
+                            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo1->id_balanceo])
+                                                                               ->andWhere(['=','id_operario',  $intCodigo])
+                                                                               ->andWhere(['=','estado_operacion', 0])
+                                                                               ->orderBy('id_operario DESC')->all();
+                        }    
                         $operarios = Operarios::findOne($intCodigo);
                         $total = 0;
                         foreach ($detalle_balanceo as $val):

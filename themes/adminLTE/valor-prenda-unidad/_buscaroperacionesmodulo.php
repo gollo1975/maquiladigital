@@ -7,11 +7,19 @@ use app\models\Operarios;
 use kartik\select2\Select2;
 use app\models\ProcesoProduccion;
 $balanceo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])
-                                                      ->andWhere(['=','id_proceso_confeccion', 2])
-                                                      ->orWhere(['=','id_proceso_confeccion', 3]) ->one();
-$detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo->id_balanceo])
+                                                      ->andWhere(['=','id_proceso_confeccion', 2])->one();
+
+$balanceo1 = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])
+                                                      ->andWhere(['=','id_proceso_confeccion', 3])->one();
+if ($balanceo){
+   $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo->id_balanceo])
                                                        ->andWhere(['=','estado_operacion', 0])
-                                                       ->orderBy('id_operario DESC')->all();
+                                                       ->orderBy('id_operario desc')->all();
+}else{
+   $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo1->id_balanceo])
+                                                       ->andWhere(['=','estado_operacion', 0])
+                                                       ->orderBy('id_operario desc')->all();  
+}   
 $empresa = app\models\Matriculaempresa::findOne(1);
 ?>
 <?php $form = ActiveForm::begin([

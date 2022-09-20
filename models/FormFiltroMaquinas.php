@@ -17,6 +17,8 @@ class FormFiltroMaquinas extends Model
     public $fecha_corte;
     public $codigo_maquina;
     public $modelo;
+    public $bodega;
+    public $estado;
 
     /**
      * {@inheritdoc}
@@ -24,7 +26,7 @@ class FormFiltroMaquinas extends Model
     public function rules()
     {
         return [
-            [['id_marca', 'id_tipo'], 'integer'],
+            [['id_marca', 'id_tipo','bodega','estado'], 'integer'],
             [['codigo_maquina','modelo'], 'string'],
             [['fecha_desde', 'fecha_corte'], 'safe'],
             
@@ -43,6 +45,8 @@ class FormFiltroMaquinas extends Model
             'modelo' => 'Modelo:',
             'fecha_desde' => 'Fecha desde:',
             'fecha_corte' => 'Fecha corte:',
+            'bodega' => 'Bodega:',
+            'estado' => 'Maquina activa:',
             
         ];
     }

@@ -23,6 +23,7 @@ use app\models\UsuarioDetalle;
 use app\models\MantenimientoMaquina;
 use app\models\Mecanico;
 use app\models\ServicioMantenimiento;
+use app\models\DebajaMaquina;
 
 
 /**
@@ -59,6 +60,8 @@ class MaquinasController extends Controller
                 $fecha_corte = null;
                 $modelo = null;
                 $codigo = null;
+                $bodega = null;
+                $estado = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_marca = Html::encode($form->id_marca);
@@ -67,12 +70,16 @@ class MaquinasController extends Controller
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $modelo = Html::encode($form->modelo);
                         $codigo = Html::encode($form->codigo_maquina);
+                        $bodega = Html::encode($form->bodega);
+                        $estado = Html::encode($form->estado);
                         $table = Maquinas::find()
                                 ->andFilterWhere(['=', 'modelo', $modelo])
                                 ->andFilterWhere(['like', 'codigo_maquina', $codigo])
                                 ->andFilterWhere(['=', 'id_tipo', $id_tipo])
                                 ->andFilterWhere(['=','id_marca', $id_marca])
                                 ->andFilterWhere(['=','id_marca', $id_marca]) 
+                                ->andFilterWhere(['=','id_bodega', $bodega])
+                                ->andFilterWhere(['=','estado_maquina', $estado])
                                 ->andFilterWhere(['>=','fecha_compra', $fecha_desde])
                                 ->andFilterWhere(['<=','fecha_compra', $fecha_corte]); 
                         $table = $table->orderBy('id_maquina DESC');
@@ -80,7 +87,7 @@ class MaquinasController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -100,7 +107,7 @@ class MaquinasController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 40,
+                        'pageSize' => 20,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -172,6 +179,7 @@ class MaquinasController extends Controller
                 $nuevafecha = strtotime ( '+'.$tipo_maquina->tiempo_mantenimiento.' day' , strtotime ( $fecha ) ) ;
                 $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
                 $table->fecha_nuevo_mantenimiento = $nuevafecha;
+                $table->id_bodega = $model->id_bodega;
                 $table->usuario =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["maquinas/index"]);
@@ -214,6 +222,7 @@ class MaquinasController extends Controller
                 $table->id_marca = $model->id_marca;
                 $table->codigo_maquina= $model->codigo_maquina ;
                 $table->modelo = $model->modelo;      
+                $table->id_bodega = $model->id_bodega;      
                 $table->fecha_compra = $model->fecha_compra;
                 $table->fecha_ultimo_mantenimiento = $model->fecha_compra;
                 //codigo que pone la fecha de mantenimiento
@@ -280,6 +289,37 @@ class MaquinasController extends Controller
         ]);      
     }
     
+    //proceso que debaja
+    public function actionDar_debaja_maquina($id)
+    {
+        
+        $model = new DebajaMaquina();
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()){
+                if (isset($_POST["enviardebaja"])) {
+                    $tabla = new DebajaMaquina(); 
+                     $tabla->id_maquina = $id;
+                    $tabla->fecha_proceso = $model->fecha_proceso;
+                    $tabla->observacion = $model->observacion;
+                    $tabla->usuario = Yii::$app->user->identity->username;
+                    $tabla->save(false);
+                    $maquina = Maquinas::findOne($id);
+                    $maquina->estado_maquina = 1;
+                    $maquina->save(false);
+                    $this->redirect(["view", 'id' => $id]); 
+                }
+            }
+        }
+         return $this->renderAjax('dardebajamaquina', [
+            'model' => $model,   
+           
+        ]);   
+    }  
+    
     //ESTE PROCESO EDITA UN REGISTRO DE MANTENIMIENTO
     public function actionEditarobservacion($id, $id_mto)
     {
@@ -318,5 +358,86 @@ class MaquinasController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    
+    //PROCESO QUE EXPORTA
+    
+    public function actionExcelconsultaMaquinas($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'ID')
+                    ->setCellValue('B1', 'TIPO MAQUINA')
+                    ->setCellValue('C1', 'BODEGA/PLANTA')
+                    ->setCellValue('D1', 'MARCA')                    
+                    ->setCellValue('E1', 'NRO MAQUINA')
+                    ->setCellValue('F1', 'SERIAL')
+                    ->setCellValue('G1', 'CODIGO')
+                    ->setCellValue('H1', 'MODELO')
+                    ->setCellValue('I1', 'FECHA COMPRA')
+                    ->setCellValue('J1', 'ULTIMO MTTO')
+                    ->setCellValue('K1', 'NUEVO MTTO')
+                    ->setCellValue('L1', 'FECHA REGISTRO')
+                    ->setCellValue('M1', 'USUARIO');
+        $i = 2;
+        
+        foreach ($tableexcel as $val) {
+                                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_maquina)
+                    ->setCellValue('B' . $i, $val->tipo->descripcion)
+                    ->setCellValue('C' . $i, $val->bodega->descripcion)
+                    ->setCellValue('D' . $i, $val->marca->descripcion)                    
+                    ->setCellValue('E' . $i, $val->codigo_maquina)
+                    ->setCellValue('F' . $i, $val->serial)  
+                    ->setCellValue('G' . $i, $val->codigo)
+                    ->setCellValue('H' . $i, $val->modelo)
+                    ->setCellValue('I' . $i, $val->fecha_compra)
+                    ->setCellValue('J' . $i, $val->fecha_ultimo_mantenimiento)
+                    ->setCellValue('K' . $i, $val->fecha_nuevo_mantenimiento)
+                    ->setCellValue('L' . $i, $val->fecha_registro)
+                    ->setCellValue('M' . $i, $val->usuario);
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado_Maquinas');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Maquinas.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
     }
 }

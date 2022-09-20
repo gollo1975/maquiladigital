@@ -9,6 +9,10 @@ use kartik\date\DatePicker;
 use kartik\select2\Select2;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
+use app\models\Bodega;
+use app\models\TiposMaquinas;
+use app\models\MarcaMaquinas;
+
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\FichatiempoSearch */
@@ -16,6 +20,8 @@ use kartik\depdrop\DepDrop;
 
 $this->title = 'Maquinas';
 $this->params['breadcrumbs'][] = $this->title;
+$fecha_mes = date('Y-m-d');
+$mesActual = substr($fecha_mes, 5, 2);
 ?>
 <script language="JavaScript">
     function mostrarfiltro() {
@@ -36,8 +42,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
 
 ]);
-$marcas= ArrayHelper::map(\app\models\MarcaMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_marca', 'descripcion');
-$tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_tipo', 'descripcion');
+$marcas= ArrayHelper::map(MarcaMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_marca', 'descripcion');
+$tipos= ArrayHelper::map(TiposMaquinas::find()->orderBy('descripcion ASC')->all(), 'id_tipo', 'descripcion');
+$bodegas= ArrayHelper::map(Bodega::find()->orderBy('descripcion ASC')->all(), 'id_bodega', 'descripcion');
 ?>
 <div class="panel panel-success panel-filters">
     <div class="panel-heading" onclick="mostrarfiltro()">
@@ -64,18 +71,26 @@ $tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion
             ?>
              <?= $formulario->field($form, 'id_tipo')->widget(Select2::classname(), [
                 'data' => $tipos,
-                'options' => ['prompt' => 'Seleccione un cliente ...'],
+                'options' => ['prompt' => 'Seleccione la maquina ...'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],
             ]); ?>
              <?= $formulario->field($form, 'id_marca')->widget(Select2::classname(), [
                 'data' => $marcas,
-                'options' => ['prompt' => 'Seleccione un cliente ...'],
+                'options' => ['prompt' => 'Seleccione la marca ...'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],
             ]); ?>
+             <?= $formulario->field($form, 'bodega')->widget(Select2::classname(), [
+                'data' => $bodegas,
+                'options' => ['prompt' => 'Seleccione la bodega ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+             <?= $formulario->field($form, 'estado')->dropDownList(['0' => 'SI', '1' => 'NO'],['prompt' => 'Seleccione una opcion ...']) ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -100,42 +115,74 @@ $tipos= ArrayHelper::map(\app\models\TiposMaquinas::find()->orderBy('descripcion
                 <tr style ='font-size:85%;'>                
                 <th scope="col" style='background-color:#B9D5CE;'>Nro</th>    
                 <th scope="col" style='background-color:#B9D5CE;'>Tipo de maquina</th>
-                  <th scope="col" style='background-color:#B9D5CE;'>Marca</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Bodega/Planta</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Marca</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Serial</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Modelo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Ultimo Mto</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Nuevo Mto</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                 <th scope="col" style='background-color:#B9D5CE;'>Activa</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
             </tr>
             </thead>
             <tbody>
-                <?php 
-                foreach ($modelo as $val):?>
-                    <tr style='font-size:85%;'>  
-                        <td><?= $val->codigo_maquina ?></td>
-                         <td><?= $val->tipo->descripcion ?></td>
-                        <td><?= $val->marca->descripcion?></td>
-                        <td><?= $val->codigo ?></td>
-                        <td><?= $val->serial ?></td>
-                        <td><?= $val->modelo ?></td>
-                        <td><?= $val->fecha_ultimo_mantenimiento ?></td>
-                        <td><?= $val->fecha_nuevo_mantenimiento ?></td>
-                        <td><?= $val->usuario ?></td>
-                        <td style= 'width: 25px; height: 25px;'>
-                        <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                        </td>
-                        <td style= 'width: 25px; height: 25px;'>
-                                <a href="<?= Url::toRoute(["maquinas/update", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                        </td>
                 <?php
+                $fecha_mtto = '';
+                foreach ($modelo as $val):
+                    $fecha_mtto = substr($val->fecha_nuevo_mantenimiento, 5, 2);
+                    if($val->estado_maquina == 0){
+                        ?>
+                        <tr style='font-size:85%;'>  
+                            <td><?= $val->codigo_maquina ?></td>
+                            <td><?= $val->tipo->descripcion ?></td>
+                            <td><?= $val->bodega->descripcion ?></td>
+                            <td><?= $val->marca->descripcion?></td>
+                            <td><?= $val->codigo ?></td>
+                            <td><?= $val->serial ?></td>
+                            <td><?= $val->modelo ?></td>
+                            <td><?= $val->fecha_ultimo_mantenimiento ?></td>
+                            <?php if($fecha_mtto === $mesActual){?>
+                                  <td style='background-color:#E6C4F9;'><?= $val->fecha_nuevo_mantenimiento ?></td>
+                            <?php }else{ ?>      
+                                  <td><?= $val->fecha_nuevo_mantenimiento ?></td>
+                            <?php } ?>      
+                            <td><?= $val->usuario ?></td>
+                               <td><?= $val->estadoMaquina ?></td>
+                            <td style= 'width: 25px; height: 25px;'>
+                            <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            </td>
+                            <td style= 'width: 25px; height: 25px;'>
+                                    <a href="<?= Url::toRoute(["maquinas/update", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                            </td>
+                        </tr>   
+                    <?php }else{?>
+                         <tr style='font-size:85%;'>  
+                            <td style='background-color:#BCD7E5'><?= $val->codigo_maquina ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->tipo->descripcion ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->bodega->descripcion ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->marca->descripcion?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->codigo ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->serial ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->modelo ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->fecha_ultimo_mantenimiento ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->fecha_nuevo_mantenimiento ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->usuario ?></td>
+                            <td style='background-color:#BCD7E5;'><?= $val->estadoMaquina ?></td>
+                            <td style= 'width: 25px; height: 25px;'>
+                            <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            </td>
+                            <td style= 'width: 25px; height: 25px;'></td>
+                        </tr>   
+                            
+                    <?php } 
                 endforeach; ?>
             </tbody>           
         </table>    
         <div class="panel-footer text-right" >            
-                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
+                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
                 <a align="right" href="<?= Url::toRoute("maquinas/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a> 
             <?php $form->end() ?>
         </div>

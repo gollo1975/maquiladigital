@@ -95,14 +95,15 @@ $this->params['breadcrumbs'][] = $this->title;
         <table class="table table-bordered table-hover">
             <thead>
             <tr>
-                <th scope="col">Id Orden</th>
-                <th scope="col">Cod Prod</th>
-                <th scope="col">Orden Produccion</th>
+                <th scope="col">Op Int.</th>
+                <th scope="col">Referencia</th>
+                <th scope="col">Unidades</th>
+                <th scope="col">Op Cliente</th>
                 <th scope="col">Cliente</th>
-                <th scope="col">Fecha Llegada</th>
-                <th scope="col">Fecha Procesada</th>
-                <th scope="col">Fecha Entrega</th>
-                <th scope="col">Tipo</th>
+                <th scope="col">F. llegada</th>
+                <th scope="col">F. procesada</th>
+                <th scope="col">F. entrega</th>
+                <th scope="col">Servicio</th>
                 <th scope="col">Progreso</th>
                 <th scope="col"></th>
             </tr>
@@ -112,6 +113,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tr style="font-size: 85%;">
                 <td><?= $val->idordenproduccion ?></td>
                 <td><?= $val->codigoproducto ?></td>
+                  <td><?= $val->cantidad ?></td>
                 <td><?= $val->ordenproduccion ?></td>
                 <td><?= $val->cliente->nombrecorto ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>

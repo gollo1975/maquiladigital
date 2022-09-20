@@ -35,9 +35,9 @@ class FormFiltroConsultaFichaoperacion extends Model
         return [
 
             'idcliente' => 'Cliente:',
-            'ordenproduccion' => 'Orden de Producción:',
-            'idtipo' => 'Tipo:',
-            'codigoproducto' => 'Cod Producto:',
+            'ordenproduccion' => 'Op Interna:',
+            'idtipo' => 'Servicio:',
+            'codigoproducto' => 'Referencia:',
             'desde' => 'Desde:',
             'hasta' => 'Hasta:',
         ];

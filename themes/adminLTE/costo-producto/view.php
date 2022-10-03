@@ -45,7 +45,7 @@ $view = 'costo-producto';
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_producto') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Id') ?>:</th>
                     <td><?= Html::encode($model->id_producto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo_producto') ?></th>
                     <td><?= Html::encode($model->codigo_producto) ?></td>
@@ -58,16 +58,17 @@ $view = 'costo-producto';
                     <td><?= Html::encode($model->tipoProducto->concepto) ?></td>
                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?></th>
                     <td><?= Html::encode($model->descripcion) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Costo_con_iva') ?>:</th>
-                    <td align="right"><?= Html::encode('$ '.number_format($model->costo_con_iva,0)) ?></td>
+                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentaje_iva') ?>:</th>
+                    <td align="right"><?= Html::encode($model->porcentaje_iva) ?>%</td>
+                  
                 </tr>
                 <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Autorizado') ?>:</th>
                     <td><?= Html::encode($model->autorizadocosto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_creacion') ?>:</th>
                     <td ><?= Html::encode($model->fecha_creacion) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentaje_iva') ?>:</th>
-                    <td align="right"><?= Html::encode($model->porcentaje_iva) ?>%</td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Costo_con_iva') ?>:</th>
+                    <td align="right"><?= Html::encode('$ '.number_format($model->costo_con_iva,0)) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Usuario') ?>:</th>
@@ -83,7 +84,10 @@ $view = 'costo-producto';
     <div>
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#insumos" aria-controls="insumos" role="tab" data-toggle="tab">Insumos <span class="badge"><?= count($costo_producto_detalle) ?></span></a></li>
-            <li role="presentation"><a href="#tallas" aria-controls="tallas" role="tab" data-toggle="tab">Tallas <span class="badge"><?= count($costo_producto_detalle) ?></span></a></li>
+            <li role="presentation"><a href="#tallas" aria-controls="tallas" role="tab" data-toggle="tab">Tallas <span class="badge"><?= count($talla_producto) ?></span></a></li>
+            <?php if(count($color_producto)> 0){?>        
+              <li role="presentation"><a href="#colores" aria-controls="colores" role="tab" data-toggle="tab">Colores <span class="badge"><?= count($color_producto) ?></span></a></li>
+            <?php }?>  
         </ul>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="insumos">
@@ -190,11 +194,13 @@ $view = 'costo-producto';
                                 </<body>
                             </table>
                         </div>
-                        <div class="panel-footer text-right"> 
-                            <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['costo-producto/nuevodetalle', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
-                            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editartododetalle', 'id' => $model->id_producto],[ 'class' => 'btn btn-success btn-sm']) ?>
-                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['costo-producto/eliminartododetalle', 'id' => $model->id_producto], ['class' => 'btn btn-danger btn-sm']) ?>                    
-                        </div> 
+                        <?php if($model->autorizado == 0){?>
+                            <div class="panel-footer text-right"> 
+                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['costo-producto/nuevodetalle', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editartododetalle', 'id' => $model->id_producto],[ 'class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['costo-producto/eliminartododetalle', 'id' => $model->id_producto], ['class' => 'btn btn-danger btn-sm']) ?>                    
+                            </div> 
+                        <?php }?>
                     </div>    
                 </div>
             </div> 
@@ -212,15 +218,105 @@ $view = 'costo-producto';
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha registro</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                                         <th style='background-color:#B9D5CE;'></th>
-                                        <th style='background-color:#B9D5CE;'></th>
                                     </tr>
                                 </thead>
+                                <body>
+                                    <?php
+                                        foreach ($talla_producto as $val):?>
+                                            <tr style="font-size: 85%;">
+                                                <td><?= $val->id_producto_talla ?></td>
+                                                <td><?= $val->talla->talla ?></td>
+                                                <td style="text-align: right"><?= ''.number_format($val->cantidad,0) ?></td>
+                                                <td><?= $val->fecha_registro ?></td>
+                                                <td><?= $val->usuariosistema ?></td>
+                                                <?php if($model->autorizado == 0){?>
+                                                    <td style= 'width: 25px; height: 25px;'>
+                                                        <?php echo Html::a('<span class="glyphicon glyphicon-plus "></span> ',            
+                                                            ['/costo-producto/crearcolores','id_talla' => $val->id_producto_talla, 'id'=>$model->id_producto],
+                                                            [
+                                                                'title' => 'Crear colores',
+                                                                'data-toggle'=>'modal',
+                                                                'data-target'=>'#modalcrearcolores'.$val->id_producto_talla,
+                                                                'classs' >= 'btn btn-info btn-xs '
+                                                            ]
+                                                        );
+                                                       ?>
+                                                    </td> 
+                                                    <div class="modal remote fade" id="modalcrearcolores<?= $val->id_producto_talla ?>">
+                                                        <div class="modal-dialog modal-dialog">
+                                                            <div class="modal-content"></div>
+                                                        </div>
+                                                    </div>
+                                                <?php }else{?>
+                                                 <td style= 'width: 25px; height: 25px;'></td>
+                                                <?php }?> 
+                                             </tr>    
+                                    <?php endforeach;?>
+                                </body>    
                             </table>
                         </div>
+                         <?php if($model->autorizado == 0){?>
+                            <div class="panel-footer text-right"> 
+                                <?= Html::a('<span class="glyphicon glyphicon-plus-sign"></span> Crear tallas', ['costo-producto/creartallas', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
+                            </div> 
+                         <?php }?>
                     </div>
                 </div>
             </div>
             <!-- TERMINA TABS-->
+             <div role="tabpanel" class="tab-pane" id="colores">
+                <div class="table-responsive">
+                    <div class="panel panel-success">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-hover">
+                                 <thead>
+                                    <tr>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Color</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha registro</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                        <th style='background-color:#B9D5CE;'></th>
+                                    </tr>
+                                </thead>
+                                <body>
+                                    <?php
+                                        foreach ($color_producto as $val):?>
+                                            <tr style="font-size: 85%;">
+                                                <td><?= $val->id_producto_color ?></td>
+                                                <td><?= $val->color->color   ?></td>
+                                                <td><?= $val->productoTalla->talla->talla   ?></td>
+                                                <td style="text-align: right"><?= ''.number_format($val->cantidad_color,0) ?></td>
+                                                <td><?= $val->fecha_registro ?></td>
+                                                <td><?= $val->usuariosistema ?></td>
+                                                 <?php if($model->autorizado == 0){?>
+                                                    <td style= 'width: 25px; height: 25px;'>
+                                                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarcolores', 'id' => $model->id_producto, 'id_color' => $val->id_producto_color], [
+                                                                'class' => '',
+                                                                'data' => [
+                                                                    'confirm' => 'Esta seguro de eliminar el registro?',
+                                                                    'method' => 'post',
+                                                                ],
+                                                            ])
+                                                    ?>
+                                                    </td>
+                                                 <?php }else{?>
+                                                    <td style= 'width: 25px; height: 25px;'></td>
+                                                 <?php }?>   
+                                             </tr>    
+                                    <?php endforeach;?>
+                                </body>    
+                            </table>
+                        </div>
+                         <?php if($model->autorizado == 0){?>
+                            <div class="panel-footer text-right"> 
+                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Adcionar cantidad', ['costo-producto/editarcolores', 'id' => $model->id_producto],[ 'class' => 'btn btn-primary btn-sm']) ?>
+                            </div> 
+                         <?php }?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

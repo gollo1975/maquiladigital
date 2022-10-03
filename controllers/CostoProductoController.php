@@ -29,6 +29,9 @@ use app\models\FormFiltroCostoProducto;
 use app\models\FormMaquinaBuscar;
 use app\models\CostoProductoDetalle;
 use app\models\Insumos;
+use app\models\Talla;
+use app\models\ProductoTalla;
+use app\models\ProductoColor;
 /**
  * CostoProductoController implements the CRUD actions for CostoProducto model.
  */
@@ -132,6 +135,8 @@ class CostoProductoController extends Controller
     public function actionView($id)
     {
         $costo_producto_detalle = CostoProductoDetalle::find()->Where(['=', 'id_producto', $id])->all();
+        $talla_producto = ProductoTalla::find()->where(['=','id_producto', $id])->orderBy('idtalla asc')->all();
+        $color_producto = ProductoColor::find()->where(['=','id_producto', $id])->orderBy('id_producto_talla DESC')->all();
         $modeldetalle = new CostoProductoDetalle();
         $mensaje = "";
         return $this->render('view', [
@@ -139,6 +144,8 @@ class CostoProductoController extends Controller
             'costo_producto_detalle' => $costo_producto_detalle,
             'modeldetalle' => $modeldetalle,
             'mensaje' => $mensaje,
+            'talla_producto' => $talla_producto,
+            'color_producto' => $color_producto,
         ]);
     }
 
@@ -315,37 +322,53 @@ class CostoProductoController extends Controller
                 }
             }
         }
-       //return $this->render("_formeditardetalle", ["id" => $model,]);
     }
-   
     // ELIMINA LOS DETALLES DE INSUMOS
-     
-     public function actionEliminardetalle()
+    public function actionEliminardetalle()
     {
         if(Yii::$app->request->post())
         {
             $iddetalle = Html::encode($_POST["iddetalle"]);
             $idproducto = Html::encode($_POST["idproducto"]);
-            if((int) $iddetalle)
-            {
-                if(CostoProductoDetalle::deleteAll("id=:id", [":id" => $iddetalle]))
-                {
+            if((int) $iddetalle){
+                if(CostoProductoDetalle::deleteAll("id=:id", [":id" => $iddetalle])){
                     $this->actualizarCostos($idproducto);
                     $this->redirect(["costo-producto/view",'id' => $idproducto]);
-                }
-                else
-                {
+                }else{
                     echo "<meta http-equiv='refresh' content='3; ".Url::toRoute("costo-producto/index")."'>";
                 }
-            }
-            else
-            {
+            }else{
                 echo "<meta http-equiv='refresh' content='3; ".Url::toRoute("costo-producto/index")."'>";
             }
-        }
-        else
-        {
+        }else{
             return $this->redirect(["costo-producto/index"]);
+        }
+    }
+    
+    //ELIMIAR LOS COLORES
+     public function actionEliminarcolores($id, $id_color) {
+        
+        if (Yii::$app->request->post()) {
+            $color = ProductoColor::findOne($id_color);
+            if ((int) $id_color) {
+                try {
+                    ProductoColor::deleteAll("id_producto_color=:id_producto_color", [":id_producto_color" => $id_color]);
+                    Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
+                    $this->redirect(["costo-producto/view",'id'=> $id]);
+                } catch (IntegrityException $e) {
+                   $this->redirect(["costo-producto/view",'id'=> $id]);
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar el color Nro :' .$color->color->color .', tiene registros asociados en otros procesos');
+                } catch (\Exception $e) {
+
+                  $this->redirect(["costo-producto/view",'id'=> $id]);
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar el color Nro :' .$color->color->color .', tiene registros asociados en otros procesos');
+                }
+            } else {
+                // echo "Ha ocurrido un error al eliminar el registros, redireccionando ...";
+                echo "<meta http-equiv='refresh' content='3; " . Url::toRoute("costo-producto/index") . "'>";
+            }
+        } else {
+            $this->redirect(["costo-producto/view",'id'=> $id]);
         }
     }
     
@@ -375,6 +398,52 @@ class CostoProductoController extends Controller
         ]);
     }
     
+    //EDITAR TODO LOS COLORES
+      public function actionEditarcolores($id)
+    {
+        $colores = ProductoColor::find()->where(['=', 'id_producto', $id])->all();
+        $idproducto = $id;
+        if (isset($_POST["id_color"])) {
+            $intIndice = 0;
+            $cant = 0;
+            foreach ($_POST["id_color"] as $intCodigo) {
+                $color = ProductoColor::findOne($intCodigo);
+               $color->cantidad_color = $_POST["cantidad_color"][$intIndice];
+               $color->save(false);
+               $this->ActualizarCantidades($id);
+               $intIndice++;
+            }
+            $this->redirect(["costo-producto/view",'id' => $id]);
+        }
+        return $this->render('_formeditarcoloresgrupal', [
+            'colores' => $colores,
+            'id' => $id,
+        ]);
+    }
+    
+    protected function ActualizarCantidades($id) {
+        $colores = ProductoColor::find()->where(['=','id_producto', $id])->all();
+        $tallas = ProductoTalla::find()->where(['=','id_producto', $id])->all();
+        $cantidad = 0;
+        foreach ($tallas as $talla):
+            $tallaProducto = $talla->id_producto_talla;
+            $talla_editado = ProductoTalla::findOne($talla->id_producto_talla);
+            $color = ProductoColor::find()->where(['=','id_producto_talla', $tallaProducto])->all();
+            if(count($color) > 0){
+                foreach ($color as $colores):
+                   $cantidad += $colores->cantidad_color;     
+                endforeach;
+                $talla_editado->cantidad = $cantidad;
+                $talla_editado->save(false);
+                $cantidad = 0;
+            }else{
+                $talla_editado->cantidad = $color->cantidad_color;
+                $talla_editado->save(false);
+                $cantidad = 0;
+            }
+        endforeach;
+        
+    }
     //CODIGO QUE ELIMINA TODOS LOS DETALLES
      public function actionEliminartododetalle($id)
     {
@@ -458,6 +527,91 @@ class CostoProductoController extends Controller
         } else {
             return $this->redirect(["costo-producto/index"]);
         }
+    }
+    //CREAR TALLAS
+     public function actionCreartallas($id){
+        $tallas = Talla::find()->orderBy('sexo,talla asc')->all();
+        $form = new FormMaquinaBuscar();
+        $q = null;
+        $mensaje = '';
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $q = Html::encode($form->q);                                
+                if ($q){
+                    $tallas = Talla::find()
+                            ->where(['like','talla',$q])
+                            ->orwhere(['like','sexo',$q])
+                            ->orderBy('sexo asc')
+                            ->all();
+                }               
+            } else {
+                $form->getErrors();
+            }                    
+                    
+        } else {
+             $tallas = Talla::find()->orderBy('sexo,talla asc')->all();
+        }
+        if (isset($_POST["idtalla"])) {
+                $intIndice = 0;
+                foreach ($_POST["idtalla"] as $intCodigo) {
+                    $table = new ProductoTalla();
+                    $talla = Talla::find()->where(['idtalla' => $intCodigo])->one();
+                    $detalles = ProductoTalla::find()
+                        ->where(['=', 'id_producto', $id])
+                        ->andWhere(['=', 'idtalla', $talla->idtalla])
+                        ->all();
+                    $reg = count($detalles);
+                    if ($reg == 0) {
+                        $table->idtalla = $intCodigo;
+                        $table->id_producto = $id;
+                        $table->cantidad = 0;
+                        $table->usuariosistema = Yii::$app->user->identity->username;
+                        $table->insert(); 
+                    }
+                }
+                $this->redirect(["costo-producto/view", 'id' => $id]);
+        }
+        return $this->render('creartallas', [
+            'tallas' => $tallas,            
+            'mensaje' => $mensaje,
+            'id' => $id,
+            'form' => $form,
+        ]);
+    
+    }
+    //PROCESO PARA CREAR LOS COLORES
+      public function actionCrearcolores($id_talla, $id)
+    {
+        $colores = \app\models\Color::find()->orderBy('color ASC')->all();
+        if (Yii::$app->request->post()) {
+            if (isset($_POST["enviarcolor"])) { 
+                if (isset($_POST["id_color"]) != '') { 
+                    $intIndice = 0;
+                    foreach ($_POST["id_color"] as $intCodigo):
+                        $color = ProductoColor::find()->where(['=','id', $intCodigo])->andWhere(['=','id_producto', $id])->andWhere(['=','id_producto_talla', $id_talla])->one();
+                        if(!$color){
+                            $table = new ProductoColor();
+                            $table->id_producto_talla = $id_talla;
+                            $table->id = $intCodigo;
+                            $table->id_producto = $id;
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+                            $table->insert();
+                            $intIndice ++;
+                        }    
+                    endforeach;
+                    return $this->redirect(['view','id' => $id]);
+                }else{
+                     Yii::$app->getSession()->setFlash('success', 'Debe de seleccionar un color para la talla.'); 
+                    return $this->redirect(['view','id' => $id]);
+                   
+                }    
+            }
+        }
+        return $this->renderAjax('_crearcolores', [
+            'id' => $id,
+            'id_talla' => $id_talla,
+            'colores' => $colores,
+        ]);      
     }
 
     /**

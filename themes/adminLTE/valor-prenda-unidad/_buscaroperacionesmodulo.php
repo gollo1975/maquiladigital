@@ -88,9 +88,8 @@ $empresa = app\models\Matriculaempresa::findOne(1);
                  <div class="panel-footer text-right">
                    <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-primary", 'name' => 'validaroperario']) ?>                    
             </div>
-            </div>    
+        </div>    
             
-        </div>
     </div>
 <?php $form->end() ?> 
 <script type="text/javascript">

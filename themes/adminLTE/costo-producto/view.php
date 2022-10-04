@@ -17,18 +17,27 @@ $view = 'costo-producto';
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_producto], ['class' => 'btn btn-primary btn-sm']) ?>
-        <?php if ($model->autorizado == 0) { ?>
+        <div class="btn-group btn-sm" role="group">
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_producto], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?php if ($model->autorizado == 0) { ?>
 
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']); }
-        else {
-            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']);
-            echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']);            
-            echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 15, 'codigo' => $model->id_producto,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
-            
-        }
-        ?>
-        
+                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']); }
+            else {?>
+                
+                <?php echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']);?>
+                   <button type="button" class="btn btn-info  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Imprimir
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                        <li><?= Html::a('<span class="glyphicon glyphicon-scissors"></span> Insumos', ['/costo-producto/imprimirinsumos', 'id' => $model->id_producto]) ?></li>
+                        <li><?= Html::a('<span class="glyphicon glyphicon-text-color"></span> Tallas/Colores', ['/costo-producto/imprimirinsumos', 'id' => $model->id_producto]) ?></li>
+                </ul>
+            <?php
+             echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 15, 'codigo' => $model->id_producto,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
+            }
+            ?>
+        </div>    
     </p>
     <?php
     if ($mensaje != ""){
@@ -49,32 +58,39 @@ $view = 'costo-producto';
                     <td><?= Html::encode($model->id_producto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo_producto') ?></th>
                     <td><?= Html::encode($model->codigo_producto) ?></td>
-                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Costo_sin_iva') ?>:</th>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?></th>
+                    <td><?= Html::encode($model->descripcion) ?></td>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Valor_muestra') ?>:</th>
                     <td align="right"><?= Html::encode('$'.number_format($model->costo_sin_iva,0)) ?></td>
                    
                 </tr>
                 <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tipo_Producto') ?>:</th>
                     <td><?= Html::encode($model->tipoProducto->concepto) ?></td>
-                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?></th>
-                    <td><?= Html::encode($model->descripcion) ?></td>
-                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentaje_iva') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Autorizado') ?>:</th>
+                    <td><?= Html::encode($model->autorizadocosto) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentaje_iva') ?>:</th>
                     <td align="right"><?= Html::encode($model->porcentaje_iva) ?>%</td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_muestra') ?>:</th>
+                    <td align="right"><?= Html::encode('$ '.number_format($model->costo_con_iva,0)) ?></td>
                   
                 </tr>
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Autorizado') ?>:</th>
-                    <td><?= Html::encode($model->autorizadocosto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_creacion') ?>:</th>
                     <td ><?= Html::encode($model->fecha_creacion) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Costo_con_iva') ?>:</th>
-                    <td align="right"><?= Html::encode('$ '.number_format($model->costo_con_iva,0)) ?></td>
-                </tr>
-                <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Usuario') ?>:</th>
                     <td><?= Html::encode($model->usuariosistema) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Unidades') ?>:</th>
+                    <td align="right"><?= Html::encode('$ '.number_format($model->cantidad,0)) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Subtotal') ?>:</th>
+                    <td align="right"><?= Html::encode('$ '.number_format($model->subtotal_producto,0)) ?></td>
+                </tr>
+                <tr style="font-size: 85%;">
+                 
                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>
-                    <td colspan="3"><?= Html::encode($model->observacion) ?></td>
+                    <td colspan="5"><?= Html::encode($model->observacion) ?></td>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_producto') ?>:</th>
+                    <td align="right"><?= Html::encode('$ '.number_format($model->total_producto,0)) ?></td>
                 </tr>
               
             </table>

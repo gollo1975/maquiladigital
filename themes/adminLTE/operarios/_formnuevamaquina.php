@@ -93,8 +93,7 @@ if ($mensaje != ""){
                 <tr>
                     <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>
-                     <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Activo</th>                    
+                    <th scope="col" style='background-color:#B9D5CE;'>Activa</th>                    
                     <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                 </tr>
                 </thead>
@@ -103,7 +102,6 @@ if ($mensaje != ""){
                     <tr style="font-size: 85%;">
                     <td><?= $val->id_tipo ?></td>
                     <td><?= $val->descripcion ?></td>
-                    <td><?= $val->cantidad ?></td>
                     <td><?= $val->estadomaquina ?></td>                    
                     <td style="width: 30px;"><input type="checkbox" name="id_tipo[]" value="<?= $val->id_tipo ?>"></td>
                 </tr>

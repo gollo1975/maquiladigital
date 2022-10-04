@@ -64,17 +64,20 @@ class CostoProductoController extends Controller
                 $tipo_producto = null;
                 $fecha_creacion = null;
                 $descripcion = null;
+                $asignado = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {                        
                         $codigo_producto = Html::encode($form->codigo_producto);
                         $tipo_producto = Html::encode($form->id_tipo_producto);
                         $fecha_creacion = Html::encode($form->fecha_creacion);
                         $descripcion = Html::encode($form->descripcion);
+                        $asignado = Html::encode($form->asignado);
                         $table = CostoProducto::find()
                                 ->andFilterWhere(['=', 'codigo_producto', $codigo_producto])
                                 ->andFilterWhere(['=', 'id_tipo_producto', $tipo_producto])
                                 ->andFilterWhere(['>=', 'fecha_creacion', $fecha_creacion])   
-                                ->andFilterWhere(['like','descripcion', $descripcion]);
+                                ->andFilterWhere(['like','descripcion', $descripcion])
+                                ->andFilterWhere(['=', 'asignado', $asignado]);
                        $table = $table->orderBy('id_producto DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -89,7 +92,7 @@ class CostoProductoController extends Controller
                                 ->all();
                             if(isset($_POST['excel'])){                            
                                 $check = isset($_REQUEST['id_producto DESC']);
-                                $this->actionExcelconsulta($tableexcel);
+                                $this->actionExcelconsultaProducto($tableexcel);
                             }
                 } else {
                         $form->getErrors();
@@ -109,7 +112,7 @@ class CostoProductoController extends Controller
                         ->all();
                 if(isset($_POST['excel'])){
                     //$table = $table->all();
-                    $this->actionExcelconsulta($tableexcel);
+                    $this->actionExcelconsultaProducto($tableexcel);
                 }
             }
             $to = $count->count();
@@ -494,7 +497,20 @@ class CostoProductoController extends Controller
     public function actionAutorizado($id) {
         $model = $this->findModel($id);
         $mensaje = "";
+        $contador = 0; $subtotal = 0; $iva=0; $total = 0;
+        $talla = ProductoTalla::find()->where(['=','id_producto', $id])->all();
         if ($model->autorizado == 0) {                        
+           if(count($talla) > 0){
+                foreach ($talla as $tallas):
+                    $contador += $tallas->cantidad;
+                endforeach;
+                $subtotal= round($model->costo_sin_iva * $contador); 
+                $iva = round(($subtotal * $model->porcentaje_iva)/100);
+                $total = round($subtotal + $iva);
+                $model->subtotal_producto = $subtotal;
+                $model->total_producto = $total;
+                $model->cantidad = $contador;
+            }
             $model->autorizado = 1;            
             $model->update();
             $this->redirect(["costo-producto/view", 'id' => $id]);            
@@ -612,6 +628,21 @@ class CostoProductoController extends Controller
             'id_talla' => $id_talla,
             'colores' => $colores,
         ]);      
+    }
+    //buscar asignaciones
+    public function actionBuscarasignacion($id)
+    {
+        //$colores = \app\models\Color::find()->orderBy('color ASC')->all();
+        return $this->renderAjax('_buscarasignacion', [
+            'id' => $id,
+        ]);      
+    }
+    
+    //IMPRESIONES
+    public function actionImprimirinsumos($id) {
+        return $this->render('../formatos/costoProductoInsumos', [
+                    'model' => $this->findModel($id),
+        ]);
     }
 
     /**

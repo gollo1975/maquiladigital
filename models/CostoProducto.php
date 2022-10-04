@@ -45,7 +45,7 @@ class CostoProducto extends \yii\db\ActiveRecord
     {
         return [
             [['descripcion','codigo_producto','id_tipo_producto'], 'required'],
-            [['id_tipo_producto', 'costo_sin_iva', 'costo_con_iva','autorizado','aplicar_iva'], 'integer'],
+            [['id_tipo_producto', 'costo_sin_iva', 'costo_con_iva','autorizado','aplicar_iva','subtotal_producto','total_producto','cantidad','asignado'], 'integer'],
             [['fecha_creacion'], 'safe'],
             [['porcentaje_iva'], 'number'],
             ['codigo_producto', 'codigo_existe'],
@@ -74,6 +74,10 @@ class CostoProducto extends \yii\db\ActiveRecord
             'porcentaje_iva' => 'Porcentaje Iva',
             'observacion' => 'Observación:',
             'usuariosistema' => 'Usuariosistema',
+            'subtotal_producto' => 'Subtotal producto:',
+            'total_producto' => 'Total producto:',
+            'cantidad' => 'Unidades:',
+            'asignado' => 'Asignado:',
         ];
     }
 
@@ -100,6 +104,14 @@ class CostoProducto extends \yii\db\ActiveRecord
             $autorizado = 'NO';
         }
         return $autorizado;
+    }
+    public function getAsignarProducto() {
+        if($this->asignado == 1){
+            $asignado = 'SI';
+        }else{
+            $asignado = 'NO';
+        }
+        return $asignado;
     }
     public function getAplicaiva() {
         if($this->aplicar_iva == 1){

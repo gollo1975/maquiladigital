@@ -71,11 +71,12 @@ $tipo_producto = ArrayHelper::map(TipoProducto::find()->orderBy ('concepto ASC')
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+             <?= $formulario->field($form, 'asignado')->dropDownList(['0' => 'NO', '1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
         
         </div>
         <div class="panel-footer text-right">
-            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
-            <a align="right" href="<?= Url::toRoute("costo-producto/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
+            <a align="right" href="<?= Url::toRoute("costo-producto/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -89,21 +90,24 @@ $form = ActiveForm::begin([
 <div class="table-responsive">
 <div class="panel panel-success ">
     <div class="panel-heading">
-          Registros:<span class="badge"><?= $pagination->totalCount ?></span>
+          Registros <span class="badge"><?= $pagination->totalCount ?></span>
     </div>
         <table class="table table-bordered table-hover">
             <thead>
                 <tr >         
-                 <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                
                 <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Tipo_producto</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Costo sin Iva</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Costo muestra</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Costo real</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Gran total </th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha creación</th> 
                 <th scope="col" style='background-color:#B9D5CE;'>Usuario</th> 
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Costo Autorizado">Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Aplica Iva">A. Iva</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Asignado a proveedor">Asig.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th score="col" style='background-color:#B9D5CE;'></th>                              
@@ -112,21 +116,45 @@ $form = ActiveForm::begin([
             <tbody>
             <?php foreach ($model as $val): ?>
             <tr style ='font-size: 85%;'>                
-                <td><?= $val->id_producto?></td>
+              
                 <td><?= $val->codigo_producto?></td>
-                 <td><?= $val->descripcion?></td>
+                <td><?= $val->descripcion?></td>
                 <td><?= $val->tipoProducto->concepto?></td>
                 <td style="text-align: right"><?= '$'.number_format($val->costo_sin_iva,0)?></td>
-                 <td style="text-align: right"><?= '$'.number_format($val->costo_con_iva,0)?></td>
+                <td style="text-align: right"><?= '$'.number_format($val->costo_con_iva,0)?></td>
+                <td style="text-align: right"><?= '$'.number_format($val->subtotal_producto,0)?></td>
+                <td style="text-align: right"><?= '$'.number_format($val->total_producto,0)?></td>
                 <td><?= $val->fecha_creacion?></td>
                 <td><?= $val->usuariosistema?></td>
                 <td><?= $val->Autorizadocosto?></td>
-                 <td><?= $val->aplicaiva?></td>
+                <td><?= $val->aplicaiva?></td>
+                <?php if($val->asignado == 0){?>
+                    <td><?= $val->asignarProducto?></td>
+                <?php }else{?>
+                    <td style= 'width: 25px; height: 10px;'>
+                        <?php echo Html::a('<span class="glyphicon glyphicon-user "></span>',            
+                            ['/costo-producto/buscarasignacion','id' => $val->id_producto],
+                            [
+                                'title' => 'Buscar asignacion',
+                                'data-toggle'=>'modal',
+                                'data-target'=>'#modalbuscarasignacion'.$val->id_producto,
+                                'classs' >= 'btn btn-info btn-xs '
+                            ]
+                        );
+                       ?>
+                    </td> 
+                    <div class="modal remote fade" id="modalbuscarasignacion<?= $val->id_producto ?>">
+                        <div class="modal-dialog modal-dialog">
+                            <div class="modal-content"></div>
+                        </div>
+                    </div>
+                    
+                <?php }?>    
                
-                <td style= 'width: 25px;'>
+                <td style= 'width: 25px; height: 10px;'>
                   <a href="<?= Url::toRoute(["costo-producto/view", "id" => $val->id_producto]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                  </td>
-                <td style= 'width: 25px;'>
+                <td style= 'width: 25px; height: 10px;'>
                    <a href="<?= Url::toRoute(["costo-producto/update", "id" => $val->id_producto]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
                 </td>
                     <td style= 'width: 25px;'>

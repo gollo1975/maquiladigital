@@ -1011,9 +1011,9 @@ class OrdenProduccionController extends Controller {
     public function actionNuevodetalles($idordenproduccion, $idcliente) {
         $ordenProduccion = Ordenproduccion::findOne($idordenproduccion);
         //$productosCliente = Productodetalle::find()->where(['=', 'idcliente', $idcliente])->andWhere(['=', 'idtipo', $ordenProduccion->idtipo])->andWhere(['>', 'stock', 0])->all();
-        $productocodigo = Producto::find()->where(['=','idcliente',$idcliente])->andWhere(['=','codigo',$ordenProduccion->codigoproducto])->one();        
+        $productocodigo = Producto::find()->where(['=','idcliente',$idcliente])->andWhere(['=','codigo',$ordenProduccion->codigoproducto])->orderBy('idproducto DESC')->one();        
         if ($productocodigo){
-            $productosCliente = Productodetalle::find()->where(['=', 'idproducto', $productocodigo->idproducto])->all();            
+            $productosCliente = Productodetalle::find()->where(['=', 'idproducto', $productocodigo->idproducto])->orderBy('idproducto ASC')->all();            
         }else{
             Yii::$app->getSession()->setFlash('error', 'No tiene productos asociados al cliente, por favor verifique si el cliente tiene productos asociados y/o esta mal configurado la orden de produccion, edite la orden');            
             $productosCliente = Productodetalle::find()->where(['=','idproductodetalle',0])->all();            

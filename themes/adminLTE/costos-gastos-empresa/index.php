@@ -107,7 +107,11 @@ $this->params['breadcrumbs'][] = $this->title;
              $total = 0; $porcentaje = 0;
             foreach ($modelo as $val):
                  $total = $val->total_ingresos- $val->total_costos;
-                 $porcentaje = number_format((100 * $total)/$val->total_ingresos, 2);
+                if($val->autorizado == 1){
+                    $porcentaje = number_format((100 * $total)/$val->total_ingresos, 2);
+                }else{
+                    $porcentaje = 0;
+                }    
                 ?>
                 <tr style='font-size:85%;'>  
                     <td><?= $val->id_costo_gasto ?></td>

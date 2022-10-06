@@ -50,7 +50,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tr>
                     <th scope="col">Id</th>
                     <th scope="col">Producto</th>
-                    <th scope="col">Código</th>
+                    <th scope="col">Código Producto</th>
                     <th scope="col">Cantidad Producto</th>                    
                     <th scope="col">Valor</th>
                     <th scope="col"></th>
@@ -61,7 +61,7 @@ $this->params['breadcrumbs'][] = $this->title;
                  <tr style="font-size: 95%;">
                     <td><?= $val->idproductodetalle ?></td>
                     <td><?= $val->prendatipo->prenda.' - '.$val->prendatipo->talla->talla ?></td>                                                           
-                    <td><?= $ordenProduccion->codigoproducto ?></td>
+                    <td><input type="text" name="codigoproducto[]" value="<?= $ordenProduccion->codigoproducto ?>" readonly="true"></td>
                     <td><input type="text" name="cantidad[]" value="0" required></td>
                     <td><input type="text" name="vlrventa[]" value="0" required></td>                    
                     <td><input type="hidden" name="idproductodetalle[]" value="<?= $val->idproductodetalle ?>"></td>

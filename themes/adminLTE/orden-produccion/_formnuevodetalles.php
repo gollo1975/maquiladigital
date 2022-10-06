@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="table table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">
-            Nuevo detalle Orden de producción
+            Listado de tallas
         </div>
         <div class="panel-body">
             <table class="table table-condensed">
@@ -50,7 +50,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tr>
                     <th scope="col">Id</th>
                     <th scope="col">Producto</th>
-                    <th scope="col">Código Producto</th>
+                    <th scope="col">Código</th>
                     <th scope="col">Cantidad Producto</th>                    
                     <th scope="col">Valor</th>
                     <th scope="col"></th>
@@ -58,10 +58,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 </thead>
                 <tbody>
                 <?php foreach ($productosCliente as $val): ?>
-                <tr>
+                 <tr style="font-size: 95%;">
                     <td><?= $val->idproductodetalle ?></td>
                     <td><?= $val->prendatipo->prenda.' - '.$val->prendatipo->talla->talla ?></td>                                                           
-                    <td><input type="text" name="codigoproducto[]" value="<?= $ordenProduccion->codigoproducto ?>" readonly="true"></td>
+                    <td><?= $ordenProduccion->codigoproducto ?></td>
                     <td><input type="text" name="cantidad[]" value="0" required></td>
                     <td><input type="text" name="vlrventa[]" value="0" required></td>                    
                     <td><input type="hidden" name="idproductodetalle[]" value="<?= $val->idproductodetalle ?>"></td>
@@ -71,8 +71,8 @@ $this->params['breadcrumbs'][] = $this->title;
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['orden-produccion/view', 'id' => $idordenproduccion], ['class' => 'btn btn-primary']) ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['orden-produccion/view', 'id' => $idordenproduccion], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
 
     </div>

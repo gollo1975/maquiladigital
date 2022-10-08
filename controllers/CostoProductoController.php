@@ -629,6 +629,7 @@ class CostoProductoController extends Controller
             'colores' => $colores,
         ]);      
     }
+    
     //buscar asignaciones
     public function actionBuscarasignacion($id)
     {

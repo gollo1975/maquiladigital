@@ -383,7 +383,7 @@
                                             'icon' => 'exchange',
                                             'url' => '#',
                                             'items' => [
-                                            //['label' => 'Banco', 'icon' => 'plus-square-o', 'url' => ['/banco/index']],                                            
+                                            ['label' => 'Asignar producto', 'icon' => 'plus-square-o', 'url' => ['/asignacion-producto/index']],                                            
                                             ],
                                         ],
                                         [

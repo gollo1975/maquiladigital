@@ -103,6 +103,10 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
               <?= $form->field($model, 'porcentaje_empresa')->textInput(['maxlength' => true]) ?> 
         </div>
         <div class="row">
+             <?= $form->field($model, 'valor_minuto_confeccion')->textInput(['maxlength' => true]) ?>    
+              <?= $form->field($model, 'valor_minuto_terminacion')->textInput(['maxlength' => true]) ?> 
+        </div>
+        <div class="row">
             <?= $form->field($model, 'representante_legal')->textInput(['maxlength' => true]) ?> 
         </div>
         <div class="row">

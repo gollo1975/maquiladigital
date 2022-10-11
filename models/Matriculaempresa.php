@@ -70,7 +70,7 @@ class Matriculaempresa extends \yii\db\ActiveRecord
         return [
             [['nitmatricula', 'dv', 'razonsocialmatricula', 'nombrematricula', 'apellidomatricula', 'direccionmatricula', 'telefonomatricula', 'celularmatricula', 'emailmatricula', 'iddepartamento', 'idmunicipio', 'paginaweb', 'id_tipo_regimen', 'declaracion', 'idresolucion', 'gran_contribuyente','agente_retenedor', 'porcentaje_cesantias', 'porcentaje_intereses', 'porcentaje_prima', 'porcentaje_vacacion'], 'required'],
             [['dv', 'id_tipo_regimen', 'id_banco_factura', 'idresolucion','gran_contribuyente','agente_retenedor','vlr_minuto_vinculado','vlr_minuto_contrato','codigo_salario','aplica_auxilio','base_auxilio','codigo_salario_auxilio','codigo_salario_pago_produccion','ajuste_caja','codigo_concepto_compra'], 'integer'],
-            [['porcentajeiva', 'porcentajeretefuente', 'retefuente', 'porcentajereteiva', 'porcentaje_cesantias', 'porcentaje_intereses', 'porcentaje_prima', 'porcentaje_vacacion','porcentaje_empresa'], 'number'],
+            [['porcentajeiva', 'porcentajeretefuente', 'retefuente', 'porcentajereteiva', 'porcentaje_cesantias', 'porcentaje_intereses', 'porcentaje_prima', 'porcentaje_vacacion','porcentaje_empresa','valor_minuto_confeccion','valor_minuto_terminacion'], 'number'],
             [['declaracion','nombresistema', 'representante_legal','historia','mision','vision'], 'string'],
             [['nitmatricula', 'telefonomatricula', 'celularmatricula', 'iddepartamento', 'idmunicipio'], 'string', 'max' => 15],
             [['razonsocialmatricula', 'nombrematricula', 'apellidomatricula', 'direccionmatricula', 'emailmatricula', 'paginaweb'], 'string', 'max' => 40],
@@ -127,6 +127,8 @@ class Matriculaempresa extends \yii\db\ActiveRecord
             'historia' => 'Historia:',
             'ajuste_caja' => 'Ajuste caja:',
             'codigo_concepto_compra' => 'codigo_concepto_compra',
+            'valor_minuto_confeccion' => 'Valor minuto confeccion:',
+            'valor_minuto_terminacion' => 'Valor minuto terminacion:',
             
         ];
     }

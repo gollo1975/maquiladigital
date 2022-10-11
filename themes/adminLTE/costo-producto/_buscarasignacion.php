@@ -32,7 +32,7 @@ $form = ActiveForm::begin([
     <div class="table table-responsive">
         <div class="panel panel-success ">
             <div class="panel-heading">
-                Proveedores <span class="badge"><?= 1 ?></span>
+                Proveedor
             </div>
             <div class="panel-body">
                 <table class="table table-bordered table-striped table-hover">
@@ -41,13 +41,18 @@ $form = ActiveForm::begin([
                            <th scope="col" style='background-color:#B9D5CE;'>Nit</th>
                            <th scope="col" style='background-color:#B9D5CE;'>Proveedor</th>
                            <th scope="col" style='background-color:#B9D5CE;'>Dirección</th>
-                          <th scope="col" style='background-color:#B9D5CE;'>Fecha</th>
+                          <th scope="col" style='background-color:#B9D5CE;'>Fecha_asignacion</th>
                         </tr>
 
                     </thead>
                     <tbody>
-                        <?php
-                        ?>
+                        <?php $table = \app\models\AsignacionProducto::findOne($detalle->id_asignacion);?>
+                        <tr>
+                            <td> <?= $table->documento ?></td>
+                            <td><?= $table->razon_social?></td>
+                            <td><?= $table->proveedor->direccionproveedor?></td>
+                            <td><?= $table->fecha_asignacion?></td>
+                        </tr>
                    </tbody>     
                 </table>
             </div>   

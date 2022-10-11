@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 //clases
-use Codeception\Module\Cli;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -32,6 +31,7 @@ use app\models\Insumos;
 use app\models\Talla;
 use app\models\ProductoTalla;
 use app\models\ProductoColor;
+use app\models\ProductoOperaciones;
 /**
  * CostoProductoController implements the CRUD actions for CostoProducto model.
  */
@@ -140,8 +140,31 @@ class CostoProductoController extends Controller
         $costo_producto_detalle = CostoProductoDetalle::find()->Where(['=', 'id_producto', $id])->all();
         $talla_producto = ProductoTalla::find()->where(['=','id_producto', $id])->orderBy('idtalla asc')->all();
         $color_producto = ProductoColor::find()->where(['=','id_producto', $id])->orderBy('id_producto_talla DESC')->all();
+        $operaciones = ProductoOperaciones::find()->where(['=','id_producto', $id])->orderBy('idtipo asc')->all();
         $modeldetalle = new CostoProductoDetalle();
         $mensaje = "";
+        if (Yii::$app->request->post()) {
+            if (isset($_POST["eliminaroperacion"])) {
+                if (isset($_POST["id_operacion"])) {
+                    foreach ($_POST["id_operacion"] as $intCodigo) {
+                        try {
+                            $eliminar = ProductoOperaciones::findOne($intCodigo);
+                            $eliminar->delete();
+                            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+                            $this->redirect(["costo-producto/view", 'id' => $id]);
+                        } catch (IntegrityException $e) {
+                          
+                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+                        } catch (\Exception $e) {
+                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+
+                        }
+                    }
+                } else {
+                    Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro.');
+                }    
+             }
+        }    
         return $this->render('view', [
             'model' => $this->findModel($id),
             'costo_producto_detalle' => $costo_producto_detalle,
@@ -149,6 +172,7 @@ class CostoProductoController extends Controller
             'mensaje' => $mensaje,
             'talla_producto' => $talla_producto,
             'color_producto' => $color_producto,
+            'operaciones' => $operaciones,
         ]);
     }
 
@@ -182,6 +206,9 @@ class CostoProductoController extends Controller
                        $table->porcentaje_iva = $empresa->porcentajeiva;    
                     }
                     $table->observacion = $model->observacion;
+                    $table->tiempo_confeccion = $model->tiempo_confeccion;
+                    $table->tiempo_terminacion = $model->tiempo_terminacion;
+                    $table->observacion = $model->observacion;
                     $table->usuariosistema = Yii::$app->user->identity->username;
                     if ($table->insert()) {
                        $this->redirect(["costo-producto/index"]);
@@ -212,7 +239,8 @@ class CostoProductoController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             if($model->aplicar_iva == 0){
                 $model->aplicar_iva = 0;
-                $model->porcentaje_iva = 0;
+                $model->terminacion = $model->tiempo_terminacion;
+                $model->tiempo_confeccion = $model->tiempo_confeccion;
                 $model->costo_con_iva = $model->costo_sin_iva;
                 $model->save();
             }else{
@@ -296,6 +324,140 @@ class CostoProductoController extends Controller
             'id' => $id,
             'form' => $form,
 
+        ]);
+    }
+    
+    //CREAR OPERACIONES AL PRODUCTO
+     public function actionNuevaoperacionproducto($id)
+    {
+        $operacion = \app\models\ProcesoProduccion::find()->where(['=','estado', 0])->orderBy('proceso asc')->all();
+        $form = new FormMaquinaBuscar();
+        $q = null;
+        $mensaje = '';
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $q = Html::encode($form->q);                                
+                if ($q){
+                    $operacion = \app\models\ProcesoProduccion::find()
+                            ->where(['like','proceso',$q])
+                            ->orwhere(['=','idproceso',$q]);
+                    $operacion = $operacion->orderBy('proceso desc');                    
+                    $count = clone $operacion;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 40,
+                        'totalCount' => $count->count()
+                    ]);
+                    $operacion = $operacion
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();         
+                }               
+            } else {
+                $form->getErrors();
+            }                    
+        }else{
+            $operacion = \app\models\ProcesoProduccion::find()->where(['=','estado', 0])->orderBy('proceso asc');
+            $count = clone $operacion;
+            $pages = new Pagination([
+                'pageSize' => 40,
+                'totalCount' => $count->count(),
+            ]);
+            $operacion = $operacion
+                    ->offset($pages->offset)
+                    ->limit($pages->limit)
+                    ->all();
+        }
+         if (isset($_POST["guardarynuevo"])) {
+            if(isset($_POST["idproceso"])){
+                $intIndice = 0;
+                foreach ($_POST["idproceso"] as $intCodigo) {
+                   $listado = ProductoOperaciones::find()
+                            ->where(['=', 'idproceso', $intCodigo])
+                            ->andWhere(['=', 'id_producto', $id])
+                            ->all();
+                    $reg = count($listado);
+                    if ($reg == 0) {
+                        $segundo = 0;
+                        $minutos = 0;
+                        if($_POST["id_tipo"][$intIndice] > 0){
+                            $table = new ProductoOperaciones();
+                            $table->idproceso = $intCodigo;
+                            $table->id_producto = $id;
+                            $segundo = $_POST["segundos"][$intIndice];
+                            $minutos = $_POST["minutos"][$intIndice];
+                            if($segundo == 0){
+                               $table->minutos = $minutos;
+                               $table->segundos = $table->minutos * 60;
+                            }else{
+                                $table->segundos = $segundo;
+                                $table->minutos = number_format($segundo / 60, 2);
+                            }   
+                             $table->idtipo = 1;
+                            $table->fecha_creacion = date('Y-m-d');
+                            $table->usuario = Yii::$app->user->identity->username;
+                            $table->id_tipo = $_POST["id_tipo"][$intIndice];
+                            $table->save(false);
+                        }   
+                    }
+                    $intIndice++;
+                }
+                $this->ContadorConfeccionTerminacion($id);
+            }
+        }
+        return $this->render('_formcrearlistadoperacion', [
+            'operacion' => $operacion,            
+            'mensaje' => $mensaje,
+            'pagination' => $pages,
+            'id' => $id,
+            'form' => $form,
+
+        ]);
+    }
+    //PROCESO QUE CUENTA el TIEMPO DE CONFECCION Y TERMINACION
+    
+    protected function ContadorConfeccionTerminacion($id) {
+        $producto = CostoProducto::findOne($id);
+        $operacion = ProductoOperaciones::find()->where(['=','id_producto', $id])->all();
+        $confeccion = 0; $terminacion = 0;
+        foreach ($operacion as $operaciones):
+            if($operaciones->idtipo == 1){
+                $confeccion += $operaciones->minutos;
+            }else{
+                $terminacion += $operaciones->minutos;
+            }
+            $producto->tiempo_confeccion = $confeccion;
+            $producto->tiempo_terminacion = $terminacion;
+            $producto->save(false);
+        endforeach;
+    }
+    
+    //EDITAR LAS OPERACIONES PARA CAMBIAR SI EN CONFECCION O TERMINACION
+     public function actionEditaroperacionproducto($id) {
+        $mds = ProductoOperaciones::find()->where(['=', 'id_producto', $id])->orderBy('idtipo, idproceso desc ')->all();
+        $error = 0;
+      
+        if (isset($_POST["id_operacion"])) {
+            $intIndice = 0;
+            $aux= 0; $nuevo_minuto = 0;
+            foreach ($_POST["id_operacion"] as $intCodigo) {
+                $table = ProductoOperaciones::findOne($intCodigo);
+                $table->segundos = $_POST["segundos"][$intIndice];
+                $aux = $table->segundos;
+                $nuevo_minuto = number_format($aux/60,2);
+                $table->minutos = $nuevo_minuto;
+                $table->idtipo = $_POST["proceso"][$intIndice];
+                $table->id_tipo = $_POST["id_tipo"][$intIndice];
+                $table->save(false);                    
+                $intIndice++;
+            }
+            $this->ContadorConfeccionTerminacion($id);
+            $mds = ProductoOperaciones::find()->where(['=', 'id_producto', $id])->orderBy('idtipo, idproceso desc ')->all();
+          $this->redirect(["costo-producto/view", 'id' => $id,'mds' =>$mds]);            
+        }
+        return $this->render('_formeditaroperacionesproducto', [
+                    'mds' => $mds,
+                    'id' => $id,
         ]);
     }
     
@@ -496,29 +658,41 @@ class CostoProductoController extends Controller
     
     public function actionAutorizado($id) {
         $model = $this->findModel($id);
-        $mensaje = "";
         $contador = 0; $subtotal = 0; $iva=0; $total = 0;
-        $talla = ProductoTalla::find()->where(['=','id_producto', $id])->all();
-        if ($model->autorizado == 0) {                        
-           if(count($talla) > 0){
-                foreach ($talla as $tallas):
-                    $contador += $tallas->cantidad;
-                endforeach;
-                $subtotal= round($model->costo_sin_iva * $contador); 
-                $iva = round(($subtotal * $model->porcentaje_iva)/100);
-                $total = round($subtotal + $iva);
-                $model->subtotal_producto = $subtotal;
-                $model->total_producto = $total;
-                $model->cantidad = $contador;
-            }
-            $model->autorizado = 1;            
-            $model->update();
-            $this->redirect(["costo-producto/view", 'id' => $id]);            
-        } else{
-            $model->autorizado = 0;
-            $model->update();
-             $this->redirect(["costo-producto/view", 'id' => $id]); 
-        }
+        $talla = ProductoTalla::find()->where(['=','id_producto', $id])->one();
+        $colores = ProductoColor::find()->where(['=','id_producto', $id])->one();
+        if($talla){
+            if($colores){
+                $talla = ProductoTalla::find()->where(['=','id_producto', $id])->all();
+                if ($model->autorizado == 0) {                        
+                   if(count($talla) > 0){
+                        foreach ($talla as $tallas):
+                            $contador += $tallas->cantidad;
+                        endforeach;
+                        $subtotal= round($model->costo_sin_iva * $contador); 
+                        $iva = round(($subtotal * $model->porcentaje_iva)/100);
+                        $total = round($subtotal + $iva);
+                        $model->subtotal_producto = $subtotal;
+                        $model->total_producto = $total;
+                        $model->cantidad = $contador;
+                    }
+                    $model->autorizado = 1;            
+                    $model->update();
+                    $this->redirect(["costo-producto/view", 'id' => $id]);            
+                } else{
+                    $model->autorizado = 0;
+                    $model->update();
+                    $this->redirect(["costo-producto/view", 'id' => $id]); 
+                }
+            }else{
+                $this->redirect(["costo-producto/view", 'id' => $id]); 
+                Yii::$app->getSession()->setFlash('success', 'El producto no se puede autorizar porque NO tiene colores registrados para las tallas.'); 
+            }    
+        }else{
+            $this->redirect(["costo-producto/view", 'id' => $id]); 
+            Yii::$app->getSession()->setFlash('warning', 'El producto no se puede autorizar porque NO tiene tallas registradas.');
+        }  
+             
     }
     
     public function actionEliminar($id) {
@@ -600,22 +774,24 @@ class CostoProductoController extends Controller
     {
         $colores = \app\models\Color::find()->orderBy('color ASC')->all();
         if (Yii::$app->request->post()) {
+             echo 'fafadfasda';
             if (isset($_POST["enviarcolor"])) { 
                 if (isset($_POST["id_color"]) != '') { 
                     $intIndice = 0;
                     foreach ($_POST["id_color"] as $intCodigo):
                         $color = ProductoColor::find()->where(['=','id', $intCodigo])->andWhere(['=','id_producto', $id])->andWhere(['=','id_producto_talla', $id_talla])->one();
+                     
                         if(!$color){
                             $table = new ProductoColor();
                             $table->id_producto_talla = $id_talla;
                             $table->id = $intCodigo;
                             $table->id_producto = $id;
                             $table->usuariosistema = Yii::$app->user->identity->username;
-                            $table->insert();
-                            $intIndice ++;
-                        }    
+                            $table->save(false);
+                        }  
+                        $intIndice++;
                     endforeach;
-                    return $this->redirect(['view','id' => $id]);
+                   return $this->redirect(['view','id' => $id]);
                 }else{
                      Yii::$app->getSession()->setFlash('success', 'Debe de seleccionar un color para la talla.'); 
                     return $this->redirect(['view','id' => $id]);
@@ -633,9 +809,10 @@ class CostoProductoController extends Controller
     //buscar asignaciones
     public function actionBuscarasignacion($id)
     {
-        //$colores = \app\models\Color::find()->orderBy('color ASC')->all();
+        $detalle = \app\models\AsignacionProductoDetalle::find()->where(['=','id_producto', $id])->one();
         return $this->renderAjax('_buscarasignacion', [
             'id' => $id,
+            'detalle' => $detalle,
         ]);      
     }
     

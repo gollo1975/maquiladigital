@@ -25,6 +25,8 @@ use app\models\AsignacionProductoSearch;
 use app\models\UsuarioDetalle;
 use app\models\FormFiltroAsignacionProducto;
 use app\models\CostoProducto;
+use app\models\AsignacionProductoDetalle;
+use app\models\Consecutivo;
 
 /**
  * AsignacionProductoController implements the CRUD actions for AsignacionProducto model.
@@ -136,10 +138,42 @@ class AsignacionProductoController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
+        $mensaje='';
+        $detalle_orden = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->orderBy('id_producto_talla desc')->all();
+         if (Yii::$app->request->post()) {
+            if (isset($_POST["eliminardetalle"])) {
+                if (isset($_POST["detalle"])) {
+                    foreach ($_POST["detalle"] as $intCodigo) {
+                        try {
+                            $eliminar = AsignacionProductoDetalle::findOne($intCodigo);
+                            $eliminar->delete();
+                            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+                            $this->ActualizarCantidades($id);
+                            $this->redirect(["asignacion-producto/view", 'id' => $id]);
+                        } catch (IntegrityException $e) {
+                          
+                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+                        } catch (\Exception $e) {
+                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+
+                        }
+                    }
+                } else {
+                    Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar al menos un registro.');
+                }    
+             }
+        }    
+        if(count($detalle_orden) > 0){
+            return $this->render('view', [
+                'model' => $this->findModel($id),
+                'detalle_orden' => $detalle_orden,
+                'mensaje' => $mensaje,
+            ]);
+        }else{
+            Yii::$app->getSession()->setFlash('warning', 'No se le ha asignado referencias a este proveedor.');
+             return $this->redirect(['index']);
+        }
+    }    
 
     /**
      * Creates a new AsignacionProducto model.
@@ -193,36 +227,67 @@ class AsignacionProductoController extends Controller
     //PERMITE BUSCAR LOS PRODUCTOS PARA ASIGNAR
     
        public function actionBuscarproducto($id)
-    {
-        $productos = CostoProducto::find()->where(['=','asignado', 0])->orderBy('descripcion ASC')->all();
-        if (Yii::$app->request->post()) {
-            if (isset($_POST["enviarcolor"])) { 
-                if (isset($_POST["id_color"]) != '') { 
-                    $intIndice = 0;
-                    foreach ($_POST["id_color"] as $intCodigo):
-                        $color = ProductoColor::find()->where(['=','id', $intCodigo])->andWhere(['=','id_producto', $id])->andWhere(['=','id_producto_talla', $id_talla])->one();
-                        if(!$color){
-                            $table = new ProductoColor();
-                            $table->id_producto_talla = $id_talla;
-                            $table->id = $intCodigo;
-                            $table->id_producto = $id;
-                            $table->usuariosistema = Yii::$app->user->identity->username;
+       {
+      $productos = CostoProducto::find()->where(['=','asignado', 0])->andWhere(['=','autorizado', 1])->orderBy('descripcion ASC')->all();
+         
+       if (Yii::$app->request->post()) {  
+            if (isset($_POST["productoasignado"])) { 
+                $intIndice = 0;
+                foreach ($_POST["id_producto"] as $intCodigo):
+                    $tallas = \app\models\ProductoTalla::find()->where(['=','id_producto', $intCodigo])->all();
+                   $costo= CostoProducto::findOne($intCodigo);
+                   $asignacion = AsignacionProducto::findOne($id);
+                    if($tallas){
+                        $valor = 0;
+                        $empresa = \app\models\Matriculaempresa::findOne(1);
+                        foreach ($tallas as $talla):
+                            $table = new \app\models\AsignacionProductoDetalle();
+                            $table->id_asignacion = $id;
+                            $table->id_producto_talla = $talla->id_producto_talla;
+                            $table->id_producto = $intCodigo;
+                            $table->cantidad = $talla->cantidad;
+                            if($asignacion->idtipo == 1){
+                                $table->valor_minuto = $empresa->valor_minuto_confeccion;
+                                $valor = round($costo->tiempo_confeccion * $table->valor_minuto);
+                                $table->subtotal_producto = round($valor * $table->cantidad);
+                            }else{
+                                $table->valor_minuto = $empresa->valor_minuto_terminacion;
+                                $valor = round($costo->tiempo_terminacion * $table->valor_minuto);
+                                $table->subtotal_producto = round($valor * $table->cantidad);
+                            }
+                            $table->fecha_proceso = date('Y-m-d');
+                            $table->usuario = Yii::$app->user->identity->username;
                             $table->insert();
-                            $intIndice ++;
-                        }    
-                    endforeach;
-                    return $this->redirect(['view','id' => $id]);
-                }else{
-                     Yii::$app->getSession()->setFlash('success', 'Debe de seleccionar un color para la talla.'); 
-                    return $this->redirect(['view','id' => $id]);
-                   
-                }    
+                        endforeach;    
+                    }    
+                    $intIndice ++;
+                endforeach;
+                $this->ActualizarCantidades($id);
+               return $this->redirect(['index']);
             }
         }
-        return $this->renderAjax('_crearasignacionproducto', [
-            'id' => $id,
-            'productos' => $productos,
-        ]);      
+        $detalle = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->all();
+        if(count($detalle) <= 0){
+            return $this->renderAjax('_crearasignacionproducto', [
+                 'id' => $id,
+                 'productos' => $productos,
+             ]); 
+        }else{
+           Yii::$app->getSession()->setFlash('success', 'A este proveedor ya se le asigno una referencia y esta en proceso.'); 
+            return $this->redirect(['index']);
+        }    
+    }
+    protected function ActualizarCantidades($id) {
+        $asignacion = AsignacionProducto::findOne($id);
+        $detalles = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->all();
+        $valor =0; $total = 0;
+        foreach ($detalles as $detalle):
+            $valor += $detalle->cantidad;
+            $total += $detalle->subtotal_producto;
+        endforeach;
+        $asignacion->unidades = $valor;
+        $asignacion->total_orden = $total;
+        $asignacion->save(false);
     }
     /**
      * Deletes an existing AsignacionProducto model.
@@ -231,12 +296,45 @@ class AsignacionProductoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+    //PROCESO DE AUTORIZACION
+      public function actionAutorizar($id) {
+        $model = AsignacionProducto::findOne($id);
+        if($model->autorizado == 0){
+            $model->autorizado = 1;
+            $model->update();
+            $this->redirect(["asignacion-producto/view", 'id' => $id]);
+        }else{
+            $model->autorizado = 0;
+            $model->update();
+            $this->redirect(["asignacion-producto/view", 'id' => $id]);
+        }
     }
+    
+    //CIERRE EL PROCESO DE LA OP
+    public function actionGenerardocumento($id, $id_producto)
+     {
+        $model = $this->findModel($id);
+        if ($model->autorizado == 1){            
+            if ($model->orden_produccion == 0){
+                $consecutivo = Consecutivo::findOne(14);// 5 asignacion
+                $consecutivo->consecutivo = $consecutivo->consecutivo + 1;
+                $model->orden_produccion = $consecutivo->consecutivo;
+                $model->update();
+                $consecutivo->update();                
+                $costo = CostoProducto::find()->where(['=','id_producto', $id_producto])->one();
+                $costo->asignado = 1;
+                $costo->update();
+                $this->redirect(["asignacion-producto/view",'id' => $id]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Ya se genero el documento al proveedor.');
+                 $this->redirect(["asignacion-producto/view",'id' => $id]);
+            }
+        }else{
+            Yii::$app->getSession()->setFlash('error', 'El registro debe estar autorizado para poder imprimir la compra.');
+            $this->redirect(["asignacion-producto/view",'id' => $id]);
+        }
+    }
+    
 
     /**
      * Finds the AsignacionProducto model based on its primary key value.
@@ -252,5 +350,93 @@ class AsignacionProductoController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    
+    //CONSULTA DE ORDEN DE PRODUCCION
+    
+    public function actionExcelconsultaAsignacion($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+                              
+        $objPHPExcel->setActiveSheetIndex(0)
+                     ->setCellValue('A1', 'OP INTERNA')
+                    ->setCellValue('B1', 'ORDEN PRODUCCION')
+                    ->setCellValue('C1', 'DOCUMENTO')
+                    ->setCellValue('D1', 'PROVEEDOR')
+                    ->setCellValue('E1', 'FECHA ASIGNACION')
+                    ->setCellValue('F1', 'PROCESO')
+                    ->setCellValue('G1', 'UNIDADES')                    
+                    ->setCellValue('H1', 'TOTAL ORDEN')
+                    ->setCellValue('I1', 'USUARIO')
+                    ->setCellValue('J1', 'OBSERVACION')
+                    ->setCellValue('K1', 'PRODUCTO')
+                    ->setCellValue('L1', 'TALLAS')
+                    ->setCellValue('M1', 'UNIDADES')
+                    ->setCellValue('N1', 'SUBTOTAL');;
+                   
+        $i = 2  ;
+        
+        foreach ($tableexcel as $asignar) {
+            $detalle = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $asignar->id_asignacion])->all();
+            foreach ($detalle as $val){
+                $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A' . $i, $val->asignacion->id_asignacion)
+                ->setCellValue('B' . $i, $val->asignacion->orden_produccion)
+                ->setCellValue('C' . $i, $val->asignacion->documento)
+                ->setCellValue('D' . $i, $val->asignacion->razon_social)
+                ->setCellValue('E' . $i, $val->asignacion->fecha_asignacion)
+                ->setCellValue('F' . $i, $val->asignacion->tipo->tipo)
+                ->setCellValue('G' . $i, $val->asignacion->unidades)                    
+                ->setCellValue('H' . $i, $val->asignacion->total_orden)
+                ->setCellValue('I' . $i, $val->asignacion->usuario_editado)
+                ->setCellValue('J' . $i, $val->asignacion->observacion)
+                ->setCellValue('K' . $i, $val->producto->descripcion)
+                ->setCellValue('L' . $i, $val->productoTalla->talla->talla)
+                ->setCellValue('M' . $i, $val->cantidad)
+                ->setCellValue('N' . $i, $val->subtotal_producto);
+                $i++;
+            }        
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Detalle');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Asignacion_referencias.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
     }
 }

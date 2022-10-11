@@ -1924,7 +1924,6 @@ class OrdenProduccionController extends Controller {
             }
         }else {
             $procesos = ProcesoProduccion::find()->orderBy('proceso ASC');
-            //$cont = count($procesos);
             $count = clone $procesos;
             $pages = new Pagination([
                 'pageSize' => 60,
@@ -1957,7 +1956,6 @@ class OrdenProduccionController extends Controller {
                             $table->total = $_POST["duracion"][$intIndice] + ($_POST["duracion"][$intIndice] * $_POST["ponderacion"][$intIndice] / 100);
                             $table->totalproceso = $detalleorden->cantidad * $table->total;
                             $table->iddetalleorden = $iddetalleorden;
-                            $table->id_tipo = $_POST["id_tipo"][$intIndice];
                             $table->id_tipo = $_POST["id_tipo"][$intIndice];
                             $table->insert();
                         }    

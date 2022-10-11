@@ -7,22 +7,17 @@ use yii\bootstrap\ActiveForm;
 use yii\helpers\ArrayHelper;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
+use app\models\AsignacionProductoDetalle;
 ?>
-<?php
+<?php $form = ActiveForm::begin([
 
-$form = ActiveForm::begin([
-            "method" => "post",
-            'id' => 'formulario',
-            'enableClientValidation' => false,
-            'enableAjaxValidation' => true,
-            'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
-            'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>',
-            'labelOptions' => ['class' => 'col-sm-3 control-label'],
-            'options' => []
-        ],
-        ]);
-?>
+    'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
+    'fieldConfig' => [
+        'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
+        'labelOptions' => ['class' => 'col-sm-3 control-label'],
+        'options' => []
+    ],
+]); ?>
 
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -50,23 +45,26 @@ $form = ActiveForm::begin([
                     </thead>
                     <tbody>
                         <?php
-                        foreach ($productos as $val): ?>
-                        <tr style ='font-size:90%;'>
-                            <td><?= $val->codigo_producto ?></td>
-                            <td><?= $val->descripcion ?></td>
-                            <td><?= $val->tipoProducto->concepto ?></td>
-                            <td><?= $val->cantidad ?></td>
-                            <td><?= $val->fecha_creacion ?></td>
-                             <td><?= $val->usuariosistema ?></td>
-                            <td style="width: 30px;"><input type="checkbox" name="id_producto[]" value="<?= $val->id_producto ?>"></td>
-                        </tr>
-                        <?php
+                        foreach ($productos as $val):
+                            $detalle = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $val->id_producto])->one();
+                            if(!$detalle){ ?>
+                                <tr style ='font-size:90%;'>
+                                    <td><?= $val->codigo_producto ?></td>
+                                    <td><?= $val->descripcion ?></td>
+                                    <td><?= $val->tipoProducto->concepto ?></td>
+                                    <td><?= $val->cantidad ?></td>
+                                    <td><?= $val->fecha_creacion ?></td>
+                                     <td><?= $val->usuariosistema ?></td>
+                                    <td style="width: 30px;"><input type="checkbox" name="id_producto[]" value="<?= $val->id_producto ?>"></td>
+                                    <input type="hidden" name="id" value="<?= $id?>">
+                                </tr>
+                            <?php }    
                         endforeach; ?>
                    </tbody>     
                 </table>
             </div>   
             <div class="panel-footer text-right">			
-                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-primary btn-sm", 'name' => 'enviarproductoasignado']) ?>                    
+                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-primary btn-sm", 'name' => 'productoasignado']) ?>                    
             </div>
         </div>    
     </div>

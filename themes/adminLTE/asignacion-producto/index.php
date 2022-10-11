@@ -133,23 +133,21 @@ $Tipo = ArrayHelper::map(\app\models\Ordenproducciontipo::find()->orderBy ('idti
                 <td><?= $val->usuario?></td>
                  <td><?= $val->usuario_editado?></td>
                 <td><?= $val->estadoautorizado?></td>
-                <?php if($val->autorizado == 0){?>
-                   <td style= 'width: 25px; height: 10px;'>
-                        <?php echo Html::a('<span class="glyphicon glyphicon-user "></span>',            
-                            ['/asignacion-producto/buscarproducto','id' => $val->id_asignacion],
-                            [
-                                'title' => 'Buscar producto parar asignacion',
-                                'data-toggle'=>'modal',
-                                'data-target'=>'#modalbuscarproducto'.$val->id_asignacion,
-                                'classs' >= 'btn btn-info btn-xs '
-                            ]
-                        );
-                       ?>
+                <?php if($val->autorizado == 0){?> 
+                     <td style= 'width: 25px; height: 10px;'>
+                    <?php echo Html::a('<span class="glyphicon glyphicon-user"></span>',
+                         ['/asignacion-producto/buscarproducto','id' => $val->id_asignacion],
+                         [
+                             'title' => 'Buscar producto parar asignacion',
+                             'data-toggle'=>'modal',
+                             'data-target'=>'#modalbuscarproducto'.$val->id_asignacion,
+                         ])
+                        ?>
                     </td> 
-                    <div class="modal remote fade" id="modalbuscarproducto<?= $val->id_asignacion ?>">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content"></div>
-                        </div>
+                    <div class="modal remote fade" id="modalbuscarproducto<?= $val->id_asignacion?>">
+                         <div class="modal-dialog modal-lg">
+                             <div class="modal-content"></div>
+                         </div>
                     </div>
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["asignacion-producto/view", "id" => $val->id_asignacion, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
@@ -161,7 +159,8 @@ $Tipo = ArrayHelper::map(\app\models\Ordenproducciontipo::find()->orderBy ('idti
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["asignacion-producto/view", "id" => $val->id_asignacion, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <td></td>
+                    <td style= 'width: 25px; height: 25px;'></td>
+                     <td style= 'width: 25px; height: 25px;'></td>
                         
                 <?php }?>    
              

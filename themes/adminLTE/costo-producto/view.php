@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\ComprobanteEgreso */
@@ -31,7 +32,7 @@ $view = 'costo-producto';
                 </button>
                 <ul class="dropdown-menu">
                         <li><?= Html::a('<span class="glyphicon glyphicon-scissors"></span> Insumos', ['/costo-producto/imprimirinsumos', 'id' => $model->id_producto]) ?></li>
-                        <li><?= Html::a('<span class="glyphicon glyphicon-text-color"></span> Tallas/Colores', ['/costo-producto/imprimirinsumos', 'id' => $model->id_producto]) ?></li>
+                        <li><?= Html::a('<span class="glyphicon glyphicon-text-color"></span> Operaciones', ['/costo-producto/imprimiroperaciones', 'id' => $model->id_producto]) ?></li>
                 </ul>
             <?php
              echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 15, 'codigo' => $model->id_producto,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
@@ -61,7 +62,7 @@ $view = 'costo-producto';
                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?></th>
                     <td><?= Html::encode($model->descripcion) ?></td>
                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Valor_muestra') ?>:</th>
-                    <td align="right"><?= Html::encode('$'.number_format($model->costo_sin_iva,0)) ?></td>
+                    <td align="right"><?= Html::encode(''.number_format($model->costo_sin_iva,0)) ?></td>
                    
                 </tr>
                 <tr style="font-size: 85%;">
@@ -72,7 +73,7 @@ $view = 'costo-producto';
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentaje_iva') ?>:</th>
                     <td align="right"><?= Html::encode($model->porcentaje_iva) ?>%</td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_muestra') ?>:</th>
-                    <td align="right"><?= Html::encode('$ '.number_format($model->costo_con_iva,0)) ?></td>
+                    <td align="right"><?= Html::encode(''.number_format($model->costo_con_iva,0)) ?></td>
                   
                 </tr>
                 <tr style="font-size: 85%;">
@@ -81,32 +82,91 @@ $view = 'costo-producto';
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Usuario') ?>:</th>
                     <td><?= Html::encode($model->usuariosistema) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Unidades') ?>:</th>
-                    <td align="right"><?= Html::encode('$ '.number_format($model->cantidad,0)) ?></td>
+                    <td align="right"><?= Html::encode(''.number_format($model->cantidad,0)) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Subtotal') ?>:</th>
-                    <td align="right"><?= Html::encode('$ '.number_format($model->subtotal_producto,0)) ?></td>
+                    <td align="right"><?= Html::encode(''.number_format($model->subtotal_producto,0)) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
                  
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Time_confección') ?>:</th>
+                   <td ><?= Html::encode($model->tiempo_confeccion) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Time_terminación') ?>:</th>
+                    <td colspan="3"><?= Html::encode($model->tiempo_terminacion) ?></td>
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_producto') ?>:</th>
+                   <td align="right"><?= Html::encode('$ '.number_format($model->total_producto,0)) ?></td>
+                </tr>
+                   <tr style="font-size: 85%;">
                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>
-                    <td colspan="5"><?= Html::encode($model->observacion) ?></td>
-                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_producto') ?>:</th>
-                    <td align="right"><?= Html::encode('$ '.number_format($model->total_producto,0)) ?></td>
+                    <td colspan="7"><?= Html::encode($model->observacion) ?></td>
                 </tr>
               
             </table>
         </div>
     </div>
+   
     <!--INICIOS DE TABS-->
     <div>
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#insumos" aria-controls="insumos" role="tab" data-toggle="tab">Insumos <span class="badge"><?= count($costo_producto_detalle) ?></span></a></li>
+            <li role="presentation" class="active"><a href="#operaciones" aria-controls="operaciones" role="tab" data-toggle="tab">Operaciones <span class="badge"><?= count($operaciones) ?></span></a></li>
+            <li role="presentation" ><a href="#insumos" aria-controls="insumos" role="tab" data-toggle="tab">Insumos <span class="badge"><?= count($costo_producto_detalle) ?></span></a></li>
             <li role="presentation"><a href="#tallas" aria-controls="tallas" role="tab" data-toggle="tab">Tallas <span class="badge"><?= count($talla_producto) ?></span></a></li>
             <?php if(count($color_producto)> 0){?>        
               <li role="presentation"><a href="#colores" aria-controls="colores" role="tab" data-toggle="tab">Colores <span class="badge"><?= count($color_producto) ?></span></a></li>
             <?php }?>  
         </ul>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="insumos">
+            <div role="tabpanel" class="tab-pane active" id="operaciones">
+                <div class="table-responsive">
+                    <div class="panel panel-success">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Operación</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Tipo proceso</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Tipo maquina</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Minutos</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($operaciones as $val): ?>
+                                       <tr style="font-size: 85%;">
+                                            <td><?= $val->proceso->idproceso ?></td>
+                                            <td><?= $val->proceso->proceso ?></td>
+                                            <?php if($val->idtipo == ''){?>
+                                                  <td><?= 'No found' ?></td>
+                                            <?php }else{?>
+                                                  <td><?= $val->tipo->tipo ?></td>
+                                            <?php }?>      
+                                            <td><?= $val->tipoMaquinas->descripcion ?></td>
+                                            <td><?= $val->segundos?></td>
+                                            <td><?= $val->minutos?></td>
+                                           <td><?= $val->usuario?></td>
+                                           <td style="width: 30px;"><input type="checkbox" name="id_operacion[]" value="<?= $val->id_operacion ?>"></td>
+                                           <?php if ($model->autorizado == 0) { 
+                                               
+                                           }?>
+                                       </tr>  
+                                    <?php endforeach;?>   
+                                </<body>
+                            </table>
+                        </div>
+                        <?php if($model->autorizado == 0){?>
+                            <div class="panel-footer text-right"> 
+                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva operación', ['costo-producto/nuevaoperacionproducto', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editaroperacionproducto', 'id' => $model->id_producto], ['class' => 'btn btn-primary btn-sm']) ?>                    
+                                <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminaroperacion']) ?>
+                            </div> 
+                        <?php }?>
+                    </div>    
+                </div>
+            </div> 
+            <!--TERMINA TABS DE OPERACIONES-->
+            <div role="tabpanel" class="tab-pane" id="insumos">
                 <div class="table-responsive">
                     <div class="panel panel-success">
                         <div class="panel-body">
@@ -217,7 +277,9 @@ $view = 'costo-producto';
                                 <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['costo-producto/eliminartododetalle', 'id' => $model->id_producto], ['class' => 'btn btn-danger btn-sm']) ?>                    
                             </div> 
                         <?php }?>
+                         
                     </div>    
+                    
                 </div>
             </div> 
             <!-- TERMINA TABS-->
@@ -276,6 +338,7 @@ $view = 'costo-producto';
                                 <?= Html::a('<span class="glyphicon glyphicon-plus-sign"></span> Crear tallas', ['costo-producto/creartallas', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
                             </div> 
                          <?php }?>
+                         
                     </div>
                 </div>
             </div>
@@ -335,4 +398,19 @@ $view = 'costo-producto';
             </div>
         </div>
     </div>
+  
 </div>
+</div>
+<script type="text/javascript">
+	function marcar(source) 
+	{
+		checkboxes=document.getElementsByTagName('input'); //obtenemos todos los controles del tipo Input
+		for(i=0;i<checkboxes.length;i++) //recoremos todos los controles
+		{
+			if(checkboxes[i].type == "checkbox") //solo si es un checkbox entramos
+			{
+				checkboxes[i].checked=source.checked; //si es un checkbox le damos el valor del checkbox que lo llamó (Marcar/Desmarcar Todos)
+			}
+		}
+	}
+</script>

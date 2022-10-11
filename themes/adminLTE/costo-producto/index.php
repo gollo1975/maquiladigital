@@ -99,12 +99,12 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Tipo_producto</th>
+                 <th scope="col" style='background-color:#B9D5CE;'>Unidades</th> 
                 <th scope="col" style='background-color:#B9D5CE;'>Costo muestra</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Costo real</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Gran total </th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha creación</th> 
-                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th> 
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Costo Autorizado">Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Aplica Iva">A. Iva</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Asignado a proveedor">Asig.</span></th>
@@ -120,12 +120,12 @@ $form = ActiveForm::begin([
                 <td><?= $val->codigo_producto?></td>
                 <td><?= $val->descripcion?></td>
                 <td><?= $val->tipoProducto->concepto?></td>
+                <td style="text-align: right"><?= ''.number_format($val->cantidad,0)?></td>
                 <td style="text-align: right"><?= '$'.number_format($val->costo_sin_iva,0)?></td>
                 <td style="text-align: right"><?= '$'.number_format($val->costo_con_iva,0)?></td>
                 <td style="text-align: right"><?= '$'.number_format($val->subtotal_producto,0)?></td>
                 <td style="text-align: right"><?= '$'.number_format($val->total_producto,0)?></td>
                 <td><?= $val->fecha_creacion?></td>
-                <td><?= $val->usuariosistema?></td>
                 <td><?= $val->Autorizadocosto?></td>
                 <td><?= $val->aplicaiva?></td>
                 <?php if($val->asignado == 0){?>

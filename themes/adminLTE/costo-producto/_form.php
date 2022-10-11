@@ -36,13 +36,17 @@ $tipo_producto = ArrayHelper::map(TipoProducto::find()->where(['=','estado',1])-
                   
                 </div>
                 <div class="row">
+                    <?= $form->field($model, 'tiempo_confeccion')->textInput(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'tiempo_terminacion')->textInput(['maxlength' => true]) ?>
+                  
+                </div>
+                <div class="row">
                      <?= $form->field($model, 'id_tipo_producto')->widget(Select2::classname(), [
                     'data' => $tipo_producto,
                     'options' => ['placeholder' => 'Seleccione...'],
                     'pluginOptions' => [
                         'allowClear' => true ]]);
                     ?>
-                    
                      <?= $form->field($model, 'observacion')->textarea(['maxlength' => true]) ?>
                
                 </div>

@@ -56,7 +56,7 @@ $form = ActiveForm::begin([
                                         
                     </div>    
                      <div class="row">
-                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
                     </div>
                       
                 <div class="panel-footer text-right">			

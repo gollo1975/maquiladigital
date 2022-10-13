@@ -335,6 +335,15 @@ class AsignacionProductoController extends Controller
         }
     }
     
+    //IMPRIMIR ORDEN DE PRODUCCION
+     public function actionImprimirordenproduccion($id)
+    {
+                                
+        return $this->render('../formatos/OrdenProduccionProducto', [
+            'model' => $this->findModel($id),
+            
+        ]);
+    }
 
     /**
      * Finds the AsignacionProducto model based on its primary key value.

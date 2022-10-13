@@ -192,6 +192,7 @@ class PDF extends FPDF {
 
 global $id_producto;
 $id_producto = $model->id_producto;
+//$pdf = new PDF('L','mm','letter'); para datos horizontal
 $pdf = new PDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();

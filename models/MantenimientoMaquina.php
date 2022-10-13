@@ -48,7 +48,7 @@ class MantenimientoMaquina extends \yii\db\ActiveRecord
             [['id_maquina', 'id_servicio', 'id_mecanico'], 'integer'],
             [['fecha_mantenimiento', 'fecha_proceso'], 'safe'],
             [['usuario'], 'string', 'max' => 15],
-            [['observacion'], 'string', 'max' => 150],
+            [['observacion'], 'string', 'max' => 500],
             [['id_maquina'], 'exist', 'skipOnError' => true, 'targetClass' => Maquinas::className(), 'targetAttribute' => ['id_maquina' => 'id_maquina']],
             [['id_servicio'], 'exist', 'skipOnError' => true, 'targetClass' => ServicioMantenimiento::className(), 'targetAttribute' => ['id_servicio' => 'id_servicio']],
             [['id_mecanico'], 'exist', 'skipOnError' => true, 'targetClass' => Mecanico::className(), 'targetAttribute' => ['id_mecanico' => 'id_mecanico']],

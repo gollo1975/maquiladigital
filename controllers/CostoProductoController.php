@@ -822,6 +822,12 @@ class CostoProductoController extends Controller
                     'model' => $this->findModel($id),
         ]);
     }
+    
+    public function actionImprimiroperaciones($id) {
+        return $this->render('../formatos/costoProductOperaciones', [
+                    'model' => $this->findModel($id),
+        ]);
+    }
 
     /**
      * Finds the CostoProducto model based on its primary key value.
@@ -837,5 +843,91 @@ class CostoProductoController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    
+     public function actionExcelconsultaProducto($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+                              
+        $objPHPExcel->setActiveSheetIndex(0)
+                     ->setCellValue('A1', 'ID')
+                    ->setCellValue('B1', 'CODIGO')
+                    ->setCellValue('C1', 'PRODUCTO')
+                    ->setCellValue('D1', 'COSTO SIN IVA')
+                    ->setCellValue('E1', 'COSTO CON IVA')
+                    ->setCellValue('F1', 'CANTIDAD')
+                    ->setCellValue('G1', 'SUBTOTAL')                    
+                    ->setCellValue('H1', 'TOTAL PRODUCTO')
+                    ->setCellValue('I1', 'APLICA IVA')
+                    ->setCellValue('J1', '% IVA ')
+                    ->setCellValue('K1', 'SAM CONFECCION')
+                    ->setCellValue('L1', 'SAM TERMINACION')
+                    ->setCellValue('M1', 'FECHA PROCESO')
+                    ->setCellValue('N1', 'USUARIO')
+                    ->setCellValue('O1', 'OBSERVACION');
+                   
+        $i = 2  ;
+        
+        foreach ($tableexcel as $asignar) {
+            $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A' . $i, $asignar->id_producto)
+            ->setCellValue('B' . $i, $asignar->codigo_producto)
+            ->setCellValue('C' . $i, $asignar->descripcion)
+            ->setCellValue('D' . $i, $asignar->costo_sin_iva)
+            ->setCellValue('E' . $i, $asignar->costo_con_iva)
+            ->setCellValue('F' . $i, $asignar->cantidad)
+            ->setCellValue('G' . $i, $asignar->subtotal_producto)                    
+            ->setCellValue('H' . $i, $asignar->total_producto)
+            ->setCellValue('I' . $i, $asignar->aplicaiva)
+            ->setCellValue('J' . $i, $asignar->porcentaje_iva)
+            ->setCellValue('K' . $i, $asignar->tiempo_confeccion)
+            ->setCellValue('L' . $i, $asignar->tiempo_terminacion)
+            ->setCellValue('M' . $i, $asignar->fecha_creacion)
+            ->setCellValue('N' . $i, $asignar->usuariosistema)
+            ->setCellValue('O' . $i, $asignar->observacion);
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Productos');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Listado_productos.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
     }
 }

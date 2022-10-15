@@ -35,7 +35,7 @@ endforeach;
                           'data' => ['confirm' => 'Esta segura de crear la Orden de Producción a este proveedor.', 'method' => 'post']]) ?>
                     </button>    
                 <?php }else{ ?>
-                <button type="button" class="btn btn-default btn"> <?php echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['/asignacion-producto/imprimirordenproduccion', 'id' => $model->id_asignacion],['class' => 'btn btn-default btn-sm']) ;?>
+                <button type="button" class="btn btn-default btn"> <?php echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['/asignacion-producto/imprimiordenproduccion', 'id' => $model->id_asignacion],['class' => 'btn btn-default btn-sm']) ;?>
                 </button>        
                 <button type="button" class="btn btn-default btn"> <?=  Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $model->id_asignacion,'view' => $view], ['class' => 'btn btn-default btn-sm']);?>                                                         
                 </button>   

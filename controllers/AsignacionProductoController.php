@@ -360,6 +360,13 @@ class AsignacionProductoController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+     public function actionImprimiordenproduccion($id) {
+         $model = AsignacionProducto::findOne($id);
+                 
+        return $this->render('../formatos/reporteOrdenProduccion', [
+                    'model' => $model,
+        ]);
+    }
     
     //CONSULTA DE ORDEN DE PRODUCCION
     

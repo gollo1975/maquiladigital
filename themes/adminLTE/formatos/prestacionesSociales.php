@@ -267,27 +267,27 @@ class PDF extends FPDF {
             $pdf->Cell(26, 4, '$ '.number_format($detalle->valor_adicion, 2), 0, 0, 'R');            
             $pdf->Ln();
             $pdf->SetAutoPageBreak(true, 20);                              
-        }
-		//creditos
-		$pdf->SetXY(10, 154);
-		$this->SetFont('', 'B', 7);
-		$pdf->Cell(192, 5, utf8_decode('CRÉDITOS'), 1, 0, 'C',1);
-		$pdf->SetXY(10, 159);
+       }
+        //creditos
+        $pdf->SetXY(10, 154);
+        $this->SetFont('', 'B', 7);
+        $pdf->Cell(192, 5, utf8_decode('CRÉDITOS'), 1, 0, 'C',1);
+        $pdf->SetXY(10, 159);
         $pdf->Cell(13, 4, 'ID', 1, 0, 'C',1);
         $pdf->Cell(89, 4, 'CONCEPTO', 1, 0, 'C',1);
         $pdf->Cell(24, 4, utf8_decode('VALOR CRÉDITO'), 1, 0, 'C',1);
-		$pdf->Cell(24, 4, utf8_decode('SALDO CRÉDITO'), 1, 0, 'C',1);
-		$pdf->Cell(23, 4, utf8_decode('DEDUCCIÓN'), 1, 0, 'C',1);
-		$pdf->Cell(19, 4, 'FECHA INICIO', 1, 0, 'C',1);
-		$pdf->SetXY(10, 164);
-		$pdf->SetFont('Arial', '', 7);
-		foreach ($creditos as $detalle) {                                    
+        $pdf->Cell(24, 4, utf8_decode('SALDO CRÉDITO'), 1, 0, 'C',1);
+        $pdf->Cell(23, 4, utf8_decode('DEDUCCIÓN'), 1, 0, 'C',1);
+        $pdf->Cell(19, 4, 'FECHA INICIO', 1, 0, 'C',1);
+        $pdf->SetXY(10, 164);
+        $pdf->SetFont('Arial', '', 7);
+        foreach ($creditos as $detalle) {                                    
             $pdf->Cell(13, 4, $detalle->id, 0, 0, 'C');            
             $pdf->Cell(89, 4, $detalle->codigoSalario->nombre_concepto, 0, 0, 'L');
             $pdf->Cell(24, 4, '$ '.number_format($detalle->valor_credito, 2), 0, 0, 'R');
-			$pdf->Cell(24, 4, '$ '.number_format($detalle->saldo_credito, 2), 0, 0, 'R');
-			$pdf->Cell(23, 4, '$ '.number_format($detalle->deduccion, 2), 0, 0, 'R');
-			$pdf->Cell(19, 4, $detalle->fecha_inicio, 0, 0, 'C');
+            $pdf->Cell(24, 4, '$ '.number_format($detalle->saldo_credito, 2), 0, 0, 'R');
+            $pdf->Cell(23, 4, '$ '.number_format($detalle->deduccion, 2), 0, 0, 'R');
+            $pdf->Cell(19, 4, $detalle->fecha_inicio, 0, 0, 'C');
             $pdf->Ln();
             $pdf->SetAutoPageBreak(true, 20);                              
         }

@@ -2239,8 +2239,8 @@ class OrdenProduccionController extends Controller {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
         $ordendetalle = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->one();
         $operaciones = Ordenproducciondetalleproceso::find()->Where(['=','iddetalleorden', $ordendetalle->iddetalleorden])
-                                                                    ->orderBy('id_tipo DESC')
-                                                                   ->all();
+                                                                        ->orderBy('id_tipo DESC')
+                                                                       ->all();
         $modulos = Balanceo::find()->where(['=','idordenproduccion', $id])->all();
         $cantidad_confeccionada = CantidadPrendaTerminadas::find()->where(['=','idordenproduccion', $id])->orderBy('fecha_entrada asc')->all();
         $modeldetalle = new Ordenproducciondetalle();

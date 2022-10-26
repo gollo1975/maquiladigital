@@ -23,6 +23,15 @@ class Horario extends \yii\db\ActiveRecord
     {
         return 'horario';
     }
+     public function beforeSave($insert) {
+	if(!parent::beforeSave($insert)){
+            return false;
+        }
+	# ToDo: Cambiar a cliente cargada de configuración.    
+	$this->abreviatura = strtoupper($this->abreviatura);
+	
+        return true;
+    }
 
     /**
      * {@inheritdoc}
@@ -31,8 +40,8 @@ class Horario extends \yii\db\ActiveRecord
     {
         return [
             [['horario', 'desde', 'hasta', 'total_horas'], 'required'],
-            [['desde', 'hasta'], 'string'],
-            [['total_horas'],'number'],
+            [['desde', 'hasta','abreviatura'], 'string'],
+            [['total_horas','tiempo_desayuno','tiempo_almuerzo'],'number'],
             [['horario'], 'string', 'max' => 20],
         ];
     }
@@ -48,6 +57,9 @@ class Horario extends \yii\db\ActiveRecord
             'desde' => 'Desde',
             'hasta' => 'Hasta',
             'total_horas' =>'Total horas',
+            'tiempo_desayuno' => 'Minuto desayuno',
+            'tiempo_almuerzo' => 'Minuto almuerzo',
+            'abreviatura' => 'Abreviatura',
         ];
     }
 

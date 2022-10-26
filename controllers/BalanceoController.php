@@ -463,6 +463,7 @@ class BalanceoController extends Controller
                 if($balanceo){
                     Yii::$app->getSession()->setFlash('error', 'Error en el modulo, ya existe este numero de modulo para esta OP');
                 }else{
+                    $horarios = 0;
                     $orden = Ordenproduccion::findOne($idordenproduccion);
                     $table = new Balanceo();
                     $table->idordenproduccion = $idordenproduccion;
@@ -471,7 +472,9 @@ class BalanceoController extends Controller
                     $table->fecha_inicio = $model->fecha_inicio;
                     $table->cantidad_empleados = $model->cantidad_empleados;
                     $table->modulo = $model->modulo;
-                    $table->id_planta = $model->id_planta  ;
+                    $table->id_planta = $model->id_planta;
+                    $table->id_horario = $model->id_horario;
+                    $horarios = $table->id_horario;
                     $table->total_minutos = $orden->sam_operativo;
                     $table->tiempo_balanceo = $orden->sam_balanceo;
                     $table->total_segundos = $orden->segundosficha;
@@ -481,8 +484,37 @@ class BalanceoController extends Controller
                     $table->hora_inicio = $model->hora_inicio;
                     $table->porcentaje = 100;
                     $table->usuariosistema = Yii::$app->user->identity->username;
+                    //proceso para las horas
+                    $totalTiempo = 0;
+                    $horario = \app\models\Horario::findOne($table->id_horario);
+                    $horad = explode(":", $table->hora_inicio);
+                    $horah = explode(":", $horario->hasta);
+                    $sumarh = $horah[0] - $horad[0];
+                    $sumarm = $horah[1] + $horad[1];
+                    $totalTiempo = $sumarh;
+                    $totalTiempo = ($sumarh * 60) + $sumarm;
+                   echo $totalTiempo,'-';
+                    if($horario->abreviatura === 'LV'){//valida horario de 9.5 horas
+                        if($totalTiempo > 480){
+                          $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno + $horario->tiempo_almuerzo); 
+                        }else{
+                            if($totalTiempo < 480 and $totalTiempo > 195){
+                               $totalTiempo = $totalTiempo - $horario->tiempo_almuerzo; 
+                            }else{
+                               $totalTiempo = $totalTiempo; 
+                            }
+                        }    
+                    }    
+                    if($horario->abreviatura === 'LS'){
+                        if($totalTiempo > 360){
+                          $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno); 
+                        }else{
+                           $totalTiempo = $totalTiempo; 
+                        }    
+                    }    
+                    $table->total_horas = number_format($totalTiempo/60,2);
                     $table->save(false);
-                    $this->actionActualizarfechaterminacion($idordenproduccion);
+                    $this->actionActualizarfechaterminacion($idordenproduccion, $horarios);
                     return $this->redirect(["balanceo/index"]); 
                 }     
             }else{
@@ -495,11 +527,11 @@ class BalanceoController extends Controller
         ]);
     }
     //suproceso para validar la fecha de terminacion
-    protected function actionActualizarfechaterminacion($idordenproduccion)
+    protected function actionActualizarfechaterminacion($idordenproduccion, $horarios)
     {
         $minutos = 0; $cantidad = 0; $totales = 0; $total_dias = 0;
         $unidades = 0;
-        $horario = \app\models\Horario::findOne(1);
+        $horario = \app\models\Horario::findOne($horarios);
         $orden = Ordenproduccion::findOne($idordenproduccion);
         $balaceo = Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
         $minutos = $orden->segundosficha / 60;
@@ -544,9 +576,39 @@ class BalanceoController extends Controller
                         $table->tiempo_operario = ''.number_format($balanceo->tiempo_balanceo / $table->cantidad_empleados ,3);
                         $table->id_proceso_confeccion = $model->id_proceso_confeccion;
                         $table->id_planta = $model->id_planta;
+                        $table->id_horario = $model->id_horario;
                         $table->hora_inicio = $model->hora_inicio;
+                        $horarios = $table->id_horario;
+                         //proceso para las horas
+                        $totalTiempo = 0;
+                        $horario = \app\models\Horario::findOne($model->id_horario);
+                        $horad = explode(":", $model->hora_inicio);
+                        $horah = explode(":", $horario->hasta);
+                        $sumarh = $horah[0] - $horad[0];
+                        $sumarm = $horah[1] + $horad[1];
+                        $totalTiempo = $sumarh;
+                        $totalTiempo = ($sumarh * 60) + $sumarm;
+                        if($horario->abreviatura === 'LV'){//valida horario de 9.5 horas
+                            if($totalTiempo > 480){
+                              $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno + $horario->tiempo_almuerzo); 
+                            }else{
+                                if($totalTiempo < 480 and $totalTiempo > 195){
+                                   $totalTiempo = $totalTiempo - $horario->tiempo_almuerzo; 
+                                }else{
+                                   $totalTiempo = $totalTiempo; 
+                                }
+                            }    
+                        }    
+                        if($horario->abreviatura === 'LS'){
+                            if($totalTiempo > 360){
+                              $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno); 
+                            }else{
+                               $totalTiempo = $totalTiempo; 
+                            }    
+                        }    
+                        $table->total_horas = number_format($totalTiempo/60,2);
                         $table->save(false);
-                        $this->actionActualizarfechaterminacion($idordenproduccion);
+                        $this->actionActualizarfechaterminacion($idordenproduccion, $horarios);
                         return $this->redirect(["balanceo/index"]);  
                     }
                 }
@@ -560,7 +622,8 @@ class BalanceoController extends Controller
                $model->modulo = $table->modulo;
                $model->id_proceso_confeccion = $table->id_proceso_confeccion;
                $model->id_planta = $table->id_planta;
-                $model->hora_inicio = $table->hora_inicio;
+               $model->id_horario = $table->id_horario;
+               $model->hora_inicio = $table->hora_inicio;
                $model->observacion = $table->observacion;
            }else{
                 return $this->redirect(['index']);

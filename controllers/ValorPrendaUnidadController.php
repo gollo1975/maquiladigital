@@ -319,8 +319,6 @@ class ValorPrendaUnidadController extends Controller
                 $operario = Operarios::find()->where(['=','id_operario', $_POST["id_operario"][$intIndice]])->one();
                 $valor_unidad = ValorPrendaUnidad::find()->where(['=','id_valor', $id])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
                 $vlr_unidad = 0;
-               echo $operario->horarios->id_horario,'-';
-               echo $operario->horarios->total_horas;
                 if($operario){
                     $conMatricula = \app\models\Matriculaempresa::findOne(1);
                     if($operario->vinculado == 1){

@@ -40,14 +40,16 @@ class Balanceo extends \yii\db\ActiveRecord
     {
         return [
             [['fecha_inicio','id_proceso_confeccion','id_planta'], 'required'],
-            [['idordenproduccion', 'cantidad_empleados','idcliente','modulo','id_proceso_confeccion','id_planta'], 'integer'],
+            [['idordenproduccion', 'cantidad_empleados','idcliente','modulo','id_proceso_confeccion','id_planta','id_horario'], 'integer'],
             [['fecha_inicio'], 'safe'],
-            [['total_minutos','total_segundos','tiempo_operario','porcentaje','tiempo_balanceo'],'number'],
+            [['total_minutos','total_segundos','tiempo_operario','porcentaje','tiempo_balanceo','total_horas','hora_final_modulo'],'number'],
             [['observacion','hora_inicio'],'string', 'max' => 150],
+            //clases
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
             [['id_proceso_confeccion'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoConfeccionPrenda::className(), 'targetAttribute' => ['id_proceso_confeccion' => 'id_proceso_confeccion']],
             [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
+            [['id_horario'], 'exist', 'skipOnError' => true, 'targetClass' => Horario::className(), 'targetAttribute' => ['id_horario' => 'id_horario']],
         ];
     }
 
@@ -70,6 +72,10 @@ class Balanceo extends \yii\db\ActiveRecord
             'id_proceso_confeccion' => 'Proceso confeccion:',
             'id_planta' => 'Planta:',
             'hora_inicio' => 'Hora inicio:',
+            'id_horario' =>'Horario:',
+            'total_horas' => 'Numero horas:',
+            'hora_final_modulo' => 'Total horas:',
+            
         ];
     }
 
@@ -92,6 +98,10 @@ class Balanceo extends \yii\db\ActiveRecord
      public function getPlantaempresa()
     {
         return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
+    }
+     public function getHorario()
+    {
+        return $this->hasOne(Horario::className(), ['id_horario' => 'id_horario']);
     }
     
     public function getEstadomodulo() {

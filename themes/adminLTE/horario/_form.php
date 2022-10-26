@@ -38,6 +38,16 @@ $form = ActiveForm::begin([
          <div class="row">            
            <?= $form->field($model, 'total_horas')->textInput(['maxlength' => true]) ?>         
         </div>
+        <div class="row">            
+           <?= $form->field($model, 'tiempo_desayuno')->textInput(['maxlength' => true]) ?>         
+        </div>
+        <div class="row">            
+           <?= $form->field($model, 'tiempo_almuerzo')->textInput(['maxlength' => true]) ?>         
+        </div>
+         <div class="row">
+           <?= $form->field($model, 'abreviatura')->dropDownList(['LV'=> 'Lunes-Vierne(LV)', 'LS'=> 'Lunes-Sabado (LS)'], ['prompt' => 'Seleccione una opcion...']) ?>
+         </div> 
+        
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("horario/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>

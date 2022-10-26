@@ -18,6 +18,7 @@ use kartik\depdrop\DepDrop;
 /* @var $form yii\widgets\ActiveForm */
 $proceso_confeccion = ArrayHelper::map(\app\models\ProcesoConfeccionPrenda::find()->orderBy('id_proceso_confeccion ASC')->all(),'id_proceso_confeccion','descripcion_proceso');
 $plantas = ArrayHelper::map(\app\models\PlantaEmpresa::find()->orderBy('id_planta ASC')->all(),'id_planta','nombre_planta');
+$horario = ArrayHelper::map(\app\models\Horario::find()->orderBy('id_horario ASC')->all(),'id_horario','horario');
 ?>
 <?php
 $form = ActiveForm::begin([
@@ -67,6 +68,14 @@ $form = ActiveForm::begin([
         <div class="row">
             <?= $form->field($model, 'id_planta')->widget(Select2::classname(), [
              'data' => $plantas,
+             'options' => ['placeholder' => 'Seleccione.... '],
+             'pluginOptions' => [
+             'allowClear' => true ]]);
+            ?>
+        </div>
+        <div class="row">
+            <?= $form->field($model, 'id_horario')->widget(Select2::classname(), [
+             'data' => $horario,
              'options' => ['placeholder' => 'Seleccione.... '],
              'pluginOptions' => [
              'allowClear' => true ]]);

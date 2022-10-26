@@ -100,7 +100,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($model as $val): ?>
+                                <?php foreach ($model as $val):
+                                   ?>
                                 <tr style="font-size: 85%;">
                                     <td><?= $val->idordenproduccion ?></td>
                                     <td><?= $val->ordenproduccion ?></td>
@@ -123,10 +124,15 @@ $this->params['breadcrumbs'][] = $this->title;
                                             <?php }else{?>
                                                     <td style="font-size: 85%;background: #D5F2E7; color: #0A3664;"><?php echo 'TERMINADO'?></td>
                                             <?php }
-                                    }?>   
-                                    <td style="width: 25px;">
-                                        <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_balanceo', 'id' => $val->idordenproduccion] ) ?>
-                                    </td>
+                                    }
+                                    $detalle = \app\models\Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $val->idordenproduccion])->one();
+                                    if($detalle){?>   
+                                        <td style="width: 25px;">
+                                            <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_balanceo', 'id' => $val->idordenproduccion] ) ?>
+                                        </td>
+                                    <?php }else{?>
+                                        <td style="width: 25px;">
+                                    <?php }?>        
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>

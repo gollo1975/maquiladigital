@@ -42,7 +42,15 @@ $this->params['breadcrumbs'][] = $model->id_horario;
                     <td><?= Html::encode($model->hasta) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_horas') ?>:</th>
                     <td><?= Html::encode($model->total_horas) ?></td>
-                </tr>                                                              
+                </tr>           
+                <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Minutos_desayuno') ?>:</th>
+                    <td><?= Html::encode($model->tiempo_desayuno) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Minutos_almuerzo') ?>:</th>
+                    <td><?= Html::encode($model->tiempo_almuerzo) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Abreviatura') ?>:</th>
+                    <td colspan="5"><?= Html::encode($model->abreviatura) ?></td>
+                </tr>                    
             </table>
         </div>
     </div>

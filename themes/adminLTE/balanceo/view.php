@@ -103,8 +103,18 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <td><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Proceso') ?>:</th>
                     <td><?= Html::encode($model->verreproceso) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Horario') ?>:</th>
+                    <td><?= Html::encode($model->horario->horario) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Hora_iniciales') ?></th>
+                    <td><?= Html::encode($model->total_horas) ?></td>
+                  
+                </tr>
+                 </tr>
+                  <tr style="font-size: 85%;">
+                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Hora_terminación') ?></th>
+                    <td><?= Html::encode($model->hora_final_modulo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Observaciones') ?>:</th>
-                    <td colspan="3"><?= Html::encode($model->observacion) ?></td>
+                    <td colspan="6"><?= Html::encode($model->observacion) ?></td>
                   
                 </tr>
                 

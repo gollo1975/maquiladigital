@@ -33,7 +33,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
         <?php if($model->estado_modulo == 0){?>
            <button type="button" class="btn btn-default btn"> 
             <?= Html::a('<span class="glyphicon glyphicon-user"></span> Nueva cantidad',            
-                ['/balanceo/nuevacantidad','id' => $model->id_balanceo,'id_proceso_confeccion' => $id_proceso_confeccion],
+                ['/balanceo/nuevacantidad','id' => $model->id_balanceo,'id_proceso_confeccion' => $id_proceso_confeccion, 'idordenproduccion' => $model->idordenproduccion],
                 [
                     'title' => 'Nueva cantidad de operarios',
                     'data-toggle'=>'modal',

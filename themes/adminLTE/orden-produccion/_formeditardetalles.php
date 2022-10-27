@@ -52,8 +52,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col">Id</th>
                     <th scope="col">Producto</th>
                     <th scope="col">Código</th>
-                    <th scope="col">Cantidad</th>
-                    <th scope="col">Valor</th>
+                    <th scope="col">Unidades</th>
+                    <th scope="col">Valor unidad</th>
                     <th scope="col"></th>
                 </tr>
                 </thead>
@@ -63,8 +63,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= $val->iddetalleorden ?></td>
                     <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
                     <td><?= $val->codigoproducto ?></td>
-                    <td><input type="text" name="cantidad[]" value="<?= $val->cantidad ?>" required></td>
-                    <td><input type="text" name="vlrprecio[]" value="<?= $val->vlrprecio ?>" required></td>
+                    <td><input type="text" style="text-align: right" name="cantidad[]" value="<?= $val->cantidad ?>" required></td>
+                    <td><input type="text" style="text-align: right" name="vlrprecio[]" value="<?= $val->vlrprecio ?>" required></td>
                     <td><input type="hidden" name="iddetalleorden[]" value="<?= $val->iddetalleorden ?>"></td>
                 </tr>
                 </tbody>

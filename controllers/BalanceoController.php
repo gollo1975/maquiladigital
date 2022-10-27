@@ -644,7 +644,7 @@ class BalanceoController extends Controller
 
     //Actualizar cantidad de operarios
     
-     public function actionNuevacantidad($id, $id_proceso_confeccion) {  
+     public function actionNuevacantidad($id, $id_proceso_confeccion, $idordenproduccion) {  
         $model = new \app\models\FormParametroCantidadOperario();
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -653,11 +653,12 @@ class BalanceoController extends Controller
         if ($model->load(Yii::$app->request->post())) {            
             if ($model->validate()) {
                 $archivo = Balanceo::findOne($id);
+                $horarios = \app\models\Horario::findOne($archivo->id_horario);
                 if (isset($_POST["actualizaroperario"])) { 
                     $archivo->cantidad_empleados = $model->cantidad_empleados;
                     $archivo->save(false);
-                    $this->actionActualizarfechaterminacion($model->idordenproduccion);
-                    return $this->redirect(["balanceo/view", 'id' => $id, 'idordenproduccion' => $model->idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);                                                     
+                    $this->actionActualizarfechaterminacion($idordenproduccion, $horarios);
+                    return $this->redirect(["balanceo/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);                                                     
                 }
             }
         }

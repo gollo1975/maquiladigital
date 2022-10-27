@@ -9,6 +9,7 @@ use app\models\BalanceoSearch;
 use app\models\UsuarioDetalle;
 use app\models\FormFiltroModulos;
 use app\models\FlujoOperaciones;
+use app\models\FormCerrarModulo;
 //clases
 use Yii;
 use yii\web\Controller;
@@ -493,7 +494,6 @@ class BalanceoController extends Controller
                     $sumarm = $horah[1] + $horad[1];
                     $totalTiempo = $sumarh;
                     $totalTiempo = ($sumarh * 60) + $sumarm;
-                   echo $totalTiempo,'-';
                     if($horario->abreviatura === 'LV'){//valida horario de 9.5 horas
                         if($totalTiempo > 480){
                           $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno + $horario->tiempo_almuerzo); 
@@ -531,6 +531,7 @@ class BalanceoController extends Controller
     {
         $minutos = 0; $cantidad = 0; $totales = 0; $total_dias = 0;
         $unidades = 0;
+        $dias = 0;
         $horario = \app\models\Horario::findOne($horarios);
         $orden = Ordenproduccion::findOne($idordenproduccion);
         $balaceo = Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
@@ -545,6 +546,9 @@ class BalanceoController extends Controller
         $date_dato = strtotime('+'.($total_dias).' day', strtotime($fecha)-1);
         $date_dato = date('Y-m-d', $date_dato);
         $val->fecha_terminacion = $date_dato;
+        $total = strtotime($val->fecha_terminacion) - strtotime($val->fecha_inicio);
+        $dias = round($total/ 86400)+1;
+        $val->numero_dias_balanceo = $dias;
         $val->save(false);
         $orden->fechaentrega = $date_dato;
         $orden->save(false);
@@ -670,6 +674,94 @@ class BalanceoController extends Controller
         return $this->renderAjax('_nuevacantidadoperario', ['model' => $model, 'id' => $id, 'id_proceso_confeccion' => $id_proceso_confeccion]);
     }
     
+    public function actionCerrarmodulo($id, $id_proceso_confeccion, $idordenproduccion)
+    {
+        $model = new FormCerrarModulo();
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {            
+            if ($model->validate()) {
+               $balanceo = Balanceo::findOne($id);
+               $orden = Ordenproduccion::findOne($idordenproduccion);
+               $horario = \app\models\Horario::findOne($balanceo->id_horario);
+                if (isset($_POST["cerrarmodulo"])) {
+                    $balanceo->estado_modulo = 1;
+                    $balanceo->fecha_cierre_modulo = $model->fecha_cierre;
+                    $balanceo->fecha_terminacion = $model->fecha_cierre;  
+                    $totalTiempo = 0;
+                    $sumarh = 0;
+                    $sumarm = 0;
+                    if($balanceo->numero_dias_balanceo == 1){
+                        $horad = explode(":", $balanceo->hora_inicio);
+                        $horah = explode(":", $model->hora_cierre);
+                        $sumarh = $horah[0] - $horad[0];
+                        $sumarm = $horah[1] + $horad[1];
+                        $totalTiempo = $sumarh;
+                        $totalTiempo = ($sumarh * 60) + $sumarm;
+                        if($horario->abreviatura === 'LV'){//valida horario de 9.5 horas
+                            if($totalTiempo > 480){
+                              $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno + $horario->tiempo_almuerzo); 
+                            }else{
+                                if($totalTiempo < 480 and $totalTiempo > 195){
+                                   $totalTiempo = $totalTiempo - $horario->tiempo_almuerzo; 
+                                }else{
+                                   $totalTiempo = $totalTiempo; 
+                                }
+                            }    
+                        }    
+                        if($horario->abreviatura === 'LS'){
+                            if($totalTiempo > 360){
+                              $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno); 
+                            }else{
+                               $totalTiempo = $totalTiempo; 
+                            }    
+                        }    
+                    }else{
+                        $horad = explode(":", $horario->desde);
+                        $horah = explode(":", $model->hora_cierre);
+                        $sumarh = $horah[0] - $horad[0];
+                        $sumarm = $horah[1] + $horad[1];
+                        $totalTiempo = $sumarh;
+                        $totalTiempo = ($sumarh * 60) + $sumarm;
+                        if($horario->abreviatura === 'LV'){//valida horario de 9.5 horas
+                            if($totalTiempo > 480){
+                              $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno + $horario->tiempo_almuerzo); 
+                            }else{
+                                if($totalTiempo < 480 and $totalTiempo > 195){
+                                   $totalTiempo = $totalTiempo - $horario->tiempo_almuerzo; 
+                                }else{
+                                   $totalTiempo = $totalTiempo; 
+                                }
+                            }    
+                        }    
+                        if($horario->abreviatura === 'LS'){
+                            if($totalTiempo > 360){
+                              $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno); 
+                            }else{
+                               $totalTiempo = $totalTiempo; 
+                            }    
+                        }    
+                    }
+                    $balanceo->hora_final_modulo = number_format($totalTiempo/60,2);
+                    $balanceo->save(false);
+                    $orden->cerrar_orden = 1;
+                    $orden->fechaentrega = $model->fecha_cierre;
+                    $orden->save(false);
+                    return $this->redirect(["balanceo/index"]);                                                     
+                }
+            }
+        }
+        return $this->renderAjax('cerrarmoduloconfeccion', [
+            'model' => $model,
+            'id' => $id,
+            'id_proceso_confeccion' => $id_proceso_confeccion,
+            'idordenproduccion' => $idordenproduccion,
+            ]);
+        
+    }
+    
    public function actionEliminar($id) {
         if (Yii::$app->request->post()) {
             $balanceo = Balanceo::findOne($id);
@@ -783,18 +875,6 @@ class BalanceoController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-    
-    public function actionCerrarmodulo($id, $idordenproduccion)
-    {
-        $balanceo = Balanceo::findOne($id);
-        $balanceo->estado_modulo = 1;
-        $balanceo->save(false);
-        $orden = Ordenproduccion::findOne($idordenproduccion);
-        $orden->cerrar_orden = 1;
-        $orden->save(false);
-        return $this->redirect(["balanceo/index"]);
-        
     }
     
      public function actionExcelconsulta($tableexcel) {                

@@ -31,7 +31,7 @@ use yii\db\Query;
 /* @var $model app\models\Ordenproduccion */
 
 $this->title = 'Detalle balanceo';
-$this->params['breadcrumbs'][] = ['label' => 'View', 'url' => ['produccionbalanceo']];
+$this->params['breadcrumbs'][] = ['label' => 'View_balanceo', 'url' => ['view_balanceo','id' => $model->idordenproduccion]];
 $this->params['breadcrumbs'][] = $model->idordenproduccion;
 //codigo que permite buscar el si la OP tiene modulo de balanceo
 $varModular = 0;
@@ -43,16 +43,18 @@ if($buscarOrden){
 <div class="ordenproduccionproceso-view">
     <div class="btn-group" role="group" aria-label="...">
         <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['produccionbalanceo'],['class' => 'btn btn-primary btn-xs']) ?></button>
-        <div class="btn-group btn-sm" role="group">
-            <button type="button" class="btn btn-info  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Modulos
-              <span class="caret"></span>
-            </button>
+        <?php if($model->cerrar_orden == 0){?>
+            <div class="btn-group btn-sm" role="group">
+                <button type="button" class="btn btn-info  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Modulos
+                  <span class="caret"></span>
+                </button>
 
-              <ul class="dropdown-menu">
-                    <li><?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear ', ['/balanceo/create', 'idordenproduccion' => $model->idordenproduccion], ['target' => '_blank']) ?></li>
-              </ul>
-        </div>
+                  <ul class="dropdown-menu">
+                        <li><?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear ', ['/balanceo/create', 'idordenproduccion' => $model->idordenproduccion], ['target' => '_blank']) ?></li>
+                  </ul>
+            </div>
+        <?php }?>
     </div>    
     <div class="panel panel-success">
         <div class="panel-heading">

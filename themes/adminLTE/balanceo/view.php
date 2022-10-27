@@ -31,25 +31,38 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
     <div class="btn-group" role="group" aria-label="...">
         <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'],['class' => 'btn btn-primary btn-xs']) ?></button>
         <?php if($model->estado_modulo == 0){?>
-           <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar modulo', ['cerrarmodulo', 'id' => $model->id_balanceo, 'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-warning btn-xs',
-            'data' => ['confirm' => 'Esta seguro de cerrar el modulo Nro: '. $model->modulo. '', 'method' => 'post']])?>
-         <?= Html::a('<span class="glyphicon glyphicon-user"></span> Nueva cantidad',            
-             ['/balanceo/nuevacantidad','id' => $model->id_balanceo,'id_proceso_confeccion' => $id_proceso_confeccion],
+           <button type="button" class="btn btn-default btn"> 
+            <?= Html::a('<span class="glyphicon glyphicon-user"></span> Nueva cantidad',            
+                ['/balanceo/nuevacantidad','id' => $model->id_balanceo,'id_proceso_confeccion' => $id_proceso_confeccion],
+                [
+                    'title' => 'Nueva cantidad de operarios',
+                    'data-toggle'=>'modal',
+                    'data-target'=>'#modalnuevacantidad'.$model->id_balanceo,
+                    'class' => 'btn btn-info btn-sm'
+                ]
+            )?>
+            <?= Html::a('<span class="glyphicon glyphicon-user"></span> Cerrar modulo',            
+             ['/balanceo/cerrarmodulo','id' => $model->id_balanceo,'id_proceso_confeccion' => $id_proceso_confeccion, 'idordenproduccion' => $model->idordenproduccion],
              [
-                 'title' => 'Nueva cantidad de operarios',
+                 'title' => 'Cerrar modulo de confección',
                  'data-toggle'=>'modal',
-                 'data-target'=>'#modalnuevacantidad'.$model->id_balanceo,
-                 'class' => 'btn btn-info btn-sm'
+                 'data-target'=>'#modalcerrarmodulo'.$model->id_balanceo,
+                 'class' => 'btn btn-warning btn-sm'
              ]
-         );
-         }
+            );
+            }
         ?></button>
     </div>
-     <div class="modal remote fade" id="modalnuevacantidad<?= $model->id_balanceo ?>">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content"></div>
-            </div>
+    <div class="modal remote fade" id="modalnuevacantidad<?= $model->id_balanceo ?>">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content"></div>
         </div>
+    </div>
+     <div class="modal remote fade" id="modalcerrarmodulo<?= $model->id_balanceo ?>">
+        <div class="modal-dialog modal-lg-centered">
+           <div class="modal-content"></div>
+        </div>
+    </div>
     <div class="panel panel-success">
         <div class="panel-heading">
             Detalle del registro
@@ -70,7 +83,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_inicio') ?>:</th>
                     <td><?= Html::encode($model->fecha_inicio .  '     ('. $model->hora_inicio.')') ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_terminación') ?>:</th>
-                    <td><?= Html::encode($model->fecha_terminacion) ?></td>
+                    <td><?= Html::encode($model->fecha_terminacion) ?> -<b>Dias:</b> (<?= Html::encode($model->numero_dias_balanceo)?>)</td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
                     <td><?= Html::encode($model->cliente->nombrecorto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Modulo') ?>:</th>

@@ -65,14 +65,16 @@ $this->params['breadcrumbs'][] = $this->title;
         <table class="table table-bordered table-hover">
             <thead>
            <tr style="font-size: 85%;">    
-                <th scope="col">Tipo</th>
-                <th scope="col">Cedula/Nit</th>
-                <th scope="col">Proveedor</th>
-                <th scope="col">Dirección</th>
-                 <th scope="col">Teléfono</th>
-                <th scope="col">Departamento</th>
-                <th scope="col">Municipio</th>
-                <th scope="col"></th>                               
+                <th scope="col" style='background-color:#B9D5CE;'>Tipo</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Cedula/Nit</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Proveedor</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Dirección</th>
+                 <th scope="col" style='background-color:#B9D5CE;'>Teléfono</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Departamento</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Municipio</th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>                               
+                <th scope="col" style='background-color:#B9D5CE;'></th>  
+                <th scope="col" style='background-color:#B9D5CE;'></th>  
             </tr>
             </thead>
             <tbody>
@@ -85,16 +87,20 @@ $this->params['breadcrumbs'][] = $this->title;
                  <td><?= $val->telefonoproveedor ?></td>
                 <td><?= $val->departamento->departamento ?></td>
                 <td><?= $val->municipio->municipio ?></td>
-                <td>				
-                <a href="<?= Url::toRoute(["proveedor/view", "id" => $val->idproveedor]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                <a href="<?= Url::toRoute(["proveedor/editar", "id" => $val->idproveedor])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-		<?= Html::a('', ['eliminar', 'id' => $val->idproveedor], [
-        'class' => 'glyphicon glyphicon-trash',
-        'data' => [
-            'confirm' => 'Esta seguro de eliminar el registro?',
-            'method' => 'post',
-        ],
-    ]) ?>
+                <td style= 'width: 25px; height: 20px;'>
+                    <a href="<?= Url::toRoute(["proveedor/view", "id" => $val->idproveedor]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                </td>
+                <td style= 'width: 25px; height: 20px;'>
+                    <a href="<?= Url::toRoute(["proveedor/editar", "id" => $val->idproveedor])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                </td>
+                 <td style= 'width: 25px; height: 20px;'>
+                        <?= Html::a('', ['eliminar', 'id' => $val->idproveedor], [
+                        'class' => 'glyphicon glyphicon-trash',
+                        'data' => [
+                            'confirm' => 'Esta seguro de eliminar el registro?',
+                            'method' => 'post',
+                        ],
+                    ]) ?>
                 </td>
             </tr>
             </tbody>

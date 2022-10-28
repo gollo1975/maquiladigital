@@ -43,7 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     
                 },
                 'filter' => ArrayHelper::map(app\models\Proveedor::find()->orderBy('nombrecorto ASC')->all(),'idproveedor','nombreProveedores'),
-                'contentOptions' => ['class' => 'col-lg-2'],
+                'contentOptions' => ['class' => 'col-lg-2.8'],
             ],
             [
                 'attribute' => 'id_comprobante_egreso_tipo',
@@ -52,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $tipos->concepto;
                 },
                 'filter' => ArrayHelper::map(\app\models\ComprobanteEgresoTipo::find()->orderBy('concepto ASC')->all(),'id_comprobante_egreso_tipo','concepto'),
-                'contentOptions' => ['class' => 'col-lg-3'],
+                'contentOptions' => ['class' => 'col-lg-2'],
             ],
             [
                 'attribute' => 'valor',
@@ -73,8 +73,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'contentOptions' => ['class' => 'col-lg-1'],
             ],            
             [
-                    'class' => 'yii\grid\ActionColumn',
-                    'contentOptions' => ['class' => 'col-lg-1 '],
+                    'class' => 'yii\grid\ActionColumn',              
                 ],
 
             ],

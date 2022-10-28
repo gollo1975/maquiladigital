@@ -49,10 +49,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'contentOptions' => ['class' => 'col-lg-1'],
             ],
 
-            ['class' => 'yii\grid\ActionColumn',
-                 'contentOptions' => ['class' => 'col-lg-1 '],
-                ],
-                        
+            ['class' => 'yii\grid\ActionColumn'],
         ],
         'tableOptions' => ['class' => 'table table-bordered table-success'],
         'summary' => '<div class="panel panel-success "><div class="panel-heading">Registros: {totalCount}</div>',

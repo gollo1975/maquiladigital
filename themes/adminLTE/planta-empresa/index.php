@@ -38,8 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'contentOptions' => ['class' => 'col-lg-3'],                
             ],   
             [
-                'class' => 'yii\grid\ActionColumn', 
-                 'contentOptions' => ['class' => 'col-lg-1 '],
+                'class' => 'yii\grid\ActionColumn',              
             ],
 			
         ],

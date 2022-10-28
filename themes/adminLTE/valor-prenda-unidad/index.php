@@ -138,9 +138,14 @@ $tipo = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('idtipo ASC')->all
                     <td style='background-color:#DDE6E4;'><?= $val->tipo->tipo?></td>
                     <?php if($val->id_proceso_confeccion == 1){?>
                       <td style='background-color:#A1D2D8;'><?= $val->procesoConfeccion->descripcion_proceso ?></td>
-                    <?php }else{?>
-                      <td style='background-color:#F1E4F4;'><?= $val->procesoConfeccion->descripcion_proceso ?></td> 
-                    <?php } ?>  
+                   <?php }else{
+                          if($val->id_proceso_confeccion == 2){?>
+                                <td style='background-color:#F1E4F4 ;'><?= $val->procesoConfeccion->descripcion_proceso ?></td> 
+                          <?php }else{?> 
+                                <td style='background-color:#F5DB90;'><?= $val->procesoConfeccion->descripcion_proceso ?></td> 
+                          <?php } 
+                                          
+                    } ?>  
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->cantidad,0) ?></td>
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_vinculado,0) ?></td>
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_contrato,0) ?></td>

@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use Yii;
 use app\models\Producto;
 use app\models\ProductoSearch;
 use app\models\Productodetalle;
@@ -14,21 +13,23 @@ use app\models\FormFiltroProductoStock;
 use app\models\UsuarioDetalle;
 use app\models\FormProductosDetallesNuevo;
 //clases
-use yii\helpers\ArrayHelper;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\data\Pagination;
-use yii\helpers\Html;
 use yii\db\ActiveQuery;
 use yii\base\Model;
 use yii\web\Response;
 use yii\web\Session;
+use yii\data\Pagination;
 use yii\filters\AccessControl;
+use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
 use yii\web\UploadedFile;
 use yii\bootstrap\Modal;
+use yii\helpers\ArrayHelper;
+use Codeception\Lib\HelperModule;
 
 
 /**
@@ -194,13 +195,20 @@ class ProductoController extends Controller
             if ($form->validate()) {
                 $q = Html::encode($form->q);                                
                 if ($q){
-                    //$model = Notas::find()->where(['identificacion' => $identificacion])->andWhere(['<>','matricula',0])->all();
                     $prendas = Prendatipo::find()
                             ->where(['like','prenda',$q])
-                            ->orwhere(['like','idprendatipo',$q])
-                            ->orderBy('prenda asc')
-                            ->all();
-                            
+                            ->orwhere(['like','idprendatipo',$q]);
+                    $prendas = $prendas->orderBy('prenda desc');                    
+                    $count = clone $prendas;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 30,
+                        'totalCount' => $count->count()
+                    ]);
+                    $prendas = $prendas
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();         
                 }               
             } else {
                 $form->getErrors();
@@ -208,7 +216,16 @@ class ProductoController extends Controller
                     
                        
         } else {
-            $prendas = Prendatipo::find()->orderBy('prenda asc')->all();
+            $prendas = Prendatipo::find()->orderBy('prenda asc');
+            $count = clone $prendas;
+            $pages = new Pagination([
+                'pageSize' => 30,
+                'totalCount' => $count->count(),
+            ]);
+            $prendas = $prendas
+                    ->offset($pages->offset)
+                    ->limit($pages->limit)
+                    ->all();
         }
         if (isset($_POST["idprendatipo"])) {
                 $intIndice = 0;
@@ -235,6 +252,7 @@ class ProductoController extends Controller
         return $this->render('_formnuevodetalles', [
             'prendas' => $prendas,            
             'mensaje' => $mensaje,
+            'pagination' => $pages,
             'idproducto' => $idproducto,
             'form' => $form,
 

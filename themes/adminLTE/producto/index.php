@@ -19,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
     <?=  $this->render('_search', ['model' => $searchModel]); ?>
 
-    <?php $newButton = Html::a('Nuevo ' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-plus']), ['create'], ['class' => 'btn btn-success']);?>
+    <?php $newButton = Html::a('Nuevo ' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-plus']), ['create'], ['class' => 'btn btn-success btn-sm']);?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -36,7 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return "{$clientes->nombrecorto} - {$clientes->cedulanit}";
                 },
                 'filter' => ArrayHelper::map(Cliente::find()->all(),'idcliente','nombreClientes'),
-                'contentOptions' => ['class' => 'col-lg-5'],
+                'contentOptions' => ['class' => 'col-lg-5.5'],
             ],
             [               
                 'attribute' => 'fechaproceso',

@@ -61,8 +61,8 @@ $this->params['breadcrumbs'][] = $this->title;
                  <tr style="font-size: 95%;">
                     <td><?= $val->idproductodetalle ?></td>
                     <td><?= $val->prendatipo->prenda.' - '.$val->prendatipo->talla->talla ?></td>                                                           
-                    <td><?= $ordenProduccion->codigoproducto ?></td>
-                    <td><input type="text" style="text-align: right" name="cantidad[]" value="0" required></td>
+                    <td> <input type="text" name="codigoproducto" value="<?= $ordenProduccion->codigoproducto ?>" readonly="true"></td>
+                    <td><input type="text" style="text-align: right" name="cantidad[]" value="0" required> </td>
                     <td><input type="text" style="text-align: right" name="vlrventa[]" value="0" required></td>                    
                     <td><input type="hidden" name="idproductodetalle[]" value="<?= $val->idproductodetalle ?>"></td>
                 </tr>

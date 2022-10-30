@@ -661,38 +661,51 @@ class CostoProductoController extends Controller
         $contador = 0; $subtotal = 0; $iva=0; $total = 0;
         $talla = ProductoTalla::find()->where(['=','id_producto', $id])->one();
         $colores = ProductoColor::find()->where(['=','id_producto', $id])->one();
-        if($talla){
-            if($colores){
-                $talla = ProductoTalla::find()->where(['=','id_producto', $id])->all();
-                if ($model->autorizado == 0) {                        
-                   if(count($talla) > 0){
-                        foreach ($talla as $tallas):
-                            $contador += $tallas->cantidad;
-                        endforeach;
-                        $subtotal= round($model->costo_sin_iva * $contador); 
-                        $iva = round(($subtotal * $model->porcentaje_iva)/100);
-                        $total = round($subtotal + $iva);
-                        $model->subtotal_producto = $subtotal;
-                        $model->total_producto = $total;
-                        $model->cantidad = $contador;
+        $detalle = \app\models\AsignacionProductoDetalle::find()->where(['=','id_producto', $id])->one();
+        if(!$detalle){
+            if($talla){
+                if($colores){
+                    $talla = ProductoTalla::find()->where(['=','id_producto', $id])->all();
+                    if ($model->autorizado == 0) {                        
+                       if(count($talla) > 0){
+                            foreach ($talla as $tallas):
+                                $contador += $tallas->cantidad;
+                            endforeach;
+                            $subtotal= round($model->costo_sin_iva * $contador); 
+                            $iva = round(($subtotal * $model->porcentaje_iva)/100);
+                            $total = round($subtotal + $iva);
+                            $model->subtotal_producto = $subtotal;
+                            $model->total_producto = $total;
+                            $model->cantidad = $contador;
+                        }
+                        $model->autorizado = 1;            
+                        $model->update();
+                        $this->redirect(["costo-producto/view", 'id' => $id]);            
+                    } else{
+                        $model->autorizado = 0;
+                        $model->update();
+                        $this->redirect(["costo-producto/view", 'id' => $id]); 
                     }
-                    $model->autorizado = 1;            
-                    $model->update();
-                    $this->redirect(["costo-producto/view", 'id' => $id]);            
-                } else{
-                    $model->autorizado = 0;
-                    $model->update();
+                }else{
                     $this->redirect(["costo-producto/view", 'id' => $id]); 
-                }
+                    Yii::$app->getSession()->setFlash('success', 'El producto no se puede autorizar porque NO tiene colores registrados para las tallas.'); 
+                }    
             }else{
                 $this->redirect(["costo-producto/view", 'id' => $id]); 
-                Yii::$app->getSession()->setFlash('success', 'El producto no se puede autorizar porque NO tiene colores registrados para las tallas.'); 
-            }    
+                Yii::$app->getSession()->setFlash('warning', 'El producto no se puede autorizar porque NO tiene tallas registradas.');
+            }  
         }else{
-            $this->redirect(["costo-producto/view", 'id' => $id]); 
-            Yii::$app->getSession()->setFlash('warning', 'El producto no se puede autorizar porque NO tiene tallas registradas.');
-        }  
+                $this->redirect(["costo-producto/view", 'id' => $id]); 
+                Yii::$app->getSession()->setFlash('error', 'El producto no se puede DESAUTORIZAR porque ya esta asignado a un proveedor.');
+        }    
              
+    }
+    //PROCESO QUE ABRE NUAVAMENTE LA ASIGNACION
+    public function actionAbriasignacion($id) {
+        $model = $this->findModel($id);
+        $model->asignado = 0;
+        $model->update();
+        $this->redirect(["costo-producto/view", 'id' => $id]); 
     }
     
     public function actionEliminar($id) {

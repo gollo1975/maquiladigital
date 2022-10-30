@@ -119,7 +119,7 @@ endforeach;
                         <div class="panel-body">
                             <table class="table table-bordered table-hover">
                                 <thead>
-                                    <tr>
+                                    <tr style="">
                                         <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Tallas</th>
@@ -146,10 +146,11 @@ endforeach;
                         </div>
                         <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right">
-
-                                    <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminardetalle']) ?>
-                             </div>
-                        <?php }?>
+                                   <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['asignacion-producto/editardetalleasignacion', 'id' => $model->id_asignacion],[ 'class' => 'btn btn-primary btn-sm']) ?>
+                                 <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminardetalle']) ?>
+                            </div>    
+                         <?php }?>
+                             
                     </div>    
                 </div>
             </div> 

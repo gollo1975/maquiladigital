@@ -94,7 +94,7 @@ $form = ActiveForm::begin([
     </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr >         
+                <tr style ='font-size: 90%;'>         
                 
                 <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>

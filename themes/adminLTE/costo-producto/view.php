@@ -38,6 +38,10 @@ $view = 'costo-producto';
              echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 15, 'codigo' => $model->id_producto,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
             }
             ?>
+            <?php if ($model->asignado == 1) { ?>
+
+                <?= Html::a('<span class="glyphicon glyphicon-open"></span> Abrir asignación', ['abriasignacion', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']);
+            } ?>    
         </div>    
     </p>
     <?php
@@ -390,7 +394,7 @@ $view = 'costo-producto';
                         </div>
                          <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right"> 
-                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Adcionar cantidad', ['costo-producto/editarcolores', 'id' => $model->id_producto],[ 'class' => 'btn btn-primary btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Adicionar cantidad', ['costo-producto/editarcolores', 'id' => $model->id_producto],[ 'class' => 'btn btn-primary btn-sm']) ?>
                             </div> 
                          <?php }?>
                     </div>

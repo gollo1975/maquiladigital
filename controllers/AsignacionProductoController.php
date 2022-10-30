@@ -344,6 +344,28 @@ class AsignacionProductoController extends Controller
             
         ]);
     }
+    
+    //PROCESO QUE EDITA LAS CANTIDAD DE TALLAS
+      public function actionEditardetalleasignacion($id)
+    {
+        $detalle = AsignacionProductoDetalle::find()->where(['=', 'id_asignacion', $id])->all();
+        if (isset($_POST["id_detalle"])) {
+            $intIndice = 0;
+            $cant = 0;
+            foreach ($_POST["id_detalle"] as $intCodigo) {
+               $table = AsignacionProductoDetalle::findOne($intCodigo);
+               $table->cantidad = $_POST["cantidad"][$intIndice];
+               $table->save(false);
+               $this->ActualizarCantidades($id);
+               $intIndice++;
+            }
+            $this->redirect(["asignacion-producto/view",'id' => $id]);
+        }
+        return $this->render('_editardetalleasignacion', [
+            'detalle' => $detalle,
+            'id' => $id,
+        ]);
+    }
 
     /**
      * Finds the AsignacionProducto model based on its primary key value.

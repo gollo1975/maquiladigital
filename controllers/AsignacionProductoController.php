@@ -356,7 +356,7 @@ class AsignacionProductoController extends Controller
                $table = AsignacionProductoDetalle::findOne($intCodigo);
                $table->cantidad = $_POST["cantidad"][$intIndice];
                $table->save(false);
-               $this->ActualizarCantidades($id);
+               $this->ActualizarNuevaCantidad($id);
                $intIndice++;
             }
             $this->redirect(["asignacion-producto/view",'id' => $id]);
@@ -365,6 +365,23 @@ class AsignacionProductoController extends Controller
             'detalle' => $detalle,
             'id' => $id,
         ]);
+    }
+    
+    protected function ActualizarNuevaCantidad($id) {
+        
+        $detalle = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->all();
+        $asignacion = AsignacionProducto::findOne($id);
+        $total = 0; $granTotal = 0; $unidades = 0;
+        foreach ($detalle as $valor):
+            $total = round($valor->cantidad * $valor->valor_minuto);
+            $valor->subtotal_producto = $total; 
+            $valor->update();
+            $granTotal += $total;
+            $unidades += $valor->cantidad;
+        endforeach;
+        $asignacion->total_orden = $granTotal;
+        $asignacion->unidades = $unidades;
+        $asignacion->update();
     }
 
     /**

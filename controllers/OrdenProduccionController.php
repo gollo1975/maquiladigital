@@ -1135,8 +1135,8 @@ class OrdenProduccionController extends Controller {
      $salida_entrada->save(false);
     }
     
-    public function actionEditardetalle() {
-        $iddetalleorden = Html::encode($_POST["iddetalleorden"]);
+    public function actionEditardetalleorden() {
+        $iddetalleorden = Html::encode($_POST["id_detalleorden"]);
         $idordenproduccion = Html::encode($_POST["idordenproduccion"]);
         $error = 0;
         if (Yii::$app->request->post()) {
@@ -1144,7 +1144,7 @@ class OrdenProduccionController extends Controller {
                 $table = Ordenproducciondetalle::findOne($iddetalleorden);
                 $producto = Producto::findOne($table->idproductodetalle);
                 if ($table) {
-                    $table->cantidad = Html::encode($_POST["cantidad"]);
+                   $table->cantidad = Html::encode($_POST["cantidad"]);
                     $table->vlrprecio = Html::encode($_POST["vlrprecio"]);
                     $table->subtotal = Html::encode($_POST["cantidad"]) * Html::encode($_POST["vlrprecio"]);
                     $table->idordenproduccion = Html::encode($_POST["idordenproduccion"]);
@@ -1153,7 +1153,7 @@ class OrdenProduccionController extends Controller {
                     $ordenProduccion->totalorden = $ordenProduccion->totalorden - Html::encode($_POST["subtotal"]);
                     $ordenProduccion->totalorden = $ordenProduccion->totalorden + $table->subtotal;
                                             
-                    $table->update();
+                    $table->save(false);
                     $ordenProduccion->update();
                     $this->Actualizarcantidad($idordenproduccion);
                     $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]);
@@ -1166,6 +1166,29 @@ class OrdenProduccionController extends Controller {
         }
         
     }
+    //ESTE PROCESO EDITA UN REGISTRO DE LA ORDEN DE TERCERO
+  public function actionEditardetalletercero() {
+        $id_detalle = Html::encode($_POST["id_detalle"]);
+        $id = Html::encode($_POST["id"]);
+        $error = 0;
+        if (Yii::$app->request->post()) {
+            if ((int) $id_detalle) {
+                $table = OrdenProduccionTerceroDetalle::findOne($id_detalle);
+                $total = 0;
+                if ($table) {
+                    $orden = OrdenProduccionTercero::findOne($id);
+                    $table->cantidad = Html::encode($_POST["cantidad"]);
+                    $table->total_pagar = ($table->vlr_minuto * $orden->cantidad_minutos) * $table->cantidad;
+                    $table->save(false);
+                    $this->ActualizarValorTercero($id);
+                    $this->redirect(["orden-produccion/viewtercero", 'id' => $id]);
+                } else {
+                    $msg = "El registro seleccionado no ha sido encontrado";
+                    $tipomsg = "danger";
+                }
+            }
+        }
+    }  
     
     //Editar detalles de la salida y entrada
     public function actionEditardetallesalida($id) {
@@ -1224,17 +1247,15 @@ class OrdenProduccionController extends Controller {
     public function actionEditardetalles($idordenproduccion) {
         $mds = Ordenproducciondetalle::find()->where(['=', 'idordenproduccion', $idordenproduccion])->all();
         $error = 0;
-        if (isset($_POST["iddetalleorden"])) {
+        if (isset($_POST["id_detalleorden"])) {
             $intIndice = 0;
-            foreach ($_POST["iddetalleorden"] as $intCodigo) {
+            foreach ($_POST["id_detalleorden"] as $intCodigo) {
                 if ($_POST["cantidad"][$intIndice] > 0) {
                     $table = Ordenproducciondetalle::findOne($intCodigo);
-                    $subtotal = $table->subtotal;
-                    $cantidad = $table->cantidad;
                     $table->cantidad = $_POST["cantidad"][$intIndice];
                     $table->vlrprecio = $_POST["vlrprecio"][$intIndice];
                     $table->subtotal = $_POST["cantidad"][$intIndice] * $_POST["vlrprecio"][$intIndice];                    
-                    $table->update();                        
+                    $table->save(false);                        
                 }
                 $intIndice++;
             }
@@ -1295,29 +1316,7 @@ class OrdenProduccionController extends Controller {
         }
     }
     
-  //ESTE PROCESO EDITA UN REGISTRO DE LA ORDEN DE TERCERO
-  public function actionEditardetalletercero() {
-        $id_detalle = Html::encode($_POST["id_detalle"]);
-        $id = Html::encode($_POST["id"]);
-        $error = 0;
-        if (Yii::$app->request->post()) {
-            if ((int) $id_detalle) {
-                $table = OrdenProduccionTerceroDetalle::findOne($id_detalle);
-                $total = 0;
-                if ($table) {
-                    $orden = OrdenProduccionTercero::findOne($id);
-                    $table->cantidad = Html::encode($_POST["cantidad"]);
-                    $table->total_pagar = ($table->vlr_minuto * $orden->cantidad_minutos) * $table->cantidad;
-                    $table->update();
-                    $this->ActualizarValorTercero($id);
-                    $this->redirect(["orden-produccion/viewtercero", 'id' => $id]);
-                } else {
-                    $msg = "El registro seleccionado no ha sido encontrado";
-                    $tipomsg = "danger";
-                }
-            }
-        }
-    }  
+  
     //editar flujo de operaciones
     
     public function actionEditarflujooperaciones($idordenproduccion) {
@@ -1654,7 +1653,7 @@ class OrdenProduccionController extends Controller {
         $ordenproducciondetalle = Ordenproducciondetalle::find()->where(['=','idordenproduccion',$idordenproduccion])->all();
         $cantidad = 0;
         foreach ($ordenproducciondetalle as $val) {
-            $cantidad = $cantidad + $val->cantidad;
+            $cantidad += $val->cantidad;
         }        
         $ordenProduccion->cantidad = $cantidad;
         $ordenProduccion->faltante = $cantidad;
@@ -1666,7 +1665,7 @@ class OrdenProduccionController extends Controller {
         $ordenproducciondetalle = Ordenproducciondetalle::find()->where(['=','idordenproduccion',$idordenproduccion])->all();
         $total = 0;
         foreach ($ordenproducciondetalle as $val) {
-            $total = $total + $val->subtotal;
+            $total += $val->subtotal;
         }        
         $ordenProduccion->totalorden = round($total,0);
         $ordenProduccion->update();

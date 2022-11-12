@@ -27,7 +27,6 @@ use yii\filters\VerbFilter;
 use yii\web\Response;
 use yii\filters\AccessControl;
 
-
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
@@ -217,7 +216,7 @@ $view = 'orden-produccion';
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                                                         <h4 class="modal-title">Editar detalle <?= $val->iddetalleorden ?></h4>
                                                                     </div>
-                                                                    <?= Html::beginForm(Url::toRoute("orden-produccion/editardetalle"), "POST") ?>
+                                                                    <?= Html::beginForm(Url::toRoute("orden-produccion/editardetalleorden"), "POST") ?>
                                                                     <div class="modal-body">
                                                                         <div class="panel panel-success">
                                                                             <div class="panel-heading">
@@ -228,15 +227,15 @@ $view = 'orden-produccion';
                                                                                     <label>Cantidad:</label>
                                                                                 </div>
                                                                                 <div class="col-lg-3">
-                                                                                    <input type="text" name="cantidad" value="<?= $val->cantidad ?>" class="form-control" required>
+                                                                                    <input type="text" name="cantidad" id="cantidad" value="<?= $val->cantidad ?>"  class="form-control" required>
                                                                                 </div>
                                                                                 <div class="col-lg-2">
                                                                                     <label>Costo:</label>
                                                                                 </div>
                                                                                 <div class="col-lg-3">
-                                                                                    <input type="text" name="vlrprecio" value="<?=  $val->vlrprecio ?>" class="form-control" required>
+                                                                                    <input type="text" name="vlrprecio" id ="vlrprecio" value="<?=  $val->vlrprecio ?>"  class="form-control" required>
                                                                                 </div>
-                                                                                <input type="hidden" name="iddetalleorden" value="<?= $val->iddetalleorden ?>">
+                                                                                <input type="hidden" name="id_detalleorden" value="<?= $val->iddetalleorden ?>">
                                                                                 <input type="hidden" name="idordenproduccion" value="<?= $val->idordenproduccion ?>">
                                                                                 <input type="hidden" name="subtotal" value="<?= $val->subtotal ?>">
                                                                             </div>

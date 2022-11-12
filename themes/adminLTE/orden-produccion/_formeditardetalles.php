@@ -65,7 +65,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= $val->codigoproducto ?></td>
                     <td><input type="text" style="text-align: right" name="cantidad[]" value="<?= $val->cantidad ?>" required></td>
                     <td><input type="text" style="text-align: right" name="vlrprecio[]" value="<?= $val->vlrprecio ?>" required></td>
-                    <td><input type="hidden" name="iddetalleorden[]" value="<?= $val->iddetalleorden ?>"></td>
+                    <td><input type="hidden" name="id_detalleorden[]" value="<?= $val->iddetalleorden ?>"></td>
                 </tr>
                 </tbody>
                 <?php endforeach; ?>

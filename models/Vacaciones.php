@@ -52,14 +52,7 @@ class Vacaciones extends \yii\db\ActiveRecord
     {
         return 'vacaciones';
     }
-    public function beforeSave($insert) {
-        if (!parent::beforeSave($insert)) {
-            return false;
-        }
-        $this->observacion = strtolower($this->observacion); 
-        $this->observacion = ucfirst($this->observacion);  
-        return true;
-    }
+    
 
     /**
      * {@inheritdoc}
@@ -67,11 +60,11 @@ class Vacaciones extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_empleado', 'fecha_desde_disfrute', 'fecha_hasta_disfrute', 'dias_disfrutados','fecha_ingreso','dias_pagados'], 'required'],
+            [['id_empleado', 'dias_disfrutados','dias_pagados'], 'required'],
             [['id_empleado', 'id_contrato', 'id_grupo_pago', 'documento', 'dias_disfrutados', 'dias_pagados', 'dias_total_vacacion', 'dias_real_disfrutados', 'salario_contrato',
             'salario_promedio', 'total_pago_vacacion', 'vlr_vacacion_disfrute', 'vlr_vacacion_dinero', 'vlr_recargo_nocturno', 'dias_ausentismo', 'descuento_eps', 'descuento_pension',
             'total_descuentos', 'total_bonificaciones', 'estado_autorizado', 'estado_cerrado', 'estado_anulado', 'nro_pago','total_pagar','vlr_dia_vacacion',
-                'dias_totales_periodo','dias_total_vacacion_pagados','vlr_vacacion_bruto'], 'integer'],
+                'dias_totales_periodo','dias_total_vacacion_pagados','vlr_vacacion_bruto','total_compensado'], 'integer'],
             [['fecha_desde_disfrute', 'fecha_hasta_disfrute', 'fecha_proceso', 'fecha_ingreso', 'fecha_inicio_periodo', 'fecha_final_periodo'], 'safe'],
             [['observacion'], 'string', 'max' => 100],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -120,6 +113,7 @@ class Vacaciones extends \yii\db\ActiveRecord
             'observacion' => 'Observacion:',
             'usuariosistema' => 'Usuariosistema',
             'nro_pago' => 'Nro Pago',
+            'total_compensado' => 'Total compensado:',
         ];
     }
 

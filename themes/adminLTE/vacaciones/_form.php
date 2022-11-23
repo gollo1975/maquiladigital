@@ -64,7 +64,7 @@ $empleado = ArrayHelper::map(Empleado::find()->where(['=','contrato',1])->orderB
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
-            <?=  $form->field($model, 'fecha_hasta_disfrute')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+            <?=  $form->field($model, 'fecha_final_disfrute')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('Y-m-d', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
@@ -81,7 +81,9 @@ $empleado = ArrayHelper::map(Empleado::find()->where(['=','contrato',1])->orderB
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+          
         </div>
+          
         <div class="row" col>
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
         </div>

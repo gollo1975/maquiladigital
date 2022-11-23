@@ -148,7 +148,16 @@
                                                 ['label' => 'Productos', 'icon' => 'plus-square-o', 'url' => ['/producto/index']],
                                                 ['label' => 'Calificación Ficha', 'icon' => 'plus-square-o', 'url' => ['/fichatiempocalificacion/index']],
                                                 ['label' => 'Colores', 'icon' => 'plus-square-o', 'url' => ['/color/index']],
-                                                ['label' => 'Operarios', 'icon' => 'plus-square-o', 'url' => ['/operarios/index']],
+                                                [
+                                                'label' => 'Operarios',
+                                                'icon' => 'database',
+                                                'url' => '#',
+                                                'items' => [
+                                                     ['label' => 'Tipo novedad', 'icon' => 'plus-square-o', 'url' => ['/tipo-novedad/index']],
+                                                     ['label' => 'Novedades', 'icon' => 'plus-square-o', 'url' => ['/novedad-operario/index']],
+                                                     ['label' => 'Operarios', 'icon' => 'plus-square-o', 'url' => ['/operarios/index']],
+                                                ]],
+                                                
                                                 ['label' => 'Planta/Bodega', 'icon' => 'plus-square-o', 'url' => ['/planta-empresa/index']],
                                                 [
                                                 'label' => 'Mantenimiento',

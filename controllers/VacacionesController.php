@@ -333,49 +333,66 @@ class VacacionesController extends Controller
                 $suma = 0; $totaldias = 0; $diasRealesDisfrutados =0;
                 $suma = $model->dias_disfrutados + $model->dias_pagados;
                 $fecha_inicio = $model->fecha_desde_disfrute;
-                $fecha_final = $model->fecha_hasta_disfrute;
-                if($suma <> 15){
-                    Yii::$app->getSession()->setFlash('error', 'La suma de los dias disfrutados y pagados en dinero no puede ser mayor a Quince(15) dias. Ver Codigo Sustantivo de Trabajo.');    
-                }else{
-                    if(strtotime($model->fecha_ingreso) <= strtotime($model->fecha_hasta_disfrute)){
-                         Yii::$app->getSession()->setFlash('error', 'Error en la fecha de inicio de labores: La fecha de inicio de labores del empleado con documento Nro  '. $contrato->identificacion. ' no puede ser menor o igual a la fecha final de vacaciones.');     
+                $fecha_final = $model->fecha_final_disfrute;
+                if($suma <= 15){
+                    if($suma <> 15){
+                        Yii::$app->getSession()->setFlash('error', 'La suma de los dias disfrutados y pagados en dinero no puede ser mayor a Quince(15) dias. Ver Codigo Sustantivo de Trabajo.');    
                     }else{
                         $cedula = $model->id_empleado;
-                        $this->ValidarIncapacidadLicencia($contrato, $fecha_inicio, $fecha_final, $cedula);
                         $table= new Vacaciones();
                         $table->id_empleado = $model->id_empleado;
                         $table->dias_disfrutados = $model->dias_disfrutados;
                         $table->dias_pagados = $model->dias_pagados;
-                        $table->fecha_desde_disfrute = $model->fecha_desde_disfrute;
-                        $table->fecha_hasta_disfrute = $model->fecha_hasta_disfrute;
-                         $table->fecha_ingreso = $model->fecha_ingreso;
-                        $table->observacion = $model->observacion;
-                        $table->usuariosistema =  Yii::$app->user->identity->username;
-                        $table->id_contrato = $contrato->id_contrato;
-                        $table->id_grupo_pago = $contrato->id_grupo_pago;
-                        $table->documento = $contrato->identificacion;
-                        $table->salario_contrato = $contrato->salario;
-                        $table->vlr_recargo_nocturno = $contrato->ibp_recargo_nocturno;
-                        $total = strtotime($model->fecha_hasta_disfrute ) - strtotime($model->fecha_desde_disfrute);
-                        $table->dias_total_vacacion = round($total / 86400)+1;
-                        $table->fecha_inicio_periodo = $contrato->ultima_vacacion;
-                        $table->dias_totales_periodo = 360;
-                        //suma dias para la fecha proxima a vacaciones.
-                        $fecha = date($contrato->ultima_vacacion);
-                        $nuevafecha = $this->Diasvacaciones($fecha);
-                        $table->fecha_final_periodo = $nuevafecha;
-                        //calculo para los dias disfrutados
-                        $totaldias =  $table->dias_total_vacacion;
-                        if($model->dias_pagados > 0){
-                            $diasRealesDisfrutados =  $totaldias - $model->dias_pagados;
-                            $table->dias_real_disfrutados = $diasRealesDisfrutados;
+                        if($model->fecha_desde_disfrute == '' &&  $model->fecha_final_disfrute == ''){
+                            $table->observacion = $model->observacion;
+                            $table->usuariosistema =  Yii::$app->user->identity->username;
+                            $table->id_contrato = $contrato->id_contrato;
+                            $table->id_grupo_pago = $contrato->id_grupo_pago;
+                            $table->documento = $contrato->identificacion;
+                            $table->salario_contrato = $contrato->salario;
+                            $table->vlr_recargo_nocturno = $contrato->ibp_recargo_nocturno;
+                            $table->dias_total_vacacion = $suma;
+                            $table->fecha_inicio_periodo = $contrato->ultima_vacacion;
+                            $table->dias_totales_periodo = 360;
+                            $table->dias_total_vacacion_pagados = $model->dias_pagados;
+                            //suma dias para la fecha proxima a vacaciones.
+                            $fecha = date($contrato->ultima_vacacion);
+                            $nuevafecha = $this->Diasvacaciones($fecha);
+                            $table->fecha_final_periodo = $nuevafecha;
+                            $table->dias_real_disfrutados = 0; 
+                            $table->save(false);
+                            return $this->redirect(["vacaciones/index"]);
                         }else{
-                            $table->dias_real_disfrutados = $totaldias; 
+                            $this->ValidarIncapacidadLicencia($contrato, $fecha_inicio, $fecha_final, $cedula);
+                            $table->fecha_desde_disfrute = $model->fecha_desde_disfrute;
+                            $table->fecha_hasta_disfrute = $model->fecha_final_disfrute;
+                            $table->fecha_ingreso = $model->fecha_ingreso; 
+                            $table->observacion = $model->observacion;
+                            $table->usuariosistema =  Yii::$app->user->identity->username;
+                            $table->id_contrato = $contrato->id_contrato;
+                            $table->id_grupo_pago = $contrato->id_grupo_pago;
+                            $table->documento = $contrato->identificacion;
+                            $table->salario_contrato = $contrato->salario;
+                            $table->dias_total_vacacion_pagados = $model->dias_pagados;
+                            $table->vlr_recargo_nocturno = $contrato->ibp_recargo_nocturno;
+                            $total = strtotime($model->fecha_final_disfrute ) - strtotime($model->fecha_desde_disfrute);
+                            $table->dias_total_vacacion = round($total / 86400)+1;
+                            $table->fecha_inicio_periodo = $contrato->ultima_vacacion;
+                            $table->dias_totales_periodo = 360;
+                            //suma dias para la fecha proxima a vacaciones.
+                            $fecha = date($contrato->ultima_vacacion);
+                            $nuevafecha = $this->Diasvacaciones($fecha);
+                            $table->fecha_final_periodo = $nuevafecha;
+                            if($model->dias_disfrutados >  $model->dias_pagados){
+                                 $table->dias_real_disfrutados = $table->dias_total_vacacion - $model->dias_pagados; 
+                            }else{
+                                $table->dias_real_disfrutados = $model->dias_pagados - $table->dias_total_vacacion; 
+                            }     
+                            $table->save(false);
+                            return $this->redirect(["vacaciones/index"]);
                         }
-                        $table->save(false);
-                        return $this->redirect(["vacaciones/index"]);
                     }
-                }    
+                }
             }else{
                 $model->getErrors();
             }
@@ -414,46 +431,55 @@ class VacacionesController extends Controller
                 $suma = 0; $totaldias = 0; $diasRealesDisfrutados =0;
                 $suma = $model->dias_disfrutados + $model->dias_pagados;
                 $table = Vacaciones::find()->where(['id_vacacion' => $id])->one();
-                if($suma <> 15){
+                if($suma > 15){
                     Yii::$app->getSession()->setFlash('error', 'La suma de los dias disfrutados y pagados en dinero no puede ser mayor a Quince(15) dias. Ver Codigo Sustantivo de Trabajo.');    
                 }else{
-                    if(strtotime($model->fecha_ingreso) <= strtotime($model->fecha_hasta_disfrute)){
-                         Yii::$app->getSession()->setFlash('error', 'Error en la fecha de inicio de labores: La fecha de inicio de labores del empleado con documento Nro  '. $contrato->identificacion. ' no puede ser menor o igual a la fecha final de vacaciones.');     
-                    }else{
-                        if($table){
-                            $table->id_empleado = $model->id_empleado;
-                            $table->dias_disfrutados = $model->dias_disfrutados;
-                            $table->dias_pagados = $model->dias_pagados;
-                            $table->fecha_desde_disfrute = $model->fecha_desde_disfrute;
-                            $table->fecha_hasta_disfrute = $model->fecha_hasta_disfrute;
-                            $table->fecha_ingreso = $model->fecha_ingreso;
-                             $table->id_contrato = $contrato->id_contrato;
+                        $table->id_empleado = $model->id_empleado;
+                        $table->dias_disfrutados = $model->dias_disfrutados;
+                        $table->dias_pagados = $model->dias_pagados;
+                        if($model->fecha_desde_disfrute == '' &&  $model->fecha_final_disfrute == ''){
+                            $table->observacion = $model->observacion;
+                            $table->usuariosistema =  Yii::$app->user->identity->username;
+                            $table->id_contrato = $contrato->id_contrato;
                             $table->id_grupo_pago = $contrato->id_grupo_pago;
                             $table->documento = $contrato->identificacion;
                             $table->salario_contrato = $contrato->salario;
                             $table->vlr_recargo_nocturno = $contrato->ibp_recargo_nocturno;
-                            $total = strtotime($model->fecha_hasta_disfrute ) - strtotime($model->fecha_desde_disfrute);
+                            $table->dias_total_vacacion = $suma;
+                            $table->fecha_inicio_periodo = $contrato->ultima_vacacion;
+                            $table->dias_totales_periodo = 360;
+                            $table->dias_total_vacacion_pagados = $model->dias_pagados;
+                            //suma dias para la fecha proxima a vacaciones.
+                            $fecha = date($contrato->ultima_vacacion);
+                            $nuevafecha = $this->Diasvacaciones($fecha);
+                            $table->fecha_final_periodo = $nuevafecha;
+                            $table->dias_real_disfrutados = $model->dias_disfrutados;
+                            $table->save(false);
+                            return $this->redirect(["vacaciones/index"]);
+                        }else{
+                            $table->fecha_desde_disfrute = $model->fecha_desde_disfrute;
+                            $table->fecha_hasta_disfrute = $model->fecha_final_disfrute;
+                            $table->fecha_ingreso = $model->fecha_ingreso; 
+                            $table->observacion = $model->observacion;
+                            $table->usuariosistema =  Yii::$app->user->identity->username;
+                            $table->id_contrato = $contrato->id_contrato;
+                            $table->id_grupo_pago = $contrato->id_grupo_pago;
+                            $table->documento = $contrato->identificacion;
+                            $table->salario_contrato = $contrato->salario;
+                            $table->vlr_recargo_nocturno = $contrato->ibp_recargo_nocturno;
+                            $total = strtotime($model->fecha_final_disfrute ) - strtotime($model->fecha_desde_disfrute);
                             $table->dias_total_vacacion = round($total / 86400)+1;
                             $table->fecha_inicio_periodo = $contrato->ultima_vacacion;
                             $table->dias_totales_periodo = 360;
+                            $table->dias_total_vacacion_pagados = $model->dias_pagados;
+                            //suma dias para la fecha proxima a vacaciones.
                             $fecha = date($contrato->ultima_vacacion);
                             $nuevafecha = $this->Diasvacaciones($fecha);
-                            $table->fecha_final_periodo = $nuevafecha;  
-                            $totaldias =  $table->dias_total_vacacion;
-                            if($model->dias_pagados > 0){
-                                $diasRealesDisfrutados =  $totaldias - $model->dias_pagados;
-                                $table->dias_real_disfrutados = $diasRealesDisfrutados;
-                            }else{
-                                $table->dias_real_disfrutados = $totaldias; 
-                            }
-                            $table->observacion = $model->observacion;
+                            $table->fecha_final_periodo = $nuevafecha;
+                            $table->dias_real_disfrutados = $model->dias_disfrutados;
                             $table->save(false);
                             return $this->redirect(["vacaciones/index"]);
-
-                        }else{
-                            Yii::$app->getSession()->setFlash('success', 'No hay registros para actualizar');
-                        }
-                    }
+                        }    
                 }    
                 
             } else {
@@ -468,7 +494,7 @@ class VacacionesController extends Controller
                 $model->dias_disfrutados = $table->dias_disfrutados;
                 $model->dias_pagados = $table->dias_pagados;
                 $model->fecha_desde_disfrute = $table->fecha_desde_disfrute;
-                $model->fecha_hasta_disfrute = $table->fecha_hasta_disfrute;
+                $model->fecha_final_disfrute = $table->fecha_hasta_disfrute;
                 $model->fecha_ingreso = $table->fecha_ingreso;
                 $model->observacion = $table->observacion;
             }else{
@@ -565,7 +591,7 @@ class VacacionesController extends Controller
         $ibp_vacacion = 0; $total_ibp = 0; $vlr_vacacion =0;
         $salario_promedio = 0; $dias_ausentismo = 0; $dias_reales = 0;
         $Vlr_vacacion_disfrute = 0; $vlr_vacacion_bruto = 0;
-        
+        $vlr_vacacion_pagado = 0;
         $conf_eps = \app\models\ConfiguracionEps::find()->all();
         $conf_pension= \app\models\ConfiguracionPension::find()->all();
         $modelo = Vacaciones::findOne($id);
@@ -609,26 +635,40 @@ class VacacionesController extends Controller
         } else {
             $salario_promedio =  $salario_promedio;
         }
-        $dias_reales = $modelo->dias_real_disfrutados;
+        //pago disfrute
+       $dias_reales = $modelo->dias_total_vacacion;
+       $Vlr_vacacion_disfrute = round($salario_promedio / 30 * $dias_reales);   
        $vlr_vacacion_bruto = round($salario_promedio / 30 * $modelo->dias_total_vacacion);
         if($confi_vacacion->aplicar_ausentismo == 1){
             $dias_reales = $dias_reales - $dias_ausentismo;
             $Vlr_vacacion_disfrute = round($salario_promedio / 30 * $dias_reales);
         }
-        $Vlr_vacacion_disfrute = round($salario_promedio / 30 * $dias_reales);   
-        $modelo->dias_total_vacacion_pagados = $dias_reales;
-        $modelo->salario_promedio = $salario_promedio;
-         $modelo->vlr_vacacion_bruto = $vlr_vacacion_bruto;
-        $modelo->dias_ausentismo = $dias_ausentismo;
-        $modelo->estado_autorizado = 1;
-        $modelo->vlr_vacacion_disfrute = $Vlr_vacacion_disfrute;
-        $modelo->vlr_dia_vacacion = round($salario_promedio / 30);
-        $modelo->vlr_vacacion_dinero =  $modelo->vlr_dia_vacacion * $modelo->dias_pagados;
-        $modelo->descuento_eps = round(($Vlr_vacacion_disfrute * $porcentaje_eps)/100); 
-        $modelo->descuento_pension = round(($Vlr_vacacion_disfrute * $porcentaje_pension)/100);
-        $modelo->total_pago_vacacion = $modelo->vlr_vacacion_disfrute +  $modelo->vlr_vacacion_dinero ;
-        $modelo->save(false);
-        // proceso que acumula las bonificaciones y descuentos
+        if($modelo->dias_disfrutados <> 0){
+            $modelo->dias_total_vacacion_pagados = $dias_reales;
+            $modelo->salario_promedio = $salario_promedio;
+            $modelo->vlr_vacacion_bruto = $vlr_vacacion_bruto;
+            $modelo->dias_ausentismo = $dias_ausentismo;
+            $modelo->estado_autorizado = 1;
+            $modelo->vlr_vacacion_disfrute = $Vlr_vacacion_disfrute;
+            $modelo->vlr_dia_vacacion = round($salario_promedio / 30);
+            $modelo->vlr_vacacion_dinero =  $modelo->vlr_dia_vacacion * $modelo->dias_pagados;
+            $modelo->descuento_eps = round(($Vlr_vacacion_disfrute * $porcentaje_eps)/100); 
+            $modelo->descuento_pension = round(($Vlr_vacacion_disfrute * $porcentaje_pension)/100);
+            $modelo->total_pago_vacacion = $modelo->vlr_vacacion_disfrute +  $modelo->vlr_vacacion_dinero ;
+        }else{
+            $modelo->salario_promedio = $salario_promedio;
+            $modelo->vlr_vacacion_bruto = $vlr_vacacion_bruto;
+            $modelo->dias_ausentismo = 0;
+            $modelo->estado_autorizado = 1;
+            $modelo->vlr_vacacion_disfrute = 0;
+            $modelo->vlr_dia_vacacion = round($salario_promedio / 30);
+            $modelo->vlr_vacacion_dinero = $modelo->vlr_dia_vacacion * $modelo->dias_pagados;
+            $modelo->descuento_eps = 0;
+            $modelo->descuento_pension = 0;
+            $modelo->total_compensado = 1;
+            $modelo->total_pago_vacacion = $modelo->vlr_vacacion_dinero;
+        }    
+        //proceso que acumula las bonificaciones y descuentos
         $vacacion_adicion = VacacionesAdicion::find()->where(['=','id_vacacion', $modelo->id_vacacion])->all();
         $vlr_suma = 0; $vlr_resta = 0;
         $total_dcto = 0; 
@@ -647,7 +687,7 @@ class VacacionesController extends Controller
         //RECARGA LA VISTA NUEVAMENTE
         $model = Vacaciones::findOne($id);
         $vacacion_adicion = VacacionesAdicion::find()->where(['=','id_vacacion', $id])->orderBy('id_adicion desc')->all();
-       return $this->render('view', [
+      return $this->render('view', [
             'model' => $model,
             'id' => $id, 
             'vacacion_adicion' => $vacacion_adicion, 

@@ -31,6 +31,7 @@ use app\models\OrdenProduccionTerceroDetalle;
 use app\models\CantidadPrendaTerminadasPreparacion;
 use app\models\ReprocesoProduccionPrendas;
 use app\models\PilotoDetalleProduccion;
+use app\models\EficienciaBalanceo;
 //clases
 use Yii;
 use yii\web\Controller;
@@ -2926,7 +2927,6 @@ class OrdenProduccionController extends Controller {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
         $modulos = Balanceo::find()->where(['=','idordenproduccion', $id])->orderBy('id_balanceo DESC')->all();
         $modeldetalle = new Ordenproducciondetalle();
-        
         return $this->render('view_consulta_ficha', [
                     'model' => $this->findModel($id),
                     'modeldetalle' => $modeldetalle,                    
@@ -2940,12 +2940,97 @@ class OrdenProduccionController extends Controller {
   //PROCESO PARA IR A LA EFICIENCIA DEL MODULO
     
     public function actionEficienciamodulo($id_balanceo){
-       $unidades= CantidadPrendaTerminadas::find()->where(['=','id_balanceo',$id_balanceo])->groupBy('fecha_entrada')->all(); 
-       
+        $unidades= CantidadPrendaTerminadas::find()->where(['=','id_balanceo',$id_balanceo])->groupBy('fecha_entrada')->all(); 
+        $modulos = Balanceo::find()->where(['=','id_balanceo', $id_balanceo])->one();
+        $eficiencia = EficienciaBalanceo::find()->where(['=','id_balanceo', $id_balanceo])->all();
+         $auxiliar= ''; $total = 0; $totalEficiencia = 0;
+        if(count($eficiencia) == 0){
+            foreach ($unidades as $fechas):
+                $auxiliar = $fechas->fecha_entrada;
+                $cantidad = CantidadPrendaTerminadas::find()->where(['=','fecha_entrada', $auxiliar])->andWhere(['=','id_balanceo', $modulos->id_balanceo])->all();
+                $total = 0;
+                foreach ($cantidad as $cantidades):
+                   $total += $cantidades->cantidad_terminada;
+                endforeach;
+                $table = new EficienciaBalanceo();
+                $table->id_balanceo = $id_balanceo;
+                $table->fecha_confeccion = $fechas->fecha_entrada;
+                $table->nro_operarios = $fechas->nro_operarios;
+                $table->minutos_balanceo = $modulos->tiempo_balanceo;
+                $table->usuario = Yii::$app->user->identity->username;
+                $table->unidades_confeccionadas = $total;
+                if($modulos->fecha_inicio === $auxiliar){
+                    $table->horas_inicio = $modulos->total_horas;
+                }
+                if($modulos->fecha_cierre_modulo === $auxiliar){
+                    $table->horas_finales = $modulos->hora_final_modulo;
+                }
+                if($table->horas_inicio == 0 && $table->horas_finales == 0){
+                        $table->unidades_por_operarios = round((60 / $table->minutos_balanceo) * $modulos->horario->total_horas);
+                }else{
+                    if($table->horas_inicio <> 0 && $table->horas_finales == 0){
+                         $table->unidades_por_operarios = round((60 / $table->minutos_balanceo) * $table->horas_inicio);
+                    }else{
+                            $table->unidades_por_operarios = round((60 / $table->minutos_balanceo) * $table->horas_finales);
+                    } 
+                }
+                $table->cantidad_por_dia = $table->unidades_por_operarios *  $table->nro_operarios;
+                $table->porcentaje_cumplimiento = round(($total * 100)/ $table->cantidad_por_dia,2);
+                $table->save(false);
+            endforeach;
+        }else{
+            foreach ($unidades as $fechas):
+                $auxiliar = $fechas->fecha_entrada;
+                if(EficienciaBalanceo::find()->where(['=','fecha_confeccion', $auxiliar])->andWhere(['=','id_balanceo', $modulos->id_balanceo])->one()){
+                }else{
+                    $total = 0;
+                     $cantidad = CantidadPrendaTerminadas::find()->where(['=','fecha_entrada', $auxiliar])->andWhere(['=','id_balanceo', $modulos->id_balanceo])->all();
+                    foreach ($cantidad as $cantidades):
+                       $total += $cantidades->cantidad_terminada;
+                    endforeach;
+                    $table = new EficienciaBalanceo();
+                    $table->id_balanceo = $id_balanceo;
+                    $table->fecha_confeccion = $fechas->fecha_entrada;
+                    $table->nro_operarios = $fechas->nro_operarios;
+                    $table->minutos_balanceo = $modulos->tiempo_balanceo;
+                    $table->usuario = Yii::$app->user->identity->username;
+                    $table->unidades_confeccionadas = $total;
+                    if($modulos->fecha_inicio === $auxiliar){
+                       $table->horas_inicio = $modulos->total_horas;
+                    }
+                    if($modulos->fecha_cierre_modulo === $auxiliar){
+                        $table->horas_finales = $modulos->hora_final_modulo;
+                    }
+                    if($table->horas_inicio == 0 && $table->horas_finales == 0){
+                        $table->unidades_por_operarios = round((60 / $table->minutos_balanceo) * $modulos->horario->total_horas);
+                    }else{
+                        if($table->horas_inicio <> 0 && $table->horas_finales == 0){
+                         $table->unidades_por_operarios = round((60 / $table->minutos_balanceo) * $table->horas_inicio);
+                        }else{
+                            $table->unidades_por_operarios = round((60 / $table->minutos_balanceo) * $table->horas_finales);
+                        } 
+                    }
+                    $table->cantidad_por_dia = $table->unidades_por_operarios *  $table->nro_operarios;
+                    $table->porcentaje_cumplimiento = round(($total * 100)/ $table->cantidad_por_dia,2);
+                    $table->save(false);
+                }  
+            endforeach;    
+        }     
+        $eficiencia = EficienciaBalanceo::find()->where(['=','id_balanceo', $id_balanceo])->all();
+        $con = 0;
+        foreach ($eficiencia as $eficiencias):
+            $totalEficiencia += $eficiencias->porcentaje_cumplimiento;
+            $con += 1;
+        endforeach;
+        $modulos->total_eficiencia = round($totalEficiencia /$con, 2);
+        $modulos->save(false);
+        $eficiencia = EficienciaBalanceo::find()->where(['=','id_balanceo', $id_balanceo])->orderBy('fecha_confeccion desc')->all();
+        
         return $this->render('eficienciafecha', [
                         'unidades' => $unidades,
                         'id_balanceo' => $id_balanceo,
-            ]);    
+                        'eficiencia' => $eficiencia,
+         ]);    
        
     }
     

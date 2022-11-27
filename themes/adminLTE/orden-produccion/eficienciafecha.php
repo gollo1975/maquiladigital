@@ -14,16 +14,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Eficiencia', 'url' => ['view_consu
 $this->params['breadcrumbs'][] = $id_balanceo;
 
 $cantidad_prendas= CantidadPrendaTerminadas::find()->where(['=','id_balanceo', $id_balanceo])->all(); 
-//$unidades= CantidadPrendaTerminadas::find()->where(['=','id_balanceo', $id_balanceo])->groupBy('fecha_entrada')->all(); 
 $balanceo = Balanceo::find()->where(['=','id_balanceo', $id_balanceo])->one();
-$horario = Horario::findOne(1);
-$calculo = 0;
- try {
-        $calculo = round((60/$balanceo->tiempo_balanceo) *($horario->total_horas));
-    } catch (ErrorException $e) {
-        Yii::$app->getSession()->setFlash('warning', 'Error en la division por ceros en el tabs de eficiencia.');
-    }
-
 $orden_produccion = Ordenproduccion::findOne($balanceo->ordenproduccion->idordenproduccion); 
 ?>
 
@@ -120,118 +111,28 @@ $orden_produccion = Ordenproduccion::findOne($balanceo->ordenproduccion->idorden
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
-                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Dias confección</th>   
-                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Unidades Confeccionadas</th>
-                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Nro Operarios </th>
-                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Unidad x Operario(100%)</th>
-                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Cantidad x Dia(100%)</th> 
+                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Fecha confección</th>   
+                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Cantidad operarios</th>
+                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Unidades x operarios(100%) </th>
+                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Cantidad x dia(100%))</th>
+                                        <th scope="col" style='background-color:#B9D5CE; width: 15%'>Unidades confeccionadas</th> 
                                         <th scope="col" style='background-color:#B9D5CE; width: 15%'>Cumplimiento</th>  
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $fecha_entrada = 0;
-                                    $suma = 0;
-                                    $total = 0;
-                                    $contador = 0;
-                                    $cumplimiento = 0;
-                                    $aux1 = 0; $aux2 = 0; $calculo_dia = 0;
-                                    $con = 0;
-                                     foreach ($unidades as $eficiencia):
-                                           $con += 1;
-                                           $fecha_entrada = $eficiencia->fecha_entrada;
-                                           $total = 0;
-                                           $var_1 = CantidadPrendaTerminadas::find()->where(['=','fecha_entrada', $fecha_entrada])->andWhere(['=','id_balanceo', $balanceo->id_balanceo])->all();
-                                           foreach ($var_1 as $dato_1):
-                                                    $total +=  1;
-                                           endforeach;
-                                           if($total == 1){
-                                                $suma = 0;  
-                                                $var_2 = CantidadPrendaTerminadas::find()->where(['=','fecha_entrada', $fecha_entrada])->andWhere(['=','id_balanceo', $balanceo->id_balanceo])->one();
-                                                 $horario = Horario::findOne($balanceo->id_horario);
-                                                if($balanceo->fecha_inicio === $fecha_entrada){
-                                                    if($balanceo->hora_final_modulo == 0){
-                                                        $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->total_horas); 
-                                                    }else{
-                                                        if(count($unidades) > 1){
-                                                            $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->total_horas);
-                                                        }else{
-                                                             $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->hora_final_modulo);
-                                                        }    
-                                                    }
-                                                }else{
-                                                     if($balanceo->hora_final_modulo == 0){
-                                                         $calculo = round((60 / $balanceo->tiempo_balanceo) * $horario->total_horas); 
-                                                     }else{
-                                                         $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->hora_final_modulo); 
-                                                     }
-                                                }     
-                                                $calculo_dia = round($calculo * $eficiencia->nro_operarios);
-                                                $suma =   $eficiencia->cantidad_terminada;
-                                               try {
-                                                     $cumplimiento = round(($suma * 100)/$calculo_dia,2);
-                                                 } catch (ErrorException $e) {
-                                                     Yii::$app->getSession()->setFlash('warning', 'Error en la division por ceros en el tabs de eficiencia.');
-                                                 }
-
-                                                $aux1 += $cumplimiento;?>
-                                                <tr style="font-size: 85%;">
-                                                   <td ><?= $eficiencia->fecha_entrada ?></td>
-                                                   <td ><?= $suma ?></td>
-                                                   <td ><?= $eficiencia->nro_operarios ?></td>
-                                                   <td align="right"><?= $calculo ?></td>
-                                                   <td align="right"><?= $calculo_dia ?></td>
-                                                   <td align="right"><?= $cumplimiento ?>%</td> 
-                                                </tr>
-                                              <?php 
-                                           }else{
-                                                $calculo = 0;
-                                                $suma = 0;
-                                                $var_3 = CantidadPrendaTerminadas::find()->where(['=','fecha_entrada', $fecha_entrada])->andWhere(['=','id_balanceo', $balanceo->id_balanceo])->all();
-                                                foreach ($var_3 as $dato):    
-                                                $suma += $dato->cantidad_terminada;
-                                                endforeach;
-                                                if($balanceo->fecha_inicio === $fecha_entrada){
-                                                    if($balanceo->hora_final_modulo == 0){
-                                                        $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->total_horas); 
-                                                    }else{
-                                                       if(count($unidades) > 1){
-                                                            $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->total_horas);
-                                                        }else{
-                                                             $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->hora_final_modulo);
-                                                        }    
-                                                    }
-                                                }else{
-                                                    $horario = Horario::findOne($balanceo->id_horario);
-                                                     if($balanceo->hora_final_modulo == 0){
-                                                         $calculo = round((60 / $balanceo->tiempo_balanceo) * $horario->total_horas); 
-                                                     }else{
-                                                         $calculo = round((60 / $balanceo->tiempo_balanceo) * $balanceo->hora_final_modulo); 
-                                                     }
-                                                }     
-                                                $calculo_dia = round($calculo * $eficiencia->nro_operarios);
-                                                 try {
-                                                    $cumplimiento = round(($suma * 100)/$calculo_dia,2);
-                                                } catch (ErrorException $e) {
-                                                    Yii::$app->getSession()->setFlash('warning', 'Error en la division por ceros en el tabs de eficiencia.');
-                                                }
-
-                                                $aux2 += $cumplimiento;?>
-                                              <tr style="font-size: 85%;">
-                                                 <td ><?= $eficiencia->fecha_entrada ?></td>
-                                                 <td ><?= $suma ?></td>
-                                                  <td ><?= $eficiencia->nro_operarios ?></td>
-                                                 <td align="right"><?= $calculo ?></td>
-                                                 <td align="right"><?= $calculo_dia ?></td>
-                                                 <td align="right"><?= $cumplimiento ?>%</td>
-                                              </tr>
-                                           <?php
-                                           }
-                                    endforeach;
-                                    $efectividad = round(($aux1 + $aux2) / $con,2) ;      
-                                           
+                                    foreach ($eficiencia as $eficiencia):?>
+                                        <tr style="font-size: 85%;">
+                                           <td ><?= $eficiencia->fecha_confeccion ?></td>
+                                           <td align="right"><?= $eficiencia->nro_operarios ?></td>
+                                           <td align="right"><?= $eficiencia->unidades_por_operarios ?></td>
+                                           <td align="right"><?= $eficiencia->cantidad_por_dia ?></td>
+                                           <td align="right"><?= $eficiencia->unidades_confeccionadas ?></td>
+                                           <td align="right"><?= $eficiencia->porcentaje_cumplimiento ?>%</td>
+                                        </tr>
+                                    <?php endforeach;
                                     ?>
-                                    <td colspan="5"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 142px;" align="right"><b>Eficiencia modulo:</b> <?= $efectividad ?>%</td>
+                                    <td colspan="5"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 142px;" align="right"><b>Eficiencia modulo:</b> <?= $balanceo->total_eficiencia ?> %</td>
                                </tbody>
                             </table>
                         </div>    

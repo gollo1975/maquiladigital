@@ -233,6 +233,7 @@ if($buscarOrden){
                                         <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Nro modulo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Eficiencia</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>F. terminación</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
@@ -250,6 +251,7 @@ if($buscarOrden){
                                              <td><?= $val->cliente->nombrecorto ?></td>
                                             <td><?= $val->cantidad_empleados ?></td>
                                             <td><?= $val->modulo ?></td>
+                                            <td align="right"><?= $val->total_eficiencia ?></td>
                                             <td><?= $val->fecha_inicio ?></td>
                                             <td><?= $val->fecha_terminacion ?></td>
                                             <?php if($val->id_proceso_confeccion == 1){?>

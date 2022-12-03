@@ -24,47 +24,54 @@ $this->params['breadcrumbs'][] = $this->title;
     <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-       <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/orden-produccion/view', 'id' => $idordenproduccion], ['class' => 'btn btn-primary btn-sm']) ?>         
-       <?= Html::a('<span class="glyphicon glyphicon-check"></span> Generar Nro', ['generarnro', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-       <?php if ($model->numero > 0) { ?> 
-            <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-       <?php } ?>
-       
-        <!-- Editar modal detalle -->
-        <a href="#" data-toggle="modal" data-target="#fecha<?= $model->idordenproduccion ?>" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-pencil"></span> Mod Fecha</a>
-        <div class="modal fade" role="dialog" aria-hidden="true" id="fecha<?= $model->idordenproduccion ?>">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <h4 class="modal-title">Remisión</h4>
-                    </div>                            
-                    <?= Html::beginForm(Url::toRoute(["remision/fechamodificar", 'id' => $model->idordenproduccion]), "POST") ?>                            
-                    
-                    <div class="modal-body">
-                        <div class="panel panel-success">
-                            <div class="panel-heading">
-                                <h4>Modificar Fecha de Remisión</h4>
-                            </div>
-                            <div class="panel-body">
-                                <div class="col-lg-2">
-                                    <label>Fecha:</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <input type="date" name="fecha" value="<?php echo $model->fechacreacion ?>" size="50"  required>
-                                </div>                                                                                
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
-                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Modificar</button>
-                    </div>
-                    <?= Html::endForm() ?>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
-             
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/orden-produccion/view', 'id' => $idordenproduccion], ['class' => 'btn btn-primary btn-sm']);
+        if($model->cerrar_remision == 0){         
+            if ($model->numero == 0) {?> 
+                <?= Html::a('<span class="glyphicon glyphicon-check"></span> Generar Nro', ['generarnro', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']);
+            }else{ ?>
+                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
+                 <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar', ['cerrarremision', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm',
+                     'data' => ['confirm' => 'Esta seguro que desea cerrar la remisión de auditoria No '. $model->numero. '', 'method' => 'post']]); ?>
+            <?php } ?>
+
+             <!-- Editar modal detalle -->
+             <a href="#" data-toggle="modal" data-target="#fecha<?= $model->idordenproduccion ?>" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-pencil"></span> Mod Fecha</a>
+             <div class="modal fade" role="dialog" aria-hidden="true" id="fecha<?= $model->idordenproduccion ?>">
+                 <div class="modal-dialog">
+                     <div class="modal-content">
+                         <div class="modal-header">
+                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                             <h4 class="modal-title">Remisión</h4>
+                         </div>                            
+                         <?= Html::beginForm(Url::toRoute(["remision/fechamodificar", 'id' => $model->idordenproduccion]), "POST") ?>                            
+
+                         <div class="modal-body">
+                             <div class="panel panel-success">
+                                 <div class="panel-heading">
+                                     <h4>Modificar Fecha de Remisión</h4>
+                                 </div>
+                                 <div class="panel-body">
+                                     <div class="col-lg-2">
+                                         <label>Fecha:</label>
+                                     </div>
+                                     <div class="col-lg-3">
+                                         <input type="date" name="fecha" value="<?php echo $model->fechacreacion ?>" size="50"  required>
+                                     </div>                                                                                
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="modal-footer">
+                             <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
+                             <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Modificar</button>
+                         </div>
+                         <?= Html::endForm() ?>
+                     </div><!-- /.modal-content -->
+                 </div><!-- /.modal-dialog -->
+             </div><!-- /.modal -->
+        <?php }else{ ?>     
+             <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
+        <?php }?>      
+
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -134,7 +141,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
 ?>
 <div class="panel panel-success ">
     <div class="panel-heading">
-        Lineas de empaque: <span class="badge"> <?= $count ?></span>
+        Lineas de empaque  <span class="badge"> <?= $count ?></span>
     </div>
     <div class="panel-body">
         <table class="table table-bordered table-striped table-responsive-xl">
@@ -321,15 +328,17 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                         <?php } ?>                                                     
                         <td style="padding-left: 1;padding-right: 1;"><?= $val->unidades ?></td>
                         <input type="hidden" name="id_remision_detalle[]" value="<?= $val->id_remision_detalle ?>">
-                        <td><?=
-                            Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'iddetalle' => $val->id_remision_detalle], [
-                                'class' => '',
-                                'data' => [
-                                    'confirm' => 'Esta seguro de eliminar el registro?',
-                                    'method' => 'post',
-                                ],
-                            ])
-                            ?>
+                        <td>
+                        <?php if($model->cerrar_remision == 0){?>    
+                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'iddetalle' => $val->id_remision_detalle], [
+                                     'class' => '',
+                                     'data' => [
+                                         'confirm' => 'Esta seguro de eliminar el registro?',
+                                         'method' => 'post',
+                                     ],
+                                 ])
+                             ?>
+                         <?php } ?>   
                         </td>
                     </tr>
                 </tbody>
@@ -455,11 +464,13 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
         </table>        
     </div>
     <div class="panel-footer text-right">
+    <?php if($model->cerrar_remision == 0){?>    
         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevodetalle', 'id' => $model->id_remision, 'idordenproduccion' => $idordenproduccion], ['class' => 'btn btn-success btn-sm']); ?>        
         <?php if ($datostallas) { ?>
-        <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar y Nuevo", ["class" => "btn btn-success btn-sm", 'name' => 'actualizarynuevo']) ?>
-        <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm", 'name' => 'actualizar']) ?>
-        <?php } ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar y Nuevo", ["class" => "btn btn-success btn-sm", 'name' => 'actualizarynuevo']) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm", 'name' => 'actualizar']) ?>
+        <?php } 
+    } ?>
         
     </div>
 </div>

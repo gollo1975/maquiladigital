@@ -557,10 +557,17 @@ class RemisionController extends Controller
       
     }
 
-        public function actionImprimir($id) {
+    public function actionImprimir($id) {
 
         return $this->render('../formatos/remision', [
             'model' => Remision::findOne($id),
         ]);
     }
+     //PROCESO QUE CIERRA LA REMISION
+     public function actionCerrarremision($id) {
+         $cerrar = Remision::findOne($id);
+         $cerrar->cerrar_remision = 1;
+         $cerrar->save(false);
+         $this->redirect(["remision/remision",'id' => $cerrar->idordenproduccion]);
+     }
 }

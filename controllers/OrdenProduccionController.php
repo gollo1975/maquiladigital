@@ -932,29 +932,34 @@ class OrdenProduccionController extends Controller {
     public function actionAutorizado($id) {
         $model = $this->findModel($id);
         $mensaje = "";
-        if ($model->autorizado == 0) {
-            $detalles = Ordenproducciondetalle::find()
-                    ->where(['=', 'idordenproduccion', $id])
-                    ->all();
-            $totalcantidad = 0;
-            foreach ($detalles as $val){
-                $totalcantidad = $totalcantidad + $val->cantidad;
-            }
-            $reg = count($detalles);
-            if ($reg <> 0) {
-                $model->autorizado = 1;
-                $model->cantidad = $totalcantidad;
+        if($model->cerrar_orden == 0){
+            if ($model->autorizado == 0) {
+                $detalles = Ordenproducciondetalle::find()
+                        ->where(['=', 'idordenproduccion', $id])
+                        ->all();
+                $totalcantidad = 0;
+                foreach ($detalles as $val){
+                    $totalcantidad = $totalcantidad + $val->cantidad;
+                }
+                $reg = count($detalles);
+                if ($reg <> 0) {
+                    $model->autorizado = 1;
+                    $model->cantidad = $totalcantidad;
+                    $model->update();
+                    $this->redirect(["orden-produccion/view", 'id' => $id]);
+                } else {
+                    Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener productos relacionados en la orden de producción.');
+                    $this->redirect(["orden-produccion/view", 'id' => $id]);
+                }
+            } else {
+                $model->autorizado = 0;
                 $model->update();
                 $this->redirect(["orden-produccion/view", 'id' => $id]);
-            } else {
-                Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener productos relacionados en la orden de producción.');
-                $this->redirect(["orden-produccion/view", 'id' => $id]);
             }
-        } else {
-            $model->autorizado = 0;
-            $model->update();
-            $this->redirect(["orden-produccion/view", 'id' => $id]);
-        }
+        }else{
+             Yii::$app->getSession()->setFlash('warning', 'La orden de producción no se puede Desautorizar porque ya se cerro el proceso de balanceo.');
+             $this->redirect(["orden-produccion/view", 'id' => $id]);
+        }    
     }
     //AUTORIZAR LA NOVEDAD DE PRODUCCION
     public function actionAutorizadonovedad($id_novedad, $id) {

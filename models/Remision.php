@@ -40,7 +40,7 @@ class Remision extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idordenproduccion', 'numero', 'total_tulas', 'id_color'], 'integer'],
+            [['idordenproduccion', 'numero', 'total_tulas', 'id_color','cerrar_remision'], 'integer'],
             [['total_exportacion', 'totalsegundas', 'total_colombia', 'total_confeccion', 'total_despachadas'], 'number'],
             [['fechacreacion'], 'safe'],
             [['color'], 'string', 'max' => 25],
@@ -67,6 +67,7 @@ class Remision extends \yii\db\ActiveRecord
             'fechacreacion' => 'Fecha creacion',
             'color' => 'Color',
             'id_color' => 'Id Color',
+            'cerrar_remision' => 'Cerrar remision',
         ];
     }
 
@@ -93,4 +94,5 @@ class Remision extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Remisiondetalle::className(), ['id_remision' => 'id_remision']);
     }
+    
 }

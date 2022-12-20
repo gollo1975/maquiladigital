@@ -5,8 +5,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\ComprobanteEgresoTipo */
 
-$this->title = 'Nuevo Comprobante Egreso Tipo';
-$this->params['breadcrumbs'][] = ['label' => 'Comprobante Egreso Tipos', 'url' => ['index']];
+$this->title = 'Nuevo documento';
+$this->params['breadcrumbs'][] = ['label' => 'Tipos de comprobantes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="comprobante-egreso-tipo-create">

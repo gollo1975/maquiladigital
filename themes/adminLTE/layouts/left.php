@@ -464,7 +464,7 @@
                                             'icon' => 'exchange',
                                             'url' => '#',
                                             'items' => [
-                                            //['label' => 'Banco', 'icon' => 'plus-square-o', 'url' => ['/banco/index']],                                            
+                                            ['label' => 'Crear documentos', 'icon' => 'plus-square-o', 'url' => ['/comprobante-egreso/importardocumento']],                                       
                                             ],
                                         ],
                                         [

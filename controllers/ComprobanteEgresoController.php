@@ -16,6 +16,8 @@ use app\models\Compra;
 use app\models\FormComprobanteegresolibre;
 use app\models\FormComprobanteegresonuevodetallelibre;
 use app\models\FormFiltroConsultaComprobanteegreso;
+use app\models\ModelCrearComprobantes;
+//clases
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -74,6 +76,102 @@ class ComprobanteEgresoController extends Controller
         }else{
             return $this->redirect(['site/login']);
         }
+    }
+    
+    //PROCESO QUE IMPORTAR DOCUMENTOS CONCTABLES
+     public function actionImportardocumento() {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso', 127])->all()){
+                $form = new ModelCrearComprobantes();
+                $tipo_proceso = null;
+                $fecha_inicio = null;
+                $fecha_final = null;
+                $tipo_comprobante = null;
+                $fecha_pago = null;
+                $model = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $tipo_proceso = Html::encode($form->tipo_proceso);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_final = Html::encode($form->fecha_final);
+                        $fecha_pago = Html::encode($form->fecha_pago);
+                        $tipo_comprobante = Html::encode($form->tipo_comprobante);
+                        if($tipo_proceso == 1){
+                            $nomina = \app\models\ProgramacionNomina::find()->where(['>=','fecha_desde', $fecha_inicio])
+                                                                            ->andWhere(['<=', 'fecha_hasta', $fecha_final])->all();
+                            $model = $nomina;
+                        }else{
+                            if($tipo_proceso == 2){
+                                $servicio = \app\models\PagoNominaServicios::find()->where(['>=','fecha_inicio', $fecha_inicio])
+                                                                                   ->andWhere(['<=','fecha_corte', $fecha_final])->orderBy('operario ASC')->all();   
+                                $model = $servicio;
+                            }else{
+                                $cesantia = \app\models\ProgramacionNomina::find()->where(['=','fecha_desde', $fecha_inicio])
+                                                                            ->andWhere(['=', 'fecha_hasta', $fecha_final])->all();
+                                $model = $cesantia;
+                            }    
+                        }    
+                        
+                    } else {
+                        $form->getErrors();
+                    }
+                                
+                } 
+                if (isset($_POST["creardocumento"])) {
+                    if (isset($_POST["documento_identidad"])) {
+                        $intIndice = 0;
+                        $observacion = '';
+                        foreach ($_POST["documento_identidad"] as $intCodigo) {
+                            $empresa = \app\models\Matriculaempresa::findOne(1);
+                            $proveedor = Proveedor::find()->where(['=','cedulanit', $intCodigo])->one();
+                            if($proveedor){
+                                $table = new ComprobanteEgreso();
+                                $table->id_municipio = $empresa->idmunicipio;
+                                $table->fecha_comprobante = $fecha_pago ;
+                                $table->id_comprobante_egreso_tipo = $tipo_comprobante;
+                                $table->id_proveedor = $proveedor->idproveedor;
+                                $table->id_banco = $empresa->id_banco_factura;
+                                if($tipo_proceso == 1){
+                                     $observacion = 'Nomina del  '. $fecha_inicio. '  al  ' .$fecha_final. ''; 
+                                } else {
+                                    if($tipo_proceso == 2){
+                                      $observacion = 'Confeccion de prendas';
+                                    }else{
+                                        $observacion = 'Pago de cesantias';
+                                    }  
+                                }
+                                $table->observacion = $observacion;
+                                $table->libre = 1;
+                                $table->usuariosistema = Yii::$app->user->identity->username;
+                                $table->save(false);   
+                                //proceso de inserccion en la tabla detalle
+                                $comprobante = ComprobanteEgreso::find()->where([])->orderBy('id_comprobante_egreso DESC')->one();
+                                $table2 = new ComprobanteEgresoDetalle();
+                                $table2->id_comprobante_egreso = $comprobante->id_comprobante_egreso;
+                                $table2->vlr_abono = $_POST["valor_pagado"][$intIndice];
+                                $table2->subtotal = $_POST["valor_pagado"][$intIndice];
+                                $table2->save(false);
+                            }    
+                            $intIndice++;    
+                        }
+                         return $this->render('importardocumentocontable', [
+                           'form' => $form,
+                           'model' => $model,
+                           'tipo_proceso' => $tipo_proceso,
+                        ]);
+                    }
+                }    
+                return $this->render('importardocumentocontable', [
+                       'form' => $form,
+                       'model' => $model,
+                       'tipo_proceso' => $tipo_proceso,
+               ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
     }
 
     /**
@@ -168,7 +266,7 @@ class ComprobanteEgresoController extends Controller
         $tipos = ComprobanteEgresoTipo::find()->all();
         if($model->libre == 1){
                 return $this->redirect(['updatelibre', 'id' => $id]);
-            }
+        }
         if(ComprobanteEgresoDetalle::find()->where(['=', 'id_comprobante_egreso', $id])->all() or $model->estado <> 0){
            Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
         }
@@ -193,15 +291,13 @@ class ComprobanteEgresoController extends Controller
         $bancos = Banco::find()->all();
         $tipos = ComprobanteEgresoTipo::find()->all();
         $table = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-        if(ComprobanteEgresoDetalle::find()->where(['=', 'id_comprobante_egreso', $id])->all() or $table->estado <> 0){
-           Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
-           //return $this->redirect(['updatelibre', 'id' => $id]);
-        }
-        else{
+        if(ComprobanteEgresoDetalle::find()->where(['=', 'id_comprobante_egreso', $id])->all() && $table->numero > 0){
+           return $this->redirect(['index']);
+        }else{
+            if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                return ActiveForm::validate($model);
+            }
             if ($model->load(Yii::$app->request->post())) {
                 if ($model->validate()) {
                     if ($table) {                                        
@@ -225,22 +321,23 @@ class ComprobanteEgresoController extends Controller
                     $model->getErrors();
                 }
             }
-        }
-        if (Yii::$app->request->get("id")) {
-            $table = $this->findModel($id);
-            if ($table) {
-                $model->id_proveedor = $table->id_proveedor;
-                $model->id_banco = $table->id_banco;
-                $model->fecha_comprobante = $table->fecha_comprobante;                
-                $model->observacion = $table->observacion;
-                $model->id_municipio = $table->id_municipio;
-                $model->id_comprobante_egreso_tipo = $table->id_comprobante_egreso_tipo;
+
+            if (Yii::$app->request->get("id")) {
+                $table = $this->findModel($id);
+                if ($table) {
+                    $model->id_proveedor = $table->id_proveedor;
+                    $model->id_banco = $table->id_banco;
+                    $model->fecha_comprobante = $table->fecha_comprobante;                
+                    $model->observacion = $table->observacion;
+                    $model->id_municipio = $table->id_municipio;
+                    $model->id_comprobante_egreso_tipo = $table->id_comprobante_egreso_tipo;
+                } else {
+                    return $this->redirect(["index"]);
+                }
             } else {
                 return $this->redirect(["index"]);
             }
-        } else {
-            return $this->redirect(["index"]);
-        }
+        }    
         return $this->render('_formlibre', [
             'model' => $model,
             'proveedores' => ArrayHelper::map($proveedores, "idproveedor", "nombreproveedores"),
@@ -272,6 +369,43 @@ class ComprobanteEgresoController extends Controller
         }
     }
     
+    //proceso que crear los comprobantes de egreso
+    public function actionNuevoimportado($fecha_inicio, $fecha_final, $tipo_proceso) {
+        $form = $form = new ModelCrearComprobantes();
+        if (isset($_POST["documento_identidad"])) {
+                $intIndice = 0;
+                foreach ($_POST["documento_identidad"] as $intCodigo) {
+                    $table = new Productodetalle();
+                    $prenda = Prendatipo::find()->where(['idprendatipo' => $intCodigo])->one();
+                    $detalles = Productodetalle::find()
+                        ->where(['=', 'idproducto', $idproducto])
+                        ->andWhere(['=', 'idprendatipo', $prenda->idprendatipo])
+                        ->all();
+                    $reg = count($detalles);
+                    if ($reg == 0) {
+                        $table->idprendatipo = $prenda->idprendatipo;
+                        $table->observacion = ".";
+                        $table->idproducto = $idproducto;
+                        $table->usuariosistema = Yii::$app->user->identity->username;
+                        $table->insert();                                                
+                    }
+                }
+                 $this->redirect(["comprobante-egreso/importardocumento"]);
+        }else{
+            Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar un registro para crear el documento.');   
+            $nomina = \app\models\ProgramacionNomina::find()->where(['>=','fecha_desde', $fecha_inicio])
+                                                                            ->andWhere(['<=', 'fecha_hasta', $fecha_final])->all();
+            $model = $nomina;
+             return $this->render('importardocumentocontable', [
+            'model' => $model,
+            'form' => $form, 
+            'tipo_proceso' => $tipo_proceso,    
+
+        ]);
+        }
+    }
+    
+    //nuevso detalles
     public function actionNuevodetalles($id_proveedor,$id_comprobante_egreso)
     {
         $compraegreso = Compra::find()

@@ -17,7 +17,7 @@ class ComprobanteEgresoTipoSearch extends ComprobanteEgresoTipo
     public function rules()
     {
         return [
-            [['id_comprobante_egreso_tipo', 'activo'], 'integer'],
+            [['id_comprobante_egreso_tipo', 'activo','permite_importar'], 'integer'],
             [['concepto'], 'safe'],
         ];
     }
@@ -60,9 +60,11 @@ class ComprobanteEgresoTipoSearch extends ComprobanteEgresoTipo
         $query->andFilterWhere([
             'id_comprobante_egreso_tipo' => $this->id_comprobante_egreso_tipo,
             'activo' => $this->activo,
+            'permite_importar' => $this->permite_importar,
         ]);
 
         $query->andFilterWhere(['like', 'concepto', $this->concepto]);
+        $query->andFilterWhere(['like', 'permite_importar', $this->permite_importar]);
 
         return $dataProvider;
     }

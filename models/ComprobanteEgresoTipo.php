@@ -39,7 +39,7 @@ class ComprobanteEgresoTipo extends \yii\db\ActiveRecord
     {
         return [
             [['concepto'], 'required'],
-            [['activo'], 'integer'],
+            [['activo','permite_importar'], 'integer'],
             [['concepto'], 'string', 'max' => 50],
         ];
     }
@@ -53,6 +53,7 @@ class ComprobanteEgresoTipo extends \yii\db\ActiveRecord
             'id_comprobante_egreso_tipo' => 'Id',
             'concepto' => 'Concepto',
             'activo' => 'Activo',
+            'permite_importar' => 'Permite importar',
         ];
     }
 
@@ -72,5 +73,14 @@ class ComprobanteEgresoTipo extends \yii\db\ActiveRecord
             $estado = "NO";
         }
         return $estado;
+    }
+      public function getImportar()
+    {
+        if($this->permite_importar == 0){
+            $importar = "NO";
+        }else{
+            $importar = "SI";
+        }
+        return $importar;
     }
 }

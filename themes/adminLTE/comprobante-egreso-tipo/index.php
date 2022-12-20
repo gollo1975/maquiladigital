@@ -7,7 +7,7 @@ use yii\helpers\ArrayHelper;
 /* @var $searchModel app\models\ComprobanteEgresoTipoSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Lista Comprobante Egresos Tipos';
+$this->title = 'Tipos de comprobantes';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="comprobante-egreso-tipo-index">
@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [                
                 'attribute' => 'concepto',
-                'contentOptions' => ['class' => 'col-lg-5'],                
+                'contentOptions' => ['class' => 'col-lg-4'],                
             ],
             [
                 'attribute' => 'activo',
@@ -37,8 +37,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $tipo->estado;
                 },
                 'filter' => ArrayHelper::map(app\models\ComprobanteEgresoTipo::find()->all(),'activo','estado'),
-                'contentOptions' => ['class' => 'col-lg-3'],
-            ],            
+                'contentOptions' => ['class' => 'col-lg-2'],
+            ],     
+                        [
+                'attribute' => 'permite_importar',
+                'value' => function($model){
+                    $tipo = app\models\ComprobanteEgresoTipo::findOne($model->id_comprobante_egreso_tipo);                    
+                    return $tipo->importar;
+                },
+                'filter' => ArrayHelper::map(app\models\ComprobanteEgresoTipo::find()->all(),'permite_importar','importar'),
+                'contentOptions' => ['class' => 'col-lg-2'],
+            ],           
             [
                     'class' => 'yii\grid\ActionColumn',              
                 ],

@@ -52,7 +52,7 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     {
         return [
             [['idcliente', 'fechallegada', 'fechaprocesada', 'fechaentrega', 'observacion', 'idtipo','ponderacion','ordenproduccion','ordenproduccionext','codigoproducto','exportacion'], 'required', 'message' => 'Campo requerido'],            
-            [['idcliente', 'estado', 'idtipo','autorizado','facturado','proceso_control','cantidad','aplicar_balanceo','faltante','cerrar_orden','pagada','exportacion'], 'integer'],
+            [['idcliente', 'estado', 'idtipo','autorizado','facturado','proceso_control','cantidad','aplicar_balanceo','faltante','cerrar_orden','pagada','exportacion','lavanderia'], 'integer'],
             [['fechallegada', 'fechaprocesada', 'fechaentrega'], 'safe'],            
             [['totalorden','ponderacion','porcentaje_proceso','porcentaje_cantidad','segundosficha','duracion','sam_balanceo','sam_preparacion','sam_operativo','porcentaje_exportacion'], 'number'],
             [['valorletras', 'observacion','codigoproducto'], 'string'],
@@ -70,34 +70,35 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     {
         return [
             'idordenproduccion' => 'OP Int.',
-            'idcliente' => 'Cliente',
-            'fechallegada' => 'Fecha llegada',
-            'fechaprocesada' => 'Fecha procesada',
-            'fechaentrega' => 'Fecha entrega',
-            'cantidad' => 'Cantidad',
+            'idcliente' => 'Cliente:',
+            'fechallegada' => 'Fecha llegada:',
+            'fechaprocesada' => 'Fecha procesada:',
+            'fechaentrega' => 'Fecha entrega:',
+            'cantidad' => 'Cantidad:',
             'totalorden' => 'Total Orden',
             'valorletras' => 'Valor Letras',
-            'observacion' => 'Observacion',
+            'observacion' => 'Observacion:',
             'estado' => 'Estado',
             'facturado' => 'Fact.',
-            'proceso_control' => 'Control',
+            'proceso_control' => 'Control:',
             'autorizado' => 'Aut.',
-            'ordenproduccion' => 'Op cliente',
-            'ordenproduccionext' => 'Op Externa',
-            'idtipo' => 'Servicio',
+            'ordenproduccion' => 'Op cliente:',
+            'ordenproduccionext' => 'Op Externa:',
+            'idtipo' => 'Tipo servicio:',
             'usuariosistema' => 'Usuario Sistema',
-            'porcentaje_proceso' => '% Proceso',
-            'porcentaje_cantidad' => '% cantidad',
-            'ponderacion' => 'Ponderación',
-            'codigoproducto' => 'Código',
-            'duracion' => 'Duración',
-            'aplicar_balanceo' => 'Aplicar balanceo',
+            'porcentaje_proceso' => '% Proceso:',
+            'porcentaje_cantidad' => '% cantidad:',
+            'ponderacion' => 'Ponderación:',
+            'codigoproducto' => 'Referencia:',
+            'duracion' => 'Duración:',
+            'aplicar_balanceo' => 'Aplicar balanceo:',
             'faltante' => 'Faltante',
             'sam_balanceo' => 'Sam Balanceo:',
             'sam_preparacion' => 'Sam Preparacion:',
             'sam_operativo' => 'Sam Operativo:',
             'exportacion' => 'Export/Ppk:',
             'porcentaje_exportacion' => '% Export/Ppk:',
+            'lavanderia' => 'Lavanderia',
           
         ];
     }
@@ -161,5 +162,14 @@ class Ordenproduccion extends \yii\db\ActiveRecord
         return $exportar;
     }
     
+    public function getLavanderia()
+    {
+        if($this->lavanderia == 0){
+            $lavanderia = "NO";
+        }else{
+            $lavanderia = "SI";
+        }
+        return $lavanderia;
+    }
         
 }

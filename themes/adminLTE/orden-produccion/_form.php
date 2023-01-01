@@ -24,7 +24,7 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => false,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-3 form-group">{input}{error}</div>',
+            'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
             'labelOptions' => ['class' => 'col-sm-2 control-label'],
             'options' => []
             ],
@@ -33,7 +33,7 @@ $form = ActiveForm::begin([
 <?php ?>
 <div class="panel panel-success">
     <div class="panel-heading">
-        Nuevo
+        Registro
     </div>
     <div class="panel-body">
         <div class="row">
@@ -86,21 +86,33 @@ $form = ActiveForm::begin([
         </div>
         <div class="row">
             <?= $form->field($model, 'aplicar_balanceo')->dropDownList(['1'=> 'SI', '0'=> 'NO'], ['prompt' => 'Seleccione']) ?>
-             <?= $form->field($model, 'exportacion')->dropDownList(['1'=> 'NO', '2'=> 'SI'], ['prompt' => 'Seleccione...', 'onchange' => 'porcentajeExportacion()', 'id' => 'exportacion']) ?>
+            <?= $form->field($model, 'exportacion')->dropDownList(['1' => 'NO', '2' => 'SI'],['prompt' =>'Seleccione...','onchange' => 'mostrarcampo()', 'id' => 'exportacion'])?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'porcentaje_exportacion')->textInput(['maxlength' => true]) ?>
-            <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-3 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+            <div id="porcentaje_exportacion" style="display:block"> <?= $form->field($model, 'porcentaje_exportacion')->textInput(['maxlength' => true]) ?></div>
+            <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
-         <div class="checkbox checkbox-success" align ="right">
+         <div class="checkbox checkbox-success" align ="center">
                <?= $form->field($model, 'pagada')->checkBox(['label' => 'Pagada',''=>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'pagada']) ?>
+              <?= $form->field($model, 'lavanderia')->checkBox(['label' => 'Lavanderia',''=>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'lavanderia']) ?>
+
          </div>
         
-        <div class="panel-footer text-right">			
+         <div class="panel-footer text-right">				
             <a href="<?= Url::toRoute("orden-produccion/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>		
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm"]) ?>		
         </div>
     </div>
 </div>
 <?php ActiveForm::end(); ?>
-
+<script type="text/javascript">
+    function mostrarcampo(){
+        let exportacion = document.getElementById('exportacion').value;
+        if(exportacion === '1'){
+           porcentaje_exportacion.style.display = "none";
+        } else {
+            porcentaje_exportacion.style.display = "block";
+           
+        }
+    }
+</script>    

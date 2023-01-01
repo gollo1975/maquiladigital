@@ -613,6 +613,7 @@ class OrdenProduccionController extends Controller {
             $model->totalorden = 0;
             $model->estado = 0;
             $model->autorizado = 0;
+            $model->lavanderia = $model->lavanderia;
             $model->usuariosistema = Yii::$app->user->identity->username;
             $model->update();
             $valor = $model->exportacion;
@@ -706,7 +707,7 @@ class OrdenProduccionController extends Controller {
                 $campo = $model->porcentaje_exportacion;
                 if($valor == 1){
                  $model->porcentaje_exportacion = 0;
-                  $model->update();
+                 $model->update();
                 }else{
                     if($valor == 2 && $campo <= 0 ){
                           Yii::$app->getSession()->setFlash('warning', 'Debe de ingresar el porcentaje de exportacion ');

@@ -5,8 +5,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\OrdenProduccion */
 
-$this->title = 'Editar Orden de Producción: ' . $model->idordenproduccion;
-$this->params['breadcrumbs'][] = ['label' => 'Ordenes de Producción', 'url' => ['index']];
+$this->title = 'Editar orden Nro.:' . $model->idordenproduccion;
+$this->params['breadcrumbs'][] = ['label' => 'Orden de producción', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->idordenproduccion, 'url' => ['view', 'id' => $model->idordenproduccion]];
 $this->params['breadcrumbs'][] = 'Editar';
 ?>

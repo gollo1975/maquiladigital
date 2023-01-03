@@ -270,10 +270,10 @@ class MaquinasController extends Controller
                     $tabla->usuario = Yii::$app->user->identity->username;
                     $tabla->save(false);
                     if($tipo_servicio->valide_fecha == 1){
-                        $fecha = date($maquina->fecha_nuevo_mantenimiento);
+                        $fecha = date($tabla->fecha_mantenimiento);
                         $nuevafecha = strtotime ( '+'.$tipo_maquina->tiempo_mantenimiento.' day' , strtotime ( $fecha ) ) ;
                         $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
-                        $maquina->fecha_ultimo_mantenimiento = $maquina->fecha_nuevo_mantenimiento;
+                        $maquina->fecha_ultimo_mantenimiento = $tabla->fecha_mantenimiento;
                         $maquina->fecha_nuevo_mantenimiento = $nuevafecha;
                         $maquina->save(false); 
                     }

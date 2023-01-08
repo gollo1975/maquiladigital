@@ -8,6 +8,8 @@ use app\models\CostoProduccionDiaria;
 use app\models\FormGenerarCostoProduccionDiaria;
 use app\models\ModelSimuladorTiempo;
 use app\models\SimuladorTiempo;
+use app\models\ModelSimuladorSalario;
+use app\models\SimuladorSalario;
 use yii;
 use yii\base\Model;
 use Codeception\Lib\HelperModule;
@@ -171,6 +173,89 @@ class CostoProduccionDiariaController extends Controller {
             return $this->redirect(['site/login']);
         }    
     }
+    //SIMULADOR DE SALARIO
+     public function actionSimuladorsalario() {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso', 127])->all()){
+                $form = new ModelSimuladorSalario();
+                $arl = null;
+                $salario_basico = null;
+                $aplica_auxilio = null;
+                $eficiencia = null;
+                $valor_minuto = null;
+                $sam = null;
+                $dias_laborados =  null;
+                $id_horario = null;
+                $otros_gastos = null;
+                $simulador = \app\models\SimuladorSalario::find()->where(['=','id_simulador_salario', 1])->all();
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $arl = Html::encode($form->arl);
+                        $salario_basico = Html::encode($form->salario_basico);
+                        $aplica_auxilio = Html::encode($form->aplica_auxilio);
+                        $eficiencia = Html::encode($form->eficiencia);
+                        $valor_minuto = Html::encode($form->valor_minuto);
+                        $sam = Html::encode($form->sam);
+                        $dias_laborados = Html::encode($form->dias_laborados);
+                        $id_horario = Html::encode($form->id_horario);
+                        $otros_gastos = Html::encode($form->otros_gastos);
+                        //inicio de grabado
+                        $salario = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
+                        $conPension = \app\models\ConfiguracionPension::findOne(1);
+                        $caja = \app\models\CajaCompensacion::findOne(1);
+                        $matricula = \app\models\Matriculaempresa::findOne(1);
+                        $table = \app\models\SimuladorSalario::findOne(1);
+                        $table->salario = $salario_basico;
+                        $table->id_arl = $arl;
+                        if($aplica_auxilio == 1){
+                             $table->auxilio_transporte = $salario->auxilio_transporte_actual;
+                        }else{
+                             $table->auxilio_transporte = 0;
+                        }
+                        //seguridad social
+                        $table->valor_pension = round(($salario_basico * $conPension->porcentaje_empleador)/100);
+                        $table->valor_caja = round(($salario_basico * $caja->porcentaje_caja)/100);
+                        $table->valor_arl = round(($salario_basico * $table->arl->arl)/100);
+                        //prestaciones
+                        $table->valor_prima = round((($salario_basico + $salario->auxilio_transporte_actual) * 30)/360);
+                        $table->valor_cesantia = round((($salario_basico + $salario->auxilio_transporte_actual) * 30)/360);
+                        $table->valor_interes = round(($table->valor_cesantia * 12)/100);
+                        $table->valor_vacacion = round(($salario_basico * 30)/ 720);
+                        $table->ajuste_vacacion = round(($table->valor_vacacion * $matricula->ajuste_caja)/ 100);
+                        $table->total_salarios = $salario_basico + $otros_gastos + $table->auxilio_transporte + $table->valor_pension + $table->valor_caja + $table->valor_arl + $table->valor_prima + $table->valor_cesantia + $table->valor_interes + $table->valor_vacacion + $table->ajuste_vacacion;
+                        //datos de eficiencia
+                        $table->id_horario = $id_horario;
+                        $table->valor_minuto = $valor_minuto;
+                        $table->sam_prenda = $sam;
+                        $table->valor_prenda = round($sam * $valor_minuto);
+                        $table->eficiencia = $eficiencia;
+                        $table->dias_laborados = $dias_laborados;
+                        $table->unidades_dia = round(((60/$sam) * $table->horario->total_horas) * $eficiencia)/100;
+                        $table->unidades_mes = $table->unidades_dia * $dias_laborados;
+                        $table->valor_venta = round($table->unidades_mes * $table->valor_prenda);
+                        $table->usuario = Yii::$app->user->identity->username;
+                        $table->save(false);
+                        
+                        $simulador= SimuladorSalario::find()->where(['=','id_simulador_salario', 1])->all();
+                    } else {
+                        $form->getErrors();
+                    }
+                }else{
+                  $simulador = SimuladorSalario::find()->where(['=','id_simulador_salario', 1])->all();
+                } 
+                return $this->render('simuladorsalario', [
+                            'form' => $form,
+                            'model' => $simulador,
+                            'aplica_auxilio' => $aplica_auxilio,
+               ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
+    }
+    
     // calculo de la eficiencia y costo del lote
     protected function CalcularCostoLote($table) {
         $simulador = SimuladorTiempo::findOne(1);

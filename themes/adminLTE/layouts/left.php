@@ -194,6 +194,7 @@
                                                 'url' => '#',
                                                 'items' => [
                                                      ['label' => 'Simulador de tiempo', 'icon' => 'plus-square-o', 'url' => ['/costo-produccion-diaria/simuladortiempo']],
+                                                     ['label' => 'Simulador de salario', 'icon' => 'plus-square-o', 'url' => ['/costo-produccion-diaria/simuladorsalario']],
                                                 ]],
                                                 ['label' => 'Seguimiento Producción', 'icon' => 'plus-square-o', 'url' => ['seguimiento-produccion/index']],
                                                 ['label' => 'Valor prenda', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/index']],

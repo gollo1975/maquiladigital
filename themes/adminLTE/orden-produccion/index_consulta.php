@@ -81,6 +81,9 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
             <?= $formulario->field($form, "ordenproduccioncliente")->input("search") ?>
             <?= $formulario->field($form, 'tipo')->dropDownList($tipos, ['prompt' => 'Seleccione un tipo...']) ?>
         </div>
+        <div class="row checkbox checkbox-success" align ="center">
+                <?= $formulario->field($form, 'mostrar_resultado')->checkbox(['label' => 'Totalizar', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'mostrar_resultado']) ?>
+            </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
             <a align="right" href="<?= Url::toRoute("orden-produccion/indexconsulta") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
@@ -117,7 +120,11 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($model as $val): ?>
+            <?php
+            $saldo = 0;
+            foreach ($model as $val):
+                 $saldo += $val->totalorden;
+                ?>
             <tr style="font-size: 85%;">                
                 <td><?= $val->idordenproduccion ?></td>
                 <td><?= $val->cliente->cedulanit ?></td>
@@ -142,7 +149,16 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 </td>
             </tr>
             </tbody>
-            <?php endforeach; ?>
+            <?php endforeach;
+            if($mostrar_resultado == 1){?>
+                <tr>
+                    <td colspan="9"></td>
+                    <td align="right"><b>Totales</b></td>
+                    <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
+                    <td colspan="4"></td>
+                </tr>
+            <?php }?>
+            
         </table>    
         <div class="panel-footer text-right" >            
             <?php

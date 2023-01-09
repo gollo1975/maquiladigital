@@ -2692,6 +2692,7 @@ class OrdenProduccionController extends Controller {
             $tipo = null;
             $ordenproduccionint = null;
             $ordenproduccioncliente = null;
+            $mostrar_resultado = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);
@@ -2702,6 +2703,7 @@ class OrdenProduccionController extends Controller {
                     $tipo = Html::encode($form->tipo);
                     $ordenproduccionint = Html::encode($form->ordenproduccionint);
                     $ordenproduccioncliente = Html::encode($form->ordenproduccioncliente);
+                    $mostrar_resultado = Html::encode($form->mostrar_resultado);
                     $table = Ordenproduccion::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['>=', 'fechallegada', $desde])
@@ -2753,6 +2755,7 @@ class OrdenProduccionController extends Controller {
                         'model' => $model,
                         'form' => $form,
                         'pagination' => $pages,
+                        'mostrar_resultado' => $mostrar_resultado,
             ]);
         }else{
             return $this->redirect(['site/sinpermiso']);
@@ -2781,7 +2784,7 @@ class OrdenProduccionController extends Controller {
                     $codigoproducto = Html::encode($form->codigoproducto);
                     $table = Ordenproduccion::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
-                            ->andFilterWhere(['like', 'ordenproduccion', $ordenproduccion])
+                            ->andFilterWhere(['=', 'idordenproduccion', $ordenproduccion])
                             ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
                             ->andFilterWhere(['=', 'idtipo', $idtipo])
                             ->orderBy('idordenproduccion desc');

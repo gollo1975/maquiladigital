@@ -76,7 +76,9 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <td><?= Html::encode($model->modulo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Orden_Produccion') ?>:</th>
                     <td><?= Html::encode($model->idordenproduccion)?> - <h8><b>OP-Cliente:</b></h8> <?= Html::encode($model->ordenproduccion->ordenproduccion)?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Operarios') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Estado') ?>:</th>
+                    <td><?= Html::encode($model->estadomodulo) ?></td>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Operarios') ?>:</th>
                     <td align="right"><?= Html::encode($model->cantidad_empleados) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
@@ -86,19 +88,23 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <td><?= Html::encode($model->fecha_terminacion) ?> -<b>Dias:</b> (<?= Html::encode($model->numero_dias_balanceo)?>)</td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
                     <td><?= Html::encode($model->cliente->nombrecorto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Modulo') ?>:</th>
-                    <td><?= Html::encode($model->estadomodulo) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Minutos') ?>:</th>
+                    <td><?= Html::encode($model->tiempo_operario,2) ?></td>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Segundos') ?>:</th>
+                    <td align="right"><?= Html::encode($model->tiempo_operario * 60) ?></td>
+                 
                 </tr>
                 <tr style="font-size: 85%;">
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_segundos') ?>:</th>
                     <td><?= Html::encode($model->total_segundos) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Sam_operativo') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion->sam_operativo) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Minuto_operario') ?>:</th>
-                    <td><?= Html::encode($model->tiempo_operario,2) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tiempo_Segundos') ?>:</th>
-                    <td align="right"><?= Html::encode($model->tiempo_operario * 60) ?></td>
-                    
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tipo_proceso') ?>:</th>
+                    <td><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Reproceso') ?>:</th>
+                    <td><?= Html::encode($model->verreproceso) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Hora_inicial') ?></th>
+                    <td><?= Html::encode($model->hora_inicio) ?></td>
                 </tr>
                   <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Usuario') ?>:</th>
@@ -108,29 +114,19 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_creación') ?>:</th>
                     <td><?= Html::encode($model->fecha_creacion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Planta') ?>:</th>
-                    <td colspan="2"><?= Html::encode($model->plantaempresa->nombre_planta) ?></td>
+                    <td><?= Html::encode($model->plantaempresa->nombre_planta) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Hora_cierre') ?></th>
+                    <td><?= Html::encode($model->hora_cierre_modulo) ?></td>
                 </tr>
                  </tr>
                   <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tipo_proceso') ?>:</th>
-                    <td><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Proceso') ?>:</th>
-                    <td><?= Html::encode($model->verreproceso) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Horario') ?>:</th>
                     <td><?= Html::encode($model->horario->horario) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Hora_iniciales') ?></th>
-                    <td><?= Html::encode($model->total_horas) ?></td>
-                  
-                </tr>
-                 </tr>
-                  <tr style="font-size: 85%;">
-                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Hora_terminación') ?></th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'No_hora_terminación') ?></th>
                     <td><?= Html::encode($model->hora_final_modulo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Observaciones') ?>:</th>
                     <td colspan="6"><?= Html::encode($model->observacion) ?></td>
-                  
                 </tr>
-                
             </table>
         </div>
     </div>
@@ -261,7 +257,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     
-                                    <tr>
+                                    <tr style="font-size: 90%;">
                                         <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Operacion</th>
@@ -271,8 +267,8 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo asignado">T. Asig.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo faltante/Sobrante">F/S/</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Maquina</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'><span title="Unidades por hora">U. x Hora</span></th>
-                                        <th scope="col" style='background-color:#B9D5CE;'><span title="Porcentaje inicial">%</span></th>
+                                        <th scope="col" style='background-color:#B9D5CE;'><span title="Unidades por hora">U. x hora(100%)</span></th>
+                                        <th scope="col" style='background-color:#B9D5CE;'><span title="Unidades ´por hora al 80%">U. x hora(80%)</span></th>
                                          <th scope="col" style='background-color:#B9D5CE;'><span title="Estado de la operacion">Est.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -282,7 +278,12 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                 <tbody>
                                     <?php
                                         $total_mi = 0;
-                                         foreach ($balanceo_detalle as $val):?>
+                                        $unidades = 0;
+                                        $ochenta = 0;
+                                         foreach ($balanceo_detalle as $val):
+                                             $unidades = (((60/$val->minutos)*80)/100);
+                                             $ochenta = (((60 / $model->tiempo_balanceo) * ($model->cantidad_empleados)*80)/100);
+                                             ?>
                                          <tr style="font-size: 85%;">
                                             <td><?= $val->id_detalle?></td>
                                             <td><?= $val->operario->nombrecompleto ?></td>
@@ -294,11 +295,11 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                              <?php if($val->sobrante_faltante >= 0){?>
                                                  <td style="background: #0B5345; color: #FFFFFF;"><?= $val->sobrante_faltante ?></td>
                                              <?php }else{ ?>
-                                                 <td style="background: #F5BCA9;"><?= $val->sobrante_faltante ?></td>
+                                                 <td style="background: #F5BCA9; color: #DC2905;"><b><?= $val->sobrante_faltante ?></b></td>
                                              <?php }?>     
                                              <td><?= $val->tipo->descripcion ?></td>
                                              <td><?= ''.number_format( 60 /$val->minutos,2) ?></td>
-                                             <td><?= $model->porcentaje ?>%</td>
+                                             <td><?= ''.number_format( $unidades,2) ?></td>
                                              <td><?= $val->estadoperacion ?></td>
                                             <?php
                                             
@@ -328,7 +329,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                    endforeach; ?>
                                 </tbody>  
                                 <?php if(count($balanceo_detalle)> 0){?>
-                                    <td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 135px;"><b>Sam_balanceo:</b> <?= $model->tiempo_balanceo?></td><td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 90px;"><b>Total:</b> <?= ''. number_format((60 / $model->tiempo_balanceo) * $model->cantidad_empleados,2) ?></td><td colspan="5"></td>
+                                    <td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;"><b><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?>:</b> <?= $model->tiempo_balanceo?></td><td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 110px;"><b>Total:</b> <?= ''. number_format((60 / $model->tiempo_balanceo) * $model->cantidad_empleados,0) ?></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 110px;"><b>Total:</b> <?= ''. number_format($ochenta,0) ?></td><td colspan="4"></td>
                                     <?php 
                                      if($total_mi > $model->total_minutos){
                                         Yii::$app->getSession()->setFlash('warning', 'Importante: El tiempo asignado en el listado de operaciones ('. $total_mi .'), es mayor que el tiempo inicial asignado ('. $model->total_minutos .') ');

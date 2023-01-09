@@ -120,12 +120,15 @@ $form = ActiveForm::begin([
 
      <div class="panel-footer text-right">
        
-        <?= Html::a('<span class="glyphicon glyphicon-export"></span> Excel', ['generarexcel', 'id' => $model->id_valor], ['class' => 'btn btn-primary btn-sm ']); ?>
+        <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar excel', ['generarexcel', 'id' => $model->id_valor], ['class' => 'btn btn-default btn-sm ']); ?>
         <?php if($model->autorizado == 0){?>                
                 <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva-Linea', ['valor-prenda-unidad/nuevodetalle', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']); ?>   
                 <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo-Modular', ['valor-prenda-unidad/nuevodetallemodular', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-info btn-sm']); ?>        
-                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm",]) ?>
-        <?php } ?>
+                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary btn-sm, 'name' => 'actualizarlinea'",]) ?>
+                <?php if(app\models\Matriculaempresa::find()->where(['=','aplica_regla', 1])->one()){?>
+                   <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Aplicar regla", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicaregla']) ?>
+               <?php } 
+         }?>
     </div>
     <div>
         <ul class="nav nav-tabs" role="tablist">
@@ -151,6 +154,7 @@ $form = ActiveForm::begin([
                                         <th scope="col" style='background-color:#B9D5CE;'>% Cum.</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Observación</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'></th> 
+                                         <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -213,7 +217,12 @@ $form = ActiveForm::begin([
                                                           </td>
                                                     <?php }else{ ?>
                                                           <td></td>
-                                                    <?php } ?>      
+                                                    <?php } 
+                                                    if($val->aplica_regla == 0){?> 
+                                                           <td><input type="checkbox" name="consecutivo[]" value="<?= $val->consecutivo ?>"></td>
+                                                    <?php }else{?>       
+                                                           <td style= 'width: 25px;'></td>
+                                                    <?php }?>       
                                                </tr>     
                                    <?php   endforeach;?>        
                                 </tbody>      
@@ -224,23 +233,18 @@ $form = ActiveForm::begin([
             </div>
             <!--INICIO EL OTRO TABS -->
         </div>
-    </div> 
-  <?php ActiveForm::end(); ?>
+     <?php ActiveForm::end(); ?>
+</div> 
 <script type="text/javascript">
-    function esInteger(e) {
-        var charCode
-        charCode = e.keyCode
-        status = charCode
-        if (charCode != 46 && charCode > 31 
- 
-      && (charCode < 48 || charCode > 57)) {
-            return false
-        }
-        return true
-    }
+	function marcar(source) 
+	{
+		checkboxes=document.getElementsByTagName('input'); //obtenemos todos los controles del tipo Input
+		for(i=0;i<checkboxes.length;i++) //recoremos todos los controles
+		{
+			if(checkboxes[i].type == "checkbox") //solo si es un checkbox entramos
+			{
+				checkboxes[i].checked=source.checked; //si es un checkbox le damos el valor del checkbox que lo llamó (Marcar/Desmarcar Todos)
+			}
+		}
+	}
 </script>
-<script>
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip(); 
-});
-</script>  

@@ -123,7 +123,12 @@ $cliente = ArrayHelper::map(app\models\Cliente::find()->where(['=','proceso', 1]
             </thead>
             <tbody>
                 <?php 
-                foreach ($model as $val):?>
+                $venta = 0; $costo = 0; $utilidad = 0;
+                foreach ($model as $val):
+                    $venta = $val->valor_lote;
+                    $costo = $val->valor_costo_lote;
+                    $utilidad = $val->utilidad_lote;
+                    ?>
                     <tr style='font-size:85%;'>             
                         <td><?= $val->cliente->nombrecorto ?></td>    
                         <td style="text-align: right"><?= $val->cantidad_operarios ?></td>
@@ -150,6 +155,7 @@ $cliente = ArrayHelper::map(app\models\Cliente::find()->where(['=','proceso', 1]
           
         </div>
     </div>
+     <?php include('grafico.php'); ?>   
 </div>
    
 <?php $formulario->end() ?>

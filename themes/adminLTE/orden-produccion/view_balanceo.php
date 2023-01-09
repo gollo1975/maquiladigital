@@ -126,7 +126,6 @@ if($buscarOrden){
             <li role="presentation" class="active"><a href="#operaciones" aria-controls="operaciones" role="tab" data-toggle="tab">Operaciones <span class="badge"><?= count($operaciones) ?></span></a></li>
             <li role="presentation"><a href="#modulo" aria-controls="modulo" role="tab" data-toggle="tab">Modulos <span class="badge"><?= count($modulos) ?></span></a></li>
             <li role="presentation"><a href="#tallas" aria-controls="tallas" role="tab" data-toggle="tab">Tallas <span class="badge"><?= count($modeldetalles) ?></span></a></li>
-            <li role="presentation"><a href="#grafica" aria-controls="grafica" role="tab" data-toggle="tab">Gráfica </a></li>
         </ul>
         <div class="tab-content">
            <div role="tabpanel" class="tab-pane active" id="operaciones">
@@ -398,42 +397,7 @@ if($buscarOrden){
             </div>
            
            <!--TERMINA TABS-->
-           <div role="tabpanel" class="tab-pane" id="grafica">
-                <div class="table-responsive">
-                    <div class="panel panel-success">
-                        <div class="panel-body">
-                            <table class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha entrada</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'></th>
-
-                                    </tr>
-                                </thead>
-                                
-                                <tbody>
-                                      <?php
-                                      $fecha_entrada = 0;
-                                      $suma = 0; 
-                                      $cantidad =new Query();
-                                      $cantidad->select('SUM(cantidad_terminada) as total, fecha_entrada')->from('cantidad_prenda_terminadas')
-                                                      ->where(['=','idordenproduccion', $model->idordenproduccion])
-                                                      ->groupBy('fecha_entrada')
-                                                      ->all(); 
-                                       foreach ($cantidad as $eficiencia):?>
-                                       
-                                         
-                                       <?php                                    
-                                       endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>       
-                    </div>
-                </div>
-                <?php include('grafica.php'); ?> 
-            </div>
-           </div>  
+        </div>  
     </div>   
     <?php ActiveForm::end(); ?>
 </div>

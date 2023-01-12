@@ -128,9 +128,24 @@ $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(
         </table>    
         <div class="panel-footer text-right" >            
                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
-                <a align="right" href="<?= Url::toRoute("operarios/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
-            <?php $form->end() ?>
+                <!-- Inicio Nuevo Detalle proceso -->
+                <?= Html::a('<span class="glyphicon glyphicon-search"></span> Actualizar salarios',
+                    ['/operarios/actualizarsalarios'],
+                    [
+                        'title' => 'Actualizar salario minimo',
+                        'data-toggle'=>'modal',
+                        'data-target'=>'#modalactualizarsalarios',
+                        'class' => 'btn btn-info btn-xs'
+                    ])    
+                    ?>
+                <div class="modal remote fade" id="modalactualizarsalarios">
+                        <div class="modal-dialog modal-lg-centered">
+                            <div class="modal-content"></div>
+                        </div>
+                </div>
+                 <a align="right" href="<?= Url::toRoute("operarios/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
         </div>
+      <?php $form->end() ?>
     </div>
 </div>
 <?= LinkPager::widget(['pagination' => $pagination]) ?>

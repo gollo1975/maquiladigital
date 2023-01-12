@@ -71,7 +71,7 @@ class OperariosController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 30,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -91,7 +91,7 @@ class OperariosController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 40,
+                        'pageSize' => 30,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -362,6 +362,29 @@ class OperariosController extends Controller
         } else {
             return $this->redirect(["operarios/index"]);
         }
+    }
+    //este proceso actualiza los salarios de los trabajadores
+     public function actionActualizarsalarios() {
+        $model = new \app\models\FormActualizarSalarioOperario();
+         if ($model->load(Yii::$app->request->post())) {
+               if ($model->validate()){
+                    if (isset($_POST["actualizasalario"])) {
+                        $operario = Operarios::find()->where(['=','estado', 1])->all(); 
+                        if(count($operario) == 0){
+                            $this->redirect(["index"]); 
+                        }else{
+                            foreach ($operario as $operarios){
+                                $operarios->salario_base = $model->nuevo_salario;
+                                $operarios->update();
+                            }
+                            $this->redirect(["index"]); 
+                        }    
+                    }
+               } 
+         }
+        return $this->renderAjax('actualizarsalarios', [
+            'model' => $model,       
+        ]);    
     }
     
     public function actionDelete($id)

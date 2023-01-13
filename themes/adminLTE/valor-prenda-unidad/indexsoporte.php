@@ -199,9 +199,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     } 
                                     
                                     foreach ($modelo2 as $eficiencia): 
-                                     //   echo $eficiencia->dia_pago,'<br>';
-                                      // echo $eficiencia->id_operario,'<br>';
-                                    
+                                                                        
                                             $cumplimiento = 0;
                                             $detalle = ValorPrendaUnidadDetalles::find()->where(['=','dia_pago', $eficiencia->dia_pago])
                                                                                      ->andWhere(['=','id_operario', $eficiencia->id_operario])->orderBy('dia_pago')->all();

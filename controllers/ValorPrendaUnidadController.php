@@ -380,6 +380,7 @@ class ValorPrendaUnidadController extends Controller
                         $table->dia_pago = $_POST["dia_pago"][$intIndice];
                         $table->cantidad = $_POST["cantidad"][$intIndice];
                         $table->control_fecha = $_POST["control_fecha"][$intIndice];
+                        $table->aplica_sabado = $_POST["aplica_sabado"][$intIndice];
                         $auxiliar = $table->control_fecha;
                         $operario = Operarios::find()->where(['=','id_operario', $_POST["id_operario"][$intIndice]])->one();
                         $valor_unidad = ValorPrendaUnidad::find()->where(['=','id_valor', $id])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();

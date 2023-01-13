@@ -144,6 +144,7 @@ $form = ActiveForm::begin([
                                     <tr style='font-size:85%;'>
                                         <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Operario</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;width: 75px;'>Valide</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;width: 75px;'>Sabado</th> 
                                          <th scope="col" style='background-color:#B9D5CE;width: 150px;'>Operación</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Dia</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Cant.</th> 
@@ -173,7 +174,16 @@ $form = ActiveForm::begin([
                                                             <option value="0">NO</option>
                                                             <option value="1">SI</option>
                                                     </select></td>  
-                                                    </td>   
+                                                    <td style="padding-left: 1;padding-right: 0;"><select name="aplica_sabado[]">
+                                                            <?php if ($val->aplica_sabado == 0){
+                                                                   echo $aplica_sabado = "NO";
+                                                                  }else{
+                                                                    echo $aplica_sabado ="SI";
+                                                                  }?>      
+                                                            <option value="<?= $val->aplica_sabado?>"><?= $aplica_sabado ?></option>
+                                                            <option value="0">NO</option>
+                                                            <option value="1">SI</option>
+                                                    </select></td>  
                                                     <td style="padding-left: 1;padding-right: 0;"><select name="operacion[]">
                                                             <?php if ($val->operacion == 0){
                                                                    echo $operacion = "Confeccion";

@@ -105,7 +105,8 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                     <th scope="col" style='background-color:#B9D5CE;'>Cantidad confeccionada</th>
                                     <th style='background-color:#B9D5CE;'></th>
                                     <th style='background-color:#B9D5CE;'></th>
-                                     <th style='background-color:#B9D5CE;'></th>
+                                    <th style='background-color:#B9D5CE;'></th>
+                                    <th style='background-color:#B9D5CE;'></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -124,21 +125,27 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                         </td>
                                         <td><?= $val->cantidad_operada ?></td>
                                         <?php if($model->cerrar_orden == 0){?>
-                                        <td style="width: 25px;">
+                                        <td style="width: 25px; height: 15px;">
                                                     <?= Html::a('<span class="glyphicon glyphicon-folder-open " title ="Crear las pilotos"></span>', ['/orden-produccion/newpilotoproduccion','id' => $model->idordenproduccion,'iddetalle' => $val->iddetalleorden]) ?>
                                                     <!-- Inicio Vista,Eliminar,Editar -->
                                         </td>
-                                            <td style="width: 25px;">
-                                                    <?= Html::a('<span class="glyphicon glyphicon-log-in " title ="Crear operaciones a las tallas"></span>', ['/orden-produccion/nuevo_detalle_proceso','id' => $model->idordenproduccion,'iddetalleorden' => $val->iddetalleorden]) ?>
-                                                    <!-- Inicio Vista,Eliminar,Editar -->
-                                            </td>
+                                        <td style="width: 25px; height: 15px;">
+                                                <?= Html::a('<span class="glyphicon glyphicon-import " title ="Importar operaciones de otra OP."></span>', ['/orden-produccion/importaroperacionesprenda','id' => $model->idordenproduccion,'iddetalleorden' => $val->iddetalleorden]) ?>
+                                                <!-- Inicio Vista,Eliminar,Editar -->
+                                        </td>
+                                        <td style="width: 25px; height: 15px;">
+                                                <?= Html::a('<span class="glyphicon glyphicon-log-in " title ="Crear operaciones a las tallas"></span>', ['/orden-produccion/nuevo_detalle_proceso','id' => $model->idordenproduccion,'iddetalleorden' => $val->iddetalleorden]) ?>
+                                                <!-- Inicio Vista,Eliminar,Editar -->
+                                        </td>
                                         <?php }else{?>
-                                            <td style="width: 25px;">
+                                            <td style="width: 25px; height: 15px;">
                                             </td>
-                                            <td style="width: 25px;">
+                                            <td style="width: 25px; height: 15px;">
+                                            </td>
+                                            <td style="width: 25px; height: 15px;">
                                             </td>
                                         <?php }?>    
-                                        <td style="width: 25px;">
+                                        <td style="width: 25px; height: 15px;">
                                                 <?php echo Html::a('<span class="glyphicon glyphicon-pencil"></span>',
                                                     ['/orden-produccion/detalle_proceso','idordenproduccion' => $model->idordenproduccion,'iddetalleorden' => $val->iddetalleorden],
                                                     [

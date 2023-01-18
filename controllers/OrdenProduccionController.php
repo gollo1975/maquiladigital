@@ -3209,6 +3209,67 @@ class OrdenProduccionController extends Controller {
 
         ]);
     }
+    
+    //PROCESO QUE IMPORTA LAS OPERACIONES A UNA OP.
+    public function actionImportaroperacionesprenda($id, $iddetalleorden)
+    {
+        $detalle_proceso = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $iddetalleorden])->one();
+        if(!$detalle_proceso){
+            $form = new \app\models\FormImportarOperaciones();
+            $orden_produccion = null;
+            $model = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $orden_produccion = Html::encode($form->orden_produccion);
+                    $orden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->one();
+                    $detalle = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $orden->iddetalleorden])->orderBy('proceso ASC')->all(); 
+                    $model = $detalle;
+
+                }else{
+                    $form->getErrors();
+                }
+            }   
+            if (isset($_POST["importaroperaciones"])) {
+                if (isset($_POST["operaciones"])) {
+                    $intIndice = 0;
+                    $cont = 0;
+                    foreach ($_POST["operaciones"] as $intCodigo) {
+                        $proceso = Ordenproducciondetalleproceso::findOne($_POST["id_detalle"][$intIndice]);
+                        if($proceso){
+                             $table = new Ordenproducciondetalleproceso();
+                             $table->proceso = $proceso->proceso;
+                             $table->duracion = $proceso->duracion;
+                             $table->total = $proceso->total;
+                             $table->idproceso = $proceso->idproceso;
+                             $table->iddetalleorden = $iddetalleorden;
+                             $table->id_tipo = $proceso->id_tipo;
+                             $table->cantidad_operada = 0;
+                             $cont += 1;
+                             $table->insert();
+                        }
+                        $intIndice++; 
+                       
+                    }
+                    Yii::$app->getSession()->setFlash('info', 'Se importaron '.  $cont. ' registros de forma exitosa. ');
+                    return $this->render('importaroperacionesprenda', [
+                                        'form' => $form,
+                                        'model' => $model,
+                                        'id' => $id,
+                                        'iddetalleorden' => $iddetalleorden,
+                                        ]);
+                }
+            }            
+            return $this->render('importaroperacionesprenda', [
+                           'form' => $form,
+                           'model' => $model,
+                           'id' => $id,
+                           'iddetalleorden' => $iddetalleorden,
+                           ]);
+        }else{
+             $this->redirect(["orden-produccion/view_detalle", 'id' => $id]);
+        }    
+    }
+    
     public function actionExcelconsulta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();
         // Set document properties

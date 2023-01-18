@@ -3222,9 +3222,18 @@ class OrdenProduccionController extends Controller {
                 if ($form->validate()) {
                     $orden_produccion = Html::encode($form->orden_produccion);
                     $orden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->one();
-                    $detalle = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $orden->iddetalleorden])->orderBy('proceso ASC')->all(); 
-                    $model = $detalle;
-
+                    if ($orden){
+                       $detalle = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $orden->iddetalleorden])->orderBy('proceso ASC')->all(); 
+                       $model = $detalle;
+                    }else{
+                        Yii::$app->getSession()->setFlash('warning', 'La orden de produccion que digito NO existe en la base de datos. ');
+                        return $this->render('importaroperacionesprenda', [
+                                        'form' => $form,
+                                        'model' => $model,
+                                        'id' => $id,
+                                        'iddetalleorden' => $iddetalleorden,
+                                        ]);
+                    }
                 }else{
                     $form->getErrors();
                 }
@@ -3234,24 +3243,23 @@ class OrdenProduccionController extends Controller {
                     $intIndice = 0;
                     $cont = 0;
                     foreach ($_POST["operaciones"] as $intCodigo) {
-                        $proceso = Ordenproducciondetalleproceso::findOne($_POST["id_detalle"][$intIndice]);
+                        $proceso = Ordenproducciondetalleproceso::findOne($intCodigo);
                         if($proceso){
-                             $table = new Ordenproducciondetalleproceso();
-                             $table->proceso = $proceso->proceso;
-                             $table->duracion = $proceso->duracion;
-                             $table->total = $proceso->total;
-                             $table->idproceso = $proceso->idproceso;
-                             $table->iddetalleorden = $iddetalleorden;
-                             $table->id_tipo = $proceso->id_tipo;
-                             $table->cantidad_operada = 0;
-                             $cont += 1;
-                             $table->insert();
+                            $table = new Ordenproducciondetalleproceso();
+                            $table->proceso = $proceso->proceso;
+                            $table->duracion = $proceso->duracion;
+                            $table->total = $proceso->total;
+                            $table->idproceso = $proceso->idproceso;
+                            $table->iddetalleorden = $iddetalleorden;
+                            $table->id_tipo = $proceso->id_tipo;
+                            $table->cantidad_operada = 0;
+                            $cont += 1;
+                            $table->insert();
                         }
                         $intIndice++; 
-                       
                     }
                     Yii::$app->getSession()->setFlash('info', 'Se importaron '.  $cont. ' registros de forma exitosa. ');
-                    return $this->render('importaroperacionesprenda', [
+                   return $this->render('importaroperacionesprenda', [
                                         'form' => $form,
                                         'model' => $model,
                                         'id' => $id,

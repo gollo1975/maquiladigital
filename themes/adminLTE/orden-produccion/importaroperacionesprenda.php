@@ -87,7 +87,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <td><?= $val->proceso ?></td>
                                 <td style="text-align: right"><?= ''.number_format($val->total,0)?></td>
                                 <td><?= $val->tipomaquina->descripcion ?></td>
-                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->idproceso ?>"></td> 
+                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->iddetalleproceso ?>"></td> 
                                 <input type="hidden" name="id_detalle[]" value="<?= $val->iddetalleproceso ?>">
 
                             </tr>  

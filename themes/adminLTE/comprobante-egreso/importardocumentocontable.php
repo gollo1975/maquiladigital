@@ -21,12 +21,7 @@ $this->title = 'Crear documentos contables';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
-<script language="JavaScript">
-    function mostrarfiltro() {
-        divC = document.getElementById("filtro");
-        if (divC.style.display == "none"){divC.style.display = "block";}else{divC.style.display = "none";}
-    }
-</script>
+
 
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
@@ -130,19 +125,16 @@ $comprobante = ArrayHelper::map(ComprobanteEgresoTipo::find()->where(['=','permi
                                 <td><?= $val->fecha_desde ?></td>
                                 <td><?= $val->fecha_hasta ?></td>
                                 <td style="text-align: right"><?= ''.number_format($val->total_pagar,0)?></td>
-                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_identidad[]" value="<?= $val->cedula_empleado ?>"></td> 
-                                <input type="hidden" name="valor_pagado[]" value="<?= $val->total_pagar ?>">
-
+                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_identidad[]" value="<?= $val->id_programacion ?>"></td> 
                             </tr>  
-                <?php }else { ?>
+                        <?php }else { ?>
                             <tr style='font-size:85%;'>             
                                 <td><?= $val->documento ?></td>    
                                  <td><?= $val->operario ?></td>
                                 <td><?= $val->fecha_inicio ?></td>
                                 <td><?= $val->fecha_corte ?></td>
                                 <td style="text-align: right"><?= ''.number_format($val->Total_pagar,0)?></td>
-                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_identidad[]" value="<?= $val->documento ?>"></td> 
-                                 <input type="hidden" name="valor_pagado[]" value="<?= $val->Total_pagar ?>">
+                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_identidad[]" value="<?= $val->id_pago ?>"></td> 
 
                             </tr>  
                         <?php }    

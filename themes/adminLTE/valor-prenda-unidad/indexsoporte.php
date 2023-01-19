@@ -188,6 +188,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                  <?php
                                     $cumplimiento = 0;
                                     $auxiliar = '';
+                                    $contador = 0;
+                                    $acumuladorEficiencia = 0 ; $totalEficiencia = 0;
                                     $empresa = Matriculaempresa::findOne(1);
                                     if($id_operario > 0){
                                          $modelo2 = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $dia_pago])
@@ -221,7 +223,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                        <?php }?>     
                                                        <td ><?= $detalles->usuariosistema ?></td>
                                                     </tr>
-                                              <?php endforeach; 
+                                              <?php 
+                                                $contador += 1;
+                                                $acumuladorEficiencia += $detalles->porcentaje_cumplimiento;
+                                              endforeach; 
                                             }else{
                                                 foreach ($detalle as $contar):
                                                    $cumplimiento += $contar->porcentaje_cumplimiento;
@@ -240,7 +245,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                            <?php }else{?> 
                                                                 <td style='background-color:#B6EFF5;' ><?= $cumplimiento ?>%</td>
                                                                 <td><?= 'NO GANA BONIFICACION' ?></td>
-                                                           <?php }?>     
+                                                           <?php }
+                                                             $contador += 1;
+                                                             $acumuladorEficiencia += $cumplimiento;
+                                                           ?>     
                                                           <td ><?= $contar->usuariosistema ?></td>
                                                         </tr>
                                                     <?php }else{
@@ -268,10 +276,16 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     }
                                                }    
                                             }   
-                                    endforeach; 
-                                   ?>
-                                                    
-                            </body>    
+                                    endforeach;
+                                    $totalEficiencia = ($acumuladorEficiencia / $contador);
+                                    ?>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td align="right"><b>Eficiencia</b></td>
+                                        <td align="right" ><b><?= ''.number_format($totalEficiencia, 2); ?>%</b></td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </body>    
                         </table>
                          <?php $form->end() ?>
                     </div>

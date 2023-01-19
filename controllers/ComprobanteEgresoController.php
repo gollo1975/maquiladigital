@@ -121,9 +121,20 @@ class ComprobanteEgresoController extends Controller
                     if (isset($_POST["documento_identidad"])) {
                         $intIndice = 0;
                         $observacion = '';
+                        $cont = 0;
+                        $valorPagado = 0;
                         foreach ($_POST["documento_identidad"] as $intCodigo) {
                             $empresa = \app\models\Matriculaempresa::findOne(1);
-                            $proveedor = Proveedor::find()->where(['=','cedulanit', $intCodigo])->one();
+                            if($tipo_proceso == 1 || $tipo_proceso == 3){
+                                $nomina = \app\models\ProgramacionNomina::findOne($intCodigo);
+                                $proveedor = Proveedor::find()->where(['=','cedulanit', $nomina->cedula_empleado])->one();
+                                $valorPagado = $nomina->total_pagar;
+                            }else{
+                                $nomina = \app\models\PagoNominaServicios::findOne($intCodigo);
+                                $proveedor = Proveedor::find()->where(['=','cedulanit', $nomina->documento])->one();
+                                $valorPagado = $nomina->Total_pagar;
+                            }
+                            
                             if($proveedor){
                                 $table = new ComprobanteEgreso();
                                 $table->id_municipio = $empresa->idmunicipio;
@@ -145,15 +156,18 @@ class ComprobanteEgresoController extends Controller
                                 $table->usuariosistema = Yii::$app->user->identity->username;
                                 $table->save(false);   
                                 //proceso de inserccion en la tabla detalle
-                                $comprobante = ComprobanteEgreso::find()->where([])->orderBy('id_comprobante_egreso DESC')->one();
+                                $comprobante = ComprobanteEgreso::find()->orderBy('id_comprobante_egreso DESC')->one();
                                 $table2 = new ComprobanteEgresoDetalle();
                                 $table2->id_comprobante_egreso = $comprobante->id_comprobante_egreso;
-                                $table2->vlr_abono = $_POST["valor_pagado"][$intIndice];
-                                $table2->subtotal = $_POST["valor_pagado"][$intIndice];
+                                $table2->vlr_abono = $valorPagado;
+                                $table2->subtotal = $valorPagado;
                                 $table2->save(false);
+                                $cont += 1;
                             }    
+                            $valorPagado = 0;
                             $intIndice++;    
                         }
+                        Yii::$app->getSession()->setFlash('info', 'Se importaron '.  $cont. ' registros al modulo contable de forma exitosa. ');
                          return $this->render('importardocumentocontable', [
                            'form' => $form,
                            'model' => $model,

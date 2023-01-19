@@ -98,7 +98,7 @@ if ($mensaje != ""){
                 <thead>
                 <tr>
                     <th scope="col" style='background-color:#B9D5CE;'>Id_Prog.</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Periodo</th>
+                    <th scope="col" style='background-color:#B9D5CE;'><SPAN title="Periodo de pago">Per.</SPAN></th></th>
                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th>                    
@@ -107,6 +107,7 @@ if ($mensaje != ""){
                     <th scope="col" style='background-color:#B9D5CE;'>F. Creación</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Vr. Cesantia</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Vr. Interes</th>
+                     <th scope="col" style='background-color:#B9D5CE;'><SPAN title="Muestra si el dato fue enviado a pago por fechas">Env.</SPAN></th></th>
                     <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                 </tr>
                 </thead>
@@ -123,6 +124,7 @@ if ($mensaje != ""){
                     <td><?= $val->fecha_creacion ?></td>
                     <td style="text-align: right"><?= '$'.number_format($val->vlr_cesantia,0) ?></td>
                     <td style="text-align: right"><?= '$'.number_format($val->vlr_intereses,0) ?></td>
+                    <td><?= $val->enviadodato ?></td>
                     <input type="hidden" name="fecha_corte" value="<?= $fecha_corte ?>">
                     <td style="width: 30px;"><input type="checkbox" name="id_interes[]" value="<?= $val->id_interes ?>"></td>
                 </tr>
@@ -132,7 +134,8 @@ if ($mensaje != ""){
         </div>
         <div class="panel-footer text-right">
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pago-adicional-fecha/view', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-primary btn-sm']) ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm",]) ?>
+             <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Cerrar intereses", ["class" => "btn btn-warning btn-sm", 'name' => 'enviarexportado']) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar a pago", ["class" => "btn btn-success btn-sm",'name' => 'enviardatos']) ?>
         </div>
 
     </div>

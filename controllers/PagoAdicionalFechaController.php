@@ -329,7 +329,8 @@ class PagoAdicionalFechaController extends Controller
         } else {
            $intereses = InteresesCesantia::find()->where(['=','importado', 0])->orderBy('id_interes DESC')->all();
         }
-        if (isset($_POST["id_interes"])) {
+        if(isset($_POST["enviardatos"])){
+            if (isset($_POST["id_interes"])) {
                 $intIndice = 0;
                 $salario = ConceptoSalarios::find()->where(['=','intereses', 1])->one();
                 $fecha_corte = Html::encode($_POST["fecha_corte"]);
@@ -358,12 +359,27 @@ class PagoAdicionalFechaController extends Controller
                         $table->estado_periodo = 1;
                         $table->detalle = 'Pago de intereses';
                         $table->usuariosistema = Yii::$app->user->identity->username;
-                     $table->insert(); 
-                      //  $this->actualizarSaldo($id);
+                        $table->insert(); 
+                        $interes->enviado = 1;
+                        $interes->save(false);
                     }
                 }
                $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
             }
+        } 
+        //proceso que cierra el proceso de exportado
+        if(isset($_POST["enviarexportado"])){
+            if (isset($_POST["id_interes"])) { 
+                foreach ($_POST["id_interes"] as $intCodigo) {
+                    $interes = InteresesCesantia::findOne($intCodigo);
+                    if($interes){
+                        $interes->importado = 1;
+                        $interes->save(false);
+                    }
+                }
+                $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
+            }
+        }    
         return $this->render('_formimportinteres', [
             'intereses' => $intereses,            
             'mensaje' => $mensaje,

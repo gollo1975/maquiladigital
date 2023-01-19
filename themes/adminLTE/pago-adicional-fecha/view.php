@@ -49,8 +49,7 @@ $conceptosalario = ArrayHelper::map(ConceptoSalarios::find()->where(['tipo_adici
     <a href="<?= Url::toRoute(["pago-adicional-fecha/index"]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>  
     <?php if($fechacorte->estado_proceso == 1){?>   
         <?= Html::a('<span class="glyphicon glyphicon-import"></span> Importar intereses', ['pago-adicional-fecha/importinteres', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-info btn-sm'])?>
-        <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Aplicar pago interes', ['autorizado', 'id' => $id, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-default btn-sm']) ?>
-       <div class="btn-group" role="group">
+           <div class="btn-group" role="group">
             <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Importar pago producción
               <span class="caret"></span>

@@ -85,29 +85,27 @@ class ConfiguracionSalarioController extends Controller
         }
         if ($model->load(Yii::$app->request->post())) {           
             if ($model->validate()) {
-                $sw = 0;
+                //proceso que guarda el nuevo salario
+                $table = new ConfiguracionSalario();
+                $table->salario_minimo_actual = $model->salario_minimo_actual;
+                $table->auxilio_transporte_actual = $model->auxilio_transporte_actual;
+                $table->anio = $model->anio;
+                $table->estado = $model->estado;
+                $table->fecha_cierre = $model->fecha_cierre;
+                $table->fecha_aplicacion = $model->fecha_aplicacion;
+                $table->salario_minimo_anterior = $confi->salario_minimo_actual;
+                $table->auxilio_transporte_anterior = $confi->auxilio_transporte_actual;
+                $table->salario_incapacidad = round($model->salario_minimo_actual * $confi->porcentaje_incremento);
+                $table->porcentaje_incremento = $confi->porcentaje_incremento;
+                $table->usuario = Yii::$app->user->identity->username; 
+                $table->insert(false);
+                $confi->estado = 0;
+                $confi->save(false);
                 $contrato = Contrato::find()->where(['=','contrato_activo', 1])->all();
                 foreach ($contrato as $validar){
-                    if($validar->ultimo_pago == $confi->fecha_cierre)
-                    {
-                        if($validar->ultima_prima == $confi->fecha_cierre)
-                        {
+                    if($validar->ultimo_pago == $confi->fecha_cierre){
+                        if($validar->ultima_prima == $confi->fecha_cierre){
                             if($validar->ultima_cesantia == $confi->fecha_cierre){
-                                $table = new ConfiguracionSalario();
-                                $table->salario_minimo_actual = $model->salario_minimo_actual;
-                                $table->auxilio_transporte_actual = $model->auxilio_transporte_actual;
-                                $table->anio = $model->anio;
-                                $table->estado = $model->estado;
-                                $table->fecha_cierre = $model->fecha_cierre;
-                                $table->fecha_aplicacion = $model->fecha_aplicacion;
-                                $table->salario_minimo_anterior = $confi->salario_minimo_actual;
-                                $table->auxilio_transporte_anterior = $confi->auxilio_transporte_actual;
-                                $table->salario_incapacidad = round($model->salario_minimo_actual * $confi->porcentaje_incremento);
-                                $table->porcentaje_incremento = $confi->porcentaje_incremento;
-                                $table->usuario = Yii::$app->user->identity->username; 
-                                $table->insert(false);
-                                $confi->estado = 0;
-                                $confi->save(false);
                                 if($validar->salario < $model->salario_minimo_actual){
                                     $cambio_salario = new CambioSalario();
                                     $cambio_salario->salario_anterior = $validar->salario;

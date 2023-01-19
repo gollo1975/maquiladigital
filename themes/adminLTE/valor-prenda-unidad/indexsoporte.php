@@ -277,14 +277,16 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                }    
                                             }   
                                     endforeach;
-                                    $totalEficiencia = ($acumuladorEficiencia / $contador);
-                                    ?>
-                                    <tr>
-                                        <td colspan="2"></td>
-                                        <td align="right"><b>Eficiencia</b></td>
-                                        <td align="right" ><b><?= ''.number_format($totalEficiencia, 2); ?>%</b></td>
-                                        <td colspan="2"></td>
-                                    </tr>
+                                    if($id_operario > 0 && $dia_pago <> '' && $fecha_corte){
+                                       $totalEficiencia = ($acumuladorEficiencia / $contador);
+                                       ?>
+                                       <tr>
+                                           <td colspan="2"></td>
+                                           <td align="right"><b>Eficiencia</b></td>
+                                           <td align="right" ><b><?= ''.number_format($totalEficiencia, 2); ?>%</b></td>
+                                           <td colspan="2"></td>
+                                       </tr>
+                                    <?php }?>   
                                 </body>    
                         </table>
                          <?php $form->end() ?>

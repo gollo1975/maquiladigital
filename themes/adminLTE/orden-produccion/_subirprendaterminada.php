@@ -52,6 +52,9 @@ $form = ActiveForm::begin([
                      <div class="row">
                         <?= $form->field($model, 'nro_operarios')->textInput(['maxlength' => true])  ?>
                     </div>    
+                    <div class="row">
+                        <?= $form->field($model, 'hora_corte_entrada')->input('time'); ?>
+                    </div>
                     <div class="row" col>
                         <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
                     </div>

@@ -106,6 +106,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Proceso de confeccion">Proceso</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Cerrado o abierto el modulo">C/A</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
+                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Eficiencia del modulo">%</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th score="col" style='background-color:#B9D5CE;'></th>                              
@@ -137,6 +138,7 @@ $form = ActiveForm::begin([
                  }?>      
                 <td><?= $val->estadomodulo ?></td>
                 <td><?= $val->plantaempresa->nombre_planta ?></td>
+                <td><?= ''.number_format($val->total_eficiencia,1) ?></td>
                  <?php 
                     if($val->estado_modulo == 0){?>
                         <td style= 'width: 25px; height: 25px;'>

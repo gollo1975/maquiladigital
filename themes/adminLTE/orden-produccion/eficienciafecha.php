@@ -77,6 +77,7 @@ $orden_produccion = Ordenproduccion::findOne($balanceo->ordenproduccion->idorden
                                     <tr align="center" >
                                         <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>   
                                         <th scope="col" style='background-color:#B9D5CE;'>Nro Unidades</th>  
+                                        <th scope="col" style='background-color:#B9D5CE;'>Hora corte</th>  
                                         <th scope="col" style='background-color:#B9D5CE;'>Facturación</th>  
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha confección</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha/hora Confección</th>
@@ -90,6 +91,7 @@ $orden_produccion = Ordenproduccion::findOne($balanceo->ordenproduccion->idorden
                                         <tr style ='font-size:85%;'>
                                             <td><?= $val->detalleorden->productodetalle->prendatipo->prenda. ' / '. $val->detalleorden->productodetalle->prendatipo->talla->talla?></td>
                                             <td><?= $val->cantidad_terminada ?></td>  
+                                             <td><?= $val->hora_corte_entrada ?></td>  
                                             <td align="right"><?= ''. number_format($val->detalleorden->vlrprecio * $val->cantidad_terminada,0) ?></td>
                                             <td ><?= $val->fecha_entrada ?></td>
                                             <td ><?= $val->fecha_procesada ?></td>

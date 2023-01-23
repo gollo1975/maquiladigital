@@ -2569,6 +2569,7 @@ class OrdenProduccionController extends Controller {
                                     $table->cantidad_terminada = $model->cantidad_terminada;
                                     $table->fecha_entrada = $model->fecha_entrada;
                                     $table->nro_operarios = $model->nro_operarios;
+                                    $table->hora_corte_entrada = $model->hora_corte_entrada;
                                     $table->usuariosistema = Yii::$app->user->identity->username;
                                     $table->observacion = $model->observacion;
                                     $table->iddetalleorden = $intCodigo;
@@ -2612,7 +2613,9 @@ class OrdenProduccionController extends Controller {
                        return $this->redirect(['view_balanceo','id' => $idordenproduccion]);
                     }
                 }
-            }                
+            }else{
+                $model->getErrors();
+            }   
         }
         if (Yii::$app->request->get($id_balanceo, $idordenproduccion)) {
             $model->nro_operarios = $balanceo->cantidad_empleados;
@@ -2990,7 +2993,36 @@ class OrdenProduccionController extends Controller {
         }else{
             foreach ($unidades as $fechas):
                 $auxiliar = $fechas->fecha_entrada;
-                if(EficienciaBalanceo::find()->where(['=','fecha_confeccion', $auxiliar])->andWhere(['=','id_balanceo', $modulos->id_balanceo])->one()){
+                $buscar = EficienciaBalanceo::find()->where(['=','fecha_confeccion', $auxiliar])->andWhere(['=','id_balanceo', $modulos->id_balanceo])->one();
+                //PROCESO QUE ACTUALIZA NUEVAMENTE LA EFICIENCIA
+                if($buscar){
+                    $total = 0;
+                     $cantidad = CantidadPrendaTerminadas::find()->where(['=','fecha_entrada', $auxiliar])->andWhere(['=','id_balanceo', $modulos->id_balanceo])->all();
+                    foreach ($cantidad as $cantidades):
+                     $total += $cantidades->cantidad_terminada;
+                    endforeach;
+                    //BUSCA EL ID
+                    $actualizar = EficienciaBalanceo::findOne($buscar->id_eficiencia);
+                    if($modulos->fecha_inicio === $auxiliar){
+                       $actualizar->horas_inicio = $modulos->total_horas;
+                    }
+                    if($modulos->fecha_cierre_modulo === $auxiliar){
+                        $actualizar->horas_finales = $modulos->hora_final_modulo;
+                    }
+                    if($actualizar->horas_inicio == 0 && $actualizar->horas_finales == 0){
+                        $actualizar->unidades_por_operarios = round((60 / $actualizar->minutos_balanceo) * $modulos->horario->total_horas);
+                    }else{
+                        if($actualizar->horas_inicio <> 0 && $actualizar->horas_finales == 0){
+                         $actualizar->unidades_por_operarios = round((60 / $actualizar->minutos_balanceo) * $actualizar->horas_inicio);
+                        }else{
+                            $actualizar->unidades_por_operarios = round((60 / $actualizar->minutos_balanceo) * $actualizar->horas_finales);
+                        } 
+                    }
+                    $actualizar->cantidad_por_dia = $actualizar->unidades_por_operarios *  $actualizar->nro_operarios;
+                    $actualizar->porcentaje_cumplimiento = round(($total * 100)/ $actualizar->cantidad_por_dia,2);
+                    $actualizar->unidades_confeccionadas = $total;
+                    $actualizar->save(false);
+                    
                 }else{
                     $total = 0;
                      $cantidad = CantidadPrendaTerminadas::find()->where(['=','fecha_entrada', $auxiliar])->andWhere(['=','id_balanceo', $modulos->id_balanceo])->all();
@@ -3031,7 +3063,11 @@ class OrdenProduccionController extends Controller {
             $totalEficiencia += $eficiencias->porcentaje_cumplimiento;
             $con += 1;
         endforeach;
-        $modulos->total_eficiencia = round($totalEficiencia /$con, 2);
+        if($totalEficiencia == 0){
+            $modulos->total_eficiencia = 0;
+        }else{
+             $modulos->total_eficiencia = round($totalEficiencia /$con, 2);
+        }
         $modulos->save(false);
         $eficiencia = EficienciaBalanceo::find()->where(['=','id_balanceo', $id_balanceo])->orderBy('fecha_confeccion desc')->all();
         

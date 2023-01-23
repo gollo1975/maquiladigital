@@ -787,7 +787,6 @@ class CostoProductoController extends Controller
     {
         $colores = \app\models\Color::find()->orderBy('color ASC')->all();
         if (Yii::$app->request->post()) {
-             echo 'fafadfasda';
             if (isset($_POST["enviarcolor"])) { 
                 if (isset($_POST["id_color"]) != '') { 
                     $intIndice = 0;

@@ -46,10 +46,10 @@ class CantidadPrendaTerminadas extends \yii\db\ActiveRecord
     {
         return [
             [['id_balanceo', 'idordenproduccion', 'iddetalleorden', 'cantidad_terminada','nro_operarios'], 'integer'],
-            [['cantidad_terminada'], 'required'],
+            [['cantidad_terminada','hora_corte_entrada'], 'required'],
             [['fecha_entrada', 'fecha_procesada'], 'safe'],
             [['usuariosistema'], 'string', 'max' => 20],
-            [['observacion'], 'string', 'max' => 50],
+            [['observacion','hora_corte_entrada'], 'string', 'max' => 50],
             [['id_balanceo'], 'exist', 'skipOnError' => true, 'targetClass' => Balanceo::className(), 'targetAttribute' => ['id_balanceo' => 'id_balanceo']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['iddetalleorden'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciondetalle::className(), 'targetAttribute' => ['iddetalleorden' => 'iddetalleorden']],
@@ -73,6 +73,7 @@ class CantidadPrendaTerminadas extends \yii\db\ActiveRecord
             'usuariosistema' => 'Usuariosistema',
             'observacion' => 'Observacion',
             'nro_operarios' => 'Nro Operarios:',
+            'hora_corte_entrada' => 'Hora corte:',
         ];
     }
 

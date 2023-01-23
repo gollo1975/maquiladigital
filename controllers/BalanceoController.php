@@ -10,6 +10,8 @@ use app\models\UsuarioDetalle;
 use app\models\FormFiltroModulos;
 use app\models\FlujoOperaciones;
 use app\models\FormCerrarModulo;
+use app\models\CantidadPrendaTerminadas;
+use app\models\EficienciaBalanceo;
 //clases
 use Yii;
 use yii\web\Controller;
@@ -200,6 +202,74 @@ class BalanceoController extends Controller
         }else{
             return $this->redirect(['site/login']);
         }
+    }
+    
+    //PROCESO QUE BUSCA LA EFICIENCIA MODULAR
+    
+      public function actionIndex_eficiencia_modular() {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso', 128])->all()){
+                $form = new \app\models\ModelEficienciaModular();
+                $cliente = null;
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $orden_produccion = null;
+                $nro_balanceo = null;
+                $planta = null;
+                $model = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $cliente = Html::encode($form->cliente);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $orden_produccion = Html::encode($form->orden_produccion);
+                        $planta = Html::encode($form->planta);
+                        $nro_balanceo = Html::encode($form->nro_balanceo);
+                        $table = Balanceo::find()->andFilterWhere(['=','idcliente', $cliente])
+                                                    ->andFilterWhere(['=', 'idordenproduccion', $orden_produccion])
+                                                    ->andFilterWhere(['>=', 'fecha_inicio', $fecha_inicio])
+                                                    ->andFilterWhere(['<=', 'fecha_inicio', $fecha_corte])
+                                                    ->andFilterWhere(['=', 'id_planta', $planta]) 
+                                                    ->andFilterWhere(['=', 'id_balanceo', $nro_balanceo]);
+                        $table = $table->orderBy('id_balanceo DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 20,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                            if(isset($_POST['excel'])){                            
+                                $check = isset($_REQUEST['id_balanceo DESC']);
+                                $this->actionExcelEficienciaModular($tableexcel);
+                            }
+                        
+                    } else {
+                        $form->getErrors();
+                    }
+                                
+                }else{
+                    $table = 0;
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => 0,
+                    ]);
+                } 
+                return $this->render('index_eficiencia_modular', [
+                       'form' => $form,
+                       'model' => $model,
+                       'pagination' => $pages,
+               ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
     }
     /**
      * Displays a single Balanceo model.

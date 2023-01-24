@@ -888,9 +888,12 @@ class ComprobanteEgresoController extends Controller
                     ->setCellValue('E1', 'Tipo')
                     ->setCellValue('F1', 'Municipio')
                     ->setCellValue('G1', 'Valor')
-                    ->setCellValue('H1', 'Banco')
-                    ->setCellValue('I1', 'Autorizado')
-                    ->setCellValue('J1', 'Observacion');
+                    ->setCellValue('H1', 'Iva')
+                    ->setCellValue('I1', 'Retencion fuente')
+                    ->setCellValue('J1', 'Retencion iva')
+                    ->setCellValue('K1', 'Banco')
+                    ->setCellValue('L1', 'Autorizado')
+                    ->setCellValue('M1', 'Observacion');
         $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -903,9 +906,12 @@ class ComprobanteEgresoController extends Controller
                     ->setCellValue('E' . $i, $val->comprobanteEgresoTipo->concepto)
                     ->setCellValue('F' . $i, $val->municipio->municipio.' - '.$val->municipio->departamento->departamento)
                     ->setCellValue('G' . $i, round($val->valor,0))
-                    ->setCellValue('H' . $i, $val->banco->entidad)
-                    ->setCellValue('I' . $i, $val->autorizar)
-                    ->setCellValue('J' . $i, $val->observacion);
+                    ->setCellValue('H' . $i, $val->iva)
+                    ->setCellValue('I' . $i, $val->retefuente)
+                    ->setCellValue('J' . $i, $val->reteiva)
+                    ->setCellValue('K' . $i, $val->banco->entidad)
+                    ->setCellValue('L' . $i, $val->autorizar)
+                    ->setCellValue('M' . $i, $val->observacion);
             $i++;
         }
 

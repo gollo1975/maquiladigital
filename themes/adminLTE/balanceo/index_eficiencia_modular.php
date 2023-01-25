@@ -113,6 +113,7 @@ $planta = ArrayHelper::map(PlantaEmpresa::find()->orderBy('nombre_planta ASC')->
                     <th scope="col" style='background-color:#B9D5CE;'>Total dias</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
                     <th scope="col" style='background-color:#B9D5CE;'>No operarios</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Sam balanceo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Eficiencia</th>
@@ -132,7 +133,16 @@ $planta = ArrayHelper::map(PlantaEmpresa::find()->orderBy('nombre_planta ASC')->
                             <td><?= $val->fecha_inicio ?></td>
                             <td style="text-align: right"><?= ''.number_format($val->numero_dias_balanceo,0) ?></td>
                             <td style="text-align: right"><?= ''.number_format($val->ordenproduccion->cantidad,0) ?></td>
-                            <td><?= $val->plantaempresa->nombre_planta ?></td>     
+                            <td><?= $val->plantaempresa->nombre_planta ?></td>
+                            <?php if($val->id_proceso_confeccion == 1){?>
+                              <td style='background-color:#B9CDD1;'><?= $val->procesoconfeccion->descripcion_proceso ?></td>
+                            <?php } else {
+                                if($val->id_proceso_confeccion == 2){?>
+                                   <td style='background-color:#CDB9D1;'><?= $val->procesoconfeccion->descripcion_proceso ?></td>
+                                <?php }else{?>
+                                   <td style='background-color:#B4C585;'><?= $val->procesoconfeccion->descripcion_proceso ?></td>
+                                <?php }
+                            }?>  
                             <td style="text-align: right"><?= ''.number_format($val->cantidad_empleados,0) ?></td>
                             <td style="text-align: right"><?= ''.number_format($val->tiempo_balanceo,2) ?></td>  
                             <td style="text-align: right; size:120%; background-color:#3AAFC4; color: #070808"><b><?= ''.number_format($val->total_eficiencia,2)?>%</b></td>

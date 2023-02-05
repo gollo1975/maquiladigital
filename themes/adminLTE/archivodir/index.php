@@ -43,7 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= $val->idarchivodir ?></td>
                 <td><?= $val->fecha_creacion ?></td>
                 <?php if($val->extension == 'png' || $val->extension == 'jpeg' || $val->extension == 'jpg'){?>
-                    <td style="width: 100px;"> <?= yii\bootstrap\Html::img($variable, ['width' => '90px;', 'height' => '80px;'])?></td>
+                    <td style="width: 100px;"> <?= yii\bootstrap\Html::img($variable, ['width' => '90px;', 'height' => '95px;'])?></td>
                 <?php }else {?>
                     <td><?= $val->nombre?></td>
                 <?php } ?>    

@@ -25,27 +25,36 @@ $this->params['breadcrumbs'][] = $this->title;
             <tr>                
                 <th scope="col">Id</th>
                 <th scope="col">Fecha Creación</th>
-                <th scope="col">Número</th>
-                <th scope="col">Nombre</th>
+                <th scope="col">Imagen</th>
                 <th scope="col">Descripcion</th>
-                <th scope="col">Tipo</th>
+                <th scope="col">Ruta</th>
                 <th scope="col">Tamaño</th>
+                 <th scope="col">Extension</th>
                 <th scope="col">Opción</th>                               
                 
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($model as $val): ?>
+            <?php $variable = '';
+            foreach ($model as $val): 
+                 $variable = 'Documentos/'.$val->numero.'/'.$val->codigo.'/'. $val->nombre;
+                ?>
                 <tr style="font-size: 85%;">                
                 <td><?= $val->idarchivodir ?></td>
                 <td><?= $val->fecha_creacion ?></td>
-                <td><?= $val->numero ?></td>
-                <td><?= $val->nombre ?></td>
-                <td><?= $val->descripcion ?></td>
+                <?php if($val->extension == 'png' || $val->extension == 'jpeg' || $val->extension == 'jpg'){?>
+                    <td style="width: 100px;"> <?= yii\bootstrap\Html::img($variable, ['width' => '90px;', 'height' => '80px;'])?></td>
+                <?php }else {?>
+                    <td><?= $val->nombre?></td>
+                <?php } ?>    
+                <td><?= $val->descripcion ?></td>   
                 <td><?= $val->tipo ?></td>
                 <td><?= $val->tamaño ?></td>
-                <td>
+                 <td><?= $val->extension ?></td>
+                <td style= 'width: 15px; height: 20px;'>
                     <a href="<?= Url::toRoute(["archivodir/descargar", "id" => $val->idarchivodir, 'numero' => $numero, 'codigo' => $codigo]) ?>" ><span class="glyphicon glyphicon-download"></span></a>                                        
+                </td>
+                <td style= 'width: 20px; height: 20px;'>
                     <a href="#" data-toggle="modal" data-target="#id<?= $val->idarchivodir ?>"><span class="glyphicon glyphicon-pencil"></span></a>
                                 <!-- Editar modal detalle -->
                                 <div class="modal fade" role="dialog" aria-hidden="true" id="id<?= $val->idarchivodir ?>">
@@ -84,7 +93,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                         </div><!-- /.modal-content -->
                                     </div><!-- /.modal-dialog -->
                                 </div><!-- /.modal -->
-                       
+                </td>            
+                <td style= 'width: 20px; height: 20px;'>
                     <a href="<?= Url::toRoute(["archivodir/borrar", "id" => $val->idarchivodir, 'numero' => $numero, 'codigo' => $codigo,'view' => $view]) ?>" ><span class="glyphicon glyphicon-remove"></span></a>
                 </td>
             </tr>

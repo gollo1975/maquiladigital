@@ -35,7 +35,7 @@ class ArchivodirController extends \yii\web\Controller
         $table = Archivodir::find()->where(['=','numero',$numero])->andWhere(['=','codigo',$codigo])->orderBy('idarchivodir DESC');
         $count = clone $table;
         $pages = new Pagination([
-            'pageSize' => 20,
+            'pageSize' => 6,
             'totalCount' => $count->count(),
         ]);
         $model = $table
@@ -106,7 +106,7 @@ class ArchivodirController extends \yii\web\Controller
             $archivo = Archivodir::findOne($id);
             $directorio = Directorio::findOne($archivo->iddirectorio);
             $carpeta = 'Documentos/'.$numero.'/'.$codigo.'/';
-            if (!$this->downloadFile($carpeta, $archivo->nombre, ["pdf", "txt", "docx","xlsx","jpg","png"]))
+            if (!$this->downloadFile($carpeta, $archivo->nombre, ["pdf", "docx","xlsx","jpeg", "jpg", "png"]))
             {
                 //Mensaje flash para mostrar el error
                 Yii::$app->getSession()->setFlash('error', 'Error en la descarga.');                

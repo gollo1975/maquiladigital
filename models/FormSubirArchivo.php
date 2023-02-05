@@ -24,7 +24,7 @@ class FormSubirArchivo extends Model
             ['file', 'file',
             'skipOnEmpty' => false,
             'uploadRequired' => 'Debe de seleccionar al menos un archivo.',    
-            'extensions' => 'pdf,docx,txt,jgp,xlsx,png',            
+            'extensions' => 'pdf,docx,jpeg,jgp,xlsx,png',            
             'wrongExtension' => 'El archivo no contiene una extension permitida.',
             'maxFiles' => 4,
             'tooMany' => 'El maximo de archivos permito son (4)',

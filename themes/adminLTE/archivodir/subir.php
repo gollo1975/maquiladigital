@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
               
                 <label id="descripcion" for="descripcion" class="col-sm-3 control-label">Descripción:</label>
                 <div class="col-sm-5 form-group">
-                    <?= Html::textInput('descripcion', '', ['id' => 'descripcion', 'aria-required' => true, 'aria-invalid' => 'false', 'maxlength' => 120, 'class' => 'form-control', 'placeholder' => 'Archivos con extension pdf, docx, txt, png, docx', 'style' => 'width:65%', 'required' => true]) ?>                        
+                    <?= Html::textInput('descripcion', '', ['id' => 'descripcion', 'aria-required' => true, 'aria-invalid' => 'false', 'maxlength' => 120, 'class' => 'form-control', 'placeholder' => 'Archivos con extension pdf, jpg, jpeg, png, docx', 'style' => 'width:65%', 'required' => true]) ?>                        
                 </div>   
             </div>                
             <div class="row">

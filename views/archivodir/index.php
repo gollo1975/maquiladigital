@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col">Ruta</th>
                 <th scope="col">Tamaño</th>
                  <th scope="col">Extension</th>
-                <th scope="col">Opción</th>                                 
+                 <th scope="col" colspan="3">Opción</th>                                 
             </tr>
             </thead>
             <tbody>

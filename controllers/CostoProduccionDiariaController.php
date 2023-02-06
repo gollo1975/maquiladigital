@@ -26,6 +26,7 @@ use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 use moonland\phpexcel\Excel;
 use app\models\UsuarioDetalle;
+use app\models\Users;
 
 class CostoProduccionDiariaController extends Controller {
 
@@ -186,7 +187,7 @@ class CostoProduccionDiariaController extends Controller {
                 $sam = null;
                 $dias_laborados =  null;
                 $id_horario = null;
-                $otros_gastos = null;
+                $otros_gastos = 0;
                 $simulador = \app\models\SimuladorSalario::find()->where(['=','id_simulador_salario', 1])->all();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {

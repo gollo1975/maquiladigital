@@ -24,7 +24,7 @@ class ModelSimuladorSalario extends Model
     public function rules()
     {
         return [            
-            [['salario_basico','arl'],'required', 'message' => 'Campo requerido para generar el simulador de salarios'],
+            [['salario_basico','arl','id_horario','valor_minuto','dias_laborados','otros_gastos','eficiencia','sam'],'required', 'message' => 'Campo requerido para generar el simulador de salarios'],
             [['salario_basico','arl'], 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['salario_basico','arl','aplica_auxilio','valor_minuto','dias_laborados','id_horario','otros_gastos'], 'integer'],
             [['eficiencia','sam'], 'number'],

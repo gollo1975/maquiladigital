@@ -42,7 +42,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
 
 ]);
-
 $arl = ArrayHelper::map(Arl::find()->orderBy('arl ASC')->all(), 'id_arl', 'arl');
 $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_horario', 'horario');
 ?>
@@ -72,7 +71,8 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
             <?= $formulario->field($form, "valor_minuto")->input("search") ?>
             <?= $formulario->field($form, "sam")->input("search") ?>
             <?= $formulario->field($form, "dias_laborados")->input("search") ?>
-            <?= $formulario->field($form, "otros_gastos")->input("search") ?>
+            <?= $formulario->field($form, "otros_gastos")->input("search")?>
+            
        </div>
         <div class="row checkbox checkbox-success" align ="center">
                 <?= $formulario->field($form, 'aplica_auxilio')->checkbox(['label' => 'Aplica transporte', '1' =>'small','checked' => 'true', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'aplica_auxilio']) ?>
@@ -155,24 +155,35 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
                                     <th scope="col" style='background-color:#B9D5CE;'><span title="tiempo de la prenda" >Sam prenda</span></th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Valor prenda</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Eficiencia</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Dias laborados</th>
                                     <th scope="col" style='background-color:#B9D5CE;'><span title="unidades por dia" >Unidades x dia</span></th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Unidades x mes</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Valor venta</th>
+                                     <th scope="col" style='background-color:#B9D5CE;'>Rentabilidad</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php 
-                                foreach ($model as $val):?>
+                                <?php  $calculo = 0; $porcentaje = 0;
+                                foreach ($model as $val):
+                                    $calculo = (($val->valor_venta * 100)/$val->total_salarios) -100; 
+                                    $porcentaje = (($val->total_salarios * $val->eficiencia )/$val->valor_venta); 
+                                    ?>
                                     <tr style='font-size:90%;'>             
                                         <td><?= $val->horario->horario ?> - (<?= $val->horario->total_horas ?> horas)</td>    
                                         <td style="text-align: right"><?= ''.number_format($val->sam_prenda,0) ?></td>
                                         <td style="text-align: right"><?= ''.number_format($val->valor_prenda,0) ?></td>
                                         <td style="text-align: right"><?= $val->eficiencia?> %</td>
+                                        <td style="text-align: right; background-color:#E7EA8E;" ><?= ''.number_format($porcentaje,2)?> %</td>
                                         <td style="text-align: right"><?= $val->dias_laborados?></td> 
                                         <td style="text-align: right"><?= ''.number_format($val->unidades_dia,0)?></td> 
                                         <td style="text-align: right"><?= ''.number_format($val->unidades_mes,0)?></td> 
                                         <td style="text-align: right"><?= ''.number_format($val->valor_venta,0)?></td> 
+                                        <?php if ($calculo > 0){?>
+                                        <td style="text-align: right; color: #080B7E"><b><?= ''.number_format($calculo ,1)?>%</b></td>
+                                        <?php }else{?>
+                                             <td style="text-align: right; color: #EF1522"><?= ''.number_format($calculo ,1)?>%</td>
+                                        <?php } ?>     
                                     </tr>    
                                 <?php endforeach; ?>
                             </tbody> 

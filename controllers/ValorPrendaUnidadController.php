@@ -696,7 +696,10 @@ class ValorPrendaUnidadController extends Controller
                 $model->id_valor = $id;                
                  $model->idordenproduccion = $idordenproduccion;
                 $model->dia_pago= date('Y-m-d');
-                $model->insert();
+                if($valor_unidad->id_proceso_confeccion <> 1){
+                    $model->operacion = 2;
+                }
+                $model->save(false);
                 return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
             }
         }

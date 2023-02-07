@@ -180,6 +180,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Fecha operación</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Sabado</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
@@ -189,6 +190,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     $cumplimiento = 0;
                                     $auxiliar = '';
                                     $contador = 0;
+                                    $sumaSabado = 0;
+                                    $conEficiencia = 0;
                                     $acumuladorEficiencia = 0 ; $totalEficiencia = 0;
                                     $empresa = Matriculaempresa::findOne(1);
                                     if($id_operario > 0){
@@ -214,6 +217,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                         <td ><?= $detalles->operario->documento ?></td>
                                                        <td ><?= $detalles->operario->nombrecompleto ?></td>
                                                        <td ><?= $detalles->dia_pago?></td>
+                                                       <td ><?= $detalles->aplicaSabado?></td>
                                                        <?php if($detalles->porcentaje_cumplimiento > $empresa->porcentaje_empresa){?>
                                                             <td style='background-color:#F9F4CB;' ><?= $detalles->porcentaje_cumplimiento ?>%</td>
                                                             <td><?= 'GANA BONIFICACION' ?></td>
@@ -224,6 +228,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                        <td ><?= $detalles->usuariosistema ?></td>
                                                     </tr>
                                               <?php 
+                                               if($detalles->aplica_sabado == 1){
+                                                  $sumaSabado += 1; 
+                                                  $conEficiencia += $detalles->porcentaje_cumplimiento;
+                                               }
                                                 $contador += 1;
                                                 $acumuladorEficiencia += $detalles->porcentaje_cumplimiento;
                                               endforeach; 
@@ -233,12 +241,18 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 endforeach;
                                                 if($id_operario > 0){
                                                     if($eficiencia->dia_pago != $auxiliar){
+                                                       //codigo que descuenta porcentaje del dia sabado
+                                                        if($contar->aplica_sabado == 1){
+                                                           $sumaSabado += 1; 
+                                                           $conEficiencia += $cumplimiento;
+                                                        } 
                                                        $auxiliar = $eficiencia->dia_pago;
                                                         ?>
                                                         <tr style="font-size: 85%;">
                                                           <td ><?= $contar->operario->documento ?></td>
                                                           <td ><?= $contar->operario->nombrecompleto ?></td>
                                                           <td ><?= $contar->dia_pago?></td>
+                                                           <td ><?= $contar->aplicaSabado?></td>
                                                           <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
                                                                 <td style='background-color:#F9F4CB;' ><?= $cumplimiento ?>%</td>
                                                                 <td><?= 'GANA BONIFICACION' ?></td>
@@ -262,9 +276,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                           <td ><?= $contar->operario->documento ?></td>
                                                           <td ><?= $contar->operario->nombrecompleto ?></td>
                                                           <td ><?= $contar->dia_pago?></td>
+                                                          <td ><?= $contar->aplicaSabado?></td>
                                                           <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
                                                                 <td style='background-color:#F9F4CB;' ><?= $cumplimiento ?>%</td>
-                                                                <td><?= 'GANA BONIFICACION' ?></td>
+                                                                <td style='background-color:#F9F4CB;'><?= 'GANA BONIFICACION' ?></td>
                                                            <?php }else{?> 
                                                                 <td style='background-color:#B6EFF5;' ><?= $cumplimiento ?>%</td>
                                                                 <td><?= 'NO GANA BONIFICACION' ?></td>
@@ -277,11 +292,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                }    
                                             }   
                                     endforeach;
-                                    if($id_operario > 0 && $dia_pago <> '' && $fecha_corte){
-                                       $totalEficiencia = ($acumuladorEficiencia / $contador);
+                                    if($id_operario > 0 && $dia_pago <> '' && $fecha_corte <> ''){
+                                       $totalEficiencia = (($acumuladorEficiencia - $conEficiencia)/($contador - $sumaSabado));
                                        ?>
                                        <tr>
-                                           <td colspan="2"></td>
+                                           <td colspan="3"></td>
                                            <td align="right"><b>Eficiencia</b></td>
                                            <td align="right" ><b><?= ''.number_format($totalEficiencia, 2); ?>%</b></td>
                                            <td colspan="2"></td>

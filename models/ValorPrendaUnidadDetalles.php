@@ -139,4 +139,12 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
         }
         return $exportado;
     }
+     public function getAplicaSabado(){
+        if($this->aplica_sabado == 1){
+            $aplica_sabado = 'SI';
+        }else{
+                $aplica_sabado = 'NO';
+        }
+        return $aplica_sabado;
+    }
 }

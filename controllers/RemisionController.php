@@ -455,8 +455,145 @@ class RemisionController extends Controller
             'ct' => $ct,
         ]);
     }
-
-        
+//proceso que clasifica las segundas
+    
+    public function actionClasificarsegundas($id, $id_orden)
+    {
+        $detalle = Remisiondetalle::find()->where(['=','id_remision', $id])->andWhere(['=', 'estado', 1])->all();
+        $clasificar = \app\models\ClasificacionSegundas::find()->where(['=','id_remision', $id])->all();
+        if (Yii::$app->request->post()) {    
+            if (isset($_POST["actualizarsegundas"])) {
+                $intIndice = 0;
+                $tipo = 0;
+                foreach ($_POST["clasificacion"] as $intCodigo):
+                    $table = \app\models\ClasificacionSegundas::findOne($intCodigo);
+                    $table->id_tipo = $_POST["tipos"][$intIndice];     
+                    $tipo = $table->id_tipo;
+                    if ($table->txs == 1){
+                        $table->xs = $_POST["xs"][$intIndice];
+                    }
+                    if ($table->ts == 1){
+                        $table->s = $_POST["s"][$intIndice];
+                    }
+                    if ($table->tm == 1){
+                        $table->m = $_POST["m"][$intIndice];
+                    }
+                    if ($table->tl == 1){
+                        $table->l = $_POST["l"][$intIndice];
+                    }
+                    if ($table->txl == 1){
+                        $table->xl = $_POST["xl"][$intIndice];
+                    }
+                    if ($table->txxl == 1){
+                        $table->xxl = $_POST["xxl"][$intIndice];
+                    }
+                    if ($table->t2 == 1){
+                        $table->a2 = $_POST["t2"][$intIndice];
+                    }
+                    if ($table->t4 == 1){
+                        $table->a4 = $_POST["t4"][$intIndice];
+                    }
+                    if ($table->t6 == 1){
+                        $table->a6 = $_POST["t6"][$intIndice];
+                    }
+                    if ($table->t8 == 1){
+                        $table->a8 = $_POST["t8"][$intIndice];
+                    }
+                    if ($table->t10 == 1){
+                        $table->a10 = $_POST["t10"][$intIndice];
+                    }
+                    if ($table->t12 == 1){
+                        $table->a12 = $_POST["t12"][$intIndice];
+                    }
+                    if ($table->t14 == 1){
+                        $table->a14 = $_POST["t14"][$intIndice];
+                    }
+                    if ($table->t16 == 1){
+                        $table->a16 = $_POST["t16"][$intIndice];
+                    }
+                    $table->save(false);
+                    $this->SumarSegundas($intCodigo,  $tipo);
+                    $intIndice++;
+                endforeach;
+                return $this->redirect(['clasificarsegundas', 'id' => $id, 'id_orden' => $id_orden]);
+            }     
+        }    
+        return $this->render('clasificarsegundas', [
+            'detalle' => $detalle,
+            'id' => $id,
+            'id_orden' => $id_orden,
+            'clasificar' => $clasificar,
+        ]);
+    }    
+    //CONSULTA LOS DATOS DE SEGUNDAS
+    protected function SumarSegundas($intCodigo, $tipo) {
+        $total = 0;
+        $Cxs = 0; $Cs = 0; $Cm = 0; $Cl = 0; $Cxl = 0; $Cxxl = 0; $C2 = 0; $C4 = 0; $C6 = 0;
+        $C8 = 0; $C10 = 0; $C12 = 0; $C14 = 0; $C16 = 0; 
+        $segunda = \app\models\ClasificacionSegundas::find()->where(['=','id_tipo', $tipo])->andWhere(['=','id_clasificacion', $intCodigo])->all();
+        foreach ($segunda as $datos):
+            if($datos->xs > 0){
+                $Cxs = $datos->xs;
+            }
+            if($datos->s > 0){
+                $Cs = $datos->s;
+            }
+            if($datos->m > 0){
+                $Cm = $datos->m;
+            }
+            if($datos->l > 0){
+                $Cl = $datos->l;
+            }
+            if($datos->xl > 0){
+                $Cxl = $datos->xl;
+            }
+            if($datos->xxl > 0){
+                $Cxxl = $datos->xxl;
+            }
+            if($datos->a2 > 0){
+                $C2 = $datos->a2;
+            }
+            if($datos->a4 > 0){
+                $C4 = $datos->a4;
+            }
+            if($datos->a6 > 0){
+                $C6 = $datos->a6;
+            }
+            if($datos->a8 > 0){
+                $C8 = $datos->a8;
+            }
+            if($datos->a10 > 0){
+                $C10 = $datos->a10;
+            }
+            if($datos->a12 > 0){
+                $C12 = $datos->a12;
+            }
+            if($datos->a14 > 0){
+                $C14 = $datos->a14;
+            }
+            if($datos->a16 > 0){
+                $C16 = $datos->a16;
+            }
+            $total = $C2 + $C4 + $C6 + $C8 +$C10 + $C12 + $C14 + $C16 + $Cxs + $Cs + $Cm + $Cl + $Cxl + $Cxxl;
+            $datos->unidades = $total;
+            $datos->save(false);
+        endforeach;
+    }
+    
+    /// nueva linea de clasificacion de segundas
+     public function actionNuevalineaclasificacion($id,$id_orden)
+    {        
+        $model = new \app\models\ClasificacionSegundas();
+        $model->id_remision = $id;
+        $detalleorden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id_orden])->all();
+        foreach ($detalleorden as $val){
+            $talla = 't'.strtolower($val->productodetalle->prendatipo->talla->talla);
+            $model->$talla = 1;
+        }
+        $model->save(false);
+        return $this->redirect(['clasificarsegundas', 'id' => $id,'id_orden' => $id_orden]);
+    }
+    
     public function actionNuevodetalle($id,$idordenproduccion)
     {        
         $remision = Remision::findOne($id);
@@ -480,6 +617,19 @@ class RemisionController extends Controller
         $detalle->delete();        
         $this->totales($id);
         $this->redirect(["remision",'id' => $id]);
+      
+    }
+    
+     public function actionEliminarsegundas($id,$id_orden,$id_detalle)
+    {                                
+        $intCodigo = 0;
+        $tipo = 0;
+        $detalle = \app\models\ClasificacionSegundas::findOne($id_detalle);
+        $intCodigo = $id_detalle;
+        $tipo = $detalle->id_tipo;
+        $detalle->delete();        
+        $this->SumarSegundas($intCodigo, $tipo);
+        $this->redirect(["clasificarsegundas",'id' => $id, 'id_orden' => $id_orden]);
       
     }
     
@@ -560,6 +710,13 @@ class RemisionController extends Controller
     public function actionImprimir($id) {
 
         return $this->render('../formatos/remision', [
+            'model' => Remision::findOne($id),
+        ]);
+    }
+    //IMPRIME LA REMISION DE SEGUNDAS
+     public function actionImprimirsegundas($id) {
+
+        return $this->render('../formatos/printclasificacionsegundas', [
             'model' => Remision::findOne($id),
         ]);
     }

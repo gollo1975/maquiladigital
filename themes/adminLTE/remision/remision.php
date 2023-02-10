@@ -29,9 +29,10 @@ $this->params['breadcrumbs'][] = $this->title;
             if ($model->numero == 0) {?> 
                 <?= Html::a('<span class="glyphicon glyphicon-check"></span> Generar Nro', ['generarnro', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']);
             }else{ ?>
-                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-                 <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar', ['cerrarremision', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm',
+                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
+                <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar', ['cerrarremision', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm',
                      'data' => ['confirm' => 'Esta seguro que desea cerrar la remisión de auditoria No '. $model->numero. '', 'method' => 'post']]); ?>
+                <?=  Html::a('<span class="glyphicon glyphicon-list-alt"></span> Segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);?>                             
             <?php } ?>
 
              <!-- Editar modal detalle -->
@@ -70,6 +71,7 @@ $this->params['breadcrumbs'][] = $this->title;
              </div><!-- /.modal -->
         <?php }else{ ?>     
              <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
+             <?=  Html::a('<span class="glyphicon glyphicon-eye-close"></span> Ver segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);?>                             
         <?php }?>      
 
     </p>

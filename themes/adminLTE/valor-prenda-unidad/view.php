@@ -123,7 +123,9 @@ $form = ActiveForm::begin([
         <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar excel', ['generarexcel', 'id' => $model->id_valor], ['class' => 'btn btn-default btn-sm ']); ?>
         <?php if($model->autorizado == 0){?>                
                 <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva-Linea', ['valor-prenda-unidad/nuevodetalle', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']); ?>   
-                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo-Modular', ['valor-prenda-unidad/nuevodetallemodular', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-info btn-sm']); ?>        
+                <?php if($model->id_proceso_confeccion == 1){?>
+                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo-Modular', ['valor-prenda-unidad/nuevodetallemodular', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-info btn-sm']); ?>        
+                <?php }?>         
                 <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary btn-sm, 'name' => 'actualizarlinea'",]) ?>
                 <?php if(app\models\Matriculaempresa::find()->where(['=','aplica_regla', 1])->one()){?>
                    <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Aplicar regla", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicaregla']) ?>

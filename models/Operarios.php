@@ -48,8 +48,8 @@ class Operarios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario'], 'required'],
-            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario'], 'integer'],
+            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta'], 'required'],
+            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta'], 'integer'],
             [['nombres', 'apellidos', 'email'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
             [['iddepartamento', 'idmunicipio'], 'string'],
@@ -60,6 +60,7 @@ class Operarios extends \yii\db\ActiveRecord
             [['idmunicipio'], 'exist', 'skipOnError' => true, 'targetClass' => Municipio::className(), 'targetAttribute' => ['idmunicipio' => 'idmunicipio']],
             [['id_horario'], 'exist', 'skipOnError' => true, 'targetClass' => Horario::className(), 'targetAttribute' => ['id_horario' => 'id_horario']],
             [['id_arl'], 'exist', 'skipOnError' => true, 'targetClass' => Arl::className(), 'targetAttribute' => ['id_arl' => 'id_arl']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -108,6 +109,10 @@ class Operarios extends \yii\db\ActiveRecord
     public function getHorarios()
     {
         return $this->hasOne(Horario::className(), ['id_horario' => 'id_horario']);
+    }
+    public function getPlanta()
+    {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
     }
 
     /**

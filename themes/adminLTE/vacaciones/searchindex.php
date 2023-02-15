@@ -123,7 +123,10 @@ $grupo = ArrayHelper::map(GrupoPago::find()->orderBy('grupo_pago ASC')->all(), '
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($modelo as $val): ?>
+            <?php $vacacion = 0;
+                foreach ($modelo as $val): 
+                $vacacion += $val->total_pagar;
+                ?>
                 <tr style='font-size:84%;'>   
                     <td><?= $val->nro_pago ?></td>
                     <td><?= $val->id_contrato ?></td>
@@ -145,6 +148,12 @@ $grupo = ArrayHelper::map(GrupoPago::find()->orderBy('grupo_pago ASC')->all(), '
                 </tr>
             </tbody>
             <?php endforeach; ?>
+             <tr>
+                <td colspan="10"></td>
+                <td align="right"><b>Valor total</b></td>
+                <td align="right" ><b><?= '$ '.number_format($vacacion,0); ?></b></td>
+                <td colspan="3"></td>
+            </tr>
         </table>    
         <div class="panel-footer text-right" >            
             <?php

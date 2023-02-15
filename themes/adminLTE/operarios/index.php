@@ -39,6 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(), 'id_operario', 'nombrecompleto');
+$planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -58,6 +59,13 @@ $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(
             ]); ?>
              <?= $formulario->field($form, 'estado')->dropDownList(['' => 'TODOS', '1' => 'SI', '0' => 'NO'],['prompt' => 'Seleccione el estado ...']) ?>
             <?= $formulario->field($form, 'vinculado')->dropDownList(['' => 'TODOS', '1' => 'SI', '0' => 'NO'],['prompt' => 'Seleccione el estado ...']) ?>
+             <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
+                'data' => $planta,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -87,8 +95,8 @@ $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(
                 <th scope="col" style='background-color:#B9D5CE;'>Departamento</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Municipio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Celular</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Email</th>
-                  <th scope="col" style='background-color:#B9D5CE;'>Dpto</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Planta/Bodega</th>
+                  <th scope="col" style='background-color:#B9D5CE;'>Area</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Personal activo" >Act.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Polivalente" >Pol.</span></th>
                  <th scope="col" style='background-color:#B9D5CE;'><span title="Vinculado" >Vin.</span></th>
@@ -110,7 +118,7 @@ $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(
                 <td><?= $val->departamento->departamento ?></td>
                 <td><?= $val->municipio->municipio ?></td>
                 <td><?= $val->celular ?></td>
-                   <td><?= $val->email ?></td>
+                   <td><?= $val->planta->nombre_planta ?></td>
                 <td><?= $val->tipoOperaria ?></td>
                 <td><?= $val->estadopago?></td>
                 <td><?= $val->polivalenteOperacion?></td>

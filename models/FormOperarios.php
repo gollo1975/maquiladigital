@@ -32,6 +32,7 @@ class FormOperarios extends Model
     public $nomina_alterna;
     public $id_arl;
     public $id_horario;
+    public $id_planta;
 
 
     /**
@@ -40,11 +41,11 @@ class FormOperarios extends Model
     public function rules()
     {
         return [
-          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl','id_horario'], 'required', 'message' => 'Campo requerido'],
+          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl','id_horario','id_planta'], 'required', 'message' => 'Campo requerido'],
             ['documento', 'identificacion_existe'],
             ['email', 'email_existe'],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
-            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario'], 'integer'],
+            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['nombres', 'apellidos'], 'string', 'max' => 40],
             [['iddepartamento', 'idmunicipio','celular'], 'string', 'max' => 15],
@@ -78,6 +79,7 @@ class FormOperarios extends Model
             'id_arl' => '% Arl:',
             'nomina_alterna' => 'Aplica nomina alterna:',
             'id_horario' => 'Horario:',
+            'id_planta' => 'Planta / Bodega:'
             
         ];
     }

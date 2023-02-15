@@ -36,6 +36,7 @@ $municipio = ArrayHelper::map(Municipio::find()->orderBy('municipio ASC')->all()
 $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documento', 'descripcion');
 $arl = ArrayHelper::map(Arl::find()->all(), 'id_arl', 'arl');
 $horario = ArrayHelper::map(Horario::find()->all(), 'id_horario', 'horario');
+$planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 
 ?>
 <div class="panel panel-success">
@@ -96,6 +97,14 @@ $horario = ArrayHelper::map(Horario::find()->all(), 'id_horario', 'horario');
              <?= $form->field($model, 'id_horario')->dropDownList($horario, ['prompt' => 'Seleccione una opcion...']) ?>  
            
         </div> 
+        <div class="row">
+             <?= $form->field($model, 'id_planta')->widget(Select2::classname(), [
+                    'data' => $planta,
+                    'options' => ['placeholder' => 'Seleccione...'],
+                    'pluginOptions' => [
+                        'allowClear' => true ]]);
+            ?>
+        </div>
         
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("operarios/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>

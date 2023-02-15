@@ -148,7 +148,10 @@ $tipo_pago = ArrayHelper::map(TipoNomina::find()->where(['=','ver_registro', 1])
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($modelo as $val): ?>
+                                <?php $nomina = 0;
+                                     foreach ($modelo as $val):
+                                         $nomina += $val->total_pagar;
+                                         ?>
                                     <tr style='font-size:85%;'>                
                                         <td><?= $val->nro_pago ?></td>
                                         <td><?= $val->id_periodo_pago_nomina ?></td>
@@ -168,6 +171,12 @@ $tipo_pago = ArrayHelper::map(TipoNomina::find()->where(['=','ver_registro', 1])
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>        
+                             <tr>
+                                  <td colspan="10"></td>
+                                  <td align="right"><b>Valor Nomina</b></td>
+                                  <td align="right" ><b><?= '$ '.number_format($nomina,0); ?></b></td>
+                                  <td colspan="1"></td>
+                              </tr>
                         </table>
                         <div class="panel-footer text-right" >            
                             <?php

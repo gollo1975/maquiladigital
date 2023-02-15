@@ -55,17 +55,20 @@ class OperariosController extends Controller
                 $documento = null;
                 $estado = null;
                 $vinculado = null;
+                $planta = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_operario = Html::encode($form->id_operario);
                         $documento = Html::encode($form->documento);
                         $estado = Html::encode($form->estado);
                         $vinculado = Html::encode($form->vinculado);
+                        $planta = Html::encode($form->planta);
                         $table = Operarios::find()
                                 ->andFilterWhere(['=', 'id_operario', $id_operario])
                                 ->andFilterWhere(['=', 'documento', $documento])
                                 ->andFilterWhere(['=', 'estado', $estado])
-                                ->andFilterWhere(['=','vinculado', $vinculado]); 
+                                ->andFilterWhere(['=','vinculado', $vinculado])
+                                ->andFilterWhere(['=','id_planta', $planta]); 
                         $table = $table->orderBy('id_operario DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -187,6 +190,7 @@ class OperariosController extends Controller
                 $table->aplica_nomina_modulo = $model->nomina_alterna;
                 $table->id_arl = $model->id_arl;
                 $table->id_horario = $model->id_horario;
+                $table->id_planta = $model->id_planta;
                 $table->usuariosistema =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["operarios/index"]);
@@ -240,6 +244,7 @@ class OperariosController extends Controller
                    $table->aplica_nomina_modulo = $model->nomina_alterna;
                    $table->id_arl = $model->id_arl;
                    $table->id_horario= $model->id_horario;
+                   $table->id_planta= $model->id_planta;
                    $table->save(false);
                     return $this->redirect(["operarios/index"]);
                }
@@ -268,6 +273,7 @@ class OperariosController extends Controller
                 $model->nomina_alterna = $table->aplica_nomina_modulo;
                 $model->id_arl = $table->id_arl;
                 $model->id_horario = $table->id_horario;                
+                $model->id_planta = $table->id_planta;
             }else{
                  return $this->redirect(["operarios/index"]);
             }    
@@ -446,6 +452,7 @@ class OperariosController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'CODIGO')
                     ->setCellValue('B1', 'TIPO DOCUMENTO')
@@ -459,7 +466,8 @@ class OperariosController extends Controller
                     ->setCellValue('J1', 'FECHA CREACION')
                     ->setCellValue('K1', 'ACTIVO')
                     ->setCellValue('L1', 'POLIVALENTE')
-                    ->setCellValue('M1', 'FECHA INGRESO');
+                    ->setCellValue('M1', 'FECHA INGRESO')
+                    ->setCellValue('N1', 'PLANTA');
         $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -477,7 +485,8 @@ class OperariosController extends Controller
                     ->setCellValue('J' . $i, $val->fecha_creacion)
                     ->setCellValue('K' . $i, $val->estadopago)
                     ->setCellValue('L' . $i, $val->polivalenteOperacion)
-                    ->setCellValue('M' . $i, $val->fecha_ingreso);
+                    ->setCellValue('M' . $i, $val->fecha_ingreso)
+                    ->setCellValue('N' . $i, $val->planta->nombre_planta);
             $i++;
         }
 

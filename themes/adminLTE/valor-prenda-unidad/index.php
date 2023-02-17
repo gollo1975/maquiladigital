@@ -39,6 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $tipo = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('idtipo ASC')->all(), 'idtipo', 'tipo');
+$planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 ?>
 <div class="panel panel-success panel-filters">
     <div class="panel-heading" onclick="mostrarfiltro()">
@@ -51,6 +52,13 @@ $tipo = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('idtipo ASC')->all
              <?= $formulario->field($form, 'idtipo')->widget(Select2::classname(), [
                 'data' => $tipo,
                 'options' => ['prompt' => 'Seleccione el servicio'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+             <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
+                'data' => $planta,
+                'options' => ['prompt' => 'Seleccione la planta'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],
@@ -90,8 +98,7 @@ $tipo = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('idtipo ASC')->all
                 <th scope="col" style='background-color:#B9D5CE;'>Vinculado</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Contrato</th>
                 <th scope="col" style='background-color:#B9D5CE;'>T. Pagar</th>
-                <th scope="col" style='background-color:#B9D5CE;'>F. Proceso</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Planta/Bodega</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado" >Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Cerrado" >Cer.</span></th>
                  <th scope="col" style='background-color:#B9D5CE;'><span title="Activo" >Act.</span></th>
@@ -125,8 +132,8 @@ $tipo = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('idtipo ASC')->all
                     <td align="right"><?= ''.number_format($val->vlr_vinculado,0) ?></td>
                     <td align="right"><?= ''.number_format($val->vlr_contrato,0) ?></td>
                     <td align="right"><?= ''.number_format($val->total_pagar,0) ?></td>
-                     <td><?= $val->fecha_proceso ?></td>
-                    <td><?= $val->usuariosistema ?></td>
+                    
+                    <td><?= $val->planta->nombre_planta ?></td>
                     <td><?= $val->autorizadoPago?></td>
                     <td><?= $val->cerradoPago?></td>
                      <td><?= $val->estadovalor?></td>
@@ -150,8 +157,7 @@ $tipo = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('idtipo ASC')->all
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_vinculado,0) ?></td>
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_contrato,0) ?></td>
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->total_pagar,0) ?></td>
-                     <td style='background-color:#DDE6E4;'><?= $val->fecha_proceso ?></td>
-                    <td style='background-color:#DDE6E4;'><?= $val->usuariosistema ?></td>
+                    <td style='background-color:#DDE6E4;'><?= $val->planta->nombre_planta ?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->autorizadoPago?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->cerradoPago?></td>
                      <td style='background-color:#DDE6E4;'><?= $val->estadovalor?></td>

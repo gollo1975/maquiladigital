@@ -35,15 +35,15 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idordenproduccion', 'idtipo','id_proceso_confeccion'], 'required'],
+            [['idordenproduccion', 'idtipo','id_proceso_confeccion','id_planta'], 'required'],
             [['idordenproduccion', 'idtipo', 'estado_valor','autorizado','cerrar_pago','cantidad_procesada','total_confeccion','total_ajuste',
-                'total_operacion','total_pagar','cantidad_operacion','debitar_salario_dia'], 'integer'],
+                'total_operacion','total_pagar','cantidad_operacion','debitar_salario_dia','id_planta'], 'integer'],
             [['vlr_vinculado', 'vlr_contrato','cantidad'], 'number'],
             [['fecha_proceso','fecha_editado'], 'safe'],
             [['usuariosistema','usuario_editado'], 'string', 'max' => 20],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['idtipo'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciontipo::className(), 'targetAttribute' => ['idtipo' => 'idtipo']],
-            //[['id_proceso_confeccion'], 'exist', 'skipOnError' => true, 'targetClass' => ValorPrendaUnidad::className(), 'targetAttribute' => ['id_proceso_confeccion' => 'id_proceso_confeccion']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -74,6 +74,7 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
             'cantidad_operacion' => 'Cantidad operacion',
             'id_proceso_confeccion' => 'Tipo proceso',
             'debitar_salario_dia' => 'Debitar dia:',
+            'id_planta' => 'Planta/Bodega:',
             
         ];
     }
@@ -85,7 +86,12 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Ordenproduccion::className(), ['idordenproduccion' => 'idordenproduccion']);
     }
-
+    
+    public function getPlanta()
+    {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
+    }
+    
     /**
      * @return \yii\db\ActiveQuery
      */

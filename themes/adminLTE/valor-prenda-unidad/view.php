@@ -21,7 +21,7 @@ $this->title = 'Editar';
 $this->params['breadcrumbs'][] = ['label' => 'Valor prenda', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->id_valor;
 $this->params['breadcrumbs'][] = $this->title;
-$operarios = ArrayHelper::map(Operarios::find()->where(['=','estado', 1])->orderBy('nombrecompleto asc')->all(), 'id_operario', 'nombrecompleto');
+$operarios = ArrayHelper::map(Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $model->id_planta])->orderBy('nombrecompleto asc')->all(), 'id_operario', 'nombrecompleto');
 $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada', 0])->orderBy('idordenproduccion desc')->all(), 'idordenproduccion', 'idordenproduccion');
 
 ?> 

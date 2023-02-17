@@ -56,6 +56,7 @@ class ValorPrendaUnidadController extends Controller
                 $estado_valor = null;
                 $cerrar_pago = null;
                 $autorizado = null;
+                $planta = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $idtipo = Html::encode($form->idtipo);
@@ -63,11 +64,13 @@ class ValorPrendaUnidadController extends Controller
                         $estado_valor = Html::encode($form->estado_valor);
                         $cerrar_pago = Html::encode($form->cerrar_pago);
                         $autorizado = Html::encode($form->autorizado);
+                        $planta = Html::encode($form->planta);
                         $table = ValorPrendaUnidad::find()
                                 ->andFilterWhere(['=', 'idtipo', $idtipo])
                                 ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
                                 ->andFilterWhere(['=', 'estado_valor', $estado_valor])
                                 ->andFilterWhere(['=', 'cerrar_pago', $cerrar_pago])
+                                ->andFilterWhere(['=', 'id_planta', $planta])
                                 ->andFilterWhere(['=', 'autorizado', $autorizado]);
                         $table = $table->orderBy('id_valor DESC');
                         $tableexcel = $table->all();
@@ -1607,7 +1610,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('N1', 'AUTORIZADO')
                     ->setCellValue('O1', 'CERRADO')
                     ->setCellValue('P1', 'ACTIVO')
-                    ->setCellValue('Q1', 'USUARIO CREADOR')
+                    ->setCellValue('Q1', 'PLANTA/BODEGA')
                     ->setCellValue('R1', 'F. PROCESO')
                     ->setCellValue('S1', 'USUARIO EDITADO')
                     ->setCellValue('T1', 'F. EDITADO');
@@ -1632,7 +1635,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('N' . $i, $val->autorizadoPago)
                     ->setCellValue('O' . $i, $val->cerradoPago)
                     ->setCellValue('P' . $i, $val->estadovalor)
-                    ->setCellValue('Q' . $i, $val->usuariosistema)
+                    ->setCellValue('Q' . $i, $val->planta->nombre_planta)
                     ->setCellValue('R' . $i, $val->fecha_proceso)
                     ->setCellValue('S' . $i, $val->usuario_editado)
                     ->setCellValue('T' . $i, $val->fecha_editado);

@@ -25,7 +25,7 @@ use kartik\select2\Select2;
 $this->title = 'Detalle modulo';
 $this->params['breadcrumbs'][] = ['label' => 'Detalle modulo', 'url' => ['proceso']];
 $this->params['breadcrumbs'][] = $model->idordenproduccion;
-$operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado', 1])->orderBy('nombrecompleto ASC')->all(), 'id_operario', 'nombrecompleto');
+$operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $model->id_planta])->orderBy('nombrecompleto ASC')->all(), 'id_operario', 'nombrecompleto');
 ?>
 <div class="ordenproduccionproceso-view">
     <div class="btn-group" role="group" aria-label="...">
@@ -33,7 +33,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
         <?php if($model->estado_modulo == 0){?>
            <button type="button" class="btn btn-default btn"> 
             <?= Html::a('<span class="glyphicon glyphicon-user"></span> Nueva cantidad',            
-                ['/balanceo/nuevacantidad','id' => $model->id_balanceo,'id_proceso_confeccion' => $id_proceso_confeccion, 'idordenproduccion' => $model->idordenproduccion],
+                ['/balanceo/nuevacantidad','id' => $model->id_balanceo,'id_proceso_confeccion' => $id_proceso_confeccion, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $model->id_planta],
                 [
                     'title' => 'Nueva cantidad de operarios',
                     'data-toggle'=>'modal',
@@ -305,10 +305,10 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                             
                                             if($model->estado_modulo == 0){?>
                                                 <td style=' width: 25px;'>
-                                                  <a href="<?= Url::toRoute(["balanceo/editaroperacionasignada",'id_detalle'=>$val->id_detalle,'id' => $model->id_balanceo, 'idordenproduccion' => $model->idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                                                  <a href="<?= Url::toRoute(["balanceo/editaroperacionasignada",'id_detalle'=>$val->id_detalle,'id' => $model->id_balanceo, 'idordenproduccion' => $model->idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion, 'id_planta' => $model->id_planta]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                                                 </td> 
                                                 <td style= 'width: 25px;'>
-                                                  <?= Html::a('', ['eliminardetalle', 'id_detalle' => $val->id_detalle,'id'=>$model->id_balanceo,'idordenproduccion'=>$model->idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion], [
+                                                  <?= Html::a('', ['eliminardetalle', 'id_planta' => $id_planta, 'id_detalle' => $val->id_detalle,'id'=>$model->id_balanceo,'idordenproduccion'=>$model->idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion], [
                                                       'class' => 'glyphicon glyphicon-trash',
                                                       'data' => [
                                                           'confirm' => 'Esta seguro de eliminar el registro?',
@@ -339,8 +339,12 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                         </div>
                                             
                             <div class="panel-footer text-right">
-                                <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
-                                <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Act./Desact.", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicarestado']) ?>
+                                <?php if($model->estado_modulo == 0){?>
+                                    <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Expotar excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
+                                    <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Act./Desact.", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicarestado']) ?>
+                                <?php }else{?>
+                                <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Expotar excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
+                                <?php }?>
                             </div>
                          
                     </div>

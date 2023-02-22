@@ -129,7 +129,7 @@ class ProveedorController extends Controller {
                 $table->tipocuenta = $model->tipocuenta;
                 $table->cuentanumero = $model->cuentanumero;
                 $table->genera_moda = $model->genera_moda;
-                if ($model->id_tipo_documento == 1) {
+                if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9 || $model->id_tipo_documento == 4) {
                     $table->nombrecorto = $model->nombreproveedor . " " . $model->apellidoproveedor;
                     $model->razonsocial = null;
                 } elseif ($model->id_tipo_documento == 5) {
@@ -189,7 +189,7 @@ class ProveedorController extends Controller {
                     $table->tipocuenta = $model->tipocuenta;
                     $table->cuentanumero = $model->cuentanumero;
                     $table->genera_moda = $model->genera_moda;
-                    if ($model->id_tipo_documento == 1) {
+                    if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9  || $model->id_tipo_documento == 4) {
                         $table->nombrecorto = strtoupper($model->nombreproveedor . " " . $model->apellidoproveedor);
                         $model->razonsocial = null;
                     } elseif ($model->id_tipo_documento == 5) {

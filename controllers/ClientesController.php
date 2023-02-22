@@ -130,7 +130,7 @@ class ClientesController extends Controller {
                 $table->minuto_terminacion = $model->minuto_terminacion;
                 $table->proceso = $model->proceso;
                 $table->dv = $dv;
-                if ($model->id_tipo_documento == 1) {
+                if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9 || $model->id_tipo_documento == 4) {
                     $table->nombrecorto = $model->nombrecliente . " " . $model->apellidocliente;
                     $model->razonsocial = null;
                 } elseif ($model->id_tipo_documento == 5) {
@@ -191,7 +191,7 @@ class ClientesController extends Controller {
                     $table->minuto_terminacion = $model->minuto_terminacion;
                     $table->proceso = $model->proceso;
                     $table->dv = $dv;
-                    if ($model->id_tipo_documento == 1) {
+                    if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9 || $model->id_tipo_documento == 4) {
                         $table->nombrecorto = strtoupper($model->nombrecliente . " " . $model->apellidocliente);
                         $model->razonsocial = null;
                     } elseif ($model->id_tipo_documento == 5) {

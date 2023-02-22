@@ -19,7 +19,7 @@ use yii\helpers\Url;
 /* @var $form yii\widgets\ActiveForm */
 
 $this->title = 'Editar operacion';
-$operarios = ArrayHelper::map(Operarios::find()->where(['=','estado', 1])->orderBy('nombrecompleto ASC')->all(), 'id_operario', 'nombrecompleto');
+$operarios = ArrayHelper::map(Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $id_planta])->orderBy('nombrecompleto ASC')->all(), 'id_operario', 'nombrecompleto');
 $tipos = ArrayHelper::map(TiposMaquinas::find()->where(['=','estado', 1])->orderBy('descripcion ASC')->all(), 'id_tipo', 'descripcion');
 
 ?>
@@ -72,7 +72,7 @@ $form = ActiveForm::begin([
        
       
         <div class="panel-footer text-right">                        
-            <a href="<?= Url::toRoute(["balanceo/view", 'id' => $balanceo->id_balanceo, 'idordenproduccion' => $idordenproduccion,'id_proceso_confeccion' => $id_proceso_confeccion]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
+            <a href="<?= Url::toRoute(["balanceo/view", 'id' => $balanceo->id_balanceo, 'idordenproduccion' => $idordenproduccion,'id_proceso_confeccion' => $id_proceso_confeccion, 'id_planta' => $id_planta]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
     </div>

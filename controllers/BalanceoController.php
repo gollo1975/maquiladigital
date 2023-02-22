@@ -277,7 +277,7 @@ class BalanceoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id, $idordenproduccion, $id_proceso_confeccion)
+    public function actionView($id, $idordenproduccion, $id_proceso_confeccion, $id_planta)
     {
        if ($id_proceso_confeccion == 1){
           $flujo_operaciones = FlujoOperaciones::find()->where(['=', 'idordenproduccion', $idordenproduccion])->andWhere(['=','operacion', 0])->orderBy('pieza, operacion, orden_aleatorio asc')->all();
@@ -285,7 +285,7 @@ class BalanceoController extends Controller
           $flujo_operaciones = FlujoOperaciones::find()->where(['=', 'idordenproduccion', $idordenproduccion])->orderBy('pieza, operacion, orden_aleatorio asc')->all(); 
        }   
         $balanceo_detalle = BalanceoDetalle::find()->where(['=', 'id_balanceo', $id])->orderBy('id_operario asc')->all();
-        $operario = \app\models\Operarios::find()->where(['=','estado', 1])->orderBy('nombrecompleto ASC')->all();
+        $operario = \app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $id_planta])->orderBy('nombrecompleto ASC')->all();
         $balanceo = Balanceo::findOne($id);
         //Proceso que guarda el balanceo manual
         if (isset($_POST["guardar"])) {
@@ -316,17 +316,20 @@ class BalanceoController extends Controller
                       'idordenproduccion' => $idordenproduccion,
                       'balanceo_detalle' => $balanceo_detalle,
                       'operario'=> $operario,
+                      'id_planta' => $id_planta,    
                       'id_proceso_confeccion' => $id_proceso_confeccion,
                     ]); 
                 }else{
                    Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar las operaciones para el operario.');
                     return $this->redirect(["balanceo/view",
-                      'id'=> $id,
-                       'flujo_operaciones' => $flujo_operaciones,
-                      'idordenproduccion' => $idordenproduccion,
-                      'balanceo_detalle' => $balanceo_detalle,
-                      'operario'=> $operario,
-                       'id_proceso_confeccion' => $id_proceso_confeccion, 
+                    'id'=> $id,
+                    'flujo_operaciones' => $flujo_operaciones,
+                    'idordenproduccion' => $idordenproduccion,
+                    'balanceo_detalle' => $balanceo_detalle,
+                    'operario'=> $operario,
+                    'id_planta' => $id_planta,    
+                    'id_proceso_confeccion' => $id_proceso_confeccion, 
+                        
                     ]); 
                 }
             }else{
@@ -337,6 +340,7 @@ class BalanceoController extends Controller
                       'idordenproduccion' => $idordenproduccion,
                       'balanceo_detalle' => $balanceo_detalle,
                       'operario'=> $operario,
+                      'id_planta' => $id_planta,
                       'id_proceso_confeccion' => $id_proceso_confeccion,
                     ]); 
             }
@@ -391,7 +395,8 @@ class BalanceoController extends Controller
                                  'idordenproduccion' => $idordenproduccion,
                                  'balanceo_detalle' => $balanceo_detalle,
                                  'operario'=> $operario,
-                                'id_proceso_confeccion' => $id_proceso_confeccion,
+                                  'id_planta' => $id_planta,
+                                 'id_proceso_confeccion' => $id_proceso_confeccion,
                                ]); 
                         }      
                       endforeach;  //termina el ciclo
@@ -408,17 +413,19 @@ class BalanceoController extends Controller
                                  'idordenproduccion' => $idordenproduccion,
                                  'balanceo_detalle' => $balanceo_detalle,
                                  'operario'=> $operario,
+                                 'id_planta' => $id_planta,
                                 'id_proceso_confeccion' => $id_proceso_confeccion,
                                ]); 
                       
                 }else{  
-                    Yii::$app->getSession()->setFlash('warning', 'La cantidad seleccionada de operarios ('.count($_POST["id_operario"]).'), es mayor a la cantidad del balanceo ('.$balanceo->cantidad_empleados.')');
+                    Yii::$app->getSession()->setFlash('warning', 'La cantidad seleccionada de operarios ('.count($_POST["id_operario"]).'), debe de ser igual a la cantidad del balanceo ('.$balanceo->cantidad_empleados.')');
                     return $this->redirect(["balanceo/view",
                          'id'=> $id,
                          'flujo_operaciones' => $flujo_operaciones,
                          'idordenproduccion' => $idordenproduccion,
                          'balanceo_detalle' => $balanceo_detalle,
                          'operario'=> $operario,
+                         'id_planta' => $id_planta,
                          'id_proceso_confeccion' => $id_proceso_confeccion,
                        ]); 
                 }            
@@ -431,6 +438,7 @@ class BalanceoController extends Controller
                       'idordenproduccion' => $idordenproduccion,
                       'balanceo_detalle' => $balanceo_detalle,
                       'operario'=> $operario,
+                      'id_planta' => $id_planta,
                       'id_proceso_confeccion' => $id_proceso_confeccion,
                     ]); 
             }
@@ -459,6 +467,7 @@ class BalanceoController extends Controller
                     'idordenproduccion' => $idordenproduccion,
                     'id_proceso_confeccion' => $id_proceso_confeccion,
                     'operario'=> $operario,
+                    'id_planta' => $id_planta,
                     'balanceo_detalle' => $balanceo_detalle,
                     'flujo_operaciones' => $flujo_operaciones]);
                     
@@ -470,6 +479,7 @@ class BalanceoController extends Controller
                 'balanceo_detalle' => $balanceo_detalle,
                 'idordenproduccion' => $idordenproduccion,
                 'operario'=> $operario,
+                'id_planta' => $id_planta,
                 'id_proceso_confeccion' => $id_proceso_confeccion,
              ]);
       
@@ -714,7 +724,7 @@ class BalanceoController extends Controller
 
     //Actualizar cantidad de operarios
     
-     public function actionNuevacantidad($id, $id_proceso_confeccion, $idordenproduccion) {  
+     public function actionNuevacantidad($id, $id_proceso_confeccion, $idordenproduccion, $id_planta) {  
         $model = new \app\models\FormParametroCantidadOperario();
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -728,7 +738,7 @@ class BalanceoController extends Controller
                     $archivo->cantidad_empleados = $model->cantidad_empleados;
                     $archivo->save(false);
                     $this->actionActualizarfechaterminacion($idordenproduccion, $horarios);
-                    return $this->redirect(["balanceo/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);                                                     
+                    return $this->redirect(["balanceo/view", 'id_planta' => $id_planta, 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);                                                     
                 }
             }
         }
@@ -742,7 +752,7 @@ class BalanceoController extends Controller
             }
             
         }
-        return $this->renderAjax('_nuevacantidadoperario', ['model' => $model, 'id' => $id, 'id_proceso_confeccion' => $id_proceso_confeccion]);
+        return $this->renderAjax('_nuevacantidadoperario', ['model' => $model, 'id_planta' => $id_planta, 'id' => $id, 'id_proceso_confeccion' => $id_proceso_confeccion]);
     }
     
     public function actionCerrarmodulo($id, $id_proceso_confeccion, $idordenproduccion)
@@ -858,7 +868,7 @@ class BalanceoController extends Controller
         }
     }
    
-   public function actionEliminardetalle($id_detalle, $id, $idordenproduccion, $id_proceso_confeccion) {
+   public function actionEliminardetalle($id_detalle, $id, $idordenproduccion, $id_proceso_confeccion, $id_planta) {
         if (Yii::$app->request->post()) {
             $balanceo_detalle = BalanceoDetalle::findOne($id_detalle);
             if ((int) $id_detalle) {
@@ -870,13 +880,13 @@ class BalanceoController extends Controller
                        $this->ActualizarSegundos($id);    
                     }
                     
-                    $this->redirect(["balanceo/view",'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
+                    $this->redirect(["balanceo/view", 'id_planta' => $id_planta, 'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
                 } catch (IntegrityException $e) {
-                    $this->redirect(["balanceo/view",'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
+                    $this->redirect(["balanceo/view", 'id_planta' => $id_planta,'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar al eliminar el registro.!');
                 } catch (\Exception $e) {
 
-                    $this->redirect(["balanceo/view",'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
+                    $this->redirect(["balanceo/view", 'id_planta' => $id_planta, 'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar al eliminar el registro.!');
                 }
             } else {
@@ -884,11 +894,11 @@ class BalanceoController extends Controller
                 echo "<meta http-equiv='refresh' content='3; " . Url::toRoute(["balanceo/view", 'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]) . "'>";
             }
         } else {
-            return $this->redirect(["balanceo/view",'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
+            return $this->redirect(["balanceo/view", 'id_planta' => $id_planta,'id'=>$id, 'idordenproduccion'=>$idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
         }
     }
     
-    public function actionEditaroperacionasignada($id_detalle, $id, $idordenproduccion, $id_proceso_confeccion) {
+    public function actionEditaroperacionasignada($id_detalle, $id, $idordenproduccion, $id_proceso_confeccion, $id_planta) {
        
         $model = new BalanceoDetalle;
         $balanceo = Balanceo::findOne($id);   
@@ -906,7 +916,7 @@ class BalanceoController extends Controller
                 $this->ActualizarSegundos($id);
                 $this->actionActualizarSobranteRestante($id);
             }    
-            return $this->redirect(['balanceo/view','id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion]);
+            return $this->redirect(['balanceo/view','id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_proceso_confeccion' => $id_proceso_confeccion, 'id_planta' => $id_planta]);
         }
         if (Yii::$app->request->get("id_detalle")) {
             $table = BalanceoDetalle::find()->where(['id_detalle' => $id_detalle])->one();
@@ -925,6 +935,7 @@ class BalanceoController extends Controller
             'balanceo' => $balanceo,
             'idordenproduccion' => $idordenproduccion,
             'id_proceso_confeccion' => $id_proceso_confeccion,
+            'id_planta' => $id_planta,
            ]);         
     } 
 

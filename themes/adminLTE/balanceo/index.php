@@ -142,7 +142,7 @@ $form = ActiveForm::begin([
                  <?php 
                     if($val->estado_modulo == 0){?>
                         <td style= 'width: 25px; height: 25px;'>
-                          <a href="<?= Url::toRoute(["balanceo/view", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                          <a href="<?= Url::toRoute(["balanceo/view", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion, 'id_planta' =>$val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                         </td>
                         <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["balanceo/update", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
@@ -158,7 +158,7 @@ $form = ActiveForm::begin([
                         </td>
                     <?php }else {?>
                          <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["balanceo/view", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["balanceo/view", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion, 'id_planta' =>$val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                          </td>   
                          <td></td>
                          <td></td>

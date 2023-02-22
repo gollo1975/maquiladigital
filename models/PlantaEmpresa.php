@@ -32,7 +32,7 @@ class PlantaEmpresa extends \yii\db\ActiveRecord
 	# ToDo: Cambiar a empleado cargada de configuración.    
 	$this->nombre_planta = strtoupper($this->nombre_planta);
 	$this->direccion_planta = strtoupper($this->direccion_planta);
-        $this->direccion_planta = strtoupper($this->direccion_planta);
+       
         
         return true;
     }

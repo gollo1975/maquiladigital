@@ -76,8 +76,8 @@ class PlantaEmpresaController extends Controller
         $model = new PlantaEmpresa();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $model->usuariosistema = Yii::$app->user->identity->usename;
-            $model->save();
+            $model->usuariosistema = Yii::$app->user->identity->username;
+            $model->save(false);
             return $this->redirect(['index', 'id' => $model->id_planta]);
         }
 

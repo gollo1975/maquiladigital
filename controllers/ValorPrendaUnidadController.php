@@ -317,45 +317,29 @@ class ValorPrendaUnidadController extends Controller
                         $table = ValorPrendaUnidadDetalles::findOne($intCodigo);
                         $auxiliar = $table->control_fecha;
                         $operario = Operarios::findOne($table->id_operario);
-                        $consulta = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario->id_operario])->andWhere(['=','idordenproduccion', $idordenproduccion])->all();
+                        $consulta = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario->id_operario])
+                                                                     ->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                     ->andWhere(['=','dia_pago', $table->dia_pago])->all();
                         $contador = 0;
                         if($table->aplica_regla == 0){
                             foreach ($consulta as $valor){
                                $contador += $valor->porcentaje_cumplimiento;
                             }
-                            echo $contador;
-                            if($contador == 1 ){
-                                if($contador > $regla->porcentaje_cumplimiento){
-                                    if($operario->vinculado == 1){
-                                        $total =0;
-                                        $total = round(($table->vlr_prenda/$matricula->vlr_minuto_vinculado) *($regla->valor_minuto_vinculado));
-                                        $table->vlr_prenda = $total;
-                                        $table->vlr_pago = $table->cantidad * $total;
-                                    }else{
-                                        $total =0;
-                                        $total = round(($table->vlr_prenda/$matricula->vlr_minuto_contrato) *($regla->valor_minuto_contrato));
-                                        $table->vlr_prenda = $total;
-                                        $table->vlr_pago = $table->cantidad * $total;
-                                        $table->costo_dia_operaria =  $table->vlr_pago;
-                                      
-                                    } 
-                                }
-                            }else{
-                                if($contador > $regla->porcentaje_cumplimiento){
-                                    if($operario->vinculado == 1){
-                                        $total =0;
-                                        $total = round(($table->vlr_prenda / $matricula->vlr_minuto_vinculado) *($regla->valor_minuto_vinculado));
-                                        $table->vlr_prenda = $total;
-                                        $table->vlr_pago = $table->cantidad * $total;
-                                        
-                                    }else{
-                                        $total =0;
-                                        $total = round(($table->vlr_prenda/$matricula->vlr_minuto_contrato) *($regla->valor_minuto_contrato));
-                                        $table->vlr_prenda = $total;
-                                        $table->vlr_pago = $table->cantidad * $total;
-                                        $table->costo_dia_operaria =  $table->vlr_pago;
-                                    } 
-                                }
+                            if($contador > $regla->porcentaje_cumplimiento){
+                                if($operario->vinculado == 1){
+                                    $total =0;
+                                    $total = round(($table->vlr_prenda / $matricula->vlr_minuto_vinculado) *($regla->valor_minuto_vinculado));
+                                    $table->vlr_prenda = $total;
+                                    $table->vlr_pago = $table->cantidad * $total;
+
+                                }else{
+                                    $total =0;
+                                    $total = round(($table->vlr_prenda/$matricula->vlr_minuto_contrato) *($regla->valor_minuto_contrato));
+                                    $table->vlr_prenda = $total;
+                                    $table->vlr_pago = $table->cantidad * $total;
+                                    $table->costo_dia_operaria =  $table->vlr_pago;
+                                } 
+
                             }
                             $table->aplica_regla = 1;
                             $table->save(false);

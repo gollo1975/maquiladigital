@@ -1088,7 +1088,7 @@ class OrdenProduccionController extends Controller {
                         $table->cantidad = $_POST["cantidad"][$intIndice];
                         $table->vlr_minuto = $ordenProduccion->vlr_minuto;
                         $table->total_pagar =  ($table->cantidad *  $table->vlr_minuto) * $ordenProduccion->cantidad_minutos ;
-                        $table->insert(); 
+                        $table->insert(false); 
                     }    
                 }
                   $intIndice++;  

@@ -292,8 +292,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                }    
                                             }   
                                     endforeach;
-                                    if($id_operario > 0 && $dia_pago <> '' && $fecha_corte <> ''){
-                                       $totalEficiencia = (($acumuladorEficiencia - $conEficiencia)/($contador - $sumaSabado));
+                                    if($id_operario > 0 && $dia_pago <> '' && $fecha_corte <> '' && count($modelo2) > 0){
+                                    $totalEficiencia = (($acumuladorEficiencia - $conEficiencia)/($contador - $sumaSabado));
                                        ?>
                                        <tr>
                                            <td colspan="3"></td>

@@ -321,7 +321,7 @@ class ValorPrendaUnidadController extends Controller
                                                                      ->andWhere(['=','idordenproduccion', $idordenproduccion])
                                                                      ->andWhere(['=','dia_pago', $table->dia_pago])->all();
                         $contador = 0;
-                        if($table->aplica_regla == 0){
+                        if($table->aplica_regla == 0 && $table->aplica_sabado == 0){
                             foreach ($consulta as $valor){
                                $contador += $valor->porcentaje_cumplimiento;
                             }
@@ -344,7 +344,12 @@ class ValorPrendaUnidadController extends Controller
                             $table->aplica_regla = 1;
                             $table->save(false);
                               
-                        }    
+                        }else{
+                           
+                            $table->aplica_regla = 1;
+                            $table->save(false);  
+                        }
+                                     
                         $intIndice++;   
                     }
                     return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
@@ -371,69 +376,69 @@ class ValorPrendaUnidadController extends Controller
                         $auxiliar = $table->control_fecha;
                         $operario = Operarios::find()->where(['=','id_operario', $_POST["id_operario"][$intIndice]])->one();
                         $valor_unidad = ValorPrendaUnidad::find()->where(['=','id_valor', $id])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
-                        $vlr_unidad = 0;
+                        $vlr_unidad = 0; 
                         if($table->aplica_regla == 0){
                             if($operario){
-                              $conMatricula = \app\models\Matriculaempresa::findOne(1);
+                                $conMatricula = \app\models\Matriculaempresa::findOne(1);
                                 if($operario->vinculado == 1){
-                                $vlr_unidad = $valor_unidad->vlr_vinculado;
-                                if($_POST["vlr_prenda"][$intIndice] == ''){
-                                  $table->vlr_prenda = $vlr_unidad;
-                                    if($valor_unidad->debitar_salario_dia == 1){ 
-                                        $salario = round($operario->salario_base /30);
-                                        $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
+                                   $vlr_unidad = $valor_unidad->vlr_vinculado;
+                                    if($_POST["vlr_prenda"][$intIndice] == ''){
+                                       $table->vlr_prenda = $vlr_unidad;
+                                       if($valor_unidad->debitar_salario_dia == 1){ 
+                                           $salario = round($operario->salario_base /30);
+                                           $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
                                            $this->CostoOperarioVinculado($table, $auxiliar);
-                                    }else{
-                                        $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
-                                        $this->CostoOperarioVinculado($table, $auxiliar);
-                                    }    
-                                }else{
-                                    $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
-                                    if($valor_unidad->debitar_salario_dia == 1){ 
-                                        $salario = round($operario->salario_base /30);
-                                        $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
+                                       }else{
+                                           $table->vlr_pago = $table->vlr_prenda * $table->cantidad;
                                            $this->CostoOperarioVinculado($table, $auxiliar);
-
+                                       }    
                                     }else{
-                                        $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
-                                        $this->CostoOperarioVinculado($table, $auxiliar);
+                                        $table->vlr_prenda = $_POST["vlr_prenda"][$intIndice];
+                                        if($valor_unidad->debitar_salario_dia == 1){ 
+                                            $salario = round($operario->salario_base /30);
+                                            $table->vlr_pago = (($table->vlr_prenda * $table->cantidad) - $salario);
+                                            $this->CostoOperarioVinculado($table, $auxiliar);
+  
+                                        }else{
+                                            $table->vlr_pago = $_POST["vlr_prenda"][$intIndice] * $table->cantidad; 
+                                           $this->CostoOperarioVinculado($table, $auxiliar); 
 
-                                    }    
-                                }
-                               //calculo para hallar el % de cumplimiento
-                               $balanceoModulo= \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
-                               $totalHoras = 0; $totalTiempo = 0; $total_diario = 0;
-                               $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos =0; $metaDiaria = 0;
-                               $cumplimiento = 0;
-                               foreach ($balanceoModulo as $modulo):
-                                    if($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo >  $operario->horarios->desde){
-                                        $horad = explode(":", $table->hora_inicio_modulo);
-                                        $horah = explode(":", $operario->horarios->hasta);
-                                        $sumarh = $horah[0] - $horad[0];
-                                        $sumarm = $horah[1] + $horad[1];
-                                        $totalTiempo = $sumarh;
-                                        $totalTiempo = ($sumarh * 60) + $sumarm;
-                                        $totalTiempo = $totalTiempo/60;
-                                        $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
-                                        $total_diario = round((60/$can_minutos)* $totalTiempo,0);
-                                        $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
-                                        $metaDiaria = round((((60/$can_minutos)* $totalTiempo) * $conMatricula->porcentaje_empresa)/100); 
-                                        $sw = 1;
+                                        }    
                                     }
-                               endforeach;
-                               if ($sw == 0){
-                                    $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
-                                    $total_diario = round((60/$can_minutos)* $operario->horarios->total_horas,0);
-                                    $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
-                                    $metaDiaria = round((((60/$can_minutos)* $operario->horarios->total_horas) * $conMatricula->porcentaje_empresa)/100);
-                                }
-                               $table->usuariosistema = Yii::$app->user->identity->username;
-                               $table->observacion = 'Vinculado';
-                               $table->porcentaje_cumplimiento = $cumplimiento;
-                               $table->meta_diaria = $metaDiaria;
-                               $table->save(false);
-                               $intIndice++;
-                            }else{
+                                    //calculo para hallar el % de cumplimiento
+                                    $balanceoModulo= \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+                                    $totalHoras = 0; $totalTiempo = 0; $total_diario = 0;
+                                    $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos =0; $metaDiaria = 0;
+                                    $cumplimiento = 0;
+                                    foreach ($balanceoModulo as $modulo):
+                                         if($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo >  $operario->horarios->desde){
+                                             $horad = explode(":", $table->hora_inicio_modulo);
+                                             $horah = explode(":", $operario->horarios->hasta);
+                                             $sumarh = $horah[0] - $horad[0];
+                                             $sumarm = $horah[1] + $horad[1];
+                                             $totalTiempo = $sumarh;
+                                             $totalTiempo = ($sumarh * 60) + $sumarm;
+                                             $totalTiempo = $totalTiempo/60;
+                                             $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
+                                             $total_diario = round((60/$can_minutos)* $totalTiempo,0);
+                                             $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
+                                             $metaDiaria = round((((60/$can_minutos)* $totalTiempo) * $conMatricula->porcentaje_empresa)/100); 
+                                             $sw = 1;
+                                         }                                                          
+                                    endforeach;
+                                    if ($sw == 0){
+                                         $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado; 
+                                         $total_diario = round((60/$can_minutos)* $operario->horarios->total_horas,0);
+                                         $cumplimiento = round(($table->cantidad / $total_diario)*100, 2);
+                                         $metaDiaria = round((((60/$can_minutos)* $operario->horarios->total_horas) * $conMatricula->porcentaje_empresa)/100);
+                                     }
+                                    $table->usuariosistema = Yii::$app->user->identity->username;
+                                    $table->observacion = 'Vinculado';
+                                    $table->porcentaje_cumplimiento = $cumplimiento;
+                                    $table->meta_diaria = $metaDiaria;
+                                    $table->save(false);
+                                    $intIndice++;
+                                }else{
                                    $vlr_unidad = $valor_unidad->vlr_contrato; 
                                    if($_POST["vlr_prenda"][$intIndice] == ''){
                                         $table->vlr_prenda = $vlr_unidad;

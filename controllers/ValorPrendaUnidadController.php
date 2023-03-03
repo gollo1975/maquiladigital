@@ -598,7 +598,7 @@ class ValorPrendaUnidadController extends Controller
     }
    
     //MODAL QUE BUSCA LAS OPERACIONES DE LOS OPERARIOS EN PREPARACION
-    public function actionBuscaroperaciones($id, $idordenproduccion) {
+    public function actionBuscaroperaciones($id, $idordenproduccion, $id_planta) {
         
         if (Yii::$app->request->post()) {
             if (isset($_POST["validaroperario"])) {
@@ -642,11 +642,12 @@ class ValorPrendaUnidadController extends Controller
                         $prenda->dia_pago= date('Y-m-d');
                         $prenda->operacion = 2;
                         $prenda->vlr_prenda = $valor;
+                        $prenda->id_planta = $id_planta;
                         $prenda->observacion = $vinculado;
                         $prenda->save(false);
                         $intIndice ++;
                     endforeach;
-                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
                 }
             }
         }   
@@ -654,6 +655,7 @@ class ValorPrendaUnidadController extends Controller
           //  'model' => $model,
             'id' => $id,
             'idordenproduccion' => $idordenproduccion,
+            'id_planta' => $id_planta,
             ]);
     }
         

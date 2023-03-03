@@ -16,8 +16,8 @@ use app\models\Ordenproduccion;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\ConfiguracionSalario */
-
-$this->title = 'Editar';
+$planta = \app\models\PlantaEmpresa::find()->where(['=','id_planta', $id_planta])->one();
+$this->title = ''.$planta->nombre_planta;
 $this->params['breadcrumbs'][] = ['label' => 'Valor prenda', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->id_valor;
 $this->params['breadcrumbs'][] = $this->title;
@@ -32,13 +32,13 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
    <p>
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_valor], ['class' => 'btn btn-primary btn-sm']) ?>
 	<?php if ($model->autorizado == 0) { ?>
-                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']);
+                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta], ['class' => 'btn btn-success btn-sm']);
         } else { 
              if ($model->cerrar_pago == 0) { 
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago', ['cerrarpago', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion],['class' => 'btn btn-warning btn-xs',
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta], ['class' => 'btn btn-default btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago', ['cerrarpago', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta],['class' => 'btn btn-warning btn-xs',
                 'data' => ['confirm' => 'Esta seguro de cerrar el proceso de pago Nro : '. $model->id_valor. '', 'method' => 'post']]);
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago-Orden', ['cerrarpagoorden', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion],['class' => 'btn btn-info btn-xs',
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago-Orden', ['cerrarpagoorden', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta],['class' => 'btn btn-info btn-xs',
                 'data' => ['confirm' => 'Esta seguro de cerrar el proceso de pago Nro : '. $model->id_valor. ' y la orden de producción Nro: '.$model->idordenproduccion.'', 'method' => 'post']]);
              }    
         }?>
@@ -53,7 +53,7 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Id') ?>:</th>
                     <td><?= Html::encode($model->id_valor) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nro_Orden') ?>:</th>
-                    <td><?= Html::encode($model->idordenproduccion) ?></td>
+                    <td><?= Html::encode($model->idordenproduccion) ?><b> Ref:</b> <?= Html::encode($model->ordenproduccion->codigoproducto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion->cliente->nombrecorto) ?></td>
                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Activo') ?>:</th>
@@ -122,9 +122,9 @@ $form = ActiveForm::begin([
        
         <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar excel', ['generarexcel', 'id' => $model->id_valor], ['class' => 'btn btn-default btn-sm ']); ?>
         <?php if($model->autorizado == 0){?>                
-                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva-Linea', ['valor-prenda-unidad/nuevodetalle', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']); ?>   
+                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva-Linea', ['valor-prenda-unidad/nuevodetalle', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$id_planta], ['class' => 'btn btn-success btn-sm']); ?>   
                 <?php if($model->id_proceso_confeccion == 1){?>
-                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo-Modular', ['valor-prenda-unidad/nuevodetallemodular', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-info btn-sm']); ?>        
+                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo-Modular', ['valor-prenda-unidad/nuevodetallemodular', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta], ['class' => 'btn btn-info btn-sm']); ?>        
                 <?php }?>         
                 <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary btn-sm, 'name' => 'actualizarlinea'",]) ?>
                 <?php if(app\models\Matriculaempresa::find()->where(['=','aplica_regla', 1])->one()){?>
@@ -217,7 +217,7 @@ $form = ActiveForm::begin([
                                                     <?php if($model->autorizado == 0){?>        
                                                         <td>
                                                               <?php if ($model->estado_valor == 0){ ?>
-                                                              <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion], [
+                                                              <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta], [
                                                                   'class' => '',
                                                                   'data' => [
                                                                       'confirm' => 'Esta seguro de eliminar el registro?',

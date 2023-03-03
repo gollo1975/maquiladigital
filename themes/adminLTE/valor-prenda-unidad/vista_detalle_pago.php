@@ -24,7 +24,7 @@ use yii\filters\AccessControl;
 /* @var $model app\models\Ordenproduccion */
 
 $this->title = 'Vista pago';
-$this->params['breadcrumbs'][] = ['label' => 'Vista del pago', 'url' => ['pageserviceoperario','fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]];
+$this->params['breadcrumbs'][] = ['label' => 'Vista del pago', 'url' => ['pageserviceoperario','fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte,'bodega' => $bodega]];
 $this->params['breadcrumbs'][] = $model->id_pago;
 ?>
 
@@ -32,7 +32,7 @@ $this->params['breadcrumbs'][] = $model->id_pago;
 
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
       <?php if($token == 1){?>
-           <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pageserviceoperario', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-primary btn-sm']) ?>
+           <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pageserviceoperario', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega], ['class' => 'btn btn-primary btn-sm']) ?>
       <?php }else{ ?>
           <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['searchpageprenda'], ['class' => 'btn btn-primary btn-sm']) ?>              
       <?php } ?>
@@ -106,10 +106,10 @@ $this->params['breadcrumbs'][] = $model->id_pago;
                         <td><?= '$ '.number_format($val->deduccion,0) ?></td>
                         <?php if($autorizado == 0){?>
                             <td style=' width: 25px;'>
-                               <a href="<?= Url::toRoute(["valor-prenda-unidad/editarvistadetallepago", 'id_detalle' => $val->id_detalle, 'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado]) ?>" ><span class="glyphicon glyphicon-pencil "></span></a>
+                               <a href="<?= Url::toRoute(["valor-prenda-unidad/editarvistadetallepago", 'id_detalle' => $val->id_detalle, 'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado, 'bodega' => $bodega]) ?>" ><span class="glyphicon glyphicon-pencil "></span></a>
                             </td>
                             <td style= 'width: 25px;'>
-                                <?= Html::a('', ['eliminardetallepago', 'id_detalle' => $val->id_detalle, 'id_pago' => $val->id_pago,'fecha_inicio'=>$fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado], [
+                                <?= Html::a('', ['eliminardetallepago', 'id_detalle' => $val->id_detalle, 'id_pago' => $val->id_pago,'fecha_inicio'=>$fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado, 'bodega' =>$bodega], [
                                     'class' => 'glyphicon glyphicon-trash',
                                     'data' => [
                                         'confirm' => 'Esta seguro de eliminar el registro?',
@@ -127,7 +127,7 @@ $this->params['breadcrumbs'][] = $model->id_pago;
                 </table>
                 <?php if($autorizado == 0){?>
                     <div class="panel-footer text-right"> 
-                       <?= Html::a('<span class="glyphicon glyphicon-save"></span> Importar', ['valor-prenda-unidad/importarconceptosalarios', 'id_pago' => $id_pago, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio, 'autorizado' => $autorizado], ['class' => 'btn btn-success btn-sm']); ?>      
+                       <?= Html::a('<span class="glyphicon glyphicon-save"></span> Importar', ['valor-prenda-unidad/importarconceptosalarios', 'id_pago' => $id_pago, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio, 'bodega' => $bodega,'autorizado' => $autorizado], ['class' => 'btn btn-success btn-sm']); ?>      
                     </div>  
                 <?php }?>
             </div>

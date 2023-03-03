@@ -36,11 +36,12 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_operario', 'documento', 'Total_pagar','total_dias','devengado','deduccion','autorizado'], 'integer'],
-            [['id_operario', 'fecha_inicio', 'fecha_corte', 'Total_pagar'], 'required'],
+            [['id_operario', 'documento', 'Total_pagar','total_dias','devengado','deduccion','autorizado','id_planta'], 'integer'],
+            [['id_operario', 'fecha_inicio', 'fecha_corte', 'Total_pagar','id_planta'], 'required'],
             [['fecha_inicio', 'fecha_corte', 'fecha_registro'], 'safe'],
             [['operario','observacion','usuariosistema'], 'string', 'max' => 50],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -63,6 +64,7 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
             'total_dias' => 'Total dias;',
             'devengado' => 'devengado',
             'deduccion' => 'deduccion',
+            'id_planta' => 'Planta/Bodega',
         ];
     }
 
@@ -76,6 +78,10 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
     public function getOperario()
     {
         return $this->hasOne(Operarios::className(), ['id_operario' => 'id_operario']);
+    }
+     public function getPlanta()
+    {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
     }
     
     public function getAutorizar (){

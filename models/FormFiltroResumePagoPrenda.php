@@ -17,7 +17,7 @@ class FormFiltroResumePagoPrenda extends Model
     public $id_operario;
     public $operacion;
     public $registro_pagado;
-    public $exportado;
+    public $id_planta;
     public $validar_eficiencia;
 
     /**
@@ -26,7 +26,7 @@ class FormFiltroResumePagoPrenda extends Model
     public function rules()
     {
         return [
-            [['idordenproduccion', 'id_operario','operacion','registro_pagado','exportado','validar_eficiencia'], 'integer'],
+            [['idordenproduccion', 'id_operario','operacion','registro_pagado','id_planta','validar_eficiencia'], 'integer'],
           [['dia_pago','fecha_corte'], 'safe'],
         ];
     }
@@ -43,7 +43,7 @@ class FormFiltroResumePagoPrenda extends Model
              'operacion' => 'Proceso:',
             'fecha_corte' =>  'Fecha corte:', 
             'registro_pagado' => 'Registro pagado:',
-            'exportado' => 'Exportado:',
+            'id_planta' => 'Planta/Bodega:',
             'validar_eficiencia' => 'Buscar eficiencia:',
             
         ];

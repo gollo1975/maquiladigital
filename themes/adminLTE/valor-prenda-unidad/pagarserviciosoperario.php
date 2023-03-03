@@ -9,7 +9,6 @@ use kartik\date\DatePicker;
 use kartik\select2\Select2;
 ?>
 <?php
-
 $form = ActiveForm::begin([
             "method" => "post",
             'id' => 'formulario',
@@ -17,8 +16,8 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => true,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
-            'labelOptions' => ['class' => 'col-sm-2 control-label'],
+            'template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>',
+            'labelOptions' => ['class' => 'col-sm-3 control-label'],
             'options' => []
         ],
         ]);
@@ -53,6 +52,9 @@ $form = ActiveForm::begin([
                                   'todayHighlight' => true]])
                         ?>
                     </div>    
+                    <div class="row">
+                       <?= $form->field($model, 'id_planta')->dropDownList($planta, ['prompt' => 'Seleccione la planta...']) ?>
+                    </div>
                     <div class="row" col>
                         <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
                     </div>

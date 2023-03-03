@@ -133,7 +133,7 @@ class ValorPrendaUnidadController extends Controller
                 $operacion = null;
                 $dia_pago = '';
                 $fecha_corte = '';
-                $registro = NULL;
+                $bodega = null;
                 $validar_eficiencia = 0;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
@@ -143,14 +143,14 @@ class ValorPrendaUnidadController extends Controller
                         $operacion = Html::encode($form->operacion);
                         $dia_pago = Html::encode($form->dia_pago);
                         $fecha_corte = Html::encode($form->fecha_corte);
-                        $registro = Html::encode($form->exportado);
+                        $bodega = Html::encode($form->id_planta);
                         $table = ValorPrendaUnidadDetalles::find()
                                 ->andFilterWhere(['=', 'id_operario', $id_operario])
                                 ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
                                 ->andFilterWhere(['=', 'operacion', $operacion])
                                 ->andFilterWhere(['>=', 'dia_pago', $dia_pago])
                                 ->andFilterWhere(['<=', 'dia_pago', $fecha_corte])
-                                ->andFilterWhere(['=', 'exportado', $registro]);
+                                ->andFilterWhere(['=', 'id_planta', $bodega]);
                         $table = $table->orderBy('consecutivo DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -189,19 +189,6 @@ class ValorPrendaUnidadController extends Controller
                         $this->actionExcelResumeValorPrenda($tableexcel);
                     }
                 }
-                 if(isset($_POST['cerrar_abrir'])){                            
-                        if(isset($_REQUEST['consecutivo'])){                            
-                            $intIndice = 0;
-                            foreach ($_POST["consecutivo"] as $intCodigo) {
-                                if ($_POST["consecutivo"][$intIndice]) {                                
-                                   $codigo = $_POST["consecutivo"][$intIndice];
-                                   $this->actionCerrarAbrirRegistro($codigo);
-                                }
-                                $intIndice++;
-                            }
-                        }
-                       $this->redirect(["valor-prenda-unidad/indexsoporte"]);
-                 }
                 $to = $count->count();
                 return $this->render('indexsoporte', [
                             'modelo' => $modelo,
@@ -303,7 +290,7 @@ class ValorPrendaUnidadController extends Controller
         $detalle->save(false);
     }
     //VISTA
-    public function actionView($id, $idordenproduccion)
+    public function actionView($id, $idordenproduccion, $id_planta)
     {
         $detalles_pago = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->orderBy('consecutivo desc')->all();
         if (Yii::$app->request->post()) {
@@ -352,10 +339,10 @@ class ValorPrendaUnidadController extends Controller
                                      
                         $intIndice++;   
                     }
-                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
                 } else {
                     Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar al menos un registro.');
-                   return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+                   return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
                 }    
              }
         }        
@@ -487,7 +474,7 @@ class ValorPrendaUnidadController extends Controller
                     }
                     $this->Totalpagar($id);
                     $this->TotalCantidades($id);
-                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
                 }
             } 
            
@@ -495,6 +482,7 @@ class ValorPrendaUnidadController extends Controller
             'model' => $this->findModel($id),
             'idordenproduccion' => $idordenproduccion,
             'detalles_pago' => $detalles_pago,
+            'id_planta' =>$id_planta,
         ]);
     }
   
@@ -673,26 +661,27 @@ class ValorPrendaUnidadController extends Controller
     
     //PROCESOS Y SUBPROCESOS
     
-     public function actionNuevodetalle($id,$idordenproduccion)
+     public function actionNuevodetalle($id,$idordenproduccion, $id_planta)
     {              
         $valor_unidad = ValorPrendaUnidad::findOne($id);
         if($valor_unidad->cantidad_operacion > $valor_unidad->cantidad){
-           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]); 
+           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]); 
            Yii::$app->getSession()->setFlash('error', 'No se puede generar mas lineas porque la cantidad de operaciones  '.$valor_unidad->cantidad_operacion.' es mayor que la cantidad del lote '.$valor_unidad->cantidad .'.');  
         }else{
             if($valor_unidad->cantidad_procesada > $valor_unidad->cantidad){
-                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]); 
+                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]); 
                 Yii::$app->getSession()->setFlash('error', 'No se puede generar mas lineas porque la cantidad de confeccion y/o Terminación '.$valor_unidad->cantidad_procesada.' es mayor o igual que la cantidad del lote '.$valor_unidad->cantidad.'.');
             }else{    
                 $model = new ValorPrendaUnidadDetalles();
                 $model->id_valor = $id;                
-                 $model->idordenproduccion = $idordenproduccion;
+                $model->idordenproduccion = $idordenproduccion;
                 $model->dia_pago= date('Y-m-d');
+                $model->id_planta = $id_planta;
                 if($valor_unidad->id_proceso_confeccion <> 1){
                     $model->operacion = 2;
                 }
                 $model->save(false);
-                return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+                return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]);
             }
         }
        
@@ -700,7 +689,7 @@ class ValorPrendaUnidadController extends Controller
     
     //PROCESO QUE BUSCA EL MODULO Y TRAE LAS EMPLEADOS
     
-     public function actionNuevodetallemodular($id, $idordenproduccion)
+     public function actionNuevodetallemodular($id, $idordenproduccion, $id_planta)
     {              
        $fecha_corte = date('Y-m-d'); 
         $balanceo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->orderBy('id_balanceo asc')->all();
@@ -730,24 +719,24 @@ class ValorPrendaUnidadController extends Controller
                                  $valor_prenda->hora_inicio_modulo = $val->hora_inicio;
                                  $valor_prenda->idordenproduccion = $idordenproduccion;
                                  $valor_prenda->cantidad = $total; 
+                                 $valor_prenda->id_planta = $id_planta;
                                  $valor_prenda->save(false);
                               }
                         endforeach;
                     }else{
-                         $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+                         $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion,'id_planta' => $id_planta]);
                          Yii::$app->getSession()->setFlash('error', 'La orden de produccion Nro: '. $idordenproduccion. ', no tiene asignado empleados para las operaciones.'); 
                     }    
                 }else{
-                   $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+                   $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
                    Yii::$app->getSession()->setFlash('error', 'El modulo de balanceo Nro: '. $val->id_balanceo. ', no realizo confeccion el dia '.$fecha_corte.'. Favor hacer este proceso manual.'); 
                 }    
             endforeach;
-           return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+           return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
         }else{
-             $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+             $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
              Yii::$app->getSession()->setFlash('error', 'La orden de produccion Nro: '. $idordenproduccion. ', no tiene balanceo creado en sistema.!');
         }
-       // return $this->redirect(['view', 'id' => $id]);
     }
    
     //proceso de carga el pago de nomina
@@ -755,19 +744,22 @@ class ValorPrendaUnidadController extends Controller
     public function actionPagarserviciosoperarios() {
         
         $model = new \app\models\FormPagarServicioOperario();
-      
+        $planta = \app\models\PlantaEmpresa::find()->all();
         if ($model->load(Yii::$app->request->post())) {
             if ($model->validate()){
                 if (isset($_POST["crearfechaspago"])) {
                    $datosPago = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $model->fecha_inicio])
-                                                                      ->andWhere(['=','fecha_corte', $model->fecha_corte])->one(); 
+                                                                      ->andWhere(['=','fecha_corte', $model->fecha_corte])
+                                                                      ->andWhere(['=','id_planta', $model->id_planta])->one(); 
                     $fecha_inicio = $model->fecha_inicio;
-                    $fecha_corte = $model->fecha_corte;                   
+                    $fecha_corte = $model->fecha_corte;     
+                    $bodega = $model->id_planta;     
                     if($datosPago){
-                       $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
+                       $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 
                     }else{
                         $operario = Operarios::find()->where(['=','aplica_nomina_modulo', 1])
-                                                     ->andWhere(['=','estado', 1])->all();
+                                                     ->andWhere(['=','estado', 1])
+                                                     ->andWhere(['=','id_planta', $model->id_planta ])->all();
                        
                         foreach ($operario as $operarios):
                             $tabla = new \app\models\PagoNominaServicios();
@@ -777,11 +769,12 @@ class ValorPrendaUnidadController extends Controller
                             $tabla->fecha_inicio = $model->fecha_inicio;
                             $tabla->fecha_corte = $model->fecha_corte;
                             $tabla->observacion = $model->observacion;
+                            $tabla->id_planta = $operarios->id_planta;
                             $tabla->usuariosistema = Yii::$app->user->identity->username;
                             $tabla->save(false);
                         endforeach;
                        
-                         $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
+                         $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 
                     }    
                 }
                  
@@ -789,13 +782,14 @@ class ValorPrendaUnidadController extends Controller
         }
         
         return $this->renderAjax('pagarserviciosoperario', [
-            'model' => $model,       
+            'model' => $model,  
+            'planta' => ArrayHelper::map($planta, "id_planta", "nombre_planta"),
         ]);      
     }
     
     //metodo que llama los pagos del servicio
     
-    public function actionPageserviceoperario($fecha_inicio, $fecha_corte) {
+    public function actionPageserviceoperario($fecha_inicio, $fecha_corte, $bodega) {
         if (isset($_POST["id_pago"])) {
             $intIndice = 0;
             $matricula = \app\models\Matriculaempresa::findOne(1);
@@ -855,15 +849,16 @@ class ValorPrendaUnidadController extends Controller
                     }
                 }    
             endforeach;
-            return $this->render('pageserviceoperario', ['fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
+            return $this->render('pageserviceoperario', ['fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 
          }
-         return $this->render('pageserviceoperario', ['fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]);
+         return $this->render('pageserviceoperario', ['fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]);
     }
     //METODO QUE ACTUALIZA SALDO DE LA NOMINA DE CONFECCION
     
-    public function actionActualizarsaldo($fecha_corte, $fecha_inicio){
+    public function actionActualizarsaldo($fecha_corte, $fecha_inicio, $bodega){
         
-        $pago = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])->andWhere(['=','fecha_corte', $fecha_corte])->all(); 
+        $pago = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])->andWhere(['=','fecha_corte', $fecha_corte])
+                                                       ->andWhere(['=','id_planta', $bodega])->all(); 
         foreach ($pago as $pagoNomina):
             $pagoDetalle = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $pagoNomina->id_pago])->all();
             $deduccion = 0;
@@ -877,12 +872,13 @@ class ValorPrendaUnidadController extends Controller
             $pagoNomina->Total_pagar = $devengado - $deduccion;
             $pagoNomina->save(false);
         endforeach;
-        $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
+        $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 
     }
     
     //CODIGO QUE AUTORIZA LA NOMINA
-    public function actionAutorizarnomina($fecha_corte, $fecha_inicio) {
-        $pago = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])->andWhere(['=','fecha_corte', $fecha_corte])->orderBy('operario')->all();
+    public function actionAutorizarnomina($fecha_corte, $fecha_inicio, $bodega) {
+        $pago = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])->andWhere(['=','fecha_corte', $fecha_corte])
+                                                       ->andWhere(['=','id_planta', $bodega])->orderBy('operario')->all();
         foreach ($pago as $autorizar):
             $autorizar->autorizado = 1;
             $autorizar->save(false);
@@ -914,13 +910,13 @@ class ValorPrendaUnidadController extends Controller
                   }
             endforeach;
         endforeach;
-       $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]); 
+       $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 
     }
     
     
     //CODIGO QUE VA AL DETALLE DEL PAGO
     
-    public function actionVistadetallepago($id_pago, $fecha_corte, $fecha_inicio, $autorizado,  $token = 1) {
+    public function actionVistadetallepago($id_pago, $fecha_corte, $fecha_inicio, $autorizado, $bodega,  $token = 1) {
         $model = \app\models\PagoNominaServicios::findOne($id_pago);
         $detalle_pago = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $model->id_pago])->orderBy('devengado asc')->all();
         return $this->render('vista_detalle_pago', [
@@ -930,6 +926,7 @@ class ValorPrendaUnidadController extends Controller
                     'fecha_corte' => $fecha_corte,
                     'autorizado' => $autorizado,
                     'id_pago' => $id_pago,
+                    'bodega' => $bodega,
                     'token' => $token,
                     
         ]);
@@ -953,7 +950,7 @@ class ValorPrendaUnidadController extends Controller
     
     
     //ESTE CODIGO EDITAR EL DETALLE DEL PAGO
-    public function actionEditarvistadetallepago($id_pago, $id_detalle, $fecha_inicio, $fecha_corte, $autorizado) {
+    public function actionEditarvistadetallepago($id_pago, $id_detalle, $fecha_inicio, $bodega, $fecha_corte, $autorizado) {
         
         $model = \app\models\PagoNominaServicioDetalle::findOne($id_detalle);
         if ($model->load(Yii::$app->request->post())) {
@@ -961,20 +958,21 @@ class ValorPrendaUnidadController extends Controller
             $tabla->deduccion = $model->deduccion;
             $tabla->devengado = $model->devengado;
             $tabla->save(false);
-            return $this->redirect(['valor-prenda-unidad/vistadetallepago','id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado]);
+            return $this->redirect(['valor-prenda-unidad/vistadetallepago','id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado, 'bodega' => $bodega]);
         }
         return $this->render('editar_vista_detalle_pago', [
             'fecha_corte' => $fecha_corte,
             'fecha_inicio' => $fecha_inicio,
             'model' => $model,
             'id_pago' => $id_pago,
+            'bodega' => $bodega,
             'id_detalle' => $id_detalle,
             'autorizado' => $autorizado,
         ]);
     }
    // codigo que permite agregar mas concepto de salario
     
-    public function actionImportarconceptosalarios($id_pago, $fecha_inicio, $fecha_corte, $autorizado)
+    public function actionImportarconceptosalarios($id_pago, $fecha_inicio, $fecha_corte, $bodega, $autorizado)
     {
         $pilotoDetalle = \app\models\ConceptoSalarios::find()->Where(['=','adicion', 1])
                                                         ->andWhere(['=','tipo_adicion', 1])
@@ -1013,7 +1011,7 @@ class ValorPrendaUnidadController extends Controller
                 $table->deduccion = 0;
                 $table->save(false);                                                
             }
-           $this->redirect(["valor-prenda-unidad/vistadetallepago", 'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado]);
+           $this->redirect(["valor-prenda-unidad/vistadetallepago", 'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega, 'autorizado' => $autorizado]);
         }
         return $this->render('importarconceptosalarios', [
             'pilotoDetalle' => $pilotoDetalle,            
@@ -1022,6 +1020,7 @@ class ValorPrendaUnidadController extends Controller
             'fecha_inicio' => $fecha_inicio,
             'fecha_corte' => $fecha_corte,
             'autorizado' => $autorizado,
+            'bodega' => $bodega,
             'form' => $form,
 
         ]);
@@ -1029,11 +1028,11 @@ class ValorPrendaUnidadController extends Controller
     
     // PROCESO QUE ELIMINE EL DETALLE DEL PAGO
     
-     public function actionEliminardetallepago($id_pago,$id_detalle, $fecha_inicio, $fecha_corte, $autorizado)
+     public function actionEliminardetallepago($id_pago,$id_detalle, $fecha_inicio,$bodega, $fecha_corte, $autorizado)
     {                                
         $detalle = \app\models\PagoNominaServicioDetalle::findOne($id_detalle);
         $detalle->delete();
-        $this->redirect(["vistadetallepago",'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $autorizado]);        
+        $this->redirect(["vistadetallepago",'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega, 'autorizado' => $autorizado]);        
     }
     //proceso que imprime la colilla de confeccion
     
@@ -1048,30 +1047,30 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
-    public function actionEliminar($id,$detalle, $idordenproduccion)
+    public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta)
     {                                
         $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
         $detalle->delete();
         $this->Totalpagar($id);
         $this->TotalCantidades($id);
-        $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion]);        
+        $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta]);        
     }
     
     //ELIMINA EL REGISTRO D EPAGO
     
-    public function actionEliminarpago($id, $fecha_inicio, $fecha_corte)
+    public function actionEliminarpago($id, $fecha_inicio, $fecha_corte, $bodega)
     {                                
         try {
             $detalle = \app\models\PagoNominaServicios::findOne($id);
             $detalle->delete();
             Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con éxito.');
-            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte]);
+            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
         } catch (IntegrityException $e) {
-            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte]);
+            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
         } catch (\Exception $e) {            
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
-            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte]);
+            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
         }
     }
     
@@ -1121,37 +1120,37 @@ class ValorPrendaUnidadController extends Controller
        
     }
     
-    public function actionAutorizado($id, $idordenproduccion) {
+    public function actionAutorizado($id, $idordenproduccion, $id_planta) {
         $model = $this->findModel($id);
         $mensaje = "";
         if($model->cantidad_procesada > $model->cantidad  || $model->cantidad_operacion > $model->cantidad){
-            $this->redirect(["valor-prenda-unidad/view", 'id' => $id]);
+            $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'id_planta' => $id_planta]);
              Yii::$app->getSession()->setFlash('error', 'La cantidad y/o operacion procesada es mayor que las unidades entradas en la orden Nro: '. $model->idordenproduccion. '.');
         }else{  
             if ($model->autorizado == 0) {                        
                 $model->autorizado = 1;            
                $model->update();
-               $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]);  
+               $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]);  
 
             } else{
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]); 
+                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]); 
             }
         }    
     }
     
-    public function actionCerrarpago($id, $idordenproduccion) {
+    public function actionCerrarpago($id, $idordenproduccion, $id_planta) {
            $model = $this->findModel($id);
            $orden = Ordenproduccion::findOne($idordenproduccion);
            $model->cerrar_pago =  1;
            $model->estado_valor = 1;
            $model->save(false);
-           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
     }
     //cerrar el pago y la orden de produccion
     
-    public function actionCerrarpagoorden($id, $idordenproduccion) {
+    public function actionCerrarpagoorden($id, $idordenproduccion , $id_planta) {
            $model = $this->findModel($id);
            $orden = Ordenproduccion::findOne($idordenproduccion);
            $model->cerrar_pago = 1;
@@ -1159,12 +1158,12 @@ class ValorPrendaUnidadController extends Controller
            $model->save(false);
            $orden->pagada = 1;
            $orden->save(false);
-           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion]);
+           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
     }
     
     //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
     
-    public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio) {        
+    public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $id_planta) {        
         $model = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])->andWhere(['=','fecha_corte', $fecha_corte])->orderBy([ 'operario' =>SORT_ASC ])->all();
         $objPHPExcel = new \PHPExcel();
         // Set document properties
@@ -1191,7 +1190,7 @@ class ValorPrendaUnidadController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true); 
-        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A2', 'No PAGO')
@@ -1206,7 +1205,8 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('J2', 'DEVENGADO')
                     ->setCellValue('K2', 'DEDUCCION')
                     ->setCellValue('L2', 'TOTAL PAGAR')
-                    ->setCellValue('M2', 'OBSERVACION');
+                    ->setCellValue('M2', 'OBSERVACION')
+                    ->setCellValue('OL2', 'PLANTA');
                   
         $i = 3;
         foreach ($model as $val) {                            
@@ -1223,7 +1223,8 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('J' . $i, $val->devengado)
                     ->setCellValue('K' . $i, $val->deduccion)
                     ->setCellValue('L' . $i, $val->Total_pagar)
-                    ->setCellValue('M' . $i, $val->observacion);
+                    ->setCellValue('M' . $i, $val->observacion)
+                    ->setCellValue('O' . $i, $val->planta->nombre_planta);
               
                    
             $i++;                        
@@ -1370,6 +1371,7 @@ class ValorPrendaUnidadController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'PAGO DE OPERACIONES')
@@ -1383,7 +1385,8 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('H2', 'VR. PAGO')
                     ->setCellValue('I2', '% CUMPLIMIENTO')
                     ->setCellValue('J2', 'USUARIO')
-                    ->setCellValue('K2', 'OBSERVACION');
+                    ->setCellValue('K2', 'PLANTA')
+                     ->setCellValue('L2', 'OBSERVACION');
                   
         $i = 3;
         $confeccion = 'CONFECCION';
@@ -1413,7 +1416,8 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('H' . $i, $val->vlr_pago)
                     ->setCellValue('I' . $i, $val->porcentaje_cumplimiento)
                     ->setCellValue('J' . $i, $val->usuariosistema)
-                    ->setCellValue('K' . $i, $val->observacion);
+                    ->setCellValue('K' . $i, $val->planta->nombre_planta)
+                    ->setCellValue('L' . $i, $val->observacion);
               
                    
             $i++;                        

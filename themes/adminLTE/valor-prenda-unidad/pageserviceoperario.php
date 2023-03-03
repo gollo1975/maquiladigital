@@ -13,11 +13,12 @@ use kartik\depdrop\DepDrop;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\FichatiempoSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
- 
 $pago = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])
-                         ->andWhere(['=','fecha_corte', $fecha_corte])->one();
+                         ->andWhere(['=','fecha_corte', $fecha_corte])
+                         ->andWhere(['=','id_planta', $bodega])->one();
 $listado_operarios = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])
-                         ->andWhere(['=','fecha_corte', $fecha_corte])->orderBy('operario ASC')->all();
+                         ->andWhere(['=','fecha_corte', $fecha_corte])
+                         ->andWhere(['=','id_planta', $bodega])->orderBy('operario ASC')->all();
 $this->title = 'Resume de pago';
 $this->params['breadcrumbs'][] = $this->title;
 $form = ActiveForm::begin([
@@ -34,8 +35,8 @@ $form = ActiveForm::begin([
       <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['indexsoporte'], ['class' => 'btn btn-primary btn-sm']) ?>
       <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Generar nomina", ['name' => 'generarnomina', "class" => "btn btn-info btn-sm",]) ?>
       <?php
-       echo Html::a('<span class="glyphicon glyphicon-save-file"></span> Actualizar saldo', ['actualizarsaldo', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-default btn-sm']);
-       echo Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizarnomina', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-default btn-sm',
+       echo Html::a('<span class="glyphicon glyphicon-save-file"></span> Actualizar saldo', ['actualizarsaldo', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega], ['class' => 'btn btn-default btn-sm']);
+       echo Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizarnomina', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega], ['class' => 'btn btn-default btn-sm',
            'data' => ['confirm' => 'Esta seguro de Autorizar el proceso de pago..', 'method' => 'post']])?>   
     </p> 
  <?php }else{ ?>
@@ -57,6 +58,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha corte</th>
+                 <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Dias</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
@@ -82,21 +84,22 @@ $form = ActiveForm::begin([
                            <td><?= $val->operario ?></td>
                            <td><?= $val->fecha_inicio ?></td>
                            <td><?= $val->fecha_corte?></td>
-                             <td><?= $val->total_dias?></td>
+                            <td><?= $val->planta->nombre_planta?></td>
+                           <td><?= $val->total_dias?></td>
                            <td><?= $val->usuariosistema ?></td>
                            <td align="right"><?= ''.number_format($val->devengado,0) ?></td>
                            <td align="right"><?= ''.number_format($val->deduccion,0) ?></td>
                            <td align="right"><?= ''.number_format($val->Total_pagar,0) ?></td>
                            <td><?= $val->observacion?></td>
                            <td style=' width: 25px;'>
-                              <a href="<?= Url::toRoute(["valor-prenda-unidad/vistadetallepago",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'autorizado' => $pago->autorizado]) ?>" ><span class="glyphicon glyphicon-eye-open "></span></a>
+                              <a href="<?= Url::toRoute(["valor-prenda-unidad/vistadetallepago",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega, 'autorizado' => $pago->autorizado]) ?>" ><span class="glyphicon glyphicon-eye-open "></span></a>
                            </td>
                            <td style="width: 25px;">				
                                <a href="<?= Url::toRoute(["imprimircolillaconfeccion",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir "></span></a>
                            </td>
                             <td style=' width: 25px;'>
                                 <?php if ($val->autorizado == 0){ ?>
-                                <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarpago', 'id' => $val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], [
+                                <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarpago', 'id' => $val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega], [
                                     'class' => '',
                                     'data' => [
                                         'confirm' => 'Esta seguro de eliminar el registro?',
@@ -115,7 +118,7 @@ $form = ActiveForm::begin([
                 <?php endforeach; ?>
             </body>    
             <tr>
-               <td colspan="6"></td>
+               <td colspan="7"></td>
                <td align="right"><b>Totales</b></td>
                <td align="right" ><b><?= '$ '.number_format($Devengado,0); ?></b></td>
                <td align="right"><b><?= '$ '.number_format($Deduccion,0); ?></b></td>

@@ -15,6 +15,7 @@ class FormFiltroSearchPagePrenda extends Model
      public $fecha_inicio;
     public $fecha_corte;
     public $id_operario;
+    public $planta;
 
     /**
      * {@inheritdoc}
@@ -22,7 +23,7 @@ class FormFiltroSearchPagePrenda extends Model
     public function rules()
     {
         return [
-            [['documento', 'id_operario'], 'integer'],
+            [['documento', 'id_operario','planta'], 'integer'],
           [['fecha_inicio','fecha_corte'], 'safe'],
         ];
     }
@@ -37,6 +38,7 @@ class FormFiltroSearchPagePrenda extends Model
              'documento' => 'Documento:',
             'fecha_corte' =>  'Fecha corte:', 
             'fecha_inicio' => 'Fecha inico:',
+            'planta' => 'Planta/Bodega:',
             
         ];
     }

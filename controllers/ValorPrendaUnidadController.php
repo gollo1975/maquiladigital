@@ -198,6 +198,7 @@ class ValorPrendaUnidadController extends Controller
                             'dia_pago' =>$dia_pago,
                             'fecha_corte' => $fecha_corte,
                             'id_operario' => $id_operario,
+                            'bodega' => $bodega,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -216,20 +217,23 @@ class ValorPrendaUnidadController extends Controller
                 $id_operario = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
-                $documento = NULL;
+                $documento = NULL;  
+                $planta = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_operario = Html::encode($form->id_operario);
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $documento = Html::encode($form->documento);
+                        $planta = Html::encode($form->planta);
                         $table = \app\models\PagoNominaServicios::find()
                                 ->andFilterWhere(['=', 'id_operario', $id_operario])
                                 ->andFilterWhere(['=', 'fecha_inicio', $fecha_inicio])
                                 ->andFilterWhere(['=', 'fecha_corte', $fecha_corte])
                                 ->andFilterWhere(['=', 'documento', $documento])
+                                ->andFilterWhere(['=', 'id_planta', $planta])
                                 ->andWhere(['=','autorizado', 1]);
-                        $table = $table->orderBy('operario ASC');
+                        $table = $table->orderBy('id_pago DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
@@ -933,7 +937,7 @@ class ValorPrendaUnidadController extends Controller
     }
     
     //PERMITE CONSULTAR LAS COLILLAS DE PAGO
-    public function actionConsultadetallepago($id_pago, $fecha_corte, $fecha_inicio, $autorizado, $token = 2) {
+    public function actionConsultadetallepago($id_pago, $fecha_corte, $fecha_inicio, $bodega, $autorizado, $token = 2) {
         $model = \app\models\PagoNominaServicios::findOne($id_pago);
         $detalle_pago = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $model->id_pago])->orderBy('devengado asc')->all();
         return $this->render('vista_detalle_pago', [
@@ -943,6 +947,7 @@ class ValorPrendaUnidadController extends Controller
                     'fecha_corte' => $fecha_corte,
                     'autorizado' => $autorizado,
                     'id_pago' => $id_pago,
+                    'bodega' => $bodega,
                     'token' => $token,
                     
         ]);
@@ -1282,7 +1287,7 @@ class ValorPrendaUnidadController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true); 
-        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A2', 'No PAGO')
@@ -1297,7 +1302,8 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('J2', 'DEVENGADO')
                     ->setCellValue('K2', 'DEDUCCION')
                     ->setCellValue('L2', 'TOTAL PAGAR')
-                    ->setCellValue('M2', 'OBSERVACION');
+                    ->setCellValue('M2', 'OBSERVACION')
+                    ->setCellValue('N2', 'PLANTA');
                   
         $i = 3;
         foreach ($tableexcel as $val) {                            
@@ -1314,7 +1320,8 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('J' . $i, $val->devengado)
                     ->setCellValue('K' . $i, $val->deduccion)
                     ->setCellValue('L' . $i, $val->Total_pagar)
-                    ->setCellValue('M' . $i, $val->observacion);
+                    ->setCellValue('M' . $i, $val->observacion)
+                    ->setCellValue('N' . $i, $val->planta->nombre_planta);
               
                    
             $i++;                        

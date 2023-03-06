@@ -36,7 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
 
 ]);
-
+$plantaBodega= ArrayHelper::map(\app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecompleto asc')->all(), 'id_operario', 'nombrecompleto');
 ?>
 <div class="panel panel-success panel-filters">
@@ -68,6 +68,13 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+              <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
+                'data' => $plantaBodega,
+                'options' => ['prompt' => 'Seleccione la planta...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -99,7 +106,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                 <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Deducción</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Observacion</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -118,10 +125,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                         <td align="right"><?= ''.number_format($val->devengado,0) ?></td>
                         <td align="right"><?= ''.number_format($val->deduccion,0) ?></td>
                         <td align="right"><?= ''.number_format($val->Total_pagar,0) ?></td>
-                        <td><?= $val->usuariosistema ?></td>
+                        <td><?= $val->planta->nombre_planta ?></td>
                         <td><?= $val->observacion?></td>
                         <td style=' width: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/consultadetallepago", 'id_pago' => $val->id_pago, 'fecha_inicio' =>$val->fecha_inicio, 'fecha_corte' => $val->fecha_corte, 'autorizado' => $val->autorizado]) ?>" ><span class="glyphicon glyphicon-eye-open "></span></a>
+                            <a href="<?= Url::toRoute(["valor-prenda-unidad/consultadetallepago", 'id_pago' => $val->id_pago, 'fecha_inicio' =>$val->fecha_inicio, 'fecha_corte' => $val->fecha_corte, 'autorizado' => $val->autorizado, 'bodega' => $val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open "></span></a>
                         </td>
                         <td style="width: 25px;">				
                             <a href="<?= Url::toRoute(["imprimircolillaconfeccion",'id_pago' => $val->id_pago, 'fecha_inicio' =>$val->fecha_inicio, 'fecha_corte' => $val->fecha_corte]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir "></span></a>

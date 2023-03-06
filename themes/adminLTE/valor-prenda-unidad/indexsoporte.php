@@ -37,6 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
 
 ]);
+$servicio= ArrayHelper::map(\app\models\Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
 $bodegaPlanta= ArrayHelper::map(\app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecompleto asc')->all(), 'id_operario', 'nombrecompleto');
 ?>
@@ -73,6 +74,13 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
             <?= $formulario->field($form, 'id_planta')->widget(Select2::classname(), [
                 'data' => $bodegaPlanta,
                 'options' => ['prompt' => 'Seleccione la planta...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+              <?= $formulario->field($form, 'tipo_servicio')->widget(Select2::classname(), [
+                'data' => $servicio,
+                'options' => ['prompt' => 'Seleccione el servicio...'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],
@@ -120,7 +128,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         <ul class="nav nav-tabs" role="tablist">
            <li role="presentation" class="active"><a href="#listado" aria-controls="listado" role="tab" data-toggle="tab">Listado <span class="badge"><?= $pagination->totalCount ?></span></a></li>
            <li role="presentation" ><a href="#eficiencia" aria-controls="eficiencia" role="tab" data-toggle="tab">Eficiencia <span class="badge"></span></a></li>
-            <?php if($bodega > 0 && $dia_pago <> '' && $fecha_corte <> ''){?>
+            <?php if($bodega > 0 && $dia_pago <> '' && $fecha_corte <> '' && $tipo_servicio > 0){?>
                <li role="presentation" ><a href="#eficiencia_planta" aria-controls="eficiencia_planta" role="tab" data-toggle="tab">Eficiencia planta</a></li>
             <?php }?>   
         </ul>
@@ -327,7 +335,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
             </div>    
         </div>
         <!-- TERMINA TABS-->
-        <?php if($bodega > 0 && $dia_pago <> '' && $fecha_corte <> ''){?>
+        <?php if($bodega > 0 && $dia_pago <> '' && $fecha_corte <> '' && $tipo_servicio > 0){?>
             <div role="tabpanel" class="tab-pane" id="eficiencia_planta">
             <div class="table-responsive">
                 <div class="panel panel-success">
@@ -345,11 +353,13 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 $nombre = 0;
                                 $total = 0; $contador = 0; $granTotal = 0;
                                 $listado = ValorPrendaUnidadDetalles::find()->where(['=','id_planta', $bodega])
+                                                                             ->andWhere(['=', 'id_tipo', $tipo_servicio])
                                                                             ->andWhere(['=', 'dia_pago', $dia_pago])
                                                                             ->andWhere(['=','dia_pago', $fecha_corte])->orderBy('id_operario DESC')->all();
                                 foreach ($listado as $listados):
                                     $conOperario = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $listados->id_operario])
-                                                                                     ->andWhere(['=', 'dia_pago', $dia_pago])
+                                                                                      ->andWhere(['=', 'id_tipo', $tipo_servicio])
+                                                                                      ->andWhere(['=', 'dia_pago', $dia_pago])
                                                                                      ->andWhere(['=','dia_pago', $fecha_corte])->all();
                                     foreach ($conOperario as $consulta):
                                        $suma += $consulta->porcentaje_cumplimiento;
@@ -363,7 +373,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                          $suma = 0;
                                     }
                                 endforeach;
-                                $granTotal = ($total/$contador);
+                                if($total == 0){
+                                  $granTotal = 0;  
+                                }else{
+                                  $granTotal = ($total/$contador);
+                                }  
                                 ?>
                                 <tr>
                                        <td colspan="2"></td>

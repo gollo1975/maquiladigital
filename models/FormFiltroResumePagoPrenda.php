@@ -19,6 +19,7 @@ class FormFiltroResumePagoPrenda extends Model
     public $registro_pagado;
     public $id_planta;
     public $validar_eficiencia;
+    public $tipo_servicio;
 
     /**
      * {@inheritdoc}
@@ -26,7 +27,7 @@ class FormFiltroResumePagoPrenda extends Model
     public function rules()
     {
         return [
-            [['idordenproduccion', 'id_operario','operacion','registro_pagado','id_planta','validar_eficiencia'], 'integer'],
+            [['idordenproduccion', 'id_operario','operacion','registro_pagado','id_planta','validar_eficiencia','tipo_servicio'], 'integer'],
           [['dia_pago','fecha_corte'], 'safe'],
         ];
     }
@@ -45,6 +46,7 @@ class FormFiltroResumePagoPrenda extends Model
             'registro_pagado' => 'Registro pagado:',
             'id_planta' => 'Planta/Bodega:',
             'validar_eficiencia' => 'Buscar eficiencia:',
+            'tipo_servicio' => 'Tipo servicio:',
             
         ];
     }

@@ -134,6 +134,7 @@ class ValorPrendaUnidadController extends Controller
                 $dia_pago = '';
                 $fecha_corte = '';
                 $bodega = null;
+                $tipo_servicio = null;
                 $validar_eficiencia = 0;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
@@ -144,12 +145,14 @@ class ValorPrendaUnidadController extends Controller
                         $dia_pago = Html::encode($form->dia_pago);
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $bodega = Html::encode($form->id_planta);
+                        $tipo_servicio =Html::encode($form->tipo_servicio);
                         $table = ValorPrendaUnidadDetalles::find()
                                 ->andFilterWhere(['=', 'id_operario', $id_operario])
                                 ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
                                 ->andFilterWhere(['=', 'operacion', $operacion])
                                 ->andFilterWhere(['>=', 'dia_pago', $dia_pago])
                                 ->andFilterWhere(['<=', 'dia_pago', $fecha_corte])
+                                ->andFilterWhere(['=', 'id_tipo', $tipo_servicio])
                                 ->andFilterWhere(['=', 'id_planta', $bodega]);
                         $table = $table->orderBy('consecutivo DESC');
                         $tableexcel = $table->all();
@@ -199,6 +202,7 @@ class ValorPrendaUnidadController extends Controller
                             'fecha_corte' => $fecha_corte,
                             'id_operario' => $id_operario,
                             'bodega' => $bodega,
+                            'tipo_servicio' => $tipo_servicio,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -683,6 +687,7 @@ class ValorPrendaUnidadController extends Controller
                 $model->idordenproduccion = $idordenproduccion;
                 $model->dia_pago= date('Y-m-d');
                 $model->id_planta = $id_planta;
+                $model->id_tipo = $valor_unidad->idtipo;
                 if($valor_unidad->id_proceso_confeccion <> 1){
                     $model->operacion = 2;
                 }
@@ -1197,7 +1202,7 @@ class ValorPrendaUnidadController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true); 
-        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A2', 'No PAGO')
@@ -1213,7 +1218,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('K2', 'DEDUCCION')
                     ->setCellValue('L2', 'TOTAL PAGAR')
                     ->setCellValue('M2', 'OBSERVACION')
-                    ->setCellValue('OL2', 'PLANTA');
+                    ->setCellValue('N2', 'PLANTA');
                   
         $i = 3;
         foreach ($model as $val) {                            
@@ -1231,7 +1236,8 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('K' . $i, $val->deduccion)
                     ->setCellValue('L' . $i, $val->Total_pagar)
                     ->setCellValue('M' . $i, $val->observacion)
-                    ->setCellValue('O' . $i, $val->planta->nombre_planta);
+                    ->setCellValue('N' . $i, $val->planta->nombre_planta);
+
               
                    
             $i++;                        

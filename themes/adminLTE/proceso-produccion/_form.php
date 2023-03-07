@@ -27,9 +27,13 @@ use kartik\select2\Select2;
         <div class="row">
             <?= $form->field($model, 'proceso')->textInput(['maxlength' => true]) ?>
         </div>
-       <div class="row">
-            <?= $form->field($model, 'segundos')->textInput(['maxlength' => true]) ?>
+        <div class="row">
+           <?= $form->field($model, 'estado')->dropDownList(['1' => 'SEGUNDOS', '2' => 'MINUTOS'],['prompt' =>'Seleccione...','onchange' => 'mostrarVariable()', 'id' => 'estado'])?>
         </div>
+        <div class="row">
+             <div id="segundos" style="display:none"> <?= $form->field($model, 'segundos')->textInput(['maxlength' => true]) ?></div>
+             <div id="minutos" style="display:none"> <?= $form->field($model, 'minutos')->textInput(['maxlength' => true]) ?></div>
+        </div>      
         <div class="row">
             <?= $form->field($model, 'estandarizado')->dropDownList(['1'=> 'SI', '0'=>'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
@@ -41,3 +45,16 @@ use kartik\select2\Select2;
     </div>
 </div>
 <?php ActiveForm::end(); ?>
+<script type="text/javascript">
+    function mostrarVariable(){
+        let segundo = document.getElementById('estado').value;
+        if(segundo === '1'){
+           segundos.style.display = "block";
+            minutos.style.display = "none";
+        } else {
+            minutos.style.display = "block";
+            segundos.style.display = "none";
+           
+        }
+    }
+</script> 

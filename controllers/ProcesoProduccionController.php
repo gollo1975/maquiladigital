@@ -82,15 +82,15 @@ class ProcesoProduccionController extends Controller
             if ($model->validate()) { 
                 $table = new ProcesoProduccion();
                 $table->proceso = $model->proceso;
-                $table->segundos = $model->segundos;
-                if ($table->segundos == ''){
-                    $table->segundos = 0;
-                    $table->minutos = 0;
+                if ($model->estado == 1){
+                    $table->segundos = ($table->minutos *60);
+                    $table->minutos = $model->minutos;
                     $table->estandarizado = $model->estandarizado;
                     $table->save(false);
                     return $this->redirect(['index']);
                 }else{
-                    $table->minutos = ($table->segundos * 1)/60;
+                    $table->minutos = $model->minutos;
+                    $table->segundos = round($model->minutos * 60);
                     $table->estandarizado = $model->estandarizado;
                     $table->save(false);
                     return $this->redirect(['index']);
@@ -119,17 +119,18 @@ class ProcesoProduccionController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             $table = ProcesoProduccion::find()->where(['idproceso' => $id])->one();
             $table->proceso = $model->proceso;
-            $table->segundos = $model->segundos;
-            if($table->segundos == ''){
-                $table->segundos = 0;
-                $table->minutos = 0;
+            echo $model->estado;
+            if($model->estado == 1){
+                $table->segundos = $model->segundos;
+                $table->minutos = round($model->segundos * 1)/60;
                 $table->estandarizado = $model->estandarizado;
-                $table->save();
+                $table->save(false);
                 return $this->redirect(['index']);
             }else{
-                $table->minutos = ($model->segundos * 1)/60;
+                $table->minutos = $model->minutos;
+                $table->segundos = round($model->minutos * 60);
                 $table->estandarizado = $model->estandarizado;
-                $table->save();
+                $table->save(false);
                 return $this->redirect(['index']);
             }    
         }
@@ -138,13 +139,12 @@ class ProcesoProduccionController extends Controller
             if($table){ 
                 $model->proceso =   $table->proceso;
                 $model->segundos = $table->segundos;
+                $model->minutos = $table->minutos;
                 $model->estandarizado = $table->estandarizado;
             }else{
                 return $this->redirect(['index']);
             }
-        } else {
-            return $this->redirect(['index']);
-        }    
+        } 
         return $this->render('update', [
             'model' => $model,
         ]);

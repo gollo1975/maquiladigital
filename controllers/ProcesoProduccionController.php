@@ -83,7 +83,7 @@ class ProcesoProduccionController extends Controller
                 $table = new ProcesoProduccion();
                 $table->proceso = $model->proceso;
                 if ($model->estado == 1){
-                    $table->segundos = ($table->minutos *60);
+                    $table->segundos = round($table->minutos * 60);
                     $table->minutos = $model->minutos;
                     $table->estandarizado = $model->estandarizado;
                     $table->save(false);

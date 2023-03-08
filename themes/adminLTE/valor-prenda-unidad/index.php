@@ -174,7 +174,7 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                         if ($val->cerrar_pago == 0){?>
                             <td style= 'width: 8px; height: 8px; font-size: 8px;'>
                                  <?php echo Html::a('<span class="glyphicon glyphicon-user "></span> ',            
-                                     ['/valor-prenda-unidad/buscaroperaciones','id' => $val->id_valor,'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta],
+                                     ['/valor-prenda-unidad/buscaroperaciones','id' => $val->id_valor,'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'id_tipo' => $val->tipo->idtipo],
                                      [
                                          'title' => 'Buscar operaciones',
                                          'data-toggle'=>'modal',

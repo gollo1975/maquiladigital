@@ -301,59 +301,6 @@ class ValorPrendaUnidadController extends Controller
     public function actionView($id, $idordenproduccion, $id_planta)
     {
         $detalles_pago = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->orderBy('consecutivo desc')->all();
-        if (Yii::$app->request->post()) {
-            if (isset($_POST["aplicaregla"])) {
-                if (isset($_POST["consecutivo"])) {
-                    $intIndice = 0;
-                    $auxiliar = 0; $suma = 0; $total = 0;
-                    $matricula = \app\models\Matriculaempresa::findOne(1);
-                    $regla = \app\models\ReglaComisiones::find()->where(['=','estado_regla', 1])->one();
-                    foreach ($_POST["consecutivo"] as $intCodigo) {
-                        $table = ValorPrendaUnidadDetalles::findOne($intCodigo);
-                        $auxiliar = $table->control_fecha;
-                        $operario = Operarios::findOne($table->id_operario);
-                        $consulta = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario->id_operario])
-                                                                     ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                     ->andWhere(['=','dia_pago', $table->dia_pago])->all();
-                        $contador = 0;
-                        if($table->aplica_regla == 0 && $table->aplica_sabado == 0){
-                            foreach ($consulta as $valor){
-                               $contador += $valor->porcentaje_cumplimiento;
-                            }
-                            if($contador > $regla->porcentaje_cumplimiento){
-                                if($operario->vinculado == 1){
-                                    $total =0;
-                                    $total = round(($table->vlr_prenda / $matricula->vlr_minuto_vinculado) *($regla->valor_minuto_vinculado));
-                                    $table->vlr_prenda = $total;
-                                    $table->vlr_pago = $table->cantidad * $total;
-
-                                }else{
-                                    $total =0;
-                                    $total = round(($table->vlr_prenda/$matricula->vlr_minuto_contrato) *($regla->valor_minuto_contrato));
-                                    $table->vlr_prenda = $total;
-                                    $table->vlr_pago = $table->cantidad * $total;
-                                    $table->costo_dia_operaria =  $table->vlr_pago;
-                                } 
-
-                            }
-                            $table->aplica_regla = 1;
-                            $table->save(false);
-                              
-                        }else{
-                           
-                            $table->aplica_regla = 1;
-                            $table->save(false);  
-                        }
-                                     
-                        $intIndice++;   
-                    }
-                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
-                } else {
-                    Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar al menos un registro.');
-                   return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
-                }    
-             }
-        }        
         //proceso para actualizar
            if (!isset($_POST["actualizarlinea"])) { 
                 if (isset($_POST["detalle_pago_prenda"])) {
@@ -606,7 +553,7 @@ class ValorPrendaUnidadController extends Controller
     }
    
     //MODAL QUE BUSCA LAS OPERACIONES DE LOS OPERARIOS EN PREPARACION
-    public function actionBuscaroperaciones($id, $idordenproduccion, $id_planta) {
+    public function actionBuscaroperaciones($id, $idordenproduccion, $id_planta, $id_tipo) {
         
         if (Yii::$app->request->post()) {
             if (isset($_POST["validaroperario"])) {
@@ -651,6 +598,7 @@ class ValorPrendaUnidadController extends Controller
                         $prenda->operacion = 2;
                         $prenda->vlr_prenda = $valor;
                         $prenda->id_planta = $id_planta;
+                         $prenda->id_tipo = $id_tipo  ;
                         $prenda->observacion = $vinculado;
                         $prenda->save(false);
                         $intIndice ++;
@@ -664,6 +612,7 @@ class ValorPrendaUnidadController extends Controller
             'id' => $id,
             'idordenproduccion' => $idordenproduccion,
             'id_planta' => $id_planta,
+            'id_tipo' => $id_tipo,
             ]);
     }
         
@@ -1171,6 +1120,67 @@ class ValorPrendaUnidadController extends Controller
            $orden->pagada = 1;
            $orden->save(false);
            $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
+    }
+    
+    //PRCESO QUE APLICA REGLA
+    
+    public function actionAplicar_regla($id, $idordenproduccion, $id_planta) {
+        $valores = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])
+                                                    ->andWhere(['=','aplica_regla', 0])->andWhere(['=','aplica_sabado', 0])->orderBy('id_operario ASC')->all();
+        if (isset($_POST["consecutivo"])) {
+            $intIndice = 0;
+            $auxiliar = 0; $suma = 0; $total = 0;
+            $matricula = \app\models\Matriculaempresa::findOne(1);
+            $regla = \app\models\ReglaComisiones::find()->where(['=','estado_regla', 1])->one();
+            foreach ($_POST["consecutivo"] as $intCodigo) {
+                $table = ValorPrendaUnidadDetalles::findOne($intCodigo);
+                $auxiliar = $table->control_fecha;
+                $operario = Operarios::findOne($table->id_operario);
+                $consulta = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario->id_operario])
+                                                             ->andWhere(['=','dia_pago', $table->dia_pago])->all();
+                $contador = 0;
+                if($table->aplica_regla == 0 && $table->aplica_sabado == 0){
+                    foreach ($consulta as $valor){
+                       $contador += $valor->porcentaje_cumplimiento;
+                    }
+                    if($contador > $regla->porcentaje_cumplimiento){
+                        foreach ($consulta as $val):
+                            $tabla = ValorPrendaUnidadDetalles::findOne($val->consecutivo);
+                            if($operario->vinculado == 1){
+                                $total =0;
+                                $total = (($val->vlr_prenda / $matricula->vlr_minuto_vinculado) *($regla->valor_minuto_vinculado));
+                                $tabla->vlr_prenda = round($total,0);
+                                $tabla->vlr_pago = $tabla->cantidad * $total;
+                                $tabla->aplica_regla = 1;
+                                $tabla->save(false);
+                            }else{
+                                $total =0;
+                                $total = (($val->vlr_prenda/$matricula->vlr_minuto_contrato) *($regla->valor_minuto_contrato));
+                                $tabla->vlr_prenda = round($total, 0);
+                                $tabla->vlr_pago = $tabla->cantidad * $total;
+                                $tabla->costo_dia_operaria =  $tabla->vlr_pago;
+                                $tabla->aplica_regla = 1;
+                                $tabla->save(false);
+                            } 
+                             $intIndice++;   
+                        endforeach;
+                    }else{
+                        $table->aplica_regla = 1;
+                        $table->save(false);
+                    }    
+                }
+                $intIndice++;   
+            }
+            $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
+        }
+        
+        return $this->render('_aplicar_regla', [
+            'valores' => $valores,            
+            'id' => $id,
+            'idordenproduccion' => $idordenproduccion,
+            'id_planta' => $id_planta,
+
+        ]);
     }
     
     //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS

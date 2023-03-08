@@ -1,15 +1,19 @@
 <?php
 
+
 use yii\helpers\Html;
+use yii\bootstrap\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\LinkPager;
+use yii\bootstrap\Modal;
+use kartik\depdrop\DepDrop;
 use yii\widgets\DetailView;
-use yii\widgets\ActiveForm;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
 use yii\web\Session;
-use yii\db\ActiveQuery;
 //modelos
 use app\models\Operarios;
 use app\models\Ordenproduccion;
@@ -106,15 +110,16 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
     </div>
 </div>   
 <?php
+ $formulario = ActiveForm::begin([
+    
+    'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
+    'fieldConfig' => [
+                    'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
+                    'labelOptions' => ['class' => 'col-sm-3 control-label'],
+                    'options' => []
+                ],
 
-$form = ActiveForm::begin([
-            'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
-            'fieldConfig' => [
-                'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
-                'labelOptions' => ['class' => 'col-sm-3 control-label'],
-                'options' => []
-            ],
-        ]);
+]);
 ?>
     <!--INICIO LOS TABS-->
 
@@ -128,7 +133,8 @@ $form = ActiveForm::begin([
                 <?php }?>         
                 <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary btn-sm, 'name' => 'actualizarlinea'",]) ?>
                 <?php if(app\models\Matriculaempresa::find()->where(['=','aplica_regla', 1])->one()){?>
-                   <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Aplicar regla", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicaregla']) ?>
+                   <?= Html::a('<span class="glyphicon glyphicon-check"></span> Aplica regla', ['valor-prenda-unidad/aplicar_regla', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta], ['class' => 'btn btn-warning btn-sm']) ?>
+                   
                <?php } 
          }?>
     </div>
@@ -231,7 +237,7 @@ $form = ActiveForm::begin([
                                                           <td></td>
                                                     <?php } 
                                                     if($val->aplica_regla == 0){?> 
-                                                           <td><input type="checkbox" name="consecutivo[]" value="<?= $val->consecutivo ?>"></td>
+                                                           <td><input type="checkbox" name="codigoEntrada[]" value="<?= $val->consecutivo ?>"></td>
                                                     <?php }else{?>       
                                                            <td style= 'width: 25px;'></td>
                                                     <?php }?>       

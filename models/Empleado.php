@@ -105,7 +105,7 @@ class Empleado extends \yii\db\ActiveRecord
             ['cuenta_bancaria', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['cuenta_bancaria', 'usuario_crear','usuario_editar'], 'string'],
             [['ciudad_expedicion', 'iddepartamento', 'idmunicipio', 'sexo', 'libreta_militar', 'distrito_militar', 'ciudad_nacimiento'], 'string', 'max' => 15],
-            [['nombre1', 'nombre2', 'apellido1', 'apellido2', 'telefono', 'celular'], 'string', 'max' => 20],
+            [['nombre1', 'nombre2', 'apellido1', 'apellido2', 'telefono', 'celular'], 'string', 'max' => 22],
             [['nombrecorto', 'direccion', 'barrio'], 'string', 'max' => 100],
             [['email'], 'string', 'max' => 60],
             [['id_empleado_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => EmpleadoTipo::className(), 'targetAttribute' => ['id_empleado_tipo' => 'id_empleado_tipo']],

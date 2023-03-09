@@ -8,6 +8,7 @@ use app\models\EmpleadoSearch;
 use app\models\FormEmpleado;
 use app\models\UsuarioDetalle;
 use app\models\FormFiltroEmpleado;
+use app\models\Operarios;
 //clases yii
 use Yii;
 use yii\web\Controller;
@@ -72,7 +73,7 @@ class EmpleadoController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -92,7 +93,7 @@ class EmpleadoController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 40,
+                        'pageSize' => 20,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -338,7 +339,7 @@ class EmpleadoController extends Controller
     }
     
     public function actionMunicipio($id) {
-        $rows = Municipio::find()->where(['iddepartamento' => $id])->all();
+        $rows = Municipio::find()->where(['=','iddepartamento', $id])->all();
 
         echo "<option required>Seleccione...</option>";
         if (count($rows) > 0) {
@@ -356,4 +357,48 @@ class EmpleadoController extends Controller
             
         ]);
     }
+   //PROCESO QUE EXPORTA EMPLEADOS
+    
+    public function actionImportar_operarios()
+    {
+        $operarios = \app\models\Operarios::find()->where(['=','vinculado', 1])
+                                                  ->andWhere(['=','estado', 1])->orderBy('nombrecompleto ASC')->all();
+        if (isset($_POST["importar"])) {
+            $intIndice = 0;
+            foreach ($_POST["importar"] as $intCodigo):
+                 $operario = Operarios::find()->where(['=','documento', $intCodigo])->one();
+                 if($operario){
+                    $table = new Empleado();
+                    $table->id_empleado_tipo = 1;
+                    $table->id_tipo_documento = $operario->id_tipo_documento;
+                    $table->identificacion = $operario->documento;
+                    $table->nombre1 = $operario->nombres;
+                    $table->apellido1 = $operario->apellidos;
+                    $table->nombrecorto = $operario->nombrecompleto;
+                    $table->direccion = 0;
+                    $table->telefono = 0;
+                    $table->celular = $operario->celular;
+                    $table->email = $operario->email;
+                    $table->iddepartamento = $operario->iddepartamento;
+                    $table->iddepartamento = $operario->iddepartamento;
+                    $table->idmunicipio = $operario->idmunicipio;
+                    $table->iddepartamento = $operario->iddepartamento;
+                    $table->fecha_nacimiento = $operario->fecha_nacimiento;
+                    $table->contrato = 0;
+                    $table->id_horario = $operario->id_horario;
+                    $table->id_sucursal = $operario->id_planta;
+                    $table->usuario_crear = Yii::$app->user->identity->username;
+                    $table->save(false);
+                 }
+                 $intIndice++;
+            endforeach;
+            $this->redirect(["empleado/indexempleado"]);
+        }
+        return $this->render('_importar_operarios', [
+            'operarios' => $operarios,            
+
+        ]);
+       
+    }
+    
 }

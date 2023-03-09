@@ -203,15 +203,6 @@ function mostrar() {
     }
 };
 
-function porcentajeExportacion() {
-    variable = document.getElementById('exportacion').value;
-    if (variable == '1') {
-        porcentaje_exportacion.style.display = "block";
-    } else if (variable == '2') {
-        porcentaje_exportacion.style.display = "none";
-    }
-};
-
 function mostrar2() {
     idtipo = document.getElementById('id_tipo_documento').value;
     if (idtipo == '1') {
@@ -252,9 +243,9 @@ function fpago() {
 
 
 function tipocontrato(){
-   id_tipo_contrato = document.getElementById('id_tipo_contrato').value;
+   let id_tipo_contrato = document.getElementById('id_tipo_contrato').value;
    
-   if (id_tipo_contrato == 1) {       
+   if (id_tipo_contrato == 1 || id_tipo_contrato == 3) {       
         document.getElementById('fecha_final').value = '2099-12-30';
         document.getElementById('fecha_final').disabled = true;       
    }else{

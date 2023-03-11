@@ -1123,7 +1123,7 @@ class ValorPrendaUnidadController extends Controller
                                                     ->andWhere(['=','aplica_regla', 0])->andWhere(['=','aplica_sabado', 0])->orderBy('id_operario ASC')->all();
         if (count($valores)== 0){
             $valores = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])
-                                            ->andWhere(['=','aplica_sabado', 0])->orderBy('id_operario ASC')->all(); 
+                                            ->andWhere(['=','aplica_sabado', 1])->orderBy('id_operario ASC')->all(); 
         }
         if (isset($_POST["consecutivo"])) {
             $intIndice = 0;

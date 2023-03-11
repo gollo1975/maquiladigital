@@ -1120,7 +1120,7 @@ class ValorPrendaUnidadController extends Controller
     
     public function actionAplicar_regla($id, $idordenproduccion, $id_planta) {
         $valores = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])
-                                                    ->andWhere(['=','aplica_regla', 0])->andWhere(['=','aplica_sabado', 0])->orderBy('id_operario ASC')->all();
+                                                    ->andWhere(['=','aplica_regla', 0])->orWhere(['=','aplica_sabado', 0])->orderBy('id_operario ASC')->all();
         if (isset($_POST["consecutivo"])) {
             $intIndice = 0;
             $auxiliar = 0; $suma = 0; $total = 0;

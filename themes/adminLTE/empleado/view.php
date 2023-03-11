@@ -115,7 +115,12 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'banco_empleado') ?>:</th>
                     <td><?= Html::encode($model->bancoEmpleado->banco) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipo_cuenta') ?>:</th>
-                    <td><?= Html::encode($model->tipo_cuenta) ?></td>
+                    <td> <?php if ($model->tipo_cuenta == 'S'){?>
+                         <?= 'AHORRO' ?>
+                    <?php }else{?>
+                        <?= 'CORRIENTE' ?>
+                    <?php }?>     
+                    </td>
                 </tr>
                 <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'cuenta_bancaria') ?>:</th>

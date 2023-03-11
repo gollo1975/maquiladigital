@@ -288,6 +288,7 @@ class ClientesController extends Controller {
     }
 
     public function actionMunicipio($id) {
+
         $rows = Municipio::find()->where(['iddepartamento' => $id])->all();
 
         echo "<option required>Seleccione...</option>";

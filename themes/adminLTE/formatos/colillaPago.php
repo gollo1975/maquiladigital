@@ -104,7 +104,7 @@ class PDF extends FPDF {
          $this->SetFont('Arial', 'B', 7);
          $this->Cell(40, 5, utf8_decode("TIPO CUENTA:"), 0, 0, 'R', 1);
           $this->SetFont('Arial', '', 7);
-        $this->Cell(30, 5, utf8_decode($empleado->tipo_cuenta), 0, 0, 'R', 1);  
+        $this->Cell(30, 5, utf8_decode($empleado->tipoCuenta), 0, 0, 'R', 1);  
         
        //FIN BLOQUE
         //INICIO

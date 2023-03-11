@@ -401,4 +401,16 @@ class EmpleadoController extends Controller
        
     }
     
+    public function actionMostrarDepartamentos($id) {
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $depto = \app\models\Departamento::find()->andWhere(['iddepartamento' => $id])->all();
+        $data = [['id' => '', 'text' => '']];
+        foreach ($depto as $deptos) {
+            $data[] = ['id' => $deptos->iddepartamento, 'text' => $deptos->departamento];
+        }
+        return ['data' => $data];
+    }
+
+    
 }

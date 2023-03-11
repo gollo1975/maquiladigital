@@ -102,7 +102,7 @@ $this->params['breadcrumbs'][] = $model->id_programacion;
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Banco') ?>:</th>
                     <td  colspan="3"><?= Html::encode($banco->banco) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cuenta') ?>:</th>
-                    <td><?= Html::encode($empleado->tipo_cuenta) ?></td>
+                    <td><?= Html::encode($empleado->tipoCuenta) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nro_Cuenta') ?>:</th>
                     <td><?= Html::encode($empleado->cuenta_bancaria) ?></td>
 

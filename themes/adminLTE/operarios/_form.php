@@ -37,6 +37,7 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
 $arl = ArrayHelper::map(Arl::find()->all(), 'id_arl', 'arl');
 $horario = ArrayHelper::map(Horario::find()->all(), 'id_horario', 'horario');
 $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
+$banco_empleado = ArrayHelper::map(app\models\BancoEmpleado::find()->all(), 'id_banco_empleado', 'banco');
 
 ?>
 <div class="panel panel-success">
@@ -75,7 +76,7 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
             <?= $form->field($model, 'estado')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
          <div class="row">
-              <?= $form->field($model, 'polivalente')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
+             <?= $form->field($model, 'polivalente')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
             <?= $form->field($model, 'vinculado')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
         <div class="row">
@@ -104,7 +105,17 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                     'pluginOptions' => [
                         'allowClear' => true ]]);
             ?>
+             <?= $form->field($model, 'banco')->widget(Select2::classname(), [
+                    'data' => $banco_empleado,
+                    'options' => ['placeholder' => 'Seleccione...'],
+                    'pluginOptions' => [
+                        'allowClear' => true ]]);
+            ?>
         </div>
+         <div class="row">
+            <?= $form->field($model, 'tipo_cuenta')->dropDownList(['S' => 'AHORRO', 'D' => 'CORIENTE'], ['prompt' => 'Seleccione una opcion...']) ?> 
+            <?= $form->field($model, 'numero_cuenta')->textInput(['maxlength' => true]) ?>
+        </div>  
         
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("operarios/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>

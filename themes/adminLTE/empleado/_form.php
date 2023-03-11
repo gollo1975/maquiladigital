@@ -16,11 +16,23 @@ use app\models\CentroCosto;
 use app\models\Rh;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
+use yii\helpers\Json;
+use yii\web\View;
+yii\web\View::POS_END;
+
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Empleado */
 /* @var $form yii\widgets\ActiveForm */
+$select2Options = [
+    'multiple' => false,
+    'theme' => 'krajee',
+    'placeholder' => 'Modo de autocompletar',
+    'language' => 'en-US',
+    'width' => '100%',
+];
 ?>
+
 
 <?php
 $form = ActiveForm::begin([
@@ -95,12 +107,18 @@ $rh = ArrayHelper::map(Rh::find()->all(), 'id_rh', 'rh');
         <div class="row">
             <?= $form->field($model, 'celular')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'email')->textInput(['maxlength' => true]) ?>
-        </div>                
+        </div>     
+        
         <div class="row">
-            <?= $form->field($model, 'iddepartamento')->dropDownList($departamento, [ 'prompt' => 'Seleccione una opcion...', 'onchange' => ' $.get( "' . Url::toRoute('clientes/municipio') . '", { id: $(this).val() } ) .done(function( data ) {
-            $( "#' . Html::getInputId($model, 'idmunicipio', ['required', 'class' => 'select-2']) . '" ).html( data ); });']); ?>
-            <?= $form->field($model, 'idmunicipio')->dropDownList($municipio, ['prompt' => 'Seleccione una opcion...']) ?>
-        </div>
+            <?= $form->field($model, 'iddepartamento')->dropDownList($departamento, [ 'prompt' => 'Seleccione una opcion...', 'onchange' => ' $.get( "' . Url::toRoute('empleado/mostrarDepartamentos') . '", { id: $(this).val() } ) .done(function( data ) {
+                      $( "#' . Html::getInputId($model, 'idmunicipio', ['required', 'class' => 'select-2']) . '" ).html( data ); });']); ?>
+                      <?= $form->field($model, 'idmunicipio')->widget(Select2::classname(), [
+                      'data' => $municipio,
+                      'options' => ['placeholder' => 'Seleccione la ciudad'],
+                      'pluginOptions' => [
+                          'allowClear' => true ]]);
+                      ?>
+
         <div class="row">
             <?= $form->field($model, 'barrio')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'id_rh')->dropDownList($rh, ['prompt' => 'Seleccione una opcion...']) ?>
@@ -144,7 +162,7 @@ $rh = ArrayHelper::map(Rh::find()->all(), 'id_rh', 'rh');
         </div>
         <div class="row">
             <?= $form->field($model, 'id_banco_empleado')->dropDownList($banco_empleado, ['prompt' => 'Seleccione una opcion...']) ?>
-            <?= $form->field($model, 'tipo_cuenta')->dropDownList(['AHORRO' => 'AHORRO', 'CORRIENTE' => 'CORRIENTE'], ['prompt' => 'Seleccione una opcion...']) ?>
+            <?= $form->field($model, 'tipo_cuenta')->dropDownList(['S' => 'AHORRO', 'D' => 'CORRIENTE'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
         <div class="row">
             <?= $form->field($model, 'cuenta_bancaria')->textInput(['maxlength' => true]) ?>    
@@ -158,7 +176,7 @@ $rh = ArrayHelper::map(Rh::find()->all(), 'id_rh', 'rh');
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
     </div>
+    <?php $form->end() ?>     
 </div>
-<?php $form->end() ?>     
 
-</div>
+        

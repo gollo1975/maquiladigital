@@ -33,6 +33,9 @@ class FormOperarios extends Model
     public $id_arl;
     public $id_horario;
     public $id_planta;
+    public $banco;
+    public $numero_cuenta;
+    public $tipo_cuenta;
 
 
     /**
@@ -41,15 +44,16 @@ class FormOperarios extends Model
     public function rules()
     {
         return [
-          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl','id_horario','id_planta'], 'required', 'message' => 'Campo requerido'],
+          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl','id_horario','id_planta','banco'], 'required', 'message' => 'Campo requerido'],
             ['documento', 'identificacion_existe'],
             ['email', 'email_existe'],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
-            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta'], 'integer'],
+            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta','banco'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['nombres', 'apellidos'], 'string', 'max' => 40],
-            [['iddepartamento', 'idmunicipio','celular'], 'string', 'max' => 15],
+            [['iddepartamento', 'idmunicipio','celular','numero_cuenta'], 'string', 'max' => 15],
             [['email'], 'string', 'max' => 60],
+            [['tipo_cuenta'], 'string', 'max' => 1],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
         ];
     }
@@ -79,7 +83,10 @@ class FormOperarios extends Model
             'id_arl' => '% Arl:',
             'nomina_alterna' => 'Aplica nomina alterna:',
             'id_horario' => 'Horario:',
-            'id_planta' => 'Planta / Bodega:'
+            'id_planta' => 'Planta / Bodega:',
+            'banco' => 'Banco:',
+            'numero_cuenta' => 'Numero cuenta:',
+            'tipo_cuenta' => 'Tipo cuenta:',
             
         ];
     }

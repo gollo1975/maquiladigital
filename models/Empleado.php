@@ -349,6 +349,15 @@ class Empleado extends \yii\db\ActiveRecord
         }
         return $padreFamilia;
     }
+     public function getTipocuenta()
+     {
+        if($this->tipo_cuenta == 'S'){
+            $cuenta = "AHORRO";
+        }else{
+            $cuenta = "CORRIENTE";
+        }
+        return $cuenta;
+    }
     
     public function getdiscapacitado()
     {

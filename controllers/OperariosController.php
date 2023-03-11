@@ -22,6 +22,7 @@ use yii\web\Response;
 use yii\helpers\Html;
 use yii\data\Pagination;
 use yii\bootstrap\Modal;
+use yii\helpers\ArrayHelper;
 
 /**
  * OperariosController implements the CRUD actions for Operarios model.
@@ -191,6 +192,9 @@ class OperariosController extends Controller
                 $table->id_arl = $model->id_arl;
                 $table->id_horario = $model->id_horario;
                 $table->id_planta = $model->id_planta;
+                $table->id_banco_empleado = $model->banco;
+                $table->tipo_cuenta = $model->tipo_cuenta;
+                $table->numero_cuenta = $model->numero_cuenta;
                 $table->usuariosistema =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["operarios/index"]);
@@ -245,6 +249,9 @@ class OperariosController extends Controller
                    $table->id_arl = $model->id_arl;
                    $table->id_horario= $model->id_horario;
                    $table->id_planta= $model->id_planta;
+                   $table->id_banco_empleado = $model->banco;
+                   $table->tipo_cuenta = $model->tipo_cuenta;
+                   $table->numero_cuenta = $model->numero_cuenta;
                    $table->save(false);
                     return $this->redirect(["operarios/index"]);
                }
@@ -274,6 +281,9 @@ class OperariosController extends Controller
                 $model->id_arl = $table->id_arl;
                 $model->id_horario = $table->id_horario;                
                 $model->id_planta = $table->id_planta;
+                $model->banco = $table->id_banco_empleado;
+                $model->tipo_cuenta = $table->tipo_cuenta;
+                $model->numero_cuenta = $table->numero_cuenta;
             }else{
                  return $this->redirect(["operarios/index"]);
             }    

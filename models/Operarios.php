@@ -48,11 +48,11 @@ class Operarios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta'], 'required'],
-            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta'], 'integer'],
+            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado'], 'required'],
+            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado'], 'integer'],
             [['nombres', 'apellidos', 'email'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
-            [['iddepartamento', 'idmunicipio'], 'string'],
+            [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta'], 'string'],
             [['usuariosistema'], 'string', 'max' => 20],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
@@ -61,6 +61,7 @@ class Operarios extends \yii\db\ActiveRecord
             [['id_horario'], 'exist', 'skipOnError' => true, 'targetClass' => Horario::className(), 'targetAttribute' => ['id_horario' => 'id_horario']],
             [['id_arl'], 'exist', 'skipOnError' => true, 'targetClass' => Arl::className(), 'targetAttribute' => ['id_arl' => 'id_arl']],
             [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
+            [['id_banco_empleado'], 'exist', 'skipOnError' => true, 'targetClass' => BancoEmpleado::className(), 'targetAttribute' => ['id_banco_empleado' => 'id_banco_empleado']],
         ];
     }
 
@@ -87,6 +88,9 @@ class Operarios extends \yii\db\ActiveRecord
             'fecha_ingreso' => 'Fecha Ingreso',
             'salario_base' => 'Salario base:',
             'id_horario' => 'Horario:',
+            'id_banco_empleado' => 'Banco:',
+            'tipo_cuenta' => 'Tipo cuenta:',
+            'numero_cuenta' => 'Numero de cuenta:',
         ];
     }
 
@@ -113,6 +117,11 @@ class Operarios extends \yii\db\ActiveRecord
     public function getPlanta()
     {
         return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
+    }
+    
+     public function getBancoEmpleado()
+    {
+        return $this->hasOne(BancoEmpleado::className(), ['id_banco_empleado' => 'id_banco_empleado']);
     }
 
     /**
@@ -143,6 +152,16 @@ class Operarios extends \yii\db\ActiveRecord
         }
         return $estado;
     }
+     public function getTipocuenta()
+     {
+        if($this->tipo_cuenta == 'S'){
+            $cuenta = "AHORRO";
+        }else{
+            $cuenta = "CORRIENTE";
+        }
+        return $cuenta;
+    }
+    
     public function getPolivalenteOperacion()
      {
         if($this->polivalente == 1){

@@ -465,12 +465,6 @@ class ValorPrendaUnidadController extends Controller
             $table->save(false);
     }
     
-    //PROCESO QUE APLICA REGLA
-    public function actionAplicarregla($id, $idordenproduccion) {
-       
-        
-   }
-    
     /**
      * Creates a new ValorPrendaUnidad model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -1168,6 +1162,9 @@ class ValorPrendaUnidadController extends Controller
                         $table->aplica_regla = 1;
                         $table->save(false);
                     }    
+                }else{
+                    $table->aplica_regla = 1;
+                    $table->save(false);
                 }
                 $intIndice++;   
             }

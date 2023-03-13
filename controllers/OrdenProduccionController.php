@@ -699,8 +699,8 @@ class OrdenProduccionController extends Controller {
         $clientes = Cliente::find()->all();
         $ordenproducciontipos = Ordenproducciontipo::find()->all();
         $codigos = Producto::find()->where(['=','idcliente',$model->idcliente])->all();
-        if (Ordenproducciondetalle::find()->where(['=', 'idordenproduccion', $id])->all() or $model->facturado == 1) {
-            Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
+        if (Balanceo::find()->where(['=', 'idordenproduccion', $id])->all()) {
+            Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la orden de produccion, ya esta en proceso de balanceo.');
         } else {
             if ($model->load(Yii::$app->request->post()) && $model->save()) {
                 $valor =  $model->exportacion;

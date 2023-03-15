@@ -39,7 +39,7 @@ class PagoBancoDetalle extends \yii\db\ActiveRecord
             [['id_pago_banco', 'tipo_documento', 'tipo_transacion', 'codigo_banco','tipo_pago','id_colilla'], 'integer'],
             [['fecha_aplicacion'], 'safe'],
             [['documento'], 'string', 'max' => 15],
-            [['nombres'], 'string', 'max' => 30],
+            [['nombres'], 'string', 'max' => 40],
             [['numero_cuenta', 'valor_transacion'], 'string', 'max' => 17],
             [['id_pago_banco'], 'exist', 'skipOnError' => true, 'targetClass' => PagoBanco::className(), 'targetAttribute' => ['id_pago_banco' => 'id_pago_banco']],
         ];

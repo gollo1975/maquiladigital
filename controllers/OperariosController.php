@@ -466,6 +466,8 @@ class OperariosController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'CODIGO')
                     ->setCellValue('B1', 'TIPO DOCUMENTO')
@@ -480,7 +482,9 @@ class OperariosController extends Controller
                     ->setCellValue('K1', 'ACTIVO')
                     ->setCellValue('L1', 'POLIVALENTE')
                     ->setCellValue('M1', 'FECHA INGRESO')
-                    ->setCellValue('N1', 'PLANTA');
+                    ->setCellValue('N1', 'PLANTA')
+                    ->setCellValue('O1', 'BANCO')
+                    ->setCellValue('P1', 'No CUENTA');
         $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -499,7 +503,9 @@ class OperariosController extends Controller
                     ->setCellValue('K' . $i, $val->estadopago)
                     ->setCellValue('L' . $i, $val->polivalenteOperacion)
                     ->setCellValue('M' . $i, $val->fecha_ingreso)
-                    ->setCellValue('N' . $i, $val->planta->nombre_planta);
+                    ->setCellValue('N' . $i, $val->planta->nombre_planta)
+                    ->setCellValue('O' . $i, $val->banco->banco)
+                    ->setCellValue('P' . $i, $val->numero_cuenta);
             $i++;
         }
 

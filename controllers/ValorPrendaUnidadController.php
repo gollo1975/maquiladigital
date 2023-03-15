@@ -1186,8 +1186,10 @@ class ValorPrendaUnidadController extends Controller
     
     //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
     
-    public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $id_planta) {        
-        $model = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])->andWhere(['=','fecha_corte', $fecha_corte])->orderBy([ 'operario' =>SORT_ASC ])->all();
+    public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $bodega) {        
+        $model = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])
+                                                        ->andWhere(['=','fecha_corte', $fecha_corte])
+                                                        ->andWhere(['=','id_planta', $bodega])->orderBy([ 'operario' =>SORT_ASC ])->all();
         $objPHPExcel = new \PHPExcel();
         // Set document properties
         $objPHPExcel->getProperties()->setCreator("EMPRESA")

@@ -131,7 +131,7 @@ $form = ActiveForm::begin([
         </table> 
     <br>
         <div class="panel-footer text-right" >            
-                <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Exportar pagos', ['pagoservicioconfeccion', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-primary btn-sm'])?>              
+                <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Exportar pagos', ['pagoservicioconfeccion', 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega], ['class' => 'btn btn-primary btn-sm'])?>              
         </div>
     </div>
 </div>

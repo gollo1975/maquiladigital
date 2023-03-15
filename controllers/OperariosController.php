@@ -504,7 +504,7 @@ class OperariosController extends Controller
                     ->setCellValue('L' . $i, $val->polivalenteOperacion)
                     ->setCellValue('M' . $i, $val->fecha_ingreso)
                     ->setCellValue('N' . $i, $val->planta->nombre_planta)
-                    ->setCellValue('O' . $i, $val->banco->banco)
+                    ->setCellValue('O' . $i, $val->bancoEmpleado->banco)
                     ->setCellValue('P' . $i, $val->numero_cuenta);
             $i++;
         }

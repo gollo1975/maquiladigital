@@ -719,7 +719,7 @@ class ValorPrendaUnidadController extends Controller
                             $tabla = new \app\models\PagoNominaServicios();
                             $tabla->id_operario = $operarios->id_operario;
                             $tabla->documento = $operarios->documento;
-                            $tabla->operario = $operarios->nombrecompleto;
+                            $tabla->operario = utf8_encode($operarios->nombrecompleto);
                             $tabla->fecha_inicio = $model->fecha_inicio;
                             $tabla->fecha_corte = $model->fecha_corte;
                             $tabla->observacion = $model->observacion;

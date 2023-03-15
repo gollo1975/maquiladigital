@@ -36,6 +36,7 @@ class FormOperarios extends Model
     public $banco;
     public $numero_cuenta;
     public $tipo_cuenta;
+    public $tipo_transacion;
 
 
     /**
@@ -44,11 +45,12 @@ class FormOperarios extends Model
     public function rules()
     {
         return [
-          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl','id_horario','id_planta','banco'], 'required', 'message' => 'Campo requerido'],
+          [['documento', 'nombres','apellidos','id_tipo_documento','iddepartamento','idmunicipio','nomina_alterna','id_arl','id_horario',
+              'id_planta','banco','tipo_transacion'], 'required', 'message' => 'Campo requerido'],
             ['documento', 'identificacion_existe'],
             ['email', 'email_existe'],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
-            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta','banco'], 'integer'],
+            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta','banco','tipo_transacion'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['nombres', 'apellidos'], 'string', 'max' => 40],
             [['iddepartamento', 'idmunicipio','celular','numero_cuenta'], 'string', 'max' => 15],
@@ -87,6 +89,7 @@ class FormOperarios extends Model
             'banco' => 'Banco:',
             'numero_cuenta' => 'Numero cuenta:',
             'tipo_cuenta' => 'Tipo cuenta:',
+            'tipo_transacion' => 'Tipo transacion:',
             
         ];
     }

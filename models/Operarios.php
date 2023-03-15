@@ -48,8 +48,8 @@ class Operarios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado'], 'required'],
-            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado'], 'integer'],
+            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'required'],
+            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'integer'],
             [['nombres', 'apellidos', 'email'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
             [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta'], 'string'],
@@ -91,6 +91,7 @@ class Operarios extends \yii\db\ActiveRecord
             'id_banco_empleado' => 'Banco:',
             'tipo_cuenta' => 'Tipo cuenta:',
             'numero_cuenta' => 'Numero de cuenta:',
+            'tipo_transacion' => 'Tipo transacion:',
         ];
     }
 
@@ -160,6 +161,18 @@ class Operarios extends \yii\db\ActiveRecord
             $cuenta = "CORRIENTE";
         }
         return $cuenta;
+    }
+    
+    // proceso que maneja la cta de ahorro y corriente
+    
+    public function getTipoTransacion()
+     {
+        if($this->tipo_transacion == 27){
+            $tipotransacion = "ABONO A CTA CORRIENTE";
+        }else{
+            $tipotransacion = "ABONO A CTA AHORRO";
+        }
+        return $tipotransacion;
     }
     
     public function getPolivalenteOperacion()

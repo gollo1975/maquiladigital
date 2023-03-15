@@ -98,7 +98,7 @@ class Empleado extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_empleado_tipo', 'id_tipo_documento', 'identificacion', 'dv', 'id_estado_civil', 'estatura', 'peso', 'id_rh', 'padre_familia', 'cabeza_hogar', 'id_nivel_estudio', 'discapacidad', 'id_horario','id_banco_empleado', 'id_centro_costo'], 'integer'],
+            [['id_empleado_tipo', 'id_tipo_documento', 'identificacion', 'dv', 'id_estado_civil', 'estatura', 'peso', 'id_rh', 'padre_familia', 'cabeza_hogar', 'id_nivel_estudio', 'discapacidad', 'id_horario','id_banco_empleado', 'id_centro_costo','tipo_transacion'], 'integer'],
             [['identificacion'], 'required'],
             [['fecha_expedicion', 'fecha_nacimiento', 'fechacreacion'], 'safe'],
             [['observacion','tipo_cuenta'], 'string'],
@@ -174,6 +174,7 @@ class Empleado extends \yii\db\ActiveRecord
             'fechacreacion' => 'Fecha creacion',
             'usuario_crear' => 'Usuario_creador',
             'usuario_editar' => 'Usuario_editado',
+            'tipo_transacion' => 'Tipo transación',
         ];
     }
 
@@ -367,6 +368,16 @@ class Empleado extends \yii\db\ActiveRecord
             $discapacitado = "NO";
         }
         return $discapacitado;
+    }
+    
+    public function getTipoTransacion()
+     {
+        if($this->tipo_transacion == 27){
+            $tipotransacion = "ABONO A CTA CORRIENTE";
+        }else{
+            $tipotransacion = "ABONO A CTA AHORRO";
+        }
+        return $tipotransacion;
     }
     
     public function identificacion_no_existe($attribute, $params)

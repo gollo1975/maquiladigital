@@ -116,6 +116,10 @@ $banco_empleado = ArrayHelper::map(app\models\BancoEmpleado::find()->all(), 'id_
             <?= $form->field($model, 'tipo_cuenta')->dropDownList(['S' => 'AHORRO', 'D' => 'CORIENTE'], ['prompt' => 'Seleccione una opcion...']) ?> 
             <?= $form->field($model, 'numero_cuenta')->textInput(['maxlength' => true]) ?>
         </div>  
+         <div class="row">
+            <?= $form->field($model, 'tipo_transacion')->dropDownList(['27' => 'ABONO A CTA CORRIENTE', '37' => 'ABONO A CTA AHORRO'], ['prompt' => 'Seleccione una opcion...']) ?> 
+          
+        </div>  
         
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("operarios/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>

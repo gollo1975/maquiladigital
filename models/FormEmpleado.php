@@ -54,6 +54,7 @@ class FormEmpleado extends Model
     public $cuenta_bancaria;
     public $tipo_cuenta;
     public $id_centro_costo;
+    public $tipo_transacion;
 
     /**
      * {@inheritdoc}
@@ -62,10 +63,10 @@ class FormEmpleado extends Model
     {
         return [
             [['identificacion', 'id_empleado_tipo','fecha_expedicion','ciudad_expedicion','nombre1','apellido1','iddepartamento','idmunicipio','email','id_rh','fecha_nacimiento','ciudad_nacimiento','id_tipo_documento','padre_familia','cabeza_hogar','discapacidad','id_horario','id_banco_empleado',
-                'id_centro_costo','tipo_cuenta','cuenta_bancaria','sexo','id_estado_civil'], 'required', 'message' => 'Campo requerido'],
+                'id_centro_costo','tipo_cuenta','cuenta_bancaria','sexo','id_estado_civil','tipo_transacion'], 'required', 'message' => 'Campo requerido'],
             ['identificacion', 'identificacion_existe'],
             ['email', 'email_existe'],
-            [['id_empleado_tipo', 'identificacion', 'dv','id_estado_civil','estatura','peso','libreta_militar'], 'integer'],
+            [['id_empleado_tipo', 'identificacion', 'dv','id_estado_civil','estatura','peso','libreta_militar','tipo_transacion'], 'integer'],
             ['cuenta_bancaria', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['cuenta_bancaria'], 'string'],
             [['observacion','sexo','id_rh','distrito_militar','barrio','tipo_cuenta'], 'string'],            
@@ -119,6 +120,7 @@ class FormEmpleado extends Model
             'tipo_cuenta' => 'Tipo Cuenta',
             'id_banco_empleado' => 'Banco Empleado',
             'id_centro_costo' => 'Centro Costo',
+            'tipo_transacion' => 'Tipo transacion',
         ];
     }
 

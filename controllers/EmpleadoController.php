@@ -185,6 +185,7 @@ class EmpleadoController extends Controller
                 $table->id_banco_empleado = $model->id_banco_empleado;
                 $table->tipo_cuenta = $model->tipo_cuenta;
                 $table->cuenta_bancaria = $model->cuenta_bancaria;
+                $table->tipo_transacion = $model->tipo_transacion;
                 $table->id_centro_costo = $model->id_centro_costo;
                 $table->usuario_crear =  Yii::$app->user->identity->username;
                 if ($table->insert()) {
@@ -257,6 +258,7 @@ class EmpleadoController extends Controller
                     $table->id_banco_empleado = $model->id_banco_empleado;
                     $table->tipo_cuenta = $model->tipo_cuenta;
                     $table->cuenta_bancaria = $model->cuenta_bancaria;
+                    $table->tipo_transacion = $model->tipo_transacion;
                     $table->id_centro_costo = $model->id_centro_costo;
                     $table->usuario_editar =  Yii::$app->user->identity->username;
                     if ($table->save(false)) {
@@ -318,6 +320,7 @@ class EmpleadoController extends Controller
                 $model->id_banco_empleado = $table->id_banco_empleado;
                 $model->tipo_cuenta = $table->tipo_cuenta;
                 $model->cuenta_bancaria = $table->cuenta_bancaria;
+                $model->tipo_transacion = $table->tipo_transacion;
                 $model->id_centro_costo = $table->id_centro_costo;
             } else {
                 return $this->redirect(["empleado/indexempleado"]);

@@ -195,6 +195,7 @@ class OperariosController extends Controller
                 $table->id_banco_empleado = $model->banco;
                 $table->tipo_cuenta = $model->tipo_cuenta;
                 $table->numero_cuenta = $model->numero_cuenta;
+                $table->tipo_transacion = $model->tipo_transacion;
                 $table->usuariosistema =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["operarios/index"]);
@@ -252,6 +253,7 @@ class OperariosController extends Controller
                    $table->id_banco_empleado = $model->banco;
                    $table->tipo_cuenta = $model->tipo_cuenta;
                    $table->numero_cuenta = $model->numero_cuenta;
+                   $table->tipo_transacion = $model->tipo_transacion;
                    $table->save(false);
                     return $this->redirect(["operarios/index"]);
                }
@@ -284,6 +286,7 @@ class OperariosController extends Controller
                 $model->banco = $table->id_banco_empleado;
                 $model->tipo_cuenta = $table->tipo_cuenta;
                 $model->numero_cuenta = $table->numero_cuenta;
+                $model->tipo_transacion =  $table->tipo_transacion; 
             }else{
                  return $this->redirect(["operarios/index"]);
             }    

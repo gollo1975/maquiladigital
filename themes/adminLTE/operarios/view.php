@@ -88,7 +88,7 @@ $view = 'operarios';
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipo_cuenta') ?></th>
                     <td><?= Html::encode($model->tipoCuenta) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'numero_cuenta') ?></th>
-                    <td><?= Html::encode($model->numero_cuenta) ?> %</td>
+                    <td><?= Html::encode($model->numero_cuenta) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Salario') ?>:</th>
                      <td style="text-align: right"><?= Html::encode(''.number_format($model->salario_base,0)) ?> </td>
                     

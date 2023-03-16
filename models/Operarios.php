@@ -49,10 +49,10 @@ class Operarios extends \yii\db\ActiveRecord
     {
         return [
             [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'required'],
-            [['id_tipo_documento', 'documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'integer'],
+            [['id_tipo_documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'integer'],
             [['nombres', 'apellidos', 'email'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
-            [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta'], 'string'],
+            [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta','documento'], 'string'],
             [['usuariosistema'], 'string', 'max' => 20],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],

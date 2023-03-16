@@ -23,7 +23,7 @@ class FormMaquinaBuscar extends Model
     public function attributeLabels()
     {
         return [
-            'q' => 'Dato a Burcar:',            
+            'q' => 'Dato a Buscar:',            
         ];
     }
 }

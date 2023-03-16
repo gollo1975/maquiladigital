@@ -67,7 +67,7 @@ class PagoBancoController extends Controller
                                 ->andFilterWhere(['=', 'tipo_pago', $tipo_pago])
                                 ->andFilterWhere(['>=', 'fecha_creacion', $fecha_inicio])
                                 ->andFilterWhere(['<=','fecha_creacion', $fecha_corte])
-                                ->andFilterWhere(['=', 'tipo_proceso', $tipo_proceso]);
+                                ->andFilterWhere(['=', 'id_tipo_nomina', $tipo_proceso]);
                         $table = $table->orderBy('id_pago_banco DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -437,5 +437,91 @@ class PagoBancoController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    
+    //PROCESOS DE EXCEL
+    
+     public function actionExportar_pago_banco($id) {        
+        $model = PagoBancoDetalle::find()->where(['=','id_pago_banco', $id])->orderBy([ 'nombres' =>SORT_ASC ])->all();
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getStyle('2')->getFont()->setBold(true);        
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A2', 'ID')
+                    ->setCellValue('B2', 'TIPO DOCUMENTO')
+                    ->setCellValue('C2', 'DOCUMENTO')
+                    ->setCellValue('D2', 'EMPLEADO')
+                    ->setCellValue('E2', 'TIPO TRANSACION')
+                    ->setCellValue('F2', 'TRANSACION')
+                    ->setCellValue('G2', 'CODIGO BANCO')
+                    ->setCellValue('H2', 'NUMERO CUENTA')
+                    ->setCellValue('I2', 'VALOR PAGO')
+                    ->setCellValue('J2', 'TIPO PAGO');
+                    
+                  
+        $i = 3;
+        foreach ($model as $val) {                            
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_detalle)
+                    ->setCellValue('B' . $i, $val->tipo_documento)
+                    ->setCellValue('C' . $i, $val->documento)
+                    ->setCellValue('D' . $i, $val->nombres)
+                    ->setCellValue('E' . $i, $val->tipo_transacion)
+                    ->setCellValue('F' . $i, $val->tipoTransacion)
+                    ->setCellValue('G' . $i, $val->codigo_banco)
+                    ->setCellValue('H' . $i, $val->numero_cuenta)
+                    ->setCellValue('I' . $i, $val->valor_transacion)
+                    ->setCellValue('J' . $i, $val->tipoPago);
+                   
+
+              
+                   
+            $i++;                        
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Lista pago banco');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition: attachment;filename="Lista_Pago.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0 
+        header("Content-Transfer-Encoding: binary ");
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);        
+        $objWriter->save('php://output');
+        //$objWriter->save($pFilename = 'Descargas');
+        exit; 
+        
     }
 }

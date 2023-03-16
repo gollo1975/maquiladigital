@@ -73,15 +73,34 @@ class PagoBancoDetalle extends \yii\db\ActiveRecord
     {
         return $this->hasOne(PagoBanco::className(), ['id_pago_banco' => 'id_pago_banco']);
     }
+
+//PROCESO PARA BUSCAR EL TIPO D EPAGO
     
-    //PROCESO PARA BUSCAR EL TIPO D EPAGO
-     public function getTipoPago()
+    public function getTipoPago()
     {
         if($this->tipo_pago == 1){
-            $tipopago = 'PAGO VINCULADOS';
+            $tipopago = 'NOMINA';
         }else{
-            $tipopago = 'PAGO PRESTACION DE SERVICIOS';
+            if($this->tipo_pago == 2){
+                $tipopago = 'PRIMAS';    
+            }else{
+                if($this->tipo_pago == 3){
+                    $tipopago = 'CESANTIAS';
+                }else{
+                    $tipopago = 'PRESTACION DE SERVICIOS';
+                }
+            }
         }
         return $tipopago;
+    }
+    
+     public function getTipoTransacion()
+    {
+        if($this->tipo_transacion == 27){
+            $tipotransacion = 'ABONO A CTA CORRIENTE';
+        }else{
+            $tipotransacion = 'ABONO A CTA DE AHORRO';
+        }
+        return $tipotransacion;
     }
 }

@@ -197,6 +197,11 @@ $view = 'pago-banco';
                                     <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar todo', ['pago-banco/eliminartododetalle', 'id' => $model->id_pago_banco], ['class' => 'btn btn-danger btn-sm']) ?>                    
                                 </div> 
                             <?php }?>
+                            <?php if($model->cerrar_proceso == 1){?>
+                                <div class="panel-footer text-right" >            
+                                        <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Exportar pagos', ['exportar_pago_banco', 'tipo_proceso' => $model->id_tipo_nomina, 'id' => $model->id_pago_banco], ['class' => 'btn btn-primary btn-sm'])?>              
+                                </div>
+                            <?php }?>
                         </div>
                     </div>   
                 </div>

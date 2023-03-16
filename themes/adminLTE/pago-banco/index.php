@@ -39,6 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $banco = ArrayHelper::map(Banco::find()->orderBy('idbanco ASC')->all(), 'idbanco', 'entidad');
+$tipo = ArrayHelper::map(app\models\TipoNomina::find()->all(), 'id_tipo_nomina', 'tipo_pago');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -70,7 +71,13 @@ $banco = ArrayHelper::map(Banco::find()->orderBy('idbanco ASC')->all(), 'idbanco
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
-             <?= $formulario->field($form, 'tipo_proceso')->dropDownList(['' => 'TODOS', '1' => 'PAGO VINCULADOS', '2' => 'PAGO PRESTACION DE SERVICIOS']) ?>
+             <?= $formulario->field($form, 'tipo_proceso')->widget(Select2::classname(), [
+                'data' => $tipo,
+                'options' => ['prompt' => 'Seleccione el banco...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -101,8 +108,10 @@ $banco = ArrayHelper::map(Banco::find()->orderBy('idbanco ASC')->all(), 'idbanco
                 <th scope="col" style='background-color:#B9D5CE;'>Secuencia</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha aplicacion</th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Numero de registros" >No Reg.</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>
-                <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado proceso" >Autorizado</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado proceso" >Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Cerrado el proceso" >Cerrado</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -135,6 +144,8 @@ $banco = ArrayHelper::map(Banco::find()->orderBy('idbanco ASC')->all(), 'idbanco
                 <td><?= $val->secuencia ?></td>
                 <td><?= $val->fecha_creacion ?></td>
                 <td><?= $val->fecha_aplicacion ?></td>
+                <td><?= $val->total_empleados ?></td>
+                <td style="text-align: right"><?= ''.number_format($val->total_pagar, 0) ?></td>
                 <td><?= $val->descripcion?></td>
                 <td><?= $val->estadoAutorizado?></td>
                 <td><?= $val->estadoCerrado?></td>

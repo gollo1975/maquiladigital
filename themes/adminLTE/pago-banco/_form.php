@@ -63,7 +63,7 @@ $tipo_nomina = ArrayHelper::map(\app\models\TipoNomina::find()->orderBy('id_tipo
         </div>
         <div class="row">
            <?= $form->field($model, 'aplicacion')->dropDownList(['I'=> 'INMEDIATO', 'M'=> 'MEDIO DIA','N' => 'NOCHE'], ['prompt' => 'Seleccione una opcion...']) ?> 
-           <?= $form->field($model, 'secuencia')->dropDownList(['A'=> 'A', 'B'=> 'B','C' => 'C', 'D'=> 'D', 'E'=> 'E','F' => 'F'], ['prompt' => 'Seleccione una opcion...']) ?>
+           <?= $form->field($model, 'secuencia')->dropDownList(['A1'=> 'A', 'B1'=> 'B','C1' => 'C', 'D1'=> 'D', 'E1'=> 'E','F1' => 'F'], ['prompt' => 'Seleccione una opcion...']) ?>
          </div> 
         <div class="row">
             <?= $form->field($model, 'id_tipo_nomina')->widget(Select2::classname(), [

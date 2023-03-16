@@ -40,7 +40,7 @@ class PagoBanco extends \yii\db\ActiveRecord
             [['nit_empresa', 'id_banco', 'tipo_pago','autorizado','cerrar_proceso','total_empleados','total_pagar','id_tipo_nomina'], 'integer'],
             [['id_banco', 'tipo_pago', 'aplicacion', 'secuencia', 'fecha_creacion', 'fecha_aplicacion','id_tipo_nomina'], 'required'],
             [['fecha_creacion', 'fecha_aplicacion'], 'safe'],
-            [['aplicacion', 'secuencia'], 'string', 'max' => 1],
+            [['aplicacion', 'secuencia'], 'string', 'max' => 2],
             [['descripcion'], 'string', 'max' => 10],
             [['usuario','nit'], 'string', 'max' => 15],
             [['nit_empresa'], 'exist', 'skipOnError' => true, 'targetClass' => Matriculaempresa::className(), 'targetAttribute' => ['nit_empresa' => 'id']],

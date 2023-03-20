@@ -92,7 +92,7 @@ $form = ActiveForm::begin([
                            <td align="right"><?= ''.number_format($val->Total_pagar,0) ?></td>
                            <td><?= $val->observacion?></td>
                            <td style=' width: 25px;'>
-                              <a href="<?= Url::toRoute(["valor-prenda-unidad/vistadetallepago",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega, 'autorizado' => $pago->autorizado]) ?>" ><span class="glyphicon glyphicon-eye-open "></span></a>
+                              <a href="<?= Url::toRoute(["valor-prenda-unidad/vistadetallepago",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'autorizado' => $pago->autorizado, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega]) ?>" ><span class="glyphicon glyphicon-eye-open "></span></a>
                            </td>
                            <td style="width: 25px;">				
                                <a href="<?= Url::toRoute(["imprimircolillaconfeccion",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir "></span></a>

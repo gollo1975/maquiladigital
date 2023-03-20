@@ -133,8 +133,11 @@ $view = 'pago-banco';
                                         <tr style='font-size:85%;'>
                                             <?php if($listados->tipo_pago == 7){
                                                 $operario = \app\models\Operarios::find()->where(['=','documento', $listados->documento])->one();
-                                                ?>
-                                                <td><?= $operario->tipoDocumento->descripcion ?></td>
+                                                if($operario->tipoDocumento->descripcion == ''){?>
+                                                    <td><?= 'NO FOUND'?></td>                                            
+                                                 <?php }else{?>   
+                                                   <td><?= $operario->tipoDocumento->descripcion ?></td>
+                                                 <?php }?>       
                                                 <td><?= $listados->documento ?></td>
                                                 <td><?= $listados->nombres ?></td>
                                                 <td><?= $operario->tipoTransacion?></td>

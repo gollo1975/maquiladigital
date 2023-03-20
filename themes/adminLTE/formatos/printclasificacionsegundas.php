@@ -128,7 +128,7 @@ class PDF extends FPDF {
         $this->Cell(40, 5, utf8_decode($remision->ordenproduccion->cliente->municipio->municipio), 0, 0, 'J');
         //Lineas del encabezado
         //color
-        $this->Line(10, 92, 10, 190);//x1,y1,x2,y2 
+        $this->Line(10, 70, 10, 190);//x1,y1,x2,y2 
         $ordendetalles = Ordenproducciondetalle::find()->where(['=','idordenproduccion',$remision->idordenproduccion])->all();
         $nregistros = count($ordendetalles);
        
@@ -271,7 +271,7 @@ class PDF extends FPDF {
             $tl = $tl + $detalle->l;
             $txl = $txl + $detalle->xl;
             $txxl = $txxl + $detalle->xxl;
-            $pdf->Cell(40, 4.5, $detalle->tipo->concepto, 1, 0, 'J');
+            $pdf->Cell(40, 4.5, utf8_decode($detalle->tipo->concepto), 1, 0, 'J');
            
            
             if ($detalle->txs == 1) {

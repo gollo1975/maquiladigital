@@ -38,8 +38,9 @@ class PagoBancoDetalle extends \yii\db\ActiveRecord
         return [
             [['id_pago_banco', 'tipo_documento', 'tipo_transacion', 'codigo_banco','tipo_pago','id_colilla'], 'integer'],
             [['fecha_aplicacion'], 'safe'],
-            [['documento'], 'string', 'max' => 15],
-            [['nombres'], 'string', 'max' => 40],
+            [['documento','banco'], 'string', 'max' => 15],
+            [['nombres'], 'string', 'max' => 30],
+            [['concepto_documento'], 'max' => 3],
             [['numero_cuenta', 'valor_transacion'], 'string', 'max' => 17],
             [['id_pago_banco'], 'exist', 'skipOnError' => true, 'targetClass' => PagoBanco::className(), 'targetAttribute' => ['id_pago_banco' => 'id_pago_banco']],
         ];
@@ -63,6 +64,8 @@ class PagoBancoDetalle extends \yii\db\ActiveRecord
             'fecha_aplicacion' => 'Fecha Aplicacion',
             'tipo_pago' => 'Tipo pago',
             'id_colilla' => 'Id colilla',
+            'concepto_documento' => 'concepto_documento',
+            'banco' =>'Banco:',
         ];
     }
 

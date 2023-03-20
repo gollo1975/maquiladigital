@@ -164,7 +164,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     <tr style='font-size:85%;'>  
                                         <td><?= $val->consecutivo ?></td>
                                         <td><?= $val->idordenproduccion ?></td>
-                                        <td><?= $val->operario->nombrecompleto ?></td>
+                                        <td><?= $val->operarioProduccion->nombrecompleto?> </td>
                                         <td><?= $val->operacionPrenda?></td>
                                          <td><?= $val->dia_pago ?></td>
                                         <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
@@ -236,8 +236,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                          $auxiliar = '';
                                                         ?>
                                                         <tr style="font-size: 85%;">
-                                                            <td ><?= $detalles->operario->documento ?></td>
-                                                           <td ><?= $detalles->operario->nombrecompleto ?></td>
+                                                            <td ><?= $detalles->operarioProduccion->documento ?></td>
+                                                           <td ><?= $detalles->operarioProduccion->nombrecompleto ?></td>
                                                            <td ><?= $detalles->dia_pago?></td>
                                                            <td ><?= $detalles->aplicaSabado?></td>
                                                            <?php if($detalles->porcentaje_cumplimiento > $empresa->porcentaje_empresa){?>
@@ -271,8 +271,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                            $auxiliar = $eficiencia->dia_pago;
                                                             ?>
                                                             <tr style="font-size: 85%;">
-                                                              <td ><?= $contar->operario->documento ?></td>
-                                                              <td ><?= $contar->operario->nombrecompleto ?></td>
+                                                              <td ><?= $contar->operarioProduccion->documento ?></td>
+                                                              <td ><?= $contar->operarioProduccion->nombrecompleto ?></td>
                                                               <td ><?= $contar->dia_pago?></td>
                                                                <td ><?= $contar->aplicaSabado?></td>
                                                               <?php if($cumplimiento > $empresa->porcentaje_empresa){?>

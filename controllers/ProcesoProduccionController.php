@@ -83,14 +83,14 @@ class ProcesoProduccionController extends Controller
                 $table = new ProcesoProduccion();
                 $table->proceso = $model->proceso;
                 if ($model->estado == 1){
-                    $table->segundos = round($table->minutos * 60);
-                    $table->minutos = $model->minutos;
+                     $table->segundos = $model->segundos;
+                     $table->minutos = round($table->segundos /60, 2);
                     $table->estandarizado = $model->estandarizado;
                     $table->save(false);
                     return $this->redirect(['index']);
                 }else{
                     $table->minutos = $model->minutos;
-                    $table->segundos = round($model->minutos * 60);
+                    $table->segundos = round($table->minutos * 60);
                     $table->estandarizado = $model->estandarizado;
                     $table->save(false);
                     return $this->redirect(['index']);
@@ -119,16 +119,15 @@ class ProcesoProduccionController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             $table = ProcesoProduccion::find()->where(['idproceso' => $id])->one();
             $table->proceso = $model->proceso;
-            echo $model->estado;
             if($model->estado == 1){
                 $table->segundos = $model->segundos;
-                $table->minutos = round($model->segundos * 1)/60;
+                $table->minutos = round( $table->segundos / 60, 2);
                 $table->estandarizado = $model->estandarizado;
                 $table->save(false);
                 return $this->redirect(['index']);
             }else{
                 $table->minutos = $model->minutos;
-                $table->segundos = round($model->minutos * 60);
+                $table->segundos = round($table->minutos * 60);
                 $table->estandarizado = $model->estandarizado;
                 $table->save(false);
                 return $this->redirect(['index']);

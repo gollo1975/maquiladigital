@@ -18,10 +18,11 @@ use yii\helpers\ArrayHelper;
 //modelos
 
 use app\models\PagoBanco;
+use app\models\PagoBancoDetalle;
 use app\models\PagoBancoSearch;
 use app\models\UsuarioDetalle;
 use app\models\FormFiltroBanco;
-use app\models\PagoBancoDetalle;
+use app\models\Operarios;
 /**
  * PagoBancoController implements the CRUD actions for PagoBanco model.
  */
@@ -248,7 +249,8 @@ class PagoBancoController extends Controller
             $intIndice = 0;
             foreach ($_POST["aplicar_pago"] as $intCodigo) {
                 $pago_banco = PagoBanco::findOne($id);
-                //proceso de nomina
+                
+                 //proceso de nomina, CESANTIAS Y PRIMAS
                 if($tipo_proceso == 1 || $tipo_proceso ==  2 || $tipo_proceso == 3){
                     $nomina = \app\models\ProgramacionNomina::find()->where(['id_programacion' => $intCodigo])->one();
                     $empleado = \app\models\Empleado::findOne($nomina->id_empleado);
@@ -261,10 +263,12 @@ class PagoBancoController extends Controller
                     if ($reg == 0) {
                         $table->id_pago_banco = $id;
                         $table->tipo_documento = $empleado->tipoDocumento->codigo_interfaz;
+                         $table->concepto_documento = $empleado->tipoDocumento->tipo;
                         $table->documento = $nomina->cedula_empleado;
                         $table->nombres = utf8_decode($nomina->empleado->nombrecorto);
                         $table->tipo_transacion = $empleado->tipo_transacion;
                         $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                        $table->banco = $empleado->bancoEmpleado->banco;
                         $table->numero_cuenta = $empleado->cuenta_bancaria;
                         $table->valor_transacion = $nomina->total_pagar;
                         $table->fecha_aplicacion = $pago_banco->fecha_aplicacion;
@@ -288,10 +292,12 @@ class PagoBancoController extends Controller
                     if ($reg == 0) {
                         $table->id_pago_banco = $id;
                         $table->tipo_documento = $operario->tipoDocumento->codigo_interfaz;
+                        $table->concepto_documento = $operario->tipoDocumento->tipo;
                         $table->documento = $nomina->documento;
                         $table->nombres = utf8_decode($nomina->operario);
                         $table->tipo_transacion = $operario->tipo_transacion;
                         $table->codigo_banco = $operario->bancoEmpleado->codigo_interfaz;
+                        $table->banco = $operario->bancoEmpleado->banco;
                         $table->numero_cuenta = $operario->numero_cuenta;
                         $table->valor_transacion = $nomina->Total_pagar;
                         $table->fecha_aplicacion = $pago_banco->fecha_aplicacion;
@@ -558,18 +564,21 @@ class PagoBancoController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A2', 'ID')
-                    ->setCellValue('B2', 'TIPO DOCUMENTO')
-                    ->setCellValue('C2', 'DOCUMENTO')
-                    ->setCellValue('D2', 'EMPLEADO')
-                    ->setCellValue('E2', 'TIPO TRANSACION')
-                    ->setCellValue('F2', 'TRANSACION')
-                    ->setCellValue('G2', 'CODIGO BANCO')
-                    ->setCellValue('H2', 'NUMERO CUENTA')
-                    ->setCellValue('I2', 'VALOR PAGO')
-                    ->setCellValue('J2', 'TIPO PAGO');
+                    ->setCellValue('B2', 'TIPO')
+                    ->setCellValue('C2', 'CONCEPTO')
+                    ->setCellValue('D2', 'DOCUMENTO')
+                    ->setCellValue('E2', 'EMPLEADO')
+                    ->setCellValue('F2', 'TIPO TRANSACION')
+                    ->setCellValue('G2', 'TRANSACION')
+                    ->setCellValue('H2', 'CODIGO BANCO')
+                    ->setCellValue('I2', 'BANCO')
+                    ->setCellValue('J2', 'NUMERO CUENTA')
+                    ->setCellValue('K2', 'VALOR PAGO')
+                    ->setCellValue('L2', 'TIPO PAGO');
                     
                   
         $i = 3;
@@ -577,14 +586,16 @@ class PagoBancoController extends Controller
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->id_detalle)
                     ->setCellValue('B' . $i, $val->tipo_documento)
-                    ->setCellValue('C' . $i, $val->documento)
-                    ->setCellValue('D' . $i, $val->nombres)
-                    ->setCellValue('E' . $i, $val->tipo_transacion)
-                    ->setCellValue('F' . $i, $val->tipoTransacion)
-                    ->setCellValue('G' . $i, $val->codigo_banco)
-                    ->setCellValue('H' . $i, $val->numero_cuenta)
-                    ->setCellValue('I' . $i, $val->valor_transacion)
-                    ->setCellValue('J' . $i, $val->tipoPago);
+                    ->setCellValue('C' . $i, $val->concepto_documento)
+                    ->setCellValue('D' . $i, $val->documento)
+                    ->setCellValue('E' . $i, $val->nombres)
+                    ->setCellValue('F' . $i, $val->tipo_transacion)
+                    ->setCellValue('G' . $i, $val->tipoTransacion)
+                    ->setCellValue('H' . $i, $val->codigo_banco)
+                    ->setCellValue('I' . $i, $val->banco)
+                    ->setCellValue('J' . $i, $val->numero_cuenta)
+                    ->setCellValue('K' . $i, $val->valor_transacion)
+                    ->setCellValue('L' . $i, $val->tipoPago);
                    
 
               

@@ -63,7 +63,7 @@ $form = ActiveForm::begin([
                 <?php foreach ($valores as $val): ?>
                     <tr style="font-size: 85%;">
                         <td><?= $val->consecutivo ?></td>
-                    <td><?= $val->operario->nombrecompleto ?></td>
+                    <td><?= $val->operarioProduccion->nombrecompleto ?></td>
                     <td><?= $val->dia_pago ?></td>
                     <td><?= $val->cantidad ?></td>
                    <td style="text-align: right"><?= '$'.number_format($val->vlr_prenda,0) ?></td>

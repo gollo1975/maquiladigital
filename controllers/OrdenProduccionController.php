@@ -33,6 +33,7 @@ use app\models\ReprocesoProduccionPrendas;
 use app\models\PilotoDetalleProduccion;
 use app\models\EficienciaBalanceo;
 //clases
+
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -3189,7 +3190,7 @@ class OrdenProduccionController extends Controller {
     
       public function actionNuevocostoproduccion($id)
     {
-        $compras = \app\models\Compra::find()->where(['=','autorizado', 1])->andWhere(['=','id_tipo_compra', 1])->orderBy('id_proveedor, factura DESC')->all();
+        $compras = \app\models\Compra::find()->where(['=','autorizado', 1])->andWhere(['=','id_tipo_compra', 1])->orderBy('id_proveedor ASC, factura DESC')->all();
         $form = new \app\models\FormCompraBuscar();
         $factura = null;
         $id_proveedor = null;
@@ -3198,19 +3199,36 @@ class OrdenProduccionController extends Controller {
             if ($form->validate()) {
                 $factura = Html::encode($form->factura);                                
                 $id_proveedor = Html::encode($form->id_proveedor);
-                if ($factura or $id_proveedor){
                     $compras = \app\models\compra::find()
-                            ->where(['like','factura',$factura])
-                            ->orwhere(['=','id_proveedor',$id_proveedor])
-                            ->andWhere(['=', 'id_tipo_compra', 1])
-                            ->orderBy('id_proveedor, factura DESC')
-                            ->all();
-                }               
+                            ->andFilterWhere(['=','factura',$factura])
+                            ->andFilterWhere(['=','id_proveedor', $id_proveedor])
+                            ->andWhere(['=', 'id_tipo_compra', 1]);
+                    $compras = $compras->orderBy('id_proveedor DESC, factura DESC');                
+                    $count = clone $compras;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => $count->count()
+                    ]);
+                    $compras = $compras
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();         
+                               
             } else {
                 $form->getErrors();
             }                    
         } else {
-            $compras = \app\models\Compra::find()->where(['=','autorizado', 1])->andWhere(['=','id_tipo_compra', 1])->orderBy('id_proveedor DESC')->all();
+            $compras = \app\models\Compra::find()->where(['=','autorizado', 1])->andWhere(['=','id_tipo_compra', 1])->orderBy('id_proveedor ASC, factura DESC');
+            $count = clone $compras;
+            $pages = new Pagination([
+                'pageSize' => 20,
+                'totalCount' => $count->count(),
+            ]);
+            $compras = $compras
+                    ->offset($pages->offset)
+                    ->limit($pages->limit)
+                    ->all();
         }
         if (isset($_POST["id_compra"])) {
                 $intIndice = 0;
@@ -3240,6 +3258,7 @@ class OrdenProduccionController extends Controller {
         return $this->render('_nuevocostoproduccion', [
             'compras' => $compras,            
             'mensaje' => $mensaje,
+            'pagination' => $pages,
             'id' => $id,
             'form' => $form,
 

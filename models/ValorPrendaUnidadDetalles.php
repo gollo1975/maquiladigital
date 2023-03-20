@@ -48,7 +48,8 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria','control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo'], 'integer'],
+            [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria',
+                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
             [['porcentaje_cumplimiento'], 'number'],
             [['usuariosistema', 'observacion','hora_inicio_modulo'], 'string', 'max' => 20],
@@ -84,13 +85,14 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'control_fecha' => 'Control fecha',
             'aplica_regla'=> 'aplica_regla',
             'aplica_sabado' =>'aplica_sabado',
+            'aplicar_porcentaje' => 'aplicar_porcentaje',
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getOperario()
+      public function getOperarioProduccion()
     {
         return $this->hasOne(Operarios::className(), ['id_operario' => 'id_operario']);
     }
@@ -157,5 +159,14 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
                 $aplica_sabado = 'NO';
         }
         return $aplica_sabado;
+    }
+    
+    public function getAplicaPorcentaje(){
+        if($this->aplicar_porcentaje == 0){
+            $aplicarporcentaje = 'NO';
+        }else{
+                $aplicarporcentaje = 'SI';
+        }
+        return $aplicarporcentaje;
     }
 }

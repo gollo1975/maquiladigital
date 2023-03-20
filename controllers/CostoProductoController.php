@@ -337,11 +337,10 @@ class CostoProductoController extends Controller
         if ($form->load(Yii::$app->request->get())) {
             if ($form->validate()) {
                 $q = Html::encode($form->q);                                
-                if ($q){
                     $operacion = \app\models\ProcesoProduccion::find()
                             ->where(['like','proceso',$q])
                             ->orwhere(['=','idproceso',$q]);
-                    $operacion = $operacion->orderBy('proceso desc');                    
+                    $operacion = $operacion->orderBy('proceso asc');                    
                     $count = clone $operacion;
                     $to = $count->count();
                     $pages = new Pagination([
@@ -352,7 +351,7 @@ class CostoProductoController extends Controller
                             ->offset($pages->offset)
                             ->limit($pages->limit)
                             ->all();         
-                }               
+                           
             } else {
                 $form->getErrors();
             }                    

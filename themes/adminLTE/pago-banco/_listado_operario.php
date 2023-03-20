@@ -108,7 +108,11 @@ if ($mensaje != ""){
                                 <td><?= $val->id_pago ?></td>
                                 <td><?= $val->documento ?></td>
                                 <td><?= $val->operario?></td>
-                                <td><?= 'NOT FOUND'?></td>
+                                <?php if($val->operarios->numero_cuenta > 0){?>
+                                    <td><?= $val->operarios->numero_cuenta ?></td>
+                                <?php }else{?>    
+                                      <td style='background-color:#CBAAE3;'><?= 'NOT FOUND'?></td>
+                                <?php }?>      
                                 <td><?= $val->fecha_inicio ?></td>
                                 <td><?= $val->fecha_corte ?></td>
                                 <td><?= $val->planta->nombre_planta ?></td>                    

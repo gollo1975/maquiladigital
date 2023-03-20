@@ -10,6 +10,7 @@ use app\models\ValorPrendaUnidadDetalles;
 use app\models\Operarios;
 use app\models\FormFiltroValorPrenda;
 use app\models\FormFiltroResumePagoPrenda;
+use app\models\ModelAplicarPorcentaje;
 //clases
 use Yii;
 use yii\web\Controller;
@@ -1123,7 +1124,7 @@ class ValorPrendaUnidadController extends Controller
                                                     ->andWhere(['=','aplica_regla', 0])->andWhere(['=','aplica_sabado', 0])->orderBy('id_operario ASC')->all();
         if (count($valores)== 0){
             $valores = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])
-                                            ->andWhere(['=','aplica_sabado', 1])->orderBy('id_operario ASC')->all(); 
+                                            ->andWhere(['=','aplica_sabado', 1])->andWhere(['=','aplica_regla', 0])->orderBy('id_operario ASC')->all(); 
         }
         if (isset($_POST["consecutivo"])) {
             $intIndice = 0;
@@ -1184,7 +1185,94 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
-    //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
+    //aplicar porcentaje a al prenda- genera comision adicional
+    public function actionAplicarporcentajeprenda()
+    {
+        if (Yii::$app->user->identity){   
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso', 130])->all()){
+                $form = new ModelAplicarPorcentaje();
+                $planta = null;
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $porcentaje = null;
+                $tipo = null;
+                $model = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $planta = Html::encode($form->planta);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $porcentaje = Html::encode($form->porcentaje);
+                        $tipo = Html::encode($form->tipo_empleado);
+                        $pagos = ValorPrendaUnidadDetalles::find()->where(['=','aplica_sabado', 1])
+                                                                  ->andWhere(['=', 'dia_pago', $fecha_inicio])
+                                                                  ->andWhere(['=', 'dia_pago', $fecha_corte])
+                                                                  ->andWhere(['=', 'aplicar_porcentaje', 0])->all();
+                        $model = $pagos;
+                    }else {
+                        $form->getErrors();
+                    }
+                } 
+                if (isset($_POST["aplicarporcentaje"])) {
+                    if (isset($_POST["consecutivo"])) {
+                        $intIndice = 0;
+                        $calcular = 0;
+                        $cont = 0;
+                        foreach ($_POST["consecutivo"] as $intCodigo) {
+                           $table = ValorPrendaUnidadDetalles::findOne($intCodigo);
+                           if($tipo == 0){
+                               $calcular = round(($table->vlr_pago * $porcentaje)/100);   
+                               $table->vlr_pago = $calcular + $table->vlr_pago; 
+                               $table->costo_dia_operaria = $table->vlr_pago;
+                               $table->aplicar_porcentaje = 1;
+                               $table->save(false);
+                               $cont += 1;
+                           }else{
+                                $calcular = round(($table->vlr_pago * $porcentaje)/100);   
+                                $table->vlr_pago = $calcular + $table->vlr_pago; 
+                                $table->aplicar_porcentaje = 1;
+                                $table->save(false);
+                                $cont += 1;
+                           }
+                        $calcular = 0;  
+                        $intIndice++; 
+                        }
+                        $pagos = ValorPrendaUnidadDetalles::find()->where(['=','aplica_sabado', 1])
+                                                                  ->andWhere(['=', 'dia_pago', $fecha_inicio])
+                                                                  ->andWhere(['=', 'dia_pago', $fecha_corte])
+                                                                  ->andWhere(['=', 'aplicar_porcentaje', 0])->all();
+                        $model = $pagos;
+                        if($tipo == 0){
+                            Yii::$app->getSession()->setFlash('info', 'Se aplico el porcentaje del '.  $porcentaje.'%  a ' . $cont . ' Operarios de la empresa.');
+                                return $this->render('aplicarporcentajeprenda', [
+                                  'form' => $form,
+                                  'model' => $model,
+                                  'tipo' => $tipo,
+                                ]);
+                        }else{
+                            Yii::$app->getSession()->setFlash('info', 'Se aplico el porcentaje del '.  $porcentaje.'%  a ' . $cont . '  Operarios de la empresa.');
+                                return $this->render('aplicarporcentajeprenda', [
+                                  'form' => $form,
+                                  'model' => $model,
+                                  'tipo' => $tipo,
+                                ]);
+                        }
+                    }
+                }   
+                //terminac el proceso de aplicar porcentaje
+                return $this->render('aplicarporcentajeprenda', [
+                       'form' => $form,
+                       'model' => $model,
+                       'tipo' => $tipo,
+               ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
+    }
+        //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
     
     public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $bodega) {        
         $model = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])

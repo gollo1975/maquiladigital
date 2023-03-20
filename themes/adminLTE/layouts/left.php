@@ -198,6 +198,7 @@
                                                 ]],
                                                 ['label' => 'Seguimiento Producción', 'icon' => 'plus-square-o', 'url' => ['seguimiento-produccion/index']],
                                                 ['label' => 'Valor prenda', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/index']],
+                                                ['label' => 'Aplicar porcentaje', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/aplicarporcentajeprenda']],
                                             ],
                                         ],
                                         [

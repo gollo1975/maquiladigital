@@ -17,6 +17,8 @@ use kartik\select2\Select2;
 use yii\web\Session;
 use yii\data\Pagination;
 use yii\db\ActiveQuery;
+use yii\widgets\LinkPager;
+
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Facturaventadetalle */
@@ -24,6 +26,7 @@ use yii\db\ActiveQuery;
 
 $this->title = 'Compras';
 $this->params['breadcrumbs'][] = $this->title;
+$proveedor = ArrayHelper::map(app\models\Proveedor::find()->orderBy ('nombrecorto ASC')->all(), 'idproveedor', 'nombrecorto');
 
 ?>
 
@@ -51,7 +54,15 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="panel-body" id="buscarmaquina">
         <div class="row" >
             <?= $formulario->field($form, "factura")->input("search") ?>            
+            <?= $formulario->field($form, 'id_proveedor')->widget(Select2::classname(), [
+                'data' => $proveedor,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
         </div>
+        
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
             <a align="right" href="<?= Url::toRoute(["orden-produccion/nuevocostoproduccion", 'id' => $id]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
@@ -85,7 +96,7 @@ if ($mensaje != ""){
 <div class="table table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">
-            Registros : <span class="badge"><?= count($compras) ?> </span>
+            Registros <span class="badge"><?= $pagination->totalCount ?></span>
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-hover">
@@ -123,7 +134,7 @@ if ($mensaje != ""){
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['orden-produccion/view', 'id' => $id], ['class' => 'btn btn-primary btn-sm']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
-
+       <?= LinkPager::widget(['pagination' => $pagination]) ?>
     </div>
 </div>
 

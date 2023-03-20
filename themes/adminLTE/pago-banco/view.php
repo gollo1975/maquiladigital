@@ -6,7 +6,7 @@ use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
 use yii\web\Session;
 use yii\db\ActiveQuery;
-
+use app\models\Operarios;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Licencia */
@@ -131,15 +131,14 @@ $view = 'pago-banco';
                                     <?php
                                     foreach ($listado as $listados):?>
                                         <tr style='font-size:85%;'>
-                                            <?php if($listados->tipo_pago == 7){
-                                                $operario = \app\models\Operarios::find()->where(['=','documento', $listados->documento])->one();?>
-                                                 <td><?= $operario->tipoDocumento->descripcion ?></td>
-                                                <td><?= $listados->documento ?></td>
-                                                <td><?= $listados->nombres ?></td>
-                                                <td><?= $operario->tipoTransacion?></td>
-                                                <td><?= $listados->codigo_banco ?></td>
-                                                <td><?= $operario->bancoEmpleado->banco ?></td>
-                                                <td><?= $listados->numero_cuenta ?></td>
+                                            <?php if($listados->tipo_pago == 7){?>
+                                                  <td><?= $listados->concepto_documento ?></td>
+                                                 <td><?= $listados->documento ?></td>
+                                                 <td><?= $listados->nombres ?></td>
+                                                 <td><?= $listados->tipoTransacion ?></td> 
+                                                 <td><?= $listados->codigo_banco ?></td>
+                                                 <td><?= $listados->banco ?></td>
+                                                <td style='background-color:#CBAAE3;'><?= $listados->numero_cuenta ?></td>
                                                 <td><?= $listados->fecha_aplicacion ?></td>
                                                 <td style="text-align: right"><?=''.number_format($listados->valor_transacion,0) ?></td>
                                             <?php }
@@ -152,7 +151,7 @@ $view = 'pago-banco';
                                                 <td><?= $empleado->tipoTransacion?></td>
                                                 <td><?= $listados->codigo_banco ?></td>
                                                 <td><?= $empleado->bancoEmpleado->banco ?></td>
-                                                <td><?= $listados->numero_cuenta ?></td>
+                                                <td style='background-color:#CBAAE3;'><?= $listados->numero_cuenta ?></td>
                                                 <td><?= $listados->fecha_aplicacion ?></td>
                                                 <td style="text-align: right"><?=''.number_format($listados->valor_transacion,0) ?></td>
                                             <?php }

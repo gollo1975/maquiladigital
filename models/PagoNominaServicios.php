@@ -75,7 +75,7 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getOperario()
+    public function getOperarios()
     {
         return $this->hasOne(Operarios::className(), ['id_operario' => 'id_operario']);
     }

@@ -138,7 +138,11 @@ $view = 'pago-banco';
                                                  <td><?= $listados->tipoTransacion ?></td> 
                                                  <td><?= $listados->codigo_banco ?></td>
                                                  <td><?= $listados->banco ?></td>
-                                                <td style='background-color:#CBAAE3;'><?= $listados->numero_cuenta ?></td>
+                                                 <?php if($listados->numero_cuenta > 0 ){?>
+                                                   <td><?= $listados->numero_cuenta ?></td>
+                                                 <?php }else{?>
+                                                   <td style='background-color:#CBAAE3;'><?= $listados->numero_cuenta ?></td>
+                                                 <?php }?>  
                                                 <td><?= $listados->fecha_aplicacion ?></td>
                                                 <td style="text-align: right"><?=''.number_format($listados->valor_transacion,0) ?></td>
                                             <?php }

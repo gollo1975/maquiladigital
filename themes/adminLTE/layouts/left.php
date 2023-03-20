@@ -231,7 +231,7 @@
                                             ['label' => 'Flujo de operaciones', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/produccionbalanceo']], 
                                             ['label' => 'Balanceo', 'icon' => 'plus-square-o', 'url' => ['/balanceo/index']],    
                                             ['label' => 'Pago de prenda', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/indexsoporte']], 
-                                             ['label' => 'Pago banco', 'icon' => 'plus-square-o', 'url' => ['/pago-banco/index']], 
+                                            ['label' => 'Pago banco', 'icon' => 'plus-square-o', 'url' => ['/pago-banco/index']], 
                                             ['label' => 'Prestamo operarios', 'icon' => 'plus-square-o', 'url' => ['/credito-operarios/index']],
                                             ['label' => 'Reprocesos', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indexreprocesoproduccion']],      
                                             ['label' => 'Costos y gastos', 'icon' => 'plus-square-o', 'url' => ['/costos-gastos-empresa/index']],      
@@ -298,7 +298,8 @@
                                             'items' => [
                                                 ['label' => 'Pago adicional permanente', 'icon' => 'plus-square-o', 'url' => ['/pago-adicional-permanente/index']],                                            
                                                 ['label' => 'Pago adicional fechas', 'icon' => 'plus-square-o', 'url' => ['/pago-adicional-fecha/index']],                                            
-                                                ['label' => 'Créditos', 'icon' => 'plus-square-o', 'url' => ['/credito/index']],                                            
+                                                ['label' => 'Créditos', 'icon' => 'plus-square-o', 'url' => ['/credito/index']],   
+                                                ['label' => 'Pago banco', 'icon' => 'plus-square-o', 'url' => ['/pago-banco/index']], 
                                             ],
                                         ],
                                         [

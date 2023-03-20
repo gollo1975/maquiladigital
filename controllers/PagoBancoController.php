@@ -439,6 +439,98 @@ class PagoBancoController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
     
+    //GENERAR ARCHIVOS TXT PAB
+    
+    public function actionPagoarchivopab($id) {
+       
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        $pago_banco = PagoBanco::findOne($id);
+        ob_clean();
+        $fijo = 6;
+        $letra = 'S';
+        $strArchivo = "archivoPlanoPab".".txt";                
+        $ar = fopen($strArchivo, "a+") or die("Problemas en la creacion del archivo plano");              
+        //Linea inicial
+        fputs($ar, $this->RellenarNr($pago_banco->nit_empresa, "1", 1));  
+        fputs($ar, $this->RellenarNr($pago_banco->nit, "0", 15));
+        fputs($ar, $pago_banco->aplicacion, 2);
+        fputs($ar, $this->RellenarNr($pago_banco->tipo_pago, " ", 18));
+        fputs($ar, str_pad(utf8_decode($pago_banco->descripcion), 10)); 
+        fputs($ar, date("Ymd", strtotime($pago_banco->fecha_creacion)));
+        fputs($ar, $pago_banco->secuencia);
+        fputs($ar, date("Ymd", strtotime($pago_banco->fecha_aplicacion)));
+        fputs($ar, $this->RellenarNr($pago_banco->total_empleados, "0", 6));
+        fputs($ar, $this->RellenarNr($pago_banco->debitos, "0", 17));
+        fputs($ar, $this->RellenarNr(round($pago_banco->total_pagar.$pago_banco->adicion_numero), "0", 17));
+        fputs($ar, $this->RellenarNr($empresa->bancoFactura->numerocuenta, "0", 11));
+        fputs($ar, $empresa->bancoFactura->producto, 1);
+        fputs($ar, "\n");
+        //fin linea
+        $detalle_pago = PagoBancoDetalle::find()->where(['=','id_pago_banco', $id])->orderBy('nombres ASC')->all(); 
+        foreach ($detalle_pago as $pago):
+            fputs($ar, $fijo);  
+            if(strlen($pago->documento) == 6){
+              fputs($ar, $pago->documento);                
+              fputs($ar, "         ");
+            }
+            if(strlen($pago->documento) == 7){
+              fputs($ar, $pago->documento);                
+              fputs($ar, "        ");
+            }
+             if(strlen($pago->documento) == 8){
+              fputs($ar, $pago->documento);                
+              fputs($ar, "       ");
+            }
+            
+            if(strlen($pago->documento) == 10){
+              fputs($ar, $pago->documento);                
+              fputs($ar, "     ");
+            }
+            fputs($ar, str_pad(utf8_decode($pago->nombres), 30));
+            fputs($ar, $this->RellenarNr($pago->codigo_banco, "0", 9));
+            if(strlen($pago->numero_cuenta) == 11){
+                fputs($ar, $pago->numero_cuenta);
+                fputs($ar, "      ");
+            }
+            if(strlen($pago->numero_cuenta) == 9){
+                fputs($ar, $pago->numero_cuenta);
+                fputs($ar, "        ");
+            }
+           
+            fputs($ar, $letra);  
+            fputs($ar, $pago->tipo_transacion, 2);
+            fputs($ar, $this->RellenarNr(round($pago->valor_transacion.$pago_banco->adicion_numero), "0", 17));
+            fputs($ar, date("Ymd", strtotime($pago_banco->fecha_aplicacion)));
+            fputs($ar, "                     ");
+            fputs($ar, $pago->tipo_documento, 1);
+            fputs($ar, "00000");
+            fputs($ar, "\n");
+        endforeach;
+        fclose($ar);
+        header('Content-Description: File Transfer');
+        header('Content-Type: text/csv; charset=ISO-8859-15');
+        header('Content-Disposition: attachment; filename='.basename($strArchivo));
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($strArchivo));
+        readfile($strArchivo);
+        unlink($strArchivo);
+        exit;
+    }
+    
+    public static function RellenarNr($Nro, $Str, $NroCr) {
+        $Longitud = strlen($Nro);
+
+        $Nc = $NroCr - $Longitud;
+        for ($i = 0; $i < $Nc; $i++)
+            $Nro = $Str . $Nro;
+
+        return (string) $Nro;
+    }
+
+
+
     //PROCESOS DE EXCEL
     
      public function actionExportar_pago_banco($id) {        

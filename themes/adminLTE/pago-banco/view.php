@@ -42,8 +42,7 @@ $view = 'pago-banco';
                            <span class="caret"></span>
                          </button>
                            <ul class="dropdown-menu">
-                             <li><?= Html::a('<span class="glyphicon glyphicon-file "></span> Archivo SAP', ['pagoarchivosap', 'id' => $model->id_pago_banco]) ?></li>
-                             <li><?= Html::a('<span class="glyphicon glyphicon-save-file"></span> Archivo PAB', ['pagoarchivopab', 'id' => $model->id_pago_banco]) ?></li>
+                            <li><?= Html::a('<span class="glyphicon glyphicon-save-file"></span> Archivo PAB', ['pagoarchivopab', 'id' => $model->id_pago_banco]) ?></li>
                            </ul>
                      </div>
                 </div>    

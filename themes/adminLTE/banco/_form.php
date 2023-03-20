@@ -43,7 +43,7 @@ $form = ActiveForm::begin([
             <?= $form->field($model, 'direccionbanco')->textInput(['maxlength' => true]) ?>
         </div>        
         <div class="row">
-            <?= $form->field($model, 'producto')->textInput(['maxlength' => true]) ?>
+             <?= $form->field($model, 'producto')->dropDownList(['S' => 'AHORRO', 'D' => 'CORIENTE', 'E' => 'EFECTIVO'], ['prompt' => 'Seleccione una opcion...']) ?> 
         </div>
         <div class="row">
             <?= $form->field($model, 'numerocuenta')->textInput(['maxlength' => true]) ?>

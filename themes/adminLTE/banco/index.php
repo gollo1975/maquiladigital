@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\ArrayHelper;
 
 
 /* @var $this yii\web\View */
@@ -34,9 +35,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'entidad',
                 'contentOptions' => ['class' => 'col-lg-2 '],                
             ],
-            [               
+            [
                 'attribute' => 'producto',
-                'contentOptions' => ['class' => 'col-lg-2 '],                
+                'value' => function($model) {
+                    $producto = app\models\Banco::findOne($model->idbanco);
+                    return $producto->producto;
+                },
+                'filter' => ArrayHelper::map(app\models\Banco::find()->all(), 'producto', 'tipoCuenta'),
+                'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [               
                 'attribute' => 'numerocuenta',

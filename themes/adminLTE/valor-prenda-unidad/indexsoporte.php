@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
@@ -295,8 +296,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                            $auxiliar = $eficiencia->id_operario;
                                                             ?>
                                                             <tr style="font-size: 85%;">
-                                                              <td ><?= $contar->operario->documento ?></td>
-                                                              <td ><?= $contar->operario->nombrecompleto ?></td>
+                                                              <td ><?= $contar->operarioProduccion->documento ?></td>
+                                                              <td ><?= $contar->operarioProduccion->nombrecompleto ?></td>
                                                               <td ><?= $contar->dia_pago?></td>
                                                               <td ><?= $contar->aplicaSabado?></td>
                                                               <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
@@ -315,7 +316,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 }   
                                         endforeach;
                                         if($id_operario > 0 && $dia_pago <> '' && $fecha_corte <> '' && count($modelo2) > 0){
-                                            $totalEficiencia = (($acumuladorEficiencia - $conEficiencia)/($contador - $sumaSabado));
+                                                   $totalEficiencia = (($acumuladorEficiencia - $conEficiencia)/($contador - $sumaSabado));
                                             ?>
                                             <tr>
                                                    <td colspan="3"></td>

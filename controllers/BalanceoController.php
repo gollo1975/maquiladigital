@@ -827,7 +827,9 @@ class BalanceoController extends Controller
                     }
                     $balanceo->hora_final_modulo = number_format($totalTiempo/60,2);
                     $balanceo->save(false);
-                    $orden->cerrar_orden = 1;
+                    if($model->option == 1){
+                        $orden->cerrar_orden = 1;
+                    }              
                     $orden->fechaentrega = $model->fecha_cierre;
                     $orden->save(false);
                     return $this->redirect(["balanceo/index"]);                                                     

@@ -43,7 +43,7 @@ if($buscarOrden){
 <div class="ordenproduccionproceso-view">
     <div class="btn-group" role="group" aria-label="...">
         <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['produccionbalanceo'],['class' => 'btn btn-primary btn-xs']) ?></button>
-        <?php if($model->cerrar_orden == 0){?>
+        <?php if($model->cerrar_orden == 0 && $model->sam_operativo > 0){?>
             <div class="btn-group btn-sm" role="group">
                 <button type="button" class="btn btn-info  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Modulos

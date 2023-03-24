@@ -146,8 +146,12 @@ $detalle_orden = Ordenproducciondetalle::find()->where(['=','idordenproduccion',
                                         <td><?= $val->modulo ?></td>
                                         <td><?= $val->fecha_inicio ?></td>
                                         <td><?= $val->fecha_terminacion ?></td>
-                                         <td><?= $val->estadomodulo ?></td>
-                                         <td><?= $val->verreproceso ?></td>
+                                        <?php if($val->estado_modulo == 0){?>
+                                            <td style='background-color:#CBAAE3;'><?= $val->estadomodulo ?></td>
+                                        <?php }else{ ?>    
+                                            <td style='background-color:#FFC300;'><?= $val->estadomodulo ?></td>
+                                        <?php }?>    
+                                        <td><?= $val->verreproceso ?></td>
                                         <td><?= $val->observacion ?></td>
                                           <td style="width: 25px;">
                                                 <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['/orden-produccion/detalle_reproceso_prenda', 'id_balanceo' => $val->id_balanceo,'id' => $model->idordenproduccion], ['target' => '_blank']) ?>

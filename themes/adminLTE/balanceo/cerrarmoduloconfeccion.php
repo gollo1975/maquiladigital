@@ -44,8 +44,11 @@ $form = ActiveForm::begin([
                     </div>
                     <div class="row">
                           <?= $form->field($model, 'hora_cierre')->input('time'); ?>
-                        	
                     </div>    
+                     <div class="checkbox checkbox-success" align ="center"> 
+                        <?= $form->field($model, 'option')->checkBox(['label' => 'Cerrar orden de producción',''=>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'option']) ?> 
+                    </div>  
+                     <td style="background-color:#BFB66B;"><?php echo 'Favor chequear esta opción si no quedan mas módulos en la orden de produccion.'?></td>
                 </div>        
             </div>   
             

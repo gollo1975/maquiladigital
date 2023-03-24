@@ -82,7 +82,7 @@ $form = ActiveForm::begin([
             ?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'hora_inicio')->input('time'); ?>
+        <?= $form->field($model, 'hora_inicio')->input ('time'); ?>
         </div>
         <div class="row">
             <?= $form->field($model, 'observacion')->textArea(['maxlength' => true]) ?>

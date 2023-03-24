@@ -138,7 +138,7 @@ $orden_produccion = Ordenproduccion::findOne($id);
                                 </tbody>  
                             </table>
                         </div>
-                           <?php if($balanceo->activo_reproceso == 0){?>
+                           <?php if($balanceo->activo_reproceso == 0 && $balanceo->estado_modulo == 0){?>
                             <div class="panel-footer text-right">
 
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm"]) ?>

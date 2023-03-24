@@ -1511,8 +1511,8 @@ class ValorPrendaUnidadController extends Controller
         foreach ($model as $val) {                            
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $ficha->idordenproduccion)
-                    ->setCellValue('B' . $i, $val->operario->documento)
-                    ->setCellValue('C' . $i, $val->operario->nombrecompleto);
+                    ->setCellValue('B' . $i, $val->operarioProduccion->documento)
+                    ->setCellValue('C' . $i, $val->operarioProduccion->nombrecompleto);
                     if($val->operacion == 0){
                          $objPHPExcel->setActiveSheetIndex(0)
                       ->setCellValue('D' . $i, $confeccion);

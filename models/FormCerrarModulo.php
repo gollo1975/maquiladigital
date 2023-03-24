@@ -13,6 +13,7 @@ class FormCerrarModulo extends Model
 {        
     public $hora_cierre;
     public $fecha_cierre;
+    public $option;
     
 
 
@@ -26,6 +27,7 @@ class FormCerrarModulo extends Model
             [['fecha_cierre'],'required'],
             [['fecha_cierre'],'safe'],
             [['hora_cierre'],'string'],
+            [['option'], 'integer'],
          
         ];
     }
@@ -38,6 +40,7 @@ class FormCerrarModulo extends Model
         return [            
             'fecha_cierre' => 'Fecha cierre:',
             'hora_cierre' => 'Hora cierre:',
+            'option' => 'Cerrar Orden de producción:',
         ];
     }
     

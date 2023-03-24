@@ -210,7 +210,11 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="date" name="dia_pago[]" value="<?= $val->dia_pago ?>" size="2" required></td>  
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="text" name="cantidad[]" value="<?= $val->cantidad ?>" size="2" required></td>                        
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="text" name="vlr_prenda[]" value="<?= $val->vlr_prenda ?>" size="4" ></td>                        
-                                                    <td style="padding-left: 1;padding-right: 0;"><input type="text" name="vlr_pago[]" value="<?= $val->vlr_pago ?>" size="6"> </td>  
+                                                    <?php if($val->vlr_pago > 0){?>
+                                                            <td style="padding-left: 1;padding-right: 0;"><input type="text" name="vlr_pago[]" value="<?= $val->vlr_pago ?>" size="6"> </td>  
+                                                    <?php }else{?>
+                                                            <td style="padding-left: 1;padding-right: 0;background-color:#F59284;"><input type="text" name="vlr_pago[]" value="<?= $val->vlr_pago ?>" size="6"> </td>  
+                                                    <?php }?>        
                                                     <td style="padding-left: 1;padding-right: 0; size: 3px"><?= ''.number_format($val->costo_dia_operaria,0)?> </td> 
                                                     <td style="padding-left: 3;padding-right: 0; size: 3px;"> <?= $val->meta_diaria ?> </td>
                                                     <?php if($val->porcentaje_cumplimiento > $conMatricula->porcentaje_empresa){?>

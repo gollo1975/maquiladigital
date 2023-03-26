@@ -110,8 +110,7 @@ $entrada = ArrayHelper::map(app\models\TipoEntrada::find()->orderBy('concepto AS
                 <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Entrada/Salida</th>
                  <th scope="col" style='background-color:#B9D5CE;'>Tulas</th>
-                 <th scope="col" style='background-color:#B9D5CE;'>F. Registro</th>
-                 <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
+                 <th scope="col" style='background-color:#B9D5CE; width: 300px;' >Observación</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
               
@@ -131,14 +130,15 @@ $entrada = ArrayHelper::map(app\models\TipoEntrada::find()->orderBy('concepto AS
                     <td align="right"><?= ''.number_format($val->total_cantidad,0) ?></td>
                     <td><?= $val->fecha_entrada_salida?></td>
                      <td><?= $val->numero_tulas?></td>
-                     <td><?= $val->fecha_proceso?></td>
                     <td><?= $val->observacion?></td>
                 
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["orden-produccion/viewsalida", "id" => $val->id_salida ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
                     <td style= 'width: 25px; height: 25px;'>
+                        <?php if($val->autorizado == 0){?>
                             <a href="<?= Url::toRoute(["orden-produccion/updatesalida", "id" => $val->id_salida ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                        <?php }?>    
                     </td>
                 </tr>
                     

@@ -41,16 +41,17 @@ $view = 'orden-produccion/indexentradasalida';
 
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['indexentradasalida', 'id' => $model->id_salida], ['class' => 'btn btn-primary btn-sm']) ?>
-        <?php if ($model->autorizado == 0) { ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['updatesalida', 'id' => $model->id_salida], ['class' => 'btn btn-success btn-sm']) ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizadosalidaentrada', 'id' => $model->id_salida], ['class' => 'btn btn-default btn-sm']);
-        }
-            else {
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['indexentradasalida', 'id' => $model->id_salida], ['class' => 'btn btn-primary btn-sm']); ?>
+        <?php  if ($model->autorizado == 0) { ?>
+                   <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['updatesalida', 'id' => $model->id_salida], ['class' => 'btn btn-success btn-sm']); 
+                   if (count($modeldetalles) > 0){?> 
+                      <?=  Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizadosalidaentrada', 'id' => $model->id_salida], ['class' => 'btn btn-default btn-sm']);
+                   }
+           }else {
                 echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizadosalidaentrada', 'id' => $model->id_salida], ['class' => 'btn btn-default btn-sm']);
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirsalida', 'id' => $model->id_salida], ['class' => 'btn btn-default btn-sm']);            
                 
-             }?>
+        }?>
     <br>
     <br>  
  

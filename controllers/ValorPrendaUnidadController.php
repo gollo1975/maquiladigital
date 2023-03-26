@@ -1625,7 +1625,7 @@ class ValorPrendaUnidadController extends Controller
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->consecutivo)
                     ->setCellValue('B' . $i, $val->idordenproduccion)
-                    ->setCellValue('C' . $i, $val->operario->nombrecompleto);
+                    ->setCellValue('C' . $i, $val->operarioProduccion->nombrecompleto);
                         if($val->operacion == 1){
                              $objPHPExcel->setActiveSheetIndex(0)
                           ->setCellValue('D' . $i, $confeccion);

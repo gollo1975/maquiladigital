@@ -15,7 +15,6 @@ class FormFiltroConsultaUnidadConfeccionada extends Model
     public $id_balanceo;
     public $fecha_inicio;
     public $fecha_corte;
-
     /**
      * {@inheritdoc}
      */
@@ -37,6 +36,7 @@ class FormFiltroConsultaUnidadConfeccionada extends Model
             'fecha_inicio' => 'Fecha inicio:',
             'id_balanceo' => 'Nro balanceo:',
             'fecha_corte' =>  'Fecha corte:', 
+           
         ];
     }
      

@@ -1207,6 +1207,7 @@ class ValorPrendaUnidadController extends Controller
                         $pagos = ValorPrendaUnidadDetalles::find()->where(['=','aplica_sabado', 1])
                                                                   ->andWhere(['=', 'dia_pago', $fecha_inicio])
                                                                   ->andWhere(['=', 'dia_pago', $fecha_corte])
+                                                                  ->andWhere(['=', 'id_planta', $planta])
                                                                   ->andWhere(['=', 'aplicar_porcentaje', 0])->all();
                         $model = $pagos;
                     }else {

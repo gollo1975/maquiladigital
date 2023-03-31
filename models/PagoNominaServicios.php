@@ -36,9 +36,10 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_operario', 'documento', 'Total_pagar','total_dias','devengado','deduccion','autorizado','id_planta'], 'integer'],
+            [['id_operario', 'Total_pagar','total_dias','devengado','deduccion','autorizado','id_planta'], 'integer'],
             [['id_operario', 'fecha_inicio', 'fecha_corte', 'Total_pagar','id_planta'], 'required'],
             [['fecha_inicio', 'fecha_corte', 'fecha_registro'], 'safe'],
+            [['documento'], 'string', 'max' => 15],
             [['operario','observacion','usuariosistema'], 'string', 'max' => 50],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
             [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],

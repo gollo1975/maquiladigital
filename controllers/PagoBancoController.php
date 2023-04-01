@@ -294,7 +294,7 @@ class PagoBancoController extends Controller
                         $table->tipo_documento = $operario->tipoDocumento->codigo_interfaz;
                         $table->concepto_documento = $operario->tipoDocumento->tipo;
                         $table->documento = $nomina->documento;
-                        $table->nombres = utf8_decode($nomina->operario);
+                        $table->nombres = utf8_decode(mb_substr($nomina->operario,0, 20));
                         $table->tipo_transacion = $operario->tipo_transacion;
                         $table->codigo_banco = $operario->bancoEmpleado->codigo_interfaz;
                         $table->banco = $operario->bancoEmpleado->banco;
@@ -475,20 +475,20 @@ class PagoBancoController extends Controller
         $detalle_pago = PagoBancoDetalle::find()->where(['=','id_pago_banco', $id])->orderBy('nombres ASC')->all(); 
         foreach ($detalle_pago as $pago):
             fputs($ar, $fijo);  
-            if(strlen($pago->documento) == 6){
+            if(mb_strlen($pago->documento) == 6){
               fputs($ar, $pago->documento);                
               fputs($ar, "         ");
             }
-            if(strlen($pago->documento) == 7){
+            if(mb_strlen($pago->documento) == 7){
               fputs($ar, $pago->documento);                
               fputs($ar, "        ");
             }
-             if(strlen($pago->documento) == 8){
+             if(mb_strlen($pago->documento) == 8){
               fputs($ar, $pago->documento);                
               fputs($ar, "       ");
             }
             
-            if(strlen($pago->documento) == 10){
+            if(mb_strlen($pago->documento) == 10){
               fputs($ar, $pago->documento);                
               fputs($ar, "     ");
             }

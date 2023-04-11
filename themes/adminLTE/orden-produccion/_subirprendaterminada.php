@@ -19,7 +19,7 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => true,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>',
+            'template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>',
             'labelOptions' => ['class' => 'col-sm-3 control-label'],
             'options' => []
         ],
@@ -31,7 +31,7 @@ $form = ActiveForm::begin([
         <h4 class="modal-title"></h4>
     </div>
     <div class="modal-body">        
-        <div class="table table-responsive">
+        <div class="table table-responsive" style ="width: 630px;" >
             <div class="panel panel-success ">
                 <div class="panel-heading">
                     Entrada de prendas terminadas: 
@@ -56,17 +56,16 @@ $form = ActiveForm::begin([
                         <?= $form->field($model, 'hora_corte_entrada')->input('time'); ?>
                     </div>
                     <div class="row" col>
-                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>'])->textarea(['rows' => 1]) ?>
                     </div>
                     
                        
                 </div>                
             </div>
             <div class="panel-body">
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover" style ="width: 680px;">
                     <thead>
                         <tr>
-                           <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                            <th scope="col" style='background-color:#B9D5CE;'>Producto / Talla</th>
                            <th scope="col" style='background-color:#B9D5CE;'>Unidades x Talla</th>
                            <th scope="col" style='background-color:#B9D5CE;'>Unidades confeccionadas</th>
@@ -78,7 +77,6 @@ $form = ActiveForm::begin([
                         <?php
                         foreach ($modeldetalles as $val): ?>
                         <tr >
-                            <td><?= $val->iddetalleorden ?></td>
                             <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
                             <td align="center"><?= $val->cantidad ?></td>
                             <td style="font-size: 100%; width: 170px; text-align: center; background: #C7F1DB; color: #005F80;"><?= $val->faltante ?></td>

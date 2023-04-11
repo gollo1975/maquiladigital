@@ -165,7 +165,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     <tr style='font-size:85%;'>  
                                         <td><?= $val->consecutivo ?></td>
                                         <td><?= $val->idordenproduccion ?></td>
-                                        <td><?= $val->operarioProduccion->nombrecompleto?> </td>
+                                        <?php if($val->id_operario == (NULL)){?>
+                                            <td style='background-color:#AFE7CB;'><?= 'REGISTRO EN CONSTRUCCION'?> </td> 
+                                        <?php }else{?>
+                                            <td><?= $val->operarioProduccion->nombrecompleto?> </td>
+                                        <?php }?>    
                                         <td><?= $val->operacionPrenda?></td>
                                          <td><?= $val->dia_pago ?></td>
                                         <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>

@@ -2684,6 +2684,8 @@ class OrdenProduccionController extends Controller {
         $orden->porcentaje_cantidad = $total_porcentaje;
         $orden->save(false);
     }
+    
+    
     public function actionIndexconsulta() {
     if (Yii::$app->user->identity){
         if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',95])->all()){

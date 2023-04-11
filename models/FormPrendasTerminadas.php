@@ -39,9 +39,9 @@ class FormPrendasTerminadas extends Model
     {
         return [   
             'cantidad_terminada' => 'Nro prendas:',
-            'fecha_entrada' => 'Fecha_entrada:',
-            'observacion' => 'Observacion:',
-            'nro_operarios'=> 'Nro Operarios:',
+            'fecha_entrada' => 'Fecha entrada:',
+            'observacion' => 'Observación:',
+            'nro_operarios'=> 'Nro perarios:',
             'id_proceso_confeccion' => 'Proceso confeccion:',
             'hora_corte_entrada' => 'Hora corte:',
             

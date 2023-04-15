@@ -265,7 +265,7 @@ class PagoBancoController extends Controller
                         $table->tipo_documento = $empleado->tipoDocumento->codigo_interfaz;
                          $table->concepto_documento = $empleado->tipoDocumento->tipo;
                         $table->documento = $nomina->cedula_empleado;
-                        $table->nombres = utf8_decode($nomina->empleado->nombrecorto);
+                        $table->nombres = utf8_decode(mb_substr($nomina->empleado->nombrecorto, 0, 20));
                         $table->tipo_transacion = $empleado->tipo_transacion;
                         $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
                         $table->banco = $empleado->bancoEmpleado->banco;
@@ -275,7 +275,7 @@ class PagoBancoController extends Controller
                         $table->tipo_pago = $tipo_proceso;
                         $table->id_colilla = $intCodigo;
                         $table->save(false); 
-                         $this->ActualizarOperarioTotales($id);
+                        $this->ActualizarOperarioTotales($id);
                     }
                 }
                                 
@@ -360,7 +360,7 @@ class PagoBancoController extends Controller
         }
     }
     //PROCESO QUE ELIMINA TODO
-     public function actionEliminartododetalle($id)
+     public function actionEliminartododetalle($id, $tipo_proceso)
     {
         $detalles = PagoBancoDetalle::find()->where(['=', 'id_pago_banco', $id])->orderBy('nombres ASC')->all();
         if(Yii::$app->request->post())
@@ -376,7 +376,7 @@ class PagoBancoController extends Controller
                     }
                 }
                 $this->ActualizarOperarioTotales($id);
-                $this->redirect(["pago-banco/view",'id' => $id]);
+                $this->redirect(["pago-banco/view",'id' => $id,  'tipo_proceso' => $tipo_proceso,]);
             }else {
                 Yii::$app->getSession()->setFlash('warning', 'Se debe de seleccin al menos un registro para el proceso.');
             }
@@ -384,6 +384,7 @@ class PagoBancoController extends Controller
         return $this->render('_formeliminartodopago', [
             'detalles' => $detalles,
             'id' => $id,
+            'tipo_proceso' => $tipo_proceso,
         ]);
     }
     

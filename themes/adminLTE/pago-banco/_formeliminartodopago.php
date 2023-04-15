@@ -55,23 +55,40 @@ $this->params['breadcrumbs'][] = $this->title;
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($detalles as $listados):
-                    $operario = \app\models\Operarios::find()->where(['=','documento', $listados->documento])->one();
-                    ?>
-                <tr style='font-size: 85%;'>
-                    <td><?= $operario->tipoDocumento->descripcion ?></td>
-                    <td><?= $listados->documento ?></td>
-                    <td><?= $listados->nombres ?></td>
-                    <td><?= $operario->tipoTransacion?></td>
-                    <td><?= $listados->codigo_banco ?></td>
-                    <td><?= $operario->bancoEmpleado->banco ?></td>
-                    <td><?= $listados->numero_cuenta ?></td>
-                    <td><?= $listados->fecha_aplicacion ?></td>
-                    <td><?=''.number_format($listados->valor_transacion,0) ?></td>
-                    <td><input type="checkbox" name="seleccion[]" value="<?= $listados->id_detalle ?>"></td>
-                </tr>
-                </tbody>
-                <?php endforeach; ?>
+                    <?php foreach ($detalles as $listados):
+                        if($tipo_proceso == 7){
+                             $operario = \app\models\Operarios::find()->where(['=','documento', $listados->documento])->one();
+                            ?>
+                            <tr style='font-size: 85%;'>
+                                <td><?= $operario->tipoDocumento->descripcion ?></td>
+                                <td><?= $listados->documento ?></td>
+                                <td><?= $listados->nombres ?></td>
+                                <td><?= $operario->tipoTransacion?></td>
+                                <td><?= $listados->codigo_banco ?></td>
+                                <td><?= $operario->bancoEmpleado->banco ?></td>
+                                <td><?= $listados->numero_cuenta ?></td>
+                                <td><?= $listados->fecha_aplicacion ?></td>
+                                <td><?=''.number_format($listados->valor_transacion,0) ?></td>
+                                <td><input type="checkbox" name="seleccion[]" value="<?= $listados->id_detalle ?>"></td>
+                            </tr>
+                        <?php } else {    
+                               $empleado = app\models\Empleado::find()->where(['=','identificacion', $listados->documento])->one();
+                            ?>
+                            <tr style='font-size: 85%;'>
+                                <td><?= $empleado->tipoDocumento->descripcion ?></td>
+                                <td><?= $listados->documento ?></td>
+                                <td><?= $listados->nombres ?></td>
+                                <td><?= $empleado->tipoTransacion?></td>
+                                <td><?= $listados->codigo_banco ?></td>
+                                <td><?= $empleado->bancoEmpleado->banco ?></td>
+                                <td><?= $listados->numero_cuenta ?></td>
+                                <td><?= $listados->fecha_aplicacion ?></td>
+                                <td><?=''.number_format($listados->valor_transacion,0) ?></td>
+                                <td><input type="checkbox" name="seleccion[]" value="<?= $listados->id_detalle ?>"></td>
+                            </tr>
+                        <?php }    
+                    endforeach; ?>
+                </tbody>        
             </table>
         </div>
         <div class="panel-footer text-right">

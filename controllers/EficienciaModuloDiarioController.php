@@ -220,7 +220,7 @@ class EficienciaModuloDiarioController extends Controller
     public function actionListar_modulos($id, $id_planta) {
         $listado = \app\models\Balanceo::find()->where(['=','estado_modulo', 0])
                                                 ->andWhere(['=','id_proceso_confeccion', 1])
-                                                ->orWhere(['=','id_proceso_confeccion', 3])->orderBy('id_balanceo DESC')->all();
+                                                ->orderBy('id_balanceo DESC')->all();
         $form = new \app\models\FormMaquinaBuscar();
         $q = null;
         $mensaje = '';
@@ -241,7 +241,7 @@ class EficienciaModuloDiarioController extends Controller
         } else {
              $listado = \app\models\Balanceo::find()->where(['=','estado_modulo', 0])
                                             ->andWhere(['=','id_proceso_confeccion', 1])
-                                            ->orWhere(['=','id_proceso_confeccion', 3])->orderBy('id_balanceo DESC')->all();
+                                            ->orderBy('id_balanceo DESC')->all();
         }
         if (isset($_POST["modulo_activo"])) {
             $intIndice = 0;

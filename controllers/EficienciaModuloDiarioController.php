@@ -343,8 +343,8 @@ class EficienciaModuloDiarioController extends Controller
                         $table->observacion = $_POST["observacion"][$intIndice];
                         $table->iddetalleorden = $intCodigo;
                         $table->id_proceso_confeccion = $balanceo->id_proceso_confeccion;
-                        $table->insert();
-                        $this->GuardarCantidadPrendasTerminadas($intCodigo, $cantidad, $orden_produccion);
+                       // $table->insert();
+                      //  $this->GuardarCantidadPrendasTerminadas($intCodigo, $cantidad, $orden_produccion);
                         $this->ActualizaPorcentajeCantidad($intCodigo, $orden_produccion);
                         $this->CalculaEficienciaHora($id_carga, $id_balanceo);
                         $this->TotalizarEficiencia($id_carga, $id_balanceo,$id);
@@ -352,7 +352,7 @@ class EficienciaModuloDiarioController extends Controller
                     }
                     $intIndice++;
                 endforeach;
-               $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id]);
+            //   $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id]);
             }
          }else{
              $model->getErrors();
@@ -421,7 +421,7 @@ class EficienciaModuloDiarioController extends Controller
         $sumarh = $horah[0] - $horad[0];
         $sumarm = $horah[1] + $horad[1];
         if($Buscar->aplica_alimento == 0){
-           $totalTiempo = ($sumarh * 60) - $sumarm;
+            var_dump($totalTiempo = ($sumarh * 60) + $sumarm);
         }else{
             if($horario->abreviatura == 'LV'){
                 if ($Buscar->hora_corte > '12:00'){
@@ -430,7 +430,7 @@ class EficienciaModuloDiarioController extends Controller
                     $totalTiempo = ($sumarh * 60) - $sumarm - $horario->tiempo_desayuno; 
                 }
             }else{
-                $totalTiempo = ($sumarh * 60) - $sumarm - $horario->tiempo->desayuno; 
+                var_dump($totalTiempo = ($sumarh * 60) - $sumarm - $horario->tiempo->desayuno); 
             }
         }   
         //unidades po hora

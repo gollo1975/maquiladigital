@@ -343,8 +343,8 @@ class EficienciaModuloDiarioController extends Controller
                         $table->observacion = $_POST["observacion"][$intIndice];
                         $table->iddetalleorden = $intCodigo;
                         $table->id_proceso_confeccion = $balanceo->id_proceso_confeccion;
-                       // $table->insert();
-                      //  $this->GuardarCantidadPrendasTerminadas($intCodigo, $cantidad, $orden_produccion);
+                        $table->insert();
+                        $this->GuardarCantidadPrendasTerminadas($intCodigo, $cantidad, $orden_produccion);
                         $this->ActualizaPorcentajeCantidad($intCodigo, $orden_produccion);
                         $this->CalculaEficienciaHora($id_carga, $id_balanceo);
                         $this->TotalizarEficiencia($id_carga, $id_balanceo,$id);
@@ -352,7 +352,7 @@ class EficienciaModuloDiarioController extends Controller
                     }
                     $intIndice++;
                 endforeach;
-            //   $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id]);
+                $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id]);
             }
          }else{
              $model->getErrors();

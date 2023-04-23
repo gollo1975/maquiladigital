@@ -132,4 +132,13 @@ class EficienciaModuloDiarioDetalle extends \yii\db\ActiveRecord
     {
         return $this->hasOne(ProcesoConfeccionPrenda::className(), ['id_proceso_confeccion' => 'id_proceso_confeccion']);
     }
+    
+    public function getAplicaAlimento() {
+        if($this->aplica_alimento == 0){
+            $aplicaalimento = 'NO';
+        }else{
+            $aplicaalimento = 'SI';
+        }
+        return $aplicaalimento;
+    }
 }

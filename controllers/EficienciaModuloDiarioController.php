@@ -547,4 +547,254 @@ class EficienciaModuloDiarioController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+    
+    //ARCHIVOS DE EXCEL
+    
+    public function actionExcelconsultaEficiencia($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+                                     
+        $objPHPExcel->setActiveSheetIndex(0)
+                     ->setCellValue('A1', 'ID')
+                    ->setCellValue('B1', 'PLANTA')
+                    ->setCellValue('C1', 'FECHA DIA')
+                    ->setCellValue('D1', 'FECHA PROCESO')
+                    ->setCellValue('E1', 'TOTAL EFICIENCIA')
+                    ->setCellValue('F1', 'USUARIO CREADOR')
+                    ->setCellValue('G1', 'USUARIO EDITOR')                    
+                    ->setCellValue('H1', 'PROCESO CERRADO');
+                   
+        $i = 2  ;
+        
+        foreach ($tableexcel as $val) {
+                                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_eficiencia)
+                    ->setCellValue('B' . $i, $val->planta->nombre_planta)
+                    ->setCellValue('C' . $i, $val->fecha_actual)
+                    ->setCellValue('D' . $i, $val->fecha_proceso)
+                    ->setCellValue('E' . $i, $val->total_eficiencia_planta)
+                    ->setCellValue('F' . $i, $val->usuario_creador)
+                    ->setCellValue('G' . $i, $val->usuario_editor)                    
+                    ->setCellValue('H' . $i, $val->procesoCerrado);
+                    
+                   
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Eficiencia');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Eficiencia_diaria.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
+    
+    //ARCHIVO DE EXCEL QUE DESCARGA MODULOS
+    
+    public function actionExportar_modulos($id) {
+        $eficiencia = \app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $id])->all();         
+      
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+                               
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'ID')
+                    ->setCellValue('B1', 'No BALANCEO')
+                    ->setCellValue('C1', 'OP')
+                    ->setCellValue('D1', 'MODULO:')
+                    ->setCellValue('E1', 'CLIENTE')
+                    ->setCellValue('F1', 'TOTAL EFICIENCIA:')
+                    ->setCellValue('G1', 'FECHA ENTRADA')
+                    ->setCellValue('H1', 'HORA INICIO MODULO:')
+                    ->setCellValue('I1', 'TOTAL UNIDADES')
+                    ->setCellValue('J1', 'USUARIO')
+                    ->setCellValue('K1', 'PLANTA');
+                    
+        $i = 2;
+        
+        foreach ($eficiencia as $val) {
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_carga)
+                    ->setCellValue('B' . $i, $val->id_balanceo)
+                    ->setCellValue('C' . $i, $val->idordenproduccion)
+                    ->setCellValue('D' . $i, $val->balanceo->modulo)                    
+                    ->setCellValue('E' . $i, $val->ordenproduccion->cliente->nombrecorto)                    
+                    ->setCellValue('F' . $i, $val->total_eficiencia_diario)
+                    ->setCellValue('G' . $i, $val->fecha_carga)
+                    ->setCellValue('H' . $i, $val->hora_inicio_modulo)
+                    ->setCellValue('I' . $i, $val->total_unidades)
+                    ->setCellValue('J' . $i, $val->usuario)
+                    ->setCellValue('K' . $i, $val->eficiencia->planta->nombre_planta);
+            $i++;
+        }
+        $objPHPExcel->getActiveSheet()->setTitle('listado_modulos');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Listado_Modulos.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
+    
+    //ARCHIVO DE EXCEL QUE DESCARGA TODAS LAS ENTRADAS
+    
+     public function actionExportar_entradas($id) {
+        $eficiencia = \app\models\EficienciaModuloDiarioDetalle::find()->where(['=','id_eficiencia', $id])->all();     
+     //   $orden_detalle = Ordenproducciondetalle::find()->where([])->one();
+      
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setAutoSize(true);
+                                  
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'ID')
+                    ->setCellValue('B1', 'No BALANCEO')
+                    ->setCellValue('C1', 'OP')
+                    ->setCellValue('D1', 'MODULO')
+                    ->setCellValue('E1', 'CLIENTE')
+                    ->setCellValue('F1', 'UNIDADES CONFECCIONADAS')
+                    ->setCellValue('G1', 'UNIDADES SISTEMA')
+                    ->setCellValue('H1', 'TALLA')
+                    ->setCellValue('I1', 'TIPO PROCESO')
+                    ->setCellValue('J1', 'No OPERARIOS')
+                    ->setCellValue('K1', 'APLICA ALIMENTO')
+                    ->setCellValue('L1', 'FECHA CONFECCION')
+                    ->setCellValue('M1', 'FECHA PROCESO')
+                    ->setCellValue('N1', 'EFICIENCIA')
+                    ->setCellValue('O1', 'HORA CORTE')
+                    ->setCellValue('P1', 'HORA INICIO')
+                    ->setCellValue('Q1', 'USUARIO')
+                    ->setCellValue('R1', 'OBSERVACION');
+
+                    
+        $i = 2;
+        
+        foreach ($eficiencia as $val) {
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_entrada)
+                    ->setCellValue('B' . $i, $val->id_balanceo)
+                    ->setCellValue('C' . $i, $val->idordenproduccion)
+                    ->setCellValue('D' . $i, $val->balanceo->modulo)                    
+                    ->setCellValue('E' . $i, $val->ordenproduccion->cliente->nombrecorto)                    
+                    ->setCellValue('F' . $i, $val->unidades_confeccionadas)
+                    ->setCellValue('G' . $i, $val->real_confeccion)
+                    ->setCellValue('H' . $i, $val->detalleorden->productodetalle->prendatipo->prenda.' / '.$val->detalleorden->productodetalle->prendatipo->talla->talla)
+                    ->setCellValue('I' . $i, $val->procesoConfeccion->descripcion_proceso)
+                    ->setCellValue('J' . $i, $val->numero_operarios)
+                    ->setCellValue('K' . $i, $val->aplicaAlimento)
+                    ->setCellValue('L' . $i, $val->fecha_dia_confeccion)
+                    ->setCellValue('M' . $i, $val->fecha_registro)
+                    ->setCellValue('N' . $i, $val->porcentaje_hora_corte)
+                    ->setCellValue('O' . $i, $val->hora_corte)
+                    ->setCellValue('P' . $i, $val->hora_inicio_dia)
+                    ->setCellValue('Q' . $i, $val->usuario)
+                    ->setCellValue('R' . $i, $val->observacion);
+            
+            $i++;
+        }
+        $objPHPExcel->getActiveSheet()->setTitle('Entradaproduccion');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Entrada_Produccion.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
+    
 }

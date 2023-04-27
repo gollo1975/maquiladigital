@@ -571,16 +571,18 @@ class EficienciaModuloDiarioController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
                                      
         $objPHPExcel->setActiveSheetIndex(0)
                      ->setCellValue('A1', 'ID')
                     ->setCellValue('B1', 'PLANTA')
                     ->setCellValue('C1', 'FECHA DIA')
                     ->setCellValue('D1', 'FECHA PROCESO')
-                    ->setCellValue('E1', 'TOTAL EFICIENCIA')
-                    ->setCellValue('F1', 'USUARIO CREADOR')
-                    ->setCellValue('G1', 'USUARIO EDITOR')                    
-                    ->setCellValue('H1', 'PROCESO CERRADO');
+                    ->setCellValue('E1', 'TOTAL UNIDADES')
+                    ->setCellValue('F1', 'TOTAL EFICIENCIA')
+                    ->setCellValue('G1', 'USUARIO CREADOR')
+                    ->setCellValue('H1', 'USUARIO EDITOR')                    
+                    ->setCellValue('I1', 'PROCESO CERRADO');
                    
         $i = 2  ;
         
@@ -591,10 +593,11 @@ class EficienciaModuloDiarioController extends Controller
                     ->setCellValue('B' . $i, $val->planta->nombre_planta)
                     ->setCellValue('C' . $i, $val->fecha_actual)
                     ->setCellValue('D' . $i, $val->fecha_proceso)
-                    ->setCellValue('E' . $i, $val->total_eficiencia_planta)
-                    ->setCellValue('F' . $i, $val->usuario_creador)
-                    ->setCellValue('G' . $i, $val->usuario_editor)                    
-                    ->setCellValue('H' . $i, $val->procesoCerrado);
+                    ->setCellValue('E' . $i, $val->total_unidades)
+                    ->setCellValue('F' . $i, $val->total_eficiencia_planta)
+                    ->setCellValue('G' . $i, $val->usuario_creador)
+                    ->setCellValue('H' . $i, $val->usuario_editor)                    
+                    ->setCellValue('I' . $i, $val->procesoCerrado);
                     
                    
             $i++;

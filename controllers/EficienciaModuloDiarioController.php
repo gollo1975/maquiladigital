@@ -391,14 +391,15 @@ class EficienciaModuloDiarioController extends Controller
         $conLinea->save(false);
         //codigo para totalizzar la eficiencia
         $buscarEficiencia = \app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $id])->all();
-        $totalE = 0; $porcentaje = 0; $contE = 0;
+        $totalE = 0; $porcentaje = 0; $contE = 0; $total_unidades = 0;
         foreach ($buscarEficiencia as $buscar):
             $totalE += $buscar->total_eficiencia_diario;
             $contE += 1;
+            $total_unidades += $buscar->total_unidades;
         endforeach;
         $porcentaje = round($totalE / $contE);
-        
         $eficiencia->total_eficiencia_planta = $porcentaje;
+        $eficiencia->total_unidades = $total_unidades;
         $eficiencia->save(false);
     }
     //CALCULA LA EFICIENCIA

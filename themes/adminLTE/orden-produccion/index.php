@@ -102,15 +102,16 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <th style='background-color:#F0F3EF;' scope="col">Cedula/Nit</th>
                 <th style='background-color:#F0F3EF;' scope="col">Cliente</th>
                 <th style='background-color:#F0F3EF;' scope="col">Codigo</th>                
-                <th style='background-color:#F0F3EF;' scope="col">Op cliente</th>
+                <th style='background-color:#F0F3EF;' scope="col">Op</th>
                 <th style='background-color:#F0F3EF;' scope="col">Cant.</th>
                 <th style='background-color:#F0F3EF;' scope="col">Time</th>
                  <th style='background-color:#F0F3EF;' scope="col">Sam</th>
                 <th style='background-color:#F0F3EF;' scope="col">F. llegada</th>
                 <th style='background-color:#F0F3EF;' scope="col">F. entrega</th>
                 <th style='background-color:#F0F3EF;' scope="col">Total</th>                
-                <th style='background-color:#F0F3EF;' scope="col">Aut.</th>
-                <th style='background-color:#F0F3EF;' scope="col">Fact.</th>
+                <th style='background-color:#F0F3EF;' scope="col"><span title="Autorizado el registro">Aut.</span></th>
+                <th style='background-color:#F0F3EF;' scope="col"><span title="Facturado la orden">Fac.</span></th>
+                <th style='background-color:#F0F3EF;' scope="col"><span title="Lleva o viene de lavanderia">Lav.</span></th>
                 <th style='background-color:#F0F3EF; width: 150px;' scope="col">Tipo servicio</th>
                 <th style='background-color:#F0F3EF;' scope="col" colspan="3"></th>                               
                
@@ -132,6 +133,11 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <td align = "right"><?= number_format($val->totalorden,0) ?></td>                
                 <td><?= $val->autorizar ?></td>
                 <td><?= $val->facturar ?></td>
+                <?php if($val->lavanderia == 0){?>
+                      <td><?= $val->lavanderiaPrenda ?></td>
+                <?php }else{ ?>
+                      <td style='background-color:#BCE7E0; color: black;'><?= $val->lavanderiaPrenda ?></td>
+                <?php } ?>      
                 <?php if($val->idtipo == 1){?>
                      <td style='background-color:#138D75; color: white;'><?= $val->tipo->tipo ?></td>
                 <?php }else{?>

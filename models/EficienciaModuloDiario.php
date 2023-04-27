@@ -35,7 +35,7 @@ class EficienciaModuloDiario extends \yii\db\ActiveRecord
     {
         return [
             [['id_planta', 'fecha_actual'], 'required'],
-            [['id_planta','proceso_cerrado'], 'integer'],
+            [['id_planta','proceso_cerrado','total_unidades'], 'integer'],
             [['fecha_actual', 'fecha_proceso'], 'safe'],
             [['total_eficiencia_planta'], 'number'],
             [['usuario_creador', 'usuario_editor'], 'string', 'max' => 15],
@@ -57,6 +57,7 @@ class EficienciaModuloDiario extends \yii\db\ActiveRecord
             'usuario_creador' => 'Usuario creador:',
             'usuario_editor' => 'Usuario editor:',
             'proceso_cerrado' => 'Proceso cerrado:',
+            'total_unidades' => 'Total unidades:',
         ];
     }
 

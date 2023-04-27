@@ -94,6 +94,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Bodega/Planta</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha actual</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Total unidades</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total eficiencia</th>
                 <th scope="col" style='background-color:#B9D5CE;'>User Create</th>
                 <th scope="col" style='background-color:#B9D5CE;'>User editado</th>
@@ -112,6 +113,7 @@ $form = ActiveForm::begin([
                         <td><?= $val->planta->nombre_planta ?></td>
                         <td><?= $val->fecha_actual ?></td>
                         <td><?= $val->fecha_proceso?></td>
+                        <td style="text-align: right; color: green;"><b><?= ''.number_format($val->total_unidades,0) ?></b></td>
                         <td style="text-align: right; color: blue;"><b><?= ''.number_format($val->total_eficiencia_planta,0) ?>%</b></td>
                         <td><?= $val->usuario_creador ?></td>
                         <td><?= $val->usuario_editor ?></td>
@@ -142,6 +144,7 @@ $form = ActiveForm::begin([
                         <td style='background-color:#F0F3EF;'><?= $val->planta->nombre_planta ?></td>
                         <td style='background-color:#F0F3EF;'><?= $val->fecha_actual ?></td>
                         <td style='background-color:#F0F3EF;'><?= $val->fecha_proceso?></td>
+                        <td style="background-color:#F0F3EF; text-align: right; color: green;"><b><?= ''.number_format($val->total_unidades,0) ?></b></td>
                         <td style='background-color:#F0F3EF; text-align: right; color: blue;'><b><?= ''.number_format($val->total_eficiencia_planta,0) ?>%</b></td>
                         <td style='background-color:#F0F3EF;'><?= $val->usuario_creador ?></td>
                         <td style='background-color:#F0F3EF;'><?= $val->usuario_editor ?></td>

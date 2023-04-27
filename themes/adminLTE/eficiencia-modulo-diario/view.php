@@ -78,6 +78,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                         <th scope="col" style='background-color:#B9D5CE;'>Hora inicio</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Eficiencia diaria</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>U. Confección</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -96,6 +97,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                             <td><?= $modulo->hora_inicio_modulo ?></td>
                                             <td style="text-align: right;color: blue;"><b><?=''.number_format($modulo->total_eficiencia_diario, 0) ?>%</b></td>
                                             <td style="text-align: right"><?=''.number_format($modulo->total_unidades, 0) ?></td>
+                                            <td><?= $modulo->balanceo->procesoconfeccion->descripcion_proceso ?></td>
                                             <td><?= $modulo->usuario ?></td>
                                             <?php if($model->proceso_cerrado == 0){?>
                                                

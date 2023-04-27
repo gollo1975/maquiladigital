@@ -162,14 +162,14 @@ class Ordenproduccion extends \yii\db\ActiveRecord
         return $exportar;
     }
     
-    public function getLavanderia()
+    public function getLavanderiaPrenda()
     {
         if($this->lavanderia == 0){
-            $lavanderia = "NO";
+            $lavanderiaprenda = "NO";
         }else{
-            $lavanderia = "SI";
+            $lavanderiaprenda = "SI";
         }
-        return $lavanderia;
+        return $lavanderiaprenda;
     }
         
 }

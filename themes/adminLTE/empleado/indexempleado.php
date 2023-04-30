@@ -125,16 +125,21 @@ $empleado = ArrayHelper::map(Empleado::find()->orderBy('nombrecorto ASC')->all()
                 <td><?= $val->celular ?></td>
                 <td><?= $val->direccion ?></td>
                 <td><?= $val->fechaingreso ?></td>
-                <td><?= $val->fecharetiro; ?></td>
+                <?php
+                if($val->fecharetiro == '2099-12-31'){?>
+                    <td style='background-color:#B9D5CE;'>INDEFINIDO </td>
+                <?php }else{ ?>
+                   <td style='background-color:#B9D5DE;'><?= $val->fecharetiro ?></td>
+                <?php } ?>   
                 <td><?= $val->contratado?></td>
                  <td style= 'width: 5px; height: 5px;'>
                     <?php
                     if($val->contrato == 0){?>
-                        <div class="btn-group btn-xs">
+                        <div class="btn-group btn-xs" style= 'width: 65px; height: 30px;'>
                             <button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               Nuevo <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu" style= 'width: 25px; height: 25px;'>
                               <li><?= Html::a('<span class="glyphicon glyphicon"></span>Contrato', ['/contrato/create', 'id' => $val->id_empleado], ['target' => '_blank']) ?></li>
                             </ul>
                         </div>

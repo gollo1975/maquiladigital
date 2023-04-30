@@ -183,12 +183,12 @@ $view = 'contrato';
                                 <table class="table table-bordered table-hover">
                                     <thead >
                                         <tr style='font-size:85%;'>
-                                            <th scope="col"><b>Código</b></th>                        
-                                            <th scope="col"><b>Eps Anterior</b></th>                        
-                                            <th scope="col">Nueva Eps</th> 
-                                            <th scope="col">Fecha/Hora</th> 
-                                            <th scope="col">Nota</th> 
-                                            <th scope="col"><b>Usuario</b></th>
+                                            <th scope="col" style='background-color:#B9D5CE;'><b>Código</b></th>                        
+                                            <th scope="col" style='background-color:#B9D5CE;'><b>Eps Anterior</b></th>                        
+                                            <th scope="col" style='background-color:#B9D5CE;'>Nueva Eps</th> 
+                                            <th scope="col" style='background-color:#B9D5CE;'>Fecha/Hora</th> 
+                                            <th scope="col" style='background-color:#B9D5CE;'>Nota</th> 
+                                            <th scope="col" style='background-color:#B9D5CE;'><b>Usuario</b></th>
                                         </tr>
                                    </thead>
                                    <tbody>
@@ -220,12 +220,12 @@ $view = 'contrato';
                                 <table class="table table-bordered table-hover">
                                     <thead >
                                         <tr style='font-size:85%;'>
-                                            <th scope="col"><b>Código</b></th>                        
-                                            <th scope="col"><b>Pensión Anterior</b></th>                        
-                                            <th scope="col">Nueva pension</th> 
-                                            <th scope="col">Fecha/Hora</th> 
-                                            <th scope="col">Nota</th> 
-                                            <th scope="col"><b>Usuario</b></th>
+                                            <th scope="col" style='background-color:#B9D5CE;'><b>Código</b></th>                        
+                                            <th scope="col" style='background-color:#B9D5CE;'><b>Pensión Anterior</b></th>                        
+                                            <th scope="col" style='background-color:#B9D5CE;'>Nueva pension</th> 
+                                            <th scope="col" style='background-color:#B9D5CE;'>Fecha/Hora</th> 
+                                            <th scope="col" style='background-color:#B9D5CE;'>Nota</th> 
+                                            <th scope="col" style='background-color:#B9D5CE;'><b>Usuario</b></th>
                                         </tr>
                                    </thead>
                                    <tbody>

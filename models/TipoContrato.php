@@ -41,6 +41,7 @@ class TipoContrato extends \yii\db\ActiveRecord
             [['estado','prorroga', 'nro_prorrogas'], 'integer'],
             [['contrato'], 'string', 'max' => 100],
             [['prefijo'],'string', 'max' => 4],
+            [['abreviatura'],'string', 'max' => 10],
             [['id_configuracion_prefijo'], 'exist', 'skipOnError' => true, 'targetClass' => ConfiguracionFormatoPrefijo::className(), 'targetAttribute' => ['id_configuracion_prefijo' => 'id_configuracion_prefijo']],
         ];
     }
@@ -57,6 +58,7 @@ class TipoContrato extends \yii\db\ActiveRecord
             'prorroga' => 'Prorroga:',
             'nro_prorrogas' => 'Nro_prorrogas:',
             'id_configuracion_prefijo' => 'Tipo formato:',
+            'abreviatura' => 'Abreviatura:',
         ];
     }
 

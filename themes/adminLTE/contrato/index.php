@@ -96,12 +96,13 @@ $tiempo = ArrayHelper::map(TiempoServicio::find()->orderBy ('id_tiempo ASC')->al
             <thead>
             <tr>                
                 <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Tipo contrato</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Tiempo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Identificación</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Nombre</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha final</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Salario</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Act.</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>                               
@@ -114,17 +115,18 @@ $tiempo = ArrayHelper::map(TiempoServicio::find()->orderBy ('id_tiempo ASC')->al
             <?php foreach ($model as $val): ?>
             <tr style ='font-size:85%;'>                
                 <td><?= $val->id_contrato ?></td>
-                <td><?= $val->tipoContrato->contrato ?></td>
-                <td><?= $val->tiempoServicio->tiempo_servicio ?></td>
                 <td><?= $val->identificacion ?></td>
                 <td><?= $val->empleado->nombrecorto ?></td>
+                <td><?= $val->tipoContrato->abreviatura ?></td>
+                <td><?= $val->tiempoServicio->tiempo_servicio ?></td>
                 <td><?= $val->fecha_inicio ?></td>
                 <?php
-                if($val->id_tipo_contrato == 1){?>
-                   <td>INDEFINIDO </td>
+                if($val->fecha_final == '2099-12-31'){?>
+                    <td style='background-color:#B9D5CE;'>INDEFINIDO </td>
                 <?php }else{ ?>
-                   <td><?= $val->fecha_final ?></td>
+                   <td style='background-color:#B9D5DE;'><?= $val->fecha_final ?></td>
                 <?php } ?>   
+                   <td style="text-align: right;"><?= ''.number_format($val->salario,0) ?></td>
                 <td><?= $val->grupoPago->grupo_pago ?></td>
                 <td><?= $val->activo ?></td>
                 <?php if($val->contrato_activo == 1){?>

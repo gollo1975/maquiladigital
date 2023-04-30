@@ -166,15 +166,15 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col">Número</th>                        
-                                        <th scope="col">Tipo contrato</th>                        
-                                        <th scope="col">Tiempo</th> 
-                                        <th scope="col">Grupo pago</th> 
-                                        <th scope="col">Fecha inicio</th> 
-                                        <th scope="col">Fecha final</th>
-                                        <th scope="col">Cargo</th>
-                                        <th scope="col">Salario</th>
-                                        <th scope="col">Activo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Número</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'Tipo contrato</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'Tiempo</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha final</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Cargo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Salario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Activo</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -182,11 +182,16 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                                      foreach ($contrato as $valor):?>
                                         <tr style='font-size:85%;'>
                                             <td><?= $valor->id_contrato ?></td>
-                                            <td><?= $valor->tipoContrato->contrato?></td>
+                                            <td><?= $valor->tipoContrato->abreviatura?></td>
                                             <td><?= $valor->tiempoServicio->tiempo_servicio ?></td>
                                             <td><?= $valor->grupoPago->grupo_pago ?></td>
                                             <td><?= $valor->fecha_inicio ?></td>
-                                            <td><?= $valor->fecha_final ?></td>
+                                            <?php if($valor->fecha_final == '2099-12-31'){?>
+                                                <td style='background-color:#B9D5CE;'><?= 'INDEFINIDO'?></td>
+                                            <?php }else{?>
+                                                <td style='background-color:#B9D5DE;'><?= $valor->fecha_final ?></td>
+                                            <?php } ?>                                                
+                                            
                                             <td><?= $valor->cargo->cargo ?></td>
                                             <td align="right"><?= '$'.number_format($valor->salario,0) ?></td>
                                             <td><?= $valor->activo ?></td>
@@ -207,16 +212,16 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col">Número</th>                        
-                                        <th scope="col">Tipo</th>                        
-                                        <th scope="col">Codigo</th> 
-                                        <th scope="col">Fecha inicio</th> 
-                                        <th scope="col">Fecha final</th>
-                                        <th scope="col">Dias</th>
-                                        <th scope="col">Medico</th>
-                                        <th scope="col">Grupo pago</th>
-                                        <th scope="col">Salario</th>
-                                        <th scope="col">Vlr_Incapacidad</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Número</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Tipo</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha final</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Dias</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Medico</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Salario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Vlr_Incapacidad</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -250,15 +255,15 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col">Número</th>                        
-                                        <th scope="col">Tipo</th>                        
-                                        <th scope="col">Nro contrato</th> 
-                                        <th scope="col">Fecha inicio</th> 
-                                        <th scope="col">Fecha final</th>
-                                        <th scope="col">Dias</th>
-                                        <th scope="col">Grupo pago</th>
-                                        <th scope="col">Salario</th>
-                                        <th scope="col">Vlr_licencia</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Número</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Tipo</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Nro contrato</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha final</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Dias</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Salario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Vlr_licencia</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -290,16 +295,16 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col">Número</th>                        
-                                        <th scope="col">Tipo_crédito</th>                        
-                                        <th scope="col">Forma pago</th> 
-                                        <th scope="col">Fecha inicio</th>
-                                        <th scope="col">Vr. Crédito</th> 
-                                        <th scope="col">Vr. Cuota</th>
-                                        <th scope="col">Nro cuotas</th>
-                                        <th scope="col">Saldo</th>
-                                        <th scope="col">Grupo pago</th>
-                                        <th scope="col">Usuario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Número</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Tipo_crédito</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Forma pago</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Vr. Crédito</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Vr. Cuota</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Nro cuotas</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Saldo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -333,17 +338,17 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col">Id</th>                        
-                                        <th scope="col">Titulo obtenido</th>                        
-                                        <th scope="col">Institucion educativa</th> 
-                                        <th scope="col">Municipio</th> 
-                                        <th scope="col">Fecha inicio</th>
-                                        <th scope="col">Fecha terminación</th> 
-                                        <th scope="col">Estudio/Profesión</th>
-                                        <th scope="col">Año cursado</th>
-                                        <th scope="col">Graduado</th>
-                                        <th scope="col">Registro</th>
-                                        <th scope="col">Usuario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Id</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Titulo obtenido</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Institucion educativa</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Municipio</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha terminación</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Estudio/Profesión</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Año cursado</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Graduado</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Registro</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                                     </tr>
                                 </thead>
                                 <tbody>

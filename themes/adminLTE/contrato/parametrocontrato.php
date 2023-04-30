@@ -89,20 +89,20 @@ $tiempo = ArrayHelper::map(TiempoServicio::find()->orderBy ('id_tiempo ASC')->al
 <div class="table-responsive">
 <div class="panel panel-success ">
     <div class="panel-heading">
-        Registros: <span class="badge"><?= $pagination->totalCount ?></span>
+        Registros <span class="badge"><?= $pagination->totalCount ?></span>
     </div>
         <table class="table table-bordered table-hover">
             <thead>
             <tr>                
                 <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Tipo Contrato</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Tiempo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Identificación</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Nombre</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha Inicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha Final</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cargo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Act.</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Activo</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>                               
             </tr>
             </thead>
@@ -110,16 +110,16 @@ $tiempo = ArrayHelper::map(TiempoServicio::find()->orderBy ('id_tiempo ASC')->al
             <?php foreach ($model as $val): ?>
             <tr style ='font-size:85%;'>                
                 <td><?= $val->id_contrato ?></td>
-                <td><?= $val->tipoContrato->contrato ?></td>
-                <td><?= $val->tiempoServicio->tiempo_servicio ?></td>
-                <td><?= $val->identificacion ?></td>
+                  <td><?= $val->identificacion ?></td>
                 <td><?= $val->empleado->nombrecorto ?></td>
+                <td><?= $val->tipoContrato->abreviatura ?></td>
+                <td><?= $val->tiempoServicio->tiempo_servicio ?></td>
                 <td><?= $val->fecha_inicio ?></td>
-                <?php
+               <?php
                 if($val->fecha_final == '2099-12-31'){?>
-                   <td>INDEFINIDO </td>
+                    <td style='background-color:#B9D5CE;'>INDEFINIDO </td>
                 <?php }else{ ?>
-                   <td><?= $val->fecha_final ?></td>
+                   <td style='background-color:#B9D5DE;'><?= $val->fecha_final ?></td>
                 <?php } ?>   
                 <td><?= $val->grupoPago->grupo_pago ?></td>
                 <td><?= $val->activo ?></td>

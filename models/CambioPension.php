@@ -46,7 +46,7 @@ class CambioPension extends \yii\db\ActiveRecord
             [['id_contrato', 'id_entidad_pension_anterior', 'id_entidad_pension_nueva'], 'integer'],
             [['id_entidad_pension_nueva'], 'required'],
             [['fecha_cambio'], 'safe'],
-            [['usuariosistema'], 'string', 'max' => 30],
+            [['usuariosistema'], 'string', 'max' => 20],
             [['motivo'], 'string', 'max' => 100],
             [['id_contrato'], 'exist', 'skipOnError' => true, 'targetClass' => Contrato::className(), 'targetAttribute' => ['id_contrato' => 'id_contrato']],
             [['id_entidad_pension_anterior'], 'exist', 'skipOnError' => true, 'targetClass' => EntidadPension::className(), 'targetAttribute' => ['id_entidad_pension_anterior' => 'id_entidad_pension']],

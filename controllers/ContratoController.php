@@ -64,7 +64,7 @@ class ContratoController extends Controller
      * Lists all Empleado models.
      * @return mixed
      */
-    public function actionIndex() {
+    public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',64])->all()){
                 $form = new FormFiltroContrato;
@@ -118,6 +118,7 @@ class ContratoController extends Controller
                             'model' => $model,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             }else{
                 return $this->redirect(['site/sinpermiso']);
@@ -133,7 +134,7 @@ class ContratoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
        $adicion_contrato = PagoAdicionSalario::find()->where(['=','id_contrato',$id])->orderBy('id_pago_adicion DESC')->all();  
        $cambio_salario = CambioSalario::find()->where(['=','id_contrato',$id])->orderBy('id_cambio_salario DESC')->all();
@@ -152,7 +153,7 @@ class ContratoController extends Controller
                     //{                        
                     //} 
                 }
-                 return $this->redirect(['contrato/view', 'id' => $id]);
+                 return $this->redirect(['contrato/view', 'id' => $id, 'token' => $token]);
             }
         }
 
@@ -165,7 +166,7 @@ class ContratoController extends Controller
             'cont' => $cont,
             'contador_adicion' => $contador_adicion,
             'adicion_contrato' => $adicion_contrato,
-            
+            'token' => $token,
             ]);
     }
     
@@ -572,7 +573,7 @@ class ContratoController extends Controller
         ]);
     }
     
-    public function actionCerrarcontrato($id) {                
+    public function actionCerrarcontrato($id, $token) {                
         $model = new FormCerrarContrato();
         $msg = null;
         $tipomsg = null;
@@ -614,7 +615,7 @@ class ContratoController extends Controller
                             $table->usuariosistema = Yii::$app->user->identity->username;
                             $table->insert(false);
                         }
-                        $this->redirect(["contrato/view", 'id' => $id]);                                                     
+                        $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);                                                     
                 }
             }
         }
@@ -625,10 +626,10 @@ class ContratoController extends Controller
             }
         }
         
-        return $this->renderAjax('_cerrarcontrato', ['model' => $model, 'id' => $id]);
+        return $this->renderAjax('_cerrarcontrato', ['model' => $model, 'id' => $id, 'token' => $token]);
     }
     
-     public function actionNuevocambiosalario($id)
+     public function actionNuevocambiosalario($id, $token)
      { 
         $model = new FormCambioSalario();
         $contrato = Contrato::find()->where(['=','id_contrato',$id])->one();
@@ -660,7 +661,7 @@ class ContratoController extends Controller
                         $table->insert();
                         $contrato->salario = $table->nuevo_salario;
                         $contrato->update();
-                        $this->redirect(["contrato/view", 'id' => $id]);    
+                        $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);    
                    }     
                 }else{                
                     Yii::$app->getSession()->setFlash('error', 'El Número del contrato no existe!');
@@ -673,6 +674,7 @@ class ContratoController extends Controller
             'model' => $model,
             'contrato' => $contrato,
             'id' => $id,
+           'token' => $token,
          
         ]);
     }
@@ -820,7 +822,7 @@ class ContratoController extends Controller
         return $this->renderAjax('_acumulardevengado', ['model' => $model, 'id' => $id]);
     }
     // termina view de los parametros
-    public function actionNuevaprorroga($id)
+    public function actionNuevaprorroga($id, $token)
      { 
         $modeloprorroga = new FormNuevaProrroga();
 
@@ -864,7 +866,7 @@ class ContratoController extends Controller
                         $contrato->fecha_final = $table->fecha_hasta;
                         $contrato->fecha_preaviso =  $table->fecha_preaviso;
                         $contrato->update();
-                        $this->redirect(["contrato/view", 'id' => $id]);  
+                        $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);  
                 }else{                
                     Yii::$app->getSession()->setFlash('error', 'El Número del contrato no existe!');
                 }
@@ -884,10 +886,10 @@ class ContratoController extends Controller
                 $modeloprorroga->fecha_nueva_renovacion = $date_dato;
                
             } else {
-                return $this->redirect(["contrato/view", 'id' => $id]);
+                return $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);
             }
         } else {
-            return $this->redirect(["contrato/view", 'id' => $id]);
+            return $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);
         }
         $prorroga_contrato = ProrrogaContrato::find()->where(['=','id_contrato', $id])->orderBy('id_prorroga_contrato DESC')->all();
         $tipo = TipoContrato::find()->where(['=','id_tipo_contrato', $table->id_tipo_contrato])->one();
@@ -897,13 +899,14 @@ class ContratoController extends Controller
                 'modeloprorroga' => $modeloprorroga,
                 'contrato' => $contrato,
                 'id' => $id,
+                'token' => $token,
             ]);
         }else{
             $this->redirect(["contrato/view", 'id' => $id]);  
         }    
     }
     
-     public function actionNuevaprorrogaano($id)
+     public function actionNuevaprorrogaano($id, $token)
      { 
         $modeloprorroga = new FormNuevaProrroga();
 
@@ -947,7 +950,7 @@ class ContratoController extends Controller
                         $contrato->fecha_preaviso =  $table->fecha_preaviso;
                         $contrato->dias_contrato = 365;
                         $contrato->update();
-                        $this->redirect(["contrato/view", 'id' => $id]);  
+                        $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);  
                 }else{                
                     Yii::$app->getSession()->setFlash('error', 'El Número del contrato no existe!');
                 }
@@ -967,22 +970,23 @@ class ContratoController extends Controller
                 $modeloprorroga->fecha_nueva_renovacion = $date_dato;
                
             } else {
-                return $this->redirect(["contrato/view", 'id' => $id]);
+                return $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);
             }
         } else {
-            return $this->redirect(["contrato/view", 'id' => $id]);
+            return $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);
         }
        
             return $this->render('_formnuevaprorroga', [
                 'modeloprorroga' => $modeloprorroga,
                 'contrato' => $contrato,
                 'id' => $id,
+                'token' => $token,
             ]);
         
     }
     // codigo de adicion al contrato
     
-     public function actionNuevaadicioncontrato($id)
+     public function actionNuevaadicioncontrato($id, $token)
      { 
         $modeloadicion = new FormNuevaAdicion();
         $contrato = Contrato::find()->where(['=','id_contrato',$id])->one();
@@ -1021,7 +1025,7 @@ class ContratoController extends Controller
                             $tipo_adicion->estado_adicion = 0 ;
                             $tipo_adicion->update(FALSE);
                         }   
-                        $this->redirect(["contrato/view", 'id' => $id]);  
+                        $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);  
                 }else{                
                     Yii::$app->getSession()->setFlash('error', 'El Número del contrato no existe!');
                 }
@@ -1033,11 +1037,12 @@ class ContratoController extends Controller
                 'modeloadicion' => $modeloadicion,
                 'contrato' => $contrato,
                 'id' => $id,
+                'token' => $token,
             ]);
         
     }
     
-    public function actionEditarpagoadicion($id_pago_adicion, $id)
+    public function actionEditarpagoadicion($id_pago_adicion, $id, $token)
     {
        $modeloadicion = new FormNuevaAdicion();
        if ($modeloadicion->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
@@ -1054,7 +1059,7 @@ class ContratoController extends Controller
                     $table->fecha_proceso = $modeloadicion->fecha_proceso; 
                     $table->codigo_salario = $modeloadicion->codigo_salario; 
                     $table->save(false);
-                     return $this->redirect(["contrato/view",'id' => $id]);  
+                     return $this->redirect(["contrato/view",'id' => $id, 'token' => $token]);  
                 }
         }
        
@@ -1073,15 +1078,16 @@ class ContratoController extends Controller
                 'modeloadicion' => $modeloadicion,
                 'id_pago_adicion' => $id_pago_adicion,
                 'id' => $id,
+                'token' => $token,
             ]);
     }
     
-    public function actionAbrircontrato($id)
+    public function actionAbrircontrato($id, $token)
     {
       $prestacion = PrestacionesSociales::find()->where(['=','id_contrato', $id])->one();
       if($prestacion){
          Yii::$app->getSession()->setFlash('error', 'Este contrato no se puede abrir porque tiene prestaciones sociales asociadas!');  
-         return $this->redirect(["contrato/view",'id' => $id]); 
+         return $this->redirect(["contrato/view",'id' => $id, 'token' => $token]); 
       }else{
           $contrato = Contrato::findOne($id);
           $contrato->contrato_activo = 1;
@@ -1089,7 +1095,7 @@ class ContratoController extends Controller
           $contrato->generar_liquidacion = 0;
           $contrato->observacion = '';
           $contrato->save(false);
-          return $this->redirect(["contrato/view",'id' => $id]); 
+          return $this->redirect(["contrato/view",'id' => $id, 'token' => $token]); 
       }   
     }        
     

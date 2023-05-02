@@ -56,61 +56,102 @@ class ProductoController extends Controller
      * Lists all Producto models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($token = 0  )
     {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',16])->all()){
-                $searchModel = new ProductoSearch();
-                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
+               $form = new \app\models\FormFiltroProductos();
+                $referencia = null;
+                $cliente = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $referencia = Html::encode($form->referencia);
+                        $cliente = Html::encode($form->idcliente);
+                        $table = Producto::find()
+                                ->andFilterWhere(['like', 'codigo', $referencia])
+                                ->andFilterWhere(['=', 'idcliente', $cliente]);
+                        $table = $table->orderBy('idproducto desc');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 20,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = Producto::find()
+                            ->orderBy('idproducto desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                   
+                }
+                $to = $count->count();
                 return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+                            'model' => $model,
+                            'form' => $form,
+                            'pagination' => $pages,
+                            'token' => $token,
                 ]);
             }else{
                 return $this->redirect(['site/sinpermiso']);
-            } 
+            }
         }else{
             return $this->redirect(['site/login']);
         }
     }
 
-    /**
-     * Displays a single Producto model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        $modeldetalles = Productodetalle::find()->Where(['=', 'idproducto', $id])->all();
-        
-        if (Yii::$app->request->post()) {
-            if (isset($_POST["eliminar"])) {
-                if (isset($_POST["idproductodetalle"])) {
-                    foreach ($_POST["idproductodetalle"] as $intCodigo) {
-                        try {
-                            $eliminar = Productodetalle::findOne($intCodigo);
-                            $eliminar->delete();
-                            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-                            $this->redirect(["producto/view", 'id' => $id]);
-                        } catch (IntegrityException $e) {
-                          
-                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
-                        } catch (\Exception $e) {
-                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+        /**
+         * Displays a single Producto model.
+         * @param integer $id
+         * @return mixed
+         * @throws NotFoundHttpException if the model cannot be found
+         */
+        public function actionView($id, $token)
+        {
+            $modeldetalles = Productodetalle::find()->Where(['=', 'idproducto', $id])->all();
 
+            if (Yii::$app->request->post()) {
+                if (isset($_POST["eliminar"])) {
+                    if (isset($_POST["idproductodetalle"])) {
+                        foreach ($_POST["idproductodetalle"] as $intCodigo) {
+                            try {
+                                $eliminar = Productodetalle::findOne($intCodigo);
+                                $eliminar->delete();
+                                Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+                                $this->redirect(["producto/view", 'id' => $id, 'token' => $token]);
+                            } catch (IntegrityException $e) {
+
+                                Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+                            } catch (\Exception $e) {
+                                Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+
+                            }
                         }
-                    }
-                } else {
-                    Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro.');
-                }    
-             }
-        }        
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-            'modeldetalles' => $modeldetalles,
-        ]);
+                    } else {
+                        Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro.');
+                    }    
+                 }
+            }        
+            return $this->render('view', [
+                'model' => $this->findModel($id),
+                'modeldetalles' => $modeldetalles,
+                'token' => $token,
+            ]);
     }
 
     /**
@@ -185,7 +226,7 @@ class ProductoController extends Controller
         }
     }
     
-    public function actionNuevodetalles($idproducto)
+    public function actionNuevodetalles($idproducto, $token)
     {
         $prendas = Prendatipo::find()->orderBy('prenda asc')->all();
         $form = new FormProductosDetallesNuevo;
@@ -245,7 +286,7 @@ class ProductoController extends Controller
                         $table->insert();                                                
                     }
                 }
-                $this->redirect(["producto/view", 'id' => $idproducto]);
+                $this->redirect(["producto/view", 'id' => $idproducto, 'token' => $token]);
             }else{
                 
             }
@@ -255,6 +296,7 @@ class ProductoController extends Controller
             'pagination' => $pages,
             'idproducto' => $idproducto,
             'form' => $form,
+            'token' => $token,
 
         ]);
     }

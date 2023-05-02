@@ -42,7 +42,7 @@ class ProductoSearch extends Producto
     public function search($params)
     {
         $query = Producto::find();
-
+        $token = 0;
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([

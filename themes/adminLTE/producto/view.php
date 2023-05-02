@@ -26,7 +26,7 @@ $view = 'producto';
                 'method' => 'post',
             ],
         ]) ?>
-        <?php echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 9, 'codigo' => $model->idproducto,'view' => $view], ['class' => 'btn btn-default btn-sm']); ?>
+        <?php echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 9, 'codigo' => $model->idproducto,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']); ?>
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -91,7 +91,7 @@ $view = 'producto';
                 </table>
             </div>            
                 <div class="panel-footer text-right">
-                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['producto/nuevodetalles', 'idproducto' => $model->idproducto], ['class' => 'btn btn-success btn-sm']) ?>                    
+                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['producto/nuevodetalles', 'idproducto' => $model->idproducto, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>                    
                     <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminar']) ?>
                 </div>            
         </div>

@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute(["producto/nuevodetalles", 'idproducto' => $idproducto]),
+    "action" => Url::toRoute(["producto/nuevodetalles", 'idproducto' => $idproducto, 'token' => $token]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-            <a align="right" href="<?= Url::toRoute(["producto/nuevodetalles", 'idproducto' => $idproducto]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute(["producto/nuevodetalles", 'idproducto' => $idproducto, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -102,7 +102,7 @@ if ($mensaje != ""){
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['producto/view', 'id' => $idproducto], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['producto/view', 'id' => $idproducto, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
     </div>

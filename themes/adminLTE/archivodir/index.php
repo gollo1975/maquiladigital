@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col">Ruta</th>
                 <th scope="col">Tamaño</th>
                 <th scope="col">Extension</th>
-                <th scope="col" colspan="3">Opción</th>                               
+                <th scope="col" colspan="3">Acción</th>                               
                 
             </tr>
             </thead>
@@ -52,8 +52,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= $val->tamaño ?></td>
                  <td><?= $val->extension ?></td>
                 <td style= 'width: 15px; height: 20px;'>
-                    <a href="<?= Url::toRoute(["archivodir/descargar", "id" => $val->idarchivodir, 'numero' => $numero, 'codigo' => $codigo]) ?>" ><span class="glyphicon glyphicon-download"></span></a>                                        
+                    <a href="<?= Url::toRoute(["archivodir/descargar", "id" => $val->idarchivodir, 'numero' => $numero, 'codigo' => $codigo, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-download"></span></a>                                        
                 </td>
+                <?php if($token == 0){?>
                 <td style= 'width: 20px; height: 20px;'>
                     <a href="#" data-toggle="modal" data-target="#id<?= $val->idarchivodir ?>"><span class="glyphicon glyphicon-pencil"></span></a>
                                 <!-- Editar modal detalle -->
@@ -64,7 +65,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                                 <h4 class="modal-title">Editar Archivo <?= $val->idarchivodir ?></h4>
                                             </div>
-                                            <?= Html::beginForm(Url::toRoute("archivodir/editar"), "POST") ?>
+                                            <?= Html::beginForm(Url::toRoute(["archivodir/editar", 'token' => $token]), "POST") ?>
                                             <div class="modal-body">
                                                 <div class="panel panel-success">
                                                     <div class="panel-heading">
@@ -93,17 +94,26 @@ $this->params['breadcrumbs'][] = $this->title;
                                         </div><!-- /.modal-content -->
                                     </div><!-- /.modal-dialog -->
                                 </div><!-- /.modal -->
-                </td>            
+                </td> 
+                <?php }else{?>
+                    <td style= 'width: 20px; height: 20px;'>
+                <?php }?>
                 <td style= 'width: 20px; height: 20px;'>
-                    <a href="<?= Url::toRoute(["archivodir/borrar", "id" => $val->idarchivodir, 'numero' => $numero, 'codigo' => $codigo,'view' => $view]) ?>" ><span class="glyphicon glyphicon-remove"></span></a>
+                    <?php if($token == 0){?>
+                      <a href="<?= Url::toRoute(["archivodir/borrar", "id" => $val->idarchivodir, 'numero' => $numero, 'codigo' => $codigo,'view' => $view, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-remove"></span></a>
+                    <?php }?>
                 </td>
             </tr>
             </tbody>
             <?php endforeach; ?>
         </table>
         <div class="panel-footer text-right" >
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', [$view.'/view', 'id' => $codigo], ['class' => 'btn btn-primary btn-sm']); ?>
-            <?= Html::a('<span class="glyphicon glyphicon-upload"></span> Subir Archivo', ['archivodir/subir','numero' => $numero, 'codigo' => $codigo,'view' =>$view], ['class' => 'btn btn-success btn-sm']); ?>            
+            <?php if($token == 0){?>
+                <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', [$view.'/view', 'id' => $codigo, 'token' => $token], ['class' => 'btn btn-primary btn-sm']); ?>
+                <?= Html::a('<span class="glyphicon glyphicon-upload"></span> Subir Archivo', ['archivodir/subir','numero' => $numero, 'codigo' => $codigo,'view' =>$view, 'token' => $token], ['class' => 'btn btn-success btn-sm']); ?>            
+            <?php }else{?>
+               <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', [$view.'/view', 'id' => $codigo, 'token' => $token], ['class' => 'btn btn-primary btn-sm']); ?>
+            <?php }?>
         </div>
     </div>
 </div>

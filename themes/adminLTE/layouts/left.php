@@ -60,7 +60,7 @@
                                                 'icon' => 'database',
                                                 'url' => '#',
                                                 'items' => [
-                                                    ['label' => 'Empleado', 'icon' => 'plus-square-o', 'url' => ['/empleado/indexempleado']],
+                                                    ['label' => 'Empleado', 'icon' => 'plus-square-o', 'url' => ['/empleado/index']],
                                                     ['label' => 'Estudios', 'icon' => 'plus-square-o', 'url' => ['/estudio-empleado/index']],
                                                     ['label' => 'Banco Empleado', 'icon' => 'plus-square-o', 'url' => ['/banco-empleado/index']],
                                                     ['label' => 'Centro Costo', 'icon' => 'plus-square-o', 'url' => ['/centro-costo/index']],
@@ -91,7 +91,7 @@
                                             'icon' => 'question',
                                             'url' => '#',
                                             'items' => [
-                                              //  ['label' => 'Cliente', 'icon' => 'plus-square-o', 'url' => ['/clientes/indexconsulta']],
+                                              ['label' => 'Empleado', 'icon' => 'plus-square-o', 'url' => ['/empleado/indexconsulta']],
                                             ],
                                         ],
                                         [

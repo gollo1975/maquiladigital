@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?= $form->field($model, 'file[]')->fileInput(['multiple' => true]) ?>
             </div>
             <div class="panel-footer text-right">                
-                <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['archivodir/index', 'numero' => $model->numero,'codigo' => $model->codigo,'view' => $view], ['class' => 'btn btn-primary btn-sm']); ?>
+                <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['archivodir/index', 'numero' => $model->numero,'codigo' => $model->codigo,'view' => $view, 'token' => $token], ['class' => 'btn btn-primary btn-sm']); ?>
                 <?= Html::submitButton("<span class='glyphicon glyphicon-upload'></span> Subir Archivo", ["class" => "btn btn-success btn-sm",]) ?>
             </div>
         </div>

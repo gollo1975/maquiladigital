@@ -121,6 +121,7 @@ class Empleado extends \yii\db\ActiveRecord
             [['id_centro_costo'], 'exist', 'skipOnError' => true, 'targetClass' => CentroCosto::className(), 'targetAttribute' => ['id_centro_costo' => 'id_centro_costo']],
             [['id_empleado_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => EmpleadoTipo::className(), 'targetAttribute' => ['id_empleado_tipo' => 'id_empleado_tipo']],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
+            [['id_sucursal'], 'exist', 'skipOnError' => true, 'targetClass' => Sucursal::className(), 'targetAttribute' => ['id_sucursal' => 'id_sucursal']],
         ];
     }
 
@@ -221,7 +222,7 @@ class Empleado extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getNivelEstudio()
+    public function getNivelEstudioempleado()
     {
         return $this->hasOne(NivelEstudio::className(), ['id_nivel_estudio' => 'id_nivel_estudio']);
     }
@@ -285,6 +286,11 @@ class Empleado extends \yii\db\ActiveRecord
     {
         return $this->hasOne(TipoDocumento::className(), ['id_tipo_documento' => 'id_tipo_documento']);
     }
+    
+    public function getSucursalempleado()
+    {
+        return $this->hasOne(Sucursal::className(), ['id_sucursal' => 'id_sucursal']);
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -314,11 +320,11 @@ class Empleado extends \yii\db\ActiveRecord
     public function getContratado()
     {
         if($this->contrato == 1){
-            $contra = "SI";
+            $contratado = "SI";
         }else{
-            $contra = "NO";
+            $contratado = "NO";
         }
-        return $contra;
+        return $contratado;
     }
     
     public function getTipo()
@@ -353,14 +359,14 @@ class Empleado extends \yii\db\ActiveRecord
      public function getTipocuenta()
      {
         if($this->tipo_cuenta == 'S'){
-            $cuenta = "AHORRO";
+            $tipocuenta = "AHORRO";
         }else{
-            $cuenta = "CORRIENTE";
+            $tipocuenta = "CORRIENTE";
         }
-        return $cuenta;
+        return $tipocuenta;
     }
     
-    public function getdiscapacitado()
+    public function getDiscapacitado()
     {
         if($this->discapacidad == 1){
             $discapacitado = "SI";

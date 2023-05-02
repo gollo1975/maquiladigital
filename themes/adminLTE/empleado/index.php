@@ -1,155 +1,195 @@
 <?php
-use yii\helpers\Html;
-use yii\grid\GridView;
-use yii\helpers\ArrayHelper;
-use app\models\Empleado;
-use app\models\Departamento;
-use app\models\Municipio;
-use yii\helpers\Url;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\BancoSearch */
-/* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $form yii\bootstrap\ActiveForm */
+/* @var $model app\models\ContactForm */
 
-$this->title = 'Lista Empleados';
+use yii\helpers\Html;
+use yii\bootstrap\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\LinkPager;
+use yii\bootstrap\Modal;
+use app\models\Empleado;
+use yii\helpers\ArrayHelper;
+use kartik\date\DatePicker;
+use kartik\select2\Select2;
+use yii\data\Pagination;
+use kartik\depdrop\DepDrop;
+
+$this->title = 'Empleados';
 $this->params['breadcrumbs'][] = $this->title;
+
+
 ?>
-<div class="empleados-index">
-    
-<?php
-use kartik\export\ExportMenu;
-$gridColumns = [
-    ['class' => 'yii\grid\SerialColumn'],
-    'id_empleado',
-    'identificacion',
-    'nombrecorto',
-    'fechaingreso',
-    'fecharetiro',
-    [
-        'attribute' => 'contrato',
-        'value' => function($model){
-            $empleado = Empleado::findOne($model->id_empleado);                   
-            return $empleado->contratado;
-        },
-        'filter' => ArrayHelper::map(Empleado::find()->all(),'contrato','contratado'),
-        'contentOptions' => ['class' => 'col-lg-1'],
-    ],
-    [
-        'attribute' => 'iddepartamento',
-        'value' => function($model){
-            $departamento = Departamento::findOne($model->iddepartamento);
-            return $departamento->departamento;
-        },
-        'filter' => ArrayHelper::map(Departamento::find()->all(),'iddepartamento','departamento'),
-        'contentOptions' => ['class' => 'col-lg-1'],
-    ],
-    [
-        'attribute' => 'iddmunicipio',
-        'value' => function($model){
-            $municipio = Municipio::findOne($model->idmunicipio);
-            return $municipio->municipio;
-        },
-        'filter' => ArrayHelper::map(Municipio::find()->all(),'idmunicipio','municipio'),
-        'contentOptions' => ['class' => 'col-lg-1'],
-    ],            
-    'telefono',
-    'celular',
-    'email',
-    'observacion',            
-    ['class' => 'yii\grid\ActionColumn'],
-];
+<script language="JavaScript">
+    function mostrarfiltro() {
+        divC = document.getElementById("filtro");
+        if (divC.style.display == "none"){divC.style.display = "block";}else{divC.style.display = "none";}
+    }
+</script>
+<?php if($token == 0){
+    $formulario = ActiveForm::begin([
+    "method" => "get",
+    "action" => Url::toRoute("empleado/index"),
+    "enableClientValidation" => true,
+    'options' => ['class' => 'form-horizontal'],
+    'fieldConfig' => [
+                    'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
+                    'labelOptions' => ['class' => 'col-sm-2 control-label'],
+                    'options' => []
+                ],
+    ]);
+} else {
+    $formulario = ActiveForm::begin([
+    "method" => "get",
+    "action" => Url::toRoute("empleado/indexconsulta"),
+    "enableClientValidation" => true,
+    'options' => ['class' => 'form-horizontal'],
+    'fieldConfig' => [
+                    'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
+                    'labelOptions' => ['class' => 'col-sm-2 control-label'],
+                    'options' => []
+                ],
+    ]);
+}    
 
-// Renders a export dropdown menu
-echo ExportMenu::widget([
-    'dataProvider' => $dataProvider,
-    'columns' => $gridColumns
-]);
+$empleado = ArrayHelper::map(Empleado::find()->orderBy('nombrecorto ASC')->all(), 'id_empleado', 'nombrecorto');
 ?>
-    <!--<h1><?= Html::encode($this->title) ?></h1>-->
-    <?=  $this->render('_search', ['model' => $searchModel]); ?>
 
-    <?php $newButton = Html::a('Nuevo ' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-plus']), ['create'], ['class' => 'btn btn-success']);?>
-
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,        
-        'columns' => [            
-            [                
-                'attribute' => 'id_empleado',
-                'contentOptions' => ['class' => 'col-lg-1'],
-            ],
-            [                
-                'attribute' => 'identificacion',
-                'contentOptions' => ['class' => 'col-lg-1'],                
-            ],
-            [                
-                'attribute' => 'nombrecorto',
-                'contentOptions' => ['class' => 'col-lg-3'],                
-            ],
-            [               
-            'attribute' => 'fechaingreso',
-            'value' => function($model){
-                $empleado = Empleado::findOne($model->id_empleado);
-                return date("Y-m-d", strtotime("$empleado->fechaingreso"));
-            },
-            'contentOptions' => ['class' => 'col-lg-1'],
-            ],
-            [               
-            'attribute' => 'fecharetiro',
-            'value' => function($model){
-                $empleado = Empleado::findOne($model->id_empleado);
-                return date("Y-m-d", strtotime("$empleado->fecharetiro"));
-            },
-            'contentOptions' => ['class' => 'col-lg-1'],
-            ],
-            [
-                'attribute' => 'contrato',
-                'value' => function($model){
-                    $empleado = Empleado::findOne($model->id_empleado);                   
-                    return $empleado->contratado;
-                },
-                'filter' => ArrayHelper::map(Empleado::find()->all(),'contrato','contratado'),
-                'contentOptions' => ['class' => 'col-lg-1'],
-            ],
-            [               
-                'attribute' => 'telefono',
-                'contentOptions' => ['class' => 'col-lg-1'],                
-            ],
-            [               
-                'attribute' => 'celular',
-                'contentOptions' => ['class' => 'col-lg-1'],                
-            ],
-            [
-            'class' => 'yii\grid\ActionColumn',
-            'template' => '{nuevocontrato}',  // the default buttons + your custom button
-            'buttons' => [
-                'nuevocontrato' => function($url, $model, $key) {     // render your custom button
-                    if ($model->contrato == 0){
-                        return Html::a("<span class='glyphicon glyphicon-plus'>", ['contrato/create', 'id' => $key], ['class' => 'profile-link']);
-                    }else{
-                        return "";
-                    }
-                    
-                }
-            ]],            
-            [
-                'class' => 'yii\grid\ActionColumn',              
-            ],
-			
-        ],
-        //'tableOptions' => ['class' => 'table table-success'],
-        'tableOptions'=>['class'=>'table table-bordered table-success'],        
-        'summary' => '<div class="panel panel-success "><div class="panel-heading">Registros: {totalCount}</div>',
-
-        'layout' => '{summary}{items}</div><div class="row"><div class="col-sm-8">{pager}</div><div class="col-sm-4 text-right">' . $newButton . '</div></div>',
-        'pager' => [
-            'nextPageLabel' => '<i class="fa fa-forward"></i>',
-            'prevPageLabel'  => '<i class="fa fa-backward"></i>',
-            'lastPageLabel' => '<i class="fa fa-fast-forward"></i>',
-            'firstPageLabel'  => '<i class="fa fa-fast-backward"></i>'
-        ],
+<div class="panel panel-success panel-filters">
+    <div class="panel-heading" onclick="mostrarfiltro()">
+        Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
+    </div>
+	
+    <div class="panel-body" id="filtro" style="display:none">
+        <div class="row" >
+            <?= $formulario->field($form, "identificacion")->input("search") ?>
+             <?= $formulario->field($form, 'id_empleado')->widget(Select2::classname(), [
+                'data' => $empleado,
+                'options' => ['prompt' => 'Seleccione el empleado...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+            <?= $formulario->field($form, 'fechaingreso')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true]])
+            ?>
         
-    ]); ?>
+            <?= $formulario->field($form, 'fecharetiro')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true]])
+            ?>
+             <?= $formulario->field($form, 'contrato')->dropDownList(['' => 'TODOS', '1' => 'SI', '0' => 'NO'],['prompt' => 'Seleccione el estado ...']) ?>
+        </div>
+        <div class="panel-footer text-right">
+            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
+           <?php if($token == 0){?>
+                <a align="right" href="<?= Url::toRoute("empleado/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+           <?php }else{?>
+                <a align="right" href="<?= Url::toRoute("empleado/indexconsulta") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+           <?php }?>     
+        </div>
+    </div>
 </div>
+
+<?php $formulario->end() ?>
+<?php
+    $form = ActiveForm::begin([
+                "method" => "post",                            
+            ]);
+    ?>
+<div class="table-responsive">
+<div class="panel panel-success ">
+    <div class="panel-heading">
+        Registros: <span class="badge"> <?= $pagination->totalCount ?></span>
+    </div>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr style ='font-size:85%;'>                
+                <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Télefono</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Celular</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Dirección</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. Contrato</th>   
+                <th scope="col" style='background-color:#B9D5CE;'>F. Termino</th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Contrato activo" >Act.</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'>Accion</th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                 <th scope="col" style='background-color:#B9D5CE;'></th>
+              
+            </tr>
+            </thead>
+            <tbody>
+            <?php 
+            if($modelo <> 0){
+                foreach ($modelo as $val):?>
+                    <tr style='font-size:85%;'>                
+                    <td><?= $val->id_empleado ?></td>
+                    <td><?= $val->identificacion?></td>
+                    <td><?= mb_strtoupper($val->nombrecorto)?></td>
+                    <td><?= $val->telefono ?></td>
+                    <td><?= $val->celular ?></td>
+                    <td><?= $val->direccion ?></td>
+                    <td><?= $val->fechaingreso ?></td>
+                    <?php
+                    if($val->fecharetiro == '2099-12-31'){?>
+                        <td style='background-color:#B9D5CE;'>INDEFINIDO </td>
+                    <?php }else{ ?>
+                       <td style='background-color:#B9D5DE;'><?= $val->fecharetiro ?></td>
+                    <?php } ?>   
+                    <td><?= $val->contratado?></td>
+                    <?php if($token == 0){?>
+                        <td style= 'width: 5px; height: 5px;'>
+                           <?php
+                           if($val->contrato == 0){?>
+                               <div class="btn-group btn-xs" style= 'width: 65px; height: 30px;'>
+                                   <button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                     Nuevo <span class="caret"></span>
+                                   </button>
+                                   <ul class="dropdown-menu" style= 'width: 25px; height: 25px;'>
+                                     <li><?= Html::a('<span class="glyphicon glyphicon"></span>Contrato', ['/contrato/create', 'id' => $val->id_empleado], ['target' => '_blank']) ?></li>
+                                   </ul>
+                               </div>
+                           <?php }?> 
+                        </td>     
+                       <td style= 'width: 25px; height: 25px;'>
+                               <a href="<?= Url::toRoute(["empleado/view", "id" => $val->id_empleado, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                       </td>
+                       <td style= 'width: 25px; height: 25px;'>
+                               <a href="<?= Url::toRoute(["empleado/update", "id" => $val->id_empleado, ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                       </td>
+                    <?php }else{?>
+                       <td style= 'width: 25px; height: 25px;'>
+                               <a href="<?= Url::toRoute(["empleado/view", "id" => $val->id_empleado, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                       </td>
+                       <td style= 'width: 25px; height: 25px;'></td>
+                       <td style= 'width: 25px; height: 25px;'></td>
+                    <?php }?>   
+                <?php endforeach;
+            }  ?>
+             </tbody>               
+        </table>    
+        <div class="panel-footer text-right" >    
+                <?php if($token == 0){?>
+                    <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
+                    <?= Html::a('<span class="glyphicon glyphicon-check"></span> Importar operarios', ['empleado/importar_operarios'], ['class' => 'btn btn-warning btn-sm']) ?>
+                    <a align="right" href="<?= Url::toRoute("empleado/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+                <?php }else {?>    
+                    <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
+                <?php } ?>    
+            <?php $form->end() ?>
+        </div>
+    </div>
+</div>
+<?= LinkPager::widget(['pagination' => $pagination]) ?>
 
 

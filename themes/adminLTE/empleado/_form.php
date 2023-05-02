@@ -59,6 +59,7 @@ $horario = ArrayHelper::map(Horario::find()->all(), 'id_horario', 'horario');
 $banco_empleado = ArrayHelper::map(BancoEmpleado::find()->all(), 'id_banco_empleado', 'banco');
 $centro_costo = ArrayHelper::map(CentroCosto::find()->all(), 'id_centro_costo', 'centro_costo');
 $rh = ArrayHelper::map(Rh::find()->all(), 'id_rh', 'rh');
+$nive_estudio = ArrayHelper::map(app\models\NivelEstudio::find()->orderBy('nive_estudio ASC')->all(), 'id_nivel_estudio', 'nive_estudio');
 ?>
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -171,10 +172,13 @@ $rh = ArrayHelper::map(Rh::find()->all(), 'id_rh', 'rh');
         </div>
         <div class="row" col>
             <?= $form->field($model, 'id_centro_costo')->dropDownList($centro_costo, ['prompt' => 'Seleccione una opcion...']) ?>
+             <?= $form->field($model, 'id_nivel_estudio')->dropDownList($nive_estudio, ['prompt' => 'Seleccione una opcion...']) ?>
+        </div>
+            <div class="row" col>
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
         <div class="panel-footer text-right">			
-            <a href="<?= Url::toRoute("empleado/indexempleado") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
+            <a href="<?= Url::toRoute("empleado/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
     </div>

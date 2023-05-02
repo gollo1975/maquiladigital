@@ -39,7 +39,7 @@ class NivelEstudio extends \yii\db\ActiveRecord
     {
         return [
             'id_nivel_estudio' => 'Id Nivel Estudio',
-            'nive_estudio' => 'Nive Estudio',
+            'nive_estudio' => 'NiveL Estudio',
         ];
     }
 

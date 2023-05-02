@@ -26,10 +26,15 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
     <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['indexempleado'], ['class' => 'btn btn-primary btn-sm']) ?>
-		<?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_empleado], ['class' => 'btn btn-success btn-sm']) ?>
-        <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_empleado], ['class' => 'btn btn-default btn-sm']); ?>
-        <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 10, 'codigo' => $model->id_empleado,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+        <?php if($token == 0){?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_empleado], ['class' => 'btn btn-success btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_empleado], ['class' => 'btn btn-default btn-sm']); ?>
+            <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 10, 'codigo' => $model->id_empleado,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
+        <?php }else{?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['indexconsulta'], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 10, 'codigo' => $model->id_empleado,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
+        <?php }?>
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">

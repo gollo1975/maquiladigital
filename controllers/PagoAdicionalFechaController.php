@@ -393,7 +393,7 @@ class PagoAdicionalFechaController extends Controller
    //PROCESO QUE IMPORTA LOS PAGOS O BONIFICACION DESDE VALOR PRENDA UNIDAD
     
     public function actionImportarpagoproduccion($id, $fecha_corte) {
-        $contratos = Contrato::find()->where(['=','tipo_salario', 'VARIABLE'])->orderBy('identificacion DESC')->all();
+        $contratos = Contrato::find()->where(['=','contrato_activo', 1])->orderBy('identificacion DESC')->all();
         $form = new FormBuscarIntereses();
         $documento = null;
         $id_grupo_pago = null;
@@ -405,11 +405,13 @@ class PagoAdicionalFechaController extends Controller
                 if ($documento){
                     $contratos = Contrato::find()
                             ->where(['like','identificacion',$documento])
+                            ->andWhere(['=','contrato_activo', 1])
                             ->orderBy('identificacion DESC')
                             ->all();
                 }else{    
                      $contratos = Contrato::find()
                             ->where(['=','id_grupo_pago', $id_grupo_pago])
+                            ->andWhere(['=','contrato_activo', 1])
                             ->orderBy('identificacion DESC')
                             ->all();
                 }               
@@ -417,7 +419,7 @@ class PagoAdicionalFechaController extends Controller
                 $form->getErrors();
             }                    
         } else {
-           $contratos = Contrato::find()->where(['=','tipo_salario', 'VARIABLE'])->orderBy('identificacion DESC')->all();
+           $contratos = Contrato::find()->where(['=','contrato_activo', 1])->orderBy('identificacion DESC')->all();
         }
         if (isset($_POST["id_contrato"])) {
             $intIndice = 0;
@@ -428,29 +430,31 @@ class PagoAdicionalFechaController extends Controller
                 $operario = \app\models\Operarios::find()->where(['=','documento', $contrato->identificacion])->andWhere(['=','vinculado', 1])->andWhere(['=','estado', 1])->one();
                 if($operario){
                    $valor_prenda = \app\models\ValorPrendaUnidadDetalles::find()->where(['=', 'exportado', 0])->andWhere(['<=', 'dia_pago', $fecha_corte])->andWhere(['=','id_operario', $operario->id_operario])->all(); 
-                   if(count($valor_prenda)>0){
-                       $suma = 0;
-                       foreach ($valor_prenda as $pagos):
+                   if(count($valor_prenda) > 0){
+                        $suma = 0;
+                        foreach ($valor_prenda as $pagos):
                            $suma += $pagos->vlr_pago;
-                       endforeach;
-                       $table = new PagoAdicionalPermanente();
-                       $table->id_empleado = $contrato->id_empleado;
-                       $table->codigo_salario = $matricula->codigo_salario_pago_produccion;
-                       $table->id_contrato = $contrato->id_contrato;
-                       $table->id_grupo_pago = $contrato->id_grupo_pago;
-                       $table->id_pago_fecha = $id;
-                       $table->fecha_corte = $fecha_corte;
-                       $table->tipo_adicion = 1;
-                       $table->vlr_adicion = $suma;
-                       $table->permanente = 2;
-                       $table->aplicar_dia_laborado = 0;
-                       $table->aplicar_prima = 0;
-                       $table->aplicar_cesantias = 0;
-                       $table->estado_registro = 1;
-                       $table->estado_periodo = 1;
-                       $table->detalle = 'Bonificacion no prestacional';
-                       $table->usuariosistema = Yii::$app->user->identity->username;
-                       $table->insert();
+                        endforeach;
+                        if($suma > 0){
+                            $table = new PagoAdicionalPermanente();
+                            $table->id_empleado = $contrato->id_empleado;
+                            $table->codigo_salario = $matricula->codigo_salario_pago_produccion;
+                            $table->id_contrato = $contrato->id_contrato;
+                            $table->id_grupo_pago = $contrato->id_grupo_pago;
+                            $table->id_pago_fecha = $id;
+                            $table->fecha_corte = $fecha_corte;
+                            $table->tipo_adicion = 1;
+                            $table->vlr_adicion = $suma;
+                            $table->permanente = 2;
+                            $table->aplicar_dia_laborado = 0;
+                            $table->aplicar_prima = 0;
+                            $table->aplicar_cesantias = 0;
+                            $table->estado_registro = 1;
+                            $table->estado_periodo = 1;
+                            $table->detalle = 'Bonificacion no prestacional';
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+                            $table->insert();
+                        }    
                     }
                 }
             }

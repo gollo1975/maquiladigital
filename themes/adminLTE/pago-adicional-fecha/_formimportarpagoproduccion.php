@@ -91,7 +91,7 @@ if ($mensaje != ""){
 <div class="table table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">
-            Registros : <span class="badge"><?= count($contratos) ?> </span>
+            Registros  <span class="badge"><?= count($contratos) ?> </span>
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-hover">

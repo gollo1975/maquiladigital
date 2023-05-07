@@ -56,7 +56,7 @@ class CostoProductoController extends Controller
      * Lists all CostoProducto models.
      * @return mixed
      */
-   public function actionIndex() {
+   public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',103])->all()){
                 $form = new FormFiltroCostoProducto();
@@ -120,6 +120,7 @@ class CostoProductoController extends Controller
                         'model' => $model,
                         'form' => $form,
                         'pagination' => $pages,
+                'token' => $token,
             ]);
         }else{
              return $this->redirect(['site/sinpermiso']);
@@ -135,7 +136,7 @@ class CostoProductoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         $costo_producto_detalle = CostoProductoDetalle::find()->Where(['=', 'id_producto', $id])->all();
         $talla_producto = ProductoTalla::find()->where(['=','id_producto', $id])->orderBy('idtalla asc')->all();
@@ -151,7 +152,7 @@ class CostoProductoController extends Controller
                             $eliminar = ProductoOperaciones::findOne($intCodigo);
                             $eliminar->delete();
                             Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-                            $this->redirect(["costo-producto/view", 'id' => $id]);
+                            $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]);
                         } catch (IntegrityException $e) {
                           
                             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
@@ -173,6 +174,7 @@ class CostoProductoController extends Controller
             'talla_producto' => $talla_producto,
             'color_producto' => $color_producto,
             'operaciones' => $operaciones,
+            'token' => $token,
         ]);
     }
 
@@ -237,12 +239,15 @@ class CostoProductoController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            if($model->aplicar_iva == 0){
+           
+            if($model->aplicar_iva == '0'){
                 $model->aplicar_iva = 0;
-                $model->terminacion = $model->tiempo_terminacion;
+                $model->porcentaje_iva = 0;
+                $model->tiempo_terminacion = $model->tiempo_terminacion;
                 $model->tiempo_confeccion = $model->tiempo_confeccion;
                 $model->costo_con_iva = $model->costo_sin_iva;
-                $model->save();
+                $model->save(false);
+                 $this->ActualizarCosto($id, $model);
             }else{
                 $matricula = \app\models\Matriculaempresa::findOne(1);
                 $model->aplicar_iva = 1;
@@ -250,7 +255,7 @@ class CostoProductoController extends Controller
                 $model->save(false);
                 $this->ActualizarCosto($id, $model);
             }
-           return $this->redirect(['index', 'id' => $model->id_producto]);
+         //  return $this->redirect(['index', 'id' => $model->id_producto]);
         }
 
         return $this->render('update', [
@@ -269,7 +274,7 @@ class CostoProductoController extends Controller
     }
  // permita buscar los insumos para el costo del producto
     
-     public function actionNuevodetalle($id)
+     public function actionNuevodetalle($id, $token)
     {
         $insumos = Insumos::find()->where(['=','estado_insumo', 1])->orderBy('descripcion asc')->all();
         $form = new FormMaquinaBuscar();
@@ -314,7 +319,7 @@ class CostoProductoController extends Controller
                         $this->ActualizarCostos($idproducto);
                     }
                 }
-                $this->redirect(["costo-producto/view", 'id' => $id]);
+                $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]);
             }else{
                 
             }
@@ -323,12 +328,13 @@ class CostoProductoController extends Controller
             'mensaje' => $mensaje,
             'id' => $id,
             'form' => $form,
+            'token' => $token,
 
         ]);
     }
     
     //CREAR OPERACIONES AL PRODUCTO
-     public function actionNuevaoperacionproducto($id)
+     public function actionNuevaoperacionproducto($id, $token)
     {
         $operacion = \app\models\ProcesoProduccion::find()->where(['=','estado', 0])->orderBy('proceso asc')->all();
         $form = new FormMaquinaBuscar();
@@ -410,6 +416,7 @@ class CostoProductoController extends Controller
             'pagination' => $pages,
             'id' => $id,
             'form' => $form,
+            'token' => $token,
 
         ]);
     }
@@ -432,7 +439,7 @@ class CostoProductoController extends Controller
     }
     
     //EDITAR LAS OPERACIONES PARA CAMBIAR SI EN CONFECCION O TERMINACION
-     public function actionEditaroperacionproducto($id) {
+     public function actionEditaroperacionproducto($id, $token) {
         $mds = ProductoOperaciones::find()->where(['=', 'id_producto', $id])->orderBy('idtipo, idproceso desc ')->all();
         $error = 0;
       
@@ -452,17 +459,18 @@ class CostoProductoController extends Controller
             }
             $this->ContadorConfeccionTerminacion($id);
             $mds = ProductoOperaciones::find()->where(['=', 'id_producto', $id])->orderBy('idtipo, idproceso desc ')->all();
-          $this->redirect(["costo-producto/view", 'id' => $id,'mds' =>$mds]);            
+          $this->redirect(["costo-producto/view", 'id' => $id,'mds' =>$mds, 'token' => $token]);            
         }
         return $this->render('_formeditaroperacionesproducto', [
                     'mds' => $mds,
                     'id' => $id,
+                    'token' => $token,
         ]);
     }
     
     //PERMITE EDITAR LOS DETALLES
     
-     public function actionEditardetalle()
+     public function actionEditardetalle($token)
     {
         $iddetalleproducto = Html::encode($_POST["iddetalle"]);
         $idproducto = Html::encode($_POST["idproducto"]);
@@ -478,7 +486,7 @@ class CostoProductoController extends Controller
                     $table->id_producto = Html::encode($_POST["idproducto"]);
                     $table->save(false);
                     $this->actualizarCostos($idproducto);
-                    $this->redirect(["costo-producto/view",'id' => $idproducto]);
+                    $this->redirect(["costo-producto/view",'id' => $idproducto, 'token' => $token]);
 
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
@@ -488,7 +496,7 @@ class CostoProductoController extends Controller
         }
     }
     // ELIMINA LOS DETALLES DE INSUMOS
-    public function actionEliminardetalle()
+    public function actionEliminardetalle($token)
     {
         if(Yii::$app->request->post())
         {
@@ -497,7 +505,7 @@ class CostoProductoController extends Controller
             if((int) $iddetalle){
                 if(CostoProductoDetalle::deleteAll("id=:id", [":id" => $iddetalle])){
                     $this->actualizarCostos($idproducto);
-                    $this->redirect(["costo-producto/view",'id' => $idproducto]);
+                    $this->redirect(["costo-producto/view",'id' => $idproducto, 'token' => $token]);
                 }else{
                     echo "<meta http-equiv='refresh' content='3; ".Url::toRoute("costo-producto/index")."'>";
                 }
@@ -510,7 +518,7 @@ class CostoProductoController extends Controller
     }
     
     //ELIMIAR LOS COLORES
-     public function actionEliminarcolores($id, $id_color) {
+     public function actionEliminarcolores($id, $id_color, $token) {
         
         if (Yii::$app->request->post()) {
             $color = ProductoColor::findOne($id_color);
@@ -518,13 +526,13 @@ class CostoProductoController extends Controller
                 try {
                     ProductoColor::deleteAll("id_producto_color=:id_producto_color", [":id_producto_color" => $id_color]);
                     Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
-                    $this->redirect(["costo-producto/view",'id'=> $id]);
+                    $this->redirect(["costo-producto/view",'id'=> $id, 'token' => $token]);
                 } catch (IntegrityException $e) {
-                   $this->redirect(["costo-producto/view",'id'=> $id]);
+                   $this->redirect(["costo-producto/view",'id'=> $id, 'token' => $token]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el color Nro :' .$color->color->color .', tiene registros asociados en otros procesos');
                 } catch (\Exception $e) {
 
-                  $this->redirect(["costo-producto/view",'id'=> $id]);
+                  $this->redirect(["costo-producto/view",'id'=> $id, 'token' => $token]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el color Nro :' .$color->color->color .', tiene registros asociados en otros procesos');
                 }
             } else {
@@ -532,12 +540,12 @@ class CostoProductoController extends Controller
                 echo "<meta http-equiv='refresh' content='3; " . Url::toRoute("costo-producto/index") . "'>";
             }
         } else {
-            $this->redirect(["costo-producto/view",'id'=> $id]);
+            $this->redirect(["costo-producto/view",'id'=> $id, 'token' => $token]);
         }
     }
     
     //editar todos los detalles
-     public function actionEditartododetalle($id)
+     public function actionEditartododetalle($id, $token)
     {
         $detalles = CostoProductoDetalle::find()->where(['=', 'id_producto', $id])->all();
         $idproducto = $id;
@@ -554,16 +562,17 @@ class CostoProductoController extends Controller
                 }
                 $intIndice++;
             }
-            $this->redirect(["costo-producto/view",'id' => $id]);
+            $this->redirect(["costo-producto/view",'id' => $id, 'token' => $token]);
         }
         return $this->render('_formeditartododetalle', [
             'detalles' => $detalles,
             'id' => $id,
+            'token' => $token,
         ]);
     }
     
     //EDITAR TODO LOS COLORES
-      public function actionEditarcolores($id)
+      public function actionEditarcolores($id, $token)
     {
         $colores = ProductoColor::find()->where(['=', 'id_producto', $id])->all();
         $idproducto = $id;
@@ -577,11 +586,12 @@ class CostoProductoController extends Controller
                $this->ActualizarCantidades($id);
                $intIndice++;
             }
-            $this->redirect(["costo-producto/view",'id' => $id]);
+            $this->redirect(["costo-producto/view",'id' => $id, 'token' => $token]);
         }
         return $this->render('_formeditarcoloresgrupal', [
             'colores' => $colores,
             'id' => $id,
+            'token' => $token,
         ]);
     }
     
@@ -609,7 +619,7 @@ class CostoProductoController extends Controller
         
     }
     //CODIGO QUE ELIMINA TODOS LOS DETALLES
-     public function actionEliminartododetalle($id)
+     public function actionEliminartododetalle($id, $token)
     {
         $detalles = CostoProductoDetalle::find()->where(['=', 'id_producto', $id])->all();
         $mensaje = "";
@@ -627,7 +637,7 @@ class CostoProductoController extends Controller
                     }
                 }
                 $this->actualizarCostos($idproducto);
-                $this->redirect(["costo-producto/view",'id' => $id]);
+                $this->redirect(["costo-producto/view",'id' => $id, 'token' => $token]);
             }else {
                 $mensaje = "Debe seleccionar al menos un registro";
             }
@@ -636,6 +646,7 @@ class CostoProductoController extends Controller
             'detalles' => $detalles,
             'id' => $id,
             'mensaje' => $mensaje,
+            'token' => $token,
         ]);
     }
     
@@ -655,7 +666,7 @@ class CostoProductoController extends Controller
     }
     //PROCESO QUE AUTORIZA
     
-    public function actionAutorizado($id) {
+    public function actionAutorizado($id, $token) {
         $model = $this->findModel($id);
         $contador = 0; $subtotal = 0; $iva=0; $total = 0;
         $talla = ProductoTalla::find()->where(['=','id_producto', $id])->one();
@@ -679,32 +690,32 @@ class CostoProductoController extends Controller
                         }
                         $model->autorizado = 1;            
                         $model->update();
-                        $this->redirect(["costo-producto/view", 'id' => $id]);            
+                        $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]);            
                     } else{
                         $model->autorizado = 0;
                         $model->update();
-                        $this->redirect(["costo-producto/view", 'id' => $id]); 
+                        $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]); 
                     }
                 }else{
-                    $this->redirect(["costo-producto/view", 'id' => $id]); 
+                    $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]); 
                     Yii::$app->getSession()->setFlash('success', 'El producto no se puede autorizar porque NO tiene colores registrados para las tallas.'); 
                 }    
             }else{
-                $this->redirect(["costo-producto/view", 'id' => $id]); 
+                $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]); 
                 Yii::$app->getSession()->setFlash('warning', 'El producto no se puede autorizar porque NO tiene tallas registradas.');
             }  
         }else{
-                $this->redirect(["costo-producto/view", 'id' => $id]); 
+                $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]); 
                 Yii::$app->getSession()->setFlash('error', 'El producto no se puede DESAUTORIZAR porque ya esta asignado a un proveedor.');
         }    
              
     }
     //PROCESO QUE ABRE NUAVAMENTE LA ASIGNACION
-    public function actionAbriasignacion($id) {
+    public function actionAbriasignacion($id, $token) {
         $model = $this->findModel($id);
         $model->asignado = 0;
         $model->update();
-        $this->redirect(["costo-producto/view", 'id' => $id]); 
+        $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]); 
     }
     
     public function actionEliminar($id) {
@@ -731,7 +742,7 @@ class CostoProductoController extends Controller
         }
     }
     //CREAR TALLAS
-     public function actionCreartallas($id){
+     public function actionCreartallas($id, $token){
         $tallas = Talla::find()->orderBy('sexo,talla asc')->all();
         $form = new FormMaquinaBuscar();
         $q = null;
@@ -771,18 +782,19 @@ class CostoProductoController extends Controller
                         $table->insert(); 
                     }
                 }
-                $this->redirect(["costo-producto/view", 'id' => $id]);
+                $this->redirect(["costo-producto/view", 'id' => $id, 'token' => $token]);
         }
         return $this->render('creartallas', [
             'tallas' => $tallas,            
             'mensaje' => $mensaje,
             'id' => $id,
             'form' => $form,
+            'token' => $token,
         ]);
     
     }
     //PROCESO PARA CREAR LOS COLORES
-      public function actionCrearcolores($id_talla, $id)
+      public function actionCrearcolores($id_talla, $id, $token)
     {
         $colores = \app\models\Color::find()->orderBy('color ASC')->all();
         if (Yii::$app->request->post()) {
@@ -802,10 +814,10 @@ class CostoProductoController extends Controller
                         }  
                         $intIndice++;
                     endforeach;
-                   return $this->redirect(['view','id' => $id]);
+                   return $this->redirect(['view','id' => $id, 'token' => $token]);
                 }else{
                      Yii::$app->getSession()->setFlash('success', 'Debe de seleccionar un color para la talla.'); 
-                    return $this->redirect(['view','id' => $id]);
+                    return $this->redirect(['view','id' => $id, 'token' => $token]);
                    
                 }    
             }
@@ -814,16 +826,18 @@ class CostoProductoController extends Controller
             'id' => $id,
             'id_talla' => $id_talla,
             'colores' => $colores,
+            'token' => $token,
         ]);      
     }
     
     //buscar asignaciones
-    public function actionBuscarasignacion($id)
+    public function actionBuscarasignacion($id, $token)
     {
         $detalle = \app\models\AsignacionProductoDetalle::find()->where(['=','id_producto', $id])->one();
         return $this->renderAjax('_buscarasignacion', [
             'id' => $id,
             'detalle' => $detalle,
+            'token' => $token,
         ]);      
     }
     

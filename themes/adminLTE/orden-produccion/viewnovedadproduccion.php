@@ -39,17 +39,17 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
     ]);?>
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if ($model->autorizado == 0) { ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['editarnovedadproduccion', 'id' => $id,'id_novedad' => $id_novedad], ['class' => 'btn btn-success btn-sm']) ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['eliminarnovedadproduccion', 'id' => $id, 'id_novedad' => $id_novedad], [
+                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['editarnovedadproduccion', 'id' => $id,'id_novedad' => $id_novedad, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['eliminarnovedadproduccion', 'id' => $id, 'id_novedad' => $id_novedad, 'token' => $token], [
                         'class' => 'btn btn-danger btn-sm',
                         'data' => [
                             'confirm' => 'Esta seguro de eliminar el registro?',
                             'method' => 'post' ,
                         ],
                     ]) ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizadonovedad', 'id' => $id, 'id_novedad' => $id_novedad], ['class' => 'btn btn-default btn-sm']);
+                    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizadonovedad', 'id' => $id, 'id_novedad' => $id_novedad, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
         }else {
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizadonovedad', 'id' => $id, 'id_novedad' => $id_novedad], ['class' => 'btn btn-default btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizadonovedad', 'id' => $id, 'id_novedad' => $id_novedad, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirnovedadorden', 'id' => $id,'id_novedad' => $id_novedad], ['class' => 'btn btn-default btn-sm']);?>            
         <?php }    ?>     
   

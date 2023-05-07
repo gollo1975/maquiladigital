@@ -75,7 +75,7 @@ use yii\db\ActiveQuery;
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['facturaventa/view', 'id' => $idfactura], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['facturaventa/view', 'id' => $idfactura, 'token' => $token], ['class' => 'btn btn-primary']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger",]) ?>
         </div>
 

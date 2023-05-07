@@ -56,20 +56,77 @@ class CompraController extends Controller
      * Lists all Compra models.
      * @return mixed
      */
-    public function actionIndex()
-    {
+   public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
-            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',35])->all()){
-                $searchModel = new CompraSearch();
-                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-                return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',35])->all()){
+            $form = new FormFiltroConsultaCompra();
+            $idproveedor = null;
+            $desde = null;
+            $hasta = null;
+            $numero = null;
+            $pendiente = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idproveedor = Html::encode($form->idproveedor);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $numero = Html::encode($form->numero);
+                    $pendiente = Html::encode($form->pendiente);
+                    $table = Compra::find()
+                            ->andFilterWhere(['=', 'id_proveedor', $idproveedor])
+                            ->andFilterWhere(['>=', 'fechainicio', $desde])
+                            ->andFilterWhere(['<=', 'fechainicio', $hasta])
+                            ->andFilterWhere(['=', 'factura', $numero]);
+                    if ($pendiente == 1){
+                        $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
+                    }        
+                    $table = $table->orderBy('id_compra desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){
+                        //$table = $table->all();
+                        $this->actionExcelconsulta($tableexcel);
+                    }
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = Compra::find()
+                        ->orderBy('id_compra desc');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 20,
+                    'totalCount' => $count->count(),
                 ]);
-            }else{
-                return $this->redirect(['site/sinpermiso']);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                    $this->actionExcelconsulta($tableexcel);
+                }
             }
+            $to = $count->count();
+            return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'token' => $token,
+            ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
         }else{
             return $this->redirect(['site/login']);
         }
@@ -81,10 +138,11 @@ class CompraController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'token' => $token,
         ]);
     }
 
@@ -178,21 +236,21 @@ class CompraController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
     
-    public function actionAutorizado($id) {
+    public function actionAutorizado($id, $token) {
         $model = $this->findModel($id);
         $mensaje = "";
         if ($model->autorizado == 0) {                        
             $model->autorizado = 1;            
             $model->update();
-            $this->redirect(["compra/view", 'id' => $id]);            
+            $this->redirect(["compra/view", 'id' => $id, 'token' => $token]);            
         } else {
             if($model->numero == 0){
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["compra/view", 'id' => $id]);
+                $this->redirect(["compra/view", 'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'El registro ya fue generado, no se puede desautorizar.');
-                $this->redirect(["compra/view",'id' => $id]);
+                $this->redirect(["compra/view",'id' => $id, 'token' => $token]);
             }
             
         }
@@ -297,7 +355,7 @@ class CompraController extends Controller
         return ;
     }
     
-    public function actionGenerarnro($id)
+    public function actionGenerarnro($id, $token)
     {
         $model = $this->findModel($id);
         $mensaje = "";
@@ -308,14 +366,14 @@ class CompraController extends Controller
                 $model->numero = $consecutivo->consecutivo;
                 $model->update();
                 $consecutivo->update();                
-                $this->redirect(["compra/view",'id' => $id]);
+                $this->redirect(["compra/view",'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'El registro ya fue generado.');
-                $this->redirect(["compra/view",'id' => $id]);
+                $this->redirect(["compra/view",'id' => $id, 'token' => $token]);
             }
         }else{
             Yii::$app->getSession()->setFlash('error', 'El registro debe estar autorizado para poder imprimir la compra.');
-            $this->redirect(["compra/view",'id' => $id]);
+            $this->redirect(["compra/view",'id' => $id, 'token' => $token]);
         }
     }
     

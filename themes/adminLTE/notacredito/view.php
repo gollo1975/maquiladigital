@@ -40,22 +40,14 @@ $view = 'notacredito';
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idnotacredito], ['class' => 'btn btn-primary']) ?>
         <?php if ($model->autorizado == 0) { ?>
             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->idnotacredito], ['class' => 'btn btn-success']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->idnotacredito], [
-                'class' => 'btn btn-danger',
-                'data' => [
-                    'confirm' => 'Esta seguro de eliminar el registro?',
-                    'method' => 'post',
-                ],
-            ]) ?>
             <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idnotacredito], ['class' => 'btn btn-default']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 3, 'codigo' => $model->idnotacredito], ['class' => 'btn btn-success']);
-        }
+        <?php }
             else {
                 echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idnotacredito], ['class' => 'btn btn-default']);
                 echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['notacredito', 'id' => $model->idnotacredito], ['class' => 'btn btn-default']);                
                 if ($model->numero > 0){
                     echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->idnotacredito], ['class' => 'btn btn-default']);            
-                    echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 3, 'codigo' => $model->idnotacredito,'view' => $view], ['class' => 'btn btn-default']);                                                         
+                                                                             
                 }
             }
         ?>

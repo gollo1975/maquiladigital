@@ -32,7 +32,7 @@ $view = 'mecanico';
             'method' => 'post',
         ],
     ]) ?>
-    <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $table->id_mecanico,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+    <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $table->id_mecanico,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
 </p>
 
 <div class="panel panel-success">

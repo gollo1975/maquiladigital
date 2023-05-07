@@ -32,7 +32,7 @@ $view = 'proveedor';
             'method' => 'post',
         ],
     ]) ?>
-    <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 5, 'codigo' => $table->idproveedor,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+    <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 5, 'codigo' => $table->idproveedor,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
 </p>
 
 <div class="panel panel-success">

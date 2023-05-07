@@ -82,7 +82,7 @@ if ($mensaje != ""){
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['comprobante-egreso/view', 'id' => $id_comprobante_egreso], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['comprobante-egreso/view', 'id' => $id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
 

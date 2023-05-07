@@ -32,7 +32,7 @@ $proveedor = ArrayHelper::map(app\models\Proveedor::find()->orderBy ('nombrecort
 
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute(["orden-produccion/nuevocostoproduccion", 'id' => $id]),
+    "action" => Url::toRoute(["orden-produccion/nuevocostoproduccion", 'id' => $id, 'token' => $token]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     
@@ -65,7 +65,7 @@ $proveedor = ArrayHelper::map(app\models\Proveedor::find()->orderBy ('nombrecort
         
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-            <a align="right" href="<?= Url::toRoute(["orden-produccion/nuevocostoproduccion", 'id' => $id]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute(["orden-produccion/nuevocostoproduccion", 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -131,7 +131,7 @@ if ($mensaje != ""){
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['orden-produccion/view', 'id' => $id], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['orden-produccion/view', 'id' => $id, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
        <?= LinkPager::widget(['pagination' => $pagination]) ?>

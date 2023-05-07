@@ -25,19 +25,12 @@ $view = 'compra';
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_compra], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if ($model->autorizado == 0) { ?>
             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_compra], ['class' => 'btn btn-success btn-sm']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->id_compra], [
-                'class' => 'btn btn-danger btn-sm',
-                'data' => [
-                    'confirm' => 'Esta seguro de eliminar el registro?',
-                    'method' => 'post',
-                ],
-            ]) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_compra], ['class' => 'btn btn-default btn-sm']); }
+            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_compra, 'token' => $token], ['class' => 'btn btn-default btn-sm']); }
         else {
-            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_compra], ['class' => 'btn btn-default btn-sm']);
-            echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->id_compra], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_compra, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->id_compra, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             if (($model->numero > 0)){                
-                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 7, 'codigo' => $model->id_compra,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
+                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 7, 'codigo' => $model->id_compra,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
             }
         }
         ?>

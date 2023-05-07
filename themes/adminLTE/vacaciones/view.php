@@ -32,25 +32,25 @@ $view = 'vacaciones';
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
          <?php
         if ($model->estado_autorizado == 0) { ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm']); 
+            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-default btn-sm']); 
         } else {
             if ($model->estado_cerrado == 0){
-                echo Html::a('<span class="glyphicon glyphicon-refresh"></span> Desautorizar', ['desautorizado', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-ok"></span> Cerrar', ['cerrarvacacion', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm',
+                echo Html::a('<span class="glyphicon glyphicon-refresh"></span> Desautorizar', ['desautorizado', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-ok"></span> Cerrar', ['cerrarvacacion', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-default btn-sm',
                 'data' => ['confirm' => '¿Esta seguro de cerrar el proceso de vacaciones para el empleado '. $model->empleado->nombrecorto. ' ?', 'method' => 'post']]);
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirvacacion', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm']);            
             } else {
-                 echo Html::a('<span class="glyphicon glyphicon-refresh"></span> Desautorizar', ['desautorizado', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm disabled']);
-                 echo Html::a('<span class="glyphicon glyphicon-ok"></span> Cerrar', ['cerrarvacacion', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm disabled',
+                 echo Html::a('<span class="glyphicon glyphicon-refresh"></span> Desautorizar', ['desautorizado', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-default btn-sm disabled']);
+                 echo Html::a('<span class="glyphicon glyphicon-ok"></span> Cerrar', ['cerrarvacacion', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-default btn-sm disabled',
                 'data' => ['confirm' => 'Esta seguro de cerrar el registro de las vacaciones con Nro '. $model->id_vacacion. '.', 'method' => 'post']]);
                 if($model->estado_anulado == 0){ 
-                    echo Html::a('<span class="glyphicon glyphicon-remove"></span> Anular', ['anularvacacion', 'id' => $model->id_vacacion], ['class' => 'btn btn-warning btn-sm ',
+                    echo Html::a('<span class="glyphicon glyphicon-remove"></span> Anular', ['anularvacacion', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-warning btn-sm ',
                    'data' => ['confirm' => 'Esta seguro de anular las vacaciones  del (a) empleado(a) '. $model->empleado->nombrecorto. '.', 'method' => 'post']]);
                 } else {
-                    echo Html::a('<span class="glyphicon glyphicon-remove"></span> Anular', ['anularvacacion', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm disabled']);
+                    echo Html::a('<span class="glyphicon glyphicon-remove"></span> Anular', ['anularvacacion', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-default btn-sm disabled']);
                 }    
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirvacacion', 'id' => $model->id_vacacion], ['class' => 'btn btn-default btn-sm']);     
-                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 14, 'codigo' => $model->id_vacacion,'view' => $view], ['class' => 'btn btn-info btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 14, 'codigo' => $model->id_vacacion,'view' => $view, 'token' => $token], ['class' => 'btn btn-info btn-sm']);
             }    
         }  
    ?>     
@@ -194,10 +194,10 @@ $view = 'vacaciones';
                                             <td><?= $descuento->usuariosistema ?></td>
                                             <td><?= $descuento->observacion ?></td>
                                             <td style="width: 25px;">
-                                                <a href="<?= Url::toRoute(["vacaciones/update", "id_adicion" => $descuento->id_adicion, "tipo_adicion"=>$descuento->tipo_adicion, 'id' => $descuento->id_vacacion]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
+                                                <a href="<?= Url::toRoute(["vacaciones/update", "id_adicion" => $descuento->id_adicion, "tipo_adicion"=>$descuento->tipo_adicion, 'id' => $descuento->id_vacacion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
                                             </td>
                                             <td style= 'width: 25px;' >
-                                                <?= Html::a('', ['eliminaradicion', 'id_adicion' => $descuento->id_adicion, 'id' => $descuento->id_vacacion], [
+                                                <?= Html::a('', ['eliminaradicion', 'id_adicion' => $descuento->id_adicion, 'id' => $descuento->id_vacacion, 'token' => $token], [
                                                         'class' => 'glyphicon glyphicon-trash',
                                                         'data' => [
                                                             'confirm' => 'Esta seguro de eliminar el registro?',
@@ -216,8 +216,8 @@ $view = 'vacaciones';
                 <?php
                 if($model->estado_autorizado == 0){?>
                     <div class="panel-footer text-right"> 
-                         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Adición', ['vacaciones/adicionsalario', 'id' => $model->id_vacacion], ['class' => 'btn btn-primary btn-sm']) ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-minus-sign"></span> Descuento', ['vacaciones/descuento', 'id' => $model->id_vacacion], ['class' => 'btn btn-primary btn-sm']) ?>
+                         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Adición', ['vacaciones/adicionsalario', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-minus-sign"></span> Descuento', ['vacaciones/descuento', 'id' => $model->id_vacacion, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
                     </div>
                 <?php }else{ ?>
                      <div class="panel-footer text-right"> 

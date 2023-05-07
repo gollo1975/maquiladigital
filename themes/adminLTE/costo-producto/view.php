@@ -22,10 +22,10 @@ $view = 'costo-producto';
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_producto], ['class' => 'btn btn-primary btn-sm']) ?>
             <?php if ($model->autorizado == 0) { ?>
 
-                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']); }
+                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-default btn-sm']); }
             else {?>
                 
-                <?php echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']);?>
+                <?php echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>
                    <button type="button" class="btn btn-info  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Imprimir
                   <span class="caret"></span>
@@ -35,12 +35,12 @@ $view = 'costo-producto';
                         <li><?= Html::a('<span class="glyphicon glyphicon-text-color"></span> Operaciones', ['/costo-producto/imprimiroperaciones', 'id' => $model->id_producto]) ?></li>
                 </ul>
             <?php
-             echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 15, 'codigo' => $model->id_producto,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
+             echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 15, 'codigo' => $model->id_producto,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
             }
             ?>
             <?php if ($model->asignado == 1) { ?>
 
-                <?= Html::a('<span class="glyphicon glyphicon-open"></span> Abrir asignación', ['abriasignacion', 'id' => $model->id_producto], ['class' => 'btn btn-default btn-sm']);
+                <?= Html::a('<span class="glyphicon glyphicon-open"></span> Abrir asignación', ['abriasignacion', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             } ?>    
         </div>    
     </p>
@@ -161,8 +161,8 @@ $view = 'costo-producto';
                         </div>
                         <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right"> 
-                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva operación', ['costo-producto/nuevaoperacionproducto', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
-                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editaroperacionproducto', 'id' => $model->id_producto], ['class' => 'btn btn-primary btn-sm']) ?>                    
+                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva operación', ['costo-producto/nuevaoperacionproducto', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editaroperacionproducto', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>                    
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminaroperacion']) ?>
                             </div> 
                         <?php }?>
@@ -206,7 +206,7 @@ $view = 'costo-producto';
                                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                                                 <h4 class="modal-title">Editar detalle <?= $val->id ?></h4>
                                                             </div>
-                                                            <?= Html::beginForm(Url::toRoute("costo-producto/editardetalle"), "POST") ?>
+                                                            <?= Html::beginForm(Url::toRoute(["costo-producto/editardetalle", 'token' => $token]), "POST") ?>
                                                             <div class="modal-body">
                                                                 <div class="panel panel-success">
                                                                     <div class="panel-heading">
@@ -254,7 +254,7 @@ $view = 'costo-producto';
                                                                 <p>¿Realmente deseas eliminar el registro con ID:  <?= $val->id ?>?</p>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <?= Html::beginForm(Url::toRoute("costo-producto/eliminardetalle"), "POST") ?>
+                                                                <?= Html::beginForm(Url::toRoute(["costo-producto/eliminardetalle", 'token' => $token]), "POST") ?>
                                                                 <input type="hidden" name="iddetalle" value="<?= $val->id ?>">
                                                                 <input type="hidden" name="idproducto" value="<?= $model->id_producto ?>">
                                                                 <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
@@ -276,9 +276,9 @@ $view = 'costo-producto';
                         </div>
                         <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right"> 
-                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['costo-producto/nuevodetalle', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
-                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editartododetalle', 'id' => $model->id_producto],[ 'class' => 'btn btn-success btn-sm']) ?>
-                                <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['costo-producto/eliminartododetalle', 'id' => $model->id_producto], ['class' => 'btn btn-danger btn-sm']) ?>                    
+                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['costo-producto/nuevodetalle', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editartododetalle', 'id' => $model->id_producto, 'token' => $token],[ 'class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['costo-producto/eliminartododetalle', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-danger btn-sm']) ?>                    
                             </div> 
                         <?php }?>
                          
@@ -314,7 +314,7 @@ $view = 'costo-producto';
                                                 <?php if($model->autorizado == 0){?>
                                                     <td style= 'width: 25px; height: 25px;'>
                                                         <?php echo Html::a('<span class="glyphicon glyphicon-plus "></span> ',            
-                                                            ['/costo-producto/crearcolores','id_talla' => $val->id_producto_talla, 'id'=>$model->id_producto],
+                                                            ['/costo-producto/crearcolores','id_talla' => $val->id_producto_talla, 'id'=>$model->id_producto, 'token' => $token],
                                                             [
                                                                 'title' => 'Crear colores',
                                                                 'data-toggle'=>'modal',
@@ -339,7 +339,7 @@ $view = 'costo-producto';
                         </div>
                          <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right"> 
-                                <?= Html::a('<span class="glyphicon glyphicon-plus-sign"></span> Crear tallas', ['costo-producto/creartallas', 'id' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-plus-sign"></span> Crear tallas', ['costo-producto/creartallas', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
                             </div> 
                          <?php }?>
                          
@@ -375,7 +375,7 @@ $view = 'costo-producto';
                                                 <td><?= $val->usuariosistema ?></td>
                                                  <?php if($model->autorizado == 0){?>
                                                     <td style= 'width: 25px; height: 25px;'>
-                                                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarcolores', 'id' => $model->id_producto, 'id_color' => $val->id_producto_color], [
+                                                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarcolores', 'id' => $model->id_producto, 'id_color' => $val->id_producto_color, 'token' => $token], [
                                                                 'class' => '',
                                                                 'data' => [
                                                                     'confirm' => 'Esta seguro de eliminar el registro?',
@@ -394,7 +394,7 @@ $view = 'costo-producto';
                         </div>
                          <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right"> 
-                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Adicionar cantidad', ['costo-producto/editarcolores', 'id' => $model->id_producto],[ 'class' => 'btn btn-primary btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Adicionar cantidad', ['costo-producto/editarcolores', 'id' => $model->id_producto, 'token' => $token],[ 'class' => 'btn btn-primary btn-sm']) ?>
                             </div> 
                          <?php }?>
                     </div>

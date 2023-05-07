@@ -25,20 +25,20 @@ $view = 'facturaventa';
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idfactura], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if ($model->autorizado == 0) { ?>
             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->idfactura], ['class' => 'btn btn-success btn-sm']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->idfactura], [
+            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->idfactura, 'token' => $token], [
                 'class' => 'btn btn-danger btn-sm',
                 'data' => [
                     'confirm' => 'Esta seguro de eliminar el registro?',
                     'method' => 'post',
                 ],
             ]) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']); }
+            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-sm']); }
         else {
-            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);
-            echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             if (($model->nrofactura > 0)){
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
-                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
+                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
             }
         }
         ?>
@@ -126,7 +126,7 @@ $view = 'facturaventa';
     <div class="table-responsive">
         <div class="panel panel-success ">
             <div class="panel-heading">
-                Detalle de factura :<span class="badge"><?= count($modeldetalles)?></span>
+                No lineas <span class="badge"><?= count($modeldetalles)?></span>
             </div>
             <div class="panel-body">
                  <table class="table table-bordered table-hover">
@@ -163,7 +163,7 @@ $view = 'facturaventa';
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                                 <h4 class="modal-title">Editar detalle <?= $val->iddetallefactura ?></h4>
                                             </div>
-                                            <?= Html::beginForm(Url::toRoute("facturaventa/editardetalle"), "POST") ?>
+                                            <?= Html::beginForm(Url::toRoute(["facturaventa/editardetalle", 'token' => $token]), "POST") ?>
                                             <div class="modal-body">
                                                 <div class="panel panel-success">
                                                     <div class="panel-heading">
@@ -211,7 +211,7 @@ $view = 'facturaventa';
                                                 <p>¿Realmente desea eliminar el registro Nro: <?= $val->iddetallefactura ?>?</p>
                                             </div>
                                             <div class="modal-footer">
-                                                <?= Html::beginForm(Url::toRoute("facturaventa/eliminardetalle"), "POST") ?>
+                                                <?= Html::beginForm(Url::toRoute(["facturaventa/eliminardetalle", 'token' => $token]), "POST") ?>
                                                 <input type="hidden" name="iddetallefactura" value="<?= $val->iddetallefactura ?>">
                                                 <input type="hidden" name="idfactura" value="<?= $model->idfactura ?>">
                                                 <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
@@ -239,7 +239,7 @@ $view = 'facturaventa';
                     <?php if ($model->libre == 1){ ?>
                         <!-- Inicio Nuevo Detalle proceso -->
                         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo Libre',
-                            ['/facturaventa/nuevodetallelibre','id' => $model->idfactura],
+                            ['/facturaventa/nuevodetallelibre','id' => $model->idfactura, 'token' => $token],
                             [
                                 'title' => 'Nuevo Detalle Factura Venta',
                                 'data-toggle'=>'modal',
@@ -255,9 +255,9 @@ $view = 'facturaventa';
                         </div>
                         <!-- Fin Nuevo Detalle proceso -->
                     <?php  }else{ ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['facturaventa/nuevodetalles', 'idfactura' => $model->idfactura,'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']) ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['facturaventa/editardetalles', 'idfactura' => $model->idfactura],[ 'class' => 'btn btn-success btn-sm']) ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['facturaventa/eliminardetalles', 'idfactura' => $model->idfactura], ['class' => 'btn btn-danger btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['facturaventa/nuevodetalles', 'idfactura' => $model->idfactura,'idordenproduccion' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['facturaventa/editardetalles', 'idfactura' => $model->idfactura, 'token' => $token],[ 'class' => 'btn btn-success btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['facturaventa/eliminardetalles', 'idfactura' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-danger btn-sm']) ?>
                     <?php } ?>                    
                 </div>
             <?php } ?>

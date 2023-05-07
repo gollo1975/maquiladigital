@@ -21,8 +21,8 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => true,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
-            'labelOptions' => ['class' => 'col-sm-4 control-label'],
+            'template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>',
+            'labelOptions' => ['class' => 'col-sm-3 control-label'],
             'options' => []
         ],
         ]);
@@ -33,7 +33,7 @@ $form = ActiveForm::begin([
         <h4 class="modal-title"></h4>
     </div>
     <div class="modal-body">        
-        <div class="table table-responsive">
+        <div class="table table-responsive" style ="width: 630px;">
             <div class="panel panel-success ">
                 <div class="panel-heading">
                    Dar de baja a esta maquina. 
@@ -51,7 +51,7 @@ $form = ActiveForm::begin([
                                         
                     </div>    
                      <div class="row">
-                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>'])->textarea(['rows' => 4]) ?>
+                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>'])->textarea(['rows' => 4]) ?>
                     </div>
                       
                 <div class="panel-footer text-center">			

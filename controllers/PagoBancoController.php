@@ -47,7 +47,7 @@ class PagoBancoController extends Controller
      * Lists all PagoBanco models.
      * @return mixed
      */
-    public function actionIndex() {
+    public function actionIndex($token = 0) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 129])->all()) {
                 $form = new FormFiltroBanco();
@@ -111,6 +111,7 @@ class PagoBancoController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -126,12 +127,13 @@ class PagoBancoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
        $listado = PagoBancoDetalle::find()->where(['=','id_pago_banco', $id])->orderBy('nombres ASC')->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
             'listado' => $listado,
+            'token' => $token,
         ]);
     }
 
@@ -194,7 +196,7 @@ class PagoBancoController extends Controller
         ]);
     }
   // proceso que busca los operarios para pago
-      public function actionNuevopagoperario($id, $tipo_proceso)
+      public function actionNuevopagoperario($id, $tipo_proceso, $token)
     {
         if($tipo_proceso == 1 || $tipo_proceso == 2 ||  $tipo_proceso == 3){
             $listadoPago = \app\models\ProgramacionNomina::find()->where(['=','pago_aplicado', 0])
@@ -309,7 +311,7 @@ class PagoBancoController extends Controller
                 }
              $intIndice++;   
             }
-           $this->redirect(["pago-banco/view", 'id' => $id]);
+           $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token]);
         }else{
 
         }
@@ -319,6 +321,7 @@ class PagoBancoController extends Controller
             'id' => $id,
             'form' => $form,
             'tipo_proceso' => $tipo_proceso,
+            'token' => $token,
 
         ]);
     }
@@ -338,8 +341,9 @@ class PagoBancoController extends Controller
         $pago->total_pagar = $sumarPago;
         $pago->save(false);
     }
+    
     //ELIMINAR DETALLE DE PAGO
-      public function actionEliminar_pago_banco()
+      public function actionEliminar_pago_banco($token)
     {
         if(Yii::$app->request->post())
         {
@@ -348,7 +352,7 @@ class PagoBancoController extends Controller
             if((int) $iddetalle){
                 if(PagoBancoDetalle::deleteAll("id_detalle=:id_detalle", [":id_detalle" => $iddetalle])){
                     $this->ActualizarOperarioTotales($id);
-                    $this->redirect(["pago-banco/view",'id' => $id]);
+                    $this->redirect(["pago-banco/view",'id' => $id, 'token' => $token]);
                 }else{
                     echo "<meta http-equiv='refresh' content='3; ".Url::toRoute("pago-banco/index")."'>";
                 }
@@ -360,7 +364,7 @@ class PagoBancoController extends Controller
         }
     }
     //PROCESO QUE ELIMINA TODO
-     public function actionEliminartododetalle($id, $tipo_proceso)
+     public function actionEliminartododetalle($id, $tipo_proceso, $token)
     {
         $detalles = PagoBancoDetalle::find()->where(['=', 'id_pago_banco', $id])->orderBy('nombres ASC')->all();
         if(Yii::$app->request->post())
@@ -376,7 +380,7 @@ class PagoBancoController extends Controller
                     }
                 }
                 $this->ActualizarOperarioTotales($id);
-                $this->redirect(["pago-banco/view",'id' => $id,  'tipo_proceso' => $tipo_proceso,]);
+                $this->redirect(["pago-banco/view",'id' => $id,  'tipo_proceso' => $tipo_proceso, 'token' => $token]);
             }else {
                 Yii::$app->getSession()->setFlash('warning', 'Se debe de seleccin al menos un registro para el proceso.');
             }
@@ -385,33 +389,34 @@ class PagoBancoController extends Controller
             'detalles' => $detalles,
             'id' => $id,
             'tipo_proceso' => $tipo_proceso,
+            'token' => $token,
         ]);
     }
     
     
     //proceso de autorizacion
     
-        public function actionAutorizado($id) {
+        public function actionAutorizado($id, $token) {
         $model = $this->findModel($id);
         if($model->autorizado == 0){
             $pago = PagoBancoDetalle::find()->where(['=','id_pago_banco', $id])->all();
             if (count($pago)> 0) {
                 $model->autorizado = 1;
                 $model->update();
-                $this->redirect(["pago-banco/view", 'id' => $id]);
+                $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token]);
             } else {
                     Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro debe de programaar el listado de pagos de nómina.');
-                    $this->redirect(["pago-banco/view", 'id' => $id]);
+                    $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token]);
             }
         } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["pago-banco/view", 'id' => $id]);
+                $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token]);
         }
     }
     //CERRAR PROCESO
     
-    public function actionClose_cast($id, $tipo_proceso)
+    public function actionClose_cast($id, $tipo_proceso, $token)
     {
      $model = $this->findModel($id);
      $detalle = PagoBancoDetalle::find()->where(['=','id_pago_banco', $id])->all();
@@ -434,7 +439,7 @@ class PagoBancoController extends Controller
      endforeach;
      $model->cerrar_proceso= 1;
      $model->update();
-     $this->redirect(["pago-banco/view", 'id' => $id, 'tipo_proceso' => $tipo_proceso]);
+     $this->redirect(["pago-banco/view", 'id' => $id, 'tipo_proceso' => $tipo_proceso, 'token' => $token]);
     }
     
     protected function findModel($id)

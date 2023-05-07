@@ -152,10 +152,10 @@ $bodegas= ArrayHelper::map(PlantaEmpresa::find()->orderBy('nombre_planta ASC')->
                             <td><?= $val->usuario ?></td>
                                <td><?= $val->estadoMaquina ?></td>
                             <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, 'token' => $token ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                             </td>
                             <td style= 'width: 25px; height: 25px;'>
-                                    <a href="<?= Url::toRoute(["maquinas/update", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                                    <a href="<?= Url::toRoute(["maquinas/update", "id" => $val->id_maquina, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                             </td>
                         </tr>   
                     <?php }else{?>
@@ -172,7 +172,7 @@ $bodegas= ArrayHelper::map(PlantaEmpresa::find()->orderBy('nombre_planta ASC')->
                             <td style='background-color:#BCD7E5;'><?= $val->usuario ?></td>
                             <td style='background-color:#BCD7E5;'><?= $val->estadoMaquina ?></td>
                             <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["maquinas/view", "id" => $val->id_maquina, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                             </td>
                             <td style= 'width: 25px; height: 25px;'></td>
                         </tr>   

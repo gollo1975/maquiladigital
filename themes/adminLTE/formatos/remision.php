@@ -244,7 +244,6 @@ class PDF extends FPDF {
             $this->Line(10, 232, 10, 265); //linea vertical
             $this->Line(201, 232, 201, 265); //linea vertical
         }
-        
         //Detalle factura
         $this->EncabezadoDetalles($nregistros);
     }
@@ -676,17 +675,11 @@ class PDF extends FPDF {
             }
         }
         $this->SetFillColor(200, 200, 200);
-        $pdf->SetXY(10, 190);
+        $pdf->SetXY(10, 193);
         $this->SetFont('Arial', 'B', 10);
         $pdf->Cell(56, 6, 'CANT CONFECCION', 1, 0, 'J');
         $pdf->Cell(15, 6, '', 1, 0, 'R');
-        
-        /*$pdf->Cell($ancho, 6, $txs, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $ts, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $tm, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $tl, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $txl, 1, 0, 'R');*/
-        
+            
         $tallasremision = Remisiondetalle::find()->where(['=','id_remision',$model->id_remision])->one();
         if ($tallasremision->txs == 1){
             $datostallas[] = 'XS';
@@ -839,7 +832,7 @@ class PDF extends FPDF {
         
         $pdf->Cell(29, 12, ' T. Despachadas ', 1, 0, 'C');
         $pdf->Cell(21, 12, $model->total_despachadas, 1, 0, 'R');
-        $pdf->SetXY(10, 196);
+        $pdf->SetXY(10, 199);
         $this->SetFont('Arial', 'B', 10);
         $pdf->Cell(56, 6, 'CANT CLIENTE', 1, 0, 'J');
         $pdf->Cell(15, 6, '', 1, 0, 'R');        
@@ -860,30 +853,30 @@ class PDF extends FPDF {
         $pdf->Cell($ancho, 6, $cl, 1, 0, 'R');
         $pdf->Cell($ancho, 6, $cxl, 1, 0, 'R');*/
         
-        $pdf->SetXY(10, 202);
+        $pdf->SetXY(10, 205);
         $pdf->Cell(191, 6, 'RESUMEN DE LA ENTREGA', 1, 0, 'C',1);
-        $pdf->SetXY(10, 208);
+        $pdf->SetXY(10, 211);
         $pdf->Cell(56, 6, 'TOTAL TULAS', 1, 0, 'J');
         $pdf->Cell(15, 6, $model->total_tulas, 1, 0, 'R');
         $pdf->Cell(14, 6, '', 1, 0, 'R');
         $pdf->Cell(56, 6, 'TOTAL COLOMBIA', 1, 0, 'J');
         $pdf->Cell(29, 6, $model->total_colombia, 1, 0, 'R');
         $pdf->Cell(21, 6, '', 1, 0, 'R');
-        $pdf->SetXY(10, 214);
+        $pdf->SetXY(10, 217);
         $pdf->Cell(56, 6, 'TOTAL EXPORTACION', 1, 0, 'J');
         $pdf->Cell(15, 6, $model->total_exportacion, 1, 0, 'R');
         $pdf->Cell(14, 6, '', 1, 0, 'R');
         $pdf->Cell(56, 6, 'TOTAL CONFECCION', 1, 0, 'J');
         $pdf->Cell(29, 6, $model->total_confeccion, 1, 0, 'R');
         $pdf->Cell(21, 6, '', 1, 0, 'R');
-        $pdf->SetXY(10, 220);
+        $pdf->SetXY(10, 223);
         $pdf->Cell(56, 6, 'TOTAL SEGUNDAS', 1, 0, 'J');
         $pdf->Cell(15, 6, $model->totalsegundas, 1, 0, 'R');
         $pdf->Cell(14, 6, '', 1, 0, 'R');
         $pdf->Cell(56, 6, '', 1, 0, 'J');
         $pdf->Cell(29, 6, '', 1, 0, 'R');
         $pdf->Cell(21, 6, '', 1, 0, 'R');
-        $pdf->SetXY(10, 226);
+        $pdf->SetXY(10, 229);
         $pdf->Cell(191, 6, 'DATOS DE ENTREGA DE LA PRODUCCION', 1, 0, 'C',1);
         $pdf->SetXY(10, 245);
         $pdf->Cell(75, 6, '______________________________________', 0, 0, 'C');

@@ -1,101 +1,145 @@
 <?php
 
+/* @var $this yii\web\View */
+/* @var $form yii\bootstrap\ActiveForm */
+/* @var $model app\models\ContactForm */
+
 use yii\helpers\Html;
-use yii\grid\GridView;
-use yii\widgets\Pjax;
-use yii\helpers\ArrayHelper;
+use yii\bootstrap\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\LinkPager;
+use yii\bootstrap\Modal;
 use app\models\Cliente;
 use app\models\TipoRecibo;
-use app\models\Recibocaja;
+use yii\helpers\ArrayHelper;
+use kartik\date\DatePicker;
+use kartik\select2\Select2;
+use yii\data\Pagination;
+use kartik\depdrop\DepDrop;
 
-/* @var $this yii\web\View */
-/* @var $searchModel app\models\ReciboCajaSearch */
-/* @var $dataProvider yii\data\ActiveDataProvider */
-
-$this->title = 'Recibo de cajas';
+$this->title ='Recibos de Caja';
 $this->params['breadcrumbs'][] = $this->title;
+
+
 ?>
-<div class="recibocaja-index">
+<script language="JavaScript">
+    function mostrarfiltro() {
+        divC = document.getElementById("filtro");
+        if (divC.style.display == "none"){divC.style.display = "block";}else{divC.style.display = "none";}
+    }
+</script>
 
-    <!--<h1><?= Html::encode($this->title) ?></h1>-->
-    <?=  $this->render('_search', ['model' => $searchModel]); ?>
+<!--<h1>Lista Facturas</h1>-->
+<?php $formulario = ActiveForm::begin([
+    "method" => "get",
+    "action" => Url::toRoute("recibocaja/index"),
+    "enableClientValidation" => true,
+    'options' => ['class' => 'form-horizontal'],
+    'fieldConfig' => [
+                    'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
+                    'labelOptions' => ['class' => 'col-sm-2 control-label'],
+                    'options' => []
+                ],
 
-    <?php $newButton = Html::a('Nuevo ' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-plus']), ['create'], ['class' => 'btn btn-success btn-sm']);?>
-    <?php $newButton2 = Html::a('Nuevo Libre ' . Html::tag('i', '', ['class' => 'glyphicon glyphicon-plus']), ['createlibre'], ['class' => 'btn btn-success btn-sm']);?>
-    <?php Pjax::begin() ?>
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
-        'columns' => [
-            [
-                'attribute' => 'numero',
-                'contentOptions' => ['class' => 'col-lg-1 '],
-            ],
-            [               
-                'attribute' => 'fecharecibo',
-                'value' => function($model){
-                    $recibo = Recibocaja::findOne($model->idrecibo);
-                    return date("Y-m-d", strtotime("$recibo->fecharecibo"));
-                },
-                'contentOptions' => ['class' => 'col-lg-1'],
-            ],
-            [
-                'attribute' => 'fechapago',
-                'contentOptions' => ['class' => 'col-lg-1 '],
-            ],
-            [
-                'attribute' => 'idcliente',
-                'value' => function($model){
-                    $clientes = Cliente::findOne($model->idcliente);
-                    if ($clientes){return "{$clientes->nombrecorto} - {$clientes->cedulanit}";}else{return $model->idcliente;}
-                    
-                },
-                'filter' => ArrayHelper::map(Cliente::find()->all(),'idcliente','nombreClientes'),
-                'contentOptions' => ['class' => 'col-lg-4'],
-            ],
-            [
-                'attribute' => 'idtiporecibo',
-                'value' => function($model){
-                    $tiporecibos = TipoRecibo::findOne($model->idtiporecibo);
-                    return $tiporecibos->concepto;
-                },
-                'filter' => ArrayHelper::map(TipoRecibo::find()->all(),'idtiporecibo','concepto'),
-                'contentOptions' => ['class' => 'col-lg-2'],
-            ],
-            [
-                'attribute' => 'valorpagado',
-                'value' => function($model) {
-                    $recibocaja = Recibocaja::findOne($model->idrecibo);
-                    $valor = "$ ".number_format($recibocaja->valorpagado);
-                    return "{$valor}";
-                },
-                'contentOptions' => ['class' => 'col-lg-1'],
-            ],
-            [
-                'attribute' => 'autorizado',
-                'value' => function($model){
-                    $recibo = Recibocaja::findOne($model->idrecibo);                    
-                    return $recibo->autorizar;
-                },
-                'filter' => ArrayHelper::map(Recibocaja::find()->all(),'autorizado','autorizar'),
-                'contentOptions' => ['class' => 'col-lg-1'],
-            ],            
-            [
-                'class' => 'yii\grid\ActionColumn',
-            ],
+]);
 
-        ],
-        'tableOptions' => ['class' => 'table table-bordered table-success'],
-        'summary' => '<div class="panel panel-success "><div class="panel-heading">Registros: <span class="badge">{totalCount}</span></div>',
+$clientes = ArrayHelper::map(Cliente::find()->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombreClientes');
+$tipos = ArrayHelper::map(TipoRecibo::find()->all(), 'idtiporecibo', 'concepto');
+?>
 
-        'layout' => '{summary}{items}</div><div class="row"><div class="col-sm-8">{pager}</div><div class="col-sm-4 text-right">' . $newButton2 .' ' . $newButton .'</div></div>',
-        'pager' => [
-            'nextPageLabel' => '<i class="fa fa-forward"></i>',
-            'prevPageLabel'  => '<i class="fa fa-backward"></i>',
-            'lastPageLabel' => '<i class="fa fa-fast-forward"></i>',
-            'firstPageLabel'  => '<i class="fa fa-fast-backward"></i>'
-        ],
-
-    ]); ?>
-    <?php Pjax::end(); ?>
+<div class="panel panel-success panel-filters">
+    <div class="panel-heading" onclick="mostrarfiltro()">
+        Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
+    </div>
+	
+    <div class="panel-body" id="filtro" style="display:none">
+        <div class="row" >
+            <?= $formulario->field($form, 'idcliente')->widget(Select2::classname(), [
+                'data' => $clientes,
+                'options' => ['prompt' => 'Seleccione un cliente ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+            <?= $formulario->field($form, "numero")->input("search") ?>
+            <?= $formulario->field($form, 'desde')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true]])
+            ?>
+            <?= $formulario->field($form, 'hasta')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true]])
+            ?>            
+            <?= $formulario->field($form, 'tipo')->dropDownList($tipos, ['prompt' => 'Seleccione un tipo...']) ?>
+        </div>
+        <div class="panel-footer text-right">
+            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
+            <a align="right" href="<?= Url::toRoute("recibocaja/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+        </div>
+    </div>
 </div>
+
+<?php $formulario->end() ?>
+<?php
+$form = ActiveForm::begin([
+                "method" => "post",                            
+            ]);
+    ?>
+<div class="table-responsive">
+<div class="panel panel-success ">
+    <div class="panel-heading">
+        Registros: <?= $pagination->totalCount ?>
+    </div>
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>                
+                <th scope="col">Id</th>
+                <th scope="col">Cedula/Nit</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Numero</th>                
+                <th scope="col">Tipo</th>
+                <th scope="col">Fecha Recibo</th>
+                <th scope="col">Fecha Pago</th>
+                <th scope="col">Vlr Pago</th>                
+                <th scope="col">Autorizado</th>                
+                <th scope="col"></th>         
+                <th scope="col"></th>   
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($model as $val): ?>
+                <tr style="font-size: 85%;">                
+                <td><?= $val->idrecibo ?></td>
+                <td><?= $val->cliente->cedulanit ?></td>
+                <td><?= $val->cliente->nombrecorto ?></td>
+                <td><?= $val->numero ?></td>
+                <td><?= $val->tiporecibo->concepto ?></td>                
+                <td><?= date("Y-m-d", strtotime("$val->fecharecibo")) ?></td>
+                <td><?= date("Y-m-d", strtotime("$val->fechapago")) ?></td>
+                <td><?= number_format($val->valorpagado,0) ?></td>                
+                <td><?= $val->autorizar ?></td>                
+                <td style="width: 25px;">				
+                    <a href="<?= Url::toRoute(["recibocaja/view", "id" => $val->idrecibo, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
+                </td>
+                <td style="width: 25px;">				
+                    <a href="<?= Url::toRoute(["recibocaja/update",'id'=>$val->idrecibo]) ?>" ><span class="glyphicon glyphicon-pencil" title="Imprimir "></span></a>
+                </td>
+            </tr>
+            </tbody>
+            <?php endforeach; ?>
+        </table>    
+        <div class="panel-footer text-right" >            
+                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-default btn-sm ']); ?>                
+                <a align="right" href="<?= Url::toRoute("recibocaja/createlibre") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo libre</a> 
+                <a align="right" href="<?= Url::toRoute("recibocaja/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a> 
+                   <?php $form->end() ?>
+        </div>
+    </div>
+</div>
+<?= LinkPager::widget(['pagination' => $pagination]) ?>

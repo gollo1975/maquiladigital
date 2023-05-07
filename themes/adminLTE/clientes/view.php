@@ -25,14 +25,7 @@ $view = 'clientes';
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
     <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['editar', 'id' => $table->idcliente], ['class' => 'btn btn-success btn-sm']) ?>
-    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['eliminar', 'id' => $table->idcliente], [
-        'class' => 'btn btn-danger btn-sm',
-        'data' => [
-            'confirm' => 'Esta seguro de eliminar el registro?',
-            'method' => 'post',
-        ],
-    ]) ?>
-    <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 5, 'codigo' => $table->idcliente,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+    <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 5, 'codigo' => $table->idcliente,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
 </p>
 
 <div class="panel panel-success">

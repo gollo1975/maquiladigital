@@ -125,10 +125,10 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                  <td><?= $val->vinculadoOperacion?></td>
                  <td><?= $val->nominaAlterna?></td>
                 <td style= 'width: 25px; height: 25px;'>
-                        <a href="<?= Url::toRoute(["operarios/view", "id" => $val->id_operario, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                        <a href="<?= Url::toRoute(["operarios/view", "id" => $val->id_operario, 'token' => $token,]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                 </td>
                 <td style= 'width: 25px; height: 25px;'>
-                        <a href="<?= Url::toRoute(["operarios/update", "id" => $val->id_operario, ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                        <a href="<?= Url::toRoute(["operarios/update", "id" => $val->id_operario ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                 </td>
              
             </tbody>            

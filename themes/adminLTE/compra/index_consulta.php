@@ -111,6 +111,7 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
             <tbody>
                 <?php
                 $saldo = 0;
+                 $fecha_actual = date('Y-m-d');
                 foreach ($model as $val):
                     $saldo += $val->saldo;
                     ?>
@@ -122,7 +123,11 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
                         <td><?= $val->fechainicio ?></td>
                         <td><?= $val->fechavencimiento ?></td>
                         <td align="right"><?= number_format($val->subtotal,0) ?></td>
-                        <td align="right"><?= number_format($val->saldo,0) ?></td>
+                       <?php if($fecha_actual > $val->fechavencimiento && $val->saldo > 0){?>
+                        <td align="right" style='background-color:#AEDCCA; color: black'><span title="Factura vencida..."><?= number_format($val->saldo,0) ?></span></td>
+                        <?php }else{?>
+                            <td align="right"><?= number_format($val->saldo,0) ?></td>
+                        <?php }?>    
                         <td align="right"><?= number_format($val->total,0) ?></td>
                         <td><?= $val->autorizar ?></td>
                         <td><?= $val->estados ?></td>

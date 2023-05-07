@@ -133,7 +133,7 @@ $form = ActiveForm::begin([
                 <?php }else{?>
                     <td style= 'width: 25px; height: 10px;'>
                         <?php echo Html::a('<span class="glyphicon glyphicon-user "></span>',            
-                            ['/costo-producto/buscarasignacion','id' => $val->id_producto],
+                            ['/costo-producto/buscarasignacion','id' => $val->id_producto, 'token' => $token],
                             [
                                 'title' => 'Buscar asignacion',
                                 'data-toggle'=>'modal',
@@ -144,7 +144,7 @@ $form = ActiveForm::begin([
                        ?>
                     </td> 
                     <div class="modal remote fade" id="modalbuscarasignacion<?= $val->id_producto ?>">
-                        <div class="modal-dialog modal-dialog">
+                        <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content"></div>
                         </div>
                     </div>
@@ -152,7 +152,7 @@ $form = ActiveForm::begin([
                 <?php }?>    
                
                 <td style= 'width: 25px; height: 10px;'>
-                  <a href="<?= Url::toRoute(["costo-producto/view", "id" => $val->id_producto]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                  <a href="<?= Url::toRoute(["costo-producto/view", "id" => $val->id_producto, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                  </td>
                 <td style= 'width: 25px; height: 10px;'>
                    <a href="<?= Url::toRoute(["costo-producto/update", "id" => $val->id_producto]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   

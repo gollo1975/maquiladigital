@@ -27,7 +27,7 @@ use yii\db\ActiveQuery;
 
 <?php
 $this->title = 'Eliminar Detalles Ordenes de Producción ' .$idordenproduccion;
-$this->params['breadcrumbs'][] = ['label' => 'Detalle', 'url' => ['view','id' => $idordenproduccion]];
+$this->params['breadcrumbs'][] = ['label' => 'Detalle', 'url' => ['view','id' => $idordenproduccion, 'token' => $token]];
 $this->params['breadcrumbs'][] = $idordenproduccion;
 ?>
 
@@ -81,7 +81,7 @@ if ($mensaje != ""){
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['orden-produccion/view', 'id' => $idordenproduccion], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['orden-produccion/view', 'id' => $idordenproduccion, 'token' => $token], ['class' => 'btn btn-primary']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger",]) ?>
         </div>
 

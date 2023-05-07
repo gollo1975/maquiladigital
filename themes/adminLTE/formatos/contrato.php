@@ -47,7 +47,6 @@ class PDF extends FPDF {
         $formato = FormatoContenido::find()->where(['=','id_configuracion_prefijo', $tipo_contrato->id_configuracion_prefijo])->one();
         $pdf->SetFont('Arial', '', 9);
         $pdf->SetX(10);
-        //$pdf->Ln(10);
         if (!$formato){
            $cadena = "El contrato no tiene asociado un formato tipo contrato"; 
         } else {                          

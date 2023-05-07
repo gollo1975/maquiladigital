@@ -28,7 +28,7 @@ use app\models\UsuarioDetalle;
 
 class ClientesController extends Controller {
 
-    public function actionIndex() {
+    public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',14])->all()){
                 $form = new FormFiltroCliente;
@@ -81,6 +81,7 @@ class ClientesController extends Controller {
                             'model' => $model,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             }else{
                 return $this->redirect(['site/sinpermiso']);
@@ -255,10 +256,11 @@ class ClientesController extends Controller {
         return $this->render("editar", ["model" => $model, "msg" => $msg, "tipomsg" => $tipomsg, "municipio" => $municipio]);
     }
 
-    public function actionView($id) {
+    public function actionView($id, $token) {
         // $model = new List();            
         $table = Cliente::find()->where(['idcliente' => $id])->one();
-        return $this->render('view', ['table' => $table
+        return $this->render('view', ['table' => $table, 'token' => $token
+                
         ]);
     }
 

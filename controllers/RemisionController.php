@@ -37,20 +37,6 @@ class RemisionController extends Controller
      * Lists all Fichatiempo models.
      * @return mixed
      */
-    public function actionIndex()
-    {
-        /*if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',32])->all()){
-            $searchModel = new FichatiempoSearch();
-            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-            return $this->render('index', [
-                'searchModel' => $searchModel,
-                'dataProvider' => $dataProvider,
-            ]);
-        }else{
-            return $this->redirect(['site/sinpermiso']);
-        }*/
-    }
 
     /**
      * Displays a single Fichatiempo model.
@@ -58,7 +44,7 @@ class RemisionController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionRemision($id)
+    public function actionRemision($id, $token)
     {
         if (Yii::$app->request->post()) {
             $remision = Remision::find()->where(['=', 'idordenproduccion', $id])->one();
@@ -182,7 +168,7 @@ class RemisionController extends Controller
                 }
                 $this->totales($id);
                 $datostallas = null;                
-                return $this->redirect(['remision', 'id' => $id]);
+                return $this->redirect(['remision', 'id' => $id, 'token' => $token]);
             }
             if (isset($_POST["actualizarynuevo"])) {
                 $intIndice = 0;
@@ -271,9 +257,9 @@ class RemisionController extends Controller
                     $intIndice++;
                 }
                 $this->totales($id);
-                $this->actionNuevodetalle($remision->id_remision,$remision->idordenproduccion);
+                $this->actionNuevodetalle($remision->id_remision,$remision->idordenproduccion, $token);
                 $datostallas = null;
-                return $this->redirect(['remision', 'id' => $id]);
+                return $this->redirect(['remision', 'id' => $id, 'token' => $token]);
             }
             
         }else{
@@ -453,11 +439,12 @@ class RemisionController extends Controller
             'count' => $count,
             'cxs' => $cxs, 'cs' => $cs, 'cm' => $cm, 'cl' => $cl, 'cxl' => $cxl, 'cxxl' => $cxxl, 'c2' => $c2,'c4' => $c4, 'c6' => $c6, 'c8' => $c8, 'c10' => $c10, 'c12' => $c12, 'c14' => $c14, 'c16' => $c16, 'c18' => $c18, 'c20' => $c20, 'c22' => $c22, 'c28' => $c28,'c30' => $c30,'c32' => $c32,'c34' => $c34, 'c36' => $c36,'c38' => $c38, 'c42' => $c42,
             'ct' => $ct,
+            'token' => $token,
         ]);
     }
 //proceso que clasifica las segundas
     
-    public function actionClasificarsegundas($id, $id_orden)
+    public function actionClasificarsegundas($id, $id_orden, $token)
     {
         $detalle = Remisiondetalle::find()->where(['=','id_remision', $id])->andWhere(['=', 'estado', 1])->all();
         $clasificar = \app\models\ClasificacionSegundas::find()->where(['=','id_remision', $id])->all();
@@ -515,7 +502,7 @@ class RemisionController extends Controller
                     $this->SumarSegundas($intCodigo,  $tipo);
                     $intIndice++;
                 endforeach;
-                return $this->redirect(['clasificarsegundas', 'id' => $id, 'id_orden' => $id_orden]);
+                return $this->redirect(['clasificarsegundas', 'id' => $id, 'id_orden' => $id_orden, 'token' => $token]);
             }     
         }    
         return $this->render('clasificarsegundas', [
@@ -523,6 +510,7 @@ class RemisionController extends Controller
             'id' => $id,
             'id_orden' => $id_orden,
             'clasificar' => $clasificar,
+            'token' => $token,
         ]);
     }    
     //CONSULTA LOS DATOS DE SEGUNDAS
@@ -581,7 +569,7 @@ class RemisionController extends Controller
     }
     
     /// nueva linea de clasificacion de segundas
-     public function actionNuevalineaclasificacion($id,$id_orden)
+     public function actionNuevalineaclasificacion($id,$id_orden,$token)
     {        
         $model = new \app\models\ClasificacionSegundas();
         $model->id_remision = $id;
@@ -591,36 +579,42 @@ class RemisionController extends Controller
             $model->$talla = 1;
         }
         $model->save(false);
-        return $this->redirect(['clasificarsegundas', 'id' => $id,'id_orden' => $id_orden]);
+        return $this->redirect(['clasificarsegundas', 'id' => $id,'id_orden' => $id_orden, 'token' => $token]);
     }
     
-    public function actionNuevodetalle($id,$idordenproduccion)
+    public function actionNuevodetalle($id,$idordenproduccion, $token)
     {        
         $remision = Remision::findOne($id);
-        $model = new Remisiondetalle();
-        $model->id_remision = $id;
-        $model->tula = 1;
-        $model->id_color = $remision->id_color;
-        $model->color = $remision->color;
-        $detalleorden = Ordenproducciondetalle::find()->where(['=','idordenproduccion',$idordenproduccion])->all();
-        foreach ($detalleorden as $val){
-            $talla = 't'.strtolower($val->productodetalle->prendatipo->talla->talla);
-            $model->$talla = 1;
-        }
-        $model->save(false);
-        return $this->redirect(['remision', 'id' => $idordenproduccion]);
+        $detalle = Remisiondetalle::find()->where(['=','id_remision', $id])->all();
+        if(count($detalle) == 26){
+             Yii::$app->getSession()->setFlash('warning', 'No se pueden crear mas lineas o tulas para esta remision de entrega..');
+              return $this->redirect(['remision', 'id' => $idordenproduccion, 'token' => $token]);
+        }else{    
+            $model = new Remisiondetalle();
+            $model->id_remision = $id;
+            $model->tula = 1;
+            $model->id_color = $remision->id_color;
+            $model->color = $remision->color;
+            $detalleorden = Ordenproducciondetalle::find()->where(['=','idordenproduccion',$idordenproduccion])->all();
+            foreach ($detalleorden as $val){
+                $talla = 't'.strtolower($val->productodetalle->prendatipo->talla->talla);
+                $model->$talla = 1;
+            }
+            $model->save(false);
+            return $this->redirect(['remision', 'id' => $idordenproduccion, 'token' => $token]);
+        }    
     }
     
-    public function actionEliminar($id,$iddetalle)
+    public function actionEliminar($id,$iddetalle, $token)
     {                                
         $detalle = Remisiondetalle::findOne($iddetalle);
         $detalle->delete();        
         $this->totales($id);
-        $this->redirect(["remision",'id' => $id]);
+        $this->redirect(["remision",'id' => $id, 'token' => $token]);
       
     }
     
-     public function actionEliminarsegundas($id,$id_orden,$id_detalle)
+     public function actionEliminarsegundas($id,$id_orden,$id_detalle, $token)
     {                                
         $intCodigo = 0;
         $tipo = 0;
@@ -629,7 +623,7 @@ class RemisionController extends Controller
         $tipo = $detalle->id_tipo;
         $detalle->delete();        
         $this->SumarSegundas($intCodigo, $tipo);
-        $this->redirect(["clasificarsegundas",'id' => $id, 'id_orden' => $id_orden]);
+        $this->redirect(["clasificarsegundas",'id' => $id, 'id_orden' => $id_orden, 'token' => $token]);
       
     }
     
@@ -671,7 +665,7 @@ class RemisionController extends Controller
         $remision->update();
     }
     
-    public function actionGenerarnro($id)
+    public function actionGenerarnro($id, $token)
     {
         $model = Remision::findOne($id);
         $mensaje = "";
@@ -686,24 +680,24 @@ class RemisionController extends Controller
                 $model->save(false);
                 $consecutivo->update();                                
                 //$this->afectarcantidadfacturada($id);//se resta o descuenta las cantidades facturadas en los productos por cliente
-                $this->redirect(["remision/remision",'id' => $model->idordenproduccion]);
+                $this->redirect(["remision/remision",'id' => $model->idordenproduccion, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'El registro ya fue generado.');
-                $this->redirect(["remision/remision",'id' => $model->idordenproduccion]);
+                $this->redirect(["remision/remision",'id' => $model->idordenproduccion, 'token' => $token]);
             }
         }else{
             Yii::$app->getSession()->setFlash('error', 'El registro no tiene detalles, no se puede generar numero');
-            $this->redirect(["remision/remision",'id' => $model->idordenproduccion]);
+            $this->redirect(["remision/remision",'id' => $model->idordenproduccion, 'token' => $token]);
         }    
         
     }
     
-    public function actionFechamodificar($id){
+    public function actionFechamodificar($id, $token){
         
         $remision = Remision::find()->where(['=', 'idordenproduccion', $id])->one();
         $remision->fechacreacion = $_POST['fecha'];
         $remision->save(false);
-        $this->redirect(["remision/remision",'id' => $id]);
+        $this->redirect(["remision/remision",'id' => $id, 'token' => $token]);
       
     }
 
@@ -721,10 +715,10 @@ class RemisionController extends Controller
         ]);
     }
      //PROCESO QUE CIERRA LA REMISION
-     public function actionCerrarremision($id) {
+     public function actionCerrarremision($id, $token) {
          $cerrar = Remision::findOne($id);
          $cerrar->cerrar_remision = 1;
          $cerrar->save(false);
-         $this->redirect(["remision/remision",'id' => $cerrar->idordenproduccion]);
+         $this->redirect(["remision/remision",'id' => $cerrar->idordenproduccion, 'token' => $token]);
      }
 }

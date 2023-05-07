@@ -27,7 +27,7 @@ use app\models\UsuarioDetalle;
 
 class ProveedorController extends Controller {
 
-    public function actionIndex() {
+    public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',15])->all()){
                 $form = new FormFiltroProveedor;
@@ -80,6 +80,7 @@ class ProveedorController extends Controller {
                             'model' => $model,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             }else{
                 return $this->redirect(['site/sinpermiso']);
@@ -255,10 +256,10 @@ class ProveedorController extends Controller {
         return $this->render("editar", ["model" => $model, "msg" => $msg, "tipomsg" => $tipomsg, "municipio" => $municipio]);
     }
 
-    public function actionView($id) {
+    public function actionView($id, $token) {
         // $model = new List();            
         $table = Proveedor::find()->where(['idproveedor' => $id])->one();
-        return $this->render('view', ['table' => $table
+        return $this->render('view', ['table' => $table, 'token' => $token
         ]);
     }
 

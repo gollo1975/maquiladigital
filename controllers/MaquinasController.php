@@ -50,7 +50,7 @@ class MaquinasController extends Controller
      * Lists all Maquinas models.
      * @return mixed
      */
-      public function actionIndex() {
+      public function actionIndex($token = 0) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 120])->all()) {
                 $form = new FormFiltroMaquinas();
@@ -124,6 +124,7 @@ class MaquinasController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -139,12 +140,13 @@ class MaquinasController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         $mantenimiento = MantenimientoMaquina::find()->where(['=','id_maquina', $id])->orderBy('id_mantenimiento DESC')->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
             'mantenimiento' => $mantenimiento,
+            'token' => $token,
             
         ]);
     }
@@ -204,7 +206,7 @@ class MaquinasController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionUpdate($id, $token)
     {
         $model = $this->findModel($id);
          if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
@@ -231,7 +233,7 @@ class MaquinasController extends Controller
                 $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
                 $table->fecha_nuevo_mantenimiento = $nuevafecha;
                 $table->save();
-                return $this->redirect(['view', 'id' => $model->id_maquina]);
+                return $this->redirect(['view', 'id' => $model->id_maquina, 'token' => $token]);
              }
         }
         $sw = MantenimientoMaquina::find()->where(['=','id_maquina', $id])->all();
@@ -241,12 +243,13 @@ class MaquinasController extends Controller
         }else{
               return $this->render('update', [
                 'model' => $model,
+                'token' => $token, 
                 ]);   
         }         
     }
    
    // metodo de crea los mantenimientos
-     public function actionMantenimiento_maquina($id) {
+     public function actionMantenimiento_maquina($id, $token) {
         
         $model = new MantenimientoMaquina();
         $servicio= ArrayHelper::map(ServicioMantenimiento::find()->orderBy('servicio ASC')->all(), 'id_servicio', 'servicio');
@@ -277,7 +280,7 @@ class MaquinasController extends Controller
                         $maquina->fecha_nuevo_mantenimiento = $nuevafecha;
                         $maquina->save(false); 
                     }
-                    $this->redirect(["view", 'id' => $id]); 
+                    $this->redirect(["view", 'id' => $id, 'token' => $token]); 
                 }
             }
         }
@@ -285,12 +288,13 @@ class MaquinasController extends Controller
             'model' => $model,   
             'servicio' => $servicio,
             'mecanico' => $mecanico,
+            'token' => $token,
             
         ]);      
     }
     
     //proceso que debaja
-    public function actionDar_debaja_maquina($id)
+    public function actionDar_debaja_maquina($id, $token)
     {
         
         $model = new DebajaMaquina();
@@ -310,18 +314,19 @@ class MaquinasController extends Controller
                     $maquina = Maquinas::findOne($id);
                     $maquina->estado_maquina = 1;
                     $maquina->save(false);
-                    $this->redirect(["view", 'id' => $id]); 
+                    $this->redirect(["view", 'id' => $id, 'token' => $token]); 
                 }
             }
         }
          return $this->renderAjax('dardebajamaquina', [
-            'model' => $model,   
+            'model' => $model,  
+             'token' => $token,
            
         ]);   
     }  
     
     //ESTE PROCESO EDITA UN REGISTRO DE MANTENIMIENTO
-    public function actionEditarobservacion($id, $id_mto)
+    public function actionEditarobservacion($id, $id_mto, $token)
     {
         $model = MantenimientoMaquina::findOne($id_mto);
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
@@ -334,12 +339,13 @@ class MaquinasController extends Controller
                     $tabla = MantenimientoMaquina::findOne($id_mto);
                     $tabla->observacion = $model->observacion;
                     $tabla->save(false);
-                    $this->redirect(["view", 'id' => $id]); 
+                    $this->redirect(["view", 'id' => $id, 'token' => $token]); 
                 }
             }
         }
          return $this->renderAjax('editarmantenimientomaquina', [
             'model' => $model,   
+            'token' => $token,
            
         ]);   
     }  

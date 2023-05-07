@@ -20,20 +20,13 @@ $view = 'comprobante-egreso';
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if ($model->autorizado == 0) { ?>
             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-success btn-sm']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->id_comprobante_egreso], [
-                'class' => 'btn btn-danger btn-sm',
-                'data' => [
-                    'confirm' => 'Esta seguro de eliminar el registro?',
-                    'method' => 'post',
-                ],
-            ]) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-default btn-sm']); }
+            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-default btn-sm']); }
         else {
-            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-default btn-sm']);
-            echo Html::a('<span class="glyphicon glyphicon-check"></span> Pagar', ['pagar', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-check"></span> Pagar', ['pagar', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             if ($model->numero > 0){
                     echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-default btn-sm']);            
-                    echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 8, 'codigo' => $model->id_comprobante_egreso,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
+                    echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 8, 'codigo' => $model->id_comprobante_egreso,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
             }
         }
         ?>
@@ -164,7 +157,7 @@ $view = 'comprobante-egreso';
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                                 <h4 class="modal-title">Editar detalle <?= $val->id_comprobante_egreso_detalle ?></h4>
                                             </div>
-                                            <?= Html::beginForm(Url::toRoute("comprobante-egreso/editardetalle"), "POST") ?>
+                                            <?= Html::beginForm(Url::toRoute(["comprobante-egreso/editardetalle", 'token' => $token]), "POST") ?>
                                             <div class="modal-body">
                                                 <div class="panel panel-success">
                                                     <div class="panel-heading">
@@ -204,7 +197,7 @@ $view = 'comprobante-egreso';
                                                 <p>¿Realmente deseas eliminar el registro con código <?= $val->id_comprobante_egreso_detalle ?>?</p>
                                             </div>
                                             <div class="modal-footer">
-                                                <?= Html::beginForm(Url::toRoute("comprobante-egreso/eliminardetalle"), "POST") ?>
+                                                <?= Html::beginForm(Url::toRoute(["comprobante-egreso/eliminardetalle", 'token' => $token]), "POST") ?>
                                                 <input type="hidden" name="id_comprobante_egreso_detalle" value="<?= $val->id_comprobante_egreso_detalle ?>">
                                                 <input type="hidden" name="id_comprobante_egreso" value="<?= $model->id_comprobante_egreso ?>">
                                                 <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
@@ -236,7 +229,7 @@ $view = 'comprobante-egreso';
                     <?php if ($model->libre == 1){ ?>
                         <!-- Inicio Nuevo Detalle proceso -->
                         <?= Html::a('<span class="glyphicon glyphicon-plus  "></span> Nuevo Libre',
-                            ['/comprobante-egreso/nuevodetallelibre','id' => $model->id_comprobante_egreso],
+                            ['/comprobante-egreso/nuevodetallelibre','id' => $model->id_comprobante_egreso, 'token' => $token],
                             [
                                 'title' => 'Nuevo Detalle Comprobante Egreso',
                                 'data-toggle'=>'modal',
@@ -252,9 +245,9 @@ $view = 'comprobante-egreso';
                         </div>
                         <!-- Fin Nuevo Detalle proceso -->
                     <?php  }else{ ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['comprobante-egreso/nuevodetalles', 'id_comprobante_egreso' => $model->id_comprobante_egreso,'id_proveedor' => $model->id_proveedor], ['class' => 'btn btn-success btn-sm']) ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['comprobante-egreso/editardetalles', 'id_comprobante_egreso' => $model->id_comprobante_egreso],[ 'class' => 'btn btn-success btn-sm']) ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['comprobante-egreso/eliminardetalles', 'id_comprobante_egreso' => $model->id_comprobante_egreso], ['class' => 'btn btn-danger btn-sm']) ?>                    
+                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['comprobante-egreso/nuevodetalles', 'id_comprobante_egreso' => $model->id_comprobante_egreso,'id_proveedor' => $model->id_proveedor, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['comprobante-egreso/editardetalles', 'id_comprobante_egreso' => $model->id_comprobante_egreso, 'token' => $token],[ 'class' => 'btn btn-success btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['comprobante-egreso/eliminardetalles', 'id_comprobante_egreso' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-danger btn-sm']) ?>                    
                     <?php } ?>                                                            
                 </div>
             <?php } ?>

@@ -54,7 +54,7 @@ class VacacionesController extends Controller
      * Lists all Vacaciones models.
      * @return mixed
      */
-   public function actionIndex() {
+   public function actionIndex($token = 0) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 100])->all()) {
                 $form = new FormFiltroVacaciones();
@@ -123,6 +123,7 @@ class VacacionesController extends Controller
                             'form' => $form,
                             'pagination' => $pages,
                             'pagina' => $pagina,
+                            'token' => $token
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -218,7 +219,7 @@ class VacacionesController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         $model = Vacaciones::findOne($id); 
        $vacacion_adicion = VacacionesAdicion::find()->where(['=','id_vacacion', $id])->orderBy('id_adicion desc')->all();
@@ -229,7 +230,7 @@ class VacacionesController extends Controller
                         $eliminar = PrestacionesSocialesDetalle::findOne($intCodigo);
                         $eliminar->delete();
                         Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-                        $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina]);
+                        $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina, 'token' => $token]);
                     } catch (IntegrityException $e) {
                         Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle de la prestacion, tiene registros asociados en otros procesos de la nómina');
                     } catch (\Exception $e) {
@@ -244,6 +245,7 @@ class VacacionesController extends Controller
                 'model' => $this->findModel($id),
                 'id' => $id,
                 'vacacion_adicion' => $vacacion_adicion,
+                'token' => $token,
         ]);
     }
     
@@ -261,7 +263,7 @@ class VacacionesController extends Controller
         ]);
     }
     
-     public function actionAdicionsalario($id)
+     public function actionAdicionsalario($id, $token)
     {
         $model = new FormAdicionVacaciones();        
         $tipo_adicion = 1;
@@ -279,15 +281,15 @@ class VacacionesController extends Controller
                 $table->observacion = $model->observacion;
                 $table->usuariosistema = Yii::$app->user->identity->username;
                 $table->insert();
-                $this->redirect(["vacaciones/view", 'id' => $id]);
+                $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]);
             } else {
                 $model->getErrors();
             }
         }
-        return $this->render('_adicion', ['model' => $model, 'id' => $id, 'tipo_adicion' => $tipo_adicion]);
+        return $this->render('_adicion', ['model' => $model, 'id' => $id, 'tipo_adicion' => $tipo_adicion, 'token' => $token] );
     }
     
-    public function actionDescuento($id)
+    public function actionDescuento($id, $token)
     {
         $model = new FormAdicionVacaciones();        
         $tipo_adicion = 2;
@@ -305,12 +307,12 @@ class VacacionesController extends Controller
                 $table->observacion = $model->observacion;
                 $table->usuariosistema = Yii::$app->user->identity->username;
                 $table->insert();
-                $this->redirect(["vacaciones/view", 'id' => $id]);
+                $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]);
             } else {
                 $model->getErrors();
             }
         }
-        return $this->render('_adicion', ['model' => $model, 'id' => $id, 'tipo_adicion' => $tipo_adicion]);
+        return $this->render('_adicion', ['model' => $model, 'id' => $id, 'tipo_adicion' => $tipo_adicion, 'token' => $token]);
         
     }
 
@@ -523,7 +525,7 @@ class VacacionesController extends Controller
     /**
      * permite modificar las adiciones.
      */
-    public function actionUpdate($id, $id_adicion, $tipo_adicion)
+    public function actionUpdate($id, $id_adicion, $tipo_adicion, $token)
     {
         $model = new FormAdicionVacaciones();
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
@@ -537,7 +539,7 @@ class VacacionesController extends Controller
                 $table->valor_adicion = $model->valor_adicion;
                 $table->observacion = $model->observacion;
                 $table->save(false);
-               return $this->redirect(["vacaciones/view", 'id' => $id]);
+               return $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]);
             }
         }
         if (Yii::$app->request->get("id_adicion")) {
@@ -548,45 +550,45 @@ class VacacionesController extends Controller
                     $model->valor_adicion = $table->valor_adicion;
                     $model->observacion =  $table->observacion;
                 }else{
-                     return $this->redirect(["vacaciones/view", 'id' => $id]);
+                     return $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]);
                 }
         } else {
-                 return $this->redirect(["vacaciones/view", 'id' => $id]); 
+                 return $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]); 
         }
         return $this->render('update', [
-            'model' => $model, 'id' => $id, 'tipo_adicion'=>$tipo_adicion, 
+            'model' => $model, 'id' => $id, 'tipo_adicion'=>$tipo_adicion,'token' => $token 
         ]);
     }
 
     //Eliminar adiciones 
     
-    public function actionEliminaradicion($id, $id_adicion) {
+    public function actionEliminaradicion($id, $id_adicion, $token) {
         if (Yii::$app->request->post()) {
             $adicion = VacacionesAdicion::findOne($id_adicion);
             if ((int) $id_adicion) {
                 try {
                     VacacionesAdicion::deleteAll("id_adicion=:id_adicion", [":id_adicion" => $id_adicion]);
                     Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
-                    $this->redirect(["vacaciones/view", 'id' => $id]);
+                    $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]);
                 } catch (IntegrityException $e) {
-                    $this->redirect(["vacaciones/view", 'id' => $id]);
+                    $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, esta asociado a otro proceso');
                 } catch (\Exception $e) {
 
-                   $this->redirect(["vacaciones/view", 'id' => $id]);
+                   $this->redirect(["vacaciones/view", 'id' => $id, 'token' => $token]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, esta asociado a otro proceso');
                 }
             } else {
                 echo "<meta http-equiv='refresh' content='3; " . Url::toRoute(["vacaciones/view,'id' => $id"]) . "'>";
             }
         } else {
-            return $this->redirect(["vacaciones/view",'id'=>$id]);
+            return $this->redirect(["vacaciones/view",'id'=>$id, 'token' => $token]);
         }
     }
   
   //PROCESO QUE AUTORIZA O GENERA LAS VACACIONES
     
-    public function actionAutorizado($id) {
+    public function actionAutorizado($id, $token) {
         //se inicializan las variables.
         $ibp_vacacion = 0; $total_ibp = 0; $vlr_vacacion =0;
         $salario_promedio = 0; $dias_ausentismo = 0; $dias_reales = 0;
@@ -691,9 +693,10 @@ class VacacionesController extends Controller
             'model' => $model,
             'id' => $id, 
             'vacacion_adicion' => $vacacion_adicion, 
+            'token' => $token,
         ]);
     }  
-    public function actionDesautorizado($id) {
+    public function actionDesautorizado($id, $token) {
         $model = Vacaciones::findOne($id);
         $vacacion_adicion = VacacionesAdicion::find()->where(['=','id_vacacion', $id])->orderBy('id_adicion desc')->all();
         $model->estado_autorizado = 0;
@@ -701,12 +704,13 @@ class VacacionesController extends Controller
         return $this->render('view', [
             'model' => $model,
             'id' => $id, 
-            'vacacion_adicion' => $vacacion_adicion,   
+            'vacacion_adicion' => $vacacion_adicion, 
+            'token' => $token,
         ]);
     }
 // proceso que cierra las vacaciones
     
-    public function actionCerrarvacacion($id) {
+    public function actionCerrarvacacion($id, $token) {
         
         $model = Vacaciones::findOne($id);
         $vacacion_adicion = VacacionesAdicion::find()->where(['=','id_vacacion', $id])->orderBy('id_adicion desc')->all();
@@ -722,11 +726,12 @@ class VacacionesController extends Controller
         return $this->render('view', [
             'model' => $model,
             'id' => $id, 
-            'vacacion_adicion' => $vacacion_adicion,   
+            'vacacion_adicion' => $vacacion_adicion, 
+            'token' => $token,
         ]);
     }
     
-    public function actionAnularvacacion($id) {
+    public function actionAnularvacacion($id, $token) {
         $model = Vacaciones::findOne($id);
         $model->estado_anulado = 1;
         $model->total_pagar = 0;
@@ -736,6 +741,7 @@ class VacacionesController extends Controller
             'model'=>$model,
             'id' => $id,
             'vacacion_adicion' => $vacacion_adicion,
+            'token' => $token,
         ]);
         
     }

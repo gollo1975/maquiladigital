@@ -60,24 +60,80 @@ class ComprobanteEgresoController extends Controller
      * Lists all ComprobanteEgreso models.
      * @return mixed
      */
-    public function actionIndex()
-    {
+     public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
-            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',38])->all()){
-                $searchModel = new ComprobanteEgresoSearch();
-                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-                return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',38])->all()){
+            $form = new FormFiltroConsultaComprobanteegreso();
+            $idproveedor = null;
+            $desde = null;
+            $hasta = null;
+            $numero = null;
+            $tipo = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idproveedor = Html::encode($form->idproveedor);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $numero = Html::encode($form->numero);
+                    $tipo = Html::encode($form->tipo);
+                    $table = ComprobanteEgreso::find()
+                            ->andFilterWhere(['=', 'id_proveedor', $idproveedor])
+                            ->andFilterWhere(['>=', 'fecha_comprobante', $desde])
+                            ->andFilterWhere(['<=', 'fecha_comprobante', $hasta])
+                            ->andFilterWhere(['=', 'numero', $numero])
+                            ->andFilterWhere(['=', 'id_comprobante_egreso_tipo', $tipo]);
+                    $table = $table->orderBy('id_comprobante_egreso desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){
+                        //$table = $table->all();
+                        $this->actionExcelconsulta($tableexcel);
+                    }
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = ComprobanteEgreso::find()
+                        ->orderBy('id_comprobante_egreso desc');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 20,
+                    'totalCount' => $count->count(),
                 ]);
-            }else{
-                return $this->redirect(['site/sinpermiso']);
-            } 
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                    $this->actionExcelconsulta($tableexcel);
+                }
+            }
+            $to = $count->count();
+            return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'token' => $token,
+            ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
         }else{
             return $this->redirect(['site/login']);
         }
     }
+    
     
     //PROCESO QUE IMPORTAR DOCUMENTOS CONCTABLES
      public function actionImportardocumento() {
@@ -195,7 +251,7 @@ class ComprobanteEgresoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         $modeldetalles = ComprobanteEgresoDetalle::find()->Where(['=', 'id_comprobante_egreso', $id])->all();
         $modeldetalle = new ComprobanteEgresoDetalle();
@@ -205,6 +261,7 @@ class ComprobanteEgresoController extends Controller
             'modeldetalle' => $modeldetalle,
             'modeldetalles' => $modeldetalles,
             'mensaje' => $mensaje,
+            'token' => $token,
         ]);
     }
 
@@ -421,7 +478,7 @@ class ComprobanteEgresoController extends Controller
     }
     
     //nuevso detalles
-    public function actionNuevodetalles($id_proveedor,$id_comprobante_egreso)
+    public function actionNuevodetalles($id_proveedor,$id_comprobante_egreso, $token)
     {
         $compraegreso = Compra::find()
             ->where(['=', 'id_proveedor', $id_proveedor])
@@ -453,7 +510,7 @@ class ComprobanteEgresoController extends Controller
                         $table->insert();
                     }
                 }
-                $this->redirect(["comprobante-egreso/view", 'id' => $id_comprobante_egreso]);
+                $this->redirect(["comprobante-egreso/view", 'id' => $id_comprobante_egreso, 'token' => $token]);
             } else {
                 $mensaje = "Debe seleccionar al menos un registro";
             }
@@ -462,11 +519,12 @@ class ComprobanteEgresoController extends Controller
             'compraegreso' => $compraegreso,
             'id_comprobante_egreso' => $id_comprobante_egreso,
             'mensaje' => $mensaje,
+            'token' => $token,
 
         ]);
     }
     
-    public function actionNuevodetallelibre($id) {
+    public function actionNuevodetallelibre($id, $token) {
         $model = new FormComprobanteegresonuevodetallelibre();        
         if ($model->load(Yii::$app->request->post())) {
             $table = new ComprobanteEgresoDetalle();
@@ -480,14 +538,15 @@ class ComprobanteEgresoController extends Controller
             $table->reteica = 0;
             $table->base_aiu = $model->base_aiu;
             $table->save(false);
-            return $this->redirect(['view','id' => $id]);
+            return $this->redirect(['view','id' => $id, 'token' => $token]);
         }
         return $this->renderAjax('_formnuevodetallelibre', [
             'model' => $model,            
+            'token' => $token,
         ]);        
     }
     
-    public function actionEditardetalle()
+    public function actionEditardetalle($token)
     {
         $id_comprobante_egreso_detalle = Html::encode($_POST["id_comprobante_egreso_detalle"]);
         $id_comprobante_egreso = Html::encode($_POST["id_comprobante_egreso"]);
@@ -501,7 +560,7 @@ class ComprobanteEgresoController extends Controller
                     $table->vlr_abono = Html::encode($_POST["vlr_abono"]);
                     $table->id_comprobante_egreso = Html::encode($_POST["id_comprobante_egreso"]);
                     $table->update();
-                    $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso]);
+                    $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso, 'token' => $token]);
 
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
@@ -509,10 +568,9 @@ class ComprobanteEgresoController extends Controller
                 }
             }
         }
-        //return $this->render("_formeditardetalle", ["model" => $model,]);
     }
     
-    public function actionEditardetalles($id_comprobante_egreso)
+    public function actionEditardetalles($id_comprobante_egreso, $token)
     {
         $mds = ComprobanteEgresoDetalle::find()->where(['=', 'id_comprobante_egreso', $id_comprobante_egreso])->all();
 
@@ -527,15 +585,16 @@ class ComprobanteEgresoController extends Controller
                 }
                 $intIndice++;
             }
-            $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso]);
+            $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso, 'token' => $token]);
         }
         return $this->render('_formeditardetalles', [
             'mds' => $mds,
             'id_comprobante_egreso' => $id_comprobante_egreso,
+            'token' => $token,
         ]);
     }
     
-    public function actionEliminardetalle()
+    public function actionEliminardetalle($token)
     {
         if(Yii::$app->request->post())
         {
@@ -547,7 +606,7 @@ class ComprobanteEgresoController extends Controller
                 $total = $comprobanteDetalle->vlr_abono;
                 if(ComprobanteEgresoDetalle::deleteAll("id_comprobante_egreso_detalle=:id_comprobante_egreso_detalle", [":id_comprobante_egreso_detalle" => $id_comprobante_egreso_detalle]))
                 {                   
-                    $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso]);
+                    $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso, 'token' => $token]);
                 }
                 else
                 {
@@ -565,7 +624,7 @@ class ComprobanteEgresoController extends Controller
         }
     }
     
-    public function actionEliminardetalles($id_comprobante_egreso)
+    public function actionEliminardetalles($id_comprobante_egreso, $token)
     {
         $mds = ComprobanteEgresoDetalle::find()->where(['=', 'id_comprobante_egreso', $id_comprobante_egreso])->all();
         $mensaje = "";
@@ -585,7 +644,7 @@ class ComprobanteEgresoController extends Controller
                         $recibo->update();*/
                     }
                 }
-                $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso]);
+                $this->redirect(["comprobante-egreso/view",'id' => $id_comprobante_egreso, 'token' => $token]);
             }else {
                 $mensaje = "Debe seleccionar al menos un registro";
             }
@@ -594,10 +653,11 @@ class ComprobanteEgresoController extends Controller
             'mds' => $mds,
             'id_comprobante_egreso' => $id_comprobante_egreso,
             'mensaje' => $mensaje,
+            'token' => $token,
         ]);
     }
     
-    public function actionAutorizado($id)
+    public function actionAutorizado($id, $token)
     {
         $model = $this->findModel($id);
         $mensaje = "";
@@ -611,37 +671,32 @@ class ComprobanteEgresoController extends Controller
                 if($model->libre == 1){
                     $error = 0;
                 }else{
-                    foreach ($detalles as $dato){
-                        /*if ($dato->vlrabono > $dato->vlrsaldo){
-                            $error = 1;
-                        }*/
-                    }
                 }               
                 if ($error == 0){
                     $model->autorizado = 1;
                     $model->save(false);
-                    $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                    $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
                 }else{
                     Yii::$app->getSession()->setFlash('error', 'Los abonos no pueden ser mayores a los saldos.');
-                    $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                    $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
                 }
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener compras relacionados en el comprobante.');
-                $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
             }
         } else {
             if ($model->valor <> 0) {
                 Yii::$app->getSession()->setFlash('error', 'No se puede desautorizar el registro, ya fue pagado.');
-                $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
             } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
             }
         }
     }
     
-    public function actionPagar($id)
+    public function actionPagar($id, $token)
     {
         $model = $this->findModel($id);
         $mensaje = "";
@@ -658,11 +713,6 @@ class ComprobanteEgresoController extends Controller
                 $baseaiu = 0;                
                 $error = 0;
                 if ($model->libre == 0){
-                    foreach ($comprobantedetalles as $dato){
-                        /*if ($dato->vlrabono > $dato->vlrsaldo){
-                            $error = 1;
-                        }*/
-                    }
                 }else{
                     $error = 0;
                 }                
@@ -701,7 +751,7 @@ class ComprobanteEgresoController extends Controller
                         $model->save(false);
                         $consecutivo->update();
                         //fin generar consecutivo
-                        $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                        $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
                     }else{
                         foreach ($comprobantedetalles as $val) {                            
                             $total = $total + $val->vlr_abono;
@@ -723,19 +773,19 @@ class ComprobanteEgresoController extends Controller
                         $model->save(false);
                         $consecutivo->update();
                         //fin generar consecutivo
-                        $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                        $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
                     }
                 } else {
                     Yii::$app->getSession()->setFlash('error', 'Los abonos no pueden ser mayores a los saldos.');
-                    $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                    $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
                 }
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Ya se realizo el pago del comprobante.');
-                $this->redirect(["comprobante-egreso/view",'id' => $id]);
+                $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
             }
         } else {
             Yii::$app->getSession()->setFlash('error', 'Para pagar el comprobante debe estar autorizado');
-            $this->redirect(["comprobante-egreso/view",'id' => $id]);
+            $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
         }
     }
 

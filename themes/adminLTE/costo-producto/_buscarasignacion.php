@@ -29,19 +29,19 @@ $form = ActiveForm::begin([
     <h4 class="modal-title"></h4>
 </div>
 <div class="modal-body">        
-    <div class="table table-responsive">
+    <div class="table table-responsive" style="width: 900px;">
         <div class="panel panel-success ">
             <div class="panel-heading">
                 Proveedor
             </div>
             <div class="panel-body">
-                <table class="table table-bordered table-striped table-hover">
+                <table class="table table-bordered table-striped table-hover" style="width: 900px;">
                     <thead>
                         <tr>
                            <th scope="col" style='background-color:#B9D5CE;'>Nit</th>
                            <th scope="col" style='background-color:#B9D5CE;'>Proveedor</th>
-                           <th scope="col" style='background-color:#B9D5CE;'>Dirección</th>
-                          <th scope="col" style='background-color:#B9D5CE;'>Fecha_asignacion</th>
+                           <th scope="col" style='background-color:#B9D5CE;'>Fecha_asignacion</th>
+                           <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
                         </tr>
 
                     </thead>
@@ -50,8 +50,8 @@ $form = ActiveForm::begin([
                         <tr>
                             <td> <?= $table->documento ?></td>
                             <td><?= $table->razon_social?></td>
-                            <td><?= $table->proveedor->direccionproveedor?></td>
                             <td><?= $table->fecha_asignacion?></td>
+                            <td><?= $table->tipo->tipo?></td>
                         </tr>
                    </tbody>     
                 </table>

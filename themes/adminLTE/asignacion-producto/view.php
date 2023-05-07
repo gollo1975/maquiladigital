@@ -26,18 +26,18 @@ endforeach;
            <button type="button" class="btn btn-default btn">  <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
            </button>    
             <?php if ($model->autorizado == 0) { ?>
-                <button type="button" class="btn btn-default btn"><?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizar', 'id' => $model->id_asignacion], ['class' => 'btn btn-default btn-sm'])?>
+                <button type="button" class="btn btn-default btn"><?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizar', 'id' => $model->id_asignacion, 'token' => $token], ['class' => 'btn btn-default btn-sm'])?>
                 </button>
             <?php }else{
                 if($model->orden_produccion == 0 && $model->autorizado != 0){?>
-                    <button type="button" class="btn btn-default btn"><?php echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizar', 'id' => $model->id_asignacion], ['class' => 'btn btn-default btn-sm']);?>
-                       <?= Html::a('<span class="glyphicon glyphicon-duplicate"></span> Crear documento', ['generardocumento', 'id_producto' =>$producto, 'id' => $model->id_asignacion],['class' => 'btn btn-info btn-sm',
+                    <button type="button" class="btn btn-default btn"><?php echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizar', 'id' => $model->id_asignacion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>
+                       <?= Html::a('<span class="glyphicon glyphicon-duplicate"></span> Crear documento', ['generardocumento', 'id_producto' =>$producto, 'id' => $model->id_asignacion, 'token' => $token],['class' => 'btn btn-info btn-sm',
                           'data' => ['confirm' => 'Esta segura de crear la Orden de Producción a este proveedor.', 'method' => 'post']]) ?>
                     </button>    
                 <?php }else{ ?>
                 <button type="button" class="btn btn-default btn"> <?php echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['/asignacion-producto/imprimiordenproduccion', 'id' => $model->id_asignacion],['class' => 'btn btn-default btn-sm']) ;?>
                 </button>        
-                <button type="button" class="btn btn-default btn"> <?=  Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $model->id_asignacion,'view' => $view], ['class' => 'btn btn-default btn-sm']);?>                                                         
+                <button type="button" class="btn btn-default btn"> <?=  Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $model->id_asignacion,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                                                         
                 </button>   
                <?php }
             }?>
@@ -146,7 +146,7 @@ endforeach;
                         </div>
                         <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right">
-                                   <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['asignacion-producto/editardetalleasignacion', 'id' => $model->id_asignacion],[ 'class' => 'btn btn-primary btn-sm']) ?>
+                                   <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['asignacion-producto/editardetalleasignacion', 'id' => $model->id_asignacion, 'token' => $token],[ 'class' => 'btn btn-primary btn-sm']) ?>
                                  <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminardetalle']) ?>
                             </div>    
                          <?php }?>

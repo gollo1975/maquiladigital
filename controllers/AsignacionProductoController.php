@@ -52,7 +52,7 @@ class AsignacionProductoController extends Controller
      * Lists all AsignacionProducto models.
      * @return mixed
      */
-     public function actionIndex() {
+     public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',123])->all()){
                 $form = new FormFiltroAsignacionProducto();
@@ -122,6 +122,7 @@ class AsignacionProductoController extends Controller
                         'model' => $model,
                         'form' => $form,
                         'pagination' => $pages,
+                        'token' => $token,
             ]);
         }else{
              return $this->redirect(['site/sinpermiso']);
@@ -136,7 +137,7 @@ class AsignacionProductoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         $mensaje='';
         $detalle_orden = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->orderBy('id_producto_talla desc')->all();
@@ -149,7 +150,7 @@ class AsignacionProductoController extends Controller
                             $eliminar->delete();
                             Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
                             $this->ActualizarCantidades($id);
-                            $this->redirect(["asignacion-producto/view", 'id' => $id]);
+                            $this->redirect(["asignacion-producto/view", 'id' => $id, 'token' => $token]);
                         } catch (IntegrityException $e) {
                           
                             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
@@ -168,6 +169,7 @@ class AsignacionProductoController extends Controller
                 'model' => $this->findModel($id),
                 'detalle_orden' => $detalle_orden,
                 'mensaje' => $mensaje,
+                'token' => $token,
             ]);
         }else{
             Yii::$app->getSession()->setFlash('warning', 'No se le ha asignado referencias a este proveedor.');
@@ -226,7 +228,7 @@ class AsignacionProductoController extends Controller
 
     //PERMITE BUSCAR LOS PRODUCTOS PARA ASIGNAR
     
-       public function actionBuscarproducto($id)
+       public function actionBuscarproducto($id, $token)
        {
       $productos = CostoProducto::find()->where(['=','asignado', 0])->andWhere(['=','autorizado', 1])->orderBy('descripcion ASC')->all();
          
@@ -271,6 +273,7 @@ class AsignacionProductoController extends Controller
             return $this->renderAjax('_crearasignacionproducto', [
                  'id' => $id,
                  'productos' => $productos,
+                  'token' => $token,
              ]); 
         }else{
            Yii::$app->getSession()->setFlash('success', 'A este proveedor ya se le asigno una referencia y esta en proceso.'); 
@@ -297,21 +300,21 @@ class AsignacionProductoController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
     //PROCESO DE AUTORIZACION
-      public function actionAutorizar($id) {
+      public function actionAutorizar($id, $token) {
         $model = AsignacionProducto::findOne($id);
         if($model->autorizado == 0){
             $model->autorizado = 1;
             $model->update();
-            $this->redirect(["asignacion-producto/view", 'id' => $id]);
+            $this->redirect(["asignacion-producto/view", 'id' => $id, 'token' => $token]);
         }else{
             $model->autorizado = 0;
             $model->update();
-            $this->redirect(["asignacion-producto/view", 'id' => $id]);
+            $this->redirect(["asignacion-producto/view", 'id' => $id, 'token' => $token]);
         }
     }
     
     //CIERRE EL PROCESO DE LA OP
-    public function actionGenerardocumento($id, $id_producto)
+    public function actionGenerardocumento($id, $id_producto, $token)
      {
         $model = $this->findModel($id);
         if ($model->autorizado == 1){            
@@ -324,14 +327,14 @@ class AsignacionProductoController extends Controller
                 $costo = CostoProducto::find()->where(['=','id_producto', $id_producto])->one();
                 $costo->asignado = 1;
                 $costo->update();
-                $this->redirect(["asignacion-producto/view",'id' => $id]);
+                $this->redirect(["asignacion-producto/view",'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Ya se genero el documento al proveedor.');
-                 $this->redirect(["asignacion-producto/view",'id' => $id]);
+                 $this->redirect(["asignacion-producto/view",'id' => $id, 'token' => $token]);
             }
         }else{
             Yii::$app->getSession()->setFlash('error', 'El registro debe estar autorizado para poder imprimir la compra.');
-            $this->redirect(["asignacion-producto/view",'id' => $id]);
+            $this->redirect(["asignacion-producto/view",'id' => $id, 'token' => $token]);
         }
     }
     
@@ -346,7 +349,7 @@ class AsignacionProductoController extends Controller
     }
     
     //PROCESO QUE EDITA LAS CANTIDAD DE TALLAS
-      public function actionEditardetalleasignacion($id)
+      public function actionEditardetalleasignacion($id, $token)
     {
         $detalle = AsignacionProductoDetalle::find()->where(['=', 'id_asignacion', $id])->all();
         if (isset($_POST["id_detalle"])) {
@@ -359,11 +362,12 @@ class AsignacionProductoController extends Controller
                $this->ActualizarNuevaCantidad($id);
                $intIndice++;
             }
-            $this->redirect(["asignacion-producto/view",'id' => $id]);
+            $this->redirect(["asignacion-producto/view",'id' => $id, 'token' => $token]);
         }
         return $this->render('_editardetalleasignacion', [
             'detalle' => $detalle,
             'id' => $id,
+            'token' => $token,
         ]);
     }
     

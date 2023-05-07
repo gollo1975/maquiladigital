@@ -19,6 +19,7 @@ $this->params['breadcrumbs'][] = 'Editar';
             'model' => $model,
             'tipo_adicion' => $tipo_adicion, 
             'id' => $id,
+            'token' => $token,
            
            ]);
         }else{         
@@ -26,6 +27,7 @@ $this->params['breadcrumbs'][] = 'Editar';
             'model' => $model,
             'tipo_adicion' => $tipo_adicion,  
             'id' => $id,    
+             'token' => $token,  
            
            ]);  
         }

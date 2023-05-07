@@ -136,7 +136,7 @@ $Tipo = ArrayHelper::map(\app\models\Ordenproducciontipo::find()->orderBy ('idti
                 <?php if($val->autorizado == 0){?> 
                      <td style= 'width: 25px; height: 10px;'>
                     <?php echo Html::a('<span class="glyphicon glyphicon-user"></span>',
-                         ['/asignacion-producto/buscarproducto','id' => $val->id_asignacion],
+                         ['/asignacion-producto/buscarproducto','id' => $val->id_asignacion, 'token' => $token],
                          [
                              'title' => 'Buscar producto parar asignacion',
                              'data-toggle'=>'modal',
@@ -150,14 +150,14 @@ $Tipo = ArrayHelper::map(\app\models\Ordenproducciontipo::find()->orderBy ('idti
                          </div>
                     </div>
                     <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["asignacion-producto/view", "id" => $val->id_asignacion, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["asignacion-producto/view", "id" => $val->id_asignacion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
                     <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["asignacion-producto/update", "id" => $val->id_asignacion, ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                            <a href="<?= Url::toRoute(["asignacion-producto/update", "id" => $val->id_asignacion ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                     </td>
                 <?php }else{ ?>
                     <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["asignacion-producto/view", "id" => $val->id_asignacion, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["asignacion-producto/view", "id" => $val->id_asignacion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
                     <td style= 'width: 25px; height: 25px;'></td>
                      <td style= 'width: 25px; height: 25px;'></td>

@@ -277,8 +277,8 @@ if($buscarOrden){
                                                             </div> 
                                                             <div class="modal remote fade" id="modalsubirprendaterminada<?= $val->id_balanceo ?>">
                                                                 <div class="modal-dialog modal-dialog-centered">
-                                                                    <div class="modal-content"></div>
-                                                                </div>
+                                                                <div class="modal-content"></div>
+                                                            </div>
                                                             </div>
                                                          </td>
                                                     <?php }else{ ?>

@@ -27,13 +27,13 @@ $view = 'recibocaja';
                     'method' => 'post',
                 ],
             ]) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idrecibo], ['class' => 'btn btn-default btn-sm']); }
+            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idrecibo, 'token' => $token], ['class' => 'btn btn-default btn-sm']); }
         else {
-            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idrecibo], ['class' => 'btn btn-default btn-sm']);
-            echo Html::a('<span class="glyphicon glyphicon-check"></span> Pagar', ['pagar', 'id' => $model->idrecibo], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idrecibo, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-check"></span> Pagar', ['pagar', 'id' => $model->idrecibo, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             if ($model->numero > 0){
                     echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->idrecibo], ['class' => 'btn btn-default btn-sm']);            
-                    echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 2, 'codigo' => $model->idrecibo,'view' => $view], ['class' => 'btn btn-default btn-sm']);                                                         
+                    echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 2, 'codigo' => $model->idrecibo,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
             }
         }
         ?>
@@ -144,7 +144,7 @@ $view = 'recibocaja';
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                                 <h4 class="modal-title">Editar detalle <?= $val->iddetallerecibo ?></h4>
                                             </div>
-                                            <?= Html::beginForm(Url::toRoute("recibocaja/editardetalle"), "POST") ?>
+                                            <?= Html::beginForm(Url::toRoute(["recibocaja/editardetalle", 'token' => $token]), "POST") ?>
                                             <div class="modal-body">
                                                 <div class="panel panel-success">
                                                     <div class="panel-heading">
@@ -186,7 +186,7 @@ $view = 'recibocaja';
                                                 <p>¿Realmente deseas eliminar el registro con código <?= $val->iddetallerecibo ?>?</p>
                                             </div>
                                             <div class="modal-footer">
-                                                <?= Html::beginForm(Url::toRoute("recibocaja/eliminardetalle"), "POST") ?>
+                                                <?= Html::beginForm(Url::toRoute(["recibocaja/eliminardetalle",'token' => $token]), "POST") ?>
                                                 <input type="hidden" name="iddetallerecibo" value="<?= $val->iddetallerecibo ?>">
                                                 <input type="hidden" name="idrecibo" value="<?= $model->idrecibo ?>">
                                                 <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
@@ -216,7 +216,7 @@ $view = 'recibocaja';
                     <?php if ($model->libre == 1){ ?>
                         <!-- Inicio Nuevo Detalle proceso -->
                         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo Libre',
-                            ['/recibocaja/nuevodetallelibre','id' => $model->idrecibo],
+                            ['/recibocaja/nuevodetallelibre','id' => $model->idrecibo, 'token' => $token],
                             [
                                 'title' => 'Nuevo Detalle Recibo de Caja',
                                 'data-toggle'=>'modal',
@@ -232,9 +232,9 @@ $view = 'recibocaja';
                         </div>
                         <!-- Fin Nuevo Detalle proceso -->
                     <?php  }else{ ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['recibocaja/nuevodetalles', 'idrecibo' => $model->idrecibo,'idcliente' => $model->idcliente], ['class' => 'btn btn-success btn-sm']) ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['recibocaja/editardetalles', 'idrecibo' => $model->idrecibo],[ 'class' => 'btn btn-success btn-sm']) ?>
-                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['recibocaja/eliminardetalles', 'idrecibo' => $model->idrecibo], ['class' => 'btn btn-danger btn-sm']) ?>                    
+                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['recibocaja/nuevodetalles', 'idrecibo' => $model->idrecibo,'idcliente' => $model->idcliente, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['recibocaja/editardetalles', 'idrecibo' => $model->idrecibo, 'token' => $token],[ 'class' => 'btn btn-success btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['recibocaja/eliminardetalles', 'idrecibo' => $model->idrecibo, 'token' => $token], ['class' => 'btn btn-danger btn-sm']) ?>                    
                     <?php } ?>                                                            
                 </div>
             <?php } ?>

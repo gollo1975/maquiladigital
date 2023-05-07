@@ -142,7 +142,7 @@ $grupo = ArrayHelper::map(GrupoPago::find()->orderBy('grupo_pago ASC')->all(), '
                     <td><?= $val->estadocerrado ?></td>
                     <td><?= $val->procesoanulado ?></td>
                     <td style= 'width: 25px;'>				
-                       <a href="<?= Url::toRoute(["vacaciones/view", "id" => $val->id_vacacion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
+                       <a href="<?= Url::toRoute(["vacaciones/view", "id" => $val->id_vacacion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                     </td>
                     <?php 
                     if($val->estado_cerrado == 0 || $val->estado_anulado == 0){?>

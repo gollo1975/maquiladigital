@@ -150,7 +150,7 @@ $tipo = ArrayHelper::map(app\models\TipoNomina::find()->all(), 'id_tipo_nomina',
                 <td><?= $val->estadoAutorizado?></td>
                 <td><?= $val->estadoCerrado?></td>
                 <td style= 'width: 25px; height: 25px;'>
-                        <a href="<?= Url::toRoute(["pago-banco/view", "id" => $val->id_pago_banco, 'tipo_proceso' => $val->id_tipo_nomina]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                        <a href="<?= Url::toRoute(["pago-banco/view", "id" => $val->id_pago_banco, 'tipo_proceso' => $val->id_tipo_nomina, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                 </td>
                 <?php if($val->autorizado == 0){?>
                     <td style= 'width: 25px; height: 25px;'>

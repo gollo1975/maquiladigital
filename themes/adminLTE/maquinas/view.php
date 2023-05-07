@@ -36,9 +36,9 @@ $debaja = \app\models\DebajaMaquina::find()->where(['=','id_maquina', $model->id
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if($maquina->estado_maquina == 0){?>
             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_maquina], ['class' => 'btn btn-success btn-sm']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 17, 'codigo' => $model->id_maquina,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 17, 'codigo' => $model->id_maquina,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
             <?= Html::a('<span class="glyphicon glyphicon-hand-down"></span> Dar debaja',
-                            ['/maquinas/dar_debaja_maquina', 'id' =>$model->id_maquina],
+                            ['/maquinas/dar_debaja_maquina', 'id' =>$model->id_maquina, 'token' => $token],
                             [
                                 'title' => 'Dar de baja a la maquinas',
                                 'data-toggle'=>'modal',
@@ -48,12 +48,12 @@ $debaja = \app\models\DebajaMaquina::find()->where(['=','id_maquina', $model->id
                        ?>
                     </div> 
                     <div class="modal remote fade" id="modaldardebajamaquina"><?= $model->id_maquina?>
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content"></div>
+                        <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content"></div>
                         </div>
                     </div>
         <?php }else{ ?>
-               <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 17, 'codigo' => $model->id_maquina,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+               <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 17, 'codigo' => $model->id_maquina,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
                 <tr>
                     <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                         Ver nota..
@@ -133,7 +133,7 @@ $debaja = \app\models\DebajaMaquina::find()->where(['=','id_maquina', $model->id
             <div class="panel-footer text-right">
                       <!-- Inicio Nuevo Detalle proceso -->
                         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear mantenimiento',
-                            ['/maquinas/mantenimiento_maquina', 'id' =>$model->id_maquina],
+                            ['/maquinas/mantenimiento_maquina', 'id' =>$model->id_maquina, 'token' => $token],
                             [
                                 'title' => 'Crear mantenimiento de maquinas',
                                 'data-toggle'=>'modal',
@@ -180,7 +180,7 @@ $debaja = \app\models\DebajaMaquina::find()->where(['=','id_maquina', $model->id
                                                 <td style=' width: 25px;'>
                                                          <!-- Inicio Nuevo Detalle proceso -->
                                                            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> ',
-                                                               ['/maquinas/editarobservacion', 'id' =>$model->id_maquina,'id_mto' => $val->id_mantenimiento],
+                                                               ['/maquinas/editarobservacion', 'id' =>$model->id_maquina,'id_mto' => $val->id_mantenimiento, 'token' => $token],
                                                                [
                                                                    'title' => 'Editar mantenimiento',
                                                                    'data-toggle'=>'modal',

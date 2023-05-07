@@ -48,19 +48,19 @@ $view = 'orden-produccion';
         <?php if ($model->autorizado == 0) { ?>
                     <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']) ?>
                    
-                    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);
+                    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
         }
             else {
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);            
-                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 4, 'codigo' => $model->idordenproduccion,'view' => $view], ['class' => 'btn btn-default btn-sm']);                
+                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 4, 'codigo' => $model->idordenproduccion,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                
                 if($model->exportacion == 2){
                     echo Html::a('<span class="glyphicon glyphicon-print"></span> Exportación', ['imprimirexportacion', 'id' => $model->idordenproduccion], ['class' => 'btn btn-info btn-sm']);                
                 }
                 if ($remision){
                    if ($model->tipo->remision == 1)
                    {    
-                        echo Html::a('<span class="glyphicon glyphicon-file"></span> Remision', ['remision/remision', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);                             
+                        echo Html::a('<span class="glyphicon glyphicon-file"></span> Remision', ['remision/remision', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                             
                    }
                 }else{
                     if ($model->tipo->remision == 1)
@@ -75,7 +75,7 @@ $view = 'orden-produccion';
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                     <h4 class="modal-title">Remisión</h4>
                                 </div>                            
-                                <?= Html::beginForm(Url::toRoute(["remision/remision", 'id' => $model->idordenproduccion]), "POST") ?>                            
+                                <?= Html::beginForm(Url::toRoute(["remision/remision", 'id' => $model->idordenproduccion, 'token' => $token]), "POST") ?>                            
                                 <?php
                                     $colores = ArrayHelper::map(Color::find()->all(), 'id', 'color');
                                 ?>
@@ -210,7 +210,7 @@ $view = 'orden-produccion';
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                                                                         <h4 class="modal-title">Editar detalle <?= $val->iddetalleorden ?></h4>
                                                                     </div>
-                                                                    <?= Html::beginForm(Url::toRoute("orden-produccion/editardetalleorden"), "POST") ?>
+                                                                    <?= Html::beginForm(Url::toRoute(["orden-produccion/editardetalleorden", 'token' => $token]), "POST") ?>
                                                                     <div class="modal-body">
                                                                         <div class="panel panel-success">
                                                                             <div class="panel-heading">
@@ -258,7 +258,7 @@ $view = 'orden-produccion';
                                                                         <p>¿Realmente deseas eliminar el registro con código <?= $val->iddetalleorden ?>?</p>
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <?= Html::beginForm(Url::toRoute("orden-produccion/eliminardetalle"), "POST") ?>
+                                                                        <?= Html::beginForm(Url::toRoute(["orden-produccion/eliminardetalle", 'token' => $token]), "POST") ?>
                                                                         <input type="hidden" name="iddetalleorden" value="<?= $val->iddetalleorden ?>">
                                                                         <input type="hidden" name="idordenproduccion" value="<?= $model->idordenproduccion ?>">
                                                                         <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
@@ -281,9 +281,9 @@ $view = 'orden-produccion';
                             </div>  
                             <?php if ($model->autorizado == 0) { ?>
                                 <div class="panel-footer text-right">
-                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['orden-produccion/nuevodetalles', 'idordenproduccion' => $model->idordenproduccion,'idcliente' => $model->idcliente], ['class' => 'btn btn-success btn-sm']) ?>
-                                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['orden-produccion/editardetalles', 'idordenproduccion' => $model->idordenproduccion],[ 'class' => 'btn btn-success btn-sm']) ?>                                            
-                                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['orden-produccion/eliminardetalles', 'idordenproduccion' => $model->idordenproduccion], ['class' => 'btn btn-danger btn-sm']) ?>
+                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['orden-produccion/nuevodetalles', 'idordenproduccion' => $model->idordenproduccion,'idcliente' => $model->idcliente, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['orden-produccion/editardetalles', 'idordenproduccion' => $model->idordenproduccion, 'token' => $token],[ 'class' => 'btn btn-success btn-sm']) ?>                                            
+                                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['orden-produccion/eliminardetalles', 'idordenproduccion' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-danger btn-sm']) ?>
                                 </div>
                             <?php } ?>
                         </div>
@@ -323,7 +323,7 @@ $view = 'orden-produccion';
                                                 <td style= 'width: 25px; height: 25px;'>
                                                         <?php 
                                                         if($model->cerrar_orden == 0){?>
-                                                           <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'detalle' => $val->id_costo], [
+                                                           <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'detalle' => $val->id_costo, 'token' => $token], [
                                                                       'class' => '',
                                                                       'data' => [
                                                                           'confirm' => 'Esta seguro de eliminar el registro?',
@@ -343,7 +343,7 @@ $view = 'orden-produccion';
                                 <?php 
                                 if($model->cerrar_orden == 0){?>
                                     <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm",]) ?>
-                                    <?= Html::a('<span class="glyphicon glyphicon-search"></span> Buscar', ['orden-produccion/nuevocostoproduccion', 'id' => $model->idordenproduccion],[ 'class' => 'btn btn-primary btn-sm']) ?>                                            
+                                    <?= Html::a('<span class="glyphicon glyphicon-search"></span> Buscar', ['orden-produccion/nuevocostoproduccion', 'id' => $model->idordenproduccion, 'token' => $token],[ 'class' => 'btn btn-primary btn-sm']) ?>                                            
                                     
                                 <?php }?>
                             </div>   
@@ -377,16 +377,16 @@ $view = 'orden-produccion';
                                                 <td><?= $val->usuariosistema ?></td>
                                                 <td><?= $val->autorizarNovedad ?></td>
                                                 <td style= 'width: 25px; height: 25px;'>
-                                                     <a href="<?= Url::toRoute(["orden-produccion/vistanovedadorden",'id_novedad'=>$val->id_novedad,'id' => $model->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-eye-open" title="Ver detalle de la novedad "></span></a>
+                                                     <a href="<?= Url::toRoute(["orden-produccion/vistanovedadorden",'id_novedad'=>$val->id_novedad,'id' => $model->idordenproduccion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open" title="Ver detalle de la novedad "></span></a>
                                                 </td>
                                                 <?php 
                                                 if($val->autorizado == 0){?>
                                                    <td style= 'width: 25px; height: 25px;'>
-                                                       <a href="<?= Url::toRoute(["orden-produccion/editarnovedadproduccion",'id_novedad'=>$val->id_novedad,'id' => $model->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-pencil" title="Editar novedad"></span></a>
+                                                       <a href="<?= Url::toRoute(["orden-produccion/editarnovedadproduccion",'id_novedad'=>$val->id_novedad,'id' => $model->idordenproduccion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-pencil" title="Editar novedad"></span></a>
                                                                                                                                                                                                         
                                                    </td>
                                                     <td style= 'width: 25px; height: 25px;'>
-                                                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarnovedadproduccion', 'id' => $model->idordenproduccion, 'id_novedad' => $val->id_novedad], [
+                                                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarnovedadproduccion', 'id' => $model->idordenproduccion, 'id_novedad' => $val->id_novedad, 'token' => $token], [
                                                                    'class' => '',
                                                                    'data' => [
                                                                        'confirm' => 'Esta seguro de eliminar el registro?',
@@ -409,7 +409,7 @@ $view = 'orden-produccion';
                             <div class="panel-footer text-right">  
                                <!-- Inicio Nuevo Detalle proceso -->
                                 <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear novedad',
-                                    ['/orden-produccion/crearnovedadordenproduccion','id' => $model->idordenproduccion],
+                                    ['/orden-produccion/crearnovedadordenproduccion','id' => $model->idordenproduccion, 'token' => $token],
                                     [
                                         'title' => 'Novedades de producción',
                                         'data-toggle'=>'modal',

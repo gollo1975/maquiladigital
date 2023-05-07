@@ -16,12 +16,12 @@ $maquinas = ArrayHelper::map(TiposMaquinas::find()->where(['=','estado', 1])->al
    <?php $model = Ordenproduccion::findOne($id); ?>
     <div class="modal-body">
         <p>
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id ], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
         </p>
         
         <?php $formulario = ActiveForm::begin([
             "method" => "get",
-            "action" => Url::toRoute(["costo-producto/nuevaoperacionproducto", 'id' => $id]),
+            "action" => Url::toRoute(["costo-producto/nuevaoperacionproducto", 'id' => $id, 'token' => $token]),
             "enableClientValidation" => true,
             'options' => ['class' => 'form-horizontal'],
             'fieldConfig' => [
@@ -44,7 +44,7 @@ $maquinas = ArrayHelper::map(TiposMaquinas::find()->where(['=','estado', 1])->al
                 </div>
                 <div class="panel-footer text-right">
                     <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-                    <a align="right" href="<?= Url::toRoute(["costo-producto/nuevaoperacionproducto", 'id' => $id]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+                    <a align="right" href="<?= Url::toRoute(["costo-producto/nuevaoperacionproducto", 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
                 </div>
             </div>
         </div>

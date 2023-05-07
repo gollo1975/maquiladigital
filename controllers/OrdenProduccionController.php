@@ -80,7 +80,7 @@ class OrdenProduccionController extends Controller {
      * Lists all Ordenproduccion models.
      * @return mixed
      */
-    public function actionIndex() {
+    public function actionIndex($token = 0) {
          if (Yii::$app->user->identity){
         if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',25])->all()){
             $form = new FormFiltroConsultaOrdenproduccion();
@@ -153,6 +153,7 @@ class OrdenProduccionController extends Controller {
                         'model' => $model,
                         'form' => $form,
                         'pagination' => $pages,
+                        'token' => $token,
             ]);
         }else{
             return $this->redirect(['site/sinpermiso']);
@@ -470,7 +471,7 @@ class OrdenProduccionController extends Controller {
     } 
     
     //vista para orden de produccion
-    public function actionView($id) {
+    public function actionView($id, $token) {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
         $modeldetalle = new Ordenproducciondetalle();
         $mensaje = "";
@@ -483,7 +484,7 @@ class OrdenProduccionController extends Controller {
                             $eliminar = Ordenproducciondetalle::findOne($intCodigo);
                             $eliminar->delete();
                             Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-                            $this->redirect(["orden-produccion/view", 'id' => $id]);
+                            $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
                         } catch (IntegrityException $e) {
                             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
                         } catch (\Exception $e) {
@@ -492,7 +493,7 @@ class OrdenProduccionController extends Controller {
                 }
                 $this->Actualizartotal($id);
                 $this->Actualizarcantidad($id);
-                $this->redirect(["orden-produccion/view", 'id' => $id]);
+                $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
             } else {
                 Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro.');                
             }                        
@@ -505,7 +506,7 @@ class OrdenProduccionController extends Controller {
                  $table->save();
                  $intIndice++;
              }
-             return $this->redirect(['view', 'id' => $id]);
+             return $this->redirect(['view', 'id' => $id, 'token' => $token]);
         }
         return $this->render('view', [
                     'model' => $this->findModel($id),
@@ -514,6 +515,7 @@ class OrdenProduccionController extends Controller {
                     'mensaje' => $mensaje,
                     'otrosCostosProduccion' => $otrosCostosProduccion,
                     'novedad_orden' => $novedad_orden,
+                    'token' => $token ,
         ]);
     }
    
@@ -931,7 +933,7 @@ class OrdenProduccionController extends Controller {
         ]);
     }
     
-    public function actionAutorizado($id) {
+    public function actionAutorizado($id, $token) {
         $model = $this->findModel($id);
         $mensaje = "";
         if($model->cerrar_orden == 0){
@@ -948,32 +950,32 @@ class OrdenProduccionController extends Controller {
                     $model->autorizado = 1;
                     $model->cantidad = $totalcantidad;
                     $model->update();
-                    $this->redirect(["orden-produccion/view", 'id' => $id]);
+                    $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
                 } else {
                     Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener productos relacionados en la orden de producción.');
-                    $this->redirect(["orden-produccion/view", 'id' => $id]);
+                    $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
                 }
             } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["orden-produccion/view", 'id' => $id]);
+                $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
             }
         }else{
              Yii::$app->getSession()->setFlash('warning', 'La orden de producción no se puede Desautorizar porque ya se cerro el proceso de balanceo.');
-             $this->redirect(["orden-produccion/view", 'id' => $id]);
+             $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
         }    
     }
     //AUTORIZAR LA NOVEDAD DE PRODUCCION
-    public function actionAutorizadonovedad($id_novedad, $id) {
+    public function actionAutorizadonovedad($id_novedad, $id, $token) {
         $model = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
         if($model->autorizado == 0){
             $model->autorizado = 1;
             $model->update();
-            $this->redirect(["orden-produccion/view", 'id' => $id]);
+            $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
         }else{
             $model->autorizado = 0;
             $model->update();
-            $this->redirect(["orden-produccion/view", 'id' => $id]);
+            $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
         }
     }
     
@@ -1016,7 +1018,7 @@ class OrdenProduccionController extends Controller {
         }    
     }
   // nuevo detalle para las ordenes de produccion
-    public function actionNuevodetalles($idordenproduccion, $idcliente) {
+    public function actionNuevodetalles($idordenproduccion, $idcliente, $token) {
         $ordenProduccion = Ordenproduccion::findOne($idordenproduccion);
         //$productosCliente = Productodetalle::find()->where(['=', 'idcliente', $idcliente])->andWhere(['=', 'idtipo', $ordenProduccion->idtipo])->andWhere(['>', 'stock', 0])->all();
         $productocodigo = Producto::find()->where(['=','idcliente',$idcliente])->andWhere(['=','codigo',$ordenProduccion->codigoproducto])->orderBy('idproducto DESC')->one();        
@@ -1053,12 +1055,13 @@ class OrdenProduccionController extends Controller {
             }                    
         $this->Actualizartotal($idordenproduccion);
         $this->Actualizarcantidad($idordenproduccion);
-        $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]); 
+        $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion, 'token' => $token]); 
         }                                       
         return $this->render('_formnuevodetalles', [
                     'productosCliente' => $productosCliente,
                     'idordenproduccion' => $idordenproduccion,
                     'ordenProduccion' => $ordenProduccion,
+                    'token' => $token,
         ]);
     }
     
@@ -1143,7 +1146,7 @@ class OrdenProduccionController extends Controller {
      $salida_entrada->save(false);
     }
     
-    public function actionEditardetalleorden() {
+    public function actionEditardetalleorden($token) {
         $iddetalleorden = Html::encode($_POST["id_detalleorden"]);
         $idordenproduccion = Html::encode($_POST["idordenproduccion"]);
         $error = 0;
@@ -1164,7 +1167,7 @@ class OrdenProduccionController extends Controller {
                     $table->save(false);
                     $ordenProduccion->update();
                     $this->Actualizarcantidad($idordenproduccion);
-                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]);
+                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion, 'token' => $token]);
                                             
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
@@ -1252,7 +1255,7 @@ class OrdenProduccionController extends Controller {
     }
     
    //EDITAR DETALLES ORDEN DE PRODUCCION
-    public function actionEditardetalles($idordenproduccion) {
+    public function actionEditardetalles($idordenproduccion, $token) {
         $mds = Ordenproducciondetalle::find()->where(['=', 'idordenproduccion', $idordenproduccion])->all();
         $error = 0;
         if (isset($_POST["id_detalleorden"])) {
@@ -1269,11 +1272,12 @@ class OrdenProduccionController extends Controller {
             }
             $this->Actualizartotal($idordenproduccion);
             $this->Actualizarcantidad($idordenproduccion);
-            $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]);            
+            $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion, 'token' => $token]);            
         }
         return $this->render('_formeditardetalles', [
                     'mds' => $mds,
                     'idordenproduccion' => $idordenproduccion,
+                    'token' => $token,    
         ]);
     }
     
@@ -1386,7 +1390,7 @@ class OrdenProduccionController extends Controller {
         ]);
     }
 
-    public function actionEliminardetalle() {
+    public function actionEliminardetalle($token) {
         if (Yii::$app->request->post()) {
             $iddetalleorden = Html::encode($_POST["iddetalleorden"]);
             $idordenproduccion = Html::encode($_POST["idordenproduccion"]);
@@ -1398,13 +1402,13 @@ class OrdenProduccionController extends Controller {
                     OrdenProduccionDetalle::deleteAll("iddetalleorden=:iddetalleorden", [":iddetalleorden" => $iddetalleorden]);
                     $this->Actualizartotal($idordenproduccion);
                     $this->Actualizarcantidad($idordenproduccion);
-                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]);
+                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion, 'token' => $token]);
                 } catch (IntegrityException $e) {
-                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]);
+                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion, 'token' => $token]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en ficha de operaciones');
                 } catch (\Exception $e) {
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en ficha de operaciones');
-                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]);
+                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion, 'token' => $token]);
                 }
                 
                 
@@ -1473,7 +1477,7 @@ class OrdenProduccionController extends Controller {
     //ELIMINAR DETALLES DE LA ORDEN DE PRODUCCION PARA TERCERO
     
    
-    public function actionEliminardetalles($idordenproduccion) {
+    public function actionEliminardetalles($idordenproduccion, $token) {
         $mds = Ordenproducciondetalle::find()->where(['=', 'idordenproduccion', $idordenproduccion])->all();
         $mensaje = "";
         $error = 0;
@@ -1504,7 +1508,7 @@ class OrdenProduccionController extends Controller {
                 if($error == 1){
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en ficha de operaciones');
                 }else{
-                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion]);
+                    $this->redirect(["orden-produccion/view", 'id' => $idordenproduccion, 'token' => $token]);
                 }
                 
             } else {
@@ -1515,6 +1519,7 @@ class OrdenProduccionController extends Controller {
                     'mds' => $mds,
                     'idordenproduccion' => $idordenproduccion,
                     'mensaje' => $mensaje,
+                    'token' => $token,
         ]);
     }
 
@@ -2286,30 +2291,30 @@ class OrdenProduccionController extends Controller {
     }        
     //ELIMINAR UN DETALLE DE LOS COSTOS DE PRODUCCION
     
-    public function actionEliminar($id,$detalle)
+    public function actionEliminar($id,$detalle, $token)
     {                                
         $detalle = \app\models\OtrosCostosProduccion::findOne($detalle);
         $detalle->delete();
-        $this->redirect(["view",'id' => $id]);        
+        $this->redirect(["view",'id' => $id, 'token' => $token]);        
     }
     
     //ELIMINAR UNA NOVEDAD DE LA PRODUCCION
-    public function actionEliminarnovedadproduccion($id,$id_novedad)
+    public function actionEliminarnovedadproduccion($id,$id_novedad, $token)
     {                                
         $novedad = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
         $novedad->delete();
-        $this->redirect(["view",'id' => $id]);        
+        $this->redirect(["view",'id' => $id, 'token' => $token]);        
     }
     
     //EDITAR NOVEDA DE PRODUCCION
-    public function actionEditarnovedadproduccion($id, $id_novedad) {
+    public function actionEditarnovedadproduccion($id, $id_novedad, $token) {
         $model = new \app\models\NovedadOrdenProduccion();
          
         if ($model->load(Yii::$app->request->post())) {  
             $tabla = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
             $tabla->novedad = $model->novedad;
             $tabla->save(false);
-            return $this->redirect(['orden-produccion/view','id' => $id]);
+            return $this->redirect(['orden-produccion/view','id' => $id, 'token' => $token]);
         }
         if (Yii::$app->request->get("id_novedad")) {
              $novedad = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
@@ -2340,12 +2345,13 @@ class OrdenProduccionController extends Controller {
       
     }
     //PROCESO QUE MUESTRA LA VISTA DE LA NOVEDAD DE PRODUCCION
-    public function actionVistanovedadorden($id, $id_novedad) {
+    public function actionVistanovedadorden($id, $id_novedad, $token) {
      $model = \app\models\NovedadOrdenProduccion::findOne($id_novedad);
      return $this->render('viewnovedadproduccion', [
                     'model' => $model, 
                     'id' => $id,
                     'id_novedad' => $id_novedad,
+                    'token' => $token,
                    
         ]);
      
@@ -2632,7 +2638,7 @@ class OrdenProduccionController extends Controller {
     }
     
     // PROCESO QUE CREA LAS NOVEDADES DE LAS ORDENES DE PRODUCCION
-    public function actionCrearnovedadordenproduccion($id) {
+    public function actionCrearnovedadordenproduccion($id, $token) {
         
         $model = new \app\models\FormNovedadOrden();
         
@@ -2645,7 +2651,7 @@ class OrdenProduccionController extends Controller {
                     $table->usuariosistema = Yii::$app->user->identity->username;
                     $table->autorizado =0;
                     $table->save(false);
-                    return $this->redirect(['view','id' => $id]);
+                    return $this->redirect(['view','id' => $id, 'token' => $token]);
                 }
           //  }
         }
@@ -2657,6 +2663,7 @@ class OrdenProduccionController extends Controller {
        return $this->renderAjax('crearnovedadordenproduccion', [
             'model' => $model,       
             'id' => $id,
+           'token' => $token,
             
         ]);      
        
@@ -3190,7 +3197,7 @@ class OrdenProduccionController extends Controller {
     }
     //PROCESO QUE INSERTAR UNA NUEVA FACTURA AL COSTO
     
-      public function actionNuevocostoproduccion($id)
+      public function actionNuevocostoproduccion($id, $token)
     {
         $compras = \app\models\Compra::find()->where(['=','autorizado', 1])->andWhere(['=','id_tipo_compra', 1])->orderBy('id_proveedor ASC, factura DESC')->all();
         $form = new \app\models\FormCompraBuscar();
@@ -3253,7 +3260,7 @@ class OrdenProduccionController extends Controller {
                         $table->insert(); 
                     }    
                 }
-               $this->redirect(["orden-produccion/view", 'id' => $id]);
+               $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
         }else{
                 
         }
@@ -3263,6 +3270,7 @@ class OrdenProduccionController extends Controller {
             'pagination' => $pages,
             'id' => $id,
             'form' => $form,
+            'token' => $token,
 
         ]);
     }

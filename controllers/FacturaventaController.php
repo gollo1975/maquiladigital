@@ -62,32 +62,87 @@ class FacturaventaController extends Controller
      * Lists all Facturaventa models.
      * @return mixed
      */
-    public function actionIndex()
-    {
+    public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
-            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',26])->all()){
-                $searchModel = new FacturaventaSearch();
-                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-                return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',26])->all()){
+            $form = new FormFiltroConsultaFacturaventa();
+            $idcliente = null;
+            $desde = null;
+            $hasta = null;
+            $numero = null;
+            $pendiente = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idcliente = Html::encode($form->idcliente);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $numero = Html::encode($form->numero);
+                    $pendiente = Html::encode($form->pendiente);
+                    $table = Facturaventa::find()
+                            ->andFilterWhere(['=', 'idcliente', $idcliente])
+                            ->andFilterWhere(['>=', 'fechainicio', $desde])
+                            ->andFilterWhere(['<=', 'fechainicio', $hasta])
+                            ->andFilterWhere(['=', 'nrofactura', $numero]);
+                    if ($pendiente == 1){
+                        $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
+                    }        
+                    $table = $table->orderBy('idfactura desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){
+                        
+                        $this->actionExcelconsulta($tableexcel);
+                    }
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = Facturaventa::find()
+                        ->orderBy('idfactura desc');
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 20,
+                    'totalCount' => $count->count(),
                 ]);
-            }else{
-                return $this->redirect(['site/sinpermiso']);
-            }  
+                $tableexcel = $table->all();
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){                    
+                    $this->actionExcelconsulta($tableexcel);
+                }
+            }
+            $to = $count->count();
+            return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'token' => $token,
+            ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
         }else{
             return $this->redirect(['site/login']);
         }
     }
-
     /**
      * Displays a single Facturaventa model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         $modeldetalles = Facturaventadetalle::find()->Where(['=', 'idfactura', $id])->all();
         $modeldetalle = new Facturaventadetalle();
@@ -97,6 +152,7 @@ class FacturaventaController extends Controller
             'modeldetalle' => $modeldetalle,
             'modeldetalles' => $modeldetalles,
             'mensaje' => $mensaje,
+            'token' => $token,
         ]);
     }
 
@@ -315,7 +371,7 @@ class FacturaventaController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
 
-    public function actionNuevodetalles($idordenproduccion,$idfactura)
+    public function actionNuevodetalles($idordenproduccion,$idfactura, $token)
     {
         $facturaOrden = Ordenproducciondetalle::find()->where(['=', 'idordenproduccion', $idordenproduccion])->all();
         $mensaje = "";
@@ -367,7 +423,7 @@ class FacturaventaController extends Controller
                         $factura->update();
                     }
                 }
-                $this->redirect(["facturaventa/view", 'id' => $idfactura]);
+                $this->redirect(["facturaventa/view", 'id' => $idfactura, 'token' => $token]);
             }else{
                 $mensaje = "Debe seleccionar al menos un registro";
             }
@@ -377,11 +433,12 @@ class FacturaventaController extends Controller
             'facturaOrden' => $facturaOrden,
             'idfactura' => $idfactura,
             'mensaje' => $mensaje,
+            'token' => $token,
 
         ]);
     }
     
-    public function actionNuevodetallelibre($id) {
+    public function actionNuevodetallelibre($id, $token) {
         $model = new FormFacturaventanuevodetallelibre;
         $factura = Facturaventa::findOne($id);        
         $productos = Producto::find()->where(['=','idcliente',$factura->idcliente])->all();        
@@ -399,15 +456,16 @@ class FacturaventaController extends Controller
                 $table->save(false);                
             }
             $this->calculos($id);
-            return $this->redirect(['view','id' => $id]);
+            return $this->redirect(['view','id' => $id, 'token' => $token]);
         }
         return $this->renderAjax('_formnuevodetallelibre', [
             'model' => $model,
+            'token' => $token,
             'productos' => ArrayHelper::map($productos, "idproducto", "codigonombre"),
         ]);        
     }
 
-    public function actionEditardetalle()
+    public function actionEditardetalle($token)
     {
         $iddetallefactura = Html::encode($_POST["iddetallefactura"]);
         $idfactura = Html::encode($_POST["idfactura"]);
@@ -455,7 +513,7 @@ class FacturaventaController extends Controller
                     $factura->saldo = $factura->totalpagar;
                     $factura->save(false);
 
-                    $this->redirect(["facturaventa/view",'id' => $idfactura]);
+                    $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
 
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
@@ -463,10 +521,9 @@ class FacturaventaController extends Controller
                 }
             }
         }
-        //return $this->render("_formeditardetalle", ["model" => $model,]);
     }
 
-    public function actionEditardetalles($idfactura)
+    public function actionEditardetalles($idfactura, $token)
     {
         $mds = Facturaventadetalle::find()->where(['=', 'idfactura', $idfactura])->all();
 
@@ -512,15 +569,16 @@ class FacturaventaController extends Controller
                 }
                 $intIndice++;
             }
-            $this->redirect(["facturaventa/view",'id' => $idfactura]);
+            $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
         }
         return $this->render('_formeditardetalles', [
             'mds' => $mds,
             'idfactura' => $idfactura,
+            'token' => $token,
         ]);
     }
 
-    public function actionEliminardetalle()
+    public function actionEliminardetalle($token)
     {
         if(Yii::$app->request->post())
         {
@@ -561,7 +619,7 @@ class FacturaventaController extends Controller
                     $factura->totalpagar = round($factura->subtotal + $factura->impuestoiva - $factura->retencionfuente - $factura->retencioniva,0);
                     $factura->saldo = $factura->totalpagar;
                     $factura->save(false);
-                    $this->redirect(["facturaventa/view",'id' => $idfactura]);
+                    $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
                 }
                 else
                 {
@@ -579,7 +637,7 @@ class FacturaventaController extends Controller
         }
     }
 
-    public function actionEliminardetalles($idfactura)
+    public function actionEliminardetalles($idfactura, $token)
     {
         $mds = Facturaventadetalle::find()->where(['=', 'idfactura', $idfactura])->all();
         $mensaje = "";
@@ -625,7 +683,7 @@ class FacturaventaController extends Controller
                         $factura->update();
                     }
                 }
-                $this->redirect(["facturaventa/view",'id' => $idfactura]);
+                $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
             }else {
                 $mensaje = "Debe seleccionar al menos un registro";
             }
@@ -634,10 +692,11 @@ class FacturaventaController extends Controller
             'mds' => $mds,
             'idfactura' => $idfactura,
             'mensaje' => $mensaje,
+            'token' => $token,
         ]);
     }
 
-    public function actionAutorizado($id)
+    public function actionAutorizado($id, $token)
     {
         $model = $this->findModel($id);
         $mensaje = "";
@@ -649,25 +708,25 @@ class FacturaventaController extends Controller
             if ($reg <> 0) {
                 $model->autorizado = 1;
                 $model->save(false);
-                $this->redirect(["facturaventa/view",'id' => $id]);
+                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener ordenes relacionados en la factura de venta.');
-                $this->redirect(["facturaventa/view",'id' => $id]);
+                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }
         } else {
             $factura = Facturaventa::findOne($id);
             if ($factura->nrofactura == 0){
                 $model->autorizado = 0;
                 $model->save(false);
-                $this->redirect(["facturaventa/view",'id' => $id]);
+                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }else {
                 Yii::$app->getSession()->setFlash('error', 'No se puede desautorizar el registro, ya fue generado el número de factura.');
-                $this->redirect(["facturaventa/view",'id' => $id]);
+                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }
         }
     }
 
-    public function actionGenerarnro($id)
+    public function actionGenerarnro($id, $token)
     {
         $model = $this->findModel($id);
         $mensaje = "";
@@ -688,14 +747,14 @@ class FacturaventaController extends Controller
                     $ordenProduccion->save(false);
                 }                
                 //$this->afectarcantidadfacturada($id);//se resta o descuenta las cantidades facturadas en los productos por cliente
-                $this->redirect(["facturaventa/view",'id' => $id]);
+                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'El registro ya fue generado.');
-                $this->redirect(["facturaventa/view",'id' => $id]);
+                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }
         }else{
             Yii::$app->getSession()->setFlash('error', 'El registro debe estar autorizado para poder imprimir la factura.');
-            $this->redirect(["facturaventa/view",'id' => $id]);
+            $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
         }
     }
 

@@ -24,15 +24,15 @@ $this->params['breadcrumbs'][] = $this->title;
     <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/orden-produccion/view', 'id' => $idordenproduccion], ['class' => 'btn btn-primary btn-sm']);
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/orden-produccion/view', 'id' => $idordenproduccion, 'token' => $token], ['class' => 'btn btn-primary btn-sm']);
         if($model->cerrar_remision == 0){         
             if ($model->numero == 0) {?> 
-                <?= Html::a('<span class="glyphicon glyphicon-check"></span> Generar Nro', ['generarnro', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']);
+                <?= Html::a('<span class="glyphicon glyphicon-check"></span> Generar Nro', ['generarnro', 'id' => $model->id_remision, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             }else{ ?>
                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-                <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar', ['cerrarremision', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm',
+                <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar', ['cerrarremision', 'id' => $model->id_remision, 'token' => $token], ['class' => 'btn btn-default btn-sm',
                      'data' => ['confirm' => 'Esta seguro que desea cerrar la remisión de auditoria No '. $model->numero. '', 'method' => 'post']]); ?>
-                <?=  Html::a('<span class="glyphicon glyphicon-list-alt"></span> Segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);?>                             
+                <?=  Html::a('<span class="glyphicon glyphicon-list-alt"></span> Segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                             
             <?php } ?>
 
              <!-- Editar modal detalle -->
@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                              <h4 class="modal-title">Remisión</h4>
                          </div>                            
-                         <?= Html::beginForm(Url::toRoute(["remision/fechamodificar", 'id' => $model->idordenproduccion]), "POST") ?>                            
+                         <?= Html::beginForm(Url::toRoute(["remision/fechamodificar", 'id' => $model->idordenproduccion, 'token' => $token]), "POST") ?>                            
 
                          <div class="modal-body">
                              <div class="panel panel-success">
@@ -71,7 +71,7 @@ $this->params['breadcrumbs'][] = $this->title;
              </div><!-- /.modal -->
         <?php }else{ ?>     
              <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-             <?=  Html::a('<span class="glyphicon glyphicon-eye-close"></span> Ver segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);?>                             
+             <?=  Html::a('<span class="glyphicon glyphicon-eye-close"></span> Ver segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                             
         <?php }?>      
 
     </p>
@@ -332,7 +332,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                         <input type="hidden" name="id_remision_detalle[]" value="<?= $val->id_remision_detalle ?>">
                         <td>
                         <?php if($model->cerrar_remision == 0){?>    
-                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'iddetalle' => $val->id_remision_detalle], [
+                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'iddetalle' => $val->id_remision_detalle, 'token' => $token], [
                                      'class' => '',
                                      'data' => [
                                          'confirm' => 'Esta seguro de eliminar el registro?',
@@ -467,7 +467,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
     </div>
     <div class="panel-footer text-right">
     <?php if($model->cerrar_remision == 0){?>    
-        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevodetalle', 'id' => $model->id_remision, 'idordenproduccion' => $idordenproduccion], ['class' => 'btn btn-success btn-sm']); ?>        
+        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevodetalle', 'id' => $model->id_remision, 'idordenproduccion' => $idordenproduccion, 'token' => $token], ['class' => 'btn btn-success btn-sm']); ?>        
         <?php if ($datostallas) { ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar y Nuevo", ["class" => "btn btn-success btn-sm", 'name' => 'actualizarynuevo']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm", 'name' => 'actualizar']) ?>

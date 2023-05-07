@@ -33,7 +33,7 @@ $view = 'operarios';
     <p>
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
 	<?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_operario], ['class' => 'btn btn-success btn-sm']) ?>
-        <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 12, 'codigo' => $model->id_operario,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+        <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 12, 'codigo' => $model->id_operario,'view' => $view, 'token' => $token,], ['class' => 'btn btn-default btn-sm']) ?>
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -147,7 +147,7 @@ $view = 'operarios';
                                                                 <p>¿ESTA SEGURO QUE DESEA ELIMINAR EL REGISTRO Nro : <?= $maquina->id ?>?</p>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <?= Html::beginForm(Url::toRoute("operarios/eliminardetalle"), "POST") ?>
+                                                                <?= Html::beginForm(Url::toRoute(["operarios/eliminardetalle", 'token' => $token]), "POST") ?>
                                                                 <input type="hidden" name="id_tipo" value="<?= $maquina->id ?>">
                                                                 <input type="hidden" name="id" value="<?= $model->id_operario ?>">
                                                                 <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
@@ -166,7 +166,7 @@ $view = 'operarios';
                     </div>   
                 </div>
                 <div class="panel-footer text-right"> 
-                        <?= Html::a('<span class="glyphicon glyphicon-search"></span> Buscar maquinas', ['operarios/relacionmaquina', 'id' => $model->id_operario], ['class' => 'btn btn-primary btn-sm']) ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-search"></span> Buscar maquinas', ['operarios/relacionmaquina', 'id' => $model->id_operario, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
                </div>
             </div>
             <!--INICIO EL OTRO TABS -->

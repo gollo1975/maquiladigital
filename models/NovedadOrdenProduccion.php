@@ -25,14 +25,7 @@ class NovedadOrdenProduccion extends \yii\db\ActiveRecord
     {
         return 'novedad_orden_produccion';
     }
-   public function beforeSave($insert) {
-        if (!parent::beforeSave($insert)) {
-            return false;
-        }
-        $this->novedad = strtolower($this->novedad); 
-        $this->novedad = ucfirst($this->novedad);  
-        return true;
-    }
+   
     
     /**
      * {@inheritdoc}

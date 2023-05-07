@@ -144,7 +144,7 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                      <td style='background-color:#D3EBDD; color: black;'><?= $val->tipo->tipo ?></td>
                 <?php }?>     
                 <td style="width: 25px;">				
-                     <a href="<?= Url::toRoute(["orden-produccion/view", "id" => $val->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
+                     <a href="<?= Url::toRoute(["orden-produccion/view", "id" => $val->idordenproduccion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                 </td>
                 <td style="width: 25px;">				
                      <a href="<?= Url::toRoute(["orden-produccion/update", "id" => $val->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                

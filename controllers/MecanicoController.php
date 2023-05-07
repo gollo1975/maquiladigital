@@ -52,7 +52,7 @@ class MecanicoController extends Controller
      * Lists all Abogados models.
      * @return mixed
      */
-      public function actionIndex() {
+      public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',121])->all()){
                 $form = new FormFiltroMecanico();
@@ -97,6 +97,7 @@ class MecanicoController extends Controller
                             'model' => $model,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             }else{
                 return $this->redirect(['site/sinpermiso']);
@@ -112,10 +113,11 @@ class MecanicoController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         return $this->render('view', [
             'table' => $this->findModel($id),
+            'token' => $token,
         ]);
     }
 

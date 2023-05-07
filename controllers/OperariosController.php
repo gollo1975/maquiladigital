@@ -48,7 +48,7 @@ class OperariosController extends Controller
      * Lists all Operarios models.
      * @return mixed
      */
-   public function actionIndex() {
+   public function actionIndex($token = 0) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 97])->all()) {
                 $form = new FormFiltroOperarios();
@@ -112,6 +112,7 @@ class OperariosController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -127,7 +128,7 @@ class OperariosController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         $model = Operarios::findOne($id); 
         $maquina_operario = MaquinaOperario::find()->where(['=','id_operario', $id])->orderBy('id desc')->all();
@@ -138,7 +139,7 @@ class OperariosController extends Controller
                         $eliminar = PrestacionesSocialesDetalle::findOne($intCodigo);
                         $eliminar->delete();
                         Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-                        $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina]);
+                        $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina, 'token' => $token,]);
                     } catch (IntegrityException $e) {
                         Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle de la prestacion, tiene registros asociados en otros procesos de la nómina');
                     } catch (\Exception $e) {
@@ -153,6 +154,7 @@ class OperariosController extends Controller
                 'model' => $this->findModel($id),
                 'id' => $id,
                 'maquina_operario' => $maquina_operario,
+                'token' => $token,
                 
         ]);
 
@@ -298,7 +300,7 @@ class OperariosController extends Controller
         ]);
     }
 
-     public function actionRelacionmaquina($id)
+     public function actionRelacionmaquina($id, $token)
     {
         $maquinas = TiposMaquinas::find()->where(['=','estado', 1])->orderBy('descripcion asc')->all();
         $form = new FormMaquinaBuscar();
@@ -339,7 +341,7 @@ class OperariosController extends Controller
                         $table->insert();                                                
                     }
                 }
-                $this->redirect(["operarios/view", 'id' => $id]);
+                $this->redirect(["operarios/view", 'id' => $id, 'token' => $token]);
             }else{
                 
             }
@@ -348,6 +350,7 @@ class OperariosController extends Controller
             'mensaje' => $mensaje,
             'id' => $id,
             'form' => $form,
+            'token' => $token,
 
         ]);
     }
@@ -358,7 +361,7 @@ class OperariosController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionEliminardetalle() {
+    public function actionEliminardetalle($token) {
         if (Yii::$app->request->post()) {
             $id_tipo = Html::encode($_POST["id_tipo"]);
             $id_operario = Html::encode($_POST["id"]);
@@ -366,13 +369,13 @@ class OperariosController extends Controller
                                
                 try {
                     MaquinaOperario::deleteAll("id=:id", [":id" => $id_tipo]);
-                    $this->redirect(["operarios/view", 'id' => $id_operario]);
+                    $this->redirect(["operarios/view", 'id' => $id_operario, 'token' => $token]);
                 } catch (IntegrityException $e) {
-                    $this->redirect(["operarios/view", 'id' => $id_operario]);
+                    $this->redirect(["operarios/view", 'id' => $id_operario, 'token' => $token]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en los modulos de ensamble');
                 } catch (\Exception $e) {
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en los modulos de ensamble');
-                     $this->redirect(["operarios/view", 'id' => $id_operario]);
+                     $this->redirect(["operarios/view", 'id' => $id_operario, 'token' => $token]);
                 }
               
             } else {

@@ -82,6 +82,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                         <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
+                                        <th scope="col" style='background-color:#B9D5CE;'></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -118,8 +119,43 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                                     </div>
                                                 </td>
                                                 <td style="width: 25px; height: 25px;">
+                                                    <a href="#" data-toggle="modal" data-target="#fecha<?= $model->id_eficiencia ?>" ><span class="glyphicon glyphicon-time" title="Modificar hora inicio modulo"></span></a>
+                                                    <div class="modal fade" role="dialog" aria-hidden="true" id="fecha<?= $model->id_eficiencia ?>">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                                    <h4 class="modal-title"></h4>
+                                                                </div>                            
+                                                                <?= Html::beginForm(Url::toRoute(["eficiencia-modulo-diario/modificarhorainicio", 'id_detalle' => $modulo->id_carga, 'id' => $model->id_eficiencia, 'id_planta' => $model->id_planta]), "POST") ?>                            
+
+                                                                <div class="modal-body">
+                                                                    <div class="panel panel-success">
+                                                                        <div class="panel-heading">
+                                                                            <h4>Inicio modulo</h4>
+                                                                        </div>
+                                                                        <div class="panel-body">
+                                                                            <div class="col-lg-3">
+                                                                                <label>Hora inicio:</label>
+                                                                            </div>
+                                                                            <div class="col-lg-3">
+                                                                                <input type="time" name="hora_inicio" value="<?php echo $modulo->hora_inicio_modulo ?>" size="50"  required>
+                                                                            </div>                                                                                
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
+                                                                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> Editar</button>
+                                                                </div>
+                                                                <?= Html::endForm() ?>
+                                                            </div><!-- /.modal-content -->
+                                                        </div><!-- /.modal-dialog -->
+                                                    </div><!-- /.modal -->
+                                                </td>    
+                                                <td style="width: 25px; height: 25px;">
                                                  <?=
-                                                    Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id_carga' => $modulo->id_carga, 'id' => $model->id_eficiencia], [
+                                                    Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id_carga' => $modulo->id_carga, 'id' => $model->id_eficiencia, 'id_planta' => $model->id_planta], [
                                                         'class' => '',
                                                         'data' => [
                                                             'confirm' => 'Esta seguro de eliminar el registro?',
@@ -130,7 +166,8 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                                 </td>  
                                              <?php }else{?>
                                                 <td style="width: 25px; height: 25px;">
-                                                    <td style="width: 25px; height: 25px;">
+                                                <td style="width: 25px; height: 25px;">
+                                                <td style="width: 25px; height: 25px;">
                                              <?php }?>   
                                         </tr>
                                    <?php endforeach; ?>    

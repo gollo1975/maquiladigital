@@ -106,7 +106,7 @@ $form = ActiveForm::begin([
             <tbody>
             <?php foreach ($model as $val):
                 if($val->proceso_cerrado == 0){
-                    $dato = app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $val->id_eficiencia])->one();
+                    $dato = app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $val->id_eficiencia])->all();
                     ?>
                     <tr style ='font-size: 85%;'>                
                         <td><?= $val->id_eficiencia ?></td>
@@ -119,24 +119,18 @@ $form = ActiveForm::begin([
                         <td><?= $val->usuario_editor ?></td>
                         <td><?= $val->procesoCerrado ?></td>
                          <?php 
-                            if($val->proceso_cerrado == 0 && !$dato){?>
-                                <td style= 'width: 25px; height: 25px;'>
-                                  <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                                </td>
-                                <td style= 'width: 25px; height: 25px;'>
-                                    <?php $detalle = app\models\EficienciaModuloDetalle::findOne($val->id_eficiencia);
-                                    if(!$detalle){?>
-                                    <?php }else{?>
-                                            <a href="<?= Url::toRoute(["eficiencia-modulo-diario/update", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
-                                    <?php }?>
-                                </td>    
-                            <?php }else {?>
+                            if($dato){?>
                                  <td style= 'width: 25px; height: 25px;'>
                                     <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                                 </td>   
-                                 <td></td>
-
-                            <?php } ?>     
+                                 </td> 
+                            <?php }else {?>     
+                                     <td style= 'width: 25px; height: 25px;'>
+                                    <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia, 'id_planta' => $val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                 </td> 
+                                    <td style= 'width: 25px; height: 25px;'>
+                                          <a href="<?= Url::toRoute(["eficiencia-modulo-diario/update", "id" => $val->id_eficiencia, 'id_planta' => $val->id_planta]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
+                                    </td>    
+                             <?php } ?>     
                     </tr>       
                 <?php }else{?>
                     <tr style ='font-size: 85%;'>                
@@ -149,21 +143,11 @@ $form = ActiveForm::begin([
                         <td style='background-color:#F0F3EF;'><?= $val->usuario_creador ?></td>
                         <td style='background-color:#F0F3EF;'><?= $val->usuario_editor ?></td>
                         <td style='background-color:#F0F3EF;'><?= $val->procesoCerrado ?></td>
-                         <?php 
-                            if($val->proceso_cerrado == 0){?>
-                                <td style= 'width: 25px; height: 25px; background-color:#F0F3EF;'>
-                                  <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                                </td>
-                                <td style= 'width: 25px; height: 25px; background-color:#F0F3EF;'>
-                                    <a href="<?= Url::toRoute(["eficiencia-modulo-diario/update", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
-                                </td>
-                            <?php }else {?>
-                                 <td style= 'width: 25px; height: 25px; background-color:#F0F3EF;'>
-                                    <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                                 </td>   
-                                 <td style='background-color:#F0F3EF;'></td>
-
-                            <?php } ?>     
+                        <td style= 'width: 25px; height: 25px; background-color:#F0F3EF;'>
+                        <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                        </td>   
+                        <td style= 'width: 25px; height: 25px; background-color:#F0F3EF;'></td>
+                           
                     </tr>       
                 <?php }    
                 

@@ -220,6 +220,7 @@ class EficienciaModuloDiarioController extends Controller
     public function actionListar_modulos($id, $id_planta) {
         $listado = \app\models\Balanceo::find()->where(['=','estado_modulo', 0])
                                                 ->andWhere(['=','id_proceso_confeccion', 1])
+                                                ->andWhere(['=','id_planta', $id_planta])
                                                 ->orderBy('id_balanceo DESC')->all();
         $form = new \app\models\FormMaquinaBuscar();
         $q = null;
@@ -232,6 +233,7 @@ class EficienciaModuloDiarioController extends Controller
                             ->where(['like','id_balanceo', $q])
                             ->andWhere(['=','estado_modulo', 0])
                             ->andWhere(['=','id_proceso_confeccion', 1])
+                            ->andWhere(['=','id_planta', $id_planta])
                             ->orderBy('id_balanceo DESC')->all();
                 }               
             } else {
@@ -241,6 +243,7 @@ class EficienciaModuloDiarioController extends Controller
         } else {
              $listado = \app\models\Balanceo::find()->where(['=','estado_modulo', 0])
                                             ->andWhere(['=','id_proceso_confeccion', 1])
+                                            ->andWhere(['=','id_planta', $id_planta])
                                             ->orderBy('id_balanceo DESC')->all();
         }
         if (isset($_POST["modulo_activo"])) {
@@ -270,7 +273,7 @@ class EficienciaModuloDiarioController extends Controller
                 }
              $intIndice++;   
             }
-           $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id]);
+           $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id, 'id_planta' => $id_planta]);
         }
         return $this->render('_listar_modulos', [
             'listado' => $listado,            
@@ -500,20 +503,20 @@ class EficienciaModuloDiarioController extends Controller
     }
     
     ///eliminar registro
-     public function actionEliminar($id, $id_carga) {
+     public function actionEliminar($id, $id_carga, $id_planta) {
         if (Yii::$app->request->post()) {
             $detalle = \app\models\EficienciaModuloDetalle::findOne($id_carga);
             if ((int) $id_carga) {
                 try {
                     \app\models\EficienciaModuloDetalle::deleteAll("id_carga=:id_carga", [":id_carga" => $id_carga]);
                     Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
-                    $this->redirect(["eficiencia-modulo-diario/view",'id' => $id]);
+                    $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' => $id_planta]);
                 } catch (IntegrityException $e) {
-                    $this->redirect(["eficiencia-modulo-diario/view",'id' => $id]);
+                    $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' => $id_planta]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el modulo Nro: ' . $detalle->id_balanceo . ', tiene registros asociados en otros procesos');
                 } catch (\Exception $e) {
 
-                    $this->redirect(["eficiencia-modulo-diario/view",'id' => $id]);
+                    $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' => $id_planta]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el modulo Nro:  ' . $detalle->id_balanceo . ', tiene registros asociados en otros procesos');
                 }
             } else {
@@ -521,7 +524,7 @@ class EficienciaModuloDiarioController extends Controller
                 echo "<meta http-equiv='refresh' content='3; " . Url::toRoute("eficiencia-modulo-diario/index") . "'>";
             }
         } else {
-            return $this->redirect(["eficiencia-modulo-diario/view",'id' => $id]);
+            return $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' => $id_planta]);
         }
     }
     
@@ -532,6 +535,16 @@ class EficienciaModuloDiarioController extends Controller
         $model->proceso_cerrado = 1;
         $model->save(false);
         return $this->redirect(["eficiencia-modulo-diario/view",'id' => $id]);      
+    }
+    
+    //MODIFICAR FECHA
+    public function actionModificarhorainicio($id, $id_planta, $id_detalle) {
+        var_dump($id_detalle);
+        $detalle = \app\models\EficienciaModuloDetalle::findOne($id_detalle);
+        $detalle->hora_inicio_modulo = $_POST['hora_inicio'];
+        $detalle->save(false);
+        $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' => $id_planta]);
+        
     }
     /**
      * Finds the EficienciaModuloDiario model based on its primary key value.

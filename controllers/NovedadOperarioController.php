@@ -44,7 +44,7 @@ class NovedadOperarioController extends Controller
      * Lists all NovedadOperario models.
      * @return mixed
      */
-    public function actionIndex() {
+    public function actionIndex($token = 0) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 125])->all()) {
                 $form = new FormFiltroNovedadOperarios();
@@ -114,6 +114,7 @@ class NovedadOperarioController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'token' => $token,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -129,10 +130,11 @@ class NovedadOperarioController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'token' => $token,
         ]);
     }
 
@@ -218,21 +220,21 @@ class NovedadOperarioController extends Controller
         ]);
     }
 
-    public function actionAutorizar($id) {
+    public function actionAutorizar($id, $token) {
         $model = $this->findModel($id);
         if($model->autorizado == 0 ){
             $model->autorizado = 1;
             $model->update();
-            return $this->redirect(["novedad-operario/view",'id' => $id]);
+            return $this->redirect(["novedad-operario/view",'id' => $id, 'token' => $token]);
         }else{
             $model->autorizado = 0;
             $model->update();
-            return $this->redirect(["novedad-operario/view",'id' => $id]);
+            return $this->redirect(["novedad-operario/view",'id' => $id, 'token' => $token]);
         }
     }   
     //CIERRA EL PROCESO Y GENERA EL NRO DE LA NOVEDAD
     
-    public function actionCerrarproceso($id) {
+    public function actionCerrarproceso($id, $token) {
         $model = $this->findModel($id);
         $numero = \app\models\Consecutivo::findOne(15);
         $model->nro_novedad = $numero->consecutivo + 1;
@@ -240,7 +242,7 @@ class NovedadOperarioController extends Controller
         $model->update();
         $numero->consecutivo = $model->nro_novedad;
         $numero->update();
-        return $this->redirect(["novedad-operario/view",'id' => $id]);
+        return $this->redirect(["novedad-operario/view",'id' => $id, 'token' => $token]);
     }
     
     //IMPRIMIR NOVEDAD

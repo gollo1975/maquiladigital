@@ -19,15 +19,15 @@ $view = 'novedad-operario';
     <p>
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if ($model->autorizado == 0) { ?>
-	    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizar', 'id' => $model->id_novedad], ['class' => 'btn btn-default btn-sm']) ?>
+	    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizar', 'id' => $model->id_novedad, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
         <?php }else{
             if($model->cerrado == 0){?>
-                <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizar', 'id' => $model->id_novedad], ['class' => 'btn btn-default btn-sm']) ?>
-                <?= Html::a('<span class="glyphicon glyphicon-eye-close"></span> Cerrar novedad', ['cerrarproceso', 'id' => $model->id_novedad],['class' => 'btn btn-info btn-sm',
+                <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizar', 'id' => $model->id_novedad, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
+                <?= Html::a('<span class="glyphicon glyphicon-eye-close"></span> Cerrar novedad', ['cerrarproceso', 'id' => $model->id_novedad, 'token' => $token],['class' => 'btn btn-info btn-sm',
                           'data' => ['confirm' => 'Esta seguro de cerrar la novedad del operario.', 'method' => 'post']]) ?>
             <?php }else{ ?>
                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirnovedad', 'id' => $model->id_novedad], ['class' => 'btn btn-default btn-sm'])?>            
-               <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $model->id_novedad,'view' => $view], ['class' => 'btn btn-default btn-sm']) ?>
+               <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $model->id_novedad,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
             <?php }
         }?>
     </p>

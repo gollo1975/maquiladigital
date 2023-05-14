@@ -136,7 +136,7 @@ $novedad = ArrayHelper::map(TipoNovedad::find()->orderBy('novedad ASC')->all(), 
                 <td><?= $val->procesoCerrado?></td>
                 <td><?= $val->usuario ?></td>
                 <td style= 'width: 25px; height: 25px;'>
-                        <a href="<?= Url::toRoute(["novedad-operario/view", "id" => $val->id_novedad, ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                        <a href="<?= Url::toRoute(["novedad-operario/view", "id" => $val->id_novedad, 'token' => $token ]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                 </td>
                 <?php if($val->cerrado == 0){?>
                     <td style= 'width: 25px; height: 25px;'>

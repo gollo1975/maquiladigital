@@ -136,4 +136,6 @@ class ComprobanteEgreso extends \yii\db\ActiveRecord
         }
         return $autorizar;
     }
+    
+    
 }

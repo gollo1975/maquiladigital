@@ -145,6 +145,7 @@ class ComprobanteEgresoController extends Controller
                 $fecha_final = null;
                 $tipo_comprobante = null;
                 $fecha_pago = null;
+                $banco = null;
                 $model = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
@@ -153,6 +154,7 @@ class ComprobanteEgresoController extends Controller
                         $fecha_final = Html::encode($form->fecha_final);
                         $fecha_pago = Html::encode($form->fecha_pago);
                         $tipo_comprobante = Html::encode($form->tipo_comprobante);
+                        $banco = Html::encode($form->banco);
                         if($tipo_proceso == 1){
                             $nomina = \app\models\ProgramacionNomina::find()->where(['>=','fecha_desde', $fecha_inicio])
                                                                             ->andWhere(['<=', 'fecha_hasta', $fecha_final])->all();
@@ -198,7 +200,7 @@ class ComprobanteEgresoController extends Controller
                                 $table->fecha_comprobante = $fecha_pago ;
                                 $table->id_comprobante_egreso_tipo = $tipo_comprobante;
                                 $table->id_proveedor = $proveedor->idproveedor;
-                                $table->id_banco = $empresa->id_banco_factura;
+                                $table->id_banco = $banco;
                                 if($tipo_proceso == 1){
                                      $observacion = 'Nomina del  '. $fecha_inicio. '  al  ' .$fecha_final. ''; 
                                 } else {

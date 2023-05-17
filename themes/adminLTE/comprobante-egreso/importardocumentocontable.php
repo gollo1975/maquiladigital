@@ -38,7 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $comprobante = ArrayHelper::map(ComprobanteEgresoTipo::find()->where(['=','permite_importar', 1])->orderBy('concepto ASC')->all(), 'id_comprobante_egreso_tipo', 'concepto');
-?>
+$banco = ArrayHelper::map(app\models\Banco::find()->where(['=','activo', 1])->orderBy('entidad ASC')->all(), 'idbanco', 'entidad');?>
 <div class="panel panel-success panel-filters">
     <div class="panel-heading">
         Parametros de entrada
@@ -54,9 +54,7 @@ $comprobante = ArrayHelper::map(ComprobanteEgresoTipo::find()->where(['=','permi
                     'allowClear' => true
                 ],
             ]); ?>
-        </div>
-         <div class="row" >
-             <?=  $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+            <?=  $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
@@ -71,15 +69,20 @@ $comprobante = ArrayHelper::map(ComprobanteEgresoTipo::find()->where(['=','permi
                     'todayHighlight' => true]])
             ?>
                  
-        </div>
-         <div class="row" >
-             <?=  $formulario->field($form, 'fecha_pago')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+            <?=  $formulario->field($form, 'fecha_pago')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
                    'todayHighlight' => true]])
             ?>
+            <?= $formulario->field($form, 'banco')->widget(Select2::classname(), [
+                'data' => $banco,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
            
        </div>
     </div>    

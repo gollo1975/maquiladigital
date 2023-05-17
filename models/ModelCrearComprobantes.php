@@ -15,13 +15,14 @@ class ModelCrearComprobantes extends Model
     public $fecha_final;
     public $fecha_pago;
     public $tipo_comprobante;
+    public $banco;
 
     public function rules()
     {
         return [            
-            [['tipo_proceso','fecha_inicio','fecha_final','fecha_pago','tipo_comprobante'],'required', 'message' => 'Campo requerido para generar el simulador'],
+            [['tipo_proceso','fecha_inicio','fecha_final','fecha_pago','tipo_comprobante','banco'],'required', 'message' => 'Campo requerido para generar el simulador'],
             [['tipo_proceso','tipo_comprobante'], 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
-            [['tipo_proceso','tipo_comprobante'],'integer'],
+            [['tipo_proceso','tipo_comprobante','banco'],'integer'],
             [['tipo_proceso'], 'default'],
             [['fecha_inicio','fecha_final','fecha_pago'], 'safe'],
             
@@ -36,6 +37,7 @@ class ModelCrearComprobantes extends Model
             'fecha_final' => 'Fecha corte:',
             'fecha_pago' => 'Fecha de pago:',
             'tipo_comprobante'=> 'Tipo comprobante:',
+            'banco' => 'Entidad bancaria:',
         ];
     }
 }

@@ -59,7 +59,7 @@ $view = 'comprobante-egreso';
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_banco') ?>:</th>
                     <td><?= Html::encode($model->banco->entidad) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cuenta') ?>:</th>
-                    <td><?= Html::encode($model->banco->producto) ?></td>
+                    <td><?= Html::encode($model->banco->numerocuenta)?> - <?= Html::encode($model->banco->producto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'iva') ?>:</th>
                     <td align="right"><?= Html::encode('$ '.number_format($model->iva,1)) ?></td>
                 </tr>

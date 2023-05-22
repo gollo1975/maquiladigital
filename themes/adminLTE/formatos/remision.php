@@ -418,6 +418,7 @@ class PDF extends FPDF {
         $pdf->SetX(10);
         $pdf->SetFont('Arial', 'b', 10);
         $items = count($detalles);
+        $sumaLineas = 0;
         $txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0; $txxl = 0;
         foreach ($detalles as $detalle) {
             $txs = $txs + $detalle->xs;
@@ -436,7 +437,7 @@ class PDF extends FPDF {
             }else{
                 $estado = 'Segunda';
             }
-            $pdf->Cell(30, 4.5, $detalle->color, 1, 0, 'J');
+            $pdf->Cell(30, 4.5,  utf8_decode(mb_substr($detalle->color,0, 12)), 1, 0, 'J');
             if ($detalle->oc == 1){
                 $pdf->Cell(26, 4.5, $oc, 1, 0, 'J',1);   
             }else{
@@ -596,6 +597,8 @@ class PDF extends FPDF {
             $pdf->Cell(21, 4.5, $detalle->unidades, 1, 0, 'R');
             $pdf->Ln();
             $pdf->SetAutoPageBreak(true, 20);
+            $sumaLineas += 1;
+           
         }
         $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
         $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0; $c42 = 0;
@@ -911,6 +914,9 @@ $idordenproduccion = $model->idordenproduccion;
 $pdf = new PDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();
+$pdf->SetFont('Arial','',15);
+$pdf->Cell(10,20);
+$pdf->Image('dist/images/logos/logoauditoria.png' , 40 ,95, 110 , 100,'PNG');
 $pdf->Body($pdf, $model);
 $pdf->AliasNbPages();
 $pdf->SetFont('Times', '', 10);

@@ -32,6 +32,7 @@ use app\models\CantidadPrendaTerminadasPreparacion;
 use app\models\ReprocesoProduccionPrendas;
 use app\models\PilotoDetalleProduccion;
 use app\models\EficienciaBalanceo;
+use app\models\Color;
 //clases
 
 use Yii;
@@ -475,6 +476,7 @@ class OrdenProduccionController extends Controller {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
         $modeldetalle = new Ordenproducciondetalle();
         $mensaje = "";
+        $remision = \app\models\Remision::find()->where(['=','idordenproduccion' , $id])->one();
         $novedad_orden = \app\models\NovedadOrdenProduccion::find()->where(['=','idordenproduccion', $id])->all();
         $otrosCostosProduccion = \app\models\OtrosCostosProduccion::find()->where(['=','idordenproduccion', $id])->orderBy('id_proveedor DESC')->all();
         if (isset($_POST["eliminar"])) {
@@ -484,7 +486,7 @@ class OrdenProduccionController extends Controller {
                             $eliminar = Ordenproducciondetalle::findOne($intCodigo);
                             $eliminar->delete();
                             Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-                            $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+                            $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token, 'remision' => $remision]);
                         } catch (IntegrityException $e) {
                             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
                         } catch (\Exception $e) {
@@ -493,7 +495,7 @@ class OrdenProduccionController extends Controller {
                 }
                 $this->Actualizartotal($id);
                 $this->Actualizarcantidad($id);
-                $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+                $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token, 'remision' => $remision]);
             } else {
                 Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro.');                
             }                        
@@ -506,7 +508,7 @@ class OrdenProduccionController extends Controller {
                  $table->save();
                  $intIndice++;
              }
-             return $this->redirect(['view', 'id' => $id, 'token' => $token]);
+             return $this->redirect(['view', 'id' => $id, 'token' => $token, 'remision' => $remision]);
         }
         return $this->render('view', [
                     'model' => $this->findModel($id),
@@ -516,6 +518,7 @@ class OrdenProduccionController extends Controller {
                     'otrosCostosProduccion' => $otrosCostosProduccion,
                     'novedad_orden' => $novedad_orden,
                     'token' => $token ,
+                    'remision' => $remision,
         ]);
     }
    
@@ -3341,6 +3344,54 @@ class OrdenProduccionController extends Controller {
         }else{
              $this->redirect(["orden-produccion/view_detalle", 'id' => $id]);
         }    
+    }
+    //crear reision
+    
+    public function actionCrearemisionorden($id, $token) {
+        $model = new \app\models\ModelCrearColorRemision();
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()) {
+                if (isset($_POST["crearemision"])) { 
+                    $table = new \app\models\Remision();
+                    $color = Color::find()->where(['=','id', $model->color])->one();
+                    $table->idordenproduccion = $id;
+                    $table->id_color = $model->color;
+                    $table->total_tulas = 0;
+                    $table->total_exportacion = 0;
+                    $table->totalsegundas = 0;
+                    $table->total_colombia = 0;
+                    $table->total_confeccion = 0;
+                    $table->total_despachadas = 0;
+                    $table->fechacreacion = date('Y-m-d');
+                    $table->color = $color->color;
+                    $table->save(false);
+                    $remision = \app\models\Remision::find()->where(['=','idordenproduccion', $id])->orderBy('id_remision DESC')->one();
+                    $id_remision = $remision->id_remision;
+                    $this->redirect(["/remision/remision", 'id' => $id, 'token' => $token, 'id_remision' => $id_remision]);
+                }
+            }else{
+                 $model->getErrors();
+            }    
+             
+        }
+        return $this->renderAjax('crearemisionorden', [
+            'id' => $id,
+            'model' => $model,
+            'token' => $token,
+        ]);
+    }
+    
+    //permite ver la remisiones
+    public function actionListadoremisiones($id, $token) {
+        $model = \app\models\Remision::find()->where(['=','idordenproduccion', $id])->orderBy('id_remision DESC')->all();
+        if (Yii::$app->request->post()) {
+           
+        }
+        return $this->renderAjax('listadoremision', [
+            'id' => $id,
+            'model' => $model,
+            'token' => $token,
+        ]); 
     }
     
     public function actionExcelconsulta($tableexcel) {                

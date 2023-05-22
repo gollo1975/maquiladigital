@@ -16,7 +16,7 @@ use yii\helpers\Url;
 /* @var $model app\models\Remision */
 
 $this->title = 'Clasificación segundas';
-$this->params['breadcrumbs'][] = ['label' => 'Clasificacion de segundas', 'url' => ['/remision/remision', 'id' => $id_orden, 'token' => $token]];
+$this->params['breadcrumbs'][] = ['label' => 'Clasificacion de segundas', 'url' => ['/remision/remision', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision ]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="clasificacion-remision">
@@ -24,8 +24,8 @@ $this->params['breadcrumbs'][] = $this->title;
     <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/remision/remision', 'id' => $id_orden, 'token' => $token], ['class' => 'btn btn-primary btn-sm']);?>
-        <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirsegundas', 'id' => $id], ['class' => 'btn btn-default btn-sm']); ?>
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/remision/remision', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-primary btn-sm']);?>
+        <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirsegundas', 'id_remision' => $id_remision], ['class' => 'btn btn-default btn-sm']); ?>
 
     </p>
 <?php
@@ -39,9 +39,9 @@ $form = ActiveForm::begin([
         ]);
 ?>
 <?php
-$orden = app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id_orden])->all();
+$orden = app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
 $global = count($orden);
-$remision = app\models\Remision::findOne($id);
+$remision = app\models\Remision::findOne($id_remision);
 $tipo = ArrayHelper::map(app\models\TipoClasificacionSegundas::find()->all(), 'id_tipo', 'concepto');
 
 ?>
@@ -159,7 +159,7 @@ $tipo = ArrayHelper::map(app\models\TipoClasificacionSegundas::find()->all(), 'i
                                 </div>
                             <?php if ($remision->cerrar_remision == 0){?>  
                                 <td style="width: 25px; height: 25px;">
-                                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarsegundas', 'id_detalle' => $val->id_clasificacion, 'id' => $id, 'id_orden' => $id_orden, 'token' => $token], [
+                                    <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminarsegundas', 'id_detalle' => $val->id_clasificacion, 'id' => $id, 'id_remision' => $id_remision, 'token' => $token], [
                                              'class' => '',
                                              'data' => [
                                                  'confirm' => 'Esta seguro de eliminar el registro?',
@@ -192,7 +192,7 @@ $tipo = ArrayHelper::map(app\models\TipoClasificacionSegundas::find()->all(), 'i
     </div>
     <?php if ($remision->cerrar_remision == 0){?>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevalineaclasificacion', 'id' => $id, 'id_orden' => $id_orden, 'token' => $token], ['class' => 'btn btn-primary btn-sm']); ?>        
+            <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevalineaclasificacion', 'id' => $id, 'id_remision' => $id_remision, 'token' => $token], ['class' => 'btn btn-primary btn-sm']); ?>        
             <?php if($linea > 0){?>
                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm", 'name' => 'actualizarsegundas']) ?>
             <?php }?>

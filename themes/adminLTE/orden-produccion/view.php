@@ -43,71 +43,71 @@ $view = 'orden-produccion';
 <div class="ordenproduccion-view">
 
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
+    
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?php if ($model->autorizado == 0) { ?>
+                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']) ?>
 
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']) ?>
-        <?php if ($model->autorizado == 0) { ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->idordenproduccion], ['class' => 'btn btn-success btn-sm']) ?>
-                   
-                    <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
-        }
-            else {
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);            
-                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 4, 'codigo' => $model->idordenproduccion,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                
-                if($model->exportacion == 2){
-                    echo Html::a('<span class="glyphicon glyphicon-print"></span> Exportación', ['imprimirexportacion', 'id' => $model->idordenproduccion], ['class' => 'btn btn-info btn-sm']);                
-                }
-                if ($remision){
-                   if ($model->tipo->remision == 1)
-                   {    
-                        echo Html::a('<span class="glyphicon glyphicon-file"></span> Remision', ['remision/remision', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                             
-                   }
-                }else{
-                    if ($model->tipo->remision == 1)
-                    {
-                    ?>
-                    <!-- Editar modal detalle -->
-                    <a href="#" data-toggle="modal" data-target="#remision<?= $model->idordenproduccion ?>" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-file"></span> Remision</a>
-                    <div class="modal fade" role="dialog" aria-hidden="true" id="remision<?= $model->idordenproduccion ?>">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                                    <h4 class="modal-title">Remisión</h4>
-                                </div>                            
-                                <?= Html::beginForm(Url::toRoute(["remision/remision", 'id' => $model->idordenproduccion, 'token' => $token]), "POST") ?>                            
-                                <?php
-                                    $colores = ArrayHelper::map(Color::find()->all(), 'id', 'color');
-                                ?>
-                                <div class="modal-body">
-                                    <div class="panel panel-success">
-                                        <div class="panel-heading">
-                                            <h4>Información Remisión</h4>
-                                        </div>
-                                        <div class="panel-body">
-                                            <div class="col-lg-3">
-                                                <label>Colores:</label>
-                                            </div>
-                                            <div class="col-lg-3">
-                                                <?php echo Html::dropdownList('color', '',$colores, ['class' => 'form-control', 'style' => 'width:200px','prompt' => 'Seleccione...','required' => true]) ?>
-                                            </div>   
-                                            
-                                        </div>
-                                    </div>
+                        <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+            }
+                else {
+                    echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+                    echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);            
+                    echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 4, 'codigo' => $model->idordenproduccion,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                
+                    if($model->exportacion == 2){
+                        echo Html::a('<span class="glyphicon glyphicon-print"></span> Exportación', ['imprimirexportacion', 'id' => $model->idordenproduccion], ['class' => 'btn btn-info btn-sm']);                
+                    }
+                    if($model->tipo->remision <> 0){
+                        if(!$remision){?>
+                            <?= Html::a('<span class="glyphicon glyphicon-list"></span> Crear remision ',
+                                    ['orden-produccion/crearemisionorden', 'id' => $model->idordenproduccion, 'token'=> $token],
+                                    [
+                                        'class' => 'btn btn-success btn-sm',   
+                                        'title' => 'Crear remision',
+                                        'data-toggle'=>'modal',
+                                        'data-target'=>'#modalcrearemision'.$model->idordenproduccion,
+                                    ])    
+                               ?>
+                            <div class="modal remote fade" id="modalcrearemision<?= $model->idordenproduccion?>">
+                                <div class="modal-dialog modal-dialog-centered ">
+                                    <div class="modal-content"></div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
-                                    <button type="submit" class="btn btn-success btn-sm"><span class="glyphicon glyphicon-plus"></span> Crear</button>
+                            </div>
+                       <?php } else {?>
+                            <?= Html::a('<span class="glyphicon glyphicon-list"></span> Crear remision ',
+                                    ['orden-produccion/crearemisionorden', 'id' => $model->idordenproduccion, 'token'=> $token],
+                                    [
+                                        'class' => 'btn btn-success btn-sm',   
+                                        'title' => 'Crear remision',
+                                        'data-toggle'=>'modal',
+                                        'data-target'=>'#modalcrearemision'.$model->idordenproduccion,
+                                    ])    
+                               ?>
+                            <div class="modal remote fade" id="modalcrearemision<?= $model->idordenproduccion?>">
+                                <div class="modal-dialog modal-dialog-centered ">
+                                    <div class="modal-content"></div>
                                 </div>
-                                <?= Html::endForm() ?>
-                            </div><!-- /.modal-content -->
-                        </div><!-- /.modal-dialog -->
-                    </div><!-- /.modal -->
-            <?php }}    ?>
-            <?php }    ?>        
-
-    <br>
-    <br>    
+                            </div>
+                            <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> Ver remisiones ',
+                                    ['orden-produccion/listadoremisiones', 'id' => $model->idordenproduccion, 'token'=> $token],
+                                    [
+                                        'class' => 'btn btn-info btn-sm',   
+                                        'title' => 'Ver remisiones',
+                                        'data-toggle'=>'modal',
+                                        'data-target'=>'#modalverlistadoremisiones'.$model->idordenproduccion,
+                                    ])    
+                               ?>
+                            <div class="modal remote fade" id="modalverlistadoremisiones<?= $model->idordenproduccion?>">
+                                <div class="modal-dialog modal-lg ">
+                                    <div class="modal-content"></div>
+                                </div>
+                            </div>
+                    <?php } 
+                    }    
+                }    ?>        
+                        <br>
+                        <br>
+          
     <div class="panel panel-success">
         <div class="panel-heading">
             Orden de Producción

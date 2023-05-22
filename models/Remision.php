@@ -33,6 +33,14 @@ class Remision extends \yii\db\ActiveRecord
     {
         return 'remision';
     }
+     public function beforeSave($insert) {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+        $this->nombre_auditor = strtoupper($this->nombre_auditor);        
+       
+        return true;
+    }
 
     /**
      * {@inheritdoc}
@@ -44,6 +52,7 @@ class Remision extends \yii\db\ActiveRecord
             [['total_exportacion', 'totalsegundas', 'total_colombia', 'total_confeccion', 'total_despachadas'], 'number'],
             [['fechacreacion'], 'safe'],
             [['color'], 'string', 'max' => 25],
+            [['nombre_auditor'], 'string', 'max' => 30],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['id_color'], 'exist', 'skipOnError' => true, 'targetClass' => Color::className(), 'targetAttribute' => ['id_color' => 'id']],
         ];
@@ -68,6 +77,7 @@ class Remision extends \yii\db\ActiveRecord
             'color' => 'Color',
             'id_color' => 'Id Color',
             'cerrar_remision' => 'Cerrar remision',
+            'nombre_auditor' => 'Nombre auditor:',
         ];
     }
 
@@ -82,7 +92,7 @@ class Remision extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getColor0()
+    public function getColorprenda()
     {
         return $this->hasOne(Color::className(), ['id' => 'id_color']);
     }
@@ -93,6 +103,15 @@ class Remision extends \yii\db\ActiveRecord
     public function getRemisiondetalles()
     {
         return $this->hasMany(Remisiondetalle::className(), ['id_remision' => 'id_remision']);
+    }
+    
+    public function getEstadoRemision (){
+        if($this->cerrar_remision == 0){
+            $estadoremision = 'NO';
+        }else{
+            $estadoremision = 'SI';
+        }
+        return $estadoremision;
     }
     
 }

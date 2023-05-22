@@ -16,23 +16,20 @@ use yii\helpers\Url;
 /* @var $model app\models\Remision */
 
 $this->title = 'Remision de Entrega';
-$this->params['breadcrumbs'][] = ['label' => 'Orden Produccion', 'url' => ['orden-produccion/view', 'id' => $idordenproduccion]];
+$this->params['breadcrumbs'][] = ['label' => 'Orden Produccion', 'url' => ['orden-produccion/view', 'id' => $idordenproduccion, 'token' => $token]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="Fichatiempo-view">
-
-    <!--<?= Html::encode($this->title) ?>-->
-
-    <p>
+    
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/orden-produccion/view', 'id' => $idordenproduccion, 'token' => $token], ['class' => 'btn btn-primary btn-sm']);
         if($model->cerrar_remision == 0){         
             if ($model->numero == 0) {?> 
-                <?= Html::a('<span class="glyphicon glyphicon-check"></span> Generar Nro', ['generarnro', 'id' => $model->id_remision, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+                <?= Html::a('<span class="glyphicon glyphicon-check"></span> Generar Nro', ['generarnro', 'id' => $model->id_remision, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-default btn-sm']);
             }else{ ?>
-                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-                <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar', ['cerrarremision', 'id' => $model->id_remision, 'token' => $token], ['class' => 'btn btn-default btn-sm',
+                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id_remision' => $id_remision], ['class' => 'btn btn-default btn-sm']); ?>
+                <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar', ['cerrarremision', 'id' => $model->idordenproduccion, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-default btn-sm',
                      'data' => ['confirm' => 'Esta seguro que desea cerrar la remisión de auditoria No '. $model->numero. '', 'method' => 'post']]); ?>
-                <?=  Html::a('<span class="glyphicon glyphicon-list-alt"></span> Segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                             
+                <?=  Html::a('<span class="glyphicon glyphicon-list-alt"></span> Segundas', ['/remision/clasificarsegundas', 'id' => $model->idordenproduccion, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-default btn-sm']);?>                             
             <?php } ?>
 
              <!-- Editar modal detalle -->
@@ -44,7 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                              <h4 class="modal-title">Remisión</h4>
                          </div>                            
-                         <?= Html::beginForm(Url::toRoute(["remision/fechamodificar", 'id' => $model->idordenproduccion, 'token' => $token]), "POST") ?>                            
+                         <?= Html::beginForm(Url::toRoute(["remision/fechamodificar", 'id' => $model->idordenproduccion, 'token' => $token, 'id_remision' => $id_remision]), "POST") ?>                            
 
                          <div class="modal-body">
                              <div class="panel panel-success">
@@ -69,12 +66,47 @@ $this->params['breadcrumbs'][] = $this->title;
                      </div><!-- /.modal-content -->
                  </div><!-- /.modal-dialog -->
              </div><!-- /.modal -->
-        <?php }else{ ?>     
-             <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-             <?=  Html::a('<span class="glyphicon glyphicon-eye-close"></span> Ver segundas', ['/remision/clasificarsegundas', 'id' => $model->id_remision,'id_orden' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                             
-        <?php }?>      
+             <!--COMIENZA MODAL DEL ADUTIRO-->
+            <a href="#" data-toggle="modal" data-target="#auditor<?= $id_remision ?>"  class="btn btn-success btn-sm"><span class="glyphicon glyphicon-user" title="Asignar el auditor del lote"></span>Asignar auditor</a>
+            <div class="modal fade" role="dialog" aria-hidden="true" id="auditor<?= $id_remision ?>">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            <h4 class="modal-title"></h4>
+                        </div>                            
+                        <?= Html::beginForm(Url::toRoute(["remision/asignarauditor", 'id_remision' => $id_remision, 'id' => $idordenproduccion, 'token' => $token]), "POST") ?>                            
 
-    </p>
+                        <div class="modal-body">
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                    <h4>Auditoria</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="col-lg-3">
+                                        <label>Nombre auditor:</label>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input type="text" name="nombre_auditor" value="" size="50" id="nombre_auditor" maxlength="30" size="30" required>
+                                    </div>                                                                                
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> Editar</button>
+                        </div>
+                        <?= Html::endForm() ?>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+        <?php }else{ ?>     
+             <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id_remision' => $model->id_remision], ['class' => 'btn btn-default btn-sm']); ?>
+             <?=  Html::a('<span class="glyphicon glyphicon-eye-close"></span> Ver segundas', ['/remision/clasificarsegundas', 'id' => $model->idordenproduccion, 'id_remision' => $id_remision ,'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                             
+        <?php }?>      
+            <br>
+            <br>
     <div class="panel panel-success">
         <div class="panel-heading">
             Remision de Entrega
@@ -86,16 +118,21 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= Html::encode($model->id_remision) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'idordenproduccion') ?>:</th>
                     <td><?= Html::encode($model->idordenproduccion) ?></td>
+                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Op_Cliente') ?>:</th>
+                    <td><?= Html::encode($model->ordenproduccion->ordenproduccion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fechacreacion') ?>:</th>
                     <td><?= Html::encode($model->fechacreacion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_tulas') ?>:</th>
                     <td><?= Html::encode($model->total_tulas) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Op_Cliente') ?>:</th>
-                    <td><?= Html::encode($model->ordenproduccion->ordenproduccion) ?></td>
+                  
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigoProducto') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion->codigoproducto) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
+                    <td><?= Html::encode($model->ordenproduccion->cliente->nombrecorto) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalsegundas') ?>:</th>
+                    <td><?= Html::encode($model->totalsegundas) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'numero') ?>:</th>
                     <td><?= Html::encode($model->numero) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_exportacion') ?>:</th>
@@ -103,23 +140,27 @@ $this->params['breadcrumbs'][] = $this->title;
                 </tr>
               
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
-                    <td><?= Html::encode($model->ordenproduccion->cliente->nombrecorto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Contacto') ?>:</th>
-                    <td><?= Html::encode($model->ordenproduccion->cliente->contacto) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalsegundas') ?>:</th>
-                    <td><?= Html::encode($model->totalsegundas) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_colombia') ?>:</th>
-                    <td><?= Html::encode($model->total_colombia) ?></td>
-                <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'TipoOrden') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion->tipo->tipo) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Contacto') ?>:</th>
+                    <td><?= Html::encode($model->ordenproduccion->cliente->contacto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Unidades') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion->cantidad) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_confeccion') ?>:</th>
                     <td><?= Html::encode($model->total_confeccion) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_colombia') ?>:</th>
+                    <td><?= Html::encode($model->total_colombia) ?></td>
+                <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cerrado') ?>:</th>
+                    <td><?= Html::encode($model->estadoRemision) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'nombre_auditor') ?></th>
+                    <td><?= Html::encode($model->nombre_auditor) ?></td>
+                    <th style='background-color:#F0F3EF;'></th>
+                    <td></td>
+                    <th style='background-color:#F0F3EF;'></th>
+                    <td></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_despachadas') ?>:</th>
-                    <td><?= Html::encode($model->total_despachadas) ?></td>
+                    <td ><?= Html::encode($model->total_despachadas) ?></td>
                 </tr>
             </table>
         </div>
@@ -332,7 +373,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                         <input type="hidden" name="id_remision_detalle[]" value="<?= $val->id_remision_detalle ?>">
                         <td>
                         <?php if($model->cerrar_remision == 0){?>    
-                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'iddetalle' => $val->id_remision_detalle, 'token' => $token], [
+                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->idordenproduccion, 'iddetalle' => $val->id_remision_detalle, 'token' => $token, 'id_remision' => $id_remision], [
                                      'class' => '',
                                      'data' => [
                                          'confirm' => 'Esta seguro de eliminar el registro?',
@@ -467,7 +508,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
     </div>
     <div class="panel-footer text-right">
     <?php if($model->cerrar_remision == 0){?>    
-        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevodetalle', 'id' => $model->id_remision, 'idordenproduccion' => $idordenproduccion, 'token' => $token], ['class' => 'btn btn-success btn-sm']); ?>        
+        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevodetalle', 'id' => $idordenproduccion, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-success btn-sm']); ?>        
         <?php if ($datostallas) { ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar y Nuevo", ["class" => "btn btn-success btn-sm", 'name' => 'actualizarynuevo']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm", 'name' => 'actualizar']) ?>

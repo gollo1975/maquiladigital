@@ -539,7 +539,6 @@ class EficienciaModuloDiarioController extends Controller
     
     //MODIFICAR FECHA
     public function actionModificarhorainicio($id, $id_planta, $id_detalle) {
-        var_dump($id_detalle);
         $detalle = \app\models\EficienciaModuloDetalle::findOne($id_detalle);
         $detalle->hora_inicio_modulo = $_POST['hora_inicio'];
         $detalle->save(false);

@@ -914,9 +914,11 @@ $idordenproduccion = $model->idordenproduccion;
 $pdf = new PDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();
-$pdf->SetFont('Arial','',15);
-$pdf->Cell(10,20);
-$pdf->Image('dist/images/logos/logoauditoria.png' , 40 ,95, 110 , 100,'PNG');
+if($model->cerrar_remision == 1){
+    $pdf->SetFont('Arial','',15);
+    $pdf->Cell(10,20);
+    $pdf->Image('dist/images/logos/logoauditoria.png' , 50 ,89.7, 110 , 100,'PNG');
+}    
 $pdf->Body($pdf, $model);
 $pdf->AliasNbPages();
 $pdf->SetFont('Times', '', 10);

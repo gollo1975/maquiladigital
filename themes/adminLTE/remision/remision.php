@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                          <label>Fecha:</label>
                                      </div>
                                      <div class="col-lg-3">
-                                         <input type="date" name="fecha" value="<?php echo $model->fechacreacion ?>" size="50"  required>
+                                         <input type="date" name="fecha" value="<?php echo $model->fecha_entrega ?>" size="50"  required>
                                      </div>                                                                                
                                  </div>
                              </div>
@@ -120,8 +120,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= Html::encode($model->idordenproduccion) ?></td>
                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Op_Cliente') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion->ordenproduccion) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fechacreacion') ?>:</th>
-                    <td><?= Html::encode($model->fechacreacion) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_entrega') ?>:</th>
+                    <td><?= Html::encode($model->fecha_entrega) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_tulas') ?>:</th>
                     <td><?= Html::encode($model->total_tulas) ?></td>
                 </tr>
@@ -157,8 +157,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= Html::encode($model->nombre_auditor) ?></td>
                     <th style='background-color:#F0F3EF;'></th>
                     <td></td>
-                    <th style='background-color:#F0F3EF;'></th>
-                    <td></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_registro') ?></th>
+                    <td><?= Html::encode($model->fecha_registro) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_despachadas') ?>:</th>
                     <td ><?= Html::encode($model->total_despachadas) ?></td>
                 </tr>

@@ -50,7 +50,7 @@ class Remision extends \yii\db\ActiveRecord
         return [
             [['idordenproduccion', 'numero', 'total_tulas', 'id_color','cerrar_remision'], 'integer'],
             [['total_exportacion', 'totalsegundas', 'total_colombia', 'total_confeccion', 'total_despachadas'], 'number'],
-            [['fechacreacion'], 'safe'],
+            [['fecha_entrega', 'fecha_registro'], 'safe'],
             [['color'], 'string', 'max' => 25],
             [['nombre_auditor'], 'string', 'max' => 30],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
@@ -73,7 +73,8 @@ class Remision extends \yii\db\ActiveRecord
             'total_colombia' => 'Total Colombia',
             'total_confeccion' => 'Total Confeccion',
             'total_despachadas' => 'Total Despachadas',
-            'fechacreacion' => 'Fecha creacion',
+            'fecha_entrega' => 'Fecha entrega',
+            'fecha_registro' => 'Fecha registro',
             'color' => 'Color',
             'id_color' => 'Id Color',
             'cerrar_remision' => 'Cerrar remision',

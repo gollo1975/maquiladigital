@@ -721,7 +721,7 @@ class RemisionController extends Controller
     public function actionFechamodificar($id, $token, $id_remision){
         
         $remision = Remision::find()->where(['=', 'id_remision', $id_remision])->one();
-        $remision->fechacreacion = $_POST['fecha'];
+        $remision->fecha_entrega = $_POST['fecha'];
         $remision->save(false);
         $this->redirect(["remision/remision",'id' => $id, 'token' => $token, 'id_remision' => $id_remision]);
       

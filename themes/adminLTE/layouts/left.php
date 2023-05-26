@@ -24,9 +24,6 @@
                 </span>
             </div>
         </form>
-          <?php
-        echo Yii::$app->user->identity->codusuario;
-        ?>
         <!-- /.search form -->
         <?=
         dmstr\widgets\Menu::widget(

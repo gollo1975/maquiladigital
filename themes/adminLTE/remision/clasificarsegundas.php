@@ -18,15 +18,19 @@ use yii\helpers\Url;
 $this->title = 'Clasificación segundas';
 $this->params['breadcrumbs'][] = ['label' => 'Clasificacion de segundas', 'url' => ['/remision/remision', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision ]];
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
 <div class="clasificacion-remision">
 
     <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/remision/remision', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-primary btn-sm']);?>
-        <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirsegundas', 'id_remision' => $id_remision], ['class' => 'btn btn-default btn-sm']); ?>
-
+        <?php if(count($clasificar) > 0){?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/remision/remision', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-primary btn-sm']);?>
+            <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimirsegundas', 'id_remision' => $id_remision], ['class' => 'btn btn-default btn-sm']); ?>
+        <?php } else {?>
+             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['/remision/remision', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-primary btn-sm']);?>
+        <?php }?>
     </p>
 <?php
 $form = ActiveForm::begin([
@@ -57,6 +61,7 @@ $tipo = ArrayHelper::map(app\models\TipoClasificacionSegundas::find()->all(), 'i
                      <?php
                             foreach ($detalle as $val):
                                 if($val->xs > 0){?> 
+                                    
                                     <th scope="col" style='background-color:#B9D5CE;'><?= 'XS' ?></th>
                                 <?php }
                                 if($val->s > 0){?> 

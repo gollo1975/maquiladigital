@@ -3362,7 +3362,7 @@ class OrdenProduccionController extends Controller {
                     $table->total_colombia = 0;
                     $table->total_confeccion = 0;
                     $table->total_despachadas = 0;
-                    $table->fechacreacion = date('Y-m-d');
+                    $table->fecha_entrega = date('Y-m-d');
                     $table->color = $color->color;
                     $table->save(false);
                     $remision = \app\models\Remision::find()->where(['=','idordenproduccion', $id])->orderBy('id_remision DESC')->one();

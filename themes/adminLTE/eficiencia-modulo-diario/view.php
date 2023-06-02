@@ -211,7 +211,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                     <?php
                                     foreach ($EntradaDia as $entrada):?>
                                         <tr style='font-size:95%;'>
-                                            <td><?= $entrada->id_eficiencia ?></td>
+                                            <td><?= $entrada->id_entrada ?></td>
                                             <td><?= $entrada->id_balanceo ?></td>
                                             <td><?= $entrada->id_carga?></td>
                                             <td><?= $entrada->idordenproduccion ?></td>

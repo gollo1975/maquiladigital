@@ -317,7 +317,7 @@ class EficienciaModuloDiarioController extends Controller
                         $model->iddetalleorden = $intCodigo;
                         $model->id_proceso_confeccion = $balanceo->id_proceso_confeccion;
                         $model->numero_operarios = $_POST["operarios"][$intIndice];
-                        $model->fecha_dia_confeccion = date('Y-m-d');
+                        $model->fecha_dia_confeccion = $detalle->fecha_carga;
                         $model->hora_corte = $_POST["hora_corte"][$intIndice];
                         if($BuscarHora){
                             if($registro > 1){
@@ -339,7 +339,7 @@ class EficienciaModuloDiarioController extends Controller
                         $table->id_balanceo = $id_balanceo;
                         $table->idordenproduccion = $orden_produccion;
                         $table->cantidad_terminada = $_POST["nueva_entrada"][$intIndice];
-                        $table->fecha_entrada = date('Y-m-d');
+                        $table->fecha_entrada = $detalle->fecha_carga;
                         $table->nro_operarios = $_POST["operarios"][$intIndice];
                         $table->hora_corte_entrada = $_POST["hora_corte"][$intIndice];
                         $table->usuariosistema = Yii::$app->user->identity->username;

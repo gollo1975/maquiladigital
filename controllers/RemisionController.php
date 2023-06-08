@@ -473,70 +473,77 @@ class RemisionController extends Controller
     {
         $detalle = Remisiondetalle::find()->where(['=','id_remision', $id_remision])->andWhere(['=', 'estado', 1])->all();
         $clasificar = \app\models\ClasificacionSegundas::find()->where(['=','id_remision', $id_remision])->all();
-        if (Yii::$app->request->post()) {    
-            if (isset($_POST["actualizarsegundas"])) {
-                $intIndice = 0;
-                $tipo = 0;
-                foreach ($_POST["clasificacion"] as $intCodigo):
-                    $table = \app\models\ClasificacionSegundas::findOne($intCodigo);
-                    $table->id_tipo = $_POST["tipos"][$intIndice];     
-                    $tipo = $table->id_tipo;
-                    if ($table->txs == 1){
-                        $table->xs = $_POST["xs"][$intIndice];
-                    }
-                    if ($table->ts == 1){
-                        $table->s = $_POST["s"][$intIndice];
-                    }
-                    if ($table->tm == 1){
-                        $table->m = $_POST["m"][$intIndice];
-                    }
-                    if ($table->tl == 1){
-                        $table->l = $_POST["l"][$intIndice];
-                    }
-                    if ($table->txl == 1){
-                        $table->xl = $_POST["xl"][$intIndice];
-                    }
-                    if ($table->txxl == 1){
-                        $table->xxl = $_POST["xxl"][$intIndice];
-                    }
-                    if ($table->t2 == 1){
-                        $table->a2 = $_POST["t2"][$intIndice];
-                    }
-                    if ($table->t4 == 1){
-                        $table->a4 = $_POST["t4"][$intIndice];
-                    }
-                    if ($table->t6 == 1){
-                        $table->a6 = $_POST["t6"][$intIndice];
-                    }
-                    if ($table->t8 == 1){
-                        $table->a8 = $_POST["t8"][$intIndice];
-                    }
-                    if ($table->t10 == 1){
-                        $table->a10 = $_POST["t10"][$intIndice];
-                    }
-                    if ($table->t12 == 1){
-                        $table->a12 = $_POST["t12"][$intIndice];
-                    }
-                    if ($table->t14 == 1){
-                        $table->a14 = $_POST["t14"][$intIndice];
-                    }
-                    if ($table->t16 == 1){
-                        $table->a16 = $_POST["t16"][$intIndice];
-                    }
-                    $table->save(false);
-                    $this->SumarSegundas($intCodigo,  $tipo);
-                    $intIndice++;
-                endforeach;
-                return $this->redirect(['clasificarsegundas', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision]);
-            }     
-        }    
-        return $this->render('clasificarsegundas', [
+        if(count($detalle) > 0){
+            if (Yii::$app->request->post()) {    
+                if (isset($_POST["actualizarsegundas"])) {
+                    $intIndice = 0;
+                    $tipo = 0;
+                    foreach ($_POST["clasificacion"] as $intCodigo):
+                        $table = \app\models\ClasificacionSegundas::findOne($intCodigo);
+                        $table->id_tipo = $_POST["tipos"][$intIndice];     
+                        $tipo = $table->id_tipo;
+                        if ($table->txs == 1){
+                            $table->xs = $_POST["xs"][$intIndice];
+                        }
+                        if ($table->ts == 1){
+                            $table->s = $_POST["s"][$intIndice];
+                        }
+                        if ($table->tm == 1){
+                            $table->m = $_POST["m"][$intIndice];
+                        }
+                        if ($table->tl == 1){
+                            $table->l = $_POST["l"][$intIndice];
+                        }
+                        if ($table->txl == 1){
+                            $table->xl = $_POST["xl"][$intIndice];
+                        }
+                        if ($table->txxl == 1){
+                            $table->xxl = $_POST["xxl"][$intIndice];
+                        }
+                        if ($table->t2 == 1){
+                            $table->a2 = $_POST["t2"][$intIndice];
+                        }
+                        if ($table->t4 == 1){
+                            $table->a4 = $_POST["t4"][$intIndice];
+                        }
+                        if ($table->t6 == 1){
+                            $table->a6 = $_POST["t6"][$intIndice];
+                        }
+                        if ($table->t8 == 1){
+                            $table->a8 = $_POST["t8"][$intIndice];
+                        }
+                        if ($table->t10 == 1){
+                            $table->a10 = $_POST["t10"][$intIndice];
+                        }
+                        if ($table->t12 == 1){
+                            $table->a12 = $_POST["t12"][$intIndice];
+                        }
+                        if ($table->t14 == 1){
+                            $table->a14 = $_POST["t14"][$intIndice];
+                        }
+                        if ($table->t16 == 1){
+                            $table->a16 = $_POST["t16"][$intIndice];
+                        }
+                        $table->save(false);
+                        $this->SumarSegundas($intCodigo,  $tipo);
+                        $intIndice++;
+                    endforeach;
+                   return $this->redirect(['clasificarsegundas', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision]);
+                }     
+            } 
+             return $this->render('clasificarsegundas', [
             'detalle' => $detalle,
             'id' => $id,
             'clasificar' => $clasificar,
             'token' => $token,
             'id_remision' => $id_remision,
-        ]);
+            ]);
+        }else{
+               Yii::$app->getSession()->setFlash('warning', 'No hay segundas para generar el proceso de reclasificacion.');
+                return $this->redirect(['remision', 'id' => $id, 'token' => $token, 'id_remision' => $id_remision]);
+       
+        }
+           
     }    
     //CONSULTA LOS DATOS DE SEGUNDAS
     protected function SumarSegundas($intCodigo, $tipo) {

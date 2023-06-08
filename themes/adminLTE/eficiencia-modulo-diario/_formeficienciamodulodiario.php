@@ -28,7 +28,7 @@ use app\models\Ordenproducciondetalle;
                     Lineas <span class="badge"><?= count($orden)?></span>
                 </div>
                 <div class="panel-body">
-                    <table class="table table-responsive-lg" style ="width: 1100px;">
+                    <table class="table table-responsive-lg" >
                         <thead>
                             <tr style='font-size:90%;'>
                                 <td scope="col" style='background-color:#B9D5CE; '><b>Id</td>
@@ -47,7 +47,9 @@ use app\models\Ordenproducciondetalle;
                         <tbody>
                         <?php
                         $confeccionada = 0; $restar = 0;
+                        $unidades = 0; $total_Confeccionada = 0; $unidades_Faltante = 0;
                         foreach ($orden as $val):
+                            $unidades += $val->cantidad;
                              $detalle = app\models\CantidadPrendaTerminadas::find()->where(['=','iddetalleorden', $val->iddetalleorden])->all();
                              $confeccionada = 0;
                              if (count($detalle) > 0){
@@ -56,6 +58,8 @@ use app\models\Ordenproducciondetalle;
                                  endforeach;
                              }
                              $restar = $val->cantidad - $confeccionada;
+                             $total_Confeccionada += $confeccionada;
+                             $unidades_Faltante += $restar; 
                             ?>
                             <tr style="font-size: 95%;">
                                 <td><?= $val->iddetalleorden ?></td>  
@@ -81,10 +85,18 @@ use app\models\Ordenproducciondetalle;
                             </tr>
                             </tbody>
                             <?php
-                        endforeach; ?>                        
+                        endforeach; ?>    
+                            <tr>
+                    <td colspan="1"></td>
+                    <td align="right"><b>Totales</b></td>
+                    <td align="right" ><b><?= ''.number_format($unidades,0); ?></b></td>
+                    <td align="right" style="text-align: right; background-color:#B9D5AA;" ><b><?= ''.number_format($total_Confeccionada,0); ?></b></td>
+                    <td align="right" style="text-align: right; background-color:#B9D5CE; color: red;"><b><?= ''.number_format($unidades_Faltante,0); ?></b></td>
+                    <td colspan="4"></td>
+                </tr>
                     </table>
                     <div class="panel-footer text-right">			
-                    <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar cantidad", ["class" => "btn btn-primary", 'name' => 'unidadespordia']) ?>                    
+                    <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-primary", 'name' => 'unidadespordia']) ?>                    
                    </div>
                 </div>
             </div>

@@ -30,7 +30,7 @@ use app\models\Ordenproducciondetalle;
                 <div class="panel-body">
                     <table class="table table-responsive-lg" >
                         <thead>
-                            <tr style='font-size:90%;'>
+                            <tr style='font-size:100%;'>
                                 <td scope="col" style='background-color:#B9D5CE; '><b>Id</td>
                                 <td scope="col" style='background-color:#B9D5CE; '><b>Descripcion/Talla</td>
                                 <td scope="col" style='background-color:#B9D5CE;'><b>Cantidad</td>
@@ -61,7 +61,7 @@ use app\models\Ordenproducciondetalle;
                              $total_Confeccionada += $confeccionada;
                              $unidades_Faltante += $restar; 
                             ?>
-                            <tr style="font-size: 95%;">
+                            <tr style="font-size: 100%;">
                                 <td><?= $val->iddetalleorden ?></td>  
                                 <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
                                 <td style="text-align: right"><?= ''.number_format($val->cantidad, 0) ?></td>                                                              

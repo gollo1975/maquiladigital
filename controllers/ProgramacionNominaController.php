@@ -747,6 +747,7 @@ class ProgramacionNominaController extends Controller {
                         $dato = 1;
                         $salario_adicional = ($contrato_laboral->salario / 30) * $total_dias_adicional;
                     }
+                    $vector_nomina = [];
                     if ($sw == 1){
                   
                         $fecha = date($prima_semestral->fecha_ultima_prima);
@@ -756,6 +757,7 @@ class ProgramacionNominaController extends Controller {
                              $fecha_inicio_dias = strtotime('2 day', strtotime($fecha));
                         }
                         $fecha_inicio_dias = date('Y-m-d', $fecha_inicio_dias);
+                        
                         $vector_nomina = ProgramacionNomina::find()->where(['>=', 'fecha_desde', $fecha_inicio_dias])
                                                                     ->andWhere(['=','id_contrato', $prima_semestral->id_contrato])
                                                                   ->all();
@@ -1041,8 +1043,13 @@ class ProgramacionNominaController extends Controller {
 
     protected function CrearPrimaSemestral($sw, $prima_semestral, $ano)
     {
+         $mesInicio = 0;
+         $anioTerminacion = 0;
+         $mesTerminacion = 0;
+         $anioInicio = 0;
+         $diaTerminacion = 0;
+         $diaInicio = 0;
         if($sw == 1){    
-            //codigo de fecha
             $fecha = date($prima_semestral->fecha_ultima_prima);
             $fecha_inicio_dias = strtotime('1 day', strtotime($fecha));
             $fecha_inicio_dias = date('Y-m-d', $fecha_inicio_dias);

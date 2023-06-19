@@ -62,7 +62,7 @@ $form = ActiveForm::begin([
                        
                 </div>  
                     <div class="panel-footer text-right">
-                       <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Crear fechas", ["class" => "btn btn-primary", 'name' => 'crearfechaspago']) ?>                    
+                       <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Crear", ["class" => "btn btn-primary", 'name' => 'crearfechaspago']) ?>                    
                    </div>
                 
             </div>

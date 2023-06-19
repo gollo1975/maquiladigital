@@ -113,7 +113,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                                             ])    
                                                        ?>
                                                     <div class="modal remote fade" id="modalunidadesporhora<?= $modulo->id_balanceo ?>">
-                                                        <div class="modal-dialog modal-lg" style ="width: 950px;">
+                                                        <div class="modal-dialog modal-lg" style ="width: 1050px;">
                                                             <div class="modal-content"></div>
                                                         </div>
                                                     </div>

@@ -118,7 +118,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
        ?>
     </div> 
     <div class="modal remote fade" id="modalpagarserviciosoperarios">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style ="width: 700px;">
             <div class="modal-content"></div>
         </div>
     </div>

@@ -98,7 +98,7 @@ $view = 'orden-produccion';
                                     ])    
                                ?>
                             <div class="modal remote fade" id="modalverlistadoremisiones<?= $model->idordenproduccion?>">
-                                <div class="modal-dialog modal-lg" style ="width: 900px;">
+                                <div class="modal-dialog modal-lg" style ="width: 850px;">
                                     <div class="modal-content"></div>
                                 </div>
                             </div>

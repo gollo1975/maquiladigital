@@ -42,7 +42,7 @@ use yii\filters\AccessControl;
                     Lista remisiones <span class="badge"><?= count($model)?></span>
                 </div>
                 <div class="panel-body">
-                    <table class="table table-responsive-lg">
+                    <table class="table table-responsive">
                         <thead>
                             <tr style='font-size:90%;'>
                                 <td scope="col" style='background-color:#B9D5CE; '><b>Id</td>
@@ -58,7 +58,10 @@ use yii\filters\AccessControl;
                         </thead>
                         <tbody>
                         <?php
-                        foreach ($model as $val):?>
+                        $suma = 0;
+                        foreach ($model as $val):
+                            $suma += $val->total_despachadas;
+                            ?>
                             <tr style="font-size: 95%;">
                                 <td><?= $val->id_remision ?></td>  
                                 <td><?= $val->numero ?></td>  
@@ -74,8 +77,16 @@ use yii\filters\AccessControl;
                             </tr>
                             </tbody>
                             <?php
-                        endforeach; ?>                        
+                        endforeach; ?>     
+                             <tr>
+                        <td colspan="6"></td>
+                        <td align="center"><b>Totales:</b></td>
+                        <td align="right" ><b><?= '$ '.number_format($suma,0); ?></b></td>
+                        <td colspan="2"></td
+                      
+                    </tr>    
                     </table>
+                   
                 </div>
             </div>
         </div>

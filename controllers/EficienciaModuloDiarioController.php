@@ -312,7 +312,7 @@ class EficienciaModuloDiarioController extends Controller
                         $model->id_carga = $id_carga;
                         $model->id_balanceo = $id_balanceo;
                         $model->idordenproduccion = $orden_produccion;
-                        $cantidad = $_POST["nueva_entrada"][$intIndice];;
+                        $cantidad = $_POST["nueva_entrada"][$intIndice];
                         $model->unidades_confeccionadas = $_POST["nueva_entrada"][$intIndice];
                         $model->iddetalleorden = $intCodigo;
                         $model->id_proceso_confeccion = $balanceo->id_proceso_confeccion;
@@ -357,15 +357,38 @@ class EficienciaModuloDiarioController extends Controller
                 endforeach;
                 $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id]);
             }
-         }else{
+        }else{
              $model->getErrors();
-         }    
+        }    
        }
        return $this->renderAjax('_formeficienciamodulodiario', [
             'orden' => $orden,
             'modulo' => $modulo,
             'balanceo' => $balanceo,
         ]);
+    }
+    
+    //MODIFICAR HORA INICIO MODULO
+    public function actionModificarhorainicio($id, $id_planta, $id_detalle) {
+        $model = new \app\models\FormCambioHoraModulo();
+        $table = \app\models\EficienciaModuloDetalle::findOne($id_detalle);
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["actualizarhora"])) { 
+                $table->hora_inicio_modulo = $model->hora_inicio;
+                $table->save(false);
+                $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id, 'id_planta' =>$id_planta]);
+            }    
+        }
+         if (Yii::$app->request->get($id, $id_planta, $id_detalle)) {
+            $model->hora_inicio = $table->hora_inicio_modulo;
+         }
+        return $this->renderAjax('cambiarhorainicio', [
+            'model' => $model,
+            'id_planta' => $id_planta,
+            'id_detalle' => $id_detalle,
+            'id' => $id,
+        ]);
+       
     }
     //totalizar eficiencia
     protected function TotalizarEficiencia($id_carga, $id_balanceo, $id) {
@@ -537,15 +560,7 @@ class EficienciaModuloDiarioController extends Controller
         return $this->redirect(["eficiencia-modulo-diario/view",'id' => $id]);      
     }
     
-    //MODIFICAR FECHA
-    public function actionModificarhorainicio($id, $id_planta, $id_detalle) {
-        $detalle = \app\models\EficienciaModuloDetalle::findOne($id_detalle);
-        $detalle->hora_inicio_modulo = $_POST['hora_inicio'];
-        $detalle->save(false);
-        $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' => $id_planta]);
-        
-    }
-    /**
+     /**
      * Finds the EficienciaModuloDiario model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id

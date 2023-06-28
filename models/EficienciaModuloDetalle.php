@@ -62,7 +62,7 @@ class EficienciaModuloDetalle extends \yii\db\ActiveRecord
             'fecha_carga' => 'Fecha Carga',
             'total_unidades' => 'Total Unidades',
             'usuario' => 'Usuario',
-            'hora_inicio_modulo' => 'Hora inicio modulo',
+            'hora_inicio_modulo' => 'Hora inicio:',
         ];
     }
 

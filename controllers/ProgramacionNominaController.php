@@ -171,8 +171,7 @@ class ProgramacionNominaController extends Controller {
                                 ->andFilterWhere(['=', 'id_tipo_nomina', $id_tipo_nomina])
                                 ->andFilterWhere(['=', 'id_empleado', $id_empleado])
                                 ->andFilterWhere(['=', 'cedula_empleado', $cedula_empleado])
-                                ->andFilterWhere(['>=', 'fecha_desde', $fecha_desde])
-                                ->andFilterWhere(['<=', 'fecha_hasta', $fecha_hasta]); 
+                                ->andFilterWhere(['between', 'fecha_desde', $fecha_desde, $fecha_hasta]);
                         $table = $table->orderBy('id_programacion DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;

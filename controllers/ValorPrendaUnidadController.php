@@ -151,8 +151,7 @@ class ValorPrendaUnidadController extends Controller
                                 ->andFilterWhere(['=', 'id_operario', $id_operario])
                                 ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
                                 ->andFilterWhere(['=', 'operacion', $operacion])
-                                ->andFilterWhere(['>=', 'dia_pago', $dia_pago])
-                                ->andFilterWhere(['<=', 'dia_pago', $fecha_corte])
+                                ->andFilterWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
                                 ->andFilterWhere(['=', 'id_tipo', $tipo_servicio])
                                 ->andFilterWhere(['=', 'id_planta', $bodega]);
                         $table = $table->orderBy('consecutivo DESC');
@@ -233,8 +232,7 @@ class ValorPrendaUnidadController extends Controller
                         $planta = Html::encode($form->planta);
                         $table = \app\models\PagoNominaServicios::find()
                                 ->andFilterWhere(['=', 'id_operario', $id_operario])
-                                ->andFilterWhere(['=', 'fecha_inicio', $fecha_inicio])
-                                ->andFilterWhere(['=', 'fecha_corte', $fecha_corte])
+                                ->andFilterWhere(['between', 'fecha_inicio', $fecha_inicio, $fecha_corte])
                                 ->andFilterWhere(['=', 'documento', $documento])
                                 ->andFilterWhere(['=', 'id_planta', $planta])
                                 ->andWhere(['=','autorizado', 1]);

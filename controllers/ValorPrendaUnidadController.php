@@ -550,41 +550,22 @@ class ValorPrendaUnidadController extends Controller
         
         if (Yii::$app->request->post()) {
             if (isset($_POST["validaroperario"])) {
-                if (isset($_POST["idoperario"])) {
+                if (isset($_POST["id_detalle"])) {
                     $intIndice = 0;
                     $empresa = \app\models\Matriculaempresa::find()->where(['=','id', 1])->one();
-                    foreach ($_POST["idoperario"] as $intCodigo):
-                        $balanceo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])
-                                             ->andWhere(['=','id_proceso_confeccion', 2])
-                                             ->one();
-                        $balanceo1 = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])
-                                              ->andWhere(['=','id_proceso_confeccion', 3])->one();
-                        if($balanceo){
-                            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo->id_balanceo])
-                                                                               ->andWhere(['=','id_operario',  $intCodigo])
-                                                                               ->andWhere(['=','estado_operacion', 0])
-                                                                               ->orderBy('id_operario DESC')->all();
-                        }else{
-                            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_balanceo', $balanceo1->id_balanceo])
-                                                                               ->andWhere(['=','id_operario',  $intCodigo])
-                                                                               ->andWhere(['=','estado_operacion', 0])
-                                                                               ->orderBy('id_operario DESC')->all();
-                        }    
-                        $operarios = Operarios::findOne($intCodigo);
-                        $total = 0;
-                        foreach ($detalle_balanceo as $val):
-                            $total += $val->minutos;
-                        endforeach;
+                    foreach ($_POST["id_detalle"] as $intCodigo):
+                        $detalle_balanceo = \app\models\BalanceoDetalle::findOne($intCodigo);
+                        $operarios = Operarios::find()->where(['=','id_operario', $detalle_balanceo->id_operario])->one();
                         $valor = 0;
                         if ($operarios->vinculado == 1){
-                           $valor = number_format($total * $empresa->vlr_minuto_vinculado, 0);
+                           $valor = number_format($detalle_balanceo->minutos * $empresa->vlr_minuto_vinculado, 0);
                            $vinculado = 'Vinculado';
                         }else{
-                            $valor = number_format($total * $empresa->vlr_minuto_contrato, 0);
+                            $valor = number_format($detalle_balanceo->minutos * $empresa->vlr_minuto_contrato, 0);
                             $vinculado = 'No vinculado';
                         }
                         $prenda = new ValorPrendaUnidadDetalles();
-                        $prenda->id_operario = $intCodigo;
+                        $prenda->id_operario = $detalle_balanceo->id_operario;
                         $prenda->id_valor = $id;                
                         $prenda->idordenproduccion = $idordenproduccion;
                         $prenda->dia_pago= date('Y-m-d');

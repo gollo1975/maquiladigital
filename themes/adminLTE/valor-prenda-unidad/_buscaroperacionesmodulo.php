@@ -63,7 +63,7 @@ $empresa = app\models\Matriculaempresa::findOne(1);
                                      $proceso = ProcesoProduccion::find()->where(['=','idproceso', $val->id_proceso])->one();
                                      if($val->id_operario == $operario->id_operario){?>
                                         <tr style="font-size: 85%;">
-                                            <td><?= $val->id_operario ?></td>
+                                            <td><?= $val->id_detalle ?></td>
                                             <td><?= $operario->nombrecompleto ?></td>
                                             <td><?= $proceso->proceso?></td>
                                             <td><?= $val->minutos?></td>
@@ -72,7 +72,7 @@ $empresa = app\models\Matriculaempresa::findOne(1);
                                             <?php }else{?>
                                             <td style="text-align: right"><?= ''.number_format(($val->minutos * $empresa->vlr_minuto_vinculado),0)?></td>
                                             <?php }?>  
-                                             <td align="center"><input type="checkbox"  name="idoperario[]" value="<?= $operario->id_operario ?>"></td>
+                                             <td align="center"><input type="checkbox"  name="id_detalle[]" value="<?= $val->id_detalle ?>"></td>
                                            
                                         </tr> 
                                     <?php } 

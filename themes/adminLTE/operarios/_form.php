@@ -73,7 +73,8 @@ $banco_empleado = ArrayHelper::map(app\models\BancoEmpleado::find()->all(), 'id_
                                'format' => 'yyyy-m-d',
                                'todayHighlight' => true]])
             ?>
-            <?= $form->field($model, 'estado')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
+             <?= $form->field($model, 'direccion')->textInput(['maxlength' => true]) ?>
+            
         </div>
          <div class="row">
              <?= $form->field($model, 'polivalente')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
@@ -118,7 +119,7 @@ $banco_empleado = ArrayHelper::map(app\models\BancoEmpleado::find()->all(), 'id_
         </div>  
          <div class="row">
             <?= $form->field($model, 'tipo_transacion')->dropDownList(['27' => 'ABONO A CTA CORRIENTE', '37' => 'ABONO A CTA AHORRO'], ['prompt' => 'Seleccione una opcion...']) ?> 
-          
+            <?= $form->field($model, 'estado')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>  
         
         <div class="panel-footer text-right">			

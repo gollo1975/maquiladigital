@@ -37,6 +37,7 @@ class FormOperarios extends Model
     public $numero_cuenta;
     public $tipo_cuenta;
     public $tipo_transacion;
+    public $direccion;
 
 
     /**
@@ -52,9 +53,9 @@ class FormOperarios extends Model
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
             [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta','banco','tipo_transacion'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
-            [['nombres', 'apellidos'], 'string', 'max' => 40],
+            [['nombres', 'apellidos','direccion'], 'string', 'max' => 50],
             [['iddepartamento', 'idmunicipio','celular','numero_cuenta'], 'string', 'max' => 15],
-            [['email'], 'string', 'max' => 60],
+            [['email'], 'string', 'max' => 50],
             [['tipo_cuenta'], 'string', 'max' => 1],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
         ];
@@ -90,6 +91,7 @@ class FormOperarios extends Model
             'numero_cuenta' => 'Numero cuenta:',
             'tipo_cuenta' => 'Tipo cuenta:',
             'tipo_transacion' => 'Tipo transacion:',
+            'direccion' => 'Direccion:',
             
         ];
     }

@@ -236,11 +236,13 @@ class OperariosController extends Controller
                    $table->id_tipo_documento = $model->id_tipo_documento;
                    $table->documento = $model->documento;
                    $table->nombres = $model->nombres;
+                   $table->apellidos = $model->apellidos;
                    $table->nombrecompleto = $table->nombres.' '.$table->apellidos;
                    $table->celular = $model->celular;
                    $table->email = $model->email;
                    $table->iddepartamento = $model->iddepartamento;
                    $table->idmunicipio = $model->idmunicipio;
+                   $table->direccion_operario = $model->direccion;
                    $table->estado = $model->estado;
                    $table->polivalente = $model->polivalente;
                    $table->fecha_nacimiento = $model->fecha_nacimiento;
@@ -274,6 +276,7 @@ class OperariosController extends Controller
                 $model->email = $table->email;
                 $model->iddepartamento = $table->iddepartamento;
                 $model->idmunicipio = $table->idmunicipio;
+                $model->direccion = $table->direccion_operario;
                 $model->estado = $table->estado;
                 $model->polivalente = $table->polivalente;
                 $model->fecha_nacimiento = $table->fecha_nacimiento;

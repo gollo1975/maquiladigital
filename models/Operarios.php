@@ -38,7 +38,8 @@ class Operarios extends \yii\db\ActiveRecord
 	$this->nombres = strtoupper($this->nombres);
         $this->apellidos = strtoupper($this->apellidos);
 	$this->nombrecompleto = strtoupper($this->nombrecompleto);
-	$this->email = strtolower($this->email);	
+	$this->email = strtolower($this->email);
+        $this->direccion_operario = strtoupper($this->direccion_operario);
         return true;
     }
 
@@ -50,7 +51,7 @@ class Operarios extends \yii\db\ActiveRecord
         return [
             [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'required'],
             [['id_tipo_documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'integer'],
-            [['nombres', 'apellidos', 'email'], 'string', 'max' => 50],
+            [['nombres', 'apellidos', 'email','direccion_operario'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
             [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta','documento'], 'string'],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -92,6 +93,7 @@ class Operarios extends \yii\db\ActiveRecord
             'tipo_cuenta' => 'Tipo cuenta:',
             'numero_cuenta' => 'Numero de cuenta:',
             'tipo_transacion' => 'Tipo transacion:',
+            'direccion_operario' => 'Direccion:',
         ];
     }
 

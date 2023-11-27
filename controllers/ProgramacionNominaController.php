@@ -787,15 +787,24 @@ class ProgramacionNominaController extends Controller {
                     $nro_dias_licencia = $nro_dias_licencia;
                     $auxilio_transporte_actual = ConfiguracionSalario::find()->where(['=','estado', 1])->one();
                     if($dato == 0){ // SE PREGUNTA SI LA NOMINA SE HIZO HASTA EL ULTIMO PERIODO
-                        $salario_promedio = ($total_ibp / $total_dias)* 30;
+                        if($contrato_laboral->tipo_salario == 'FIJO') {
+                            $salario_promedio = $contrato_laboral->salario;
+                        }else{
+                           $salario_promedio = ($total_ibp / $total_dias)* 30;    
+                        }
                         $dias_prima_pago_real = $total_dias - $nro_dias_licencia;
-                        if($contrato->auxilio_transporte == 1){
+                        if($contrato_laboral->auxilio_transporte == 1){
                              $vlr_prima = round(($salario_promedio + $auxilio_transporte_actual->auxilio_transporte_actual)* $dias_prima_pago_real) / 360; // formula de la prima
                          }else{
                              $vlr_prima = round($salario_promedio * $dias_prima_pago_real) / 360;
                          }   
                     }else{
-                        $salario_promedio = (($total_ibp + $salario_adicional) / $total_dias)* 30;
+                       
+                        if($contrato_laboral->tipo_salario == 'FIJO') {
+                            $salario_promedio = $contrato_laboral->salario;
+                        }else{
+                             $salario_promedio = (($total_ibp + $salario_adicional) / $total_dias)* 30;
+                        }
                          $dias_prima_pago_real = $total_dias - $nro_dias_licencia;
                          if($contrato_laboral->auxilio_transporte == 1){
                             $vlr_prima = round(($salario_promedio + $auxilio_transporte_actual->auxilio_transporte_actual)* $dias_prima_pago_real) / 360; // formula de la prima

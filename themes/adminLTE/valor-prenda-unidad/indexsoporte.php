@@ -135,7 +135,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         </ul>
     <?php }else{ ?>
         <ul class="nav nav-tabs" role="tablist">
-          <li role="presentation" class="active"><a href="#listado" aria-controls="listado" role="tab" data-toggle="tab">Listado <span class="badge"><?= $pagination->totalCount ?></span></a></li>
+            <?php if($modelo){?>
+                <li role="presentation" class="active"><a href="#listado" aria-controls="listado" role="tab" data-toggle="tab">Listado <span class="badge"><?= $pagination->totalCount ?></span></a></li>
+            <?php }?>
         </ul>
     <?php }?>
     <div class="tab-content">
@@ -161,26 +163,29 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                             </thead>
                             <body>
                                 <?php 
-                                foreach ($modelo as $val):?>
-                                    <tr style='font-size:85%;'>  
-                                        <td><?= $val->consecutivo ?></td>
-                                        <td><?= $val->idordenproduccion ?></td>
-                                        <?php if($val->id_operario == (NULL)){?>
-                                            <td style='background-color:#AFE7CB;'><?= 'REGISTRO EN CONSTRUCCION'?> </td> 
-                                        <?php }else{?>
-                                            <td><?= $val->operarioProduccion->nombrecompleto?> </td>
-                                        <?php }?>    
-                                        <td><?= $val->operacionPrenda?></td>
-                                         <td><?= $val->dia_pago ?></td>
-                                        <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
-                                        <td align="right"><?= ''.number_format($val->vlr_prenda,0) ?></td>
-                                        <td align="right"><?= ''.number_format($val->vlr_pago,0) ?></td>
-                                          <td><?= $val->porcentaje_cumplimiento ?></td>
-                                        <td><?= $val->usuariosistema ?></td>
-                                        <td><?= $val->planta->nombre_planta?></td>
-                                        <td><?= $val->observacion?></td>
-                                       
-                                <?php endforeach; ?>
+                                if($modelo){
+                                    foreach ($modelo as $val):?>
+                                        <tr style='font-size:85%;'>  
+                                            <td><?= $val->consecutivo ?></td>
+                                            <td><?= $val->idordenproduccion ?></td>
+                                            <?php if($val->id_operario == (NULL)){?>
+                                                <td style='background-color:#AFE7CB;'><?= 'REGISTRO EN CONSTRUCCION'?> </td> 
+                                            <?php }else{?>
+                                                <td><?= $val->operarioProduccion->nombrecompleto?> </td>
+                                            <?php }?>    
+                                            <td><?= $val->operacionPrenda?></td>
+                                             <td><?= $val->dia_pago ?></td>
+                                            <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
+                                            <td align="right"><?= ''.number_format($val->vlr_prenda,0) ?></td>
+                                            <td align="right"><?= ''.number_format($val->vlr_pago,0) ?></td>
+                                              <td><?= $val->porcentaje_cumplimiento ?></td>
+                                            <td><?= $val->usuariosistema ?></td>
+                                            <td><?= $val->planta->nombre_planta?></td>
+                                            <td><?= $val->observacion?></td>
+
+                                    <?php endforeach;
+                                }?>
+                                            
                             </body>    
                         </table>
                         <div class="panel-footer text-right" >            
@@ -229,7 +234,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                   ->andWhere(['<=','dia_pago', $fecha_corte])->orderBy('id_operario DESC')->all();
                                         }   
                                     } 
-                                    if (count($modelo) > 0){
+                                    if ($modelo){
                                         foreach ($modelo2 as $eficiencia): 
 
                                                 $cumplimiento = 0;
@@ -400,5 +405,6 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         <!-- TERMINA TABS-->
     </div>
  </div>
-<?= LinkPager::widget(['pagination' => $pagination]) ?>
-
+<?php if($modelo){?>
+    <?= LinkPager::widget(['pagination' => $pagination]) ?>
+<?php }?>

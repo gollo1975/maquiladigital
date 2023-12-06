@@ -137,6 +137,8 @@ class ValorPrendaUnidadController extends Controller
                 $bodega = null;
                 $tipo_servicio = null;
                 $validar_eficiencia = 0;
+                $modelo = null;
+                $pages = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $validar_eficiencia = Html::encode($form->validar_eficiencia);
@@ -173,26 +175,7 @@ class ValorPrendaUnidadController extends Controller
                     } else {
                         $form->getErrors();
                     }
-                } else {
-                    $validar_eficiencia = Html::encode($form->validar_eficiencia);
-                    $table = ValorPrendaUnidadDetalles::find()
-                             ->orderBy('consecutivo DESC');
-                    $tableexcel = $table->all();
-                    $count = clone $table;
-                    $pages = new Pagination([
-                        'pageSize' => 120,
-                        'totalCount' => $count->count(),
-                    ]);
-                    $modelo = $table
-                            ->offset($pages->offset)
-                            ->limit($pages->limit)
-                            ->all();
-                    if (isset($_POST['excel'])) {
-                        //$table = $table->all();
-                        $this->actionExcelResumeValorPrenda($tableexcel);
-                    }
-                }
-                $to = $count->count();
+                }             
                 return $this->render('indexsoporte', [
                             'modelo' => $modelo,
                             'form' => $form,

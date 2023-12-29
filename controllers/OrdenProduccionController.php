@@ -1337,9 +1337,10 @@ class OrdenProduccionController extends Controller {
     public function actionEditarflujooperaciones($idordenproduccion) {
         $mds = FlujoOperaciones::find()->where(['=', 'idordenproduccion', $idordenproduccion])->orderBy('pieza ASC, operacion ASC, orden_aleatorio ASC')->all();
         $error = 0;
+        $detalle_Op = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
         $orden = Ordenproduccion::findOne($idordenproduccion);
         if (isset($_POST["id"])) {
-            $intIndice = 0;
+            $intIndice = 0; $registro = 0;
             $suma_balanceo = 0;
             $suma_preparacion = 0;
             $sam_operativo = 0;
@@ -1362,6 +1363,11 @@ class OrdenProduccionController extends Controller {
                     $orden->save(false);
                 $intIndice++;
             }
+            $registro = count($mds);
+            foreach ($detalle_Op as $detalle):
+                $detalle->cantidad_operaciones = $detalle->cantidad * $registro;
+                $detalle->save();
+            endforeach;
           $this->redirect(["orden-produccion/view_balanceo", 'id' => $idordenproduccion]);            
         }
         return $this->render('_formeditarflujooperaciones', [

@@ -37,7 +37,7 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
         return [
             [['idordenproduccion', 'idtipo','id_proceso_confeccion','id_planta'], 'required'],
             [['idordenproduccion', 'idtipo', 'estado_valor','autorizado','cerrar_pago','cantidad_procesada','total_confeccion','total_ajuste',
-                'total_operacion','total_pagar','cantidad_operacion','debitar_salario_dia','id_planta'], 'integer'],
+                'total_operacion','total_pagar','cantidad_operacion','debitar_salario_dia','id_planta','tipo_proceso_pago'], 'integer'],
             [['vlr_vinculado', 'vlr_contrato','cantidad'], 'number'],
             [['fecha_proceso','fecha_editado'], 'safe'],
             [['usuariosistema','usuario_editado'], 'string', 'max' => 20],
@@ -75,6 +75,7 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
             'id_proceso_confeccion' => 'Tipo proceso',
             'debitar_salario_dia' => 'Debitar dia:',
             'id_planta' => 'Planta/Bodega:',
+            'tipo_proceso_pago' => 'Tipo pago:',
             
         ];
     }
@@ -122,7 +123,7 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
         }
         return $autorizado;
     }
-      public function getCerradoPago() {
+    public function getCerradoPago() {
         if ($this->cerrar_pago == 1){
             $cerradopago = 'SI'; 
         }else{
@@ -131,6 +132,14 @@ class ValorPrendaUnidad extends \yii\db\ActiveRecord
         return $cerradopago;
     }
     
+     public function getTipoPago() {
+        if ($this->tipo_proceso_pago == 1){
+            $tipopago = 'PAGO GRUPAL'; 
+        }else{
+            $tipopago = 'PAGO INDIVIDUAL';
+        }
+        return $tipopago;
+    }
   
 
 }

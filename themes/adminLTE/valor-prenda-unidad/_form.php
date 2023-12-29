@@ -71,9 +71,12 @@ $proceso_confeccion = ArrayHelper::map(\app\models\ProcesoConfeccionPrenda::find
             <?= $form->field($model, 'vlr_vinculado')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'vlr_contrato')->textInput(['maxlength' => true]) ?>
         </div>
-        <div class="row checkbox checkbox-success" align ="center">
-             <?= $form->field($model, 'debitar_salario_dia')->checkbox(['label' => 'Debitar dia laboral', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'debitar_salario_dia']) ?>
-        </div>
+        <div class="row" style="text-align: center">
+           
+                 <?= $form->field($model, 'tipo_proceso_pago')->dropDownList(['1' => 'PAGO GRUPAL', '2' => 'PAGO INDIVIDUAL'], ['prompt' => 'Seleccione una opcion...']) ?>
+                 <?= $form->field($model, 'debitar_salario_dia')->checkbox([ 'label' => ' Debitar dia laboral', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'debitar_salario_dia']) ?>
+            
+        </div>     
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("valor-prenda-unidad/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>

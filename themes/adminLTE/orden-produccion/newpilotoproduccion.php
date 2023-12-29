@@ -80,7 +80,7 @@ $idToken = 0;
         <div class="table table-responsive">
             <div class="panel panel-success ">
                 <div class="panel-heading">
-                    Lineas : <span class="badge"><?= count($detalle_piloto)?></span>
+                    Lineas  <span class="badge"><?= count($detalle_piloto)?></span>
                 </div>
                 <div class="panel-body">
                  <table class="table table-bordered table-striped table-hover">
@@ -91,9 +91,9 @@ $idToken = 0;
                              <th scope="col" style='background-color:#B9D5CE;'>Op</th>
                             <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                             <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
-                            <th scope="col" style='background-color:#B9D5CE;'>Medidas Ficha</th>
-                            <th scope="col" style='background-color:#B9D5CE;'>Medidas Confección</th>
-                              <th scope="col" style='background-color:#B9D5CE;'>Aplicado</th>
+                            <th scope="col" style='background-color:#B9D5CE;'>M. Ficha</th>
+                            <th scope="col" style='background-color:#B9D5CE;'>M. Confección</th>
+                              <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
                             <th scope="col" style='background-color:#B9D5CE;'>Tolerancia</th>
                             <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
                             <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -105,10 +105,10 @@ $idToken = 0;
                         <tr style="font-size: 85%;">
                             <td><?= $val->id_proceso ?></td>
                              <td><?= $val->idordenproduccion ?></td>
-                            <td><?= ($modeldetalle->productodetalle->prendatipo->prenda.' / '.$modeldetalle->productodetalle->prendatipo->talla->talla) ?></td>
+                            <td><?= ($modeldetalle->productodetalle->prendatipo->talla->talla) ?></td>
                             <td ><input type="text" size="43"  name="concepto[]" value="<?= $val->concepto ?>"  maxlength="40"></td>
-                            <td ><input type="text" size="7" name="medidafichatecnica[]" value="<?= $val->medida_ficha_tecnica ?>" maxlength="6"></td>
-                            <td ><input type="text" size="7" name="medidaconfeccion[]" value="<?= $val->medida_confeccion ?>"  maxlength="6"></td>
+                            <td ><input type="text" size="7" name="medidafichatecnica[]" style ="text-align: right" value="<?= $val->medida_ficha_tecnica ?>" maxlength="6"></td>
+                            <td ><input type="text" size="7" name="medidaconfeccion[]" style ="text-align: right" value="<?= $val->medida_confeccion ?>"  maxlength="6"></td>
                              <td><?= $val->aplicadoproceso ?></td>
                             <?php if($val->tolerancia < 0){?>
                                   <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia ?></td>

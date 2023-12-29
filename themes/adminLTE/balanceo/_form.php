@@ -52,7 +52,7 @@ $form = ActiveForm::begin([
         </div>
         
         <div class="row">
-            <?= $form->field($model, 'cantidad_empleados')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'cantidad_empleados')->textInput(['maxlength' => true, 'required' => true]) ?>
         </div>
         <div class="row">
            <?= $form->field($model, 'modulo')->dropDownList(['1'=> 1, '2'=> 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8, '9' => 9, '10' => 10], ['prompt' => 'Seleccione una opcion...']) ?>

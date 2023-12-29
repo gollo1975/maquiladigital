@@ -40,7 +40,7 @@ class FormFiltroResumePagoPrenda extends Model
         return [
             'idordenproduccion' => 'Orden producción:',
             'dia_pago' => 'Fecha inicio:',
-            'id_operario' => 'Operario:',
+            'id_operario' => 'Nombre operario:',
              'operacion' => 'Proceso:',
             'fecha_corte' =>  'Fecha corte:', 
             'registro_pagado' => 'Registro pagado:',

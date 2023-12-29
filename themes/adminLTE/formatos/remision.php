@@ -886,9 +886,7 @@ class PDF extends FPDF {
         $pdf->SetXY(120, 245);
         $pdf->Cell(75, 6, '______________________________________', 0, 0, 'C');
         $pdf->SetXY(10, 251);
-        $pdf->Cell(75, 6, $model->nombre_auditor, 0, 0, 'L');
-        $pdf->SetXY(10, 256);
-        $pdf->Cell(75, 6, 'AUDITOR CLIENTE', 0, 0, 'J');
+        $pdf->Cell(75, 6, 'AUDITORIA CLIENTE', 0, 0, 'J');
         $pdf->SetXY(120, 251);
         $pdf->Cell(75, 6, 'PERSONAL QUIEN DESPACHA', 0, 0, 'J');
         $pdf->SetXY(120, 256);

@@ -38,7 +38,7 @@ class BalanceoDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_proceso', 'id_balanceo', 'id_tipo','id_operario','ordenamiento','aplicado','estado_operacion','idordenproduccion'], 'integer'],
+            [['id_proceso', 'id_balanceo', 'id_tipo','id_operario','ordenamiento','aplicado','estado_operacion'], 'integer'],
             [['segundos', 'minutos', 'total_segundos', 'total_minutos','sobrante_faltante'], 'number'],
             [['fecha_creacion'], 'safe'],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -46,7 +46,6 @@ class BalanceoDetalle extends \yii\db\ActiveRecord
             [['id_balanceo'], 'exist', 'skipOnError' => true, 'targetClass' => Balanceo::className(), 'targetAttribute' => ['id_balanceo' => 'id_balanceo']],
             [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => TiposMaquinas::className(), 'targetAttribute' => ['id_tipo' => 'id_tipo']],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
-            [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
         ];
     }
 
@@ -69,7 +68,6 @@ class BalanceoDetalle extends \yii\db\ActiveRecord
             'usuariosistema' => 'Usuariosistema',
             'ordenamiento' => 'ordenamiento',
             'estado_operacion' => 'Estado Operación:',
-            'idordenproduccion' => 'Op interna',
         ];
     }
 
@@ -87,11 +85,6 @@ class BalanceoDetalle extends \yii\db\ActiveRecord
     public function getBalanceo()
     {
         return $this->hasOne(Balanceo::className(), ['id_balanceo' => 'id_balanceo']);
-    }
-    
-     public function getOrdenProduccion()
-    {
-        return $this->hasOne(Ordenproduccion::className(), ['idordenproduccion' => 'idordenproduccion']);
     }
 
     /**

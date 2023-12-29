@@ -175,7 +175,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             <?php }?>    
                                             <td><?= $val->operacionPrenda?></td>
                                              <td><?= $val->dia_pago ?></td>
-                                            <td align="right"><?= $val->cantidad ?></td>
+                                            <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
                                             <td align="right"><?= ''.number_format($val->vlr_prenda,0) ?></td>
                                             <td align="right"><?= ''.number_format($val->vlr_pago,0) ?></td>
                                               <td><?= $val->porcentaje_cumplimiento ?></td>

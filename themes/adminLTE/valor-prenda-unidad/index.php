@@ -161,25 +161,17 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                     <td style='background-color:#DDE6E4;'><?= $val->autorizadoPago?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->cerradoPago?></td>
                      <td style='background-color:#DDE6E4;'><?= $val->estadovalor?></td>
-                <?php }
-                if($val->tipo_proceso_pago == 1){?>     
-                    <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/view", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'tipo_pago' => $val->tipo_proceso_pago]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                    </td>
-                    <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                <?php }else{ ?>
-                    <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/search_tallas_ordenes", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                    </td>
-                    <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                <?php }    
-                if($val->id_proceso_confeccion == 2 || $val->id_proceso_confeccion == 3 ){
-                    if($val->tipo_proceso_pago == 1){
-                        if($val->cerrar_pago == 0){?>
+                <?php }?>      
+                <td style= 'width: 25px; height: 25px;'>
+                        <a href="<?= Url::toRoute(["valor-prenda-unidad/view", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                </td>
+                <td style= 'width: 25px; height: 25px;'>
+                        <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                </td>
+                <?php if($val->id_proceso_confeccion == 1){?>
+                     <td style= 'width: 25px; height: 25px;'></td>
+                <?php }else{
+                        if ($val->cerrar_pago == 0){?>
                             <td style= 'width: 8px; height: 8px; font-size: 8px;'>
                                  <?php echo Html::a('<span class="glyphicon glyphicon-user "></span> ',            
                                      ['/valor-prenda-unidad/buscaroperaciones','id' => $val->id_valor,'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'id_tipo' => $val->tipo->idtipo],
@@ -192,20 +184,15 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                                 ?>
                              </td> 
                              <div class="modal remote fade" id="modalbuscaroperaciones<?= $val->id_valor ?>">
-                                <div class="modal-dialog modal-lg" style ="width: 60%;">
+                                 <div class="modal-dialog modal-lg">
                                      <div class="modal-content"></div>
                                  </div>
                              </div>
                         <?php }else{?>
-                            <td style= 'width: 25px; height: 25px;'></td>
-                        <?php } 
-                    }else{?>
                            <td style= 'width: 25px; height: 25px;'></td>
-                    <?php }       
-                }else{?>
-                   <td style= 'width: 25px; height: 25px;'></td>
-                <?php }   
-             endforeach; ?>
+                        <?php }   
+                 }?>
+            <?php endforeach; ?>
              </tbody>                               
         </table>    
         <div class="panel-footer text-right" >            

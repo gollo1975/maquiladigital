@@ -305,7 +305,6 @@ class BalanceoController extends Controller
                         $table->total_segundos = $proceso->segundos;
                         $table->usuariosistema = Yii::$app->user->identity->username;
                         $table->ordenamiento = $proceso->orden_aleatorio;
-                        $table->idordenproduccion = $proceso->idordenproduccion;
                         $table->insert();
                      } 
                     if($id_proceso_confeccion == 1){
@@ -368,7 +367,6 @@ class BalanceoController extends Controller
                                     $tabla->total_segundos = $operacion->segundos;
                                     $tabla->usuariosistema = Yii::$app->user->identity->username;
                                     $tabla->ordenamiento = $operacion->orden_aleatorio;
-                                    $table->idordenproduccion = $operacion->idordenproduccion;
                                     $tabla->insert();
                                 }   
                             endforeach; 

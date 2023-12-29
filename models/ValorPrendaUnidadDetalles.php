@@ -49,7 +49,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     {
         return [
             [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria',
-                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje'], 'integer'],
+                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
             [['porcentaje_cumplimiento'], 'number'],
             [['usuariosistema', 'observacion','hora_inicio_modulo'], 'string', 'max' => 20],
@@ -59,6 +59,8 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             [['id_valor'], 'exist', 'skipOnError' => true, 'targetClass' => ValorPrendaUnidad::className(), 'targetAttribute' => ['id_valor' => 'id_valor']],
             [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
             [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciontipo::className(), 'targetAttribute' => ['id_tipo' => 'idtipo']],
+            [['iddetalleorden'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciondetalle::className(), 'targetAttribute' => ['iddetalleorden' => 'iddetalleorden']],
+            [['idproceso'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoProduccion::className(), 'targetAttribute' => ['idproceso' => 'idproceso']],
         ];
     }
 
@@ -86,6 +88,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'aplica_regla'=> 'aplica_regla',
             'aplica_sabado' =>'aplica_sabado',
             'aplicar_porcentaje' => 'aplicar_porcentaje',
+            'idproceso' => 'idproceso',
         ];
     }
 
@@ -100,6 +103,16 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
      public function getTipoproceso()
     {
         return $this->hasOne(Ordenproducciontipo::className(), ['id_tipo' => 'idtipo']);
+    }
+    
+     public function getDetalleOrdenProduccion()
+    {
+        return $this->hasOne(Ordenproducciondetalle::className(), ['iddetalleorden' => 'iddetalleorden']);
+    }
+    
+     public function getOperaciones()
+    {
+        return $this->hasOne(ProcesoProduccion::className(), ['idproceso' => 'idproceso']);
     }
 
     /**

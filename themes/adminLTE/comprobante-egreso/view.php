@@ -239,7 +239,7 @@ $view = 'comprobante-egreso';
 
                         ?>
                         <div class="modal remote fade" id="modaldetallenuevolibre">
-                            <div class="modal-dialog modal-lg" style ="width: 30%;">
+                            <div class="modal-dialog modal-lg">
                                 <div class="modal-content"></div>
                             </div>
                         </div>

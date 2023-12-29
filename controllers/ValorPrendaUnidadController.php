@@ -197,7 +197,7 @@ class ValorPrendaUnidadController extends Controller
     
     //PERMITE CONSULTAR LOS PAGOS DE SERVICIOS
     
-      public function actionSearchpageprenda() {
+    public function actionSearchpageprenda() {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 119])->all()) {
                 $form = new \app\models\FormFiltroSearchPagePrenda();
@@ -279,8 +279,9 @@ class ValorPrendaUnidadController extends Controller
         }  
         $detalle->save(false);
     }
-    //VISTA
-    public function actionView($id, $idordenproduccion, $id_planta)
+    
+   //VISTA
+    public function actionView($id, $idordenproduccion, $id_planta, $tipo_pago)
     {
         $detalles_pago = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->orderBy('consecutivo desc')->all();
         //proceso para actualizar
@@ -410,8 +411,8 @@ class ValorPrendaUnidadController extends Controller
                         }
                     }
                     $this->Totalpagar($id);
-                    $this->TotalCantidades($id);
-                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
+                    $this->TotalCantidades($id, $tipo_pago);
+                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
                 }
             } 
            
@@ -420,9 +421,262 @@ class ValorPrendaUnidadController extends Controller
             'idordenproduccion' => $idordenproduccion,
             'detalles_pago' => $detalles_pago,
             'id_planta' =>$id_planta,
+            'tipo_pago' => $tipo_pago,
         ]);
     }
-  
+    
+    public function actionCantidad_talla_confeccion($idordenproduccion, $id, $id_planta, $id_detalle) {
+        $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        $detalle_op = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $id_detalle])->one();
+        
+        $listado_confeccion = ValorPrendaUnidadDetalles::find()->where(['=','idordenproduccion', $idordenproduccion])
+                                                               ->andWhere(['=','id_valor', $id])
+                                                               ->andWhere(['=','iddetalleorden', $id_detalle]);
+        $listado_confeccion = $listado_confeccion->orderBy('consecutivo DESC');
+        $tableexcel = $listado_confeccion->all();
+        $count = clone $listado_confeccion;
+        $to = $count->count();
+        $pages = new Pagination([
+            'pageSize' => 20,
+            'totalCount' => $count->count()
+        ]);
+        $listado_confeccion = $listado_confeccion
+                ->offset($pages->offset)
+                ->limit($pages->limit)
+                ->all();
+        if(count($listado_confeccion) > 0){
+            return $this->render('maestro_cantidad_talla', [
+                'model' => $this->findModel($id),
+                'id_planta' =>$id_planta,
+                'id_detalle' => $id_detalle,
+                'talla' => $talla,
+                'listado_confeccion' => $listado_confeccion,
+                'detalle_op' => $detalle_op,
+                'pagination' => $pages,
+            ]);
+        }else{
+            Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar de esta talla.');
+            $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+            return $this->render('search_tallas_ordenes', [
+                'model' => $this->findModel($id),
+                'id_planta' =>$id_planta,
+                'conTallas' =>  $conTallas,
+
+            ]);
+            }
+        
+    }
+    
+   //VISTA QUE TRAE LAS OPERACIONES DE LA OP
+    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta, $id_detalle){
+        $form = new \app\models\ModeloBuscarOperario();
+        $operario = null;
+        $detalle_balanceo = 0;
+        $fecha_entrada = null;
+        $aplica_sabado = null;
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        if ($form->load(Yii::$app->request->get())) {
+            $operario = Html::encode($form->operario);
+            $aplica_sabado = Html::encode($form->aplica_sabado);
+            $fecha_entrada = Html::encode($form->fecha_entrada);
+            if ($operario > 0 && $fecha_entrada != null) {
+                $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
+                                                                        ->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                        ->andWhere(['=','estado_operacion', 0])->all();
+            }else{
+                Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO y la FECHA para la busqueda.');
+                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle]);
+            }
+        }
+        if (isset($_POST["envia_dato_confeccion"])) {
+            if ($fecha_entrada != null) {
+                $intIndice = 0; $cantidad = 0;
+               foreach ($_POST["operaciones"] as $intCodigo) {
+                    if ($_POST["cantidad"][$intIndice] > 0){
+                        $total_unidades = 0; $cant = 0; $confeccionada = 0; $sumar_unidades = 0; $total_operacion = 0; $total_unidades_faltante = 0;
+                        $conCantidad = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+                        $detalle = \app\models\BalanceoDetalle::findOne($intCodigo);//busca las operaciones en el balanceo
+                        $detalle_valor_prenda = ValorPrendaUnidadDetalles::find()->where(['=','idproceso', $detalle->id_proceso])->andWhere(['=','iddetalleorden', $id_detalle])->all();
+                        foreach ($detalle_valor_prenda as $detalle_valor):
+                            $sumar_unidades += $detalle_valor->cantidad;
+                        endforeach;
+                        $total_unidades_faltante = $conCantidad->cantidad - $sumar_unidades; //totaliza las uniades faltantes
+                        $cant = $_POST["cantidad"][$intIndice];
+                        $confeccionada = $conCantidad->cantidad_confeccionada;
+                        $total_unidades =  $confeccionada + $cant;
+                        $total_operacion = $sumar_unidades + $cant;
+                        if($total_operacion <= $conCantidad->cantidad){ //ciclo que valide no ingresar mas de las opraciones de la talla
+                            if($total_unidades <= $conCantidad->cantidad_operaciones){
+                                $valor_prenda = 0; $nota = '';
+                                $tipo_proceso = ValorPrendaUnidad::findOne($id);
+                                $operarios = Operarios::findOne($detalle->id_operario);//busca el operario
+                                $con = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario])->andWhere(['=','dia_pago', $fecha_entrada])->one();
+                                $table = new ValorPrendaUnidadDetalles();
+                                $table->id_operario = $operario;
+                                $table->idordenproduccion = $idordenproduccion;
+                                $table->operacion = 1;
+                                $table->dia_pago = $fecha_entrada;
+                                $cantidad = $_POST["cantidad"][$intIndice];
+                                $table->cantidad = $_POST["cantidad"][$intIndice];
+                                if($operarios->vinculado == 0){ // operaria al contrato
+                                    $valor_prenda = round($detalle->minutos * $empresa->vlr_minuto_contrato);
+                                    $nota = 'Contrato';
+                                    $valor_costo = $valor_prenda * $cantidad;
+                                    $table->costo_dia_operaria = $valor_costo;
+                                }else{ // operaria vinculada
+                                    $valor_prenda = round($detalle->minutos * $empresa->vlr_minuto_vinculado);
+                                    $nota = 'Vinculado';
+                                    if($con){
+                                        $table->control_fecha = 1;
+                                    }
+                                }
+                                $table->vlr_prenda = $valor_prenda;
+                                $table->vlr_pago = $valor_prenda * $cantidad;
+                                $table->id_valor = $id;
+                                $table->usuariosistema = Yii::$app->user->identity->username;
+                                $table->observacion = $nota;
+                                $table->id_planta = $id_planta;
+                                $table->id_tipo = $tipo_proceso->idtipo;
+                                $table->aplica_regla = 1;
+                                if($aplica_sabado == 1){
+                                    $table->aplica_sabado = 1;
+                                }
+                                $table->iddetalleorden = $id_detalle;
+                                $table->idproceso = $detalle->id_proceso;
+                                $table->save(false);
+                                $this->SumarCantidadCostoConfeccion($id, $id_detalle, $idordenproduccion);
+                                $this->CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle, $con);
+                            }else{
+                                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones, favor validar que operaciones faltaron por ingresar.');
+                            }    
+                        }else{
+                            Yii::$app->getSession()->setFlash('info', 'No se puede ingresar mas operaciones del codigo ('.$detalle->id_proceso.') porque supera la cantidad de prendas. Cantidad de prendas: ('.$conCantidad->cantidad.'), cantidad faltante: ('. $total_unidades_faltante .'). Favor validar la informacion de ingreso.');
+                        }
+                    }    
+                    $intIndice++;  
+               } 
+            }else{
+                Yii::$app->getSession()->setFlash('info', 'Debe de seleccionar la fecha de confeccion de la lista para enviar la información.');
+                
+            }   
+        }
+         return $this->render('view_search_operario', [
+            'model' => $this->findModel($id),
+            'id_planta' =>$id_planta,
+            'form' => $form,
+            'detalle_balanceo' =>  $detalle_balanceo,
+            'id_detalle' => $id_detalle,
+            'empresa' => $empresa,
+            'talla' => $talla,
+          
+        ]);
+    }
+   
+   
+   //SUMAR UNIDADES CONFECCIONADAS Y VALOR COSTO DE CONFECCION
+   protected function SumarCantidadCostoConfeccion($id, $id_detalle, $idordenproduccion) {
+       $detalle_global = ValorPrendaUnidadDetalles::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+       $detalle_talla = ValorPrendaUnidadDetalles::find()->where(['=','iddetalleorden', $id_detalle])->all();
+       $pago_prenda = ValorPrendaUnidad::findOne($id);
+       $detalle_orden = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+       $cantidad = 0; $valor = 0;
+      //graba global
+        foreach ($detalle_global as $detalles):
+           $cantidad += $detalles->cantidad;
+           $valor += $detalles->costo_dia_operaria;
+        endforeach;
+        $pago_prenda->cantidad_operacion = $cantidad;
+        $pago_prenda->total_confeccion = $valor;
+        $pago_prenda->total_pagar = $valor;
+        $pago_prenda->save();
+        //guarda la cantidad confeccionada
+        $cantidad = 0; $valor = 0; 
+        foreach ($detalle_talla as $talla):
+            $cantidad += $talla->cantidad;
+            $valor += $talla->costo_dia_operaria;
+        endforeach;
+        $detalle_orden->cantidad_confeccionada = $cantidad;
+        $detalle_orden->costo_confeccion = $valor;
+        $detalle_orden->save();
+   }   
+    
+    //PROCESO QUE CANCULA LA EFICIENCIA DEL OPERARIO
+    protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {
+        $table = ValorPrendaUnidadDetalles::find()->orderBy('consecutivo DESC')->one();
+        $operarios = Operarios::findOne($operario);
+        $conMatricula = \app\models\Matriculaempresa::findOne(1);
+        $auxiliar = $table->control_fecha;
+        $balanceoModulo= \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+        $totalHoras = 0; $totalTiempo = 0;
+        $total_diario = 0; $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos = 0; $metaDiaria = 0; $cumplimiento = 0;
+        if($operarios->vinculado == 1){
+            $this->CostoOperarioVinculado($table, $auxiliar);
+            foreach ($balanceoModulo as $modulo):
+                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $operario->horarios->desde) {
+                    $horad = explode(":", $table->hora_inicio_modulo);
+                    $horah = explode(":", $operarios->horarios->hasta);
+                    $sumarh = $horah[0] - $horad[0];
+                    $sumarm = $horah[1] + $horad[1];
+                    $totalTiempo = $sumarh;
+                    $totalTiempo = ($sumarh * 60) + $sumarm;
+                    $totalTiempo = $totalTiempo / 60;
+                    $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado;
+                    $total_diario = round((60 / $can_minutos) * $totalTiempo, 0);
+                    $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
+                    $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
+                    $sw = 1;
+                }
+            endforeach;
+            if ($sw == 0) {
+                $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado;
+                $total_diario = round((60 / $can_minutos) * $operarios->horarios->total_horas, 0);
+                $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
+                $metaDiaria = round((((60 / $can_minutos) * $operarios->horarios->total_horas) * $conMatricula->porcentaje_empresa) / 100);
+            }
+            $table->porcentaje_cumplimiento = $cumplimiento;
+            $table->meta_diaria = $metaDiaria;
+            $table->save(false);
+        }else{
+            //calculo para hallar el % de cumplimiento
+            foreach ($balanceoModulo as $modulo):
+                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $operario->horarios->desde) {
+                    $horad = explode(":", $table->hora_inicio_modulo);
+                    $horah = explode(":", $operarios->horarios->hasta);
+                    $sumarh = $horah[0] - $horad[0];
+                    $sumarm = $horah[1] + $horad[1];
+                    $totalTiempo = ($sumarh * 60) + $sumarm;
+                    $totalTiempo = $totalTiempo / 60;
+                    $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato;
+                    $total_diario = round((60 / $can_minutos) * $totalTiempo, 0);
+                    $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
+                    $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
+                    $sw = 1;
+                }
+            endforeach;
+            if ($sw == 0) {
+                $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato;
+                $total_diario = round((60 / $can_minutos) * $operarios->horarios->total_horas, 0);
+                $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
+                $metaDiaria = round((((60 / $can_minutos) * $operarios->horarios->total_horas) * $conMatricula->porcentaje_empresa) / 100);
+            }
+            $table->porcentaje_cumplimiento = $cumplimiento;
+            $table->meta_diaria = $metaDiaria;
+            $table->save(false);
+        }
+    }
+    
+    //PROCESO QUE BUSCA LAS TALLAS DE LA OP.
+    
+    public function actionSearch_tallas_ordenes($idordenproduccion, $id, $id_planta) {
+        $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+        return $this->render('search_tallas_ordenes', [
+            'model' => $this->findModel($id),
+            'id_planta' =>$id_planta,
+            'conTallas' =>  $conTallas,
+           
+        ]);
+    }
     // PROCESO QUE BUSCA EN COSTO DEL PERSONAL VINCULADO
     protected function CostoOperarioVinculado($table, $auxiliar)
         {
@@ -577,30 +831,44 @@ class ValorPrendaUnidadController extends Controller
     
     //PROCESOS Y SUBPROCESOS
     
-     public function actionNuevodetalle($id,$idordenproduccion, $id_planta)
+     public function actionNuevodetalle($id,$idordenproduccion, $id_planta, $tipo_pago)
     {              
         $valor_unidad = ValorPrendaUnidad::findOne($id);
-        if($valor_unidad->cantidad_operacion > $valor_unidad->cantidad){
-           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]); 
-           Yii::$app->getSession()->setFlash('error', 'No se puede generar mas lineas porque la cantidad de operaciones  '.$valor_unidad->cantidad_operacion.' es mayor que la cantidad del lote '.$valor_unidad->cantidad .'.');  
-        }else{
-            if($valor_unidad->cantidad_procesada > $valor_unidad->cantidad){
-                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]); 
-                Yii::$app->getSession()->setFlash('error', 'No se puede generar mas lineas porque la cantidad de confeccion y/o Terminación '.$valor_unidad->cantidad_procesada.' es mayor o igual que la cantidad del lote '.$valor_unidad->cantidad.'.');
-            }else{    
-                $model = new ValorPrendaUnidadDetalles();
-                $model->id_valor = $id;                
-                $model->idordenproduccion = $idordenproduccion;
-                $model->dia_pago= date('Y-m-d');
-                $model->id_planta = $id_planta;
-                $model->id_tipo = $valor_unidad->idtipo;
-                if($valor_unidad->id_proceso_confeccion <> 1){
-                    $model->operacion = 2;
+        if($tipo_pago == 1){
+            if($valor_unidad->cantidad_operacion > $valor_unidad->cantidad){
+               $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]); 
+               Yii::$app->getSession()->setFlash('error', 'No se puede generar mas lineas porque la cantidad de operaciones  '.$valor_unidad->cantidad_operacion.' es mayor que la cantidad del lote '.$valor_unidad->cantidad .'.');  
+            }else{
+                if($valor_unidad->cantidad_procesada > $valor_unidad->cantidad){
+                    $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $tipo_pago]); 
+                    Yii::$app->getSession()->setFlash('error', 'No se puede generar mas lineas porque la cantidad de confeccion y/o Terminación '.$valor_unidad->cantidad_procesada.' es mayor o igual que la cantidad del lote '.$valor_unidad->cantidad.'.');
+                }else{    
+                    $model = new ValorPrendaUnidadDetalles();
+                    $model->id_valor = $id;                
+                    $model->idordenproduccion = $idordenproduccion;
+                    $model->dia_pago= date('Y-m-d');
+                    $model->id_planta = $id_planta;
+                    $model->id_tipo = $valor_unidad->idtipo;
+                    if($valor_unidad->id_proceso_confeccion <> 1){
+                        $model->operacion = 2;
+                    }
+                    $model->save(false);
+                    return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $tipo_pago]);
                 }
-                $model->save(false);
-                return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]);
             }
-        }
+        }else{
+            $model = new ValorPrendaUnidadDetalles();
+            $model->id_valor = $id;                
+            $model->idordenproduccion = $idordenproduccion;
+            $model->dia_pago= date('Y-m-d');
+            $model->id_planta = $id_planta;
+            $model->id_tipo = $valor_unidad->idtipo;
+            if($valor_unidad->id_proceso_confeccion <> 1){
+                $model->operacion = 2;
+            }
+            $model->save(false);
+            return $this->redirect(['view', 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $tipo_pago]);
+        }    
        
     }
     
@@ -1016,7 +1284,7 @@ class ValorPrendaUnidadController extends Controller
         $valor->save(false);
     }
     //actualiza las cantidades
-    protected function TotalCantidades($id) {
+    protected function TotalCantidades($id, $tipo_pago) {
         $valor = ValorPrendaUnidad::findOne($id);
         $detalle = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->all();
         $suma=0; $operacion = 0;
@@ -1033,42 +1301,60 @@ class ValorPrendaUnidadController extends Controller
             $valor->cantidad_operacion = $operacion;
             $valor->save(false);
         if($valor->cantidad_procesada > $valor->cantidad  || $valor->cantidad_operacion > $valor->cantidad){
+            if($tipo_pago == 1){   
                 Yii::$app->getSession()->setFlash('error', 'La cantidad y/o operacion procesada es mayor que las unidades entradas en la orden Nro: '. $valor->idordenproduccion. '.');
+            }    
         } 
        
     }
     
-    public function actionAutorizado($id, $idordenproduccion, $id_planta) {
+    public function actionAutorizado($id, $idordenproduccion, $id_planta, $tipo_pago) {
         $model = $this->findModel($id);
         $mensaje = "";
-        if($model->cantidad_procesada > $model->cantidad  || $model->cantidad_operacion > $model->cantidad){
-            $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'id_planta' => $id_planta]);
-             Yii::$app->getSession()->setFlash('error', 'La cantidad y/o operacion procesada es mayor que las unidades entradas en la orden Nro: '. $model->idordenproduccion. '.');
-        }else{  
+        if($tipo_pago == 1){
+            if($model->cantidad_procesada > $model->cantidad  || $model->cantidad_operacion > $model->cantidad){
+                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                 Yii::$app->getSession()->setFlash('error', 'La cantidad y/o operacion procesada es mayor que las unidades entradas en la orden Nro: '. $model->idordenproduccion. '.');
+            }else{  
+                if ($model->autorizado == 0) {                        
+                    $model->autorizado = 1;            
+                    $model->update();
+                    $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $tipo_pago]);  
+                } else{
+                    $model->autorizado = 0;
+                    $model->update();
+                    $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $tipo_pago]);  
+                }
+            }    
+        }else{
             if ($model->autorizado == 0) {                        
-                $model->autorizado = 1;            
-               $model->update();
-               $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta]);  
-
-            } else{
+                $model->autorizado = 1;
+                $model->update();
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                
+            } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]); 
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
             }
         }    
     }
     
-    public function actionCerrarpago($id, $idordenproduccion, $id_planta) {
-           $model = $this->findModel($id);
-           $orden = Ordenproduccion::findOne($idordenproduccion);
-           $model->cerrar_pago =  1;
-           $model->estado_valor = 1;
-           $model->save(false);
-           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
+    public function actionCerrarpago($id, $idordenproduccion, $id_planta, $tipo_pago) {
+            $model = $this->findModel($id);
+            $orden = Ordenproduccion::findOne($idordenproduccion);
+            $model->cerrar_pago =  1;
+            $model->estado_valor = 1;
+            $model->save(false);
+            if ($tipo_pago == 1) {
+                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+            } else {
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+            }
     }
     //cerrar el pago y la orden de produccion
     
-    public function actionCerrarpagoorden($id, $idordenproduccion , $id_planta) {
+    public function actionCerrarpagoorden($id, $idordenproduccion , $id_planta, $tipo_pago) {
            $model = $this->findModel($id);
            $orden = Ordenproduccion::findOne($idordenproduccion);
            $model->cerrar_pago = 1;
@@ -1076,7 +1362,11 @@ class ValorPrendaUnidadController extends Controller
            $model->save(false);
            $orden->pagada = 1;
            $orden->save(false);
-           $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
+           if ($tipo_pago == 1) {
+                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+            } else {
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+            }
     }
     
     //PRCESO QUE APLICA REGLA
@@ -1423,7 +1713,7 @@ class ValorPrendaUnidadController extends Controller
         exit; 
         
     }
-    
+   
     public function actionGenerarexcel($id) {        
         $ficha = ValorPrendaUnidad::findOne($id);
         $model = ValorPrendaUnidadDetalles::find()->where(['=','id_valor',$id])->orderBy([ 'id_operario' =>SORT_ASC ])->all();
@@ -1451,6 +1741,7 @@ class ValorPrendaUnidadController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'PAGO DE OPERACIONES')
@@ -1462,10 +1753,11 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('F2', 'CANTIDAD')
                     ->setCellValue('G2', 'VR. PRENDA')
                     ->setCellValue('H2', 'VR. PAGO')
-                    ->setCellValue('I2', '% CUMPLIMIENTO')
-                    ->setCellValue('J2', 'USUARIO')
-                    ->setCellValue('K2', 'PLANTA')
-                     ->setCellValue('L2', 'OBSERVACION');
+                    ->setCellValue('I2', 'VR. COSTO')
+                    ->setCellValue('J2', '% CUMPLIMIENTO')
+                    ->setCellValue('K2', 'USUARIO')
+                    ->setCellValue('L2', 'PLANTA')
+                    ->setCellValue('M2', 'OBSERVACION');
                   
         $i = 3;
         $confeccion = 'CONFECCION';
@@ -1493,10 +1785,11 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('F' . $i, $val->cantidad)
                     ->setCellValue('G' . $i, $val->vlr_prenda)
                     ->setCellValue('H' . $i, $val->vlr_pago)
-                    ->setCellValue('I' . $i, $val->porcentaje_cumplimiento)
-                    ->setCellValue('J' . $i, $val->usuariosistema)
-                    ->setCellValue('K' . $i, $val->planta->nombre_planta)
-                    ->setCellValue('L' . $i, $val->observacion);
+                    ->setCellValue('I' . $i, $val->costo_dia_operaria)
+                    ->setCellValue('J' . $i, $val->porcentaje_cumplimiento)
+                    ->setCellValue('K' . $i, $val->usuariosistema)
+                    ->setCellValue('L' . $i, $val->planta->nombre_planta)
+                    ->setCellValue('M' . $i, $val->observacion);
               
                    
             $i++;                        
@@ -1524,6 +1817,131 @@ class ValorPrendaUnidadController extends Controller
         header("Content-Type: application/octet-stream");
         header("Content-Type: application/download");
         header('Content-Disposition: attachment;filename="Total_pago_prendas.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0 
+        header("Content-Transfer-Encoding: binary ");
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);        
+        $objWriter->save('php://output');
+        //$objWriter->save($pFilename = 'Descargas');
+        exit; 
+        
+    }
+    
+    public function actionGenerar_excel_talla($id, $id_detalle) {        
+        $ficha = ValorPrendaUnidad::findOne($id);
+        $model = ValorPrendaUnidadDetalles::find()->where(['=','id_valor',$id])->andWhere(['=','iddetalleorden', $id_detalle])->orderBy('id_operario ASC')->all();
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getStyle('2')->getFont()->setBold(true);        
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'PAGO DE OPERACIONES')
+                    ->setCellValue('A2', 'ORDEN')
+                    ->setCellValue('B2', 'DOCUMENTO')
+                    ->setCellValue('C2', 'OPERARIO(A)')
+                    ->setCellValue('D2', 'OPERACION')
+                    ->setCellValue('E2', 'DIA PAGO')
+                    ->setCellValue('F2', 'CANTIDAD')
+                    ->setCellValue('G2', 'VR. PRENDA')
+                    ->setCellValue('H2', 'VR. PAGO')
+                    ->setCellValue('I2', 'VR. COSTO')
+                    ->setCellValue('J2', '% CUMPLIMIENTO')
+                    ->setCellValue('K2', 'USUARIO')
+                    ->setCellValue('L2', 'PLANTA')
+                    ->setCellValue('M2', 'TALLA')
+                    ->setCellValue('N2', 'OPERACION')
+                    ->setCellValue('O2', 'OBSERVACION');
+                  
+        $i = 3;
+        $confeccion = 'CONFECCION';
+        $operaciones = 'OPERACIONES';
+        $ajuste = 'AJUSTE';
+        foreach ($model as $val) {                            
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $ficha->idordenproduccion)
+                    ->setCellValue('B' . $i, $val->operarioProduccion->documento)
+                    ->setCellValue('C' . $i, $val->operarioProduccion->nombrecompleto);
+                    if($val->operacion == 0){
+                         $objPHPExcel->setActiveSheetIndex(0)
+                      ->setCellValue('D' . $i, $confeccion);
+                    }else{
+                        if($val->operacion == 1){
+                             $objPHPExcel->setActiveSheetIndex(0)
+                             ->setCellValue('D' . $i, $operaciones);
+                        }else{
+                             $objPHPExcel->setActiveSheetIndex(0)
+                             ->setCellValue('D' . $i, $ajuste);
+                        }
+                    } 
+                     $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('E' . $i, $val->dia_pago)
+                    ->setCellValue('F' . $i, $val->cantidad)
+                    ->setCellValue('G' . $i, $val->vlr_prenda)
+                    ->setCellValue('H' . $i, $val->vlr_pago)
+                    ->setCellValue('I' . $i, $val->costo_dia_operaria)
+                    ->setCellValue('J' . $i, $val->porcentaje_cumplimiento)
+                    ->setCellValue('K' . $i, $val->usuariosistema)
+                    ->setCellValue('L' . $i, $val->planta->nombre_planta)
+                    ->setCellValue('M' . $i, $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla)
+                    ->setCellValue('N' . $i, $val->operaciones->proceso)
+                    ->setCellValue('O' . $i, $val->observacion);
+              
+                   
+            $i++;                        
+        }
+        //promedio por dia
+        $connection = Yii::$app->getDb();
+        $command = $connection->createCommand("           
+           SELECT SUM(valor_prenda_unidad_detalles.vlr_pago) AS Total, valor_prenda_unidad_detalles.id_operario FROM valor_prenda_unidad_detalles WHERE id_valor = ".$id."  GROUP BY id_operario");
+        $result = $command->queryAll();
+        $i = 3;
+       /* foreach ($result as $promedio){
+            $objPHPExcel->setActiveSheetIndex(0)
+                     ->setCellValue('K' . $i, $promedio['Total'])
+                     ->setCellValue('L' . $i, $promedio['id_operario']);   
+            $i++;            
+        }*/
+        //fin promedio por dia
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listados');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition: attachment;filename="Total_pago_talla.xlsx"');
         header('Cache-Control: max-age=0');
         // If you're serving to IE 9, then the following may be needed
         header('Cache-Control: max-age=1');

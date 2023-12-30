@@ -715,6 +715,7 @@ class ValorPrendaUnidadController extends Controller
             $model->estado_valor = 0; 
             $ordenproduccion = Ordenproduccion::findOne($model->idordenproduccion);
             $model->cantidad = $ordenproduccion->cantidad;
+            $model->tipo_proceso_pago = $model->tipo_proceso_pago;
             $model->update();
             return $this->redirect(['index', 'id' => $model->id_valor]);
         }
@@ -742,6 +743,7 @@ class ValorPrendaUnidadController extends Controller
             $fecha = date('Y-m-d h:i:s');
             $model->fecha_editado = $fecha;
             $model->cantidad = $ordenproduccion->cantidad;
+             $model->tipo_proceso_pago = $model->tipo_proceso_pago;
             $model->update();
             return $this->redirect(['index', 'id' => $model->id_valor]);
         }

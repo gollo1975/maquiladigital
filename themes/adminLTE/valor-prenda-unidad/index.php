@@ -171,7 +171,7 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                     </td>
                 <?php }else{ ?>
                     <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/search_tallas_ordenes", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["valor-prenda-unidad/search_tallas_ordenes", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'tipo_pago' => $val->tipo_proceso_pago]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>

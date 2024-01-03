@@ -911,11 +911,16 @@ class ProgramacionNominaController extends Controller {
                             } 
                             $total_dias = $this->CrearCesantias($cesantias, $sw, $ano);
                             
-                          $salario_promedio = ($total_acumulado / $total_dias) * 30;  
+                            $salario_promedio = ($total_acumulado / $total_dias) * 30;  
                             if($configuracion_c->aplicar_ausentismo == 1){
                                 $dias_reales = ($total_dias ) - $total_dias_ausentes;
                             }else{
                                  $dias_reales = $total_dias;
+                            }
+                            if($contrato->tipo_salario == 'FIJO'){
+                                $salario_promedio = $contrato->salario;  
+                            }else{
+                                $salario_promedio = ($total_acumulado / $total_dias) * 30;  
                             }
                             if($contrato->auxilio_transporte == 1){
                                 $configuracion_transporte = ConfiguracionSalario::find()->where(['=','estado', 1])->one();

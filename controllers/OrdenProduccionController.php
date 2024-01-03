@@ -1363,11 +1363,19 @@ class OrdenProduccionController extends Controller {
                     $orden->save(false);
                 $intIndice++;
             }
-            $registro = count($mds);
-            foreach ($detalle_Op as $detalle):
-                $detalle->cantidad_operaciones = $detalle->cantidad * $registro;
-                $detalle->save();
-            endforeach;
+            if($orden->idtipo == 1){
+                $registro = count($mds);
+                foreach ($detalle_Op as $detalle):
+                    $detalle->cantidad_operaciones = $detalle->cantidad * $registro;
+                    $detalle->save();
+                endforeach;
+            }else{
+               foreach ($detalle_Op as $detalle):
+                    $detalle->cantidad_operaciones = $detalle->cantidad;
+                    $detalle->save();
+                endforeach; 
+            }
+            
           $this->redirect(["orden-produccion/view_balanceo", 'id' => $idordenproduccion]);            
         }
         return $this->render('_formeditarflujooperaciones', [
@@ -4409,7 +4417,7 @@ class OrdenProduccionController extends Controller {
         
         foreach ($flujo as $val) {
             $objPHPExcel->setActiveSheetIndex(0)
-                    ->setCellValue('A' . $i, $val->id)
+                    ->setCellValue('A' . $i, $val->proceso->idproceso)
                     ->setCellValue('B' . $i, $val->proceso->proceso)
                     ->setCellValue('C' . $i, $val->tipomaquina->descripcion)
                     ->setCellValue('D' . $i, $id)                    

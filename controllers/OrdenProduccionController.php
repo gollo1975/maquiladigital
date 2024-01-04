@@ -1363,18 +1363,13 @@ class OrdenProduccionController extends Controller {
                     $orden->save(false);
                 $intIndice++;
             }
-            if($orden->idtipo == 1){
+           
                 $registro = count($mds);
                 foreach ($detalle_Op as $detalle):
                     $detalle->cantidad_operaciones = $detalle->cantidad * $registro;
                     $detalle->save();
                 endforeach;
-            }else{
-               foreach ($detalle_Op as $detalle):
-                    $detalle->cantidad_operaciones = $detalle->cantidad;
-                    $detalle->save();
-                endforeach; 
-            }
+            
             
           $this->redirect(["orden-produccion/view_balanceo", 'id' => $idordenproduccion]);            
         }

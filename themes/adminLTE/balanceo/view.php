@@ -167,6 +167,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                      
                                     <tr>
                                          <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                                          <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Operaciones</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Minutos</th>
@@ -193,8 +194,9 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                         }?>
                                         <tr style="font-size: 85%;">
                                             <td style="width: 30px;"><input type="checkbox"  name="idproceso[]" value="<?= $val->idproceso ?>"></td>  
-                                            <?php $operacionModulo = app\models\BalanceoDetalle::find()->Where(['=','id_balanceo', $model->id_balanceo])->andWhere(['=','id_proceso', $val->idproceso])->one();
-                                                if($operacionModulo){ ?>
+                                            <?php $operacionModulo = app\models\BalanceoDetalle::find()->Where(['=','id_balanceo', $model->id_balanceo])->andWhere(['=','id_proceso', $val->idproceso])->one();?>
+                                               <td><?= $val->proceso->idproceso ?></td>
+                                                <?php if($operacionModulo){ ?>
                                                     <td  style='background-color:#BEF1F0;'><?= $val->proceso->proceso ?></td>
                                                 <?php }else{ ?>
                                                      <td><?= $val->proceso->proceso ?></td>
@@ -234,9 +236,9 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                    ?>
                                 </tbody>  
                                 <?php if($model->id_proceso_confeccion == 1){?>
-                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->ordenproduccion->sam_operativo ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_balanceo:</b> <?= $model->ordenproduccion->sam_balanceo ?></td><td colspan="3"></td>
+                                      <td colspan="3"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->ordenproduccion->sam_operativo ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_balanceo:</b> <?= $model->ordenproduccion->sam_balanceo ?></td><td colspan="3"></td>
                                 <?php }else{ ?>
-                                      <td colspan="2"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->ordenproduccion->sam_operativo ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_preparación:</b> <?= $model->ordenproduccion->sam_preparacion ?></td><td colspan="3"></td>
+                                      <td colspan="3"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;" ><b>Segundos:</b> <?= $totalsegundos ?> <td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 142px;"><b>Sam_Operativo:</b> <?= $model->ordenproduccion->sam_operativo ?></td><td style="font-size: 85%;background: #0B5345; color: #FFFFFF; width: 149px;"><b>Sam_preparación:</b> <?= $model->ordenproduccion->sam_preparacion ?></td><td colspan="3"></td>
                                 <?php } ?>      
                             </table>
                         </div>   
@@ -258,14 +260,14 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                 <thead>
                                     
                                     <tr style="font-size: 90%;">
-                                        <th scope="col" style='background-color:#B9D5CE;'>Id</th>
-                                         <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Operacion</th>
+                                         <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Orden</th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Minutos x operacion">Min.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Segundos x operacion">Seg.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo asignado">T. Asig.</span></th>
-                                        <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo faltante/Sobrante">F/S/</span></th>
+                                        <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo faltante/Sobrante">F/S</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Maquina</th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Unidades por hora">U. x hora(100%)</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Unidades ´por hora al 80%">U. x hora(80%)</span></th>
@@ -285,8 +287,8 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                              $ochenta = (((60 / $model->tiempo_balanceo) * ($model->cantidad_empleados)*80)/100);
                                              ?>
                                          <tr style="font-size: 85%;">
-                                            <td><?= $val->id_detalle?></td>
-                                            <td><?= $val->operario->nombrecompleto ?></td>
+                                            <td><?= $val->proceso->idproceso?></td>
+                                             <td><?= $val->operario->nombrecompleto ?></td>
                                             <td><?= $val->proceso->proceso ?></td>
                                              <td><?= $val->ordenamiento ?></td>
                                             <td><?= $val->minutos ?></td>

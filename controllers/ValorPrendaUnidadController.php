@@ -504,7 +504,7 @@ class ValorPrendaUnidadController extends Controller
                         $detalle_valor_prenda = ValorPrendaUnidadDetalles::find()->where(['=','idproceso', $detalle->id_proceso])->andWhere(['=','iddetalleorden', $id_detalle])->all();
                         $balanceo_entrada = \app\models\Balanceo::findOne($modulo);
                         foreach ($detalle_valor_prenda as $detalle_valor):
-                            $sumar_unidades += $detalle_valor->cantidad_confeccionada;
+                            $sumar_unidades += $detalle_valor->cantidad;
                         endforeach;
                         $total_unidades_faltante = $conCantidad->cantidad - $sumar_unidades; //totaliza las uniades faltantes
                         $cant = $_POST["cantidad"][$intIndice];

@@ -483,7 +483,7 @@ class ValorPrendaUnidadController extends Controller
             $aplica_sabado = Html::encode($form->aplica_sabado);
             $modulo = Html::encode($form->modulo);
             $fecha_entrada = Html::encode($form->fecha_entrada);
-            if ($operario > 0 && $fecha_entrada != null && $modulo == null) {
+            if ($operario > 0 && $fecha_entrada != null && $modulo != null) {
                 $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
                                                                         ->andWhere(['=','idordenproduccion', $idordenproduccion])
                                                                         ->andWhere(['=','estado_operacion', 0])

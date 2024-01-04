@@ -10,6 +10,7 @@ class ModeloBuscarOperario extends Model
     public $operario;
     public $fecha_entrada;
     public $aplica_sabado;
+    public $modulo;
 
     /**
      * {@inheritdoc}
@@ -17,7 +18,7 @@ class ModeloBuscarOperario extends Model
     public function rules()
     {
         return [
-            [['operario','aplica_sabado'], 'integer'],
+            [['operario','aplica_sabado','modulo'], 'integer'],
             ['fecha_entrada', 'safe'],
         ];
     }
@@ -31,6 +32,7 @@ class ModeloBuscarOperario extends Model
            'operario' => 'Nombre operario:',
            'fecha_entrada' => 'Fecha confección:',
            'aplica_sabado' => 'Aplica sabado:', 
+            'modulo' => 'Nombre modulo:',
             
         ];
     }

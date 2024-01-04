@@ -30,6 +30,7 @@ $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".dat
 $this->title = 'Ingreso de pagos ('. $model->planta->nombre_planta. '- TALLA ' .$talla->productodetalle->prendatipo->talla->talla .')';
 $this->params['breadcrumbs'][] = $this->title;
 $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $model->id_planta])->orderBy('nombrecompleto ASC')->all(), 'id_operario', 'nombrecompleto');
+
 ?>
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_tallas_ordenes','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta], ['class' => 'btn btn-primary btn-sm'])?>
@@ -70,6 +71,13 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     'todayHighlight' => true]])
                 ?>
                  <?= $formulario->field($form, 'aplica_sabado')->dropDownList(['0' => 'NO', '1' => 'SI']) ?>
+                <?= $formulario->field($form, 'modulo')->widget(Select2::classname(), [
+                       'data' => $nombre_modulo,
+                       'options' => ['prompt' => 'Seleccione...'],
+                       'pluginOptions' => [
+                           'allowClear' => true
+                       ],
+                ]); ?>
            </div>
         </div>    
             <div class="panel-footer text-right">
@@ -116,7 +124,7 @@ $form = ActiveForm::begin([
                             <td><?= $val->minutos ?></td> 
                             <td style="text-align: right"><?= $valor_vinculado?></td> 
                             <td style="text-align: right"><?= $valor_contrato?></td> 
-                            <td style="padding-left: 1;padding-right: 1;"><input type="text" name="cantidad[]" style="text-align: right"  value=" 0 " size="6" ></td>
+                            <td style="padding-left: 1;padding-right: 1;"><input type="text" name="cantidad[]" style="text-align: right"  value="0" size="6" ></td>
                              <input type="hidden" name="operaciones[]" value="<?= $val->id_detalle ?>">
                         </tr>     
                    <?php endforeach;

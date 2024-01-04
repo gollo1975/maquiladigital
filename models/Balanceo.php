@@ -108,6 +108,11 @@ class Balanceo extends \yii\db\ActiveRecord
         return $this->hasOne(Horario::className(), ['id_horario' => 'id_horario']);
     }
     
+    public function getNombreBalanceo()
+    {
+        return " Id: {$this->id_balanceo} - Nombre: {$this->procesoconfeccion->descripcion_proceso}";
+    }
+    
     public function getEstadomodulo() {
         if($this->estado_modulo == '0'){
             $estadomodulo = 'ABIERTO';

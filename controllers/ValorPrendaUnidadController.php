@@ -474,18 +474,22 @@ class ValorPrendaUnidadController extends Controller
         $detalle_balanceo = 0;
         $fecha_entrada = null;
         $aplica_sabado = null;
+        $modulo = null;
+        $nombre_modulo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
         $empresa = \app\models\Matriculaempresa::findOne(1);
         $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         if ($form->load(Yii::$app->request->get())) {
             $operario = Html::encode($form->operario);
             $aplica_sabado = Html::encode($form->aplica_sabado);
+            $modulo = Html::encode($form->modulo);
             $fecha_entrada = Html::encode($form->fecha_entrada);
-            if ($operario > 0 && $fecha_entrada != null) {
+            if ($operario > 0 && $fecha_entrada != null && $modulo == null) {
                 $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
                                                                         ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                        ->andWhere(['=','estado_operacion', 0])->all();
+                                                                        ->andWhere(['=','estado_operacion', 0])
+                                                                        ->andWhere(['=','id_balanceo', $modulo])->all();
             }else{
-                Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO y la FECHA para la busqueda.');
+                Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA y NOMBRE DEL MODULO para la busqueda.');
                 return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle]);
             }
         }
@@ -498,15 +502,16 @@ class ValorPrendaUnidadController extends Controller
                         $conCantidad = \app\models\Ordenproducciondetalle::findOne($id_detalle);
                         $detalle = \app\models\BalanceoDetalle::findOne($intCodigo);//busca las operaciones en el balanceo
                         $detalle_valor_prenda = ValorPrendaUnidadDetalles::find()->where(['=','idproceso', $detalle->id_proceso])->andWhere(['=','iddetalleorden', $id_detalle])->all();
+                        $balanceo_entrada = \app\models\Balanceo::findOne($modulo);
                         foreach ($detalle_valor_prenda as $detalle_valor):
-                            $sumar_unidades += $detalle_valor->cantidad;
+                            $sumar_unidades += $detalle_valor->cantidad_confeccionada;
                         endforeach;
                         $total_unidades_faltante = $conCantidad->cantidad - $sumar_unidades; //totaliza las uniades faltantes
                         $cant = $_POST["cantidad"][$intIndice];
                         $confeccionada = $conCantidad->cantidad_confeccionada;
                         $total_unidades =  $confeccionada + $cant;
                         $total_operacion = $sumar_unidades + $cant;
-                        if($total_operacion <= $conCantidad->cantidad){ //ciclo que valide no ingresar mas de las opraciones de la talla
+                        if($total_operacion <= $conCantidad->cantidad_operaciones){ //ciclo que valide no ingresar mas de las opraciones de la talla
                             if($total_unidades <= $conCantidad->cantidad_operaciones){
                                 $valor_prenda = 0; $nota = '';
                                 $tipo_proceso = ValorPrendaUnidad::findOne($id);
@@ -516,6 +521,7 @@ class ValorPrendaUnidadController extends Controller
                                 $table->id_operario = $operario;
                                 $table->idordenproduccion = $idordenproduccion;
                                 $table->operacion = 1;
+                                $table->hora_inicio_modulo = $balanceo_entrada->hora_inicio;
                                 $table->dia_pago = $fecha_entrada;
                                 $cantidad = $_POST["cantidad"][$intIndice];
                                 $table->cantidad = $_POST["cantidad"][$intIndice];
@@ -546,7 +552,7 @@ class ValorPrendaUnidadController extends Controller
                                 $table->idproceso = $detalle->id_proceso;
                                 $table->save(false);
                                 $this->SumarCantidadCostoConfeccion($id, $id_detalle, $idordenproduccion);
-                                $this->CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle, $con);
+                                $this->CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle);
                             }else{
                                 Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones, favor validar que operaciones faltaron por ingresar.');
                             }    
@@ -569,6 +575,7 @@ class ValorPrendaUnidadController extends Controller
             'id_detalle' => $id_detalle,
             'empresa' => $empresa,
             'talla' => $talla,
+            'nombre_modulo' => ArrayHelper::map($nombre_modulo, "id_balanceo", "nombreBalanceo"),
           
         ]);
     }
@@ -605,6 +612,7 @@ class ValorPrendaUnidadController extends Controller
     protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {
         $table = ValorPrendaUnidadDetalles::find()->orderBy('consecutivo DESC')->one();
         $operarios = Operarios::findOne($operario);
+        $hora_operario = $operarios->horarios->desde;
         $conMatricula = \app\models\Matriculaempresa::findOne(1);
         $auxiliar = $table->control_fecha;
         $balanceoModulo= \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
@@ -613,7 +621,7 @@ class ValorPrendaUnidadController extends Controller
         if($operarios->vinculado == 1){
             $this->CostoOperarioVinculado($table, $auxiliar);
             foreach ($balanceoModulo as $modulo):
-                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $operario->horarios->desde) {
+                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $hora_operario) {
                     $horad = explode(":", $table->hora_inicio_modulo);
                     $horah = explode(":", $operarios->horarios->hasta);
                     $sumarh = $horah[0] - $horad[0];
@@ -640,7 +648,7 @@ class ValorPrendaUnidadController extends Controller
         }else{
             //calculo para hallar el % de cumplimiento
             foreach ($balanceoModulo as $modulo):
-                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $operario->horarios->desde) {
+                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $hora_operario) {
                     $horad = explode(":", $table->hora_inicio_modulo);
                     $horah = explode(":", $operarios->horarios->hasta);
                     $sumarh = $horah[0] - $horad[0];
@@ -1235,13 +1243,13 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
-    public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta)
+    public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago)
     {                                
         $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
         $detalle->delete();
         $this->Totalpagar($id);
-        $this->TotalCantidades($id);
-        $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta]);        
+        $this->TotalCantidades($id, $tipo_pago);
+        $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
     }
     
     //ELIMINA EL REGISTRO D EPAGO

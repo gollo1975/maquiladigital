@@ -127,13 +127,13 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
        
         <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar excel', ['generarexcel', 'id' => $model->id_valor], ['class' => 'btn btn-default btn-sm ']); ?>
         <?php if($model->autorizado == 0){?>                
-                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva-Linea', ['valor-prenda-unidad/nuevodetalle', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$id_planta], ['class' => 'btn btn-success btn-sm']); ?>   
+                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva-Linea', ['valor-prenda-unidad/nuevodetalle', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $model->tipo_proceso_pago], ['class' => 'btn btn-success btn-sm']); ?>   
                 <?php if($model->id_proceso_confeccion == 1){?>
-                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo-Modular', ['valor-prenda-unidad/nuevodetallemodular', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta], ['class' => 'btn btn-info btn-sm']); ?>        
+                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo-Modular', ['valor-prenda-unidad/nuevodetallemodular', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], ['class' => 'btn btn-info btn-sm']); ?>        
                 <?php }?>         
                 <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary btn-sm, 'name' => 'actualizarlinea'",]) ?>
                 <?php if(app\models\Matriculaempresa::find()->where(['=','aplica_regla', 1])->one()){?>
-                   <?= Html::a('<span class="glyphicon glyphicon-check"></span> Aplica regla', ['valor-prenda-unidad/aplicar_regla', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta], ['class' => 'btn btn-warning btn-sm']) ?>
+                   <?= Html::a('<span class="glyphicon glyphicon-check"></span> Aplica regla', ['valor-prenda-unidad/aplicar_regla', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], ['class' => 'btn btn-warning btn-sm']) ?>
                    
                <?php } 
          }?>
@@ -227,7 +227,7 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
                                                     <?php if($model->autorizado == 0){?>        
                                                         <td>
                                                               <?php if ($model->estado_valor == 0){ ?>
-                                                              <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta], [
+                                                              <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], [
                                                                   'class' => '',
                                                                   'data' => [
                                                                       'confirm' => 'Esta seguro de eliminar el registro?',

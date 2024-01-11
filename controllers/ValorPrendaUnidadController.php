@@ -468,21 +468,23 @@ class ValorPrendaUnidadController extends Controller
     }
     
    //VISTA QUE TRAE LAS OPERACIONES DE LA OP
-    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta, $id_detalle){
+    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta){
         $form = new \app\models\ModeloBuscarOperario();
         $operario = null;
         $detalle_balanceo = 0;
         $fecha_entrada = null;
         $aplica_sabado = null;
         $modulo = null;
+        $id_detalle = null;
         $nombre_modulo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
         $empresa = \app\models\Matriculaempresa::findOne(1);
-        $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        $listado_tallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
         if ($form->load(Yii::$app->request->get())) {
             $operario = Html::encode($form->operario);
             $aplica_sabado = Html::encode($form->aplica_sabado);
             $modulo = Html::encode($form->modulo);
             $fecha_entrada = Html::encode($form->fecha_entrada);
+          echo  $id_detalle = Html::encode($form->id_detalle);
             if ($operario > 0 && $fecha_entrada != null && $modulo != null) {
                 $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
                                                                         ->andWhere(['=','idordenproduccion', $idordenproduccion])
@@ -511,7 +513,7 @@ class ValorPrendaUnidadController extends Controller
                         $confeccionada = $conCantidad->cantidad_confeccionada;
                         $total_unidades =  $confeccionada + $cant;
                         $total_operacion = $sumar_unidades + $cant;
-                        if($total_operacion <= $conCantidad->cantidad_operaciones){ //ciclo que valide no ingresar mas de las opraciones de la talla
+                        if($total_operacion <= $conCantidad->cantidad){ //ciclo que valide no ingresar mas de las opraciones de la talla
                             if($total_unidades <= $conCantidad->cantidad_operaciones){
                                 $valor_prenda = 0; $nota = '';
                                 $tipo_proceso = ValorPrendaUnidad::findOne($id);
@@ -574,8 +576,8 @@ class ValorPrendaUnidadController extends Controller
             'detalle_balanceo' =>  $detalle_balanceo,
             'id_detalle' => $id_detalle,
             'empresa' => $empresa,
-            'talla' => $talla,
             'nombre_modulo' => ArrayHelper::map($nombre_modulo, "id_balanceo", "nombreBalanceo"),
+            'listado_tallas' => ArrayHelper::map($listado_tallas, "iddetalleorden", "listadoTalla"),
           
         ]);
     }

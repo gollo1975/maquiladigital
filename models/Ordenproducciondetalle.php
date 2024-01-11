@@ -90,5 +90,9 @@ class Ordenproducciondetalle extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Ordenproducciondetalleproceso::className(), ['iddetalleorden' => 'iddetalleorden']);
     }
-        
+    
+     public function getListadoTalla()
+    {
+        return " Id: {$this->iddetalleorden} - Talla: {$this->productodetalle->prendatipo->talla->talla}";
+    }    
 }

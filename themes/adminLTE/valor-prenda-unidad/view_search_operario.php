@@ -27,7 +27,7 @@ $dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".date('Y') ;
 
-$this->title = 'Ingreso de pagos ('. $model->planta->nombre_planta. '- TALLA ' .$talla->productodetalle->prendatipo->talla->talla .')';
+$this->title = 'Ingreso de pagos ('. $model->planta->nombre_planta. ')';
 $this->params['breadcrumbs'][] = $this->title;
 $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $model->id_planta])->orderBy('nombrecompleto ASC')->all(), 'id_operario', 'nombrecompleto');
 
@@ -73,6 +73,13 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                  <?= $formulario->field($form, 'aplica_sabado')->dropDownList(['0' => 'NO', '1' => 'SI']) ?>
                 <?= $formulario->field($form, 'modulo')->widget(Select2::classname(), [
                        'data' => $nombre_modulo,
+                       'options' => ['prompt' => 'Seleccione...'],
+                       'pluginOptions' => [
+                           'allowClear' => true
+                       ],
+                ]); ?>
+                <?= $formulario->field($form, 'id_detalle')->widget(Select2::classname(), [
+                       'data' => $listado_tallas,
                        'options' => ['prompt' => 'Seleccione...'],
                        'pluginOptions' => [
                            'allowClear' => true

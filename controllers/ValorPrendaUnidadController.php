@@ -484,14 +484,14 @@ class ValorPrendaUnidadController extends Controller
             $aplica_sabado = Html::encode($form->aplica_sabado);
             $modulo = Html::encode($form->modulo);
             $fecha_entrada = Html::encode($form->fecha_entrada);
-          echo  $id_detalle = Html::encode($form->id_detalle);
-            if ($operario > 0 && $fecha_entrada != null && $modulo != null) {
+            $id_detalle = Html::encode($form->id_detalle);
+            if ($operario > 0 && $fecha_entrada != null && $modulo != null && $id_detalle != null) {
                 $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
                                                                         ->andWhere(['=','idordenproduccion', $idordenproduccion])
                                                                         ->andWhere(['=','estado_operacion', 0])
                                                                         ->andWhere(['=','id_balanceo', $modulo])->all();
             }else{
-                Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA y NOMBRE DEL MODULO para la busqueda.');
+                Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO y TALLA para la busqueda.');
                 return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle]);
             }
         }

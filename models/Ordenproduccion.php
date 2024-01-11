@@ -126,10 +126,16 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Ordenproducciontipo::className(), ['idtipo' => 'idtipo']);
     }
-
+//proceso que va en la creacion de la orden de produccion
     public function getOrdenProduccion()
     {
         return " Id: {$this->idordenproduccion} - Orden Producción: {$this->ordenproduccion} - Fecha Llegada: {$this->fechallegada} - Total: {$this->totalorden} - Tipo: {$this->tipo->tipo}";
+    }
+    
+    //proceso que busca la orden de produccion del cliente y el codigo en la salida
+    public function getSalidaOrden()
+    {
+        return " Codigo: {$this->codigoproducto} - Orden Producción: {$this->ordenproduccion}";
     }
     
     public function getAutorizar()

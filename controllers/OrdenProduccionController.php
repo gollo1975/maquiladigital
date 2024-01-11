@@ -637,10 +637,10 @@ class OrdenProduccionController extends Controller {
         }
 
         return $this->render('create', [
-                    'model' => $model,
-              'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreClientes"),
-                    'ordenproducciontipos' => ArrayHelper::map($ordenproducciontipos, "idtipo", "tipo"),
-                    'codigos' => ArrayHelper::map($codigos, "codigo", "codigonombre"),
+               'model' => $model,
+                'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreClientes"),
+                'ordenproducciontipos' => ArrayHelper::map($ordenproducciontipos, "idtipo", "tipo"),
+                'codigos' => ArrayHelper::map($codigos, "codigo", "codigonombre"),
                     
         ]);
     }
@@ -676,7 +676,7 @@ class OrdenProduccionController extends Controller {
     public function actionCreatesalida() {
         $model = new SalidaEntradaProduccion();
         $clientes = Cliente::find()->all();
-        $orden = Ordenproduccion::find()->orderBy('idordenproduccion asc')->all();        
+        $orden = Ordenproduccion::find()->where(['=','cerrar_orden', 0])->orderBy('idordenproduccion DESC')->all();        
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->usuariosistema = Yii::$app->user->identity->username;
             $orden = Ordenproduccion::findOne($model->idordenproduccion);
@@ -688,7 +688,7 @@ class OrdenProduccionController extends Controller {
         return $this->render('createsalida', [
                     'model' => $model,
                     'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreClientes"),
-                    'orden' => ArrayHelper::map($orden, "idordenproduccion", "ordenproduccion"),
+                    'orden' => ArrayHelper::map($orden, "idordenproduccion", "ordenProduccion"),
         ]);
     }
     
@@ -751,7 +751,7 @@ class OrdenProduccionController extends Controller {
         return $this->render('updatesalida', [
                     'model' => $model,
                     'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreClientes"),
-                  'orden' => ArrayHelper::map($orden, "idordenproduccion", "ordenproduccion"),
+                  'orden' => ArrayHelper::map($orden, "idordenproduccion", "salidaOrden"),
         ]);
     }
     
@@ -2505,7 +2505,7 @@ class OrdenProduccionController extends Controller {
         if ($cont == 0){
             $tabla->cantidad_operada = $cantidadoperada;
         } else {
-           echo $tabla->cantidad_operada = $cantidadoperada / $cont;
+            $tabla->cantidad_operada = $cantidadoperada / $cont;
         } 
         $tabla->save(false);
         $orden = Ordenproduccion::findOne($idordenproduccion);
@@ -2559,7 +2559,7 @@ class OrdenProduccionController extends Controller {
         echo "<option value='' required>Seleccione una orden...</option>";
         if(count($rows)>0){
             foreach($rows as $row){
-                echo "<option value='$row->idordenproduccion' required>$row->ordenproduccion</option>";
+                echo "<option value='$row->idordenproduccion' required>$row->salidaOrden</option>";
             }
         }
     }

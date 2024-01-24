@@ -1780,6 +1780,7 @@ class ValorPrendaUnidadController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A2', 'ID')
@@ -1791,8 +1792,9 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('G2', 'VR. OPERACION')
                     ->setCellValue('H2', 'VR PAGADO')
                     ->setCellValue('I2', '% CUMPLIMIENTO')
-                    ->setCellValue('J2', 'NOMBRE OPERACION')
-                    ->setCellValue('K2', 'PLANTA');
+                    ->setCellValue('J2', 'CODIGO')
+                    ->setCellValue('K2', 'NOMBRE OPERACION')
+                    ->setCellValue('L2', 'PLANTA');
                                   
         $i = 3;
         foreach ($model as $val) {                            
@@ -1806,8 +1808,9 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('G' . $i, $val->vlr_prenda)
                     ->setCellValue('H' . $i, $val->vlr_pago)
                     ->setCellValue('I' . $i, $val->porcentaje_cumplimiento)
-                    ->setCellValue('J' . $i, $val->operaciones->proceso)
-                    ->setCellValue('K' . $i, $val->planta->nombre_planta);
+                    ->setCellValue('J' . $i, $val->idproceso)
+                    ->setCellValue('K' . $i, $val->operaciones->proceso)
+                    ->setCellValue('L' . $i, $val->planta->nombre_planta);
                    
             $i++;                        
         }

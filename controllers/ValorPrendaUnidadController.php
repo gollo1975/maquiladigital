@@ -1806,7 +1806,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('G' . $i, $val->vlr_prenda)
                     ->setCellValue('H' . $i, $val->vlr_pago)
                     ->setCellValue('I' . $i, $val->porcentaje_cumplimiento)
-                    ->setCellValue('J' . $i, $val->proceso->proceso)
+                    ->setCellValue('J' . $i, $val->operaciones->proceso)
                     ->setCellValue('K' . $i, $val->planta->nombre_planta);
                    
             $i++;                        

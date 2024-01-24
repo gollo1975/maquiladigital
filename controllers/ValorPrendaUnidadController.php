@@ -582,6 +582,15 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
    
+   //VISTA DE BUSQUEDA DE OPERACION POR TALLAS
+    public function actionView_operacion_talla($id, $token) {
+        $detalle_orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
+        return $this->render('view_operacion_tallas', [
+                'detalle_orden' =>$detalle_orden,
+                'id' => $id,
+                'token' => $token,
+            ]);
+    }
    
    //SUMAR UNIDADES CONFECCIONADAS Y VALOR COSTO DE CONFECCION
    protected function SumarCantidadCostoConfeccion($id, $id_detalle, $idordenproduccion) {
@@ -1537,9 +1546,118 @@ class ValorPrendaUnidadController extends Controller
             return $this->redirect(['site/login']);
         }    
     }
-        //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
     
-    public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $bodega) {        
+     //BUSCAR OPERACIONES POR TALLA
+   public function actionSearch_operacion_talla($token = 1) {
+        if (Yii::$app->user->identity){
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',132])->all()){
+            $form = new \app\models\FormFiltroConsultaFichaoperacion();
+            $idcliente = null;
+            $ordenproduccion = null;
+            $desde = null;
+            $codigoproducto = null;
+            $hasta = null;
+            $clientes = \app\models\Cliente::find()->orderBy('nombrecorto ASC')->all();
+            
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idcliente = Html::encode($form->idcliente);
+                    $ordenproduccion = Html::encode($form->ordenproduccion);
+                    $codigoproducto = Html::encode($form->codigoproducto);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $table = Ordenproduccion::find()
+                            ->andFilterWhere(['=', 'idcliente', $idcliente])
+                            ->andFilterWhere(['between', 'fechallegada', $desde, $hasta])
+                            ->andFilterWhere(['=', 'idordenproduccion', $ordenproduccion])
+                            ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
+                            ->orderBy('idordenproduccion desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 30,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){
+                        //$table = $table->all();
+                        $this->actionExcelconsultaficha($tableexcel);
+                    }
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = Ordenproduccion::find()
+                        ->orderBy('idordenproduccion desc');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 30,
+                    'totalCount' => $count->count(),
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                        //$table = $table->all();
+                        $this->actionExcelconsultaficha($tableexcel);
+                }
+            }
+
+            return $this->render('index_operacion_tallas', [
+                        'model' => $model,
+                        'form' => $form,
+                        'token' => $token,
+                        'pagination' => $pages,
+                        'clientes' => ArrayHelper::map($clientes, "idcliente", "nombrecorto"),
+                       
+            ]);
+         }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
+        }else{
+            return $this->redirect(['site/login']);
+        }
+    }
+        
+   // LISTADO DE OPERACIONES POR TALLA
+   public function actionListado_operaciones($id, $id_detalle, $token){
+       $model = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $id_detalle])->one();
+       $operaciones = \app\models\FlujoOperaciones::find()->where(['=','idordenproduccion', $id])->all();
+       return $this->render('listado_operacion', [
+                        'operaciones' => $operaciones,
+                        'id'=> $id,   
+                        'model' => $model,
+                        'id_detalle' => $id_detalle,
+                        'token' => $token,
+                                   
+            ]);
+   }
+   
+   //LISTADO DE OPERARIOS QUE CONFECCIONARON POR OPERACION
+   // LISTADO DE OPERACIONES POR TALLA
+   public function actionListado_operarios($id, $id_detalle, $id_operacion, $token){
+       $model = \app\models\FlujoOperaciones::find()->where(['=','idproceso', $id_operacion])->one();
+       $operaciones = ValorPrendaUnidadDetalles::find()->where(['=','idordenproduccion', $id])
+                                                ->andWhere(['=','iddetalleorden', $id_detalle])
+                                                ->andwhere(['=','idproceso', $id_operacion])->all();
+       return $this->render('listado_operarios', [
+                        'operaciones' => $operaciones,
+                        'id'=> $id,   
+                        'model' => $model,
+                        'id_detalle' => $id_detalle,
+                        'id_operacion' => $id_operacion,
+                        'token' => $token,                                   
+            ]);
+   }
+   
+    //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
+     public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $bodega) {        
         $model = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])
                                                         ->andWhere(['=','fecha_corte', $fecha_corte])
                                                         ->andWhere(['=','id_planta', $bodega])->orderBy([ 'operario' =>SORT_ASC ])->all();
@@ -1618,6 +1736,91 @@ class ValorPrendaUnidadController extends Controller
         header("Content-Type: application/octet-stream");
         header("Content-Type: application/download");
         header('Content-Disposition: attachment;filename="Valor_Nomina.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0 
+        header("Content-Transfer-Encoding: binary ");
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);        
+        $objWriter->save('php://output');
+        //$objWriter->save($pFilename = 'Descargas');
+        exit; 
+        
+    }
+    
+   //EXPORTAR LOS OPERARIOS QUE HACEN LAS OPERARACIONES Y LA OPERACION
+    public function actionExpotar_cantidad_confeccionada($id, $id_detalle, $id_operacion) {        
+        $model = ValorPrendaUnidadDetalles::find()->where(['=','idordenproduccion', $id])
+                                                ->andWhere(['=','iddetalleorden', $id_detalle])
+                                                ->andwhere(['=','idproceso', $id_operacion])->all();
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getStyle('2')->getFont()->setBold(true);        
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A2', 'ID')
+                    ->setCellValue('B2', 'DOCUMENTO')
+                    ->setCellValue('C2', 'OPERARIO')
+                    ->setCellValue('D2', 'FECHA CONFECCION')
+                    ->setCellValue('E2', 'CANTIDAD')
+                    ->setCellValue('F2', 'OP INTERNA')
+                    ->setCellValue('G2', 'VR. OPERACION')
+                    ->setCellValue('H2', 'VR PAGADO')
+                    ->setCellValue('I2', '% CUMPLIMIENTO')
+                    ->setCellValue('J2', 'NOMBRE OPERACION')
+                    ->setCellValue('K2', 'PLANTA');
+                                  
+        $i = 3;
+        foreach ($model as $val) {                            
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->consecutivo)
+                    ->setCellValue('B' . $i, $val->operarioProduccion->documento)
+                    ->setCellValue('C' . $i, $val->operarioProduccion->nombrecompleto)
+                    ->setCellValue('D' . $i, $val->dia_pago)
+                    ->setCellValue('E' . $i, $val->cantidad)
+                    ->setCellValue('F' . $i, $val->idordenproduccion)
+                    ->setCellValue('G' . $i, $val->vlr_prenda)
+                    ->setCellValue('H' . $i, $val->vlr_pago)
+                    ->setCellValue('I' . $i, $val->porcentaje_cumplimiento)
+                    ->setCellValue('J' . $i, $val->proceso->proceso)
+                    ->setCellValue('K' . $i, $val->planta->nombre_planta);
+                   
+            $i++;                        
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition: attachment;filename="Listado_operarios_confeccion.xlsx"');
         header('Cache-Control: max-age=0');
         // If you're serving to IE 9, then the following may be needed
         header('Cache-Control: max-age=1');

@@ -215,6 +215,7 @@
                                                     ['label' => 'Operaciones x Prenda', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indexoperacionprenda']],
                                                     ['label' => 'Balanceo x operario', 'icon' => 'plus-square-o', 'url' => ['/balanceo/indexbalanceoperario']],
                                                     ['label' => 'Reprocesos', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/searchreprocesos']],
+                                                    ['label' => 'Por tallas', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/search_operacion_talla']],
                                                 ]],
                                                 ['label' => 'Unidades confeccionadas', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/consultaunidadconfeccionada']],
                                                 ['label' => 'Eficiencia modular', 'icon' => 'plus-square-o', 'url' => ['/balanceo/index_eficiencia_modular']],

@@ -91,7 +91,7 @@ if ($mensaje != ""){
                 <tr>
                     <th scope="col" style='background-color:#B9D5CE;'>Nro balanceo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Op interna</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Op cliente</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                        <th scope="col" style='background-color:#B9D5CE;'>Servicio</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Modulo</th>
@@ -100,7 +100,7 @@ if ($mensaje != ""){
                     <th scope="col" style='background-color:#B9D5CE;'><span title="Cantidad de operarios">No Ope.</span></th>
                      <th scope="col" style='background-color:#B9D5CE;'>T. minutos</th>
                     <th scope="col" style='background-color:#B9D5CE;'>T. balanceo</th>                    
-                    <th scope="col" style='background-color:#B9D5CE;'>Observación</th> 
+                    <th scope="col" style='background-color:#B9D5CE;'>Planta</th> 
                     <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                 </tr>
                 </thead>
@@ -109,7 +109,7 @@ if ($mensaje != ""){
                         <tr style="font-size: 85%;">
                             <td><?= $val->id_balanceo?></td>
                             <td><?= $val->idordenproduccion?></td>
-                            <td><?= $val->ordenproduccion->ordenproduccion?></td>
+                            <td><?= $val->ordenproduccion->codigoproducto?></td>
                             <td><?= $val->cliente->nombrecorto ?></td>
                             <?php if($val->id_proceso_confeccion == 1){?>
                                  <td style='background-color:#A1D2D8;'><?= $val->procesoconfeccion->descripcion_proceso ?></td>
@@ -122,7 +122,7 @@ if ($mensaje != ""){
                             <td><?= $val->cantidad_empleados?></td>
                             <td style="text-align: right"><?= $val->total_minutos ?></td>
                             <td style="text-align: right"><?= $val->tiempo_balanceo ?></td>
-                            <td><?= $val->observacion?></td>
+                            <td><?= $val->plantaempresa->nombre_planta?></td>
                             <td style="width: 30px;"><input type="checkbox" name="modulo_activo[]" value="<?= $val->id_balanceo ?>"></td>
                             <input type="hidden" name="id_planta" value="<?= $id_planta ?>">
                         </tr>   

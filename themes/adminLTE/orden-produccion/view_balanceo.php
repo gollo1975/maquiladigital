@@ -30,8 +30,8 @@ use yii\db\Query;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
-$this->title = 'Detalle balanceo';
-$this->params['breadcrumbs'][] = ['label' => 'View_balanceo', 'url' => ['view_balanceo','id' => $model->idordenproduccion]];
+$this->title = 'Detalle del flujo';
+$this->params['breadcrumbs'][] = ['label' => 'Detalle del flujo', 'url' => ['view_balanceo','id' => $model->idordenproduccion]];
 $this->params['breadcrumbs'][] = $model->idordenproduccion;
 //codigo que permite buscar el si la OP tiene modulo de balanceo
 $varModular = 0;
@@ -60,6 +60,16 @@ if($buscarOrden){
         <div class="panel-heading">
             Detalle del registro
         </div>
+        <br>
+        
+            <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                Observaciones
+              </button>
+              <div class="collapse" id="collapseExample">
+                  <div class="well" style="font-size: 85%;">
+                      <?= $model->observacion ?> 
+                </div>
+             </div>
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
                 <tr style="font-size: 85%;">
@@ -94,21 +104,12 @@ if($buscarOrden){
                     <td><?= Html::encode($model->sam_preparacion.'  minutos') ?></td>
                 </tr>
                  <tr style="font-size: 85%;">
-                  <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Codigo_producto') ?>:</th>
+                  <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Referencia') ?>:</th>
                     <td><?= Html::encode($model->codigoproducto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Servicio') ?>:</th>
                     <td colspan="5"><?= Html::encode($model->tipo->tipo) ?></td>
                 </tr>
-                <tr>
-                    <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                        Observaciones
-                      </button>
-                      <div class="collapse" id="collapseExample">
-                          <div class="well" style="font-size: 85%;">
-                              <?= $model->observacion ?> 
-                        </div>
-                     </div>
-                </tr>
+                
             </table>
         </div>
     </div>
@@ -200,7 +201,7 @@ if($buscarOrden){
                                     endforeach;
                                     ?>  
                                 </tbody> 
-                                <td colspan="3"></td><td style="font-size: 85%;"><b>Tot. Seg.:</b> <?= $consegundo ?> <td style="font-size: 85%;"><b>Sam_Balanceo:</b> <?= $model->sam_balanceo ?></td><td style="font-size: 85%; color: "><b>Sam_Preparacion:</b> <?= $model->sam_preparacion ?><td style="font-size: 85%; color: "></td><td colspan="3"></td>
+                                <td colspan="3"></td><td style="font-size: 85%;"><b>Tot. Seg.:</b> <?= $consegundo ?> <td style="font-size: 85%;"><b>Sam_Balanceo:</b> <?= $model->sam_balanceo ?></td><td style="font-size: 85%; color: "><b>Sam_Preparacion:</b> <?= $model->sam_preparacion ?><td style="font-size: 85%; color: "></td><td colspan="4"></td>
                             </table>
                         </div>    
                     </div>
@@ -230,13 +231,13 @@ if($buscarOrden){
                                         <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Op</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Nro modulo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Operarios</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Modulo</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Eficiencia</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>F. terminación</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                             
                                     </tr>
@@ -258,7 +259,7 @@ if($buscarOrden){
                                                     <?php }else{?>
                                                        <td style='background-color:#A5D3E6;'><?= $val->procesoconfeccion->descripcion_proceso?></td>
                                                     <?php }?>   
-                                            <td><?= $val->observacion ?></td>
+                                            <td><?= $val->plantaempresa->nombre_planta ?></td>
                                             <?php if($val->procesoconfeccion->estado_proceso == 1){
                                                    $modulo = $val->id_balanceo;
                                                     if($val->estado_modulo == 0){?>

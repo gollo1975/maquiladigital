@@ -26,15 +26,15 @@ $view = 'pago-banco';
             if($model->cerrar_proceso == 0){?>
                 <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?></button>
                 <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_pago_banco, 'token' => $token], ['class' => 'btn btn-default btn-sm'])?></button>
-                <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar pago', ['close_cast', 'id' => $model->id_pago_banco, 'tipo_proceso' => $model->id_tipo_nomina, 'token' => $token], ['class' => 'btn btn-info btn-sm',
+                <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar pago', ['close_cast', 'id' => $model->id_pago_banco, 'tipo_proceso' => $model->id_tipo_nomina, 'token' => $token], ['class' => 'btn btn-default btn-sm',
                     'data' => ['confirm' => 'Esta seguro que desea cerrar el pago a banco No '. $model->id_pago_banco. '', 'method' => 'post']])?></button>
            <?php }else{?>
                 <div class="btn-group" role="group" aria-label="...">
                     <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?></button>
                     <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_pago_banco, 'token' => $token], ['class' => 'btn btn-default btn-sm disabled'])?></button>
-                    <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar pago', ['close_cast', 'id' => $model->id_pago_banco, 'token' => $token], ['class' => 'btn btn-info btn-sm disabled',
+                    <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-folder-close"></span> Cerrar pago', ['close_cast', 'id' => $model->id_pago_banco, 'token' => $token], ['class' => 'btn btn-default btn-sm disabled',
                         'data' => ['confirm' => 'Esta seguro que desea cerrar el pago a banco No '. $model->id_pago_banco. '', 'method' => 'post']])?></button>
-                    <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_pago_banco], ['class' => 'btn btn-default btn-sm'])?> </button>            
+                    <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir_reporte', 'id' => $model->id_pago_banco, 'tipo_proceso' => $model->id_tipo_nomina, 'token' => $token], ['class' => 'btn btn-default btn-sm'])?> </button>            
                     <button type="button" class="btn btn-default btn-sm"> <?=  Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 19, 'codigo' => $model->id_pago_banco,'view' => $view, 'token' => $token,], ['class' => 'btn btn-default btn-sm'])?></button>
                      <div class="btn-group" role="group">
                          <button type="button" class="btn btn-success btn-lg dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

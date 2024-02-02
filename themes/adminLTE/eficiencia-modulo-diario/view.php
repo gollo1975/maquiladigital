@@ -69,15 +69,15 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr style='font-size:85%;'>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Referencia</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>No balanceo</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;'>Modulo</th>   
                                         <th scope="col" style='background-color:#B9D5CE;'>T. Balanceo</th>   
                                         <th scope="col" style='background-color:#B9D5CE;'>Op Interna</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha actual</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Hora inicio</th> 
-                                        <th scope="col" style='background-color:#B9D5CE;'>Eficiencia diaria</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>U. Confección</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>E. diaria</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -89,7 +89,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                     <?php
                                     foreach ($modulos as $modulo):?>
                                         <tr style='font-size:95%;'>
-                                            <td><?= $modulo->id_carga ?></td>
+                                            <td><?= $modulo->ordenproduccion->codigoproducto ?></td>
                                             <td><?= $modulo->id_balanceo ?></td>
                                             <td><?= $modulo->balanceo->modulo ?></td>
                                             <td><?= $modulo->balanceo->tiempo_balanceo ?></td>

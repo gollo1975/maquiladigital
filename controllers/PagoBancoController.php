@@ -451,6 +451,15 @@ class PagoBancoController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
     
+    //ARCHIVO QUE PERMITE IMPRIMIR EL PDF
+   public function actionImprimir_reporte($id, $token, $tipo_proceso)
+    {
+    Yii::$app->getSession()->setFlash('info', 'Este proceso esta en desarrollo. Solicitar la aprobacion al administrador.');
+    $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token, 'tipo_proceso'=> $tipo_proceso]);
+    /*  return $this->render('../formatos/reciboCaja', [
+            'model' => $this->findModel($id),
+        ]);*/
+    }
     //GENERAR ARCHIVOS TXT PAB
     
     public function actionPagoarchivopab($id) {

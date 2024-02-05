@@ -95,7 +95,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col" style='background-color:#B9D5CE;'>F. llegada</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. procesada</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. entrega</th>
-                
+                <th scope="col" style='background-color:#B9D5CE;'>Servicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
             </tr>
             </thead>
@@ -110,6 +110,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechaprocesada")) ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
+                <?php if($val->idtipo == 1){?>
+                     <td style='background-color:#138D75; color: white;'><?= $val->tipo->tipo ?></td>
+                <?php }else{?>
+                     <td style='background-color:#D3EBDD; color: black;'><?= $val->tipo->tipo ?></td>
+                <?php }?>  
                                <td>
                     <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_operacion_talla', 'id' => $val->idordenproduccion, 'token' => $token] ) ?>
                 </td>

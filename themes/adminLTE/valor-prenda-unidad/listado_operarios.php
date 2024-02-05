@@ -25,7 +25,7 @@ use yii\db\Query;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
-$this->title = 'Listado de operarios';
+$this->title = 'Listado de Confeccion';
 $this->params['breadcrumbs'][] = ['label' => 'Listado tallas ', 'url' => ['listado_operaciones','id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]];
 $this->params['breadcrumbs'][] = $id;
 
@@ -78,7 +78,9 @@ $this->params['breadcrumbs'][] = $id;
                                 <thead>
                                     <tr>
                                        <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
+                                       <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
+                                       <th scope="col" style='background-color:#B9D5CE;'>Vr. prenda</th>
+                                       <th scope="col" style='background-color:#B9D5CE;'>F. Confeccion</th>
                                                                            
                                     </tr>
                                 </thead>
@@ -88,6 +90,8 @@ $this->params['breadcrumbs'][] = $id;
                                             <tr style="font-size: 85%;">
                                                 <td><?= $registro->operarioProduccion->nombrecompleto ?></td>
                                                 <td style="text-align: right"><?= ''.number_format($registro->cantidad) ?></td>
+                                                <td style="text-align: right"><?= ''.number_format($registro->vlr_prenda) ?></td>
+                                                <td><?= $registro->dia_pago ?></td>
                                             </tr>
                                     <?php endforeach;
                                     ?>  

@@ -381,7 +381,7 @@
                                             'icon' => 'database',
                                             'url' => '#',
                                             'items' => [
-                                                ['label' => 'Insumos', 'icon' => 'plus-square-o', 'url' => ['/insumos/index']],
+                                                ['label' => 'Materia prima', 'icon' => 'plus-square-o', 'url' => ['/insumos/index']],
                                                 
                                             ],
                                         ],
@@ -401,7 +401,7 @@
                                             'icon' => 'question',
                                             'url' => '#',
                                             'items' => [
-                                               // ['label' => 'Control Acceso Covid', 'icon' => 'plus-square-o', 'url' => ['control-acceso/index']],
+                                               ['label' => 'Inventario insumos', 'icon' => 'plus-square-o', 'url' => ['insumos/index','token' => 1]],
 
                                             ],
                                         ],
@@ -418,7 +418,7 @@
                                             'icon' => 'cube',
                                             'url' => '#',
                                             'items' => [                                              
-                                               // ['label' => 'Periodo de nomina', 'icon' => 'plus-square-o', 'url' => ['/periodo-nomina/indexconsulta']],
+                                                ['label' => 'Entradas', 'icon' => 'plus-square-o', 'url' => ['/entrada-materia-prima/index']],
                                                
                                             ],
                                         ],

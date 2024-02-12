@@ -37,13 +37,19 @@ class Insumos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['codigo_insumo', 'descripcion', 'estado_insumo','id_tipo_medida'], 'required'],
-            [['fecha_entrada'], 'safe'],
-            [['estado_insumo'], 'integer'],
-             [['precio_unitario'], 'number'],
-            [['codigo_insumo'], 'string', 'max' => 15],
+            [['codigo_insumo', 'descripcion', 'estado_insumo','id_tipo_medida','precio_unitario','fecha_entrada', 'aplica_iva', 'id_impuesto', 'stock_inicial',
+                'aplica_inventario','inventario_inicial','idproveedor'], 'required'],
+            [['fecha_entrada','fecha_registro','fecha_vencimiento'], 'safe'],
+            [['estado_insumo','stock_inicial','aplica_inventario','inventario_inicial','subtotal','total_iva','total_materia_prima','aplica_iva','id_impuesto','stock_real',
+                'id_tipo_medida','idproveedor'], 'integer'],
+             [['precio_unitario','porcentaje_iva'], 'number'],
+            [['codigo_insumo','codigo_ean'], 'string', 'max' => 15],
             [['descripcion'], 'string', 'max' => 60],
+            [['observacion'], 'string', 'max' => 100],
             [['usuariosistema'], 'string', 'max' => 20],
+            [['id_tipo_medida'], 'exist', 'skipOnError' => true, 'targetClass' => TipoMedida::className(), 'targetAttribute' => ['id_tipo_medida' => 'id_tipo_medida']],
+            [['id_impuesto'], 'exist', 'skipOnError' => true, 'targetClass' => Impuestos::className(), 'targetAttribute' => ['id_impuesto' => 'id_impuesto']],
+            [['idproveedor'], 'exist', 'skipOnError' => true, 'targetClass' => Proveedor::className(), 'targetAttribute' => ['idproveedor' => 'idproveedor']],
         ];
     }
 
@@ -55,27 +61,79 @@ class Insumos extends \yii\db\ActiveRecord
         return [
             'id_insumos' => 'Id',
             'codigo_insumo' => 'Código:',
-            'descripcion' => 'Descripción:',
+            'descripcion' => 'Materia prima:',
+            'id_tipo_medida' => 'Tipo medida',
             'precio_unitario' => 'Precio unitario:',
             'fecha_entrada' => 'Fecha Entrada',
+            'fecha_vencimiento' => 'Fecha_vencimiento:',
+            'aplica_iva' => 'Aplica iva:',
+            'id_impuesto' => 'Impuesto:',
+            'stock_inicial' => 'Stock inicial:',
+            'stock_real' => 'Stock real:',
+            'aplica_inventario' => 'Aplica inventario:',
+            'inventario_inicial' => 'Inventario inicial:',
             'estado_insumo' => 'Activo:',
-            'usuariosistema' => 'Usuario',
-            'id_tipo_medida' => 'Tipo medida:',
+            'usuariosistema' => 'User name:',
+            'observacion' => 'Observacion:',
+            'idproveedor' => 'Proveedor:',
+            
         ];
     }
     
     public function getEstado()
     {
-        if($this->estado_insumo == 1){
+        if($this->estado_insumo == 0){
             $estado = "SI";
         }else{
             $estado = "NO";
         }
         return $estado;
     }
+    //aplica inventario
+    public function getAplicaInventario()
+    {
+        if($this->aplica_inventario == 0){
+            $aplicainventario = "NO";
+        }else{
+            $aplicainventario = "SI";
+        }
+        return $aplicainventario;
+    }
     
-      public function getTipomedida()
+    //inventario inicial
+    public function getInventarioInicial()
+    {
+        if($this->inventario_inicial == 0){
+            $inventarioinicial = "NO";
+        }else{
+            $inventarioinicial = "SI";
+        }
+        return $inventarioinicial;
+    }
+    
+    //aplica iva
+    public function getAplicaIva()
+    {
+        if($this->aplica_iva == 0){
+            $aplicaiva = "NO";
+        }else{
+            $aplicaiva = "SI";
+        }
+        return $aplicaiva;
+    }
+    
+    public function getTipomedida()
     {
         return $this->hasOne(TipoMedida::className(), ['id_tipo_medida' => 'id_tipo_medida']);
+    }
+    
+    public function getProveedorMateria()
+    {
+        return $this->hasOne(Proveedor::className(), ['idproveedor' => 'idproveedor']);
+    }
+    
+    public function getImpuesto()
+    {
+        return $this->hasOne(Impuestos::className(), ['id_impuesto' => 'id_impuesto']);
     }
 }

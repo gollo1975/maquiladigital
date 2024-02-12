@@ -6,8 +6,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\GrupoPago */
 
-$this->title = 'Nuevo insumo';
-$this->params['breadcrumbs'][] = ['label' => 'Insumos', 'url' => ['index']];
+$this->title = 'Nuevo';
+$this->params['breadcrumbs'][] = ['label' => 'Materia prima', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="insumos-create">

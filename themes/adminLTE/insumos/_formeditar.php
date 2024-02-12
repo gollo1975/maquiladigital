@@ -44,7 +44,7 @@ $porcentaje = ArrayHelper::map(Impuestos::find()->all(), 'id_impuesto', 'valor')
     
     <div class="panel-body">
         <div class="row">
-            <?= $form->field($model, 'codigo_insumo')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'codigo_insumo')->textInput(['maxlength' => true, 'readonly' => true]) ?>
             <?= $form->field($model, 'descripcion')->textInput(['maxlength' => true, 'size' => '30']) ?>
         </div>
         <div class="row">

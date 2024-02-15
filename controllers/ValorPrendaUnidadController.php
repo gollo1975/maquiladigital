@@ -741,7 +741,7 @@ class ValorPrendaUnidadController extends Controller
 
         return $this->render('create', [
             'model' => $model,
-            'orden' => ArrayHelper::map($orden, "idordenproduccion", "idordenproduccion"),
+            'orden' => ArrayHelper::map($orden, "idordenproduccion", "ordenValorPrenda"),
         ]);
     }
 
@@ -768,7 +768,7 @@ class ValorPrendaUnidadController extends Controller
         }
         return $this->render('update', [
             'model' => $model,
-            'orden' => ArrayHelper::map($orden, "idordenproduccion", "idordenproduccion"),
+            'orden' => ArrayHelper::map($orden, "idordenproduccion", "ordenValorPrenda"),
         ]);
     }
 

@@ -137,6 +137,11 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     {
         return " Codigo: {$this->codigoproducto} - Orden Producción: {$this->ordenproduccion}";
     }
+    // proceso para traer la OP y el codigo en el valor prenda
+    public function getOrdenValorPrenda()
+    {
+        return " Ref.: {$this->codigoproducto} - Op: {$this->idordenproduccion} - Servicio: {$this->tipo->tipo}";
+    }
     
     public function getAutorizar()
     {

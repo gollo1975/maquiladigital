@@ -71,8 +71,8 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     {
         return [
             'consecutivo' => 'Consecutivo',
-            'id_operario' => 'Id Operario',
-            'idordenproduccion' => 'Idordenproduccion',
+            'id_operario' => 'Operario:',
+            'idordenproduccion' => 'Op Interna:',
             'dia_pago' => 'Dia Pago',
             'cantidad' => 'Cantidad',
             'vlr_prenda' => 'Vlr Prenda',
@@ -89,7 +89,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'aplica_sabado' =>'aplica_sabado',
             'aplicar_porcentaje' => 'aplicar_porcentaje',
             'idproceso' => 'idproceso',
-            'iddetalleorden' => 'iddetalleorden',
+            'iddetalleorden' => 'Tallas:',
         ];
     }
 

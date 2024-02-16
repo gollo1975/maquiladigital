@@ -195,6 +195,7 @@ class ValorPrendaUnidadController extends Controller
         }
     } 
     
+       
     //PERMITE CONSULTAR LOS PAGOS DE SERVICIOS
     
     public function actionSearchpageprenda() {
@@ -1615,7 +1616,6 @@ class ValorPrendaUnidadController extends Controller
                         'token' => $token,
                         'pagination' => $pages,
                         'clientes' => ArrayHelper::map($clientes, "idcliente", "nombrecorto"),
-                       
             ]);
          }else{
             return $this->redirect(['site/sinpermiso']);
@@ -1639,9 +1639,8 @@ class ValorPrendaUnidadController extends Controller
             ]);
    }
    
-   //LISTADO DE OPERARIOS QUE CONFECCIONARON POR OPERACION
-   // LISTADO DE OPERACIONES POR TALLA
-   public function actionListado_operarios($id, $id_detalle, $id_operacion, $token){
+    // LISTADO DE OPERACIONES POR TALLA
+    public function actionListado_operarios($id, $id_detalle, $id_operacion, $token){
        $model = \app\models\FlujoOperaciones::find()->where(['=','idproceso', $id_operacion])->one();
        $operaciones = ValorPrendaUnidadDetalles::find()->where(['=','idordenproduccion', $id])
                                                 ->andWhere(['=','iddetalleorden', $id_detalle])
@@ -1654,8 +1653,67 @@ class ValorPrendaUnidadController extends Controller
                         'id_operacion' => $id_operacion,
                         'token' => $token,                                   
             ]);
-   }
-   
+    }
+   //maestro detalle de consulta por opreaciones
+     public function actionMaestro_operaciones() {
+        $model = new \app\models\FormFiltroMaestroOperaciones();
+        //creando vectores de busqueda
+        $modelo = [];
+        $iddetalleorden = null;
+        $orden = Ordenproduccion::find()->orderBy('idordenproduccion DESC')->all();
+        $operarios = Operarios::find()->orderBy('nombrecompleto DESC')->all();
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {
+            $iddetalleorden = $model->iddetalleorden;
+            $table = ValorPrendaUnidadDetalles::find()
+                        ->andFilterWhere(['=', 'id_operario', $model->id_operario])
+                        ->andFilterWhere(['=', 'idordenproduccion', $model->idordenproduccion])
+                        ->andFilterWhere(['=', 'iddetalleorden', $model->iddetalleorden]);
+            $table = $table->orderBy('consecutivo DESC');
+            $tableexcel = $table->all();
+            $count = clone $table;
+            $to = $count->count();
+            $pages = new Pagination([
+                'pageSize' => 15,
+                'totalCount' => $count->count()
+            ]);
+            $modelo = $table
+                    ->offset($pages->offset)
+                    ->limit($pages->limit)
+                    ->all();
+                    return $this->render('search_maestro_operaciones', [
+                        'model' => $model,
+                        'iddetalleorden' => $iddetalleorden,
+                        'orden' => ArrayHelper::map($orden, 'idordenproduccion', 'OrdenValorPrenda'),
+                        'operarios' => ArrayHelper::map($operarios, 'id_operario', 'nombrecompleto'),
+                        'modelo' =>$modelo,
+                        ]);
+
+            }
+        return $this->render('search_maestro_operaciones', [
+                'model' =>$model,
+                'iddetalleorden' => $iddetalleorden,
+                'modelo' => $modelo,
+                'orden' => ArrayHelper::map($orden, 'idordenproduccion', 'OrdenValorPrenda'),
+                'operarios' => ArrayHelper::map($operarios, 'id_operario', 'nombrecompleto'),
+        ]);
+    }
+    //llena el combo de las tallas
+    //proceso que llena los rack dependiendo el piso
+    public function actionLlenar_tallas($id){
+        $rows = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
+
+        echo "<option value='' required>Seleccione la talla...</option>";
+        if(count($rows)>0){
+            foreach($rows as $row){
+                echo "<option value='$row->iddetalleorden' required>$row->listadoTalla</option>";
+            }
+        }
+    }
+    
     //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
      public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $bodega) {        
         $model = \app\models\PagoNominaServicios::find()->where(['=','fecha_inicio', $fecha_inicio])

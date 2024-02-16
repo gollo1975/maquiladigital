@@ -220,6 +220,7 @@
                                                 ['label' => 'Unidades confeccionadas', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/consultaunidadconfeccionada']],
                                                 ['label' => 'Eficiencia modular', 'icon' => 'plus-square-o', 'url' => ['/balanceo/index_eficiencia_modular']],
                                                 ['label' => 'Pago x prenda', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/searchpageprenda']],
+                                                ['label' => 'Maestro operaciones', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/maestro_operaciones']],
                                             ],
                                         ],
                                         [

@@ -9,51 +9,88 @@ use kartik\select2\Select2;
 use yii\bootstrap\Modal;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
+use yii\widgets\LinkPager;
+//model
+use app\models\FlujoOperaciones;
 
 $this->title = 'Maestro operaciones (Consulta)';
 $this->params['breadcrumbs'][] = ['label' => 'Maestro operaciones', 'url' => ['maestro_operaciones']];
+if($sw == 1){
+    $listado_talla = ArrayHelper::map(\app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $form->idordenproduccion])->all(), 'iddetalleorden', 'listadoTalla');
+}
+if($form->idordenproduccion > 0){
+    $operaciones = ArrayHelper::map(FlujoOperaciones::find()->where(['=','idordenproduccion', $form->idordenproduccion])->orderBy('idproceso DESC')->all(), 'idproceso', 'mostrarOperacion');
+}
 ?>
-<?php $form = ActiveForm::begin([
-            "method" => "post",
-            'id' => 'formulario',
-            'enableClientValidation' => false,
-            'enableAjaxValidation' => true,
-            'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
-            'fieldConfig' => [
-                'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
-                'labelOptions' => ['class' => 'col-sm-2 control-label'],
-                'options' => []
-            ],
-        ]);
-?>
+<?php $formulario = ActiveForm::begin([
+    "method" => "get",
+    "action" => Url::toRoute("valor-prenda-unidad/maestro_operaciones"),
+    "enableClientValidation" => true,
+    'options' => ['class' => 'form-horizontal'],
+    'fieldConfig' => [
+                    'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
+                    'labelOptions' => ['class' => 'col-sm-2 control-label'],
+                    'options' => []
+                ],
 
-<div class="panel panel-success">
+]);?>
+
+<div class="panel panel-success panel-filters">
     <div class="panel-heading">
-        SELECCIONE EL PROCESO
+        Parametros de consulta
     </div>
-    <div class="panel-body">
+     <div class="panel-body" id="maestro_operaciones">
         <div class="row">
-             <?= $form->field($model, 'id_operario')->widget(Select2::classname(), [
+            <?= $formulario->field($form, 'idordenproduccion')->widget(Select2::classname(), [
+            'data' => $orden,
+            'options' => ['placeholder' => 'Seleccione la orden'],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+            ]); ?>
+            
+            <?= $formulario->field($form, 'id_operario')->widget(Select2::classname(), [
             'data' => $operarios,
             'options' => ['placeholder' => 'Seleccione la orden'],
             'pluginOptions' => [
                 'allowClear' => true
             ],
-        ]); ?>
-            <?= $form->field($model, 'idordenproduccion')->dropDownList($orden,['prompt'=>'Seleccione la OP...', 'onchange'=>' $.get( "'.Url::toRoute('valor-prenda-unidad/llenar_tallas').'", { id: $(this).val() } ) .done(function( data ) {
-            $( "#'.Html::getInputId($model, 'iddetalleorden',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
-            <?= $form->field($model, 'iddetalleorden')->dropDownList(['prompt' => 'Seleccione...']) ?>
+            ]); ?>
+            <?php if($form->idordenproduccion > 0){?>
+                <?= $formulario->field($form, 'idproceso')->widget(Select2::classname(), [
+                'data' => $operaciones,
+                'options' => ['placeholder' => 'Seleccione la operacion'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+                ]); ?>
+            <?php }
+             if($sw == 1){?>
+                <?= $formulario->field($form, 'iddetalleorden')->widget(Select2::classname(), [
+                'data' => $listado_talla,
+                'options' => ['placeholder' => 'Seleccione la talla'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+                ]); 
+            }?>
         </div>
-        
-        <div class="panel-footer text-right">
-                <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Search", ["class" => "btn btn-success btn-sm", 'name' => 'cambiar_posicion']) ?>     
-            </div>  
-    </div> 
-</div>    
-
+     </div>    
+    <div class="panel-footer text-right">
+        <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Search..", ["class" => "btn btn-primary btn-sm",]) ?>
+        <a align="right" href="<?= Url::toRoute("valor-prenda-unidad/maestro_operaciones") ?>" class="btn btn-default btn-sm"><span class='glyphicon glyphicon-refresh'></span> Limpiar</a>
+    </div>
+</div> 
+<?php $formulario->end() ?>
+<?php $form = ActiveForm::begin([
+                "method" => "post",                            
+            ]);
+    ?>
 <div class="panel panel-success">
         <div class="panel-heading">
-            LISTADO DE REGISTROS <span class="badge"> <?= count($modelo)?></span>
+            <?php if($modelo){?>
+                Registros: <span class="badge"> <?= $pagination->totalCount ?></span>
+            <?php }?>    
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-hover">
@@ -62,30 +99,57 @@ $this->params['breadcrumbs'][] = ['label' => 'Maestro operaciones', 'url' => ['m
                         <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Operacion</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
+                         <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Op</th>
+                          <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Fecha</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
+                         <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Confeccion</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Vr. unidad</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Total pago</th>
                         
                     </tr>
                 </thead>
-                <?php foreach ($modelo as $val):?>
-                    <tr style="font-size: 90%;">
-                        <td><?= $val->idproceso?></td>
-                        <td><?= $val->operaciones->proceso?></td>
-                        <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?></td>    
-                        <td><?= $val->idordenproduccion?></td>
-                        <td><?= $val->dia_pago?></td>
-                        <td><?= $val->cantidad?></td>
-                        <td><?= $val->vlr_prenda?></td>
-                        <td style="text-align: right"><?= ''.number_format($val->vlr_pago,0)?></td>
-                    </tr>
-                    
-                <?php endforeach;?>
+                <?php 
+                 if($modelo){
+                    foreach ($modelo as $val):?>
+                        <tr style="font-size: 90%;">
+                            <td><?= $val->idproceso?></td>
+                            <?php if($val->idproceso == null){?>
+                                <td><?= 'REGISTRO NO ENCONTRADO'?></td>
+                            <?php }else{?>
+                                <td><?= $val->operaciones->proceso?></td>
+                            <?php }
+                            if($val->iddetalleorden == null){?>
+                                <td><?= 'REGISTRO NO ENCONTRADO'?></td>
+                            <?php }else{?>
+                                <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?></td>    
+                            <?php }?>    
+                            <td><?= $val->operarioProduccion->nombrecompleto?></td>
+                            <td><?= $val->idordenproduccion?></td>
+                             <td><?= $val->planta->nombre_planta?></td>
+                            <td><?= $val->dia_pago?></td>
+                            <?php if($val->iddetalleorden == null){?>
+                                <td><?= 'REGISTRO NO ENCONTRADO'?></td>
+                            <?php }else{?>
+                               <td><?= $val->detalleOrdenProduccion->cantidad?></td> 
+                            <?php }?>    
+                            <td><?= $val->cantidad?></td>
+                            <td><?= $val->vlr_prenda?></td>
+                            <td style="text-align: right"><?= ''.number_format($val->vlr_pago,0)?></td>
+                        </tr>
+
+                    <?php endforeach;
+                 }?>
             </table> 
-              
+            <div class="panel-footer text-right" >            
+                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>                
+                <?php $form->end() ?>
+            </div>
         </div>
     </div>       
-<?php $form->end() ?>
+
+ <?php if($modelo){?>
+    <?= LinkPager::widget(['pagination' => $pagination]) ?>
+ <?php }?>
 

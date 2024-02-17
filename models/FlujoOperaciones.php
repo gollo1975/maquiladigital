@@ -98,4 +98,10 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
         }
         return $pieza;
     }
+    
+    //permite mostra el nombre de la operacion
+     public function getMostrarOperacion()
+    {
+        return "{$this->idproceso} - Nombre: {$this->proceso->proceso}";
+    } 
 }

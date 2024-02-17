@@ -1656,62 +1656,60 @@ class ValorPrendaUnidadController extends Controller
     }
    //maestro detalle de consulta por opreaciones
      public function actionMaestro_operaciones() {
-        $model = new \app\models\FormFiltroMaestroOperaciones();
+        $form = new \app\models\FormFiltroMaestroOperaciones();
         //creando vectores de busqueda
-        $modelo = [];
+        $modelo = 0;
+        $sw = 0;   $pages = null;
+        $idordenproduccion = null;
+        $id_operario = null;
         $iddetalleorden = null;
+        $idproceso = null;
         $orden = Ordenproduccion::find()->orderBy('idordenproduccion DESC')->all();
         $operarios = Operarios::find()->orderBy('nombrecompleto DESC')->all();
-        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-        if ($model->load(Yii::$app->request->post())) {
-            $iddetalleorden = $model->iddetalleorden;
-            $table = ValorPrendaUnidadDetalles::find()
-                        ->andFilterWhere(['=', 'id_operario', $model->id_operario])
-                        ->andFilterWhere(['=', 'idordenproduccion', $model->idordenproduccion])
-                        ->andFilterWhere(['=', 'iddetalleorden', $model->iddetalleorden]);
-            $table = $table->orderBy('consecutivo DESC');
-            $tableexcel = $table->all();
-            $count = clone $table;
-            $to = $count->count();
-            $pages = new Pagination([
-                'pageSize' => 15,
-                'totalCount' => $count->count()
-            ]);
-            $modelo = $table
-                    ->offset($pages->offset)
-                    ->limit($pages->limit)
-                    ->all();
-                    return $this->render('search_maestro_operaciones', [
-                        'model' => $model,
-                        'iddetalleorden' => $iddetalleorden,
-                        'orden' => ArrayHelper::map($orden, 'idordenproduccion', 'OrdenValorPrenda'),
-                        'operarios' => ArrayHelper::map($operarios, 'id_operario', 'nombrecompleto'),
-                        'modelo' =>$modelo,
-                        ]);
-
+        if ($form->load(Yii::$app->request->get())) {
+            $id_operario = Html::encode($form->id_operario);
+            $idordenproduccion = Html::encode($form->idordenproduccion);
+            $iddetalleorden = Html::encode($form->iddetalleorden);
+            $idproceso = Html::encode($form->idproceso);
+            if($id_operario > 0){
+                $sw = 1; 
             }
+            
+            if($form->idordenproduccion <> 0){
+                $table = ValorPrendaUnidadDetalles::find()
+                            ->andFilterWhere(['=', 'id_operario', $id_operario])
+                            ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
+                            ->andFilterWhere(['=', 'iddetalleorden', $iddetalleorden])
+                            ->andFilterWhere(['=', 'idproceso', $idproceso]);
+                $table = $table->orderBy('iddetalleorden DESC');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $to = $count->count();
+                $pages = new Pagination([
+                    'pageSize' => 25,
+                    'totalCount' => $count->count()
+                ]);
+                $modelo = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){                            
+                                $check = isset($_REQUEST['iddetalleorden DESC']);
+                                $this->actionExcelOperaciones($tableexcel);
+                            }
+                       
+            }else{
+                Yii::$app->getSession()->setFlash('warning', 'Debe se seleccion una opcion para ejecutar la consulta.');
+            }             
+        }
         return $this->render('search_maestro_operaciones', [
-                'model' =>$model,
-                'iddetalleorden' => $iddetalleorden,
+                'form' =>$form,
                 'modelo' => $modelo,
+                'sw' => $sw,
+                'pagination' => $pages,
                 'orden' => ArrayHelper::map($orden, 'idordenproduccion', 'OrdenValorPrenda'),
                 'operarios' => ArrayHelper::map($operarios, 'id_operario', 'nombrecompleto'),
         ]);
-    }
-    //llena el combo de las tallas
-    //proceso que llena los rack dependiendo el piso
-    public function actionLlenar_tallas($id){
-        $rows = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
-
-        echo "<option value='' required>Seleccione la talla...</option>";
-        if(count($rows)>0){
-            foreach($rows as $row){
-                echo "<option value='$row->iddetalleorden' required>$row->listadoTalla</option>";
-            }
-        }
     }
     
     //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
@@ -1990,6 +1988,116 @@ class ValorPrendaUnidadController extends Controller
         
     }
    
+    //DESCARGA EL LISTADO DE LAS OPERACIONES
+    public function actionExcelOperaciones($tableexcel) {        
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getStyle('2')->getFont()->setBold(true);        
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true); 
+        $objPHPExcel->getActiveSheet()->mergeCells("a".(1).":l".(1));
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A2', 'CODIGO')
+                    ->setCellValue('B2', 'OPERACION')
+                    ->setCellValue('C2', 'TALLA')
+                    ->setCellValue('D2', 'OPERARIO')
+                    ->setCellValue('E2', 'OP')
+                    ->setCellValue('F2', 'FECHA CONFECCION')
+                    ->setCellValue('G2', 'UNIDAD X TALLA')
+                    ->setCellValue('H2', 'CANT. CONFECCIONADA')
+                    ->setCellValue('I2', 'VR. OPERACION')
+                    ->setCellValue('J2', 'TOTAL PAGO')
+                    ->setCellValue('K2', 'PLANTA')
+                    ->setCellValue('L2', 'SERVICIO')
+                    ->setCellValue('M2', 'USUARIO');
+                    
+                  
+        $i = 3;
+        foreach ($tableexcel as $val) {                            
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->idproceso);
+                    if($val->idproceso == null){
+                        $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('B' . $i, 'REGISTRO NO ENCONTRATO');
+                    }else{
+                        $objPHPExcel->setActiveSheetIndex(0)
+                       ->setCellValue('B' . $i, $val->operaciones->proceso);    
+                    }            
+                    if($val->iddetalleorden == null){
+                       $objPHPExcel->setActiveSheetIndex(0)
+                       ->setCellValue('C' . $i, 'REGISTRO NO ENCONTRATO');        
+                    }else{
+                       $objPHPExcel->setActiveSheetIndex(0) 
+                       ->setCellValue('C' . $i, $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla);        
+                    }
+                    $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('D' . $i, $val->operarioProduccion->nombrecompleto)
+                    ->setCellValue('E' . $i, $val->idordenproduccion)
+                    ->setCellValue('F' . $i, $val->dia_pago);
+                    if($val->iddetalleorden == null){        
+                        $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('G' . $i, 'REGISTRO NO ENCONTRATO');                 
+                    }else{
+                       $objPHPExcel->setActiveSheetIndex(0) 
+                       ->setCellValue('G' . $i, $val->detalleOrdenProduccion->cantidad);    
+                    }
+                    $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('H' . $i, $val->cantidad)
+                    ->setCellValue('I' . $i, $val->vlr_prenda)
+                    ->setCellValue('J' . $i, $val->vlr_pago)
+                    ->setCellValue('K' . $i, $val->planta->nombre_planta)
+                    ->setCellValue('L' . $i, $val->tipoproceso->tipo)
+                    ->setCellValue('M' . $i, $val->usuariosistema);
+              
+                   
+            $i++;                        
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Total pagar');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition: attachment;filename="Valor_Nomina.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0 
+        header("Content-Transfer-Encoding: binary ");
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);        
+        $objWriter->save('php://output');
+        //$objWriter->save($pFilename = 'Descargas');
+        exit; 
+        
+    }
+    
     public function actionGenerarexcel($id) {        
         $ficha = ValorPrendaUnidad::findOne($id);
         $model = ValorPrendaUnidadDetalles::find()->where(['=','id_valor',$id])->orderBy([ 'id_operario' =>SORT_ASC ])->all();

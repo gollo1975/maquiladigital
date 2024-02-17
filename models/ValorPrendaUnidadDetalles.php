@@ -103,7 +103,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     
      public function getTipoproceso()
     {
-        return $this->hasOne(Ordenproducciontipo::className(), ['id_tipo' => 'idtipo']);
+        return $this->hasOne(Ordenproducciontipo::className(), ['idtipo' => 'id_tipo']);
     }
     
      public function getDetalleOrdenProduccion()

@@ -1699,7 +1699,7 @@ class ValorPrendaUnidadController extends Controller
                             }
                        
             }else{
-                Yii::$app->getSession()->setFlash('warning', 'Debe se seleccion una opcion para ejecutar la consulta.');
+                Yii::$app->getSession()->setFlash('warning', 'Debe se seleccion una ORDEN DE PRODUCCION para ejecutar la consulta.');
             }             
         }
         return $this->render('search_maestro_operaciones', [

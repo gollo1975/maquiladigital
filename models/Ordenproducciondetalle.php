@@ -44,10 +44,11 @@ class Ordenproducciondetalle extends \yii\db\ActiveRecord
     {
         return [
             [['idproductodetalle', 'codigoproducto', 'cantidad', 'vlrprecio', 'idordenproduccion'], 'required'],            
-            [['idproductodetalle', 'cantidad', 'idordenproduccion', 'generado', 'facturado','cantidad_operada','cantidad_efectiva'], 'integer'],
+            [['idproductodetalle', 'cantidad', 'idordenproduccion', 'generado', 'facturado','cantidad_operada','cantidad_efectiva','id_planta'], 'integer'],
             [['vlrprecio', 'subtotal','ponderacion', 'porcentaje_proceso','porcentaje_cantidad','totalsegundos','segundosficha'], 'number'],
             [['codigoproducto'], 'string', 'max' => 15],
             [['idproductodetalle'], 'exist', 'skipOnError' => true, 'targetClass' => Productodetalle::className(), 'targetAttribute' => ['idproductodetalle' => 'idproductodetalle']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -72,6 +73,7 @@ class Ordenproducciondetalle extends \yii\db\ActiveRecord
             'cantidad_efectiva' => 'Cantidad Efectiva',
             'cantidad_operada' => 'Cantidad operada',
             'totalsegundos' => 'Total Segundos',
+            'id_planta' => 'Planta:',
         ];
     }
 
@@ -81,6 +83,11 @@ class Ordenproducciondetalle extends \yii\db\ActiveRecord
     public function getProductodetalle()
     {
         return $this->hasOne(Productodetalle::className(), ['idproductodetalle' => 'idproductodetalle']);
+    }
+     
+    public function getPlantaProduccion()
+     {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
     }
 
     /**

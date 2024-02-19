@@ -164,6 +164,88 @@ class OrdenProduccionController extends Controller {
         }
     }
 
+    //INDEX PARA ASIGNAR TALLA A UNA PLANTA
+    public function actionIndex_asignacion() {
+         if (Yii::$app->user->identity){
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',133])->all()){
+            $form = new FormFiltroConsultaOrdenproduccion();
+            $idcliente = null;
+            $desde = null;
+            $hasta = null;
+            $codigoproducto = null;
+            $facturado = null;
+            $tipo = null;
+            $ordenproduccionint = null;
+            $ordenproduccioncliente = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idcliente = Html::encode($form->idcliente);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $codigoproducto = Html::encode($form->codigoproducto);
+                    $facturado = Html::encode($form->facturado);
+                    $tipo = Html::encode($form->tipo);
+                    $ordenproduccionint = Html::encode($form->ordenproduccionint);
+                    $ordenproduccioncliente = Html::encode($form->ordenproduccioncliente);
+                    $table = Ordenproduccion::find()
+                            ->andFilterWhere(['=', 'idcliente', $idcliente])
+                            ->andFilterWhere(['>=', 'fechallegada', $desde])
+                            ->andFilterWhere(['<=', 'fechallegada', $hasta])
+                            ->andFilterWhere(['=', 'facturado', $facturado])
+                            ->andFilterWhere(['=', 'idtipo', $tipo])
+                            ->andFilterWhere(['=', 'idordenproduccion', $ordenproduccionint])
+                            ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
+                            ->andFilterWhere(['=', 'ordenproduccion', $ordenproduccioncliente]);
+                    $table = $table->orderBy('idordenproduccion desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 60,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){
+                        //$table = $table->all();
+                        $this->actionExcelconsulta($tableexcel);
+                    }
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = Ordenproduccion::find()
+                        ->orderBy('idordenproduccion desc');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 60,
+                    'totalCount' => $count->count(),
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                    $this->actionExcelconsulta($tableexcel);
+                }
+            }
+            $to = $count->count();
+            return $this->render('index_asignacion', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+            ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
+        }else{
+            return $this->redirect(['site/login']);
+        }
+    }
     //INDEX DE CONSULTA DE UNDIADES CONFECCIONADAS
     
     public function actionConsultaunidadconfeccionada() {
@@ -604,6 +686,38 @@ class OrdenProduccionController extends Controller {
                 'indicador' => $indicador,
         ]);
      }
+    
+    //VISTA DE ASIGNACION DE TALLAS
+    public function actionView_asignacion($id) {
+        $modeldetalles = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
+      return $this->render('view_asignacion', [
+                    'model' => $this->findModel($id),
+                    'id' => $id,
+                    'modeldetalles' => $modeldetalles,
+        ]);  
+    }
+     //ASIGNAR TALLA A PLANTA DE PRODUCCION
+    public function actionAsignacion_talla($id, $id_detalle) {
+        $model = new \app\models\ModelAsignacionTalla();
+        $table = Ordenproducciondetalle::findOne($id_detalle);
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["actualizar_planta"])) { 
+                $table->id_planta = $model->planta;
+                $table->save(false);
+                $this->redirect(["orden-produccion/view_asignacion", 'id' => $id]);
+            }    
+        }
+         if (Yii::$app->request->get()) {
+            $model->planta = $table->id_planta;
+         }
+        return $this->renderAjax('asignacion_talla', [
+            'model' => $model,
+            'id_detalle' => $id_detalle,
+            'id' => $id,
+           
+        ]);
+       
+    }
     
     /**
      * Creates a new Ordenproduccion model.

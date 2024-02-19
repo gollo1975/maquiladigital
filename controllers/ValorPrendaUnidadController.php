@@ -689,7 +689,8 @@ class ValorPrendaUnidadController extends Controller
     //PROCESO QUE BUSCA LAS TALLAS DE LA OP.
     
     public function actionSearch_tallas_ordenes($idordenproduccion, $id, $id_planta) {
-        $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+        $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])
+                                                               ->andWhere(['=','id_planta', $id_planta])->all();
         return $this->render('search_tallas_ordenes', [
             'model' => $this->findModel($id),
             'id_planta' =>$id_planta,

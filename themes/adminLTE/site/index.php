@@ -14,6 +14,7 @@ $cliente = \app\models\Cliente::find()->where(['=','proceso', 1])->all();
 $this->title = $empresa->nombresistema;
 $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
 ?>
+
 <div class="panel panel-success">
     <div class="login-logo">
         <a href="#"><b><?= $empresa->nombresistema ?></a>
@@ -69,6 +70,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
         </div>
     </section> 
     </div>  
+    
 <div class="container my-5">
 
   <!-- Footer -->

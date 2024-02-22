@@ -83,15 +83,15 @@ $this->params['breadcrumbs'][] = $this->title;
             <thead>
                 <tr style ='font-size:85%;'>                
                 <th scope="col" style='background-color:#B9D5CE;'>Nro balanceo</th>
-                  <th scope="col" style='background-color:#B9D5CE;'>No_Operarios</th>
+                <th scope="col" style='background-color:#B9D5CE;'>No_Operarios</th>
                 <th scope="col" style='background-color:#B9D5CE;'>OP</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Facturado</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha entrada</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Observacion</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. confeccion</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
               
             </tr>
             </thead>
@@ -105,20 +105,20 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $val->id_balanceo ?></td>
                         <td><?= $val->nro_operarios ?></td>
                         <td><?= $val->idordenproduccion ?></td>
+                        <td><?= $val->ordenproduccion->codigoproducto ?></td>
+                        <td><?= $val->detalleorden->productodetalle->prendatipo->talla->talla?></td>
                         <td><?= $val->ordenproduccion->cliente->nombrecorto ?></td>
-                        <td><?= $val->detalleorden->productodetalle->prendatipo->prenda. ' / '. $val->detalleorden->productodetalle->prendatipo->talla->talla?></td>
                         <td align="right"><?= ''.number_format($val->cantidad_terminada,0)?></td>
                         <td align="right"><?= ''. number_format($val->detalleorden->vlrprecio * $val->cantidad_terminada,0) ?></td>
                         <td><?= $val->fecha_entrada ?></td>
-                        <td><?= $val->usuariosistema ?></td>
-                        <td><?= $val->observacion?></td>
+                        <td><?= $val->detalleorden->plantaProduccion->nombre_planta ?></td>
 
                 <?php
                 $unidades +=  $val->cantidad_terminada;
                 $facturado += $val->detalleorden->vlrprecio * $val->cantidad_terminada;
                 endforeach; ?>
             </tbody>           
-            <td colspan="3"><td></td><td ></td> <td style="font-size: 85%; width: 110px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Total:</b> <?= ''.number_format($unidades,0) ?></td><td style="font-size: 85%; width: 160px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Facturado:</b> <?= ''.number_format($facturado,0) ?></td> <td colspan="1">
+            <td colspan="4"><td></td><td ></td> <td style="font-size: 85%; width: 110px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Total:</b> <?= ''.number_format($unidades,0) ?></td><td style="font-size: 85%; width: 160px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Facturado:</b> <?= ''.number_format($facturado,0) ?></td> <td colspan="1">
         </table>    
         <div class="panel-footer text-right" >            
                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                

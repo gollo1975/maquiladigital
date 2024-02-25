@@ -163,7 +163,7 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
                                         <th scope="col" style='background-color:#B9D5CE;'>% Cum.</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Observación</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'></th> 
-                                         <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -225,7 +225,7 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="text" name="observacion[]" value="<?= $val->observacion ?>" size="16" ></td>  
                                                     <input type="hidden" name="detalle_pago_prenda[]" value="<?= $val->consecutivo ?>">
                                                     <?php if($model->autorizado == 0){?>        
-                                                        <td>
+                                                         <td style= 'width: 15px; height: 10px;'>
                                                               <?php if ($model->estado_valor == 0){ ?>
                                                               <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], [
                                                                   'class' => '',

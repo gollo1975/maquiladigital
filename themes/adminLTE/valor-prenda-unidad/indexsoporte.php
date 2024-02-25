@@ -47,7 +47,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
 	
-    <div class="panel-body" id="filtro" style="display:none">
+    <div class="panel-body" id="filtro" style="display:block">
         <div class="row" >
             <?= $formulario->field($form, "idordenproduccion")->input("search") ?>
              <?= $formulario->field($form, 'id_operario')->widget(Select2::classname(), [
@@ -150,16 +150,17 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <tr style ='font-size:85%;'>                
                                 <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>OP</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operación</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>F. confeccion</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Cant.</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Vr. Prenda</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>T. pagado</th>
-                                <th scope="col" style='background-color:#B9D5CE;'><span title="Porcentaje de cumplimiento">% Cump.</span></th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                <th scope="col" style='background-color:#B9D5CE;'><span title="Porcentaje de cumplimiento">%</span></th>
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Bodega o planta" >Planta</span></th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Observacion</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                             </thead>
                             <body>
                                 <?php 
@@ -168,20 +169,29 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <tr style='font-size:85%;'>  
                                             <td><?= $val->consecutivo ?></td>
                                             <td><?= $val->idordenproduccion ?></td>
+                                            <td><?= $val->ordenproduccion->codigoproducto ?></td>
                                             <?php if($val->id_operario == (NULL)){?>
                                                 <td style='background-color:#AFE7CB;'><?= 'REGISTRO EN CONSTRUCCION'?> </td> 
                                             <?php }else{?>
                                                 <td><?= $val->operarioProduccion->nombrecompleto?> </td>
+                                            <?php }
+                                            if($val->idproceso == null){ ?>    
+                                                <td style='background-color:#B9D5CE;'><?= 'NO FOUND'?></td>
+                                            <?php }else{?>    
+                                                <td><?= $val->operaciones->proceso?></td>
                                             <?php }?>    
-                                            <td><?= $val->operacionPrenda?></td>
-                                             <td><?= $val->dia_pago ?></td>
+                                            <?php if($val->iddetalleorden == null){?>
+                                                <td style='background-color:#B9D5CE;'><?= 'NO FOUND'?></td>
+                                            <?php }else{?>
+                                                <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?></td> 
+                                            <?php }?>    
+                                             <td><?= $val->dia_pago ?></td> 
                                             <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
                                             <td align="right"><?= ''.number_format($val->vlr_prenda,0) ?></td>
                                             <td align="right"><?= ''.number_format($val->vlr_pago,0) ?></td>
-                                              <td><?= $val->porcentaje_cumplimiento ?></td>
-                                            <td><?= $val->usuariosistema ?></td>
+                                              <td><?= $val->porcentaje_cumplimiento ?> %</td>
                                             <td><?= $val->planta->nombre_planta?></td>
-                                            <td><?= $val->observacion?></td>
+                                            <td><?= $val->usuariosistema?></td>
 
                                     <?php endforeach;
                                 }?>

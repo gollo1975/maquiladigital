@@ -291,6 +291,7 @@ class ValorPrendaUnidadController extends Controller
                     $intIndice = 0;
                     $salario = 0;
                     $auxiliar = 0;
+                    $maestroValor = ValorPrendaUnidad::findOne($id);
                     foreach ($_POST["detalle_pago_prenda"] as $intCodigo) { 
                         $table = ValorPrendaUnidadDetalles::findOne($intCodigo);
                         $table->id_operario = $_POST["id_operario"][$intIndice];
@@ -300,6 +301,7 @@ class ValorPrendaUnidadController extends Controller
                         $table->control_fecha = $_POST["control_fecha"][$intIndice];
                         $table->aplica_sabado = $_POST["aplica_sabado"][$intIndice];
                         $auxiliar = $table->control_fecha;
+                        var_dump($_POST["id_operario"][$intIndice]);
                         $operario = Operarios::find()->where(['=','id_operario', $_POST["id_operario"][$intIndice]])->one();
                         $valor_unidad = ValorPrendaUnidad::find()->where(['=','id_valor', $id])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
                         $vlr_unidad = 0; 
@@ -362,6 +364,9 @@ class ValorPrendaUnidadController extends Controller
                                     $table->observacion = 'Vinculado';
                                     $table->porcentaje_cumplimiento = $cumplimiento;
                                     $table->meta_diaria = $metaDiaria;
+                                    if($maestroValor->tipo_proceso_pago == 2){
+                                    $table->aplica_regla = 1;    
+                                    }
                                     $table->save(false);
                                     $intIndice++;
                                 }else{
@@ -405,6 +410,9 @@ class ValorPrendaUnidadController extends Controller
                                     $table->observacion = 'No vinculado';
                                     $table->porcentaje_cumplimiento = $cumplimiento;
                                     $table->meta_diaria = $metaDiaria;
+                                    if($maestroValor->tipo_proceso_pago == 2){
+                                       $table->aplica_regla = 1;    
+                                    }
                                     $table->save(false);
                                     $intIndice++;
                                }  

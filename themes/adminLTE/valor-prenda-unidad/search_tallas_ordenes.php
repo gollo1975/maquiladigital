@@ -22,7 +22,7 @@ use kartik\select2\Select2;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
-$this->title = 'Consulta de tallas ('. $model->planta->nombre_planta.')';
+$this->title = 'Consulta de tallas ('. $model->planta->nombre_planta. ')-(Referencia: '.$orden->codigoproducto.')';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <p>
@@ -72,7 +72,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <td style="text-align: right"><?= ''.number_format($val->costo_confeccion,0) ?></td>
                             <?php if($model->autorizado == 0){?>
                                 <td style= 'width: 15px; height: 10px;'>
-                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/view_search_operaciones", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/view_search_operaciones", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'codigo' => $val->codigoproducto]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                                 </td>
                                 <td style= 'width: 15px; height: 10px;'>
                                     <a href="<?= Url::toRoute(["valor-prenda-unidad/cantidad_talla_confeccion", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta,'id_detalle' => $val->iddetalleorden]) ?>" ><span class="glyphicon glyphicon-list"></span></a>

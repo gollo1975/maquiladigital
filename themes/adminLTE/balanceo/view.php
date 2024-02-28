@@ -75,7 +75,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nro_modulo') ?>:</th>
                     <td><?= Html::encode($model->modulo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Orden_Produccion') ?>:</th>
-                    <td><?= Html::encode($model->idordenproduccion)?> - <h8><b>OP-Cliente:</b></h8> <?= Html::encode($model->ordenproduccion->ordenproduccion)?></td>
+                    <td><?= Html::encode($model->idordenproduccion)?> - <h7><b>Referencia:</b></h7> <?= Html::encode($model->ordenproduccion->codigoproducto)?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Estado') ?>:</th>
                     <td><?= Html::encode($model->estadomodulo) ?></td>
                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Operarios') ?>:</th>

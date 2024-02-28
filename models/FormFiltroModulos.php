@@ -13,12 +13,14 @@ class FormFiltroModulos extends Model
     public $idcliente;
     public $idordenproduccion;
     public $fecha_inicio;
-        
+    public $activo;
+
+
     public function rules()
     {
         return [
 
-            [['idcliente', 'idordenproduccion'], 'integer'],
+            [['idcliente', 'idordenproduccion','activo'], 'integer'],
             ['fecha_inicio', 'safe'],
         ];
     }
@@ -30,6 +32,7 @@ class FormFiltroModulos extends Model
             'idcliente' => 'Cliente:',
             'idordenproduccion' => 'Orden de Producción:',
             'fecha_inicio' => 'Fecha inicio:',
+            'activo' => 'Modulo activo',
         ];
     }
 }

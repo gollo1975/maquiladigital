@@ -27,7 +27,7 @@ $dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".date('Y') ;
 
-$this->title = 'Ingreso de pagos ('. $model->planta->nombre_planta. ')';
+$this->title = 'Ingreso de pagos ('. $model->planta->nombre_planta. ')-(Referencia:' . $codigo.' )';
 $this->params['breadcrumbs'][] = $this->title;
 $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $model->id_planta])->orderBy('nombrecompleto ASC')->all(), 'id_operario', 'nombrecompleto');
 
@@ -37,7 +37,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
 </p> 
 <?php $formulario = ActiveForm::begin([
     "method" => "get",  
-    "action" => Url::toRoute(["valor-prenda-unidad/view_search_operaciones", 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $model->id_planta, 'id_detalle' => $id_detalle]),
+    "action" => Url::toRoute(["valor-prenda-unidad/view_search_operaciones", 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $model->id_planta, 'id_detalle' => $id_detalle, 'codigo' => $codigo]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [

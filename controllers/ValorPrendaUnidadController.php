@@ -477,7 +477,7 @@ class ValorPrendaUnidadController extends Controller
     }
     
    //VISTA QUE TRAE LAS OPERACIONES DE LA OP
-    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta){
+    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta, $codigo){
         $form = new \app\models\ModeloBuscarOperario();
         $operario = null;
         $detalle_balanceo = 0;
@@ -501,7 +501,7 @@ class ValorPrendaUnidadController extends Controller
                                                                         ->andWhere(['=','id_balanceo', $modulo])->all();
             }else{
                 Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO y TALLA para la busqueda.');
-                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle]);
+                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo]);
             }
         }
         if (isset($_POST["envia_dato_confeccion"])) {
@@ -585,6 +585,7 @@ class ValorPrendaUnidadController extends Controller
             'detalle_balanceo' =>  $detalle_balanceo,
             'id_detalle' => $id_detalle,
             'empresa' => $empresa,
+             'codigo' => $codigo,
             'nombre_modulo' => ArrayHelper::map($nombre_modulo, "id_balanceo", "nombreBalanceo"),
             'listado_tallas' => ArrayHelper::map($listado_tallas, "iddetalleorden", "listadoTalla"),
           
@@ -699,10 +700,12 @@ class ValorPrendaUnidadController extends Controller
     public function actionSearch_tallas_ordenes($idordenproduccion, $id, $id_planta) {
         $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])
                                                                ->andWhere(['=','id_planta', $id_planta])->all();
+        $orden = Ordenproduccion::findOne($idordenproduccion);
         return $this->render('search_tallas_ordenes', [
             'model' => $this->findModel($id),
             'id_planta' =>$id_planta,
             'conTallas' =>  $conTallas,
+            'orden' => $orden,
            
         ]);
     }

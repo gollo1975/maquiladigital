@@ -66,15 +66,18 @@ class BalanceoController extends Controller
             $idcliente = null;
             $fecha_inicio = null;
             $idordenproduccion = null;
+            $activo = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);
                     $fecha_inicio = Html::encode($form->fecha_inicio);
                     $idordenproduccion = Html::encode($form->idordenproduccion);
+                    $activo = Html::encode($form->activo);
                     $table = Balanceo::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['>=', 'fecha_inicio', $fecha_inicio])
-                            ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion]);
+                            ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
+                            ->andFilterWhere(['=', 'estado_modulo', $activo]);
                     $table = $table->orderBy('id_balanceo desc');
                     $tableexcel = $table->all();
                     $count = clone $table;

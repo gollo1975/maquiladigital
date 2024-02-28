@@ -68,7 +68,7 @@ $cliente = ArrayHelper::map(Cliente::find()->orderBy('nombrecorto ASC')->all(), 
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
-        
+            <?= $formulario->field($form, 'activo')->dropdownList(['0' => 'SI', '1' => 'NO'], ['prompt' => 'Seleccione...']) ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -93,7 +93,7 @@ $form = ActiveForm::begin([
                 <tr >         
                 <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Nro del modulo">Mod.</span></th>
-                <th scope="col" style='background-color:#B9D5CE;'><span title="Orden produccion interna">Op_Int.</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Orden produccion interna">Op</span></th>
                  <th scope="col" style='background-color:#B9D5CE;'><span title="Referencia">Ref.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Operarios"># Ope.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. Inicio</th>

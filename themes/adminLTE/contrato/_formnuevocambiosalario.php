@@ -47,7 +47,7 @@ $contenido = ArrayHelper::map(FormatoContenido::find()->where(['=','id_configura
                      <?= $form->field($model, 'observacion')->textarea(['maxlength' => true]) ?>
                 </div>
                 <div class="panel-footer text-right">			
-                    <a href="<?= Url::toRoute(['contrato/view', 'id' => $id]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
+                    <a href="<?= Url::toRoute(['contrato/view', 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
                     <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
                 </div>
             </div>

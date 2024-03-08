@@ -147,7 +147,7 @@ $tiempo = ArrayHelper::map(TiempoServicio::find()->orderBy ('id_tiempo ASC')->al
                     </td>
                 <?php }else{?>
                     <td style="width: 25px;">				
-                    <a href="<?= Url::toRoute(["contrato/view", "id" => $val->id_contrato]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                    <a href="<?= Url::toRoute(["contrato/view", "id" => $val->id_contrato,'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
                     <td></td>
                     <td></td>

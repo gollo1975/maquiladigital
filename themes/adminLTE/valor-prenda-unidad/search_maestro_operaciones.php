@@ -105,7 +105,8 @@ if($form->idordenproduccion > 0){
                         <th scope="col" style='background-color:#B9D5CE;'>Fecha</th>
                          <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Confeccion</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Vr. unidad</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Valor</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>%</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Total pago</th>
                         
                     </tr>
@@ -136,6 +137,7 @@ if($form->idordenproduccion > 0){
                             <?php }?>    
                             <td><?= $val->cantidad?></td>
                             <td><?= $val->vlr_prenda?></td>
+                             <td><?= $val->porcentaje_cumplimiento?></td>
                             <td style="text-align: right"><?= ''.number_format($val->vlr_pago,0)?></td>
                         </tr>
 

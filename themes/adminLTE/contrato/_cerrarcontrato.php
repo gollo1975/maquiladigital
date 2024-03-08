@@ -17,8 +17,8 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => true,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>',
-            'labelOptions' => ['class' => 'col-sm-3 control-label'],
+            'template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>',
+            'labelOptions' => ['class' => 'col-sm-4 control-label'],
             'options' => []
         ],
         ]);
@@ -35,7 +35,7 @@ $motivos = ArrayHelper::map(MotivoTerminacion::find()->all(), 'id_motivo_termina
         <div class="table table-responsive">
             <div class="panel panel-success ">
                 <div class="panel-heading">
-                    Información terminación: 
+                    Terminacion del contrato de trabajo 
                 </div>
                 <div class="panel-body">
                     <div class="row">
@@ -55,7 +55,7 @@ $motivos = ArrayHelper::map(MotivoTerminacion::find()->all(), 'id_motivo_termina
                         ?>                        
                     </div>  
                     <div class="row" col>
-                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
                     </div>
                    <div class="checkbox checkbox-success" align ="center">  
                         <?= $form->field($model, 'generar_liquidacion')->checkBox(['name'=>'generar_liquidacion[]', 'checked'=>'true', 'label' => 'Genera liquidación',''=>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'generar_liquidacion']) ?> 

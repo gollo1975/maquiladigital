@@ -23,13 +23,6 @@ $view = 'contrato';
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
 	<?php if ($model->contrato_activo == 1){ ?>
             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_contrato], ['class' => 'btn btn-success btn-sm']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->id_contrato], [
-                'class' => 'btn btn-danger btn-sm',
-                'data' => [
-                    'confirm' => 'Esta seguro de eliminar el registro?',
-                    'method' => 'post',
-                ],
-            ]) ?>
         <?php }?>
         <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimircontrato', 'id' => $model->id_contrato], ['class' => 'btn btn-default btn-sm']); ?>
         <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 11, 'codigo' => $model->id_contrato,'view' => $view,'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>        
@@ -47,10 +40,10 @@ $view = 'contrato';
                 ?>
         <?php }else{ ?>
                 <!-- Abrir contrato-->
-                <?= Html::a('<span class="glyphicon glyphicon-open"></span> Abrir contrato', ['abrircontrato', 'id' => $model->id_contrato], ['class' => 'btn btn-default btn-sm']); ?>
+                <?= Html::a('<span class="glyphicon glyphicon-open"></span> Abrir contrato', ['abrircontrato', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-default btn-sm']); ?>
         <?php }?>        
         <div class="modal remote fade" id="modalcerrarcontrato<?= $model->id_contrato ?>">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-md">
                 <div class="modal-content"></div>
             </div>
         </div>

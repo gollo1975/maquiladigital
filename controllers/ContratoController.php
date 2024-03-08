@@ -487,9 +487,9 @@ class ContratoController extends Controller
             $this->redirect(["contrato/index"]);
         } catch (IntegrityException $e) {
             $this->redirect(["contrato/index"]);
-            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el empleado, tiene registros asociados en otros procesos');
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el contrato, tiene registros asociados en otros procesos');
         } catch (\Exception $e) {            
-            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el empleado, tiene registros asociados en otros procesos');
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el contrato, tiene registros asociados en otros procesos');
             $this->redirect(["contrato/index"]);
         }
     }

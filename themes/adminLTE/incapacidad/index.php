@@ -68,22 +68,7 @@ $configuracionincapacidad = ArrayHelper::map(ConfiguracionIncapacidad::find()->a
                 ],
             ]); ?>
              <?= $formulario->field($form, "numero_incapacidad")->input("search") ?>
-             <?= $formulario->field($form, 'id_grupo_pago')->widget(Select2::classname(), [
-                'data' => $grupopago,
-                'options' => ['prompt' => 'Seleccione...'],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
-      
-            <?= $formulario->field($form, 'codigo_incapacidad')->widget(Select2::classname(), [
-                'data' => $configuracionincapacidad,
-                'options' => ['prompt' => 'Seleccione...'],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
-            <?= $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+             <?= $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
@@ -98,6 +83,22 @@ $configuracionincapacidad = ArrayHelper::map(ConfiguracionIncapacidad::find()->a
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+             <?= $formulario->field($form, 'id_grupo_pago')->widget(Select2::classname(), [
+                'data' => $grupopago,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+                
+            <?= $formulario->field($form, 'codigo_incapacidad')->widget(Select2::classname(), [
+                'data' => $configuracionincapacidad,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+           
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>

@@ -234,10 +234,10 @@ class IncapacidadController extends Controller
                     $empleado = Empleado::find()->where(['id_empleado'=>$model->id_empleado])->one();
                     $contrato = Contrato::find()->where(['=','id_empleado',$model->id_empleado])->andWhere(['=','contrato_activo',1])->one();
                     $diagnostico = DiagnosticoIncapacidad::find()->where(['=','id_codigo',$model->id_codigo])->one();
-                    $fecha_contrato = strtotime(date($contrato->fecha_inicio, time()));
-                    $fecha_inicio_inca = strtotime(date($model->fecha_inicio, time()));
-                    $fecha_inicio_incapacidad = strtotime($model->fecha_inicio);
-                    $fecha_final_incapacidad = strtotime($model->fecha_final);
+                    $fecha_contrato = date($contrato->fecha_inicio);
+                    $fecha_inicio_inca = date($model->fecha_inicio);
+                    $fecha_inicio_incapacidad = date($model->fecha_inicio);
+                    $fecha_final_incapacidad = date($model->fecha_final);
                     //termina
                     if($fecha_contrato > $fecha_inicio_incapacidad){
                          Yii::$app->getSession()->setFlash('error', 'Error de digitalización, La fecha de inicio de la incapacidad No puede ser inferior a la fecha de inicio del contrato.');
@@ -245,21 +245,18 @@ class IncapacidadController extends Controller
                         if($fecha_inicio_inca > $fecha_final_incapacidad){
                              Yii::$app->getSession()->setFlash('error', 'Error de fechas, La fecha de inicio de la incapacidad No puede ser mayor que la fecha final de la licencia');          
                         }else{   
-                            $licencia = \app\models\Licencia::find()->where(['=','id_empleado', $model->id_empleado])->all();
+                            $licencia = \app\models\Licencia::find()->where(['=','id_empleado', $model->id_empleado])->andWhere([])->all();
                             $contLice = count($licencia);
                             if($contLice < 0){
                             }else{
                                 foreach ($licencia as $val):
-                                    $fecha_inicio_licencia = strtotime($val->fecha_desde);
-                                    $fecha_final_licencia = strtotime($val->fecha_hasta);
-                                    if($fecha_inicio_licencia == ($fecha_inicio_incapacidad)){
+                                    $fecha_inicio_licencia = date($val->fecha_desde);
+                                    $fecha_final_licencia = date($val->fecha_hasta);
+                                    if($fecha_inicio_licencia == $fecha_inicio_incapacidad){
                                        Yii::$app->getSession()->setFlash('error', 'Error de fechas: la fecha de inicio de esta incapacidad conincide con al fecha de inicio de una licencia');          
                                     }
                                     if($fecha_final_incapacidad == $fecha_final_licencia){
                                          Yii::$app->getSession()->setFlash('error', 'Error de fechas: La fecha de final de esta incapacidad conincide con al fecha de fecha final de una licencia');          
-                                    }
-                                    if ($fecha_inicio_licencia <= $fecha_final_incapacidad){
-                                        Yii::$app->getSession()->setFlash('error', 'Error de fechas: La fecha de inicio de la licencia No puede ser inferior a la fecha de inicio del contrato'); 
                                     }
                                 endforeach;  
                                 $incapacidad_creadas = Incapacidad::find()->where(['=','id_empleado', $model->id_empleado])->all();
@@ -497,7 +494,7 @@ class IncapacidadController extends Controller
                                     }//termina calculo de incapacidades
                                    
                                     $table->save(false); 
-                                     return $this->redirect(["incapacidad/index"]);
+                                    return $this->redirect(["incapacidad/index"]);
                                 }    
                             }
                         }
@@ -808,10 +805,10 @@ class IncapacidadController extends Controller
                 $configuracionsalario = ConfiguracionSalario::find()->where(['=','estado', 1])->one();
                 $configuracionincapacidad  = ConfiguracionIncapacidad::find()->where(['codigo_incapacidad'=>$model->codigo_incapacidad])->one();
                 $codigo =  $configuracionincapacidad->codigo;
-                $fecha_contrato = strtotime(date($contrato->fecha_inicio, time()));
-                $fecha_inicio_inca = strtotime(date($model->fecha_inicio, time()));
-                $fecha_inicio_incapacidad = strtotime($model->fecha_inicio);
-                $fecha_final_incapacidad = strtotime($model->fecha_final);
+                $fecha_contrato = date($contrato->fecha_inicio);
+                $fecha_inicio_inca = date($model->fecha_inicio);
+                $fecha_inicio_incapacidad = date($model->fecha_inicio);
+                $fecha_final_incapacidad = date($model->fecha_final);
                 if($detalle_nomina){
                    Yii::$app->getSession()->setFlash('error', 'Error: la incapacidad no se puede modificar porque esta relacionada en el proceso de nomina!');           
                 }else{
@@ -826,16 +823,13 @@ class IncapacidadController extends Controller
                             if($contLice < 0){
                             }else{
                                  foreach ($licencia as $val):
-                                    $fecha_inicio_licencia = strtotime($val->fecha_desde);
-                                    $fecha_final_licencia = strtotime($val->fecha_hasta);
+                                    $fecha_inicio_licencia = date($val->fecha_desde);
+                                    $fecha_final_licencia = date($val->fecha_hasta);
                                     if($fecha_inicio_licencia == ($fecha_inicio_incapacidad)){
                                        Yii::$app->getSession()->setFlash('error', 'Error de fechas: la fecha de inicio de esta incapacidad conincide con al fecha de inicio de una licencia');          
                                     }
                                     if($fecha_final_incapacidad == $fecha_final_licencia){
                                          Yii::$app->getSession()->setFlash('error', 'Error de fechas: La fecha de final de esta incapacidad conincide con al fecha de fecha final de una licencia');          
-                                    }
-                                    if ($fecha_inicio_licencia <= $fecha_final_incapacidad){
-                                        Yii::$app->getSession()->setFlash('error', 'Error de fechas: La fecha de inicio de la licencia No puede ser inferior a la fecha de inicio del contrato'); 
                                     }
                                 endforeach;  
                                     $table = Incapacidad::find()->where(['id_incapacidad'=>$id])->one();

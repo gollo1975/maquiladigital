@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
         'options' => []
     ],
     ]);?>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id], ['class' => 'btn btn-primary btn-sm']) ?>
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if ($model->autorizado == 0) { ?>
                     <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['editarnovedadproduccion', 'id' => $id,'id_novedad' => $id_novedad, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
                     <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['eliminarnovedadproduccion', 'id' => $id, 'id_novedad' => $id_novedad, 'token' => $token], [

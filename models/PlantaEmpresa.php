@@ -43,7 +43,7 @@ class PlantaEmpresa extends \yii\db\ActiveRecord
     {
         return [
             [['nombre_planta'], 'required'],
-            [['telefono_planta', 'celular_planta'], 'integer'],
+            [['telefono_planta', 'celular_planta'], 'string', 'max' => 15],
             [['fecha_registro'], 'safe'],
             [['nombre_planta', 'direccion_planta'], 'string', 'max' => 40],
             [['usuariosistema'], 'string', 'max' => 20],

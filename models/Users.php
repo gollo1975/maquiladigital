@@ -29,7 +29,8 @@ class Users extends \yii\db\ActiveRecord{
             'nombrecompleto' => 'Nombre Completo',
             'emailusuario' => 'Email',
             'activo' => 'Estado',
-            'fechaproceso' => 'Fecha Creación',            
+            'fechaproceso' => 'Fecha Creación',   
+            'id_planta' => 'Nombre planta:',
         ];
     }
     
@@ -48,7 +49,7 @@ class Users extends \yii\db\ActiveRecord{
         if($this->activo == 1){
             $estado = "Activo";
         }else{
-            $estado = "Desactivo";
+            $estado = "Inactivo";
         }
         return $estado;
     }

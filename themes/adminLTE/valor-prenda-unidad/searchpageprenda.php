@@ -68,6 +68,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+            <?php if($tokenPlanta == null){?>
               <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
                 'data' => $plantaBodega,
                 'options' => ['prompt' => 'Seleccione la planta...'],
@@ -75,6 +76,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                     'allowClear' => true
                 ],
             ]); ?>
+            <?php }?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>

@@ -56,13 +56,15 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                     'allowClear' => true
                 ],
             ]); ?>
-             <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
-                'data' => $planta,
-                'options' => ['prompt' => 'Seleccione la planta'],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
+            <?php if($tokenPlanta == null){?>
+                <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
+                   'data' => $planta,
+                   'options' => ['prompt' => 'Seleccione la planta'],
+                   'pluginOptions' => [
+                       'allowClear' => true
+                   ],
+               ]); ?>
+            <?php }?>
              <?= $formulario->field($form, 'estado_valor')->dropDownList(['' => 'TODOS', '1' => 'CERRADO', '0' => 'ABIERTO'],['prompt' => 'Seleccione el estado ...']) ?>
              <?= $formulario->field($form, 'autorizado')->dropDownList(['' => 'TODOS', '1' => 'SI', '0' => 'NO'],['prompt' => 'Seleccione el estado ...']) ?>
              <?= $formulario->field($form, 'cerrar_pago')->dropDownList(['' => 'TODOS', '1' => 'SI', '0' => 'NO'],['prompt' => 'Seleccione el estado ...']) ?>
@@ -166,17 +168,25 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["valor-prenda-unidad/view", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'tipo_pago' => $val->tipo_proceso_pago]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                <?php }else{ ?>
+                     <?php if($tokenPlanta == null){?>
+                        <td style= 'width: 25px; height: 25px;'>
+                                <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                        </td>
+                     <?php }else{?>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                     <?php }   
+                }else{ ?>
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["valor-prenda-unidad/search_tallas_ordenes", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'tipo_pago' => $val->tipo_proceso_pago]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                <?php }    
+                    <?php if($tokenPlanta == null){?>
+                        <td style= 'width: 25px; height: 25px;'>
+                                <a href="<?= Url::toRoute(["valor-prenda-unidad/update", "id" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                        </td>
+                     <?php }else{?>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                     <?php }     
+                }    
                 if($val->id_proceso_confeccion == 2 || $val->id_proceso_confeccion == 3 ){
                     if($val->tipo_proceso_pago == 1){
                         if($val->cerrar_pago == 0){?>
@@ -209,9 +219,14 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
              </tbody>                               
         </table>    
         <div class="panel-footer text-right" >            
+            <?php if($tokenPlanta == null){?>
                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
                 <a align="right" href="<?= Url::toRoute("valor-prenda-unidad/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
-            <?php $form->end() ?>
+                        <?php $form->end() ?>
+            <?php }else{?>
+                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
+                <?php $form->end() ?>
+            <?php }?>    
         </div>
     </div>
 </div>

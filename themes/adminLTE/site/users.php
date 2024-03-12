@@ -68,8 +68,8 @@ $this->params['breadcrumbs'][] = $this->title;
             <tr>                
                 <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Nombre Completo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Identificación</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
+                 <th scope="col" style='background-color:#B9D5CE;'>Nombre Completo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Email</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Perfil</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Estado</th>
@@ -84,8 +84,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tr style="font-size: 85%;">                
                 <td><?= $val->codusuario ?></td>
                 <td><?= $val->username ?></td>
-                <td><?= $val->nombrecompleto ?></td>
                 <td><?= $val->documentousuario ?></td>
+                <td><?= $val->nombrecompleto ?></td>
                 <td><?= $val->emailusuario ?></td>
                 <td><?= $val->perfil ?></td>
                 <td><?= $val->estado ?></td>

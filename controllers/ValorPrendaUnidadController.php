@@ -58,6 +58,8 @@ class ValorPrendaUnidadController extends Controller
                 $cerrar_pago = null;
                 $autorizado = null;
                 $planta = null;
+                $tokenPlanta = null;
+                $tokenPlanta = Yii::$app->user->identity->id_planta;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $idtipo = Html::encode($form->idtipo);
@@ -66,13 +68,23 @@ class ValorPrendaUnidadController extends Controller
                         $cerrar_pago = Html::encode($form->cerrar_pago);
                         $autorizado = Html::encode($form->autorizado);
                         $planta = Html::encode($form->planta);
-                        $table = ValorPrendaUnidad::find()
-                                ->andFilterWhere(['=', 'idtipo', $idtipo])
-                                ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
-                                ->andFilterWhere(['=', 'estado_valor', $estado_valor])
-                                ->andFilterWhere(['=', 'cerrar_pago', $cerrar_pago])
-                                ->andFilterWhere(['=', 'id_planta', $planta])
-                                ->andFilterWhere(['=', 'autorizado', $autorizado]);
+                        if($tokenPlanta == null){
+                            $table = ValorPrendaUnidad::find()
+                                    ->andFilterWhere(['=', 'idtipo', $idtipo])
+                                    ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
+                                    ->andFilterWhere(['=', 'estado_valor', $estado_valor])
+                                    ->andFilterWhere(['=', 'cerrar_pago', $cerrar_pago])
+                                    ->andFilterWhere(['=', 'id_planta', $planta])
+                                    ->andFilterWhere(['=', 'autorizado', $autorizado]);
+                        }else{
+                           $table = ValorPrendaUnidad::find()
+                                    ->andFilterWhere(['=', 'idtipo', $idtipo])
+                                    ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
+                                    ->andFilterWhere(['=', 'estado_valor', $estado_valor])
+                                    ->andFilterWhere(['=', 'cerrar_pago', $cerrar_pago])
+                                    ->andFilterWhere(['=', 'id_planta', $tokenPlanta])
+                                    ->andFilterWhere(['=', 'autorizado', $autorizado]); 
+                        }
                         $table = $table->orderBy('id_valor DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -93,8 +105,12 @@ class ValorPrendaUnidadController extends Controller
                         $form->getErrors();
                     }
                 } else {
-                    $table = ValorPrendaUnidad::find()
-                             ->orderBy('id_valor DESC');
+                    if($tokenPlanta == null){
+                         $table = ValorPrendaUnidad::find() ->orderBy('id_valor DESC');
+                    }else{
+                        $table = ValorPrendaUnidad::find()->where(['=','id_planta', $tokenPlanta]) ->orderBy('id_valor DESC');
+                    }
+                    
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
@@ -115,6 +131,7 @@ class ValorPrendaUnidadController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'tokenPlanta' => $tokenPlanta,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -207,6 +224,8 @@ class ValorPrendaUnidadController extends Controller
                 $fecha_corte = null;
                 $documento = NULL;  
                 $planta = null;
+                $tokenPlanta = null;
+                $tokenPlanta = Yii::$app->user->identity->id_planta;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_operario = Html::encode($form->id_operario);
@@ -214,12 +233,21 @@ class ValorPrendaUnidadController extends Controller
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $documento = Html::encode($form->documento);
                         $planta = Html::encode($form->planta);
-                        $table = \app\models\PagoNominaServicios::find()
-                                ->andFilterWhere(['=', 'id_operario', $id_operario])
-                                ->andFilterWhere(['between', 'fecha_inicio', $fecha_inicio, $fecha_corte])
-                                ->andFilterWhere(['=', 'documento', $documento])
-                                ->andFilterWhere(['=', 'id_planta', $planta])
-                                ->andWhere(['=','autorizado', 1]);
+                        if($tokenPlanta == null){
+                            $table = \app\models\PagoNominaServicios::find()
+                                    ->andFilterWhere(['=', 'id_operario', $id_operario])
+                                    ->andFilterWhere(['between', 'fecha_inicio', $fecha_inicio, $fecha_corte])
+                                    ->andFilterWhere(['=', 'documento', $documento])
+                                    ->andFilterWhere(['=', 'id_planta', $planta])
+                                    ->andWhere(['=','autorizado', 1]);
+                        }else{
+                            $table = \app\models\PagoNominaServicios::find()
+                                    ->andFilterWhere(['=', 'id_operario', $id_operario])
+                                    ->andFilterWhere(['between', 'fecha_inicio', $fecha_inicio, $fecha_corte])
+                                    ->andFilterWhere(['=', 'documento', $documento])
+                                    ->andFilterWhere(['=', 'id_planta', $tokenPlanta])
+                                    ->andWhere(['=','autorizado', 1]);
+                        }
                         $table = $table->orderBy('id_pago DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -240,8 +268,13 @@ class ValorPrendaUnidadController extends Controller
                         $form->getErrors();
                     }
                 } else {
-                    $table = \app\models\PagoNominaServicios::find()->where(['=','autorizado', 1])
-                             ->orderBy('id_pago DESC');
+                    if($tokenPlanta == null){
+                        $table = \app\models\PagoNominaServicios::find()->where(['=','autorizado', 1])
+                                 ->orderBy('id_pago DESC');
+                    }else{
+                        $table = \app\models\PagoNominaServicios::find()->where(['=','autorizado', 1])->andWhere(['=','id_planta', $tokenPlanta])
+                                 ->orderBy('id_pago DESC'); 
+                    }    
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
@@ -262,6 +295,7 @@ class ValorPrendaUnidadController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'tokenPlanta' => $tokenPlanta,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);

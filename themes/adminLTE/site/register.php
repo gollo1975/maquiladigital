@@ -1,8 +1,10 @@
 <?php
 
+use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use yii\helpers\Url;
+use yii\helpers\ArrayHelper;
+use kartik\select2\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Users */
@@ -11,7 +13,7 @@ use yii\helpers\Url;
 $this->title = 'Nuevo Usuario';
 $this->params['breadcrumbs'][] = ['label' => 'Usuarios', 'url' => ['users']];
 $this->params['breadcrumbs'][] = $this->title;
-
+$planta = ArrayHelper::map(\app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 ?>
 
 <?php
@@ -50,6 +52,14 @@ $form = ActiveForm::begin([
         </div>
         <div class="row">
             <?= $form->field($model, "documentousuario")->input("text") ?>    
+        </div>
+        <div class="row">            
+            <?= $form->field($model, 'id_planta')->widget(Select2::classname(), [
+             'data' => $planta,
+             'options' => ['placeholder' => 'Seleccione.... '],
+             'pluginOptions' => [
+             'allowClear' => true ]]);
+            ?>
         </div>
         <div class="panel-footer text-right">            
             <a href="<?= Url::toRoute("site/users") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>    

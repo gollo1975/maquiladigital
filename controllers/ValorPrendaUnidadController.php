@@ -521,7 +521,7 @@ class ValorPrendaUnidadController extends Controller
         $id_detalle = null;
         $nombre_modulo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
         $empresa = \app\models\Matriculaempresa::findOne(1);
-        $listado_tallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+        $listado_tallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
         if ($form->load(Yii::$app->request->get())) {
             $operario = Html::encode($form->operario);
             $aplica_sabado = Html::encode($form->aplica_sabado);

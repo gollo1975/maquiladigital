@@ -33,11 +33,11 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
 
 ?>
 <p>
-    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_tallas_ordenes','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta], ['class' => 'btn btn-primary btn-sm'])?>
+    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_tallas_ordenes','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'tokenPlanta' =>$tokenPlanta], ['class' => 'btn btn-primary btn-sm'])?>
 </p> 
 <?php $formulario = ActiveForm::begin([
     "method" => "get",  
-    "action" => Url::toRoute(["valor-prenda-unidad/view_search_operaciones", 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $model->id_planta, 'id_detalle' => $id_detalle, 'codigo' => $codigo]),
+    "action" => Url::toRoute(["valor-prenda-unidad/view_search_operaciones", 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $model->id_planta, 'id_detalle' => $id_detalle, 'codigo' => $codigo, 'tokenPlanta' =>$tokenPlanta]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [

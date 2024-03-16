@@ -468,7 +468,7 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
-    public function actionCantidad_talla_confeccion($idordenproduccion, $id, $id_planta, $id_detalle) {
+    public function actionCantidad_talla_confeccion($idordenproduccion, $id, $id_planta, $id_detalle,$tokenPlanta) {
         $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         $detalle_op = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $id_detalle])->one();
         
@@ -496,6 +496,7 @@ class ValorPrendaUnidadController extends Controller
                 'listado_confeccion' => $listado_confeccion,
                 'detalle_op' => $detalle_op,
                 'pagination' => $pages,
+                'tokenPlanta' => $tokenPlanta,
             ]);
         }else{
             Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar de esta talla.');
@@ -504,6 +505,7 @@ class ValorPrendaUnidadController extends Controller
                 'model' => $this->findModel($id),
                 'id_planta' =>$id_planta,
                 'conTallas' =>  $conTallas,
+                'tokenPlanta' => $tokenPlanta,
 
             ]);
             }
@@ -511,7 +513,7 @@ class ValorPrendaUnidadController extends Controller
     }
     
    //VISTA QUE TRAE LAS OPERACIONES DE LA OP
-    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta, $codigo){
+    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta, $codigo, $tokenPlanta){
         $form = new \app\models\ModeloBuscarOperario();
         $operario = null;
         $detalle_balanceo = 0;
@@ -521,7 +523,12 @@ class ValorPrendaUnidadController extends Controller
         $id_detalle = null;
         $nombre_modulo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
         $empresa = \app\models\Matriculaempresa::findOne(1);
-        $listado_tallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
+        if($tokenPlanta == 0){
+          $listado_tallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();  
+        }else{
+           $listado_tallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all(); 
+        }
+        
         if ($form->load(Yii::$app->request->get())) {
             $operario = Html::encode($form->operario);
             $aplica_sabado = Html::encode($form->aplica_sabado);
@@ -535,7 +542,7 @@ class ValorPrendaUnidadController extends Controller
                                                                         ->andWhere(['=','id_balanceo', $modulo])->all();
             }else{
                 Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO y TALLA para la busqueda.');
-                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo]);
+                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]);
             }
         }
         if (isset($_POST["envia_dato_confeccion"])) {
@@ -620,6 +627,7 @@ class ValorPrendaUnidadController extends Controller
             'id_detalle' => $id_detalle,
             'empresa' => $empresa,
              'codigo' => $codigo,
+             'tokenPlanta' => $tokenPlanta,
             'nombre_modulo' => ArrayHelper::map($nombre_modulo, "id_balanceo", "nombreBalanceo"),
             'listado_tallas' => ArrayHelper::map($listado_tallas, "iddetalleorden", "listadoTalla"),
           
@@ -731,7 +739,7 @@ class ValorPrendaUnidadController extends Controller
     
     //PROCESO QUE BUSCA LAS TALLAS DE LA OP.
     
-    public function actionSearch_tallas_ordenes($idordenproduccion, $id, $id_planta) {
+    public function actionSearch_tallas_ordenes($idordenproduccion, $id, $id_planta, $tokenPlanta) {
         $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])
                                                                ->andWhere(['=','id_planta', $id_planta])->all();
         $orden = Ordenproduccion::findOne($idordenproduccion);
@@ -740,6 +748,7 @@ class ValorPrendaUnidadController extends Controller
             'id_planta' =>$id_planta,
             'conTallas' =>  $conTallas,
             'orden' => $orden,
+            'tokenPlanta' => $tokenPlanta,
            
         ]);
     }
@@ -1376,7 +1385,7 @@ class ValorPrendaUnidadController extends Controller
        
     }
     
-    public function actionAutorizado($id, $idordenproduccion, $id_planta, $tipo_pago) {
+    public function actionAutorizado($id, $idordenproduccion, $id_planta, $tipo_pago,$tokenPlanta) {
         $model = $this->findModel($id);
         $mensaje = "";
         if($tipo_pago == 1){
@@ -1398,17 +1407,17 @@ class ValorPrendaUnidadController extends Controller
             if ($model->autorizado == 0) {                        
                 $model->autorizado = 1;
                 $model->update();
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
                 
             } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
             }
         }    
     }
     
-    public function actionCerrarpago($id, $idordenproduccion, $id_planta, $tipo_pago) {
+    public function actionCerrarpago($id, $idordenproduccion, $id_planta, $tipo_pago, $tokenPlanta) {
             $model = $this->findModel($id);
             $orden = Ordenproduccion::findOne($idordenproduccion);
             $model->cerrar_pago =  1;
@@ -1417,12 +1426,12 @@ class ValorPrendaUnidadController extends Controller
             if ($tipo_pago == 1) {
                 $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
             } else {
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
             }
     }
     //cerrar el pago y la orden de produccion
     
-    public function actionCerrarpagoorden($id, $idordenproduccion , $id_planta, $tipo_pago) {
+    public function actionCerrarpagoorden($id, $idordenproduccion , $id_planta, $tipo_pago, $tokenPlanta) {
            $model = $this->findModel($id);
            $orden = Ordenproduccion::findOne($idordenproduccion);
            $model->cerrar_pago = 1;
@@ -1433,7 +1442,7 @@ class ValorPrendaUnidadController extends Controller
            if ($tipo_pago == 1) {
                 $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
             } else {
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
             }
     }
     

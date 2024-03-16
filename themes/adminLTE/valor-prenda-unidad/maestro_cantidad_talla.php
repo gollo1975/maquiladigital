@@ -20,7 +20,7 @@ $this->params['breadcrumbs'][] = $model->id_valor;
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <p>
-    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_tallas_ordenes', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta], ['class' => 'btn btn-primary btn-sm']) ?>
+    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_tallas_ordenes', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-primary btn-sm']) ?>
 </p>
 <div class="panel panel-success">
     <div class="panel-heading">

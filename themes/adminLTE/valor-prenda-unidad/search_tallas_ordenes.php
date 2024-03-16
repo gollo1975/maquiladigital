@@ -28,13 +28,13 @@ $this->params['breadcrumbs'][] = $this->title;
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
     <?php if ($model->autorizado == 0) { ?>
-                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], ['class' => 'btn btn-success btn-sm']);
+                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-success btn-sm']);
         } else { 
              if ($model->cerrar_pago == 0) { 
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago', ['cerrarpago', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago],['class' => 'btn btn-warning btn-xs',
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-default btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago', ['cerrarpago', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],['class' => 'btn btn-warning btn-xs',
                 'data' => ['confirm' => 'Esta seguro de cerrar el proceso de pago Nro : '. $model->id_valor. '', 'method' => 'post']]);
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago-Orden', ['cerrarpagoorden', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago],['class' => 'btn btn-info btn-xs',
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago-Orden', ['cerrarpagoorden', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],['class' => 'btn btn-info btn-xs',
                 'data' => ['confirm' => 'Esta seguro de cerrar el proceso de pago Nro : '. $model->id_valor. ' y la orden de producción Nro: '.$model->idordenproduccion.'', 'method' => 'post']]);
              }    
         }?>
@@ -72,10 +72,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             <td style="text-align: right"><?= ''.number_format($val->costo_confeccion,0) ?></td>
                             <?php if($model->autorizado == 0){?>
                                 <td style= 'width: 15px; height: 10px;'>
-                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/view_search_operaciones", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'codigo' => $val->codigoproducto]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/view_search_operaciones", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'codigo' => $val->codigoproducto, 'tokenPlanta' =>$tokenPlanta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                                 </td>
                                 <td style= 'width: 15px; height: 10px;'>
-                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/cantidad_talla_confeccion", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta,'id_detalle' => $val->iddetalleorden]) ?>" ><span class="glyphicon glyphicon-list"></span></a>
+                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/cantidad_talla_confeccion", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta,'id_detalle' => $val->iddetalleorden, 'tokenPlanta' =>$tokenPlanta]) ?>" ><span class="glyphicon glyphicon-list"></span></a>
                                 </td>
                                 <td style= 'width: 15px; height: 10px;'>
                                     <a href="<?= Url::toRoute(["valor-prenda-unidad/view", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'tipo_pago' => $model->tipo_proceso_pago]) ?>" ><span class="glyphicon glyphicon-send"></span></a>

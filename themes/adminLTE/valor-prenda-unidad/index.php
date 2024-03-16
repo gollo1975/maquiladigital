@@ -40,6 +40,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
 $tipo = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('idtipo ASC')->all(), 'idtipo', 'tipo');
 $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
+if($tokenPlanta == null){
+    $tokenPlanta = 0;
+}
 ?>
 <div class="panel panel-success panel-filters">
     <div class="panel-heading" onclick="mostrarfiltro()">
@@ -177,7 +180,7 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                      <?php }   
                 }else{ ?>
                     <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["valor-prenda-unidad/search_tallas_ordenes", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'tipo_pago' => $val->tipo_proceso_pago]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["valor-prenda-unidad/search_tallas_ordenes", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$val->id_planta, 'tipo_pago' => $val->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
                     <?php if($tokenPlanta == null){?>
                         <td style= 'width: 25px; height: 25px;'>

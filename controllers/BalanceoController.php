@@ -67,17 +67,27 @@ class BalanceoController extends Controller
             $fecha_inicio = null;
             $idordenproduccion = null;
             $activo = null;
+            $tokenAcceso =  Yii::$app->user->identity->id_planta;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);
                     $fecha_inicio = Html::encode($form->fecha_inicio);
                     $idordenproduccion = Html::encode($form->idordenproduccion);
                     $activo = Html::encode($form->activo);
-                    $table = Balanceo::find()
+                    if($tokenAcceso == null){
+                        $table = Balanceo::find()
+                                ->andFilterWhere(['=', 'idcliente', $idcliente])
+                                ->andFilterWhere(['>=', 'fecha_inicio', $fecha_inicio])
+                                ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
+                                ->andFilterWhere(['=', 'estado_modulo', $activo]);
+                    }else{
+                        $table = Balanceo::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['>=', 'fecha_inicio', $fecha_inicio])
                             ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
+                            ->andFilterWhere(['=', 'id_planta', $tokenAcceso])
                             ->andFilterWhere(['=', 'estado_modulo', $activo]);
+                    }    
                     $table = $table->orderBy('id_balanceo desc');
                     $tableexcel = $table->all();
                     $count = clone $table;
@@ -98,8 +108,13 @@ class BalanceoController extends Controller
                     $form->getErrors();
                 }
             } else {
-                $table = Balanceo::find()
+                if($tokenAcceso == null){
+                    $table = Balanceo::find()->orderBy('id_balanceo desc');
+                }else{
+                    $table = Balanceo::find()->where(['=','id_planta', $tokenAcceso])
                         ->orderBy('id_balanceo desc');
+                }
+                
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $pages = new Pagination([
@@ -120,6 +135,7 @@ class BalanceoController extends Controller
                         'model' => $model,
                         'form' => $form,
                         'pagination' => $pages,
+                        'tokenAcceso' => $tokenAcceso,
             ]);
         }else{
             return $this->redirect(['site/sinpermiso']);

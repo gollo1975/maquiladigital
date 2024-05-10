@@ -4159,6 +4159,7 @@ class OrdenProduccionController extends Controller {
             $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
             $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
             $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
             $objPHPExcel->setActiveSheetIndex(0)
                         ->setCellValue('A1', 'ID')
                         ->setCellValue('B1', 'OPERARIO')
@@ -4168,10 +4169,11 @@ class OrdenProduccionController extends Controller {
                         ->setCellValue('F1', 'MODULO')
                         ->setCellValue('G1', 'ORDEN PROD.')
                         ->setCellValue('H1', 'UNIDADES')
-                        ->setCellValue('I1', 'PROCESO')
-                        ->setCellValue('J1', 'F. PROCESO')
-                        ->setCellValue('K1', 'USUARIO')
-                         ->setCellValue('L1', 'OBSERVACION');
+                        ->setCellValue('I1', 'TIEMPO')
+                        ->setCellValue('J1', 'PROCESO')
+                        ->setCellValue('K1', 'F. PROCESO')
+                        ->setCellValue('L1', 'USUARIO')
+                        ->setCellValue('M1', 'OBSERVACION');
             $i = 2;
          
             foreach ($reprocesos as $val) {
@@ -4184,19 +4186,20 @@ class OrdenProduccionController extends Controller {
                         ->setCellValue('E' . $i, $val->ordenproduccion->cliente->nombrecorto)
                         ->setCellValue('F' . $i, $val->id_balanceo)
                         ->setCellValue('G' . $i, $val->idordenproduccion)
-                        ->setCellValue('H' . $i, $val->cantidad);
+                        ->setCellValue('H' . $i, $val->cantidad)
+                        ->setCellValue('I' . $i, $val->detalle->minutos);
                         if($val->tipo_reproceso == 1){
                          $objPHPExcel->setActiveSheetIndex(0)
-                                  ->setCellValue('I' . $i, 'CONFECCION');
+                                  ->setCellValue('J' . $i, 'CONFECCION');
                                  
                      }else{
                          $objPHPExcel->setActiveSheetIndex(0)
-                                  ->setCellValue('I' . $i, 'TERMINACION');
+                                  ->setCellValue('J' . $i, 'TERMINACION');
                      }
                       $objPHPExcel->setActiveSheetIndex(0)
-                        ->setCellValue('J' . $i, $val->fecha_registro)
-                        ->setCellValue('K' . $i, $val->usuariosistema)
-                        ->setCellValue('L' . $i, $val->observacion);
+                        ->setCellValue('K' . $i, $val->fecha_registro)
+                        ->setCellValue('L' . $i, $val->usuariosistema)
+                        ->setCellValue('M' . $i, $val->observacion);
                 $i++;
             }
            

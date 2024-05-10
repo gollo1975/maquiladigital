@@ -65,7 +65,7 @@ use app\models\Ordenproducciondetalle;
                                 <td><?= $val->iddetalleorden ?></td> 
                                 <?php if($val->id_planta == $id_planta){?>
                                     
-                                    <td style="background-color: #F5DB90"><?= $val->productodetalle->prendatipo->talla->talla ?></td>
+                                    <td style="background-color: #F5DB90    "><?= $val->productodetalle->prendatipo->talla->talla ?></td>
                                 <?php }else{?>
                                     <td><?= $val->productodetalle->prendatipo->talla->talla ?></td>
                                 <?php } ?>    

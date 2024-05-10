@@ -161,7 +161,7 @@ class EficienciaModuloDiarioController extends Controller
                 $table->usuario_editor = Yii::$app->user->identity->username;
                 $table->save(false);
                 $registro = EficienciaModuloDiario::find()->orderBy('id_eficiencia DESC')->one();
-                return $this->redirect(['view', 'id' => $registro->id_eficiencia]);
+                return $this->redirect(['view', 'id' => $registro->id_eficiencia,'id_planta' => $registro->id_planta]);
 
             } else {
                $model->getErrors();    
@@ -356,7 +356,7 @@ class EficienciaModuloDiarioController extends Controller
                     }
                     $intIndice++;
                 endforeach;
-                $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id]);
+                $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id,'id_planta' => $id_planta]);
             }
         }else{
              $model->getErrors();
@@ -555,11 +555,11 @@ class EficienciaModuloDiarioController extends Controller
     
     //cerrar el proceso
     
-    public function actionCerrar_proceso_eficiencia($id) {
+    public function actionCerrar_proceso_eficiencia($id, $id_planta) {
         $model = EficienciaModuloDiario::findOne($id);
         $model->proceso_cerrado = 1;
         $model->save(false);
-        return $this->redirect(["eficiencia-modulo-diario/view",'id' => $id]);      
+        return $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' =>$id_planta]);      
     }
     
      /**

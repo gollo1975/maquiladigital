@@ -18,7 +18,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
     <p>
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);?>
         <?php if($model->proceso_cerrado == 0){?>
-           <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar proceso', ['cerrar_proceso_eficiencia', 'id' => $model->id_eficiencia],['class' => 'btn btn-info btn-xs',
+           <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar proceso', ['cerrar_proceso_eficiencia', 'id' => $model->id_eficiencia, 'id_planta'=> $id_planta],['class' => 'btn btn-info btn-xs',
                 'data' => ['confirm' => 'Esta seguro de cerrar el proceso Nro  '. $model->id_eficiencia. ' del dia  '.$model->fecha_actual.'', 'method' => 'post']]);
         }?>          
     </p>

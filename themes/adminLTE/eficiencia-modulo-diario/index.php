@@ -144,7 +144,7 @@ $form = ActiveForm::begin([
                         <td style='background-color:#F0F3EF;'><?= $val->usuario_editor ?></td>
                         <td style='background-color:#F0F3EF;'><?= $val->procesoCerrado ?></td>
                         <td style= 'width: 25px; height: 25px; background-color:#F0F3EF;'>
-                        <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                        <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia, 'id_planta' => $val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                         </td>   
                         <td style= 'width: 25px; height: 25px; background-color:#F0F3EF;'></td>
                            

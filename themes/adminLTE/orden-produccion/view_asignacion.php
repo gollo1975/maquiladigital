@@ -149,7 +149,7 @@ $view = 'orden-produccion';
                                                             ])    
                                                        ?>
                                                     <div class="modal remote fade" id="modalasignaciontalla<?= $model->idordenproduccion ?>">
-                                                        <div class="modal-dialog modal-lg" style ="width: 500px;">
+                                                        <div class="modal-dialog modal-lg" style ="width: 550px;">
                                                             <div class="modal-content"></div>
                                                         </div>
                                                     </div>

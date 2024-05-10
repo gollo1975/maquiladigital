@@ -105,7 +105,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                                 <td style="width: 25px; height: 25px;">
                                                       <!-- Inicio Nuevo Detalle proceso -->
                                                         <?= Html::a('<span class="glyphicon glyphicon-list"></span> ',
-                                                            ['/eficiencia-modulo-diario/eficiencia_modulo_diario', 'id' => $modulo->id_eficiencia, 'orden_produccion' => $modulo->idordenproduccion, 'id_balanceo' => $modulo->id_balanceo, 'id_carga' => $modulo->id_carga],
+                                                            ['/eficiencia-modulo-diario/eficiencia_modulo_diario', 'id' => $modulo->id_eficiencia, 'orden_produccion' => $modulo->idordenproduccion, 'id_balanceo' => $modulo->id_balanceo, 'id_carga' => $modulo->id_carga, 'id_planta' => $id_planta],
                                                             [
                                                                 'title' => 'Subir unidades por hora',
                                                                 'data-toggle'=>'modal',

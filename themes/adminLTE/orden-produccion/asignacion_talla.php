@@ -17,7 +17,7 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => true,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>',
+            'template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>',
             'labelOptions' => ['class' => 'col-sm-3 control-label'],
             'options' => []
         ],

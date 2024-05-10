@@ -32,7 +32,7 @@ use app\models\Ordenproducciondetalle;
                         <thead>
                             <tr style='font-size:100%;'>
                                 <td scope="col" style='background-color:#B9D5CE; '><b>Id</td>
-                                <td scope="col" style='background-color:#B9D5CE; '><b>Descripcion/Talla</td>
+                                <td scope="col" style='background-color:#B9D5CE; '><b>Talla</td>
                                 <td scope="col" style='background-color:#B9D5CE;'><b>Cantidad</td>
                                 <td scope="col" style='background-color:#B9D5CE;'><b>Confección.</td>
                                 <td scope="col" style='background-color:#B9D5CE;'><b>Faltan</td>
@@ -62,8 +62,13 @@ use app\models\Ordenproducciondetalle;
                              $unidades_Faltante += $restar; 
                             ?>
                             <tr style="font-size: 100%;">
-                                <td><?= $val->iddetalleorden ?></td>  
-                                <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
+                                <td><?= $val->iddetalleorden ?></td> 
+                                <?php if($val->id_planta == $id_planta){?>
+                                    
+                                    <td style="background-color: #F5DB90"><?= $val->productodetalle->prendatipo->talla->talla ?></td>
+                                <?php }else{?>
+                                    <td><?= $val->productodetalle->prendatipo->talla->talla ?></td>
+                                <?php } ?>    
                                 <td style="text-align: right"><?= ''.number_format($val->cantidad, 0) ?></td>                                                              
                                 <td style="text-align: right; background-color:#B9D5AA;"><?= ''.number_format($confeccionada, 0) ?></td> 
                                 <td style="text-align: right; background-color:#B9D5CE; color: red;"><?= ''.number_format($restar, 0) ?></td> 

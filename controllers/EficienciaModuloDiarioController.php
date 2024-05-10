@@ -126,7 +126,7 @@ class EficienciaModuloDiarioController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $id_planta)
     {
         //vectores
         $modulos = \app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $id])->orderBy('id_balanceo DESC')->all();
@@ -136,6 +136,7 @@ class EficienciaModuloDiarioController extends Controller
             'model' => $this->findModel($id),
             'modulos' => $modulos,
             'EntradaDia' => $EntradaDia,
+            'id_planta' => $id_planta,
         ]);
     }
 
@@ -287,7 +288,7 @@ class EficienciaModuloDiarioController extends Controller
     
     //MODAL PARA SUBIR OPERACION
     
-    public function actionEficiencia_modulo_diario($id, $orden_produccion, $id_balanceo, $id_carga) {
+    public function actionEficiencia_modulo_diario($id, $orden_produccion, $id_balanceo, $id_carga, $id_planta) {
        $model = new \app\models\EficienciaModuloDiarioDetalle();
        $orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->all();
        $modulo = \app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $id])->one();       
@@ -365,6 +366,7 @@ class EficienciaModuloDiarioController extends Controller
             'orden' => $orden,
             'modulo' => $modulo,
             'balanceo' => $balanceo,
+           'id_planta' => $id_planta,
         ]);
     }
     

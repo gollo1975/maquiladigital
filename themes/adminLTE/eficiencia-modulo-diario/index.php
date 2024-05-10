@@ -121,7 +121,7 @@ $form = ActiveForm::begin([
                          <?php 
                             if($dato){?>
                                  <td style= 'width: 25px; height: 25px;'>
-                                    <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                    <a href="<?= Url::toRoute(["eficiencia-modulo-diario/view", "id" => $val->id_eficiencia, 'id_planta' => $val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                                  </td> 
                             <?php }else {?>     
                                      <td style= 'width: 25px; height: 25px;'>

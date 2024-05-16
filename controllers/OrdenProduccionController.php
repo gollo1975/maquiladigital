@@ -918,33 +918,58 @@ class OrdenProduccionController extends Controller {
     
     public function actionNewpilotoproduccion($id, $iddetalle) {
         $sw = 0;
+        $orden = Ordenproduccion::findOne($id);
         $detalle_piloto = \app\models\PilotoDetalleProduccion::find()->where(['=','idordenproduccion', $id])
                                                                      ->andWhere(['=','iddetalleorden', $iddetalle])   
                                                            ->orderBy('id_proceso DESC')->all(); 
         if (isset($_POST["actualizarLinea"])) {
             $intIndice = 0;
+            $valor = 0;
             foreach ($_POST["listado_piloto"] as $intCodigo) { 
-                $table = PilotoDetalleProduccion::findOne($intCodigo);
-                $table->concepto = $_POST["concepto"][$intIndice];
-                $table->medida_ficha_tecnica = $_POST["medidafichatecnica"][$intIndice];
-                $table->medida_confeccion = $_POST["medidaconfeccion"][$intIndice];
-                if($table->medida_ficha_tecnica < $table->medida_confeccion){
-                     $valor = $table->medida_confeccion - $table->medida_ficha_tecnica; 
-                     $table->tolerancia = $valor;
-                     if($valor > 1){
-                         $table->observacion = 'Medidas fuera de la tolerancia'; 
-                     }else{
-                            $table->observacion = 'Medidas dentro de la tolerancia';
-                     }
+                 $table = PilotoDetalleProduccion::findOne($intCodigo);
+                if($orden->proceso_lavanderia == 0 && $orden->lavanderia == 1){
+                   $table->concepto = $_POST["concepto"][$intIndice];
+                    $table->medida_ficha_al = $_POST["medida_ficha_al"][$intIndice];
+                    $table->medida_confeccion_al = $_POST["medida_confeccion_al"][$intIndice];
+                    if($_POST["medida_ficha_al"][$intIndice] >= $_POST["medida_confeccion_al"][$intIndice]){
+                        $valor =  $_POST["medida_confeccion_al"][$intIndice] - $_POST["medida_ficha_al"][$intIndice]; 
+                        $table->tolerancia_al = $valor;
+                        if($valor < -1){ 
+                            $table->observacion_al = 'Medidas fuera de la tolerancia';
+                        }else{
+                             $table->observacion_al = 'Medidas dentro de la tolerancia';  
+                        }
+                    }else{
+                      echo  $valor =  $_POST["medida_confeccion_al"][$intIndice] - $_POST["medida_ficha_al"][$intIndice]  ; 
+                        $table->tolerancia_al = $valor;
+                        if($valor > 1){ 
+                            $table->observacion_al = 'Medidas fuera de la tolerancia';
+                        }else{
+                             $table->observacion_al = 'Medidas dentro de la tolerancia';  
+                        } 
+                    }    
                 }else{
-                    $valor = $table->medida_confeccion - $table->medida_ficha_tecnica; 
-                     $table->tolerancia = $valor;
-                     if($valor < -1){
-                        $table->observacion = 'Medidas fuera de la tolerancia'; 
-                     }else{
-                        $table->observacion = 'Medidas dentro de la tolerancia';
-                     }
-                }
+                    $table->concepto = $_POST["concepto"][$intIndice];
+                    $table->medida_ficha_dl = $_POST["medida_ficha_dl"][$intIndice];
+                    $table->medida_confeccion_dl = $_POST["medida_confeccion_dl"][$intIndice];
+                    if($_POST["medida_ficha_dl"][$intIndice] >= $_POST["medida_confeccion_dl"][$intIndice]){
+                        $valor =  $_POST["medida_confeccion_dl"][$intIndice] - $_POST["medida_ficha_dl"][$intIndice]; 
+                        $table->tolerancia_dl = $valor;
+                        if($valor < -1){ 
+                            $table->observacion_dl = 'Medidas fuera de la tolerancia';
+                        }else{
+                             $table->observacion_dl = 'Medidas dentro de la tolerancia';  
+                        }
+                    }else{
+                      echo  $valor =  $_POST["medida_confeccion_dl"][$intIndice] - $_POST["medida_ficha_dl"][$intIndice]  ; 
+                        $table->tolerancia_dl = $valor;
+                        if($valor > 1){ 
+                            $table->observacion_dl = 'Medidas fuera de la tolerancia';
+                        }else{
+                             $table->observacion_dl = 'Medidas dentro de la tolerancia';  
+                        } 
+                    }    
+                }    
                 $table->save(false);
                 $intIndice++;
             }
@@ -974,6 +999,7 @@ class OrdenProduccionController extends Controller {
              'id' => $id,
              'iddetalle' => $iddetalle,
              'detalle_piloto' => $detalle_piloto,
+            'orden' => $orden,
             
         ]);
     }
@@ -984,9 +1010,11 @@ class OrdenProduccionController extends Controller {
             $model = new PilotoDetalleProduccion();
             $model->iddetalleorden = $iddetalle;                
             $model->idordenproduccion = $id;
+            $model->medida_ficha_al = 0;
+            $model->medida_ficha_dl = 0;
+            $model->medida_confeccion_al = 0;
+            $model->medida_confeccion_dl = 0;
             $model->fecha_registro= date('Y-m-d');
-            $model->medida_ficha_tecnica = 0;
-            $model->medida_confeccion = 0;
             $model->usuariosistema = Yii::$app->user->identity->username;
             $model->insert(false);
             $detalle_piloto = PilotoDetalleProduccion::find()->where(['=','idordenproduccion', $id])
@@ -998,6 +1026,7 @@ class OrdenProduccionController extends Controller {
     
       public function actionImportarmedidapiloto($id, $iddetalle)
     {
+        $orden = Ordenproduccion::findOne($id);
         $pilotoDetalle = PilotoDetalleProduccion::find()->Where(['=','idordenproduccion', $id])
                                                         ->andWhere(['=','aplicado', 1])
                                                         ->orderBy('id_proceso asc')->all();
@@ -1027,13 +1056,23 @@ class OrdenProduccionController extends Controller {
             foreach ($_POST["id_proceso"] as $intCodigo) {
                 $table = new PilotoDetalleProduccion();
                 $detalle = PilotoDetalleProduccion::find()->where(['id_proceso' => $intCodigo])->one();
-                $table->iddetalleorden = $iddetalle;
-                $table->idordenproduccion = $id;
-                $table->concepto = $detalle->concepto;
-                $table->medida_ficha_tecnica = 0;
-                $table->medida_confeccion = 0;
-                $table->fecha_registro = date('Y-m-d');
-                $table->usuariosistema = Yii::$app->user->identity->username;
+                if($orden->proceso_lavanderia == 0 && $orden->lavanderia == 1){
+                    $table->iddetalleorden = $iddetalle;
+                    $table->idordenproduccion = $id;
+                    $table->concepto = $detalle->concepto;
+                    $table->medida_ficha_al = 0;
+                    $table->medida_confeccion_al = 0;
+                    $table->fecha_registro = date('Y-m-d');
+                    $table->usuariosistema = Yii::$app->user->identity->username;
+                }else{
+                   $table->iddetalleorden = $iddetalle;
+                    $table->idordenproduccion = $id;
+                    $table->concepto = $detalle->concepto;
+                    $table->medida_ficha_dl = 0;
+                    $table->medida_confeccion_dl= 0;
+                    $table->fecha_registro = date('Y-m-d');
+                    $table->usuariosistema = Yii::$app->user->identity->username; 
+                }    
                 $table->save(false);                                                
             }
            $this->redirect(["orden-produccion/newpilotoproduccion", 'id' => $id, 'iddetalle' => $iddetalle]);
@@ -1046,6 +1085,7 @@ class OrdenProduccionController extends Controller {
             'id' => $id,
             'iddetalle' => $iddetalle,
             'form' => $form,
+            'orden' => $orden,
 
         ]);
     }
@@ -1912,7 +1952,6 @@ class OrdenProduccionController extends Controller {
                             ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
                             ->andFilterWhere(['=', 'idtipo', $idtipo])
                             ->andFilterWhere(['=','aplicar_balanceo', 1])
-                           
                             ->orderBy('idordenproduccion desc');
                     $count = clone $table;
                     $to = $count->count();
@@ -1929,10 +1968,7 @@ class OrdenProduccionController extends Controller {
                 }
             } else {
                 $table = Ordenproduccion::find()
-                        ->where(['=', 'idtipo', 1])
-                        ->orWhere(['=', 'idtipo', 4])
-                         ->orWhere(['=', 'idtipo', 2])
-                        ->andWhere(['=','aplicar_balanceo', 1])
+                       ->Where(['=','aplicar_balanceo', 1])
                         ->orderBy('idordenproduccion desc');
                 $count = clone $table;
                 $pages = new Pagination([
@@ -1944,7 +1980,6 @@ class OrdenProduccionController extends Controller {
                         ->limit($pages->limit)
                         ->all();
             }
-
             return $this->render('produccionbalanceo', [
                         'model' => $model,
                         'form' => $form,

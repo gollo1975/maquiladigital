@@ -52,7 +52,8 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     {
         return [
             [['idcliente', 'fechallegada', 'fechaprocesada', 'fechaentrega', 'observacion', 'idtipo','ponderacion','ordenproduccion','ordenproduccionext','codigoproducto','exportacion'], 'required', 'message' => 'Campo requerido'],            
-            [['idcliente', 'estado', 'idtipo','autorizado','facturado','proceso_control','cantidad','aplicar_balanceo','faltante','cerrar_orden','pagada','exportacion','lavanderia'], 'integer'],
+            [['idcliente', 'estado', 'idtipo','autorizado','facturado','proceso_control','cantidad','aplicar_balanceo','faltante','cerrar_orden','pagada',
+                'proceso_sin_lavanderia','proceso_lavanderia','exportacion','lavanderia'], 'integer'],
             [['fechallegada', 'fechaprocesada', 'fechaentrega'], 'safe'],            
             [['totalorden','ponderacion','porcentaje_proceso','porcentaje_cantidad','segundosficha','duracion','sam_balanceo','sam_preparacion','sam_operativo','porcentaje_exportacion'], 'number'],
             [['valorletras', 'observacion','codigoproducto'], 'string'],
@@ -99,6 +100,8 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             'exportacion' => 'Export/Ppk:',
             'porcentaje_exportacion' => '% Export/Ppk:',
             'lavanderia' => 'Lavanderia',
+            'proceso_lavanderia' => 'proceso_lavanderia',
+            'proceso_sin_lavanderia' => 'proceso_sin_lavanderia',
           
         ];
     }

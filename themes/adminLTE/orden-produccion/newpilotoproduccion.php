@@ -86,50 +86,60 @@ $idToken = 0;
                  <table class="table table-bordered table-striped table-hover">
                         <thead>
                         <tr style="font-size: 85%;">
-                            
-                            <th scope="col" style='background-color:#B9D5CE;'>Id</th>
-                             <th scope="col" style='background-color:#B9D5CE;'>Op</th>
+                            <?php if($orden->proceso_lavanderia == 0 && $orden->lavanderia == 1){?>
                             <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                             <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
-                            <th scope="col" style='background-color:#B9D5CE;'>M. Ficha</th>
-                            <th scope="col" style='background-color:#B9D5CE;'>M. Confección</th>
-                              <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
+                            <th scope="col" style='background-color:#B9D5CE;'>AL. Ficha</th>
+                            <th scope="col" style='background-color:#B9D5CE;'>AL. Confección</th>
+                            <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
                             <th scope="col" style='background-color:#B9D5CE;'>Tolerancia</th>
                             <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
                             <th scope="col" style='background-color:#B9D5CE;'></th>
                             <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                            <?php }else{?>
+                               
+                                <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>AL. Ficha</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>AL. Confección</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Tolerancia</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
+                                <th scope="col" style='background-color:#B9D5CE;'></th>
+                                <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                            <?php }?>
                         </tr>
                         </thead>
                         <tbody>
                         <?php foreach ($detalle_piloto as $val): ?>
-                        <tr style="font-size: 85%;">
-                            <td><?= $val->id_proceso ?></td>
-                             <td><?= $val->idordenproduccion ?></td>
-                            <td><?= ($modeldetalle->productodetalle->prendatipo->talla->talla) ?></td>
-                            <td ><input type="text" size="43"  name="concepto[]" value="<?= $val->concepto ?>"  maxlength="40"></td>
-                            <td ><input type="text" size="7" name="medidafichatecnica[]" value="<?= $val->medida_ficha_tecnica ?>" maxlength="6"></td>
-                            <td ><input type="text" size="7" name="medidaconfeccion[]" value="<?= $val->medida_confeccion ?>"  maxlength="6"></td>
-                             <td><?= $val->aplicadoproceso ?></td>
-                            <?php if($val->tolerancia < 0){?>
-                                  <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia ?></td>
-                                  <td style="color: #F51F15;"><?= $val->observacion ?></td>
-                            <?php }else{ ?>
-                                  <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia ?></td>
-                                   <td style="color: #117A65;"><?= $val->observacion ?></td>
-                            <?php } ?>
-                           
-                            <td style= 'width: 25px;'>
-                            <?= Html::a('', ['eliminardetallepiloto', 'id_proceso' => $val->id_proceso,'iddetalle'=>$val->iddetalleorden, 'id'=> $model->idordenproduccion], [
-                                'class' => 'glyphicon glyphicon-trash',
-                                'data' => [
-                                    'confirm' => 'Esta seguro de eliminar el registro?',
-                                    'method' => 'post',
-                                ],
-                            ]) ?>
-                          </td>
-                            <input type="hidden" name="listado_piloto[]" value="<?= $val->id_proceso ?>">
-                            <td style="width: 25px;"><input type="checkbox" name="id_proceso[]" value="<?= $val->id_proceso ?>"></td>         
-                        </tr>
+                            <tr style="font-size: 85%;">
+                                <?php if($orden->proceso_lavanderia == 0 && $orden->lavanderia == 1){?>
+                                    <td><?= ($modeldetalle->productodetalle->prendatipo->talla->talla) ?></td>
+                                    <td ><input type="text" size="43"  name="concepto[]" value="<?= $val->concepto ?>"  maxlength="40" size="45"></td>
+                                    <td style="text-align: right" ><input type="text" size="7" name="medida_ficha_al[]" style="text-align: right" value="<?= $val->medida_ficha_al?>" maxlength="6"></td>
+                                    <td style="text-align: right"><input type="text" size="7" name="medida_confeccion_al[]" style="text-align: right" value="<?= $val->medida_confeccion_al ?>"  maxlength="6"></td>
+                                    <td><?= $val->aplicadoproceso ?></td>
+                                    <?php if($val->tolerancia_al < 0){?> 
+                                          <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia_al ?></td>
+                                          <td style="color: #F51F15;"><?= $val->observacion_al ?></td>
+                                    <?php }else{ ?>
+                                          <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia_al ?></td>
+                                           <td style="color: #117A65;"><?= $val->observacion_al ?></td>
+                                    <?php }
+                                } ?>         
+
+                                <td style= 'width: 25px;'>
+                                <?= Html::a('', ['eliminardetallepiloto', 'id_proceso' => $val->id_proceso,'iddetalle'=>$val->iddetalleorden, 'id'=> $model->idordenproduccion], [
+                                    'class' => 'glyphicon glyphicon-trash',
+                                    'data' => [
+                                        'confirm' => 'Esta seguro de eliminar el registro?',
+                                        'method' => 'post',
+                                    ],
+                                ]) ?>
+                              </td>
+                                <input type="hidden" name="listado_piloto[]" value="<?= $val->id_proceso ?>">
+                                <td style="width: 25px;"><input type="checkbox" name="id_proceso[]" value="<?= $val->id_proceso ?>"></td>         
+                            </tr>
                         </tbody>
                         <?php endforeach; ?>
                     </table>

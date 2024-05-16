@@ -34,7 +34,8 @@ class PilotoDetalleProduccion extends \yii\db\ActiveRecord
         if (!parent::beforeSave($insert)) {
             return false;
         }
-        $this->observacion = strtoupper($this->observacion); 
+         $this->observacion_al = strtoupper($this->observacion_al); 
+         $this->observacion_dl = strtoupper($this->observacion_dl); 
          $this->concepto = strtoupper($this->concepto); 
         return true;
     }
@@ -45,10 +46,10 @@ class PilotoDetalleProduccion extends \yii\db\ActiveRecord
     {
         return [
             [['iddetalleorden', 'idordenproduccion','aplicado'], 'integer'],
-            [['medida_ficha_tecnica', 'tolerancia','medida_confeccion'], 'number'],
+            [['medida_ficha_al','medida_ficha_dl', 'tolerancia_al','tolerancia_dl','medida_confeccion_al','medida_confeccion_dl'], 'number'],
             [['fecha_registro'], 'safe'],
             [['concepto'], 'string', 'max' => 40],
-            [['observacion'], 'string', 'max' => 35],
+            [['observacion_al','observacion_dl'], 'string', 'max' => 35],
             [['usuariosistema'], 'string', 'max' => 20],
             [['iddetalleorden'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciondetalle::className(), 'targetAttribute' => ['iddetalleorden' => 'iddetalleorden']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
@@ -65,12 +66,16 @@ class PilotoDetalleProduccion extends \yii\db\ActiveRecord
             'iddetalleorden' => 'Iddetalleorden',
             'idordenproduccion' => 'Idordenproduccion',
             'concepto' => 'Concepto',
-            'medida_ficha_tecnica' => 'Medida Ficha Tecnica',
-            'medida_confeccion' => 'Medida Confeccion',
-            'tolerancia' => 'Tolerancia',
+            'medida_ficha_al' => 'AD Ficha:',
+            'medida_ficha_dl' => 'DL Ficha:',
+            'medida_confeccion_al' => 'AL Confeccion',
+            'medida_confeccion_dl' => 'DL Confeccion',
+            'tolerancia_al' => 'Tolerancia_al',
+            'tolerancia_dl' => 'Tolerancia_dl',
             'fecha_registro' => 'Fecha Registro',
             'usuariosistema' => 'Usuariosistema',
-            'observacion' => 'Observacion',
+            'observacion_al' => 'Observacion_al',
+             'observacion_dl' => 'Observacion_dl',
         ];
     }
 

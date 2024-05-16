@@ -180,16 +180,17 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                             <table class="table table-bordered table-striped table-hover">
                                 <thead>
                                 <tr style="font-size: 85%;">
-                                    <th scope="col" style='background-color:#B9D5CE;'>Id</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Op</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Descripción / Talla</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Medida Ficha</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Medida Confección</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Tolerancia</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
-                                     <th scope="col" style='background-color:#B9D5CE;'>Aplicado</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Ficha AL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Ficha DL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Confección AL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Confección DL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Tole. AL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Tole. DL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Nota AL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Nota DL</th>
+                                     <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
                                    
                                      <th style='background-color:#B9D5CE;'></th>
@@ -199,22 +200,29 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                     <?php
                                     foreach ($detalle_piloto as $val):?>
                                         <tr style="font-size: 85%;">
-                                            <td><?= $val->id_proceso?></td>
-                                            <td><?= $val->idordenproduccion?></td>
-                                            <td><?= $val->detalleorden->productodetalle->prendatipo->prenda.' / '.$val->detalleorden->productodetalle->prendatipo->talla->talla ?></td>
+                                            <td><?= $val->detalleorden->productodetalle->prendatipo->talla->talla ?></td>
                                             <td><?= $val->concepto?></td>
-                                            <td><?= $val->medida_ficha_tecnica?></td>
-                                            <td><?= $val->medida_confeccion?></td>
-                                            <?php if($val->tolerancia < 0){?>
-                                                <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia ?></td>
-                                                <td style="color: #F51F15;"><?= $val->observacion ?></td>
+                                            <td><?= $val->medida_ficha_al?></td>
+                                            <td><?= $val->medida_ficha_dl?></td>
+                                            <td><?= $val->medida_confeccion_al?></td>
+                                            <td><?= $val->medida_confeccion_dl?></td>
+                                            <?php if($val->tolerancia_al < 0){?>
+                                                <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia_al ?></td>
+                                                <td style="color: #F51F15;"><?= $val->observacion_al ?></td>
                                               <?php }else{ ?>
-                                                    <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia ?></td>
-                                                     <td style="color: #117A65;"><?= $val->observacion ?></td>
+                                                    <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia_al ?></td>
+                                                     <td style="color: #117A65;"><?= $val->observacion_al ?></td>
+                                            <?php } 
+                                            if($val->tolerancia_dl < 0){?>
+                                                <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia_dl ?></td>
+                                                <td style="color: #F51F15;"><?= $val->observacion_dl ?></td>
+                                            <?php }else{ 
+                                                ?>
+                                                <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia_dl ?></td>
+                                                <td style="color: #117A65;"><?= $val->observacion_dl ?></td>
                                             <?php } ?>
                                             <td><?= $val->aplicadoproceso?></td>
-                                            <td><?= $val->usuariosistema?></td>
-                                            <td><?= $val->fecha_registro?></td>
+                                           <td><?= $val->fecha_registro?></td>
                                        </tr> 
                                     <?php endforeach; ?>
                                     

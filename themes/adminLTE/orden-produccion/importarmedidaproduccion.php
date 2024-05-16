@@ -87,24 +87,42 @@ if ($mensaje != ""){
             <table class="table table-bordered table-hover">
                 <thead>
                 <tr>
-                    <th scope="col" style='background-color:#B9D5CE;'>Código</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>
-                     <th scope="col" style='background-color:#B9D5CE;'>Medida ficha tecnica</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Medida confección</th>                    
-                    <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                    <?php if($orden->proceso_lavanderia == 0 && $orden->lavanderia == 1){?>
+                        <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>
+                         <th scope="col" style='background-color:#B9D5CE;'>Medida ficha tecnica</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Medida confección</th>                    
+                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                    <?php }else{?>
+                        <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Descripción</th>
+                         <th scope="col" style='background-color:#B9D5CE;'>Medida ficha tecnica</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Medida confección</th>                    
+                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                    <?php } ?>    
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($pilotoDetalle as $val): ?>
-                    <tr style="font-size: 85%;">
-                    <td><?= $val->id_proceso ?></td>
-                    <td><?= $val->concepto ?></td>
-                    <td><?= $val->medida_ficha_tecnica ?></td>
-                  <td><?= $val->medida_confeccion ?></td>                   
-                    <td style="width: 30px;"><input type="checkbox" name="id_proceso[]" value="<?= $val->id_proceso ?>"></td>
-                </tr>
+                    <?php foreach ($pilotoDetalle as $val):
+                        if($orden->proceso_lavanderia == 0 && $orden->lavanderia == 1){ ?>
+                            <tr style="font-size: 85%;">
+                                <td><?= $val->id_proceso ?></td>
+                                <td><?= $val->concepto ?></td>
+                                <td><?= $val->medida_ficha_al ?></td>
+                                <td><?= $val->medida_confeccion_al ?></td>                   
+                                <td style="width: 30px;"><input type="checkbox" name="id_proceso[]" value="<?= $val->id_proceso ?>"></td>
+                            </tr>
+                        <?php }else{?>
+                            <tr style="font-size: 85%;">
+                                <td><?= $val->id_proceso ?></td>
+                                <td><?= $val->concepto ?></td>
+                                <td><?= $val->medida_ficha_dl ?></td>
+                                <td><?= $val->medida_confeccion_dl ?></td>                   
+                                <td style="width: 30px;"><input type="checkbox" name="id_proceso[]" value="<?= $val->id_proceso ?>"></td>
+                            </tr>
+                        <?php }?>    
+                    <?php endforeach; ?>
                 </tbody>
-                <?php endforeach; ?>
             </table>
         </div>
         <div class="panel-footer text-right">

@@ -66,7 +66,7 @@ class PDF extends FPDF {
             $this->SetFillColor(220, 220, 220);
             $this->SetXY(10, 39);
             $this->SetFont('Arial', 'B', 12);
-            $this->Cell(162, 7, utf8_decode("REPORTE DE MEDIDAS PILOTOS (AL)"), 0, 0, 'l', 0);
+            $this->Cell(162, 7, utf8_decode("REPORTE DE MEDIDAS PILOTOS (DL)"), 0, 0, 'l', 0);
             $this->Cell(30, 7, utf8_decode('REF. : '.str_pad($piloto->codigoproducto, 4, "0", STR_PAD_LEFT)), 0, 0, 'l', 0);
            // $this->SetFillColor(200, 200, 200);
             $this->SetXY(10, 48);
@@ -142,10 +142,10 @@ class PDF extends FPDF {
             foreach ($detalle_piloto as $medidas):
                 $pdf->Cell(53, 4, $medidas->concepto, 0, 0, 'L');
                 $pdf->Cell(12, 4, $medidas->detalleorden->productodetalle->prendatipo->talla->talla, 0, 0, 'C');
-                $pdf->Cell(22, 4, $medidas->medida_ficha_al, 0, 0, 'R');
-                $pdf->Cell(30, 4, $medidas->medida_confeccion_al, 0, 0, 'R');
-                $pdf->Cell(20, 4, $medidas->tolerancia_al, 0, 0, 'R');
-                $pdf->Cell(48, 4, $medidas->observacion_al, 0, 0, 'C');
+                $pdf->Cell(22, 4, $medidas->medida_ficha_dl, 0, 0, 'R');
+                $pdf->Cell(30, 4, $medidas->medida_confeccion_dl, 0, 0, 'R');
+                $pdf->Cell(20, 4, $medidas->tolerancia_dl, 0, 0, 'R');
+                $pdf->Cell(48, 4, $medidas->observacion_dl, 0, 0, 'C');
                 $pdf->Ln();
                 $pdf->SetAutoPageBreak(true, 20);    
             endforeach; 

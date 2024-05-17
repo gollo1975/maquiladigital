@@ -32,10 +32,35 @@ $this->params['breadcrumbs'][] = ['label' => 'Ficha Operaciones', 'url' => ['pro
 $this->params['breadcrumbs'][] = $model->idordenproduccion;
 ?>
 <div class="ordenproduccionproceso-view">
-    <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['proceso'], ['class' => 'btn btn-primary btn-sm']) ?>
-         <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir pilotos', ['imprimirpilotos', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm'])?>           
-    </p>
+   
+        <?php echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['proceso'], ['class' => 'btn btn-primary btn-sm']);?>
+        <div class="btn-group btn-sm" role="group">
+            <button type="button" class="btn btn-info  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               Imprimir
+               <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                    <li><?= Html::a('<span class="glyphicon glyphicon-print"></span> Medidas AL', ['imprimirpilotos', 'id' => $model->idordenproduccion]) ?></li>
+                    <?php if($model->proceso_sin_lavanderia > 0){?>
+                        <li><?= Html::a('<span class="glyphicon glyphicon-print"></span> Medidas DL', ['imprimir_pilotos_dl', 'id' => $model->idordenproduccion]) ?></li>
+                    <?php }?>    
+            </ul>
+        </div>   
+        <?= Html::a('<span class="glyphicon glyphicon-eye-close"></span> Cerrar medidas',
+                                              ['/orden-produccion/cerrar_medidas_pilotos', 'id' => $model->idordenproduccion],
+                                                ['title' => 'Proceso que permite cerrar las medidas de la pilot AL',
+                                                 'data-toggle'=>'modal',
+                                                 'data-target'=>'#modalcerrarmedidaspiloto',
+                                                 'class' => 'btn btn-success btn-xs'
+                                    ])    
+        ?>
+        <div class="modal remote fade" id="modalcerrarmedidaspiloto">
+               <div class="modal-dialog modal-lg" style ="width: 500px;">    
+                   <div class="modal-content"></div>
+               </div>
+        </div>
+                  
+   
 
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -187,8 +212,8 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                     <th scope="col" style='background-color:#B9D5CE;'>Confección AL</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Confección DL</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Tole. AL</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Tole. DL</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Nota AL</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Tole. DL</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Nota DL</th>
                                      <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
@@ -208,7 +233,7 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                             <td><?= $val->medida_confeccion_dl?></td>
                                             <?php if($val->tolerancia_al < 0){?>
                                                 <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia_al ?></td>
-                                                <td style="color: #F51F15;"><?= $val->observacion_al ?></td>
+                                                 <td style="color: #F51F15;"><?= $val->observacion_al ?></td>
                                               <?php }else{ ?>
                                                     <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia_al ?></td>
                                                      <td style="color: #117A65;"><?= $val->observacion_al ?></td>

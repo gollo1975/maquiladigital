@@ -100,8 +100,8 @@ $idToken = 0;
                                
                                 <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>AL. Ficha</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>AL. Confección</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>DL. Ficha</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>DL. Confección</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Tolerancia</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Observación</th>
@@ -125,18 +125,41 @@ $idToken = 0;
                                     <?php }else{ ?>
                                           <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia_al ?></td>
                                            <td style="color: #117A65;"><?= $val->observacion_al ?></td>
-                                    <?php }
-                                } ?>         
+                                    <?php }?>         
 
-                                <td style= 'width: 25px;'>
-                                <?= Html::a('', ['eliminardetallepiloto', 'id_proceso' => $val->id_proceso,'iddetalle'=>$val->iddetalleorden, 'id'=> $model->idordenproduccion], [
-                                    'class' => 'glyphicon glyphicon-trash',
-                                    'data' => [
-                                        'confirm' => 'Esta seguro de eliminar el registro?',
-                                        'method' => 'post',
-                                    ],
-                                ]) ?>
-                              </td>
+                                    <td style= 'width: 25px;'>
+                                        <?= Html::a('', ['eliminardetallepiloto', 'id_proceso' => $val->id_proceso,'iddetalle'=>$val->iddetalleorden, 'id'=> $model->idordenproduccion], [
+                                            'class' => 'glyphicon glyphicon-trash',
+                                            'data' => [
+                                                'confirm' => 'Esta seguro de eliminar el registro?',
+                                                'method' => 'post',
+                                            ],
+                                        ]) ?>
+                                    </td>
+                                <?php }else{?>
+                                    <td><?= ($modeldetalle->productodetalle->prendatipo->talla->talla) ?></td>
+                                    <td ><input type="text" size="43"  name="concepto[]" value="<?= $val->concepto ?>"  maxlength="40" size="45"></td>
+                                    <td style="text-align: right" ><input type="text" size="7" name="medida_ficha_dl[]" style="text-align: right" value="<?= $val->medida_ficha_dl?>" maxlength="6"></td>
+                                    <td style="text-align: right"><input type="text" size="7" name="medida_confeccion_dl[]" style="text-align: right" value="<?= $val->medida_confeccion_dl ?>"  maxlength="6"></td>
+                                    <td><?= $val->aplicadoproceso ?></td>
+                                    <?php if($val->tolerancia_dl < 0){?> 
+                                          <td style="background-color:#B2F3EE; color: #F51F15;"><?= $val->tolerancia_dl ?></td>
+                                          <td style="color: #F51F15;"><?= $val->observacion_dl ?></td>
+                                    <?php }else{ ?>
+                                          <td style="background-color:#DAF7A6; color: #111213;"><?= $val->tolerancia_dl ?></td>
+                                           <td style="color: #117A65;"><?= $val->observacion_dl ?></td>
+                                    <?php }?>         
+
+                                    <td style= 'width: 25px;'>
+                                        <?= Html::a('', ['eliminardetallepiloto', 'id_proceso' => $val->id_proceso,'iddetalle'=>$val->iddetalleorden, 'id'=> $model->idordenproduccion], [
+                                            'class' => 'glyphicon glyphicon-trash',
+                                            'data' => [
+                                                'confirm' => 'Esta seguro de eliminar el registro?',
+                                                'method' => 'post',
+                                            ],
+                                        ]) ?>
+                                    </td>
+                                <?php }?>    
                                 <input type="hidden" name="listado_piloto[]" value="<?= $val->id_proceso ?>">
                                 <td style="width: 25px;"><input type="checkbox" name="id_proceso[]" value="<?= $val->id_proceso ?>"></td>         
                             </tr>

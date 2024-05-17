@@ -928,50 +928,61 @@ class OrdenProduccionController extends Controller {
             foreach ($_POST["listado_piloto"] as $intCodigo) { 
                  $table = PilotoDetalleProduccion::findOne($intCodigo);
                 if($orden->proceso_lavanderia == 0 && $orden->lavanderia == 1){
-                   $table->concepto = $_POST["concepto"][$intIndice];
-                    $table->medida_ficha_al = $_POST["medida_ficha_al"][$intIndice];
-                    $table->medida_confeccion_al = $_POST["medida_confeccion_al"][$intIndice];
-                    if($_POST["medida_ficha_al"][$intIndice] >= $_POST["medida_confeccion_al"][$intIndice]){
-                        $valor =  $_POST["medida_confeccion_al"][$intIndice] - $_POST["medida_ficha_al"][$intIndice]; 
-                        $table->tolerancia_al = $valor;
-                        if($valor < -1){ 
-                            $table->observacion_al = 'Medidas fuera de la tolerancia';
+                    if($_POST["medida_ficha_al"][$intIndice] <> null && $_POST["medida_confeccion_al"][$intIndice] <> null){
+                        $table->concepto = $_POST["concepto"][$intIndice];
+                        $table->medida_ficha_al = $_POST["medida_ficha_al"][$intIndice];
+                        $table->medida_confeccion_al = $_POST["medida_confeccion_al"][$intIndice];
+                        if($_POST["medida_ficha_al"][$intIndice] >= $_POST["medida_confeccion_al"][$intIndice]){
+                            $valor =  $_POST["medida_confeccion_al"][$intIndice] - $_POST["medida_ficha_al"][$intIndice]; 
+                            $table->tolerancia_al = $valor;
+                            if($valor < -1){ 
+                                $table->observacion_al = 'Medidas fuera de la tolerancia';
+                            }else{
+                                 $table->observacion_al = 'Medidas dentro de la tolerancia';  
+                            }
                         }else{
-                             $table->observacion_al = 'Medidas dentro de la tolerancia';  
-                        }
+                            $valor =  $_POST["medida_confeccion_al"][$intIndice] - $_POST["medida_ficha_al"][$intIndice]  ; 
+                            $table->tolerancia_al = $valor;
+                            if($valor > 1){ 
+                                $table->observacion_al = 'Medidas fuera de la tolerancia';
+                            }else{
+                                 $table->observacion_al = 'Medidas dentro de la tolerancia';  
+                            } 
+                        }    
                     }else{
-                      echo  $valor =  $_POST["medida_confeccion_al"][$intIndice] - $_POST["medida_ficha_al"][$intIndice]  ; 
-                        $table->tolerancia_al = $valor;
-                        if($valor > 1){ 
-                            $table->observacion_al = 'Medidas fuera de la tolerancia';
-                        }else{
-                             $table->observacion_al = 'Medidas dentro de la tolerancia';  
-                        } 
-                    }    
+                         Yii::$app->getSession()->setFlash('warning', 'No se pueden tener campos vacios. Digite el cero.');
+                    }   
+                     $table->save(false);
+                     $intIndice++;
                 }else{
-                    $table->concepto = $_POST["concepto"][$intIndice];
-                    $table->medida_ficha_dl = $_POST["medida_ficha_dl"][$intIndice];
-                    $table->medida_confeccion_dl = $_POST["medida_confeccion_dl"][$intIndice];
-                    if($_POST["medida_ficha_dl"][$intIndice] >= $_POST["medida_confeccion_dl"][$intIndice]){
-                        $valor =  $_POST["medida_confeccion_dl"][$intIndice] - $_POST["medida_ficha_dl"][$intIndice]; 
-                        $table->tolerancia_dl = $valor;
-                        if($valor < -1){ 
-                            $table->observacion_dl = 'Medidas fuera de la tolerancia';
+                    if($_POST["medida_ficha_dl"][$intIndice] <> null && $_POST["medida_confeccion_dl"][$intIndice]<> null){
+                        $table->concepto = $_POST["concepto"][$intIndice];
+                        $table->medida_ficha_dl = $_POST["medida_ficha_dl"][$intIndice];
+                        $table->medida_confeccion_dl = $_POST["medida_confeccion_dl"][$intIndice];
+                        if($_POST["medida_ficha_dl"][$intIndice] >= $_POST["medida_confeccion_dl"][$intIndice]){
+                            $valor =  $_POST["medida_confeccion_dl"][$intIndice] - $_POST["medida_ficha_dl"][$intIndice]; 
+                            $table->tolerancia_dl = $valor;
+                            if($valor < -1){ 
+                                $table->observacion_dl = 'Medidas fuera de la tolerancia';
+                            }else{
+                                 $table->observacion_dl = 'Medidas dentro de la tolerancia';  
+                            }
                         }else{
-                             $table->observacion_dl = 'Medidas dentro de la tolerancia';  
+                          $valor =  $_POST["medida_confeccion_dl"][$intIndice] - $_POST["medida_ficha_dl"][$intIndice]  ; 
+                            $table->tolerancia_dl = $valor;
+                            if($valor > 1){ 
+                                $table->observacion_dl = 'Medidas fuera de la tolerancia';
+                            }else{
+                                 $table->observacion_dl = 'Medidas dentro de la tolerancia';  
+                            } 
                         }
                     }else{
-                      echo  $valor =  $_POST["medida_confeccion_dl"][$intIndice] - $_POST["medida_ficha_dl"][$intIndice]  ; 
-                        $table->tolerancia_dl = $valor;
-                        if($valor > 1){ 
-                            $table->observacion_dl = 'Medidas fuera de la tolerancia';
-                        }else{
-                             $table->observacion_dl = 'Medidas dentro de la tolerancia';  
-                        } 
-                    }    
+                         Yii::$app->getSession()->setFlash('warning', 'No se pueden tener campos vacios. Digite el cero.');
+                    } 
+                     $table->save(false);
+                    $intIndice++;
                 }    
-                $table->save(false);
-                $intIndice++;
+               
             }
             return $this->redirect(['newpilotoproduccion', 'id' => $id, 'iddetalle' => $iddetalle]);
         }
@@ -1755,6 +1766,32 @@ class OrdenProduccionController extends Controller {
         }
     }
     
+    //CERRAR PROCESO DE LAVANDERIA
+    public function actionCerrar_medidas_pilotos($id) {
+         $model = new \app\models\FormCerrarMedidasPilotos();
+         $orden = Ordenproduccion::findOne($id);
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) { 
+              if (isset($_POST["enviar_proceso"])) {
+                  $orden->proceso_lavanderia = $model->proceso_lavanderia;
+                  $orden->proceso_sin_lavanderia = $model->proceso_sin_lavanderia;
+                  $orden->save();
+                 return $this->redirect(["orden-produccion/view_detalle", 'id' => $id]);
+              }
+            
+        }
+        if (Yii::$app->request->get("id")) {
+            $model->proceso_lavanderia = $orden->proceso_lavanderia;                
+            $model->proceso_sin_lavanderia = $orden->proceso_sin_lavanderia; 
+        }
+        return $this->renderAjax('cerrar_medida_pilotos', [
+            'model' => $model,
+            'id' => $id,
+            ]);
+    }
     
    
    //IMPRIMIR ORDEN DE CONFECCION
@@ -1776,6 +1813,13 @@ class OrdenProduccionController extends Controller {
           Yii::$app->getSession()->setFlash('warning', 'La referencia ('.$orden->codigoproducto.') no se le ha creado el proceso de medidas a las pilotos por sistemas. Favor validar con producción.');
        }
        
+    }
+    //IMPRIME MEDIDAS DE PILOTOS SIN LAVANDERIA
+     public function actionImprimir_pilotos_dl($id) {
+        $model = OrdenProduccion::findOne($id);
+        return $this->render('../formatos/reporte_medidas_sinlavanderia', [
+                    'model' => $model,
+        ]);
     }
     
      public function actionImprimirtercero($id) {
@@ -1809,8 +1853,7 @@ class OrdenProduccionController extends Controller {
     
     public function actionImprimirnovedadorden($id_novedad, $id)
     {                                
-      //   $model = \app\models\PagoNominaServicios::findOne($id_pago);
-        
+       
          return $this->render('../formatos/impresionnovedadproduccion', [
               'model' => \app\models\NovedadOrdenProduccion::findOne($id_novedad),
              'id' => $id,

@@ -16,6 +16,7 @@ use kartik\depdrop\DepDrop;
 
 $this->title = 'Unidades confeccionadas';
 $this->params['breadcrumbs'][] = $this->title;
+$conPlantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->orderBy('nombre_planta ASC')->all(), 'id_planta', 'nombre_planta');
 ?>
 <script language="JavaScript">
     function mostrarfiltro() {
@@ -45,7 +46,14 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="panel-body" id="filtro" style="display:none">
         <div class="row" >
             <?= $formulario->field($form, "idordenproduccion")->input("search") ?>
-              <?= $formulario->field($form, "id_balanceo")->input("search") ?>
+             <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
+                'data' => $conPlantas,
+                'options' => ['prompt' => 'Seleccione el proceso...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+             
                <?= $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
@@ -60,6 +68,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+             <?= $formulario->field($form, "id_balanceo")->input("search") ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>

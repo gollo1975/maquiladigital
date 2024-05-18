@@ -132,7 +132,7 @@ class Ordenproduccion extends \yii\db\ActiveRecord
 //proceso que va en la creacion de la orden de produccion
     public function getOrdenProduccion()
     {
-        return " Id: {$this->idordenproduccion} - Orden Producción: {$this->ordenproduccion} - Fecha Llegada: {$this->fechallegada} - Total: {$this->totalorden} - Tipo: {$this->tipo->tipo}";
+        return "Ref: {$this->codigoproducto} - Orden Producción: {$this->ordenproduccion} - Tipo: {$this->tipo->tipo}";
     }
     
     //proceso que busca la orden de produccion del cliente y el codigo en la salida

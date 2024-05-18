@@ -45,7 +45,7 @@ class CantidadPrendaTerminadas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_balanceo', 'idordenproduccion', 'iddetalleorden', 'cantidad_terminada','nro_operarios'], 'integer'],
+            [['id_balanceo', 'idordenproduccion', 'iddetalleorden', 'cantidad_terminada','nro_operarios','id_planta'], 'integer'],
             [['cantidad_terminada','hora_corte_entrada'], 'required'],
             [['fecha_entrada', 'fecha_procesada'], 'safe'],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -54,6 +54,7 @@ class CantidadPrendaTerminadas extends \yii\db\ActiveRecord
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['iddetalleorden'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciondetalle::className(), 'targetAttribute' => ['iddetalleorden' => 'iddetalleorden']],
             [['id_proceso_confeccion'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoConfeccionPrenda::className(), 'targetAttribute' => ['id_proceso_confeccion' => 'id_proceso_confeccion']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -74,6 +75,7 @@ class CantidadPrendaTerminadas extends \yii\db\ActiveRecord
             'observacion' => 'Observacion',
             'nro_operarios' => 'Nro Operarios:',
             'hora_corte_entrada' => 'Hora corte:',
+            'id_planta' => 'Planta:',
         ];
     }
 
@@ -99,6 +101,13 @@ class CantidadPrendaTerminadas extends \yii\db\ActiveRecord
     public function getDetalleorden()
     {
         return $this->hasOne(Ordenproducciondetalle::className(), ['iddetalleorden' => 'iddetalleorden']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPlanta()
+    {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
     }
     
     public function getProcesoconfeccionprenda()

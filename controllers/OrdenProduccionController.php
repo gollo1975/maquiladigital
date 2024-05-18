@@ -256,17 +256,20 @@ class OrdenProduccionController extends Controller {
                 $idordenproduccion = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
+                $planta = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_balanceo = Html::encode($form->id_balanceo);
                         $idordenproduccion = Html::encode($form->idordenproduccion);
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
+                        $planta = Html::encode($form->planta);
                         $table = CantidadPrendaTerminadas::find()
                                 ->andFilterWhere(['=', 'id_balanceo', $id_balanceo])
                                 ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
                                 ->andFilterWhere(['>=', 'fecha_entrada', $fecha_inicio])
-                                ->andFilterWhere(['<=', 'fecha_entrada', $fecha_corte]);
+                                ->andFilterWhere(['<=', 'fecha_entrada', $fecha_corte])
+                                ->andFilterWhere(['=', 'id_planta', $planta]);
                         $table = $table->orderBy('id_entrada DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -2757,7 +2760,7 @@ class OrdenProduccionController extends Controller {
     }
     
     //codigo que permite subir las prendas terminas
-    public function actionSubirprendaterminada($id_balanceo, $idordenproduccion, $id_proceso_confeccion)
+    public function actionSubirprendaterminada($id_balanceo, $idordenproduccion, $id_proceso_confeccion, $id_planta)
     {
         $model = new FormPrendasTerminadas();
         $suma = 0;
@@ -2785,6 +2788,7 @@ class OrdenProduccionController extends Controller {
                                     $table->observacion = $model->observacion;
                                     $table->iddetalleorden = $intCodigo;
                                     $table->id_proceso_confeccion = $id_proceso_confeccion;
+                                     $table->id_planta = $id_planta;
                                     $table->insert();
                                     $intIndice ++;
                                 }else{
@@ -2837,6 +2841,7 @@ class OrdenProduccionController extends Controller {
             'idordenproduccion' => $idordenproduccion,
             'balanceo' => $balanceo,
             'id_proceso_confeccion' => $id_proceso_confeccion,
+            'id_planta' => $id_planta,
             
         ]);      
     }
@@ -3151,7 +3156,7 @@ class OrdenProduccionController extends Controller {
     
     public function actionViewconsultaficha($id, $condicion) {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
-        $modulos = Balanceo::find()->where(['=','idordenproduccion', $id])->orderBy('id_balanceo DESC')->all();
+        $modulos = Balanceo::find()->where(['=','idordenproduccioSn', $id])->orderBy('id_balanceo DESC')->all();
         $modeldetalle = new Ordenproducciondetalle();
         return $this->render('view_consulta_ficha', [
                     'model' => $this->findModel($id),
@@ -3856,6 +3861,7 @@ class OrdenProduccionController extends Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
                                
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'ID')
@@ -3867,7 +3873,8 @@ class OrdenProduccionController extends Controller {
                     ->setCellValue('G1', 'FACTURADO')
                     ->setCellValue('H1', 'FECHA PROCESO')
                     ->setCellValue('I1', 'USUARIO')
-                    ->setCellValue('J1', 'OBSERVACION');
+                    ->setCellValue('J1', 'OBSERVACION')
+                     ->setCellValue('J1', 'PLANTA');
         $i = 2;
         $facturado = 0;
         foreach ($tableexcel as $val) {
@@ -3882,7 +3889,8 @@ class OrdenProduccionController extends Controller {
                      ->setCellValue('G' . $i, $facturado)
                     ->setCellValue('H' . $i, $val->fecha_entrada)
                     ->setCellValue('I' . $i, $val->usuariosistema)
-                    ->setCellValue('J' . $i, $val->observacion);
+                    ->setCellValue('J' . $i, $val->observacion)
+                     ->setCellValue('J' . $i, $val->planta->nombre_planta);
                   
             $i++;
         }

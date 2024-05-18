@@ -15,13 +15,14 @@ class FormFiltroConsultaUnidadConfeccionada extends Model
     public $id_balanceo;
     public $fecha_inicio;
     public $fecha_corte;
+    public $planta;
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['idordenproduccion', 'id_balanceo'], 'integer'],
+            [['idordenproduccion', 'id_balanceo','planta'], 'integer'],
           [['fecha_inicio','fecha_corte'], 'safe'],
         ];
     }
@@ -36,6 +37,7 @@ class FormFiltroConsultaUnidadConfeccionada extends Model
             'fecha_inicio' => 'Fecha inicio:',
             'id_balanceo' => 'Nro balanceo:',
             'fecha_corte' =>  'Fecha corte:', 
+            'planta' => 'Nombre de planta:',
            
         ];
     }

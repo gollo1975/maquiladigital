@@ -312,6 +312,7 @@ class EficienciaModuloDiarioController extends Controller
                         $model->id_eficiencia = $id;
                         $model->id_carga = $id_carga;
                         $model->id_balanceo = $id_balanceo;
+                        $model->id_planta = $id_planta;
                         $model->idordenproduccion = $orden_produccion;
                         $cantidad = $_POST["nueva_entrada"][$intIndice];
                         $model->unidades_confeccionadas = $_POST["nueva_entrada"][$intIndice];
@@ -339,6 +340,7 @@ class EficienciaModuloDiarioController extends Controller
                         $table = new \app\models\CantidadPrendaTerminadas();
                         $table->id_balanceo = $id_balanceo;
                         $table->idordenproduccion = $orden_produccion;
+                        $table->id_planta = $id_planta;
                         $table->cantidad_terminada = $_POST["nueva_entrada"][$intIndice];
                         $table->fecha_entrada = $detalle->fecha_carga;
                         $table->nro_operarios = $_POST["operarios"][$intIndice];

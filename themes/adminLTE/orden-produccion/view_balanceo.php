@@ -267,7 +267,7 @@ if($buscarOrden){
                                                             <div class="panel-footer text-center">
                                                               <!-- Inicio Nuevo Detalle proceso -->
                                                                 <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Prendas',
-                                                                    ['/orden-produccion/subirprendaterminada','id_balanceo' => $val->id_balanceo, 'idordenproduccion' => $model->idordenproduccion, 'id_proceso_confeccion' => $val->id_proceso_confeccion],
+                                                                    ['/orden-produccion/subirprendaterminada','id_balanceo' => $val->id_balanceo, 'idordenproduccion' => $model->idordenproduccion, 'id_proceso_confeccion' => $val->id_proceso_confeccion,'id_planta' => $val->id_planta],
                                                                     [
                                                                         'title' => 'Prendas terminadas',
                                                                         'data-toggle'=>'modal',

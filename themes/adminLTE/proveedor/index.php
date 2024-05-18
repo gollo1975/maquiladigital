@@ -113,6 +113,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         ]);
                 ?>    
             <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>
+            <?= Html::a('<span class="glyphicon glyphicon-check"></span> Importar operarios', ['empleado/importar_operarios','sw' => 1], ['class' => 'btn btn-warning btn-sm']) ?>
             <a align="right" href="<?= Url::toRoute("proveedor/nuevo") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
               <?php $form->end() ?>
             

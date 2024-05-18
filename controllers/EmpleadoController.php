@@ -432,43 +432,78 @@ class EmpleadoController extends Controller
     }
    //PROCESO QUE EXPORTA EMPLEADOS
     
-    public function actionImportar_operarios()
+    public function actionImportar_operarios($sw)
     {
-        $operarios = \app\models\Operarios::find()->where(['=','vinculado', 1])
+        if($sw  == 0){
+            $operarios = \app\models\Operarios::find()->where(['=','vinculado', 1])
                                                   ->andWhere(['=','estado', 1])->orderBy('nombrecompleto ASC')->all();
+        }else{
+            $operarios = \app\models\Operarios::find()->Where(['=','estado', 1])->orderBy('nombrecompleto ASC')->all(); 
+        }
+        
         if (isset($_POST["importar"])) {
             $intIndice = 0;
             foreach ($_POST["importar"] as $intCodigo):
                  $operario = Operarios::find()->where(['=','documento', $intCodigo])->one();
                  if($operario){
-                    $table = new Empleado();
-                    $table->id_empleado_tipo = 1;
-                    $table->id_tipo_documento = $operario->id_tipo_documento;
-                    $table->identificacion = $operario->documento;
-                    $table->nombre1 = $operario->nombres;
-                    $table->apellido1 = $operario->apellidos;
-                    $table->nombrecorto = $operario->nombrecompleto;
-                    $table->direccion = 0;
-                    $table->telefono = 0;
-                    $table->celular = $operario->celular;
-                    $table->email = $operario->email;
-                    $table->iddepartamento = $operario->iddepartamento;
-                    $table->iddepartamento = $operario->iddepartamento;
-                    $table->idmunicipio = $operario->idmunicipio;
-                    $table->iddepartamento = $operario->iddepartamento;
-                    $table->fecha_nacimiento = $operario->fecha_nacimiento;
-                    $table->contrato = 0;
-                    $table->id_horario = $operario->id_horario;
-                    $table->id_sucursal = $operario->id_planta;
-                    $table->usuario_crear = Yii::$app->user->identity->username;
-                    $table->save(false);
+                    if($sw == 0){ 
+                        $table = new Empleado();
+                        $table->id_empleado_tipo = 1;
+                        $table->id_tipo_documento = $operario->id_tipo_documento;
+                        $table->identificacion = $operario->documento;
+                        $table->nombre1 = $operario->nombres;
+                        $table->apellido1 = $operario->apellidos;
+                        $table->nombrecorto = $operario->nombrecompleto;
+                        $table->direccion = 0;
+                        $table->telefono = 0;
+                        $table->celular = $operario->celular;
+                        $table->email = $operario->email;
+                        $table->iddepartamento = $operario->iddepartamento;
+                        $table->idmunicipio = $operario->idmunicipio;
+                        $table->iddepartamento = $operario->iddepartamento;
+                        $table->fecha_nacimiento = $operario->fecha_nacimiento;
+                        $table->contrato = 0;
+                        $table->id_horario = $operario->id_horario;
+                        $table->id_sucursal = $operario->id_planta;
+                        $table->usuario_crear = Yii::$app->user->identity->username;
+                        $table->save(false);
+                    }else{
+                        $empresa = \app\models\Matriculaempresa::findOne(1);
+                        $table = new \app\models\Proveedor();
+                        $table->id_tipo_documento = $operario->id_tipo_documento;
+                        $table->cedulanit = $operario->documento;
+                        $table->nombreproveedor = $operario->nombres;
+                        $table->apellidoproveedor = $operario->apellidos;
+                        $table->nombrecorto = $operario->nombrecompleto;
+                        $table->celularproveedor = $operario->celular;
+                        $table->emailproveedor = $operario->email;
+                        $table->direccionproveedor = $operario->direccion_operario;
+                        $table->iddepartamento = $operario->iddepartamento;
+                        $table->idmunicipio = $operario->idmunicipio;
+                        $table->formapago = 1;
+                        $table->nitmatricula = $empresa->nitmatricula;
+                        $table->tiporegimen = 2;
+                        $table->autoretenedor = 0;
+                        $table->naturaleza = 2;
+                        $table->sociedad = 1;
+                        $table->tipocuenta = $operario->tipo_cuenta;
+                        $table->cuentanumero = $operario->numero_cuenta;
+                        $table->genera_moda = 0;
+                        $table->save();
+                    }    
                  }
                  $intIndice++;
             endforeach;
-            $this->redirect(["empleado/index"]);
+            if($sw == 0){
+                $this->redirect(["empleado/index"]);
+            }else{
+                $this->redirect(["proveedor/index"]);
+            }
+            
         }
         return $this->render('_importar_operarios', [
-            'operarios' => $operarios,            
+            'operarios' => $operarios,    
+            'sw' => $sw,
 
         ]);
        

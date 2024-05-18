@@ -181,7 +181,7 @@ $empleado = ArrayHelper::map(Empleado::find()->orderBy('nombrecorto ASC')->all()
         <div class="panel-footer text-right" >    
                 <?php if($token == 0){?>
                     <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
-                    <?= Html::a('<span class="glyphicon glyphicon-check"></span> Importar operarios', ['empleado/importar_operarios'], ['class' => 'btn btn-warning btn-sm']) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-check"></span> Importar operarios', ['empleado/importar_operarios','sw' => 0], ['class' => 'btn btn-warning btn-sm']) ?>
                     <a align="right" href="<?= Url::toRoute("empleado/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
                 <?php }else {?>    
                     <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                

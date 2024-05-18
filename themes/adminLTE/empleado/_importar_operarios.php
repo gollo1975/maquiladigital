@@ -78,9 +78,14 @@ $form = ActiveForm::begin([
                 </tbody>    
             </table>
         </div>
-        <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['empleado/index'], ['class' => 'btn btn-primary btn-sm']) ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm",]) ?>
+        <div class="panel-footer text-right"> 
+            <?php if ($sw == 0){
+                echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['empleado/index'], ['class' => 'btn btn-primary btn-sm']);
+            }else{
+                echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['proveedor/index'], ['class' => 'btn btn-primary btn-sm']); 
+            }    
+                echo  Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm",]);?>
+                
         </div>
 
     </div>

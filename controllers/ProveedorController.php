@@ -164,6 +164,7 @@ class ProveedorController extends Controller {
             if ($model->validate()) {
                 $table = Proveedor::find()->where(['idproveedor' => $id])->one();
                 if ($table) {
+                    $table->dv = $dv;
                     $table->id_tipo_documento = $model->id_tipo_documento;
                     $table->cedulanit = $model->cedulanit;
                     $table->razonsocial = $model->razonsocial;
@@ -198,13 +199,7 @@ class ProveedorController extends Controller {
                         $model->nombreproveedor = null;
                         $model->apellidoproveedor = null;
                     }
-                    if ($table->update()) {
-                        $msg = "El registro ha sido actualizado correctamente";
-                        return $this->redirect(['index']);
-                    } else {
-                        $msg = "El registro no sufrio ningun cambio";
-                        $tipomsg = "danger";
-                    }
+                    $table->save(false);
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
                     $tipomsg = "danger";

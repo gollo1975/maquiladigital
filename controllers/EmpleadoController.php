@@ -472,6 +472,7 @@ class EmpleadoController extends Controller
                         $table = new \app\models\Proveedor();
                         $table->id_tipo_documento = $operario->id_tipo_documento;
                         $table->cedulanit = $operario->documento;
+                        $table->dv = 1;
                         $table->nombreproveedor = $operario->nombres;
                         $table->apellidoproveedor = $operario->apellidos;
                         $table->nombrecorto = $operario->nombrecompleto;

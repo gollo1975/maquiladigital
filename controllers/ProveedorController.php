@@ -200,6 +200,7 @@ class ProveedorController extends Controller {
                         $model->apellidoproveedor = null;
                     }
                     $table->save(false);
+                    return $this->redirect(['index']);
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
                     $tipomsg = "danger";

@@ -182,6 +182,7 @@ class OperariosController extends Controller
                 $table->nombrecompleto = $model->nombres.' '.$model->apellidos;      
                 $table->celular = $model->celular;
                 $table->email = $model->email;
+                $table->direccion_operario = $model->direccion;
                 $table->iddepartamento = $model->iddepartamento;
                 $table->polivalente = $model->polivalente;
                 $table->fecha_nacimiento = $model->fecha_nacimiento;

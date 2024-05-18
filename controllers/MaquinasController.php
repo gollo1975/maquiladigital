@@ -236,16 +236,10 @@ class MaquinasController extends Controller
                 return $this->redirect(['view', 'id' => $model->id_maquina, 'token' => $token]);
              }
         }
-        $sw = MantenimientoMaquina::find()->where(['=','id_maquina', $id])->all();
-        if(count($sw) > 0){
-            Yii::$app->getSession()->setFlash('success', 'El registro no se puede modificar.');
-            return $this->redirect(['index']); 
-        }else{
-              return $this->render('update', [
-                'model' => $model,
-                'token' => $token, 
-                ]);   
-        }         
+        return $this->render('update', [
+          'model' => $model,
+          'token' => $token, 
+          ]);   
     }
    
    // metodo de crea los mantenimientos

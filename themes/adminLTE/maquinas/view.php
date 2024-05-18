@@ -35,7 +35,7 @@ $debaja = \app\models\DebajaMaquina::find()->where(['=','id_maquina', $model->id
     <p>
         <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
         <?php if($maquina->estado_maquina == 0){?>
-            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_maquina], ['class' => 'btn btn-success btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_maquina, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
             <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 17, 'codigo' => $model->id_maquina,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
             <?= Html::a('<span class="glyphicon glyphicon-hand-down"></span> Dar debaja',
                             ['/maquinas/dar_debaja_maquina', 'id' =>$model->id_maquina, 'token' => $token],

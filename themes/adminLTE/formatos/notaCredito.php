@@ -23,7 +23,7 @@ class PDF extends FPDF {
         $factura = Facturaventa::findOne($idfactura);
         //Logo
         $this->SetXY(53, 10);
-        $this->Image('dist/images/logos/logomaquila.png', 10, 10, 40, 29);
+         $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 19);
         //Encabezado
         $this->SetFont('Arial', '', 10);
         $this->Cell(150, 7, utf8_decode($config->razonsocialmatricula. " NIT:" .$config->nitmatricula." - ".$config->dv), 0, 0, 'C', 0);

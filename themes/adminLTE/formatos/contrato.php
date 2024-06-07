@@ -22,7 +22,7 @@ class PDF extends FPDF {
             $departamento = Departamento::findOne($config->iddepartamento);
             //Logo
             $this->SetXY(53, 10);
-            $this->Image('dist/images/logos/logoimagen.jpeg', 10, 10, 30, 19);
+            $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 19);
             //Encabezado
             $this->SetFont('Arial', '', 10);
             $this->SetXY(53, 9);

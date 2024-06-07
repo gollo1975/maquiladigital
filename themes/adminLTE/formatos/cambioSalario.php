@@ -16,7 +16,7 @@ class PDF extends FPDF {
         $config = Matriculaempresa::findOne(1);        
         //Logo
         $this->SetXY(53, 10);
-        $this->Image('dist/images/logos/logomaquila.png', 10, 10, 30, 19);
+        $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 19);
         //Encabezado
         $this->SetFont('Arial', '', 10);
         $this->SetXY(53, 9);

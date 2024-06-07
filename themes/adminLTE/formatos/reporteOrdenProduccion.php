@@ -17,7 +17,7 @@ class PDF extends FPDF {
         $departamento = Departamento::findOne($config->iddepartamento);
 //Logo
         $this->SetXY(50, 15);
-        $this->Image('dist/images/logos/logomaquila.png', 15, 10, 40, 19);
+         $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 19);
         //Encabezado
        //Encabezado
         $this->SetFillColor(220, 220, 220);

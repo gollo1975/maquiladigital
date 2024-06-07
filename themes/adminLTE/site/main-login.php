@@ -59,7 +59,7 @@ $fieldOptions2 = [
         <br>
         <br>        
         <div class="row" align="center">
-            <img src="dist/images/logos/logomaquila.png" align="center" width="50%" height="50%">
+            <img src="dist/images/logos/logomaquila.jpeg" align="center" width="50%" height="50%">
         </div>
         <?php ActiveForm::end(); ?>
 

@@ -46,7 +46,7 @@ $banco = ArrayHelper::map(app\models\Banco::find()->where(['=','activo', 1])->or
 	
     <div class="panel-body" id="importardocumentocontable">
         <div class="row" >
-            <?= $formulario->field($form, 'tipo_proceso')->dropDownList(['1' => 'NOMIMAS', '2' => 'SERVICIOS','3' => 'CESANTIAS'],['prompt' =>'Seleccione...']) ?>
+            <?= $formulario->field($form, 'tipo_proceso')->dropDownList(['1' => 'NOMIMAS', '2' => 'SERVICIOS','3' => 'CESANTIAS','4' => 'PRIMAS'],['prompt' =>'Seleccione...']) ?>
              <?= $formulario->field($form, 'tipo_comprobante')->widget(Select2::classname(), [
                 'data' => $comprobante,
                 'options' => ['prompt' => 'Seleccione...'],
@@ -121,7 +121,7 @@ $banco = ArrayHelper::map(app\models\Banco::find()->where(['=','activo', 1])->or
                 <?php 
                 if($model <> 0){
                     foreach ($model as $val):
-                        if($tipo_proceso == 1 or $tipo_proceso == 3){ ?>
+                        if($tipo_proceso == 1 or $tipo_proceso == 3 || $tipo_proceso == 4){ ?>
                             <tr style='font-size:85%;'>             
                                 <td><?= $val->cedula_empleado ?></td>    
                                  <td><?= $val->empleado->nombrecorto ?></td>

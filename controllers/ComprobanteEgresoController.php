@@ -165,9 +165,15 @@ class ComprobanteEgresoController extends Controller
                                                                                    ->andWhere(['<=','fecha_corte', $fecha_final])->orderBy('operario ASC')->all();   
                                 $model = $servicio;
                             }else{
-                                $cesantia = \app\models\ProgramacionNomina::find()->where(['=','fecha_desde', $fecha_inicio])
-                                                                            ->andWhere(['=', 'fecha_hasta', $fecha_final])->all();
-                                $model = $cesantia;
+                                if($tipo_proceso == 3){
+                                    $cesantia = \app\models\ProgramacionNomina::find()->where(['=','fecha_desde', $fecha_inicio])
+                                                                                ->andWhere(['=', 'fecha_hasta', $fecha_final])->all();
+                                    $model = $cesantia;
+                                }else{
+                                    $primas = \app\models\ProgramacionNomina::find()->where(['=','fecha_desde', $fecha_inicio])
+                                                                                ->andWhere(['=', 'fecha_hasta', $fecha_final])->all();
+                                    $model = $primas;
+                                }    
                             }    
                         }    
                         
@@ -184,7 +190,7 @@ class ComprobanteEgresoController extends Controller
                         $valorPagado = 0;
                         foreach ($_POST["documento_identidad"] as $intCodigo) {
                             $empresa = \app\models\Matriculaempresa::findOne(1);
-                            if($tipo_proceso == 1 || $tipo_proceso == 3){
+                            if($tipo_proceso == 1 || $tipo_proceso == 3 || $tipo_proceso == 4){
                                 $nomina = \app\models\ProgramacionNomina::findOne($intCodigo);
                                 $proveedor = Proveedor::find()->where(['=','cedulanit', $nomina->cedula_empleado])->one();
                                 $valorPagado = $nomina->total_pagar;
@@ -207,7 +213,11 @@ class ComprobanteEgresoController extends Controller
                                     if($tipo_proceso == 2){
                                       $observacion = 'Confeccion de prendas';
                                     }else{
-                                        $observacion = 'Pago de cesantias';
+                                        if($tipo_proceso == 3){
+                                            $observacion = 'Pago de cesantias';
+                                        }else{
+                                            $observacion = 'Primas del  '. $fecha_inicio. '  al  ' .$fecha_final. '';
+                                        }    
                                     }  
                                 }
                                 $table->observacion = $observacion;

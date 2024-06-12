@@ -1311,7 +1311,7 @@ class ProgramacionNominaController extends Controller {
         $contador_permanente = 0;
         $concepto_sal = ConceptoSalarios::find()->where(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
         $nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $adicionpermanente->id_empleado])->one();
-        $programacion = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $nonima->id_programacion])->andWhere(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->all();
+        $programacion = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $nonima->id_programacion])->andWhere(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
         if (!$programacion) {
             $detalleapago = new ProgramacionNominaDetalle();
             $detalleapago->id_programacion = $nonima->id_programacion;
@@ -1325,11 +1325,12 @@ class ProgramacionNominaController extends Controller {
                    $dias = $periodo_pago->dias;
                    $calculo = $adicionpermanente->vlr_adicion / $dias;
                    
-                    $total_pagado = round($calculo * $nonima->dia_real_pagado);
+                    $total_pagado = round($calculo * $periodo_pago->dias);
                     if ($concepto_sal->prestacional == 1) {
                         $detalleapago->vlr_devengado = $total_pagado;
                     } else {
                        $detalleapago->vlr_devengado_no_prestacional = $total_pagado;
+                       $detalleapago->vlr_devengado = $total_pagado;
                     }
                 } else {
                     if ($concepto_sal->prestacional == 1) {
@@ -1954,13 +1955,13 @@ class ProgramacionNominaController extends Controller {
  protected function ModuloActualizaSaldosPago($adicionpermanente, $id, $id_grupo_pago)
     {
        $dias = 0;
-       $grupo_pago = PeriodoPagoNomina::find()->where(['=','id_grupo_pago', $id_grupo_pago])->one();
+       $grupo_pago = PeriodoPagoNomina::find()->where(['=','id_grupo_pago', $id_grupo_pago])->andWhere(['=','estado_periodo', 0])->one();
        $concepto_salario = ConceptoSalarios::find()->where(['=', 'inicio_nomina', 1])->one(); 
        $concepto_sal = ConceptoSalarios::find()->where(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
        $nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $adicionpermanente->id_empleado])->one();
        $detalle_nomina = ProgramacionNominadetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $concepto_salario->codigo_salario])->one();
        $detalle_nomina_salario = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $adicionpermanente->codigo_salario])->one();
-       $dias = $detalle_nomina->dias_reales;
+       $dias = $nonima->dia_real_pagado;
        if($concepto_sal->prestacional == 1 && $adicionpermanente->aplicar_dia_laborado == 1){
            $detalle_nomina_salario->vlr_devengado = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;
            $detalle_nomina_salario->save(false);
@@ -1974,9 +1975,10 @@ class ProgramacionNominaController extends Controller {
           $detalle_nomina_salario->vlr_devengado_no_prestacional = $adicionpermanente->vlr_adicion; 
           $detalle_nomina_salario->save(false);
        }else{
+    
              if($concepto_sal->prestacional == 0 && $adicionpermanente->aplicar_dia_laborado == 1){
                $detalle_nomina_salario->vlr_devengado_no_prestacional = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;   
-               $detalle_nomina_salario->vlr_devengado = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;   
+               $detalle_nomina_salario->vlr_devengado = round(($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias);   
                $detalle_nomina_salario->save(false);
              }    
        }

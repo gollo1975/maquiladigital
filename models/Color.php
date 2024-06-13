@@ -21,6 +21,17 @@ class Color extends \yii\db\ActiveRecord
     {
         return 'color';
     }
+    
+    public function beforeSave($insert) {
+	if(!parent::beforeSave($insert)){
+            return false;
+        }
+	# ToDo: Cambiar a cliente cargada de configuración.    
+	$this->color = strtoupper($this->color);
+	
+        return true;
+    }
+
 
     /**
      * {@inheritdoc}

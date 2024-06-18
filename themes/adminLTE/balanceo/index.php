@@ -51,7 +51,7 @@ $cliente = ArrayHelper::map(Cliente::find()->orderBy('nombrecorto ASC')->all(), 
         Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
 	
-    <div class="panel-body" id="filtro" style="display:none">
+    <div class="panel-body" id="filtro" style="display:block">
         <div class="row" >
                 <?= $formulario->field($form, 'idcliente')->widget(Select2::classname(), [
                    'data' => $cliente,

@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
         Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
 
-    <div class="panel-body" id="filtroproceso" style="display:none">
+    <div class="panel-body" id="filtroproceso" style="display:block">
         <div class="row">
             <?= $formulario->field($form, 'idcliente')->widget(Select2::classname(), [
                 'data' => $clientes,
@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ]); ?>
             <?= $formulario->field($form, 'idtipo')->widget(Select2::classname(), [
                 'data' => $ordenproducciontipos,
-                'options' => ['prompt' => 'Seleccione un tipo...'],
+                'options' => ['prompt' => 'Seleccione el servicio'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],

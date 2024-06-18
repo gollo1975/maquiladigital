@@ -2014,7 +2014,7 @@ class OrdenProduccionController extends Controller {
                 }
             } else {
                 $table = Ordenproduccion::find()
-                       ->Where(['=','aplicar_balanceo', 1])
+                       ->Where(['=','aplicar_balanceo', 1])->andWhere(['=','cerrar_orden', 0])
                         ->orderBy('idordenproduccion desc');
                 $count = clone $table;
                 $pages = new Pagination([

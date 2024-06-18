@@ -106,7 +106,7 @@ class ValorPrendaUnidadController extends Controller
                     }
                 } else {
                     if($tokenPlanta == null){
-                         $table = ValorPrendaUnidad::find() ->orderBy('id_valor DESC');
+                         $table = ValorPrendaUnidad::find()->Where(['=', 'cerrar_pago', 0])->orderBy('id_valor DESC');
                     }else{
                         $table = ValorPrendaUnidad::find()->where(['=','id_planta', $tokenPlanta]) ->orderBy('id_valor DESC');
                     }

@@ -32,9 +32,9 @@ class FormFiltroOrdenProduccionProceso extends Model
         return [
 
             'idcliente' => 'Cliente:',
-            'ordenproduccion' => 'Orden Interna:',
+            'ordenproduccion' => 'Op. Interna:',
             'idtipo' => 'Tipo:',
-            'codigoproducto' => 'Cod Producto:',
+            'codigoproducto' => 'Referencia:',
         ];
     }
 }

@@ -109,7 +109,7 @@ class BalanceoController extends Controller
                 }
             } else {
                 if($tokenAcceso == null){
-                    $table = Balanceo::find()->orderBy('id_balanceo desc');
+                    $table = Balanceo::find()->Where(['=', 'estado_modulo', 0])->orderBy('id_balanceo desc');
                 }else{
                     $table = Balanceo::find()->where(['=','id_planta', $tokenAcceso])
                         ->orderBy('id_balanceo desc');

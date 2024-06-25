@@ -218,6 +218,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <th scope="col" style='background-color:#B9D5CE;'>Fecha operación</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Sabado</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                             </thead>
@@ -248,6 +249,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         foreach ($modelo2 as $eficiencia): 
 
                                                 $cumplimiento = 0;
+                                                $sumarValores = 0;
                                                 $detalle = ValorPrendaUnidadDetalles::find()->where(['=','dia_pago', $eficiencia->dia_pago])
                                                                                          ->andWhere(['=','id_operario', $eficiencia->id_operario])->orderBy('dia_pago')->all();
                                                 $con = count($detalle);
@@ -262,9 +264,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                            <td ><?= $detalles->aplicaSabado?></td>
                                                            <?php if($detalles->porcentaje_cumplimiento > $empresa->porcentaje_empresa){?>
                                                                 <td style='background-color:#F9F4CB;' ><?= $detalles->porcentaje_cumplimiento ?>%</td>
+                                                              <td style='background-color:#e7c3c3; text-align: right'><?= ''.number_format($detalles->vlr_pago,0) ?></td>
                                                                 <td><?= 'GANA BONIFICACION' ?></td>
                                                            <?php }else{?> 
                                                                 <td style='background-color:#B6EFF5;' ><?= $detalles->porcentaje_cumplimiento ?>%</td>
+                                                                <td style='background-color:#e7c3c3; text-align: right'><?= ''.number_format($detalles->vlr_pago,0) ?></td>
                                                                 <td><?= 'NO GANA BONIFICACION' ?></td>
                                                            <?php }?>     
                                                            <td ><?= $detalles->usuariosistema ?></td>
@@ -280,6 +284,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 }else{
                                                     foreach ($detalle as $contar):
                                                        $cumplimiento += $contar->porcentaje_cumplimiento;
+                                                       $sumarValores += $contar->vlr_pago;
                                                     endforeach;
                                                     if($id_operario > 0){
                                                         if($eficiencia->dia_pago != $auxiliar){
@@ -297,9 +302,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                                <td ><?= $contar->aplicaSabado?></td>
                                                               <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
                                                                     <td style='background-color:#F9F4CB;' ><?= $cumplimiento ?>%</td>
+                                                                    <td style='background-color:#e7c3c3; text-align: right'><?= ''.number_format($sumarValores,0) ?></td>
                                                                     <td><?= 'GANA BONIFICACION' ?></td>
                                                                <?php }else{?> 
                                                                     <td style='background-color:#B6EFF5;' ><?= $cumplimiento ?>%</td>
+                                                                    <td style='background-color:#e7c3c3; text-align: right'><?= ''.number_format($sumarValores,0) ?></td>
                                                                     <td><?= 'NO GANA BONIFICACION' ?></td>
                                                                <?php }
                                                                  $contador += 1;
@@ -321,9 +328,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                               <td ><?= $contar->aplicaSabado?></td>
                                                               <?php if($cumplimiento > $empresa->porcentaje_empresa){?>
                                                                     <td style='background-color:#F9F4CB;' ><?= $cumplimiento ?>%</td>
+                                                                    <td style='background-color:#e7c3c3; text-align: right'><?= ''.number_format($sumarValores,0) ?></td>
                                                                     <td style='background-color:#F9F4CB;'><?= 'GANA BONIFICACION' ?></td>
                                                                <?php }else{?> 
                                                                     <td style='background-color:#B6EFF5;' ><?= $cumplimiento ?>%</td>
+                                                                    <td style='background-color:#e7c3c3; text-align: right'><?= ''.number_format($sumarValores,0) ?></td>
                                                                     <td><?= 'NO GANA BONIFICACION' ?></td>
                                                                <?php }?>     
                                                               <td ><?= $contar->usuariosistema ?></td>

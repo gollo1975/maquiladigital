@@ -43,7 +43,7 @@ $conPlantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->orderBy('nombre
         Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
 	
-    <div class="panel-body" id="filtro" style="display:none">
+    <div class="panel-body" id="filtro" style="display:block">
         <div class="row" >
             <?= $formulario->field($form, "idordenproduccion")->input("search") ?>
              <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
@@ -86,7 +86,9 @@ $conPlantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->orderBy('nombre
 <div class="table-responsive">
 <div class="panel panel-success ">
     <div class="panel-heading">
-        Registros <span class="badge"> <?= number_format($pagination->totalCount,0) ?></span>
+        <?php if($modelo){?>
+            Registros <span class="badge"> <?= number_format($pagination->totalCount,0) ?></span>
+        <?php }?>    
     </div>
         <table class="table table-bordered table-hover">
             <thead>
@@ -106,28 +108,31 @@ $conPlantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->orderBy('nombre
             </thead>
             <tbody>
                 <?php 
-                $unidades = 0;
-                $facturado = 0;
-                foreach ($modelo as $val):?>
-                    <tr style='font-size:85%;'>  
-                    
-                        <td><?= $val->id_balanceo ?></td>
-                        <td><?= $val->nro_operarios ?></td>
-                        <td><?= $val->idordenproduccion ?></td>
-                        <td><?= $val->ordenproduccion->codigoproducto ?></td>
-                        <td><?= $val->detalleorden->productodetalle->prendatipo->talla->talla?></td>
-                        <td><?= $val->ordenproduccion->cliente->nombrecorto ?></td>
-                        <td align="right"><?= ''.number_format($val->cantidad_terminada,0)?></td>
-                        <td align="right"><?= ''. number_format($val->detalleorden->vlrprecio * $val->cantidad_terminada,0) ?></td>
-                        <td><?= $val->fecha_entrada ?></td>
-                        <td><?= $val->detalleorden->plantaProduccion->nombre_planta ?></td>
+                if($modelo){
+                    $unidades = 0;
+                    $facturado = 0;
+                    foreach ($modelo as $val):?>
+                        <tr style='font-size:85%;'>  
+                            <td><?= $val->id_balanceo ?></td>
+                            <td><?= $val->nro_operarios ?></td>
+                            <td><?= $val->idordenproduccion ?></td>
+                            <td><?= $val->ordenproduccion->codigoproducto ?></td>
+                            <td><?= $val->detalleorden->productodetalle->prendatipo->talla->talla?></td>
+                            <td><?= $val->ordenproduccion->cliente->nombrecorto ?></td>
+                            <td align="right"><?= ''.number_format($val->cantidad_terminada,0)?></td>
+                            <td align="right"><?= ''. number_format($val->detalleorden->vlrprecio * $val->cantidad_terminada,0) ?></td>
+                            <td><?= $val->fecha_entrada ?></td>
+                            <td><?= $val->detalleorden->plantaProduccion->nombre_planta ?></td>
 
-                <?php
-                $unidades +=  $val->cantidad_terminada;
-                $facturado += $val->detalleorden->vlrprecio * $val->cantidad_terminada;
-                endforeach; ?>
-            </tbody>           
-            <td colspan="4"><td></td><td ></td> <td style="font-size: 85%; width: 110px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Total:</b> <?= ''.number_format($unidades,0) ?></td><td style="font-size: 85%; width: 160px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Facturado:</b> <?= ''.number_format($facturado,0) ?></td> <td colspan="1">
+                    <?php
+                    $unidades +=  $val->cantidad_terminada;
+                    $facturado += $val->detalleorden->vlrprecio * $val->cantidad_terminada;
+                    endforeach;
+                }?>
+            </tbody>     
+            <?php if($modelo){?>
+                <td colspan="4"><td></td><td ></td> <td style="font-size: 85%; width: 110px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Total:</b> <?= ''.number_format($unidades,0) ?></td><td style="font-size: 85%; width: 160px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Facturado:</b> <?= ''.number_format($facturado,0) ?></td> <td colspan="1">
+            <?php }?>        
         </table>    
         <div class="panel-footer text-right" >            
                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
@@ -135,5 +140,7 @@ $conPlantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->orderBy('nombre
         </div>
     </div>
 </div>
-<?= LinkPager::widget(['pagination' => $pagination]) ?>
+<?php if($modelo){?>
+    <?= LinkPager::widget(['pagination' => $pagination]) ?>
+<?php }?>
 

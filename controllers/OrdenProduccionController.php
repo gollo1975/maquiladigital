@@ -257,6 +257,8 @@ class OrdenProduccionController extends Controller {
                 $fecha_inicio = null;
                 $fecha_corte = null;
                 $planta = null;
+                $pages = null;
+                $modelo = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_balanceo = Html::encode($form->id_balanceo);
@@ -275,7 +277,7 @@ class OrdenProduccionController extends Controller {
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 100,
+                            'pageSize' => 50,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -289,25 +291,7 @@ class OrdenProduccionController extends Controller {
                     } else {
                         $form->getErrors();
                     }
-                } else {
-                    $table = CantidadPrendaTerminadas::find()
-                             ->orderBy('id_entrada DESC');
-                    $tableexcel = $table->all();
-                    $count = clone $table;
-                    $pages = new Pagination([
-                        'pageSize' => 100,
-                        'totalCount' => $count->count(),
-                    ]);
-                    $modelo = $table
-                            ->offset($pages->offset)
-                            ->limit($pages->limit)
-                            ->all();
-                    if (isset($_POST['excel'])) {
-                        //$table = $table->all();
-                        $this->actionExcelConsultaUnidades($tableexcel);
-                    }
-                }
-                $to = $count->count();
+                } 
                 return $this->render('consultaunidadconfeccionada', [
                             'modelo' => $modelo,
                             'form' => $form,

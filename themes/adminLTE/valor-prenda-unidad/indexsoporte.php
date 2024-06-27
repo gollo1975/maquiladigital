@@ -241,8 +241,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                   ->andWhere(['<=','dia_pago', $fecha_corte])
                                                   ->andwhere(['=','id_planta', $bodega])->orderBy('id_operario DESC')->all();
                                         }else{
-                                           $modelo2 = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $dia_pago])
-                                                  ->andWhere(['<=','dia_pago', $fecha_corte])->orderBy('id_operario DESC')->all();
+                                            if ($dia_pago <> null && $fecha_corte <> null){
+                                                $modelo2 = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $dia_pago])
+                                                                                            ->andWhere(['<=','dia_pago', $fecha_corte])
+                                                                                            ->orderBy('id_operario DESC')->all();
+                                            }    
                                         }   
                                     } 
                                     if ($modelo){

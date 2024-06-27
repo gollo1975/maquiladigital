@@ -221,6 +221,8 @@
                                                 ['label' => 'Eficiencia modular', 'icon' => 'plus-square-o', 'url' => ['/balanceo/index_eficiencia_modular']],
                                                 ['label' => 'Pago x prenda', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/searchpageprenda']],
                                                 ['label' => 'Maestro operaciones', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/maestro_operaciones']],
+                                                ['label' => 'Eficiencia diaria', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/eficiencia_diaria']],
+
                                             ],
                                         ],
                                         [

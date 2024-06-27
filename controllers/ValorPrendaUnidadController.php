@@ -210,8 +210,84 @@ class ValorPrendaUnidadController extends Controller
         } else {
             return $this->redirect(['site/login']);
         }
-    } 
+    }
     
+    //EFICIENCIA DIARIA POR FECHAS
+    //index de consulta o pago
+    public function actionEficiencia_diaria() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 134])->all()) {
+                $form = new FormFiltroResumePagoPrenda();
+                $id_operario = null;
+                $dia_pago = null;
+                $fecha_corte = null;
+                $id_planta = null;
+                $modelo = null;
+                $pages = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $id_operario = Html::encode($form->id_operario);
+                        $dia_pago = Html::encode($form->dia_pago);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $id_planta = Html::encode($form->id_planta);
+                        if($dia_pago == null && $fecha_corte == null){
+                            Yii::$app->getSession()->setFlash('warning', 'En el campo fecha inicio y fecha corte NO pueden ser vacios..');
+                        }else{
+                            if($id_planta != null && $id_operario != null ){
+                                $table = ValorPrendaUnidadDetalles::find()
+                                        ->andFilterWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andFilterWhere(['=', 'id_planta', $id_planta])
+                                        ->andFilterWhere(['=', 'id_operario', $id_operario]);
+                            } else { 
+                                if($id_planta != null || $id_operario == null ){
+                                    $table = ValorPrendaUnidadDetalles::find()
+                                        ->andFilterWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andFilterWhere(['=', 'id_planta', $id_planta]);
+                                        
+                                }else{
+                                    if($id_planta == null || $id_operario != null ){
+                                        $table = ValorPrendaUnidadDetalles::find()
+                                            ->andFilterWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                            ->andFilterWhere(['=', 'id_operario', $id_operario]);
+                                    }else{
+                                        $table = ValorPrendaUnidadDetalles::find()
+                                            ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte]);
+                                   }    
+                                }
+                            }    
+                            $table = $table->orderBy('dia_pago DESC');
+                            $tableexcel = $table->all();
+                            $count = clone $table;
+                            $to = $count->count();
+                            $pages = new Pagination([
+                                'pageSize' => 30,
+                                'totalCount' => $count->count()
+                            ]);
+                            $modelo = $table
+                                    ->offset($pages->offset)
+                                    ->limit($pages->limit)
+                                    ->all();
+                        }    
+                    } else {
+                        $form->getErrors();
+                    }
+                }             
+                return $this->render('eficiencia_diaria', [
+                            'modelo' => $modelo,
+                            'form' => $form,
+                            'pagination' => $pages,
+                            'dia_pago' =>$dia_pago,
+                            'fecha_corte' => $fecha_corte,
+                            'id_operario' => $id_operario,
+                            'id_planta' => $id_planta,
+                            ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    } 
        
     //PERMITE CONSULTAR LOS PAGOS DE SERVICIOS
     

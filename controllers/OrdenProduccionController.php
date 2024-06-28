@@ -4672,20 +4672,28 @@ class OrdenProduccionController extends Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
-         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'CODIGO')
                     ->setCellValue('B1', 'OP')
                     ->setCellValue('C1', 'TALLA')
                     ->setCellValue('D1', 'CONCEPTO)')
                     ->setCellValue('E1', 'CLIENTE')
-                    ->setCellValue('F1', 'MEDIDA FICHA')
-                    ->setCellValue('G1', 'MEDIDA CONFECCION')
-                    ->setCellValue('H1', 'TOLERANCIA')
-                    ->setCellValue('I1', 'FECHA REGISTRO')
-                    ->setCellValue('J1', 'USUARIO')
-                    ->setCellValue('K1', 'APLICADO')
-                    ->setCellValue('L1', 'OBSERVACION');
+                    ->setCellValue('F1', 'MEDIDA FICHA AL')
+                    ->setCellValue('G1', 'MEDIDA FICHA DL')
+                    ->setCellValue('H1', 'MEDIDA CONFECCION AL')
+                    ->setCellValue('I1', 'MEDIDA CONFECCION DL')
+                    ->setCellValue('J1', 'TOLERANCIA AL')
+                    ->setCellValue('K1', 'TOLERANCIA DL')
+                    ->setCellValue('L1', 'FECHA REGISTRO')
+                    ->setCellValue('M1', 'USUARIO')
+                    ->setCellValue('N1', 'APLICADO')
+                    ->setCellValue('O1', 'OBSERVACION AL')
+                    ->setCellValue('P1', 'OBSERVACION DL');
         $i = 3;
         foreach ($medida as $val) {
             $objPHPExcel->setActiveSheetIndex(0)
@@ -4694,13 +4702,17 @@ class OrdenProduccionController extends Controller {
                     ->setCellValue('C' . $i, $val->detalleorden->productodetalle->prendatipo->prenda.' / '.$val->detalleorden->productodetalle->prendatipo->talla->talla)
                     ->setCellValue('D' . $i, $val->concepto)                    
                     ->setCellValue('E' . $i, $orden->cliente->nombrecorto)                    
-                    ->setCellValue('F' . $i, $val->medida_ficha_tecnica)
-                    ->setCellValue('G' . $i, $val->medida_confeccion)
-                    ->setCellValue('H' . $i, $val->tolerancia)
-                    ->setCellValue('I' . $i, $val->fecha_registro)
-                    ->setCellValue('J' . $i, $val->usuariosistema)
-                    ->setCellValue('K' . $i, $val->aplicadoproceso)
-                    ->setCellValue('L' . $i, $val->observacion);
+                    ->setCellValue('F' . $i, $val->medida_ficha_al)
+                    ->setCellValue('G' . $i, $val->medida_ficha_dl)
+                    ->setCellValue('H' . $i, $val->medida_confeccion_al)
+                    ->setCellValue('I' . $i, $val->medida_confeccion_dl)
+                    ->setCellValue('J' . $i, $val->tolerancia_al)
+                    ->setCellValue('K' . $i, $val->tolerancia_dl)
+                    ->setCellValue('L' . $i, $val->fecha_registro)
+                    ->setCellValue('M' . $i, $val->usuariosistema)
+                    ->setCellValue('N' . $i, $val->aplicadoproceso)
+                    ->setCellValue('O' . $i, $val->observacion_al)
+                    ->setCellValue('P' . $i, $val->observacion_dl);
             $i++;
         }
         // Redirect output to a client’s web browser (Excel2007)

@@ -7,6 +7,7 @@ use app\models\ConceptoSalarios;
 use app\models\Matriculaempresa;
 use app\models\Municipio;
 use app\models\Departamento;
+use yii\db\ActiveQuery;
 
 class PDF extends FPDF {
 
@@ -127,7 +128,7 @@ class PDF extends FPDF {
 
     function Body($pdf,$model) {        
         $detalle_piloto = PilotoDetalleProduccion::find()->where(['=','idordenproduccion', $model->idordenproduccion])
-                                                         ->groupBy('iddetalleorden')
+                                                         ->groupBy('piloto_detalle_produccion.iddetalleorden')
                                                          ->all();		
         $pdf->SetX(10);
         $pdf->SetFont('Arial', '', 6.5);

@@ -301,7 +301,7 @@ class PagoBancoController extends Controller
                         $table->codigo_banco = $operario->bancoEmpleado->codigo_interfaz;
                         $table->banco = $operario->bancoEmpleado->banco;
                         $table->numero_cuenta = $operario->numero_cuenta;
-                        $table->valor_transacion = $nomina->Total_pagar;
+                        $table->valor_transacion = $nomina->total_pagar;
                         $table->fecha_aplicacion = $pago_banco->fecha_aplicacion;
                         $table->tipo_pago = $tipo_proceso;
                         $table->id_colilla = $intCodigo;

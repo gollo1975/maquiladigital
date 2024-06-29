@@ -1148,7 +1148,7 @@ class ValorPrendaUnidadController extends Controller
                         $auxiliar = $valores->dia_pago;
                     }
                 endforeach;
-                $pago->Total_pagar = $contador;
+                $pago->total_pagar = $contador;
                 $pago->total_dias = $con;
                 $pago->save(false);
                 //codigo para insertar devengados

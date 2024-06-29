@@ -117,7 +117,6 @@ $form = ActiveForm::begin([
             </body>    
             <tr>
                <td colspan="7"></td>
-               <td align="right"><b>Totales</b></td>
                <td align="right" ><b><?= '$ '.number_format($Devengado,0); ?></b></td>
                <td align="right"><b><?= '$ '.number_format($Deduccion,0); ?></b></td>
                <td align="right"><b><?= '$ '.number_format($Pagar,0); ?></b></td>

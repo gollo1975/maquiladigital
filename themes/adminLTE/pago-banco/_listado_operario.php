@@ -116,7 +116,7 @@ if ($mensaje != ""){
                                 <td><?= $val->fecha_inicio ?></td>
                                 <td><?= $val->fecha_corte ?></td>
                                 <td><?= $val->planta->nombre_planta ?></td>                    
-                                <td style="text-align: right"><?= '$'.number_format($val->Total_pagar,0) ?></td>
+                                <td style="text-align: right"><?= '$'.number_format($val->total_pagar,0) ?></td>
                                 <td style="width: 30px;"><input type="checkbox" name="aplicar_pago[]" value="<?= $val->id_pago ?>"></td>
                                 <input type="hidden" name="tipo_proceso" value="<?= $tipo_proceso ?>">
                             </tr>

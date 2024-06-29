@@ -72,7 +72,7 @@ $this->params['breadcrumbs'][] = $model->id_pago;
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Observación') ?>:</th>
                     <td><?= Html::encode($model->observacion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_Pagar') ?>:</th>
-                    <td style="text-align: right;"><?= Html::encode(''.number_format($model->Total_pagar,0)) ?></td>
+                    <td style="text-align: right;"><?= Html::encode(''.number_format($model->total_pagar,0)) ?></td>
                 </tr>
                 
             </table>

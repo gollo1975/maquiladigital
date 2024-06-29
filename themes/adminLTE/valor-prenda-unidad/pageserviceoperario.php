@@ -60,7 +60,6 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha corte</th>
                  <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Dias</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Deducción</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total pagado</th>
@@ -86,10 +85,9 @@ $form = ActiveForm::begin([
                            <td><?= $val->fecha_corte?></td>
                             <td><?= $val->planta->nombre_planta?></td>
                            <td><?= $val->total_dias?></td>
-                           <td><?= $val->usuariosistema ?></td>
                            <td align="right"><?= ''.number_format($val->devengado,0) ?></td>
                            <td align="right"><?= ''.number_format($val->deduccion,0) ?></td>
-                           <td align="right"><?= ''.number_format($val->Total_pagar,0) ?></td>
+                           <td align="right"><?= ''.number_format($val->total_pagar,0) ?></td>
                            <td><?= $val->observacion?></td>
                            <td style=' width: 25px;'>
                               <a href="<?= Url::toRoute(["valor-prenda-unidad/vistadetallepago",'id_pago'=>$val->id_pago, 'fecha_inicio' => $fecha_inicio, 'autorizado' => $pago->autorizado, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega]) ?>" ><span class="glyphicon glyphicon-eye-open "></span></a>

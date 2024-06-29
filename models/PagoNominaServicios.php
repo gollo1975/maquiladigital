@@ -36,8 +36,8 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_operario', 'Total_pagar','total_dias','devengado','deduccion','autorizado','id_planta'], 'integer'],
-            [['id_operario', 'fecha_inicio', 'fecha_corte', 'Total_pagar','id_planta'], 'required'],
+            [['id_operario', 'total_pagar','total_dias','devengado','deduccion','autorizado','id_planta'], 'integer'],
+            [['fecha_registro'], 'required'],
             [['fecha_inicio', 'fecha_corte', 'fecha_registro'], 'safe'],
             [['documento'], 'string', 'max' => 15],
             [['operario','observacion','usuariosistema'], 'string', 'max' => 50],
@@ -59,7 +59,7 @@ class PagoNominaServicios extends \yii\db\ActiveRecord
             'fecha_inicio' => 'Fecha Inicio',
             'fecha_corte' => 'Fecha Corte',
             'fecha_registro' => 'Fecha Registro',
-            'Total_pagar' => 'Total Pagar',
+            'total_pagar' => 'Total Pagar',
             'observacion' => 'Observacion',
             'usuariosistema' => 'Usuario:',
             'total_dias' => 'Total dias;',

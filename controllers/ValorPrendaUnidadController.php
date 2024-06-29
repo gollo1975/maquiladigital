@@ -1177,7 +1177,7 @@ class ValorPrendaUnidadController extends Controller
                    //codigo que inserta el auxilio de transporte
                     if($matricula->aplica_auxilio == 1){
                         $pagoBuscar = \app\models\PagoNominaServicios::findOne($intCodigo);
-                        if($pagoBuscar->Total_pagar > $matricula->base_auxilio){
+                        if($pagoBuscar->total_pagar > $matricula->base_auxilio){
                             $detalle_auxilio = new \app\models\PagoNominaServicioDetalle();
                             $detalle_auxilio->id_pago = $intCodigo;
                             $detalle_auxilio->codigo_salario = $matricula->codigo_salario_auxilio;
@@ -1207,7 +1207,7 @@ class ValorPrendaUnidadController extends Controller
             endforeach;
             $pagoNomina->devengado = $devengado;
             $pagoNomina->deduccion = $deduccion;
-            $pagoNomina->Total_pagar = $devengado - $deduccion;
+            $pagoNomina->total_pagar = $devengado - $deduccion;
             $pagoNomina->save(false);
         endforeach;
         $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 

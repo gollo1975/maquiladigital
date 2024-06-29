@@ -75,7 +75,7 @@ $form = ActiveForm::begin([
                      foreach ($listado_operarios as $val):
                          $Devengado += $val->devengado;
                          $Deduccion += $val->deduccion;
-                         $Pagar += $val->Total_pagar;
+                         $Pagar += $val->total_pagar;
                          ?>
                         <tr style='font-size:85%;'>  
                            <td><?= $val->id_pago ?></td> 

@@ -255,6 +255,7 @@ class ValorPrendaUnidadController extends Controller
                                    }    
                                 }
                             }    
+                            echo 'dadasdassdasfdasd';
                             $table = $table->orderBy('dia_pago DESC');
                             $tableexcel = $table->all();
                             $count = clone $table;

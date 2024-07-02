@@ -69,6 +69,7 @@ class RecibocajaController extends Controller
             $hasta = null;
             $numero = null;
             $tipo = null;
+            echo 'dadasda';
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);

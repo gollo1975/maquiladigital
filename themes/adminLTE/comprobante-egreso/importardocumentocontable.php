@@ -136,7 +136,7 @@ $banco = ArrayHelper::map(app\models\Banco::find()->where(['=','activo', 1])->or
                                  <td><?= $val->operario ?></td>
                                 <td><?= $val->fecha_inicio ?></td>
                                 <td><?= $val->fecha_corte ?></td>
-                                <td style="text-align: right"><?= ''.number_format($val->Total_pagar,0)?></td>
+                                <td style="text-align: right"><?= ''.number_format($val->total_pagar,0)?></td>
                                 <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_identidad[]" value="<?= $val->id_pago ?>"></td> 
 
                             </tr>  

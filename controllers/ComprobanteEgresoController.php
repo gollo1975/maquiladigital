@@ -197,7 +197,7 @@ class ComprobanteEgresoController extends Controller
                             }else{
                                 $nomina = \app\models\PagoNominaServicios::findOne($intCodigo);
                                 $proveedor = Proveedor::find()->where(['=','cedulanit', $nomina->documento])->one();
-                                $valorPagado = $nomina->Total_pagar;
+                                $valorPagado = $nomina->total_pagar;
                             }
                             
                             if($proveedor){

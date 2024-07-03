@@ -199,7 +199,6 @@ class ComprobanteEgresoController extends Controller
                                 $proveedor = Proveedor::find()->where(['=','cedulanit', $nomina->documento])->one();
                                 $valorPagado = $nomina->total_pagar;
                             }
-                            
                             if($proveedor){
                                 $table = new ComprobanteEgreso();
                                 $table->id_municipio = $empresa->idmunicipio;

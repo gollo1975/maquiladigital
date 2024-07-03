@@ -27,6 +27,10 @@ $view = 'comprobante-egreso';
             if ($model->numero > 0){
                     echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-default btn-sm']);            
                     echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 8, 'codigo' => $model->id_comprobante_egreso,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
+                if($model->estado == 0){  
+                    echo Html::a('<span class="glyphicon glyphicon-trash"></span> Anular', ['anular_documento', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-danger btn-sm',
+                     'data' => ['confirm' => 'Esta seguro de ANULAR el documento contable No '. $model->numero. '', 'method' => 'post']]); 
+                }    
             }
         }
         ?>

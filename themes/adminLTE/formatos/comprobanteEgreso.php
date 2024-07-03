@@ -236,6 +236,11 @@ $id_comprobante_egreso = $model->id_comprobante_egreso;
 $pdf = new PDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();
+if($model->estado == 1){
+    $pdf->SetFont('Arial','B',15);
+    $pdf->Cell(10,20);
+    $pdf->Image('dist/images/logos/documentoanulado.jpeg' , 13 ,105, 70 , 30,'JPEG');
+}    
 $pdf->Body($pdf, $model);
 $pdf->AliasNbPages();
 $pdf->SetFont('Times', '', 10);

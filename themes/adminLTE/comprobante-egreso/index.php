@@ -119,7 +119,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Proveedor</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Valor</th>                
                 <th scope="col" style='background-color:#B9D5CE;'>Aut.</th>                
-                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>  
+                <th scope="col" style='background-color:#B9D5CE;'>Estado</th>  
                 <th scope="col" style='background-color:#B9D5CE;'></th>                               
                 <th scope="col" style='background-color:#B9D5CE;'></th> 
             </tr>
@@ -137,7 +137,7 @@ $form = ActiveForm::begin([
                         <td><?= $val->proveedor->nombrecorto ?></td>
                         <td><?= number_format($val->valor,0) ?></td>                
                         <td><?= $val->autorizar ?></td>   
-                         <td><?= $val->usuariosistema ?></td>
+                         <td><?= $val->estadoRegistro ?></td>
                         <td style="width: 25px;">			
                         <a href="<?= Url::toRoute(["comprobante-egreso/view", "id" => $val->id_comprobante_egreso, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                         </td>

@@ -799,6 +799,27 @@ class ComprobanteEgresoController extends Controller
             $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
         }
     }
+    
+    //ANULAR DOCUMENTO CONTABLE
+    public function actionAnular_documento($id, $token) {
+        $comprobante = ComprobanteEgreso::findOne($id);
+        $detalle = ComprobanteEgresoDetalle::find()->where(['=','id_comprobante_egreso', $id])->all();
+        if(count($detalle) > 0){
+            foreach ($detalle as $detalles):
+                $detalles->vlr_abono = 0;
+                $detalles->subtotal = 0;
+                $detalles->vlr_saldo = 0;
+                $detalles->save();
+            endforeach;
+        }
+        $comprobante->estado = 1;
+        $comprobante->subtotal = 0;
+        $comprobante->valor = 0;
+        $comprobante->retefuente = 0;
+        $comprobante->iva = 0;
+        $comprobante->save();
+        $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
+    }
 
     /**
      * Finds the ComprobanteEgreso model based on its primary key value.

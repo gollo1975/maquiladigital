@@ -137,5 +137,15 @@ class ComprobanteEgreso extends \yii\db\ActiveRecord
         return $autorizar;
     }
     
+    public function getEstadoRegistro()
+    {
+        if($this->estado == 0){
+            $estadoregistro = "ACTIVO";
+        }else{
+              $estadoregistro = "ANULADO";
+        }
+        return  $estadoregistro;
+    }
+    
     
 }

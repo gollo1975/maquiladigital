@@ -148,7 +148,6 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                         <table class="table table-bordered table-hover">
                             <thead>
                                 <tr style ='font-size:85%;'>                
-                                <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>OP</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
@@ -156,18 +155,17 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>F. confeccion</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Cant.</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Vr. Prenda</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>T. pagado</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Valor</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Total</th>
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Porcentaje de cumplimiento">%</span></th>
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Bodega o planta" >Planta</span></th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Fecha hora</th>
                             </thead>
                             <body>
                                 <?php 
                                 if($modelo){
                                     foreach ($modelo as $val):?>
                                         <tr style='font-size:85%;'>  
-                                            <td><?= $val->consecutivo ?></td>
                                             <td><?= $val->idordenproduccion ?></td>
                                             <td><?= $val->ordenproduccion->codigoproducto ?></td>
                                             <?php if($val->id_operario == (NULL)){?>
@@ -191,7 +189,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             <td align="right"><?= ''.number_format($val->vlr_pago,0) ?></td>
                                               <td><?= $val->porcentaje_cumplimiento ?> %</td>
                                             <td><?= $val->planta->nombre_planta?></td>
-                                            <td><?= $val->usuariosistema?></td>
+                                            <td><?= $val->fecha_creacion?></td>
 
                                     <?php endforeach;
                                 }?>

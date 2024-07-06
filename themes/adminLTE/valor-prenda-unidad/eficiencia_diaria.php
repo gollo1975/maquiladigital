@@ -111,23 +111,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                             </thead>
                             <body>
                                  <?php
-                                    $cumplimiento = 0;
-                                    $auxiliar = '';
-                                    $contador = 0;
-                                    $sumaSabado = 0;
-                                    $conEficiencia = 0;
-                                    $acumuladorEficiencia = 0 ; $totalEficiencia = 0;
-                                    $empresa = Matriculaempresa::findOne(1);
+                                    echo $sw;
+                                    $auxiliar = 0; $sumarPorcentaje = 0;
+                                   $empresa = Matriculaempresa::findOne(1);
                                     if($modelo){
-                                        foreach ($modelo as $listado):?>
-                                            <tr>
-                                                <td><?= $listado->operarioProduccion->documento?></td>
-                                                 <td><?= $listado->operarioProduccion->nombrecompleto?></td>
-                                                <td><?= $listado->dia_pago?></td>
-
-                                            </tr>
-                                        <?php
-                                        endforeach;
+                                        
                                     }?>  
                                            
                                 </body>    
@@ -139,6 +127,4 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         </div>
     </div>
  </div>
-<?php if($modelo){?>
-    <?= LinkPager::widget(['pagination' => $pagination]) ?>
-<?php }?>
+

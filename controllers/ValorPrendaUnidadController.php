@@ -16,14 +16,18 @@ use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\widgets\ActiveForm;
-use yii\filters\AccessControl;
-use yii\helpers\Url;
+use yii\base\Model;
 use yii\web\Response;
-use yii\helpers\Html;
+use yii\web\Session;
 use yii\data\Pagination;
+use yii\filters\AccessControl;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\web\UploadedFile;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
+use Codeception\Lib\HelperModule;
 use yii\db\Expression;
 use yii\db\Query;
 use yii\db\Command;
@@ -235,46 +239,32 @@ class ValorPrendaUnidadController extends Controller
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $id_planta = Html::encode($form->id_planta);
                         if($dia_pago == null && $fecha_corte == null){
-                            Yii::$app->getSession()->setFlash('warning', 'En el campo fecha inicio y fecha corte NO pueden ser vacios..');
+                            Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
                         }else{
-                            if($id_planta <> null && $id_operario <> null ){
+                            if($id_operario <> null ){
                                 $sw = 1;
-                                $query = (new Query())
-                                       ->select('operarios.documento AS Documento, operarios.nombrecompleto AS Nombres, valor_prenda_unidad_detalles.dia_pago AS dia_pago,
-                                                SUM(valor_prenda_unidad_detalles.porcentaje_cumplimiento) AS Total')
-                                       ->from('operarios, valor_prenda_unidad_detalles, planta_empresa')
-                                       ->where('operarios.id_operario = valor_prenda_unidad_detalles.id_operario')
-                                       ->andWhere('planta_empresa.id_planta = valor_prenda_unidad_detalles.id_planta')
-                                       ->andWhere('valor_prenda_unidad_detalles.dia_pago BETWEEN ',"' $dia_pago '", "'  $fecha_corte '")
-                                       ->andWhere('operarios.id_operario => ',"' $id_operario '")
-                                       ->andWhere('planta_empresa.id_planta => ', "' $id_planta '")
-                                       ->orderBy('id_operario ASC');
-                                       $command = $query->createCommand();
-                                       $rows = $command->queryAll();   
-                                       $modelo = $rows;
-                              
+                                $table = ValorPrendaUnidadDetalles::find()
+                                        ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andWhere(['=','id_operario', $id_operario])
+                                        ->andwhere(['=','aplica_sabado', 0])->all();
+
                             } else { 
                                 $sw = 2;
                                 if($id_planta <> null ){
                                     $table = ValorPrendaUnidadDetalles::find()
-                                        ->andFilterWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                        ->andFilterWhere(['=', 'id_planta', $id_planta]);
+                                        ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andWhere(['=', 'id_planta', $id_planta])
+                                        ->groupBy('id_operario')->all();
                                         
                                 }else{
                                     $sw = 3;
-                                    if($id_operario != null ){
-                                        $table = ValorPrendaUnidadDetalles::find()
-                                            ->andFilterWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                            ->andFilterWhere(['=', 'id_operario', $id_operario]);
-                                    }else{
-                                       $sw = 4;
-                                        $table = ValorPrendaUnidadDetalles::find()
+                                    $table = ValorPrendaUnidadDetalles::find()
                                             ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte]);
-                                   }    
-                                }
-                            }    
+                                 }    
+                            }  
+                          $modelo = $table;     
                         }  
-                           
+                        
                     } else {
                         $form->getErrors();
                     }
@@ -287,6 +277,8 @@ class ValorPrendaUnidadController extends Controller
                             'id_operario' => $id_operario,
                             'id_planta' => $id_planta,
                             'sw' => $sw,
+                            'dia_pago' => $dia_pago,
+                            'fecha_corte' => $fecha_corte,
                             ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);

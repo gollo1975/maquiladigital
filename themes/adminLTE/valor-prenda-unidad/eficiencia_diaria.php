@@ -102,20 +102,70 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <tr style ='font-size:85%;'>    
                                 <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Dia confeccion</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Aplica sabado</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                             </thead>
                             <body>
                                  <?php
-                                    echo $sw;
-                                    $auxiliar = 0; $sumarPorcentaje = 0;
-                                   $empresa = Matriculaempresa::findOne(1);
+                                    $auxiliar = ''; $sumarPorcentaje = 0; $cont = 0; $promedio = 0;
+                                    $empresa = Matriculaempresa::findOne(1);
                                     if($modelo){
-                                        
+                                        if($sw == 1){ //buscar la eficiencia por operario en un rago de fechas
+                                            foreach ($modelo as $val):
+                                              $sumarPorcentaje += $val->porcentaje_cumplimiento;
+                                              if($auxiliar <> $val->dia_pago){
+                                                  $cont += 1;
+                                                  $auxiliar = $val->dia_pago;
+                                              }else{
+                                                 $auxiliar = $val->dia_pago; 
+                                              } 
+                                            endforeach;
+                                            $promedio = ''.number_format($sumarPorcentaje / $cont,2);
+                                            foreach ($modelo as $validar):
+                                                if($auxiliar <> $validar->id_operario){
+                                                   $auxiliar = $validar->id_operario;?>
+                                                    <tr>
+                                                        <td><?= $validar->operarioProduccion->documento?></td>
+                                                        <td><?= $validar->operarioProduccion->nombrecompleto?></td>
+                                                        <td><?= $promedio?>%</td>
+                                                        <td><?= $validar->planta->nombre_planta?></td>
+                                                    </tr>   
+                                                   
+                                                <?php
+                                                }else{
+                                                   $auxiliar = $validar->id_operario; 
+                                                }
+                                            endforeach;
+                                            
+                                        }else{  //consulta que permite mostrar el cumplimiento por planta
+                                           $sumarPorcentaje = 0; $auxiliar = ''; $total_registro = 0;
+                                            if($sw == 2){
+                                                foreach ($modelo as $val):
+                                                    $conBuscar = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $val->id_operario])->andWhere(['>=','dia_pago', $dia_pago])
+                                                                                                  ->andWhere(['<=','dia_pago', $fecha_corte])->andWhere(['=','aplica_sabado', 0])->all();
+                                                    $cont = 0;
+                                                    foreach ($conBuscar as $buscar):
+                                                       $sumarPorcentaje += $buscar->porcentaje_cumplimiento;
+                                                        if($auxiliar <> $buscar->dia_pago){
+                                                            ECHO $cont += 1,'</br>';
+                                                            $auxiliar = $buscar->dia_pago;
+                                                        }else{
+                                                           $auxiliar = $buscar->dia_pago; 
+                                                        } 
+                                                    endforeach;
+                                                    $total_registro = $cont;
+                                                  
+                                                  //  $sumarPorcentaje = 0;
+                                                   // $auxiliar = 0;
+                                                   
+                                                endforeach;
+                                                
+                                            }else{
+                                                
+                                            }  
+                                        }    
+                                    }else{
+                                        Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar en esta consulta.');
                                     }?>  
                                            
                                 </body>    

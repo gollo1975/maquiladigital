@@ -126,7 +126,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                         <td><?= $val->total_dias ?></td>
                         <td align="right"><?= ''.number_format($val->devengado,0) ?></td>
                         <td align="right"><?= ''.number_format($val->deduccion,0) ?></td>
-                        <td align="right"><?= ''.number_format($val->Total_pagar,0) ?></td>
+                        <td align="right"><?= ''.number_format($val->total_pagar,0) ?></td>
                         <td><?= $val->planta->nombre_planta ?></td>
                         <td><?= $val->observacion?></td>
                         <td style=' width: 25px;'>

@@ -128,7 +128,21 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     <tr>
                                                         <td><?= $validar->operarioProduccion->documento?></td>
                                                         <td><?= $validar->operarioProduccion->nombrecompleto?></td>
-                                                        <td><?= $promedio?>%</td>
+                                                         <?php if($cont > 0){?>
+                                                            <td><?= $promedio?>%</td>
+                                                            <?php if($promedio >= $empresa->porcentaje_empresa){?>
+                                                                <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION'  ?>   <span class="glyphicon glyphicon-blackboard"></span></td>
+                                                            <?php } else{
+                                                                    if($promedio >= $empresa->porcentaje_minima_eficiencia){ ?>
+                                                                        <td style='background-color:#83c5be;'><?= 'LE CUMPLE A LA EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-up"></span></td>
+                                                                    <?php }else{ ?>
+                                                                        <td style='background-color:#b5c99a;'><?= 'NO CUMPLE LA EFICIENCIA DE EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-down"></span></td>
+                                                                    <?php }      
+                                                            }?>
+                                                        <?php } else{ ?>
+                                                             <td><?= 'NO FOUNT'?></td>
+                                                             <td><?= 'NO GANA BONIFICACION'?></td>
+                                                        <?php }?>    
                                                         <td><?= $validar->planta->nombre_planta?></td>
                                                     </tr>   
                                                    

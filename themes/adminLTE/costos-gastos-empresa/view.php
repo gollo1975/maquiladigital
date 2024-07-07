@@ -179,7 +179,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     <td><?= $val->fecha_corte ?></td>
                                                     <td align="right"><?= ''.number_format($val->devengado,0) ?></td>
                                                     <td align="right"><?= ''.number_format($val->deduccion,0) ?></td>
-                                                    <td align="right"><?= ''.number_format($val->Total_pagar,0) ?></td>
+                                                    <td align="right"><?= ''.number_format($val->total_pagar,0) ?></td>
                                                     <td><?= $val->usuariosistema ?></td>
                                                 </tr>
                                      <?php endforeach;

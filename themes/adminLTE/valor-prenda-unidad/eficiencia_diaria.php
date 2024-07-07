@@ -46,7 +46,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
 	
-    <div class="panel-body" id="filtro" style="display:block">
+    <div class="panel-body" id="filtro" style="display:none">
         <div class="row" >
             <?= $formulario->field($form, 'id_operario')->widget(Select2::classname(), [
                 'data' => $operario,
@@ -103,6 +103,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                             </thead>
                             <body>
@@ -138,34 +139,56 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             endforeach;
                                             
                                         }else{  //consulta que permite mostrar el cumplimiento por planta
-                                           $sumarPorcentaje = 0; $auxiliar = ''; $total_registro = 0;
                                             if($sw == 2){
                                                 foreach ($modelo as $val):
                                                     $conBuscar = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $val->id_operario])->andWhere(['>=','dia_pago', $dia_pago])
-                                                                                                  ->andWhere(['<=','dia_pago', $fecha_corte])->andWhere(['=','aplica_sabado', 0])->all();
+                                                                                                  ->andWhere(['<=','dia_pago', $fecha_corte])
+                                                                                                  ->andWhere(['=','aplica_sabado', 0])
+                                                                                                  ->orderBy('dia_pago ASC')->all();
                                                     $cont = 0;
                                                     foreach ($conBuscar as $buscar):
                                                        $sumarPorcentaje += $buscar->porcentaje_cumplimiento;
                                                         if($auxiliar <> $buscar->dia_pago){
-                                                            ECHO $cont += 1,'</br>';
+                                                            $cont += 1;
                                                             $auxiliar = $buscar->dia_pago;
                                                         }else{
                                                            $auxiliar = $buscar->dia_pago; 
                                                         } 
                                                     endforeach;
-                                                    $total_registro = $cont;
-                                                  
-                                                  //  $sumarPorcentaje = 0;
-                                                   // $auxiliar = 0;
+                                                    if($cont > 0){
+                                                        $promedio = round($sumarPorcentaje / $cont,0);
+                                                    }
+                                                    $total_registro = $cont;?>
+                                                    <tr>
+                                                        <td><?= $val->operarioProduccion->documento?></td>
+                                                        <td><?= $val->operarioProduccion->nombrecompleto?></td>
+                                                        <?php if($cont > 0){?>
+                                                            <td><?= $promedio?>%</td>
+                                                            <?php if($promedio >= $empresa->porcentaje_empresa){?>
+                                                                <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION'  ?>   <span class="glyphicon glyphicon-blackboard"></span></td>
+                                                            <?php } else{
+                                                                    if($promedio >= $empresa->porcentaje_minima_eficiencia){ ?>
+                                                                        <td style='background-color:#83c5be;'><?= 'LE CUMPLE A LA EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-up"></span></td>
+                                                                    <?php }else{ ?>
+                                                                        <td style='background-color:#b5c99a;'><?= 'NO CUMPLE LA EFICIENCIA DE EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-down"></span></td>
+                                                                    <?php }      
+                                                            }?>
+                                                        <?php } else{ ?>
+                                                             <td><?= 'NO FOUNT'?></td>
+                                                             <td><?= 'NO GANA BONIFICACION'?></td>
+                                                        <?php }?>    
+                                                        <td><?= $val->planta->nombre_planta?></td>
+                                                    </tr> 
+                                                   <?php
+                                                    $sumarPorcentaje = 0;
+                                                    $auxiliar = 0;
                                                    
                                                 endforeach;
                                                 
-                                            }else{
-                                                
-                                            }  
+                                            }
                                         }    
                                     }else{
-                                        Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar en esta consulta.');
+                                        Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar en esta consulta. Seleccione las dieferentes opciones.');
                                     }?>  
                                            
                                 </body>    

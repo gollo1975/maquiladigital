@@ -240,6 +240,7 @@ class ValorPrendaUnidadController extends Controller
                         $id_planta = Html::encode($form->id_planta);
                         if($dia_pago == null && $fecha_corte == null){
                             Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
+                            return $this->redirect(['eficiencia_diaria']);
                         }else{
                             if($id_operario <> null ){
                                 $sw = 1;
@@ -257,9 +258,8 @@ class ValorPrendaUnidadController extends Controller
                                         ->groupBy('id_operario')->all();
                                         
                                 }else{
-                                    $sw = 3;
-                                    $table = ValorPrendaUnidadDetalles::find()
-                                            ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte]);
+                                   Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
+                                   return $this->redirect(['eficiencia_diaria']);
                                  }    
                             }  
                           $modelo = $table;     

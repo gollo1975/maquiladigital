@@ -108,6 +108,7 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
         </div>
         <div class="row">
             <?= $form->field($model, 'representante_legal')->textInput(['maxlength' => true]) ?> 
+             <?= $form->field($model, 'porcentaje_minima_eficiencia')->textInput(['maxlength' => true]) ?> 
         </div>
         <div class="row">
             <?= $form->field($model, 'declaracion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>

@@ -86,53 +86,98 @@ $this->params['breadcrumbs'][] = $model->id_credito;
         'options' => []
     ],
     ]); ?>
-     <div class="table-responsive">
-        <div class="panel panel-success ">
-            <div class="panel-heading">
-                Abonos a prestamo  <span class="badge"> <?= $registros?></span>
+   <div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#listadoabonos" aria-controls="listadoabonos" role="tab" data-toggle="tab">Listado de abonos <span class="badge"><?= count($abonos) ?></span></a></li>
+            <li role="presentation"><a href="#refinanciacion" aria-controls="refinanciacion" role="tab" data-toggle="tab">Refinanciacion<span class="badge"><?= count($refinanciacion) ?></span></a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="listadoabonos">
+                <div class="table-responsive">
+                    <div class="panel panel-success">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-hover">
+                                <thead >
+                                    <tr>
+                                        <td scope="col" align="center" style='background-color:#B9D5CE;'><b>No Abono</b></td>                        
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Valor abono</th>                        
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Saldo</th>       
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Cuota pendiente</th>                        
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Fecha proceso</th>                        
+                                        <td scope="col" align="center" style='background-color:#B9D5CE;'><b>Usuario</b></td> 
+                                        <td scope="col" align="center" style='background-color:#B9D5CE;'><b>Observación</b></td> 
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                     <?php foreach ($abonos as $val): ?>
+                                        <tr style= 'font-size:85%;'>
+                                            <td><?= $val->id_abono ?></td>
+                                            <td><?= '$'.number_format($val->vlr_abono,0) ?></td>
+                                            <td><?= '$'.number_format($val->saldo,0) ?></td>
+                                            <td><?= $val->cuota_pendiente ?></td>
+                                            <td><?= $val->fecha_proceso ?></td>
+                                            <td><?= $val->usuariosistema ?></td>
+                                              <td><?= $val->observacion ?></td>
+                                        </tr>
+                                     <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>    
+                        <div class="panel-footer text-right">  
+                            <?php 
+                            if($model->saldo_credito > 0){?>
+                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo abono', ['credito-operarios/nuevoabono', 'id_credito' => $model->id_credito], ['class' => 'btn btn-info btn-sm']) ?>                    
+                            <?php }?>
+                        </div>   
+                    </div>            
+                </div>            
             </div>
-            <div class="panel-body">
-                <table class="table table-bordered table-hover">
-                    <thead >
-                        <tr>
-                            <td scope="col" align="center" style='background-color:#B9D5CE;'><b>N°_Abono</b></td>                        
-                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Valor abono</th>                        
-                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Saldo</th>       
-                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Cuota pendiente</th>                        
-                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Fecha proceso</th>                        
-                            <td scope="col" align="center" style='background-color:#B9D5CE;'><b>Usuario</b></td> 
-                            <td scope="col" align="center" style='background-color:#B9D5CE;'><b>Observación</b></td> 
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                         <?php foreach ($abonos as $val): ?>
-                            <tr style= 'font-size:85%;'>
-                                <td><?= $val->id_abono ?></td>
-                                <td><?= '$'.number_format($val->vlr_abono,0) ?></td>
-                                <td><?= '$'.number_format($val->saldo,0) ?></td>
-                                <td><?= $val->cuota_pendiente ?></td>
-                                <td><?= $val->fecha_proceso ?></td>
-                                <td><?= $val->usuariosistema ?></td>
-                                  <td><?= $val->observacion ?></td>
-                            </tr>
-                    <?php endforeach; ?>
-                    </tbody>  
-                </table>
-                 </div>            
-                <div class="panel-footer text-right">  
-                    
-                    <?php 
-                    if($model->saldo_credito > 0){?>
-                    
-                        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo abono', ['credito-operarios/nuevoabono', 'id_credito' => $model->id_credito], ['class' => 'btn btn-info btn-sm']) ?>                    
-                    <?php }?>
-                </div>   
-            </div>            
-                     
-        </div>
-    </div>    
-        
+            <!-- TERINA TBAS--->
+            <div role="tabpanel" class="tab-pane" id="refinanciacion">
+                <div class="table-responsive">
+                    <div class="panel panel-success">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-hover">
+                                <thead >
+                                    <tr>
+                                        <td scope="col" align="center" style='background-color:#B9D5CE;'><b>Nuevo valor>                        
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Total cuotas</th>                        
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Numero cuota inicial</th>       
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Nuevo valor cuota</th>                        
+                                        <th scope="col" align="center" style='background-color:#B9D5CE;'>Fecha proceso</th>                        
+                                        <td scope="col" align="center" style='background-color:#B9D5CE;'><b>Usuario</b></td> 
+                                        <td scope="col" align="center" style='background-color:#B9D5CE;'><b>Observación</b></td> 
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($refinanciacion as $val): ?>
+                                        <tr style= 'font-size:85%;'>
+                                            <td style="text-align: right"><?= ''.number_format($val->adicionar_valor,0) ?></td>
+                                            <td style="text-align: right"><?= '$'.number_format($val->numero_cuotas,0) ?></td>
+                                            <td style="text-align: right"><?= ''.number_format($val->numero_cuota_actual,0) ?></td>
+                                           <td style="text-align: right"><?= '$'.number_format($val->valor_cuota,0) ?></td>
+                                            <td><?= $val->fecha_registro ?></td>
+                                            <td><?= $val->user_name ?></td>
+                                              <td><?= $val->nota ?></td>
+                                        </tr>
+                                     <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>    
+                        <div class="panel-footer text-right">  
+                            <?php 
+                            if($model->saldo_credito > 0){?>
+                                <?= Html::a('<span class="glyphicon glyphicon-list"></span> Refinaciar', ['credito-operarios/refinanciar_credito', 'id_credito' => $model->id_credito], ['class' => 'btn btn-primary btn-sm']) ?>                    
+                            <?php }?>
+                        </div>   
+                    </div>            
+                </div>            
+            </div>
+            <!-- TERMINA TABAS-->
+        </div>    
+   </div>   
     <?php ActiveForm::end(); ?>
 </div>
 

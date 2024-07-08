@@ -568,6 +568,7 @@ class ValorPrendaUnidadController extends Controller
                 'id_planta' =>$id_planta,
                 'id_detalle' => $id_detalle,
                 'talla' => $talla,
+                'id' => $id,
                 'listado_confeccion' => $listado_confeccion,
                 'detalle_op' => $detalle_op,
                 'pagination' => $pages,

@@ -83,7 +83,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <?php }else{?>
                                 <td style= 'width: 15px; height: 10px;'></td>
                                 <td style= 'width: 15px; height: 10px;'>
-                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/cantidad_talla_confeccion", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta,'id_detalle' => $val->iddetalleorden]) ?>" ><span class="glyphicon glyphicon-list"></span></a>
+                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/cantidad_talla_confeccion", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta,'id_detalle' => $val->iddetalleorden, 'tokenPlanta' =>$tokenPlanta]) ?>" ><span class="glyphicon glyphicon-list"></span></a>
                                 </td>
                                 <td style= 'width: 15px; height: 10px;'></td>
                             <?php }?>    

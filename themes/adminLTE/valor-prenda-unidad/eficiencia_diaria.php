@@ -201,8 +201,6 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 
                                             }
                                         }    
-                                    }else{
-                                        Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar en esta consulta. Seleccione las dieferentes opciones.');
                                     }?>  
                                            
                                 </body>    

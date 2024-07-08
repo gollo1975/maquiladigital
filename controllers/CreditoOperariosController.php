@@ -139,11 +139,13 @@ class CreditoOperariosController extends Controller
     public function actionView($id)
     {
        $abonos = AbonoCreditoOperarios::find()->where(['=','id_credito',$id])->orderBy('id_abono DESC')->all();
+       $refinanciacion = \app\models\RefinanciarCredito::find()->where(['=','id_credito', $id])->all();
        $registros = count($abonos);
         return $this->render('view', [
             'model' => $this->findModel($id),
             'registros' => $registros,
             'abonos' => $abonos, 
+            'refinanciacion' => $refinanciacion,
         ]);
     }
 
@@ -292,6 +294,48 @@ class CreditoOperariosController extends Controller
             }    
         }
         return $this->render('_formabono', [
+            'model' => $model,
+            'credito' => $credito,
+        ]);
+    }
+    
+    ///REFINANCIAR CREDITO
+    public function actionRefinanciar_credito($id_credito)
+    { 
+        $model = new \app\models\RefinanciarCredito();
+        $credito = CreditoOperarios::find()->where(['=','id_credito',$id_credito])->one();
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {           
+            if ($model->validate()) {
+                if ($credito){
+                    $table = new \app\models\RefinanciarCredito();
+                    $table->id_credito = $id_credito;
+                    $table->id_operario= $credito->id_operario;
+                    $table->adicionar_valor = $model->adicionar_valor;
+                    $table->nuevo_saldo = $credito->saldo_credito + $model->adicionar_valor;
+                    $table->numero_cuotas = $model->numero_cuotas;
+                    $table->numero_cuota_actual= $model->numero_cuota_actual;
+                    $table->valor_cuota = $model->valor_cuota;
+                    $table->user_name= Yii::$app->user->identity->username;                    
+                    $table->save(false);
+                    $credito->saldo_credito = $table->nuevo_saldo;
+                    $credito->numero_cuotas = $model->numero_cuotas;
+                    $credito->numero_cuota_actual = $model->numero_cuota_actual;
+                    $credito->vlr_cuota = $model->valor_cuota;
+                    $credito->save();
+                    $this->redirect(["credito-operarios/view", 'id' => $id_credito]);                    
+                    
+                }else{                
+                    Yii::$app->getSession()->setFlash('error', 'El Número del credito no existe!');
+                }
+            }else{
+                 $model->getErrors();
+            }    
+        }
+        return $this->render('refinanciar_credito', [
             'model' => $model,
             'credito' => $credito,
         ]);

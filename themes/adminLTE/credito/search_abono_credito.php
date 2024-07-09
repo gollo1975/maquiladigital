@@ -118,7 +118,7 @@ $concepto = ArrayHelper::map(\app\models\ConceptoSalarios::find()->where(['=','t
                              <td><?= $val->programacionNomina->empleado->nombrecorto?></td>
                              <td><?= $val->codigoSalario->nombre_concepto?></td>
                              <td><?= $val->fecha_hasta?></td>
-                             <td><?= '$'.number_format($val->vlr_deduccion,0)?></td>
+                             <td style="text-align: right"><?= '$'.number_format($val->vlr_deduccion,0)?></td>
                         </tr>            
                     <?php endforeach;
                 }   ?>

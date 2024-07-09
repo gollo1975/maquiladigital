@@ -57,15 +57,20 @@ class CreditoController extends Controller
                 $id_empleado = null;
                 $id_tipo_pago = null;
                 $codigo_credito = null;
+                $saldo = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {                        
                         $id_empleado = Html::encode($form->id_empleado);
                         $id_tipo_pago = Html::encode($form->id_tipo_pago);
                         $codigo_credito = Html::encode($form->codigo_credito);
-                       $table = Credito::find()
+                        $saldo = Html::encode($form->saldo);
+                        $table = Credito::find()
                                 ->andFilterWhere(['=', 'id_empleado', $id_empleado])                                                                                              
                                 ->andFilterWhere(['=', 'id_tipo_pago', $id_tipo_pago])
                                 ->andFilterWhere(['=','codigo_credito', $codigo_credito]);
+                        if ($saldo == 1){
+                            $table = $table->andFilterWhere(['>', 'saldo_credito', $saldo]);
+                        }    
                         $table = $table->orderBy('id_credito DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -80,7 +85,7 @@ class CreditoController extends Controller
                                 ->all();
                             if(isset($_POST['excel'])){                            
                                 $check = isset($_REQUEST['id_credito DESC']);
-                                $this->actionExcelconsulta($tableexcel);
+                                $this->actionExcelconsultaCreditos($tableexcel);
                             }
                 } else {
                         $form->getErrors();
@@ -100,7 +105,7 @@ class CreditoController extends Controller
                         ->all();
                 if(isset($_POST['excel'])){
                     //$table = $table->all();
-                    $this->actionExcelconsulta($tableexcel);
+                    $this->actionExcelconsultaCreditos($tableexcel);
                 }
                 if(isset($_POST['activar_periodo_registro'])){                            
                     if(isset($_REQUEST['id_credito'])){                            
@@ -246,6 +251,7 @@ class CreditoController extends Controller
     {
        $abonos = AbonoCredito::find()->where(['=','id_credito',$id])->orderBy('id_abono DESC')->all();
        $registros = count($abonos);
+        $refinanciacion = \app\models\RefinanciarCreditoEmpleado::find()->where(['=','id_credito', $id])->all();
         if(Yii::$app->request->post())
         {
             $intIndice = 0;
@@ -263,7 +269,8 @@ class CreditoController extends Controller
         return $this->render('view', [
             'model' => $this->findModel($id),
             'abonos' => $abonos, 
-            'registros' => $registros,            
+            'registros' => $registros,  
+            'refinanciacion'=> $refinanciacion,
             'id'=>$id,
             
         ]);
@@ -407,6 +414,49 @@ class CreditoController extends Controller
         ]);
     }
 
+    ///REFINANCIAR CREDITO
+    public function actionRefinanciar_credito($id_credito)
+    { 
+        $model = new \app\models\RefinanciarCreditoEmpleado();
+        $credito = Credito::find()->where(['=','id_credito',$id_credito])->one();
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {           
+            if ($model->validate()) {
+                if ($credito){
+                    $table = new \app\models\RefinanciarCreditoEmpleado();
+                    $table->id_credito = $id_credito;
+                    $table->id_empleado= $credito->id_empleado;
+                    $table->adicionar_valor = $model->adicionar_valor;
+                    $table->nuevo_saldo = $credito->saldo_credito + $model->adicionar_valor;
+                    $table->numero_cuotas = $model->numero_cuotas;
+                    $table->numero_cuota_actual= $model->numero_cuota_actual;
+                    $table->valor_cuota = $model->valor_cuota;
+                    $table->user_name= Yii::$app->user->identity->username;                    
+                    $table->save(false);
+                    $credito->saldo_credito = $table->nuevo_saldo;
+                    $credito->numero_cuotas = $model->numero_cuotas;
+                    $credito->numero_cuota_actual = $model->numero_cuota_actual;
+                    $credito->vlr_cuota = $model->valor_cuota;
+                    $credito->save();
+                    $this->redirect(["credito/view", 'id' => $id_credito]);                    
+                    
+                }else{                
+                    Yii::$app->getSession()->setFlash('error', 'El Número del credito no existe!');
+                }
+            }else{
+                 $model->getErrors();
+            }    
+        }
+        return $this->render('refinanciar_credito_empleado', [
+            'model' => $model,
+            'credito' => $credito,
+        ]);
+    }
+    
+    
         protected function findModel($id)
     {
         if (($model = Credito::findOne($id)) !== null) {
@@ -414,5 +464,87 @@ class CreditoController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    
+    //ARCHIVOS DE EXCEL
+      public function actionExcelconsultaCreditos($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->setActiveSheetIndex(0)
+                     ->setCellValue('A1', 'NRO CREDITO')
+                    ->setCellValue('B1', 'DOCUMENTO')
+                    ->setCellValue('C1', 'EMPLEADO')
+                    ->setCellValue('D1', 'TIPO CREDITO')
+                    ->setCellValue('E1', 'VR. CREDITO')
+                    ->setCellValue('F1', 'VR. SALDO')
+                    ->setCellValue('G1', 'VR. CUOTA')                    
+                    ->setCellValue('H1', 'NRO DE CUOTAS')
+                    ->setCellValue('I1', 'CUOTA ACTUAL')
+                    ->setCellValue('J1', 'VALIDAR CUOTA')
+                    ->setCellValue('K1', 'FECHA INICIO')
+                    ->setCellValue('L1', 'USUARIO')
+                    ->setCellValue('M1', 'OBSERVACION');
+                   
+        $i = 2  ;
+        
+        foreach ($tableexcel as $val) {
+                                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_credito)
+                    ->setCellValue('B' . $i, $val->empleado->identificacion)
+                    ->setCellValue('C' . $i, $val->empleado->nombrecorto)
+                    ->setCellValue('D' . $i, $val->codigoCredito->nombre_credito)
+                    ->setCellValue('E' . $i, $val->vlr_credito)
+                    ->setCellValue('F' . $i, $val->saldo_credito)                    
+                    ->setCellValue('G' . $i, $val->vlr_cuota)
+                    ->setCellValue('H' . $i, $val->numero_cuotas)
+                    ->setCellValue('I' . $i, $val->numero_cuota_actual)
+                    ->setCellValue('J' . $i, $val->validarcuota)
+                    ->setCellValue('K' . $i, $val->fecha_inicio)
+                    ->setCellValue('L' . $i, $val->usuariosistema)
+                    ->setCellValue('M' . $i, $val->observacion);
+                  
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Creditos_empleados.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
     }
 }

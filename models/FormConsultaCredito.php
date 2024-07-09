@@ -13,6 +13,7 @@ class FormConsultaCredito extends Model
     public $id_empleado;
     public $id_tipo_pago;
     public $codigo_credito;
+    public $saldo;
 
 
     public function rules()
@@ -20,7 +21,7 @@ class FormConsultaCredito extends Model
         return [
 
             [['id_empleado', 'id_tipo_pago', 'codigo_credito'], 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
-           
+            [['saldo','id_tipo_pago','codigo_credito'], 'integer'],
         ];
     }
 
@@ -30,6 +31,7 @@ class FormConsultaCredito extends Model
             'id_tipo_pago' => 'Tipo pago:',
             'id_empleado' => 'Empleado:',
             'codigo_credito' =>'Tipo crédito:',
+            'saldo' => 'Saldo credito:',
         ];
     }
 }

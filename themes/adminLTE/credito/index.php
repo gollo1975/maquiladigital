@@ -68,9 +68,6 @@ $codigocredito = ArrayHelper::map(\app\models\ConfiguracionCredito::find()->orde
                     'allowClear' => true
                 ],
             ]); ?>
-        </div>
-        
-         <div class="row" >
             <?= $formulario->field($form, 'codigo_credito')->widget(Select2::classname(), [
                 'data' => $codigocredito,
                 'options' => ['prompt' => 'Seleccione...'],
@@ -78,7 +75,7 @@ $codigocredito = ArrayHelper::map(\app\models\ConfiguracionCredito::find()->orde
                     'allowClear' => true
                 ],
             ]); ?>
-         
+          <?= $formulario->field($form, 'saldo')->dropDownList(['1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
         </div>
         
         <div class="panel-footer text-right">
@@ -167,7 +164,8 @@ $codigocredito = ArrayHelper::map(\app\models\ConfiguracionCredito::find()->orde
             </tbody>            
             <?php endforeach; ?>
         </table> 
-        <div class="panel-footer text-right" >            
+        <div class="panel-footer text-right" >     
+             <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>                
                 <a align="right" href="<?= Url::toRoute("credito/nuevo") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
             <div class="btn-group">
                   <button type="button" class="btn btn-warning dropdown-toggle btn-sm"

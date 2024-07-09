@@ -174,6 +174,60 @@ class CreditoController extends Controller
         }
    }
    
+   //CONSULTA DE ABONOS A CREDITOS
+     public function actionSearch_abono_credito() {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',135])->all()){
+                $form = new FormConsultaCredito();
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $codigo_credito = null;
+                $numero_credito= null;
+                $pages = null;
+                $model = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {                        
+                        $numero_credito = Html::encode($form->numero_credito);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $codigo_credito = Html::encode($form->codigo_credito);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $table = \app\models\ProgramacionNominaDetalle::find()
+                                ->andFilterWhere(['=', 'id_credito', $numero_credito])                                                                                              
+                                ->andFilterWhere(['between', 'fecha_hasta', $fecha_inicio, $fecha_corte])
+                                ->andFilterWhere(['=','codigo_salario', $codigo_credito]);
+                        $table = $table->orderBy('id_detalle DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                            if(isset($_POST['excel'])){                            
+                                $check = isset($_REQUEST['id_detalle DESC']);
+                                $this->actionExcelconsultaAbonos($tableexcel);
+                            }
+                } else {
+                        $form->getErrors();
+                }                    
+            } 
+            return $this->render('search_abono_credito', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,                       
+            ]);
+        }else{
+             return $this->redirect(['site/sinpermiso']);
+        }     
+        }else{
+           return $this->redirect(['site/login']);
+        }
+   }
+   
     public function actionActivarPeriodoRegistro($id_credito) {        
         $aCredito = Credito::findOne($id_credito);
         $aCredito->estado_credito = 1;
@@ -467,7 +521,64 @@ class CreditoController extends Controller
     }
     
     //ARCHIVOS DE EXCEL
-      public function actionExcelconsultaCreditos($tableexcel) {                
+      public function actionExcelconsultaAbonos($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'DOCUMENTO')
+                    ->setCellValue('B1', 'EMPLEADO')
+                    ->setCellValue('C1', 'TIPO DE CREDITO')
+                    ->setCellValue('D1', 'FECHA DE CORTE')
+                    ->setCellValue('E1', 'VR. ABONO');
+        $i = 2  ;
+        
+        foreach ($tableexcel as $val) {
+                                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->programacionNomina->cedula_empleado)
+                    ->setCellValue('B' . $i, $val->programacionNomina->empleado->nombrecorto)
+                    ->setCellValue('C' . $i, $val->codigoSalario->nombre_concepto)
+                    ->setCellValue('D' . $i, $val->fecha_hasta)
+                    ->setCellValue('E' . $i, $val->vlr_deduccion);                    
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Abonos_credito.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
+    
+    //DESCARGA LOS ABONOS A CREDITOS
+     public function actionExcelconsultaCreditos($tableexcel) {                
         $objPHPExcel = new \PHPExcel();
         // Set document properties
         $objPHPExcel->getProperties()->setCreator("EMPRESA")

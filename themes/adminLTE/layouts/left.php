@@ -291,6 +291,7 @@
                                                 ['label' => 'Comprobante de pago', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/comprobantepagonomina']],
                                                 ['label' => 'Liquidaciones', 'icon' => 'plus-square-o', 'url' => ['/prestaciones-sociales/comprobantepagoprestaciones']],
                                                 ['label' => 'Vacaciones', 'icon' => 'plus-square-o', 'url' => ['/vacaciones/searchindex']],
+                                                ['label' => 'Abonos a crteditos', 'icon' => 'plus-square-o', 'url' => ['/credito/search_abono_credito']],
 
                                             ],
                                         ],

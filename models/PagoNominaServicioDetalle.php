@@ -36,6 +36,7 @@ class PagoNominaServicioDetalle extends \yii\db\ActiveRecord
         return [
             [['id_pago', 'codigo_salario', 'devengado', 'deduccion','id_credito'], 'integer'],
             [['devengado', 'deduccion'], 'required'],
+            ['fecha_corte', 'safe'],
             [['id_pago'], 'exist', 'skipOnError' => true, 'targetClass' => PagoNominaServicios::className(), 'targetAttribute' => ['id_pago' => 'id_pago']],
             [['codigo_salario'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoSalarios::className(), 'targetAttribute' => ['codigo_salario' => 'codigo_salario']],
             [['id_credito'], 'exist', 'skipOnError' => true, 'targetClass' => CreditoOperarios::className(), 'targetAttribute' => ['id_credito' => 'id_credito']],
@@ -54,6 +55,7 @@ class PagoNominaServicioDetalle extends \yii\db\ActiveRecord
             'devengado' => 'Devengado',
             'deduccion' => 'Deduccion',
             'id_credito' => 'id_credito',
+            'fecha_corte' => 'fecha_corte',
         ];
     }
 

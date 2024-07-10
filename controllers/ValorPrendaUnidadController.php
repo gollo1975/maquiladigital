@@ -638,9 +638,9 @@ class ValorPrendaUnidadController extends Controller
                         $cant = $_POST["cantidad"][$intIndice];
                         $confeccionada = $conCantidad->cantidad_confeccionada;
                         $total_unidades =  $confeccionada + $cant;
-                        $total_operacion = $sumar_unidades + $cant;
-                        if($total_operacion <= $conCantidad->cantidad){ //ciclo que valide no ingresar mas de las opraciones de la talla
-                            if($total_unidades <= $conCantidad->cantidad_operaciones){
+                        $total_operacion = intval($sumar_unidades) + $cant;
+                        if ($total_operacion <= $conCantidad->cantidad){ //ciclo que valide no ingresar mas de las opraciones de la talla
+                            if($total_unidades <= $conCantidad->cantidad_operaciones){ //valida todas la operaciones de la talla
                                 $valor_prenda = 0; $nota = '';
                                 $tipo_proceso = ValorPrendaUnidad::findOne($id);
                                 $operarios = Operarios::findOne($detalle->id_operario);//busca el operario
@@ -682,7 +682,7 @@ class ValorPrendaUnidadController extends Controller
                                 $this->SumarCantidadCostoConfeccion($id, $id_detalle, $idordenproduccion);
                                 $this->CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle);
                             }else{
-                                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones, favor validar que operaciones faltaron por ingresar.');
+                                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones porque supera el maximo de unidades, favor validar que operaciones faltaron por ingresar.');
                             }    
                         }else{
                             Yii::$app->getSession()->setFlash('info', 'No se puede ingresar mas operaciones del codigo ('.$detalle->id_proceso.') porque supera la cantidad de prendas. Cantidad de prendas: ('.$conCantidad->cantidad.'), cantidad faltante: ('. $total_unidades_faltante .'). Favor validar la informacion de ingreso.');

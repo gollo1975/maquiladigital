@@ -829,6 +829,7 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     // PROCESO QUE BUSCA EN COSTO DEL PERSONAL VINCULADO
+  
     protected function CostoOperarioVinculado($table, $auxiliar)
         {
             $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0;
@@ -980,8 +981,7 @@ class ValorPrendaUnidadController extends Controller
             ]);
     }
         
-    
-    
+        
     //PROCESOS Y SUBPROCESOS
     
      public function actionNuevodetalle($id,$idordenproduccion, $id_planta, $tipo_pago)
@@ -1158,6 +1158,7 @@ class ValorPrendaUnidadController extends Controller
                     $detalle_pago->id_pago = $intCodigo;
                     $detalle_pago->codigo_salario = $matricula->codigo_salario;
                     $detalle_pago->devengado = $contador;
+                    $detalle_pago->fecha_corte = $fecha_corte;
                     $detalle_pago->save(false);
                     //codigo para insertar creditos
                     $credito = \app\models\CreditoOperarios::find()->where(['=','id_operario', $pago->id_operario])
@@ -1171,6 +1172,7 @@ class ValorPrendaUnidadController extends Controller
                             $detalle_credito->codigo_salario = $configuracion->codigo_salario;
                             $detalle_credito->deduccion = $descuento->vlr_cuota;
                             $detalle_credito->id_credito = $descuento->id_credito;
+                            $detalle_credito->fecha_corte = $fecha_corte;
                             $detalle_credito->save(false);   
                         endforeach;
                     }

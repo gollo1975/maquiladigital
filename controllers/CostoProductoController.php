@@ -276,7 +276,7 @@ class CostoProductoController extends Controller
     
      public function actionNuevodetalle($id, $token)
     {
-        $insumos = Insumos::find()->where(['=','estado_insumo', 1])->orderBy('descripcion asc')->all();
+        $insumos = Insumos::find()->where(['=','estado_insumo', 0])->orderBy('descripcion asc')->all();
         $form = new FormMaquinaBuscar();
         $q = null;
         $mensaje = '';
@@ -295,7 +295,7 @@ class CostoProductoController extends Controller
             }                    
                     
         } else {
-            $insumos = Insumos::find()->where(['=','estado_insumo', 1])->orderBy('descripcion asc')->all();
+            $insumos = Insumos::find()->where(['=','estado_insumo', 0])->orderBy('descripcion asc')->all();
         }
         if (isset($_POST["id_insumos"])) {
                 $intIndice = 0;

@@ -85,7 +85,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
              >
       <!-- Left -->
       <div class="me-5">
-          <span class="badge"> <h4><font face="arial">MAQUILA DIGITAL SAS</font></h4></span>
+          <span class="badge"> <h4><font face="arial">DIAMANTE SJ SAS</font></h4></span>
       </div>
       <!-- Left -->
 
@@ -108,8 +108,8 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
                 class="mb-4 mt-0 d-inline-block mx-auto"
                 style="width: 100px; background-color: black; height: 3px"
                 />
-            <p>
-                <b>MAQUILA DIGITAL SAS</b>, Es una empresa especializada en procesos de Maquila, diseño y confeccion de prendas de vestir.
+            <p align="justify">
+                <b>DIAMANTE SJ SAS</b>, Es una empresa especializada en diseño de software con altos estándares en tecnología y enfocada al desarrollo de productos en la web.
             </p>
           </div>
           <!-- Grid column -->
@@ -146,10 +146,10 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
                 style="width: 100px; background-color: black; height: 3px"
                 />
             <p>
-              <a href="#!" class="text-black">Maquila de confección</a>
+              <a href="#!" class="text-black">Desarrollo a la medida</a>
             </p>
             <p>
-              <a href="#!" class="text-black">Paquete completo</a>
+              <a href="#!" class="text-black">Analisis de bd.</a>
             </p>
             <p>
               <a href="#!" class="text-black">Venta de servicios TIC</a>
@@ -167,7 +167,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
                 style="width: 100px; background-color: black; height: 3px"
                 />
             <p><i class='glyphicon glyphicon-user'></i>  Medellin - Colombia</p>
-            <p><i class='glyphicon glyphicon-envelope'></i>  facturacio@maquiladigital.com.co</p>
+            <p><i class='glyphicon glyphicon-envelope'></i>  soporte@diamantesj.com</p>
             <p><i class='glyphicon glyphicon-phone'></i>  323 308 36 29</p>
           </div>
           <!-- Grid column -->
@@ -182,7 +182,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
          class="text-center p-4"
          style="background-color: #136C5D"
          >
-        <h4 class="text-uppercase fw-bold"><span class="badge"> <font face="arial">© 2023 Copyright | Todos los dereechos reservados | MAQUILA DIGITAL SAS . Version 2.0</font> </span></h4>
+        <h4 class="text-uppercase fw-bold"><span class="badge"> <font face="arial">© 2024 Copyright | Todos los dereechos reservados | DIAMANTE SJ SAS . Version 2.0</font> </span></h4>
     </div>
     <!-- Copyright -->
   </footer>

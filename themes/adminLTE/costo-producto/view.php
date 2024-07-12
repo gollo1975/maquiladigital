@@ -191,8 +191,8 @@ $view = 'costo-producto';
                                        <tr style="font-size: 85%;">
                                             <td><?= $val->codigo_insumo ?></td>
                                             <td><?= $val->insumos->descripcion ?></td>
-                                            <td style="text-align: right"><?= ''.number_format($val->cantidad,2) ?></td>
-                                            <td style="text-align: right"><?= '$'.number_format($val->vlr_unitario,2) ?></td>
+                                            <td style="text-align: right"><?= ''.number_format($val->cantidad,0) ?></td>
+                                            <td style="text-align: right"><?= '$'.number_format($val->vlr_unitario,0) ?></td>
                                             <td style="text-align: right"><?= '$'.number_format($val->total,0) ?></td>
 
                                         <?php if ($model->autorizado == 0) { ?>
@@ -276,7 +276,7 @@ $view = 'costo-producto';
                         </div>
                         <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right"> 
-                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['costo-producto/nuevodetalle', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Carga insumo', ['costo-producto/nuevodetalle', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>
                                 <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['costo-producto/editartododetalle', 'id' => $model->id_producto, 'token' => $token],[ 'class' => 'btn btn-success btn-sm']) ?>
                                 <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['costo-producto/eliminartododetalle', 'id' => $model->id_producto, 'token' => $token], ['class' => 'btn btn-danger btn-sm']) ?>                    
                             </div> 

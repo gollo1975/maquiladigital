@@ -638,9 +638,9 @@ class ValorPrendaUnidadController extends Controller
                         $cant = $_POST["cantidad"][$intIndice];
                         $confeccionada = $conCantidad->cantidad_confeccionada;
                         $total_unidades =  $confeccionada + $cant;
-                        $total_operacion = $sumar_unidades + $cant;
-                        if($total_operacion <= $conCantidad->cantidad){ //ciclo que valide no ingresar mas de las opraciones de la talla
-                            if($total_unidades <= $conCantidad->cantidad_operaciones){
+                        $total_operacion = intval($sumar_unidades) + $cant;
+                        if ($total_operacion <= $conCantidad->cantidad){ //ciclo que valide no ingresar mas de las opraciones de la talla
+                            if($total_unidades <= $conCantidad->cantidad_operaciones){ //valida todas la operaciones de la talla
                                 $valor_prenda = 0; $nota = '';
                                 $tipo_proceso = ValorPrendaUnidad::findOne($id);
                                 $operarios = Operarios::findOne($detalle->id_operario);//busca el operario
@@ -682,7 +682,7 @@ class ValorPrendaUnidadController extends Controller
                                 $this->SumarCantidadCostoConfeccion($id, $id_detalle, $idordenproduccion);
                                 $this->CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle);
                             }else{
-                                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones, favor validar que operaciones faltaron por ingresar.');
+                                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones porque supera el maximo de unidades, favor validar que operaciones faltaron por ingresar.');
                             }    
                         }else{
                             Yii::$app->getSession()->setFlash('info', 'No se puede ingresar mas operaciones del codigo ('.$detalle->id_proceso.') porque supera la cantidad de prendas. Cantidad de prendas: ('.$conCantidad->cantidad.'), cantidad faltante: ('. $total_unidades_faltante .'). Favor validar la informacion de ingreso.');
@@ -829,6 +829,7 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     // PROCESO QUE BUSCA EN COSTO DEL PERSONAL VINCULADO
+  
     protected function CostoOperarioVinculado($table, $auxiliar)
         {
             $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0;
@@ -980,8 +981,7 @@ class ValorPrendaUnidadController extends Controller
             ]);
     }
         
-    
-    
+        
     //PROCESOS Y SUBPROCESOS
     
      public function actionNuevodetalle($id,$idordenproduccion, $id_planta, $tipo_pago)
@@ -1158,6 +1158,7 @@ class ValorPrendaUnidadController extends Controller
                     $detalle_pago->id_pago = $intCodigo;
                     $detalle_pago->codigo_salario = $matricula->codigo_salario;
                     $detalle_pago->devengado = $contador;
+                    $detalle_pago->fecha_corte = $fecha_corte;
                     $detalle_pago->save(false);
                     //codigo para insertar creditos
                     $credito = \app\models\CreditoOperarios::find()->where(['=','id_operario', $pago->id_operario])
@@ -1171,6 +1172,7 @@ class ValorPrendaUnidadController extends Controller
                             $detalle_credito->codigo_salario = $configuracion->codigo_salario;
                             $detalle_credito->deduccion = $descuento->vlr_cuota;
                             $detalle_credito->id_credito = $descuento->id_credito;
+                            $detalle_credito->fecha_corte = $fecha_corte;
                             $detalle_credito->save(false);   
                         endforeach;
                     }

@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute("credito/search_abono_credito"),
+    "action" => Url::toRoute("credito-operarios/search_abono_credito"),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -81,7 +81,7 @@ $concepto = ArrayHelper::map(\app\models\ConceptoSalarios::find()->where(['=','t
         
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
-            <a align="right" href="<?= Url::toRoute("credito/search_abono_credito") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute("credito-operarios/search_abono_credito") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -96,14 +96,14 @@ $concepto = ArrayHelper::map(\app\models\ConceptoSalarios::find()->where(['=','t
 <div class="panel panel-success ">
     <div class="panel-heading">
         <?php if($model){?>
-          Registros: <span class="badge"> <?= $pagination->totalCount ?></span>
+            Registros: <span class="badge"> <?= $pagination->totalCount ?></span>
         <?php }?>    
     </div>
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>                
                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Tipo credito</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Fecha corte</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Valor abono</th>                
@@ -114,11 +114,11 @@ $concepto = ArrayHelper::map(\app\models\ConceptoSalarios::find()->where(['=','t
                 if($model){
                     foreach ($model as $val): ?>
                         <tr style= 'font-size:85%;'>                
-                            <td><?= $val->programacionNomina->cedula_empleado?></td>
-                             <td><?= $val->programacionNomina->empleado->nombrecorto?></td>
+                            <td><?= $val->pago->operarios->documento?></td>
+                             <td><?= $val->pago->operarios->nombrecompleto?></td>
                              <td><?= $val->codigoSalario->nombre_concepto?></td>
-                             <td><?= $val->fecha_hasta?></td>
-                             <td style="text-align: right"><?= '$'.number_format($val->vlr_deduccion,0)?></td>
+                             <td><?= $val->fecha_corte?></td>
+                             <td style="text-align: right"><?= '$'.number_format($val->deduccion,0)?></td>
                         </tr>            
                     <?php endforeach;
                 }   ?>

@@ -191,7 +191,7 @@ $view = 'costo-producto';
                                        <tr style="font-size: 85%;">
                                             <td><?= $val->codigo_insumo ?></td>
                                             <td><?= $val->insumos->descripcion ?></td>
-                                            <td style="text-align: right"><?= ''.number_format($val->cantidad,0) ?></td>
+                                            <td style="text-align: right"><?= ''.number_format($val->cantidad,1) ?></td>
                                             <td style="text-align: right"><?= '$'.number_format($val->vlr_unitario,0) ?></td>
                                             <td style="text-align: right"><?= '$'.number_format($val->total,0) ?></td>
 

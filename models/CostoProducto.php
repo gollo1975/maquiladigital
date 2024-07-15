@@ -45,7 +45,8 @@ class CostoProducto extends \yii\db\ActiveRecord
     {
         return [
             [['descripcion','codigo_producto','id_tipo_producto'], 'required'],
-            [['id_tipo_producto', 'costo_sin_iva', 'costo_con_iva','autorizado','aplicar_iva','subtotal_producto','total_producto','cantidad','asignado'], 'integer'],
+            [['id_tipo_producto', 'costo_sin_iva', 'costo_con_iva','autorizado','aplicar_iva','subtotal_producto','total_producto','cantidad',
+                'asignado','entregado','despacho_insumo'], 'integer'],
             [['fecha_creacion'], 'safe'],
             [['porcentaje_iva','tiempo_confeccion','tiempo_terminacion'], 'number'],
             ['codigo_producto', 'codigo_existe'],
@@ -80,6 +81,8 @@ class CostoProducto extends \yii\db\ActiveRecord
             'asignado' => 'Asignado:',
             'tiempo_confeccion' => 'Tiempo confeccion:',
             'tiempo_terminacion' => 'Tiempo terminacion:',
+            'entregado' => 'entregado',
+            'despacho_insumo' => 'Despacho insumo:',
         ];
     }
 

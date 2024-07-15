@@ -423,6 +423,7 @@
                                             'url' => '#',
                                             'items' => [                                              
                                                 ['label' => 'Entradas', 'icon' => 'plus-square-o', 'url' => ['/entrada-materia-prima/index']],
+                                                 ['label' => 'Salidas', 'icon' => 'plus-square-o', 'url' => ['/salida-bodega/index']],
                                                
                                             ],
                                         ],

@@ -39,7 +39,7 @@ $form = ActiveForm::begin([
         <div class="row">
       
             <?= $form->field($model, 'id_producto')->widget(Select2::classname(), [
-            'data' => $ConReferencia,
+            'data' => $Consulta,
             'options' => ['placeholder' => 'Seleccione la referencia'],
             'pluginOptions' => [
                 'allowClear' => true ]]);

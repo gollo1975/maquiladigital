@@ -50,6 +50,7 @@ class SalidaBodega extends \yii\db\ActiveRecord
             [['fecha_salida'], 'safe'],
             [['codigo_producto', 'user_name'], 'string', 'max' => 15],
             [['responsable'], 'string', 'max' => 40],
+            [['observacion'],'string' ,'max' => 100],
             [['id_producto'], 'exist', 'skipOnError' => true, 'targetClass' => CostoProducto::className(), 'targetAttribute' => ['id_producto' => 'id_producto']],
         ];
     }
@@ -71,6 +72,7 @@ class SalidaBodega extends \yii\db\ActiveRecord
             'user_name' => 'User name:',
             'numero_salida' => 'Numero salida:',
             'exportar_inventario' => 'Exportado:',
+            'observacion' => 'Nota:',
         ];
     }
 
@@ -98,7 +100,7 @@ class SalidaBodega extends \yii\db\ActiveRecord
         }
         return $autorizadosalida;
     }
-    
+   
      public function getCerradoSalida() {
         if($this->proceso_cerrado == 0){
             $cerradosalida = 'NO';
@@ -106,5 +108,14 @@ class SalidaBodega extends \yii\db\ActiveRecord
             $cerradosalida = 'SI';
         }
         return $cerradosalida;
+    }
+    
+     public function getInsumosExportado() {
+        if($this->exportar_inventario == 0){
+             $insumosexportado = 'NO';
+        }else{
+            $insumosexportado = 'SI';
+        }
+        return $insumosexportado;
     }
 }

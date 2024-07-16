@@ -56,7 +56,7 @@ class SalidaBodegaController extends Controller
                 $referencia = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
-                $ConReferencia = CostoProducto::find()->where(['=','entregado', 0])->orderBy('id_producto DESC')->all();
+                $ConReferencia = CostoProducto::find()->orderBy('id_producto DESC')->all();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {                        
                         $referencia = Html::encode($form->referencia);
@@ -82,7 +82,7 @@ class SalidaBodegaController extends Controller
                                 ->all();
                             if(isset($_POST['excel'])){                            
                                 $check = isset($_REQUEST['id_salida_bodega DESC']);
-                                $this->actionExcelconsultaSalidaBodega($tableexcel);
+                                $this->actionExcelconsultaSalida($tableexcel);
                             }
                 } else {
                         $form->getErrors();
@@ -102,11 +102,86 @@ class SalidaBodegaController extends Controller
                         ->all();
                 if(isset($_POST['excel'])){
                     //$table = $table->all();
-                     $this->actionExcelconsultaSalidaBodega($tableexcel);
+                     $this->actionExcelconsultaSalida($tableexcel);
                 }
             }
             $to = $count->count();
             return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'token' => $token,
+                        'ConReferencia' => ArrayHelper::map($ConReferencia, 'id_producto', 'productos'),
+            ]);
+        }else{
+             return $this->redirect(['site/sinpermiso']);
+        }     
+        }else{
+           return $this->redirect(['site/login']);
+        }
+   }
+   
+    //CONSULTA DE DETALLES DEL INSUMO
+   public function actionSearch_detalle_insumos($token = 1) {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',138])->all()){
+                $form = new \app\models\FormFiltroSalidaBodega();
+                $codigo_producto = null;
+                $referencia = null;
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $ConReferencia = CostoProducto::find()->orderBy('id_producto DESC')->all();
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {                        
+                        $referencia = Html::encode($form->referencia);
+                        $codigo_producto = Html::encode($form->codigo_producto);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $table = SalidaBodega::find()
+                                ->andFilterWhere(['=', 'codigo_producto', $codigo_producto])
+                                ->andFilterWhere(['=', 'id_producto', $referencia])
+                                ->andFilterWhere(['>=', 'fecha_salida', $fecha_inicio]) 
+                                ->andFilterWhere(['<=', 'fecha_salida', $fecha_corte])
+                                ->andWhere(['=', 'proceso_cerrado', 1]);
+                       $table = $table->orderBy('id_salida_bodega DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                            if(isset($_POST['excel'])){                            
+                                $check = isset($_REQUEST['id_salida_bodega DESC']);
+                                $this->actionExcelconsultaSalida($tableexcel);
+                            }
+                } else {
+                        $form->getErrors();
+                }                    
+            } else {
+                $table = SalidaBodega::find()->Where(['=', 'proceso_cerrado', 1])
+                        ->orderBy('id_salida_bodega DESC');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 15,
+                    'totalCount' => $count->count(),
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                     $this->actionExcelconsultaSalida($tableexcel);
+                }
+            }
+            $to = $count->count();
+            return $this->render('search_salidas', [
                         'model' => $model,
                         'form' => $form,
                         'pagination' => $pages,
@@ -208,7 +283,7 @@ class SalidaBodegaController extends Controller
     public function actionCreate()
     {
         $model = new SalidaBodega();
-        $ConReferencia = CostoProducto::find()->where(['=','entregado', 0])->orderBy('id_producto DESC')->all();
+        $Consulta = CostoProducto::find()->where(['=','entregado', 0])->orderBy('id_producto DESC')->all();
         if ($model->load(Yii::$app->request->post())) {
             $salida = SalidaBodega::find()->all();
             $sw = 0;
@@ -232,7 +307,7 @@ class SalidaBodegaController extends Controller
 
         return $this->render('create', [
             'model' => $model,
-            'ConReferencia' => ArrayHelper::map($ConReferencia, 'id_producto', 'productos'),
+            'Consulta' => ArrayHelper::map($Consulta, 'id_producto', 'productos'),
         ]);
     }
     
@@ -340,6 +415,16 @@ class SalidaBodegaController extends Controller
         $model->exportar_inventario = 1;
         $model->save();
         Yii::$app->getSession()->setFlash('info', 'Se exportaron ('.$contar.') referencias de materias primas con Exito al modulo de insumos.');
+        return $this->redirect(['view', 'id' => $id,'token' => $token]);
+    }
+    
+    //informes
+       //IMPRIME LA REMISION DE SEGUNDAS
+     public function actionImprimir_salida($id) {
+
+        return $this->render('../formatos/reporte_salida_insumos', [
+            'model' => SalidaBodega::findOne($id),
+        ]);
     }
        /**
      * Finds the SalidaBodega model based on its primary key value.
@@ -355,5 +440,178 @@ class SalidaBodegaController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    
+    //exportar a excel
+     public function actionExcelconsultaSalida($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+                               
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'ID')
+                    ->setCellValue('B1', 'CODIGO')
+                    ->setCellValue('C1', 'REFERENCIA')
+                    ->setCellValue('D1', 'UNIDADES')
+                    ->setCellValue('E1', 'FECHA SALIDA')
+                    ->setCellValue('F1', 'RESPONSABLE')
+                    ->setCellValue('G1', 'AUTORIZADO')
+                    ->setCellValue('H1', 'CERRADO')
+                    ->setCellValue('I1', 'USER NAME')
+                    ->setCellValue('J1', 'NUMERO SALIDA')
+                    ->setCellValue('K1', 'INV. EXPORTADO')
+                    ->setCellValue('L1', 'OBSERVACION');
+        $i = 2;
+        
+        foreach ($tableexcel as $val) {
+                                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_salida_bodega)
+                    ->setCellValue('B' . $i, $val->codigo_producto)
+                    ->setCellValue('C' . $i, $val->producto->descripcion)
+                    ->setCellValue('D' . $i, $val->unidades)
+                    ->setCellValue('E' . $i, $val->fecha_salida)
+                    ->setCellValue('F' . $i, $val->responsable)
+                    ->setCellValue('G' . $i, $val->autorizadoSalida)
+                    ->setCellValue('H' . $i, $val->cerradoSalida)
+                    ->setCellValue('I' . $i, $val->user_name)
+                    ->setCellValue('J' . $i, $val->numero_salida)
+                    ->setCellValue('K' . $i, $val->insumosExportado)
+                    ->setCellValue('L' . $i, $val->observacion);
+                   
+           $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Salida_insumos.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
+    
+    //EXPORTAR A EXCEL DETALL DEL INSUMO
+    
+    //exportar a excel
+     public function actionExportar_detalle($id) {    
+        $detalle = SalidaBodegaDetalle::find()->where(['=','id_salida_bodega', $id])->all();
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
+                               
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'ID SALIDA')
+                    ->setCellValue('B1', 'CODIGO')
+                    ->setCellValue('C1', 'REFERENCIA')
+                    ->setCellValue('D1', 'TOTAL INSUMOS')
+                    ->setCellValue('E1', 'FECHA SALIDA')
+                    ->setCellValue('F1', 'RESPONSABLE')
+                    ->setCellValue('G1', 'AUTORIZADO')
+                    ->setCellValue('H1', 'CERRADO')
+                    ->setCellValue('I1', 'USER NAME')
+                    ->setCellValue('J1', 'NUMERO SALIDA')
+                    ->setCellValue('K1', 'INV. EXPORTADO')
+                    ->setCellValue('L1', 'OBSERVACION')
+                    ->setCellValue('M1', 'CODIGO INSUMO')
+                    ->setCellValue('N1', 'DESCRIPCION INSUMO')
+                    ->setCellValue('O1', 'CANTIDAD DESPACHADA')
+                    ->setCellValue('P1', 'NOTA DE ENTREGA');
+                    
+        $i = 2;
+        
+        foreach ($detalle as $val) {
+                                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->salidaBodega->id_salida_bodega)
+                    ->setCellValue('B' . $i, $val->salidaBodega->codigo_producto)
+                    ->setCellValue('C' . $i, $val->salidaBodega->producto->descripcion)
+                    ->setCellValue('D' . $i, $val->salidaBodega->unidades)
+                    ->setCellValue('E' . $i, $val->salidaBodega->fecha_salida)
+                    ->setCellValue('F' . $i, $val->salidaBodega->responsable)
+                    ->setCellValue('G' . $i, $val->salidaBodega->autorizadoSalida)
+                    ->setCellValue('H' . $i, $val->salidaBodega->cerradoSalida)
+                    ->setCellValue('I' . $i, $val->salidaBodega->user_name)
+                    ->setCellValue('J' . $i, $val->salidaBodega->numero_salida)
+                    ->setCellValue('K' . $i, $val->salidaBodega->insumosExportado)
+                    ->setCellValue('L' . $i, $val->salidaBodega->observacion)
+                    ->setCellValue('M' . $i, $val->codigo_insumo)
+                    ->setCellValue('N' . $i, $val->nombre_insumo)
+                    ->setCellValue('O' . $i, $val->cantidad_despachar)
+                    ->setCellValue('P' . $i, $val->nota);
+           $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Detalla_insumos.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
     }
 }

@@ -406,6 +406,7 @@
                                             'url' => '#',
                                             'items' => [
                                                ['label' => 'Inventario insumos', 'icon' => 'plus-square-o', 'url' => ['insumos/index','token' => 1]],
+                                               ['label' => 'Salida de insumos', 'icon' => 'plus-square-o', 'url' => ['salida-bodega/search_detalle_insumos']], 
 
                                             ],
                                         ],

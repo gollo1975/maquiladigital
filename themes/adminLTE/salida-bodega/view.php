@@ -19,8 +19,12 @@ $view = 'salida-bodega';
 
     <p>
         <div class="btn-group btn-sm" role="group">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-            <?php if ($model->autorizado == 0 && $model->numero_salida == 0) {
+            <?php if($token == 0){
+                echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);
+            }else{
+                echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_detalle_insumos'], ['class' => 'btn btn-primary btn-sm']);
+            }
+            if ($model->autorizado == 0 && $model->numero_salida == 0) {
 
                echo Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_salida_bodega, 'token' => $token], ['class' => 'btn btn-default btn-sm']); 
             }else {   
@@ -33,7 +37,8 @@ $view = 'salida-bodega';
                         echo Html::a('<span class="glyphicon glyphicon-import"></span> Descargar inventario', ['enviar_inventario', 'id' => $model->id_salida_bodega, 'token' => $token],['class' => 'btn btn-success btn-sm',
                              'data' => ['confirm' => 'Esta seguro de ENVIAR este inventario de la referencia ('.$model->producto->descripcion.') para ser descargado del modulo de insumos', 'method' => 'post']]);
                     }else{
-                       echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 15, 'codigo' => $model->id_salida_bodega,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                              
+                       echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir_salida', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-default btn-sm']);            
+                       echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 20, 'codigo' => $model->id_salida_bodega,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                              
                     }
                 }    
             }?>
@@ -111,7 +116,7 @@ $view = 'salida-bodega';
                                             <td><?= $val->insumo->descripcion ?></td>
                                             <td><?= $val->insumo->tipomedida->medida?></td>
                                             <td style="padding-right:1;padding-right: 1; text-align: right"><input type="text" name="cantidad_despachar[]" value="<?= $val->cantidad_despachar ?>"  style='text-align: right'  size="10" required = true></td>
-                                            <td style="padding-left: 1;padding-right: 0;"><input type="text" name="observacion[]" value="<?= $val->nota ?>" size="70" maxlength="60" ></td>
+                                            <td style="padding-left: 1;padding-right: 1;"><input type="text" name="observacion[]" value="<?= $val->nota ?>" size="70" maxlength="60" ></td>
                                              <input type="hidden" name="materia_prima[]" value="<?= $val->id?>">  
                                             <td style="width: 30px;"><input type="checkbox" name="listado_eliminar[]" value="<?= $val->id ?>"></td>
                                             
@@ -126,7 +131,11 @@ $view = 'salida-bodega';
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizar_inventario']) ?>
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminar_todo']) ?>
                             </div> 
-                        <?php }?>
+                        <?php }else{?>
+                              <div class="panel-footer text-right"> 
+                                <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar a excel', ['salida-bodega/exportar_detalle', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-primary btn-sm']) ?>
+                              </div>    
+                        <?php } ?>
                     </div>    
                 </div>
             </div> 

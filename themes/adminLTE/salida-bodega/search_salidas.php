@@ -19,7 +19,7 @@ use app\models\TipoProducto;
 
 
 
-$this->title = 'Salida de bodega';
+$this->title = 'Consulta (salida de bodega)';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -33,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute("salida-bodega/index"),
+    "action" => Url::toRoute("salida-bodega/search_detalle_insumos"),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -81,7 +81,7 @@ $tipo_producto = ArrayHelper::map(TipoProducto::find()->orderBy ('concepto ASC')
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-            <a align="right" href="<?= Url::toRoute("salida-bodega/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute("salida-bodega/search_detalle_insumos") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -144,7 +144,6 @@ $form = ActiveForm::begin([
      </div>
     <div class="panel-footer text-right" >            
            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>                
-            <a align="right" href="<?= Url::toRoute("salida-bodega/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
         <?php $form->end() ?>
         </div>
 </div>

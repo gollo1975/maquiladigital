@@ -452,7 +452,7 @@ class EficienciaModuloDiarioController extends Controller
         $sumarh = $horah[0] - $horad[0];
         $sumarm = $horah[1] + $horad[1];
         if($Buscar->aplica_alimento == 0){
-            var_dump($totalTiempo = ($sumarh * 60) + $sumarm);
+            $totalTiempo = ($sumarh * 60) + $sumarm;
         }else{
             if($horario->abreviatura == 'LV'){
                 if ($Buscar->hora_corte > '12:00'){
@@ -461,7 +461,7 @@ class EficienciaModuloDiarioController extends Controller
                     $totalTiempo = ($sumarh * 60) - $sumarm - $horario->tiempo_desayuno; 
                 }
             }else{
-                var_dump($totalTiempo = ($sumarh * 60) - $sumarm - $horario->tiempo->desayuno); 
+                $totalTiempo = ($sumarh * 60) - $sumarm - $horario->tiempo->desayuno; 
             }
         }   
         //unidades po hora

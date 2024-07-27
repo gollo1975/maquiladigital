@@ -45,21 +45,20 @@ use app\models\AsignacionProductoDetalle;
                     </thead>
                     <tbody>
                         <?php
-                        foreach ($productos as $val):
-                            $detalle = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $val->id_producto])->one();
-                            if(!$detalle){ ?>
+                        foreach ($productos as $val):?>
                                 <tr style ='font-size:90%;'>
                                     <td><?= $val->codigo_producto ?></td>
-                                    <td><?= $val->descripcion ?></td>
-                                    <td><?= $val->tipoProducto->concepto ?></td>
-                                    <td><?= $val->cantidad ?></td>
-                                    <td><?= $val->fecha_creacion ?></td>
-                                     <td><?= $val->usuariosistema ?></td>
-                                    <td style="width: 30px;"><input type="checkbox" name="id_producto[]" value="<?= $val->id_producto ?>"></td>
+                                    <td><?= $val->referencia->referencia ?></td>
+                                    <td><?= $val->referencia->codigoReferencia->tipoProducto->concepto ?></td>
+                                    <td><?= $val->cantidades ?></td>
+                                    <td><?= $val->fecha_fabricacion ?></td>
+                                     <td><?= $val->user_name ?></td>
+                                    <td style="width: 30px;"><input type="checkbox" name="id_orden[]" value="<?= $val->id_orden_fabricacion ?>"></td>
                                     <input type="hidden" name="id" value="<?= $id?>">
                                 </tr>
-                            <?php }    
-                        endforeach; ?>
+                            <?php     
+                        endforeach
+                            ; ?>
                    </tbody>     
                 </table>
             </div>   

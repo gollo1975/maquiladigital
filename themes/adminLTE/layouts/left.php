@@ -385,7 +385,8 @@
                                             'icon' => 'database',
                                             'url' => '#',
                                             'items' => [
-                                                ['label' => 'Materia prima', 'icon' => 'plus-square-o', 'url' => ['/insumos/index']],
+                                                ['label' => 'Insumos', 'icon' => 'plus-square-o', 'url' => ['/insumos/index']],
+                                                ['label' => 'Crear referencias', 'icon' => 'plus-square-o', 'url' => ['/referencia-producto/index']],
                                                 
                                             ],
                                         ],
@@ -394,10 +395,9 @@
                                             'icon' => 'book',
                                             'url' => '#',
                                             'items' => [
-                                              ['label' => 'Costo producto', 'icon' => 'plus-square-o', 'url' => ['/costo-producto/index']],
-                                              ['label' => 'Remision x producto', 'icon' => 'plus-square-o', 'url' => ['/remision-entrega-prendas/index']],
-                                              ['label' => 'Referencias', 'icon' => 'plus-square-o', 'url' => ['/referencias/index']],
-                                              
+                                              ['label' => 'Pedidos', 'icon' => 'plus-square-o', 'url' => ['/pedido-cliente/index']],
+                                              ['label' => 'Cargar ventas', 'icon' => 'plus-square-o', 'url' => ['/orden-fabricacion/cargar_pedidos']],
+                                              ['label' => 'Orden fabricacion', 'icon' => 'plus-square-o', 'url' => ['/orden-fabricacion/index']],
                                             ],
                                         ],
                                         [
@@ -424,7 +424,10 @@
                                             'url' => '#',
                                             'items' => [                                              
                                                 ['label' => 'Entradas', 'icon' => 'plus-square-o', 'url' => ['/entrada-materia-prima/index']],
-                                                 ['label' => 'Salidas', 'icon' => 'plus-square-o', 'url' => ['/salida-bodega/index']],
+                                                ['label' => 'Salidas', 'icon' => 'plus-square-o', 'url' => ['/salida-bodega/index']],
+                                                ['label' => 'Costo producto', 'icon' => 'plus-square-o', 'url' => ['/costo-producto/index']],
+                                                ['label' => 'Remision x producto', 'icon' => 'plus-square-o', 'url' => ['/remision-entrega-prendas/index']],
+                                                ['label' => 'Referencias', 'icon' => 'plus-square-o', 'url' => ['/referencias/index']],
                                                
                                             ],
                                         ],

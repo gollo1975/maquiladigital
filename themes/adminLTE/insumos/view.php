@@ -17,14 +17,8 @@ $this->params['breadcrumbs'][] = $model->id_insumos;
   
         <?php if($token == 0){?>
             <p>
-               <?php  echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);
-                 echo Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->id_insumos], [
-                  'class' => 'btn btn-danger btn-sm',
-                  'data' => [
-                      'confirm' => 'Esta seguro de eliminar el registro?',
-                      'method' => 'post',
-                            ],
-                  ]);?>
+               <?php  echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);?>
+                 
                </p>  
         <?php }else{?>
             <p>   
@@ -44,7 +38,7 @@ $this->params['breadcrumbs'][] = $model->id_insumos;
                     <td><?= Html::encode($model->id_insumos) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Codigo') ?></th>
                     <td><?= Html::encode($model->codigo_insumo) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Materia_prima') ?></th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nombre_Insumo') ?>:</th>
                     <td><?= Html::encode($model->descripcion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'aplica_iva') ?></th>
                     <td><?= Html::encode($model->aplicaIva) ?></td>
@@ -82,7 +76,7 @@ $this->params['breadcrumbs'][] = $model->id_insumos;
                     <td><?= Html::encode($model->aplicaInventario) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentaje_iva') ?></th>
                     <td colspan="3"><?= Html::encode($model->porcentaje_iva) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_materia_prima') ?></th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_insumo') ?></th>
                     <td style="text-align: right;"><?= Html::encode(''.number_format($model->total_materia_prima,0)) ?></td>
                 </tr>
                 <tr style="font-size: 90%;">

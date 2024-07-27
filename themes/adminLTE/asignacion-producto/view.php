@@ -8,13 +8,13 @@ use yii\helpers\Url;
 /* @var $this yii\web\View */
 /* @var $model app\models\ComprobanteEgreso */
 
-$this->title = 'Orden de progreso';
-$this->params['breadcrumbs'][] = ['label' => 'Asignacion producto', 'url' => ['index']];
+$this->title = 'Asignacion de ordenes';
+$this->params['breadcrumbs'][] = ['label' => 'Asignacion ordenes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->id_asignacion;
 $view = 'asignacion-producto';
 $producto = 0;
 foreach ($detalle_orden as $proceso):
-    $producto = $proceso->id_producto;
+    $producto = $proceso->detalle->id_orden_fabricacion;
 endforeach;
 ?>
 <div class="costo-producto-view-view">
@@ -31,25 +31,19 @@ endforeach;
             <?php }else{
                 if($model->orden_produccion == 0 && $model->autorizado != 0){?>
                     <button type="button" class="btn btn-default btn"><?php echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizar', 'id' => $model->id_asignacion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>
-                       <?= Html::a('<span class="glyphicon glyphicon-duplicate"></span> Crear documento', ['generardocumento', 'id_producto' =>$producto, 'id' => $model->id_asignacion, 'token' => $token],['class' => 'btn btn-info btn-sm',
+                       <?= Html::a('<span class="glyphicon glyphicon-duplicate"></span> Crear documento', ['generardocumento','id' => $model->id_asignacion, 'token' => $token, 'id_orden' => $producto],['class' => 'btn btn-info btn-sm',
                           'data' => ['confirm' => 'Esta segura de crear la Orden de Producción a este proveedor.', 'method' => 'post']]) ?>
                     </button>    
                 <?php }else{ ?>
                 <button type="button" class="btn btn-default btn"> <?php echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['/asignacion-producto/imprimiordenproduccion', 'id' => $model->id_asignacion],['class' => 'btn btn-default btn-sm']) ;?>
                 </button>        
-                <button type="button" class="btn btn-default btn"> <?=  Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 18, 'codigo' => $model->id_asignacion,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                                                         
+                <button type="button" class="btn btn-default btn"> <?=  Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 22, 'codigo' => $model->id_asignacion,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                                                         
                 </button>   
                <?php }
             }?>
         </div>    
     </p>
     <?php
-    if ($mensaje != ""){
-        ?> <div class="alert alert-danger alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <?php echo $mensaje ?>
-    </div> <?php
-    }
     ?>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -121,10 +115,11 @@ endforeach;
                                 <thead>
                                     <tr style="">
                                         <th scope="col" style='background-color:#B9D5CE;'>Código</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Tallas</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Valor minuto</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Vr. unidad</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>subtotal</th>
                                          <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                                     </tr>
@@ -132,13 +127,14 @@ endforeach;
                                 <tbody>
                                     <?php foreach ($detalle_orden as $val): ?>
                                        <tr style="font-size: 85%;">
-                                            <td><?= $val->producto->codigo_producto ?></td>
-                                            <td><?= $val->producto->descripcion ?></td>
-                                            <td><?=$val->productoTalla->talla->talla ?></td>
+                                            <td><?= $val->codigo_producto ?></td>
+                                            <td><?= $val->referencia ?></td>
+                                            <td><?=$val->talla->talla ?></td>
+                                            <td style="text-align: right"><?= ''.number_format($val->tiempo_confeccion,0) ?></td>
                                             <td style="text-align: right"><?= ''.number_format($val->cantidad,0) ?></td>
                                             <td style="text-align: right"><?= '$'.number_format($val->valor_minuto,0) ?></td>
                                             <td style="text-align: right"><?= '$'.number_format($val->subtotal_producto,0) ?></td>
-                                            <td style="width: 25px;"><input type="checkbox" name="detalle[]" value="<?= $val->id_detalle ?>"></td>    
+                                            <td style="width: 25px;"><input type="checkbox" name="detalle[]" value="<?= $val->id_detalle_asignacion?>"></td>    
                                        </tr>                    
                                         <?php endforeach; ?>
                                 </<body>

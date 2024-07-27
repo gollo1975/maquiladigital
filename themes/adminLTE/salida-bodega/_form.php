@@ -38,9 +38,9 @@ $form = ActiveForm::begin([
     <div class="panel-body">
         <div class="row">
       
-            <?= $form->field($model, 'id_producto')->widget(Select2::classname(), [
+            <?= $form->field($model, 'id_orden_fabricacion')->widget(Select2::classname(), [
             'data' => $Consulta,
-            'options' => ['placeholder' => 'Seleccione la referencia'],
+            'options' => ['placeholder' => 'Seleccione...'],
             'pluginOptions' => [
                 'allowClear' => true ]]);
             ?>

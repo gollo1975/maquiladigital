@@ -75,7 +75,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 7);
         $this->Cell(25, 5, utf8_decode("REFERENCIA:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(50, 5, utf8_decode($salida->producto->descripcion), 0, 0, 'L');
+        $this->Cell(50, 5, utf8_decode($salida->orden->referencia->referencia), 0, 0, 'L');
         $this->SetFont('Arial', 'B', 7);
         $this->Cell(25, 5, utf8_decode("AUTORIZADO:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
@@ -148,7 +148,7 @@ class PDF extends FPDF {
     function Body($pdf, $model) {
         $insumos = SalidaBodegaDetalle::find()->where(['=', 'id_salida_bodega', $model->id_salida_bodega])->all();
         $pdf->SetX(10);
-        $pdf->SetFont('Arial', '', 9);
+        $pdf->SetFont('Arial', '', 7);
         $items = count($insumos);
         $total = 0;
         foreach ($insumos as $detalle) {
@@ -165,10 +165,10 @@ class PDF extends FPDF {
         $pdf->MultiCell(100, 8, 'ITEMS: '.$items, 1, 'J');
         //FIN
         $pdf->SetXY(110, 200);
-        $pdf->MultiCell(55, 8, 'TOTAL: ',1, 'R');
+        $pdf->MultiCell(55, 8, 'TOTAL INSUMOS: ',1, 'R');
         //FIN
         $pdf->SetXY(165, 200);
-        $pdf->MultiCell(36, 8, ' '. number_format(0 ),1 , 'R');
+        $pdf->MultiCell(36, 8, ' '. number_format($model->unidades ),1 , 'R');
         //fin
         
         $pdf->SetXY(10, 255);//firma trabajador

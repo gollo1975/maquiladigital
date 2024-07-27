@@ -46,6 +46,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
+                     <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Vl. minuto</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
@@ -54,13 +55,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tbody>
                 <?php foreach ($detalle as $val): ?>
                <tr style ='font-size: 90%;'>
-                    <td><?= $val->producto->codigo_producto ?></td>
-                    <td><?= $val->producto->descripcion ?></td>
-                    <td><?=$val->productoTalla->talla->talla ?></td>
+                    <td><?= $val->codigo_producto ?></td>
+                    <td><?= $val->referencia ?></td>
+                    <td><?=$val->talla->talla ?></td>
+                     <td><input type="text" style="text-align: right;" name="sam[]" value="<?= $val->tiempo_confeccion ?>" required></td>
                     <td><input type="text" style="text-align: right;" name="cantidad[]" value="<?= $val->cantidad ?>" required></td>
                     <td style="text-align: right;"><?= ''.number_format($val->valor_minuto,0) ?></td>
                     <td style="text-align: right;"><?= ''.number_format($val->subtotal_producto,0) ?></td>
-                    <input type="hidden" name="id_detalle[]" value="<?= $val->id_detalle ?>">
+                    <input type="hidden" name="id_detalle[]" value="<?= $val->id_detalle_asignacion ?>">
                 </tr>
                 </tbody>
                 <?php endforeach; ?>

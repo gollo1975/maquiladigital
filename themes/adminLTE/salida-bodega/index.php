@@ -19,7 +19,7 @@ use app\models\TipoProducto;
 
 
 
-$this->title = 'Salida de bodega';
+$this->title = 'Salida de bodega (Insumos)';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -55,9 +55,9 @@ $tipo_producto = ArrayHelper::map(TipoProducto::find()->orderBy ('concepto ASC')
 	
     <div class="panel-body" id="filtro" style="display:block">
         <div class="row" >
-             <?= $formulario->field($form, "codigo_producto")->input("search") ?>
-           <?= $formulario->field($form, 'referencia')->widget(Select2::classname(), [
-                'data' => $ConReferencia,
+             <?= $formulario->field($form, 'codigo_producto')->input("search") ?>
+           <?= $formulario->field($form, 'cliente')->widget(Select2::classname(), [
+                'data' => $conCliente,
                 'options' => ['prompt' => 'Seleccione la referencia ...'],
                 'pluginOptions' => [
                     'allowClear' => true
@@ -77,6 +77,7 @@ $tipo_producto = ArrayHelper::map(TipoProducto::find()->orderBy ('concepto ASC')
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+            <?= $formulario->field($form, "numero")->input("search") ?>
         
         </div>
         <div class="panel-footer text-right">
@@ -101,12 +102,14 @@ $form = ActiveForm::begin([
             <thead>
                 <tr style ='font-size: 90%;'>         
                 
-                <th scope="col" style='background-color:#B9D5CE;'>Numero</th>
+                <th scope="col" style='background-color:#B9D5CE;'>No salida</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
-                 <th scope="col" style='background-color:#B9D5CE;'>Total insumo</th> 
+                <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Vendidas</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Orden fabricacion</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Total insumo</th> 
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha salida</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Responsable</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Costo Autorizado">Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Proceso cerrado">Cerr.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -121,10 +124,12 @@ $form = ActiveForm::begin([
                     <tr style ='font-size: 85%;'>                
                         <td><?= $val->numero_salida?></td>
                         <td><?= $val->codigo_producto?></td>
-                        <td><?= $val->producto->descripcion?></td>
+                        <td><?= $val->orden->referencia->referencia?></td>
+                        <td><?= $val->cliente->nombrecorto?></td>
+                        <td style="text-align: right"><?= ''.number_format($val->unidades_vendidas,0)?></td>
+                        <td><?= $val->orden->numero_orden?></td>
                         <td style="text-align: right"><?= ''.number_format($val->unidades,0)?></td>
                         <td><?= $val->fecha_salida?></td>
-                         <td><?= $val->responsable?></td>
                         <td><?= $val->autorizadoSalida?></td>
                         <td><?= $val->cerradoSalida?></td>
                         <td style="width: 25px;">				

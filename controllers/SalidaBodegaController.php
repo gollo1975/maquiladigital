@@ -24,6 +24,7 @@ use app\models\SalidaBodega;
 use app\models\SalidaBodegaDetalle;
 use app\models\UsuarioDetalle;
 use app\models\CostoProducto;
+use app\models\Insumos;
 /**
  * SalidaBodegaController implements the CRUD actions for SalidaBodega model.
  */
@@ -53,19 +54,25 @@ class SalidaBodegaController extends Controller
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',137])->all()){
                 $form = new \app\models\FormFiltroSalidaBodega();
                 $codigo_producto = null;
-                $referencia = null;
+                $orden_fabricacion = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
-                $ConReferencia = CostoProducto::find()->orderBy('id_producto DESC')->all();
+                $cliente = null;
+                $numero = null;
+                $conCliente = \app\models\Cliente::find()->orderBy('nombrecorto DESC')->all();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {                        
-                        $referencia = Html::encode($form->referencia);
+                        $orden_fabricacion = Html::encode($form->orden_fabricacion);
                         $codigo_producto = Html::encode($form->codigo_producto);
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
+                        $cliente = Html::encode($form->cliente);
+                        $numero = Html::encode($form->numero);
                         $table = SalidaBodega::find()
                                 ->andFilterWhere(['=', 'codigo_producto', $codigo_producto])
-                                ->andFilterWhere(['=', 'id_producto', $referencia])
+                                ->andFilterWhere(['=', 'id_orden_fabricacion', $orden_fabricacion])
+                                ->andFilterWhere(['=', 'idcliente', $cliente])
+                                ->andFilterWhere(['=', 'numero_salida', $numero])
                                 ->andFilterWhere(['>=', 'fecha_salida', $fecha_inicio]) 
                                 ->andFilterWhere(['<=', 'fecha_salida', $fecha_corte]);
                        $table = $table->orderBy('id_salida_bodega DESC');
@@ -111,7 +118,7 @@ class SalidaBodegaController extends Controller
                         'form' => $form,
                         'pagination' => $pages,
                         'token' => $token,
-                        'ConReferencia' => ArrayHelper::map($ConReferencia, 'id_producto', 'productos'),
+                        'conCliente' => ArrayHelper::map($conCliente, 'idcliente', 'nombrecorto'),
             ]);
         }else{
              return $this->redirect(['site/sinpermiso']);
@@ -122,26 +129,29 @@ class SalidaBodegaController extends Controller
    }
    
     //CONSULTA DE DETALLES DEL INSUMO
-   public function actionSearch_detalle_insumos($token = 1) {
+    public function actionSearch_detalle_insumos($token = 1) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',138])->all()){
                 $form = new \app\models\FormFiltroSalidaBodega();
                 $codigo_producto = null;
-                $referencia = null;
+                $orden_fabricacion = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
-                $ConReferencia = CostoProducto::find()->orderBy('id_producto DESC')->all();
+                $cliente = null;
+                $conCliente = \app\models\Cliente::find()->orderBy('nombrecorto DESC')->all();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {                        
-                        $referencia = Html::encode($form->referencia);
+                        $orden_fabricacion = Html::encode($form->orden_fabricacion);
                         $codigo_producto = Html::encode($form->codigo_producto);
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
+                        $cliente = Html::encode($form->cliente);
                         $table = SalidaBodega::find()
                                 ->andFilterWhere(['=', 'codigo_producto', $codigo_producto])
-                                ->andFilterWhere(['=', 'id_producto', $referencia])
+                                ->andFilterWhere(['=', 'id_orden_fabricacion', $orden_fabricacion])
                                 ->andFilterWhere(['>=', 'fecha_salida', $fecha_inicio]) 
                                 ->andFilterWhere(['<=', 'fecha_salida', $fecha_corte])
+                                ->andFilterWhere(['=', 'idcliente', $cliente])
                                 ->andWhere(['=', 'proceso_cerrado', 1]);
                        $table = $table->orderBy('id_salida_bodega DESC');
                         $tableexcel = $table->all();
@@ -186,7 +196,7 @@ class SalidaBodegaController extends Controller
                         'form' => $form,
                         'pagination' => $pages,
                         'token' => $token,
-                        'ConReferencia' => ArrayHelper::map($ConReferencia, 'id_producto', 'productos'),
+                        'conCliente' => ArrayHelper::map($conCliente, 'idcliente', 'nombrecorto'),
             ]);
         }else{
              return $this->redirect(['site/sinpermiso']);
@@ -214,6 +224,7 @@ class SalidaBodegaController extends Controller
                           $eliminar = \app\models\SalidaBodegaDetalle::findOne($intCodigo);
                           $eliminar->delete();
                           Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
+                           $this->Actualizar_unidades($id);
                           $this->redirect(["salida-bodega/view", 'id' => $id, 'token' => $token]);
                       } catch (IntegrityException $e) {
 
@@ -283,57 +294,42 @@ class SalidaBodegaController extends Controller
     public function actionCreate()
     {
         $model = new SalidaBodega();
-        $Consulta = CostoProducto::find()->where(['=','entregado', 0])->orderBy('id_producto DESC')->all();
+        $Consulta = \app\models\OrdenFabricacion::find()->where(['=','salida_insumo', 0])->orderBy('id_orden_fabricacion ASC')->all();
         if ($model->load(Yii::$app->request->post())) {
-            $salida = SalidaBodega::find()->all();
-            $sw = 0;
-            foreach ($salida as $bodega){
-              
-                if($model->id_producto == $bodega->id_producto){
-                    $sw = 1;
-                } 
-            }
-            if($sw == 0){
-                $model->save();
-                $producto = CostoProducto::findOne($model->id_producto);
-                $model->codigo_producto = $producto->codigo_producto;
-                $model->user_name = Yii::$app->user->identity->username;
-                $model->save();
-                return $this->redirect(['view', 'id' => $model->id_salida_bodega,'token' => 0]);
+            if($model->validate()){
+                $salida = SalidaBodega::find()->all();
+                $sw = 0;
+                foreach ($salida as $bodega){
+
+                    if($model->id_orden_fabricacion == $bodega->id_orden_fabricacion){
+                        $sw = 1;
+                    } 
+                }
+                if($sw == 0){
+                    $model->save();
+                    $producto = \app\models\OrdenFabricacion::findOne($model->id_orden_fabricacion);
+                    $model->id_orden_fabricacion = $model->id_orden_fabricacion;
+                    $model->codigo_producto = $producto->codigo_producto;
+                    $model->idcliente = $producto->idcliente;
+                    $model->unidades_vendidas = $producto->cantidades;
+                    $model->user_name = Yii::$app->user->identity->username;
+                    $model->save(false);
+                    return $this->redirect(['view', 'id' => $model->id_salida_bodega,'token' => 0]);
+                }else{
+                    Yii::$app->getSession()->setFlash('error', 'La orden de fabricacion seleccionada se encuentra en un proceso de salida de insumos o ya esta despachada. Valide la informacion.');
+                }    
             }else{
-                Yii::$app->getSession()->setFlash('error', 'La referencia seleccionada se encuentra en un proceso de salida de insumos o ya esta despachada. Valide la informacion.');
+                $model->getErrors();
             }    
         }
 
         return $this->render('create', [
             'model' => $model,
-            'Consulta' => ArrayHelper::map($Consulta, 'id_producto', 'productos'),
+            'Consulta' => ArrayHelper::map($Consulta, 'id_orden_fabricacion', 'ordenFabricacion'),
         ]);
     }
     
-   //PERMITE CARGAR LOS INSUMOS DE LA ORDEN DE COSTO
-   public function actionCargar_insumos($id, $token, $id_producto) {
-        $cargar = \app\models\CostoProductoDetalle::find()->where(['=','id_producto', $id_producto])->all();  
-        if(count($cargar) > 0){
-            foreach ($cargar as $insumo):
-                $ingreso = \app\models\SalidaBodegaDetalle::find()->where(['=','id_salida_bodega', $id])->andWhere(['=','id_insumo', $insumo->id_insumos])->one();
-                if(!$ingreso){         
-                    $table = new \app\models\SalidaBodegaDetalle();
-                    $table->id_salida_bodega = $id;
-                    $table->id_insumo = $insumo->id_insumos;
-                    $table->codigo_insumo = $insumo->codigo_insumo;
-                    $table->nombre_insumo = $insumo->insumos->descripcion;
-                    $table->save (false);
-                }    
-            endforeach;
-            return $this->redirect(['view', 'id' => $id,'token' => 0]);
-        }else{
-            Yii::$app->getSession()->setFlash('error', 'Esta orden de costo No tiene relacionado los insumos para la confeccion. Validar con el administrador.');
-            return $this->redirect(['view', 'id' => $id,'token' => 0]);
-        }
-       
-   }
-    /**
+     /**
      * Updates an existing SalidaBodega model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
@@ -342,23 +338,103 @@ class SalidaBodegaController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-        $ConReferencia = CostoProducto::find()->where(['=','entregado', 0])->orderBy('id_producto DESC')->all();
+         $model = $this->findModel($id);
+         $Consulta = \app\models\OrdenFabricacion::find()->where(['=','salida_insumo', 0])->orderBy('id_orden_fabricacion ASC')->all();
         if ($model->load(Yii::$app->request->post())) {
-            $producto = CostoProducto::findOne($model->id_producto);
-            $model->id_producto = $model->id_producto;
+            $producto = \app\models\OrdenFabricacion::findOne($model->id_orden_fabricacion);
+            $model->id_orden_fabricacion = $model->id_orden_fabricacion;
             $model->codigo_producto = $producto->codigo_producto;
+            $model->idcliente = $producto->idcliente;
             $model->responsable = $model->responsable;
-            $model->fecha_salida = $model->fecha_salida;
-            $model->save();
+            $model->unidades_vendidas = $producto->cantidades;
+            $model->save(false);
             return $this->redirect(['index']);
         }
 
         return $this->render('update', [
             'model' => $model,
-            'ConReferencia' => ArrayHelper::map($ConReferencia, 'id_producto', 'productos'),
+            'Consulta' => ArrayHelper::map($Consulta, 'id_orden_fabricacion', 'ordenFabricacion'),
         ]);
     }
+    
+   //PERMITE CARGAR LOS INSUMOS DE LA ORDEN DE COSTO
+     public function actionCargar_nuevo_insumo($id, $token)
+    {
+        $insumos = \app\models\Insumos::find()->where(['>','stock_real', 0])->orderBy('descripcion asc')->all();
+        $form = new \app\models\FormMaquinaBuscar();
+        $q = null;
+        $grupo = null;
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $q = Html::encode($form->q);  
+               $grupo = Html::encode($form->grupo);
+                $insumos = \app\models\Insumos::find()
+                        ->andFilterWhere(['=','id_grupo', $grupo])
+                        ->andFilterWhere(['=','codigo_insumo', $q])
+                        ->andwhere(['>','stock_real', 0]);
+                $insumos = $insumos->orderBy('descripcion DESC');                    
+                $count = clone $insumos;
+                $to = $count->count();
+                $pages = new Pagination([
+                    'pageSize' => 15,
+                    'totalCount' => $count->count()
+                ]);
+                $insumos = $insumos
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();   
+            } else {
+                $form->getErrors();
+            }                    
+                    
+        } else {
+            $table = Insumos::find()->where(['>','stock_real', 0])->orderBy('descripcion asc');
+            $tableexcel = $table->all();
+            $count = clone $table;
+            $pages = new Pagination([
+                        'pageSize' => 15,
+                        'totalCount' => $count->count(),
+            ]);
+             $insumos = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+        }
+        if (isset($_POST["id_insumos"])) {
+                $intIndice = 0;
+                foreach ($_POST["id_insumos"] as $intCodigo) {
+                    $insumo = Insumos::find()->where(['id_insumos' => $intCodigo])->one();
+                    $detalles = SalidaBodegaDetalle::find()
+                        ->where(['=', 'id_salida_bodega', $id])
+                        ->andWhere(['=', 'id_insumo', $insumo->id_insumos])
+                        ->all();
+                    $reg = count($detalles);
+                    if ($reg == 0) {
+                        $bodega = SalidaBodega::findOne($id);
+                        $table = new SalidaBodegaDetalle();
+                        $table->id_salida_bodega = $id;
+                        $table->id_insumo = $intCodigo;
+                        $table->codigo_insumo = $insumo->codigo_insumo;
+                        $table->nombre_insumo = $insumo->descripcion;
+                        $table->cantidad_despachar = $bodega->unidades_vendidas;
+                        $table->insert(); 
+                    }
+                }
+                $this->Actualizar_unidades($id);
+                return $this->redirect(["salida-bodega/view", 'id' => $id, 'token' => $token]);
+            }else{
+                
+            }
+        return $this->render('_listado_insumos', [
+            'insumos' => $insumos,            
+            'id' => $id,
+            'form' => $form,
+            'token' => $token,
+            'pagination' => $pages,
+
+        ]);
+    }
+   
     
     //AUTORIZAR EL PROCESO
     public function actionAutorizado($id, $token) {
@@ -381,7 +457,7 @@ class SalidaBodegaController extends Controller
     //CERRA EL PROCESO DE SALIDA Y CREA CONSECUTIVO
     public function actionCerrar_despacho($id, $token) {
         $model = $this->findModel($id);
-        $producto = CostoProducto::findOne($model->id_producto);
+        $producto = \app\models\OrdenFabricacion::findOne($model->id_orden_fabricacion);
         $numero = \app\models\Consecutivo::findOne(16);
         $consecutivo = $numero->consecutivo + 1;
         //actualiza el model
@@ -392,7 +468,7 @@ class SalidaBodegaController extends Controller
         $numero->consecutivo = $consecutivo;
         $numero->save();
         //cierrar la referencia
-        $producto->entregado = 1;
+        $producto->salida_insumo = 1;
         $producto->save(false);
         return $this->redirect(['view', 'id' => $id,'token' => $token]);
     }
@@ -488,7 +564,7 @@ class SalidaBodegaController extends Controller
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->id_salida_bodega)
                     ->setCellValue('B' . $i, $val->codigo_producto)
-                    ->setCellValue('C' . $i, $val->producto->descripcion)
+                    ->setCellValue('C' . $i, $val->orden->referencia->referencia)
                     ->setCellValue('D' . $i, $val->unidades)
                     ->setCellValue('E' . $i, $val->fecha_salida)
                     ->setCellValue('F' . $i, $val->responsable)
@@ -579,7 +655,7 @@ class SalidaBodegaController extends Controller
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->salidaBodega->id_salida_bodega)
                     ->setCellValue('B' . $i, $val->salidaBodega->codigo_producto)
-                    ->setCellValue('C' . $i, $val->salidaBodega->producto->descripcion)
+                    ->setCellValue('C' . $i, $val->salidaBodega->orden->referencia->referencia)
                     ->setCellValue('D' . $i, $val->salidaBodega->unidades)
                     ->setCellValue('E' . $i, $val->salidaBodega->fecha_salida)
                     ->setCellValue('F' . $i, $val->salidaBodega->responsable)

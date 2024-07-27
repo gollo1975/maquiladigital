@@ -7,19 +7,20 @@ use Yii;
 /**
  * This is the model class for table "asignacion_producto_detalle".
  *
- * @property int $id_detalle
+ * @property int $id_detalle_asignacion
  * @property int $id_asignacion
- * @property int $id_producto_talla
- * @property int $id_producto
- * @property int $cantidad
+ * @property int $id_detalle
+ * @property int $codigo_producto
+ * @property string $referencia
+ * @property int $idtalla
  * @property int $valor_minuto
  * @property int $subtotal_producto
  * @property string $fecha_proceso
  * @property string $usuario
  *
  * @property AsignacionProducto $asignacion
- * @property ProductoTalla $productoTalla
- * @property CostoProducto $producto
+ * @property OrdenFabricacionTallas $detalle
+ * @property Talla $talla
  */
 class AsignacionProductoDetalle extends \yii\db\ActiveRecord
 {
@@ -37,12 +38,14 @@ class AsignacionProductoDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_asignacion', 'id_producto_talla', 'id_producto', 'cantidad', 'valor_minuto', 'subtotal_producto'], 'integer'],
+            [['id_asignacion', 'id_detalle', 'codigo_producto', 'idtalla', 'valor_minuto', 'subtotal_producto','cantidad'], 'integer'],
             [['fecha_proceso'], 'safe'],
+            [['tiempo_confeccion'], 'number'],
+            [['referencia'], 'string', 'max' => 40],
             [['usuario'], 'string', 'max' => 15],
             [['id_asignacion'], 'exist', 'skipOnError' => true, 'targetClass' => AsignacionProducto::className(), 'targetAttribute' => ['id_asignacion' => 'id_asignacion']],
-            [['id_producto_talla'], 'exist', 'skipOnError' => true, 'targetClass' => ProductoTalla::className(), 'targetAttribute' => ['id_producto_talla' => 'id_producto_talla']],
-            [['id_producto'], 'exist', 'skipOnError' => true, 'targetClass' => CostoProducto::className(), 'targetAttribute' => ['id_producto' => 'id_producto']],
+            [['id_detalle'], 'exist', 'skipOnError' => true, 'targetClass' => OrdenFabricacionTallas::className(), 'targetAttribute' => ['id_detalle' => 'id_detalle']],
+            [['idtalla'], 'exist', 'skipOnError' => true, 'targetClass' => Talla::className(), 'targetAttribute' => ['idtalla' => 'idtalla']],
         ];
     }
 
@@ -52,15 +55,18 @@ class AsignacionProductoDetalle extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id_detalle' => 'Id Detalle',
+            'id_detalle_asignacion' => 'Id Detalle Asignacion',
             'id_asignacion' => 'Id Asignacion',
-            'id_producto_talla' => 'Id Producto Talla',
-            'id_producto' => 'Id Producto',
-            'cantidad' => 'Cantidad',
+            'id_detalle' => 'Id Detalle',
+            'codigo_producto' => 'Codigo Producto',
+            'referencia' => 'Referencia',
+            'idtalla' => 'Idtalla',
             'valor_minuto' => 'Valor Minuto',
             'subtotal_producto' => 'Subtotal Producto',
             'fecha_proceso' => 'Fecha Proceso',
             'usuario' => 'Usuario',
+            'cantidad' => 'cantidad',
+            'tiempo_confeccion' => 'tiempo_confeccion', 
         ];
     }
 
@@ -75,16 +81,16 @@ class AsignacionProductoDetalle extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProductoTalla()
+    public function getDetalle()
     {
-        return $this->hasOne(ProductoTalla::className(), ['id_producto_talla' => 'id_producto_talla']);
+        return $this->hasOne(OrdenFabricacionTallas::className(), ['id_detalle' => 'id_detalle']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProducto()
+    public function getTalla()
     {
-        return $this->hasOne(CostoProducto::className(), ['id_producto' => 'id_producto']);
+        return $this->hasOne(Talla::className(), ['idtalla' => 'idtalla']);
     }
 }

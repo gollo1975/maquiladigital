@@ -64,6 +64,7 @@ class InsumosController extends Controller
                 $aplica_inventario = null;
                 $busqueda_vcto = null;
                 $nombre_proveedor = null;
+                $grupo = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $codigo = Html::encode($form->codigo);
@@ -75,6 +76,7 @@ class InsumosController extends Controller
                         $aplica_inventario = Html::encode($form->aplica_inventario);
                         $busqueda_vcto = Html::encode($form->busqueda_vcto);
                         $nombre_proveedor = Html::encode($form->nombre_proveedor);
+                        $grupo = Html::encode($form->grupo);
                         if ($busqueda_vcto == 0){
                             $table = Insumos::find()
                                     ->andFilterWhere(['=', 'codigo_insumo', $codigo])
@@ -84,7 +86,7 @@ class InsumosController extends Controller
                                     ->andFilterWhere(['=', 'idproveedor', $nombre_proveedor])
                                     ->andFilterWhere(['=', 'id_tipo_medida', $medida])
                                     ->andFilterWhere(['=', 'codigo_ean', $codigo_barra])
-                                    ->andFilterWhere(['=', 'aplica_inventario', $aplica_inventario]);
+                                    ->andFilterWhere(['=', 'id_grupo', $grupo]);
                         }else{
                             $table = Insumos::find()
                                     ->andFilterWhere(['=', 'codigo_insumo', $codigo])
@@ -94,14 +96,14 @@ class InsumosController extends Controller
                                     ->andFilterWhere(['=', 'idproveedor', $nombre_proveedor])
                                     ->andFilterWhere(['=', 'id_tipo_medida', $medida])
                                     ->andFilterWhere(['=', 'codigo_ean', $codigo_barra])
-                                    ->andFilterWhere(['=', 'aplica_inventario', $aplica_inventario]);
+                                    ->andFilterWhere(['=', 'id_grupo', $grupo]);
                         }    
                         $table = $table->orderBy('id_insumos DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 20,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
@@ -121,7 +123,7 @@ class InsumosController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 20,
+                        'pageSize' => 15,
                         'totalCount' => $count->count(),
                     ]);
                     $model = $table
@@ -209,6 +211,7 @@ class InsumosController extends Controller
                 $table->observacion = $model->observacion;
                 $table->codigo_ean = $model->codigo_insumo;
                 $table->inventario_inicial = $model->inventario_inicial;
+                $table->id_grupo = $model->id_grupo;
                 $table->save(false);
                 return $this->redirect(['index']);
             }    

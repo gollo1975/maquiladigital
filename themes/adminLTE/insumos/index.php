@@ -43,6 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 ]);
 
+$ConGrupo = ArrayHelper::map(app\models\GrupoInsumos::find()->orderBy ('id_grupo ASC')->all(), 'id_grupo', 'nombre_grupo');
 $medida = ArrayHelper::map(TipoMedida::find()->orderBy ('medida ASC')->all(), 'id_tipo_medida', 'medida');
 $provedor = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->all(), 'idproveedor', 'nombrecorto');
 ?>
@@ -84,7 +85,13 @@ $provedor = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->all(
                     'allowClear' => true
                 ],
             ]); ?>
-            <?= $formulario->field($form, 'aplica_inventario')->dropDownList(['0' => 'NO', '1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
+             <?= $formulario->field($form, 'grupo')->widget(Select2::classname(), [
+                'data' => $ConGrupo,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
             <?= $formulario->field($form, "codigo_barra")->input("search") ?>
         </div>
         <div class="row checkbox checkbox-success" align ="center">
@@ -121,7 +128,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Inventario inicial">Inv. inicial</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Stock</th>
-                <th scope="col" style='background-color:#B9D5CE;'>User name </th>
+                <th scope="col" style='background-color:#B9D5CE;'>Grupo </th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th score="col" style='background-color:#B9D5CE;'></th>                              
             </tr>
@@ -143,7 +150,7 @@ $form = ActiveForm::begin([
                 <?php }else{ ?>
                    <td style="text-align: right;"><?= ''.number_format($val->stock_real,0)?></td>
                 <?php }?>   
-                 <td><?= $val->usuariosistema?></td>
+                 <td><?= $val->grupo->nombre_grupo?></td>
                 <td style= 'width: 25px; height: 10px;'>
                     <a href="<?= Url::toRoute(["insumos/view", "id" => $val->id_insumos, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                 </td>

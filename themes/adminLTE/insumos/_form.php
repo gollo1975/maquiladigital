@@ -36,6 +36,7 @@ $form = ActiveForm::begin([
 $provedor = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->all(), 'idproveedor', 'nombrecorto');
 $medida = ArrayHelper::map(TipoMedida::find()->orderBy ('medida ASC')->all(), 'id_tipo_medida', 'medida');
 $porcentaje = ArrayHelper::map(Impuestos::find()->all(), 'id_impuesto', 'valor');
+$Grupo = ArrayHelper::map(app\models\GrupoInsumos::find()->all(), 'id_grupo', 'nombre_grupo');
 ?>
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -92,6 +93,13 @@ $porcentaje = ArrayHelper::map(Impuestos::find()->all(), 'id_impuesto', 'valor')
             ]); ?> 
         </div>   
          <div class="row">
+             <?= $form->field($model, 'id_grupo')->widget(Select2::classname(), [
+                'data' => $Grupo,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?> 
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>    
         <div class="panel-footer text-right">			

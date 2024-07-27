@@ -38,10 +38,10 @@ class Insumos extends \yii\db\ActiveRecord
     {
         return [
             [['codigo_insumo', 'descripcion', 'estado_insumo','id_tipo_medida','precio_unitario','fecha_entrada', 'aplica_iva', 'id_impuesto', 'stock_inicial',
-                'aplica_inventario','inventario_inicial','idproveedor'], 'required'],
+                'aplica_inventario','inventario_inicial','idproveedor','id_grupo'], 'required'],
             [['fecha_entrada','fecha_registro','fecha_vencimiento'], 'safe'],
             [['estado_insumo','stock_inicial','aplica_inventario','inventario_inicial','subtotal','total_iva','total_materia_prima','aplica_iva','id_impuesto','stock_real',
-                'id_tipo_medida','idproveedor'], 'integer'],
+                'id_tipo_medida','idproveedor','id_grupo'], 'integer'],
              [['precio_unitario','porcentaje_iva'], 'number'],
             [['codigo_insumo','codigo_ean'], 'string', 'max' => 15],
             [['descripcion'], 'string', 'max' => 60],
@@ -50,6 +50,7 @@ class Insumos extends \yii\db\ActiveRecord
             [['id_tipo_medida'], 'exist', 'skipOnError' => true, 'targetClass' => TipoMedida::className(), 'targetAttribute' => ['id_tipo_medida' => 'id_tipo_medida']],
             [['id_impuesto'], 'exist', 'skipOnError' => true, 'targetClass' => Impuestos::className(), 'targetAttribute' => ['id_impuesto' => 'id_impuesto']],
             [['idproveedor'], 'exist', 'skipOnError' => true, 'targetClass' => Proveedor::className(), 'targetAttribute' => ['idproveedor' => 'idproveedor']],
+            [['id_grupo'], 'exist', 'skipOnError' => true, 'targetClass' => GrupoInsumos::className(), 'targetAttribute' => ['id_grupo' => 'id_grupo']],
         ];
     }
 
@@ -76,6 +77,7 @@ class Insumos extends \yii\db\ActiveRecord
             'usuariosistema' => 'User name:',
             'observacion' => 'Observacion:',
             'idproveedor' => 'Proveedor:',
+            'id_grupo' => 'Grupo:',
             
         ];
     }
@@ -135,5 +137,10 @@ class Insumos extends \yii\db\ActiveRecord
     public function getImpuesto()
     {
         return $this->hasOne(Impuestos::className(), ['id_impuesto' => 'id_impuesto']);
+    }
+    
+      public function getGrupo()
+    {
+        return $this->hasOne(GrupoInsumos::className(), ['id_grupo' => 'id_grupo']);
     }
 }

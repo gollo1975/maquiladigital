@@ -78,7 +78,7 @@ class CostoProductoController extends Controller
                                 ->andFilterWhere(['>=', 'fecha_creacion', $fecha_creacion])   
                                 ->andFilterWhere(['like','descripcion', $descripcion])
                                 ->andFilterWhere(['=', 'asignado', $asignado]);
-                       $table = $table->orderBy('id_producto DESC');
+                        $table = $table->orderBy('id_producto DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();

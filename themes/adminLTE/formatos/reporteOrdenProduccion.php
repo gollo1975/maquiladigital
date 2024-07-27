@@ -134,7 +134,7 @@ class PDF extends FPDF {
     function EncabezadoDetalles() {
         $this->Ln(2);
         $this->SetXY(15, 72); //FILA 4
-        $header = array('CODIGO', utf8_decode('PRODUCTO'), utf8_decode('UNIDADES'),'VR. MINUTO', 'SUBTOTAL');
+        $header = array('CODIGO', utf8_decode('PRODUCTO'), utf8_decode('UNIDADES'),'VR. UNIDAD', 'SUBTOTAL');
         $this->SetFillColor(200, 200, 200);
         $this->SetTextColor(0);
         $this->SetDrawColor(0, 0, 0);
@@ -164,8 +164,8 @@ class PDF extends FPDF {
         foreach ($detalles as $detalle) {
             $i = $i + 1;
             $pdf->Cell(5, 5);
-            $pdf->Cell(36, 5, $detalle->producto->codigo_producto, 0, 0, 'L');
-            $pdf->Cell(93, 5, $detalle->producto->descripcion .' / '. $detalle->productoTalla->talla->talla, 0, 0, 'L');
+            $pdf->Cell(36, 5, $detalle->codigo_producto, 0, 0, 'L');
+            $pdf->Cell(93, 5, $detalle->referencia .' / '. $detalle->talla->talla, 0, 0, 'L');
             $pdf->Cell(40, 5, number_format($detalle->cantidad, 0, '.', ','), 0, 0, 'R');
             $pdf->Cell(40, 5, '$ '.number_format($detalle->valor_minuto, 0, '.', ','), 0, 0, 'R');
             $pdf->Cell(40, 5, '$ '. number_format($detalle->subtotal_producto, 0, '.', ','), 0, 0, 'R');

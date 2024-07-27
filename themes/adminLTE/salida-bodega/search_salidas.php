@@ -56,9 +56,9 @@ $tipo_producto = ArrayHelper::map(TipoProducto::find()->orderBy ('concepto ASC')
     <div class="panel-body" id="filtro" style="display:block">
         <div class="row" >
              <?= $formulario->field($form, "codigo_producto")->input("search") ?>
-           <?= $formulario->field($form, 'referencia')->widget(Select2::classname(), [
-                'data' => $ConReferencia,
-                'options' => ['prompt' => 'Seleccione la referencia ...'],
+           <?= $formulario->field($form, 'cliente')->widget(Select2::classname(), [
+                'data' => $conCliente,
+                'options' => ['prompt' => 'Seleccione ...'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],
@@ -104,6 +104,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Numero</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
+                  <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                  <th scope="col" style='background-color:#B9D5CE;'>Total insumo</th> 
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha salida</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Responsable</th>
@@ -121,7 +122,8 @@ $form = ActiveForm::begin([
                     <tr style ='font-size: 85%;'>                
                         <td><?= $val->numero_salida?></td>
                         <td><?= $val->codigo_producto?></td>
-                        <td><?= $val->producto->descripcion?></td>
+                        <td><?= $val->orden->referencia->referencia?></td>
+                         <td><?= $val->cliente->nombrecorto?></td>
                         <td style="text-align: right"><?= ''.number_format($val->unidades,0)?></td>
                         <td><?= $val->fecha_salida?></td>
                          <td><?= $val->responsable?></td>

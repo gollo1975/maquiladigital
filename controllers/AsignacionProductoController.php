@@ -139,8 +139,8 @@ class AsignacionProductoController extends Controller
      */
     public function actionView($id, $token)
     {
-        $mensaje='';
-        $detalle_orden = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->orderBy('id_producto_talla desc')->all();
+        
+        $detalle_orden = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->orderBy('idtalla desc')->all();
          if (Yii::$app->request->post()) {
             if (isset($_POST["eliminardetalle"])) {
                 if (isset($_POST["detalle"])) {
@@ -168,7 +168,6 @@ class AsignacionProductoController extends Controller
             return $this->render('view', [
                 'model' => $this->findModel($id),
                 'detalle_orden' => $detalle_orden,
-                'mensaje' => $mensaje,
                 'token' => $token,
             ]);
         }else{
@@ -230,39 +229,32 @@ class AsignacionProductoController extends Controller
     
        public function actionBuscarproducto($id, $token)
        {
-      $productos = CostoProducto::find()->where(['=','asignado', 0])->andWhere(['=','autorizado', 1])->orderBy('descripcion ASC')->all();
-         
+      $productos = \app\models\OrdenFabricacion::find()->where(['=','asignado_taller', 0])->orderBy('fecha_fabricacion ASC')->all();
        if (Yii::$app->request->post()) {  
             if (isset($_POST["productoasignado"])) { 
-                $intIndice = 0;
-                foreach ($_POST["id_producto"] as $intCodigo):
-                    $tallas = \app\models\ProductoTalla::find()->where(['=','id_producto', $intCodigo])->all();
-                   $costo= CostoProducto::findOne($intCodigo);
-                   $asignacion = AsignacionProducto::findOne($id);
+                $asignacion = AsignacionProducto::findOne($id);
+                $empresa = \app\models\Matriculaempresa::findOne(1);
+                foreach ($_POST["id_orden"] as $intCodigo):
+                    $tallas = \app\models\OrdenFabricacionTallas::find()->where(['=','id_orden_fabricacion', $intCodigo])->all();
                     if($tallas){
-                        $valor = 0;
-                        $empresa = \app\models\Matriculaempresa::findOne(1);
-                        foreach ($tallas as $talla):
+                        foreach ($tallas as $talla){
                             $table = new \app\models\AsignacionProductoDetalle();
                             $table->id_asignacion = $id;
-                            $table->id_producto_talla = $talla->id_producto_talla;
-                            $table->id_producto = $intCodigo;
-                            $table->cantidad = $talla->cantidad;
+                            $table->id_detalle = $talla->id_detalle;
+                            $table->codigo_producto = $talla->ordenFabricacion->codigo_producto;
+                            $table->referencia = $talla->ordenFabricacion->referencia->referencia;
+                            $table->idtalla= $talla->idtalla;
+                            $table->cantidad= $talla->cantidad_vendida;
                             if($asignacion->idtipo == 1){
                                 $table->valor_minuto = $empresa->valor_minuto_confeccion;
-                                $valor = round($costo->tiempo_confeccion * $table->valor_minuto);
-                                $table->subtotal_producto = round($valor * $table->cantidad);
                             }else{
                                 $table->valor_minuto = $empresa->valor_minuto_terminacion;
-                                $valor = round($costo->tiempo_terminacion * $table->valor_minuto);
-                                $table->subtotal_producto = round($valor * $table->cantidad);
                             }
                             $table->fecha_proceso = date('Y-m-d');
                             $table->usuario = Yii::$app->user->identity->username;
                             $table->insert();
-                        endforeach;    
-                    }    
-                    $intIndice ++;
+                        }    
+                    }  
                 endforeach;
                 $this->ActualizarCantidades($id);
                return $this->redirect(['index']);
@@ -273,13 +265,14 @@ class AsignacionProductoController extends Controller
             return $this->renderAjax('_crearasignacionproducto', [
                  'id' => $id,
                  'productos' => $productos,
-                  'token' => $token,
+                 'token' => $token,
              ]); 
         }else{
-           Yii::$app->getSession()->setFlash('success', 'A este proveedor ya se le asigno una referencia y esta en proceso.'); 
+           Yii::$app->getSession()->setFlash('info', 'La seleccion .'); 
             return $this->redirect(['index']);
         }    
     }
+    //actualiza cantidades
     protected function ActualizarCantidades($id) {
         $asignacion = AsignacionProducto::findOne($id);
         $detalles = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->all();
@@ -314,7 +307,7 @@ class AsignacionProductoController extends Controller
     }
     
     //CIERRE EL PROCESO DE LA OP
-    public function actionGenerardocumento($id, $id_producto, $token)
+    public function actionGenerardocumento($id, $id_orden, $token)
      {
         $model = $this->findModel($id);
         if ($model->autorizado == 1){            
@@ -324,9 +317,9 @@ class AsignacionProductoController extends Controller
                 $model->orden_produccion = $consecutivo->consecutivo;
                 $model->update();
                 $consecutivo->update();                
-                $costo = CostoProducto::find()->where(['=','id_producto', $id_producto])->one();
-                $costo->asignado = 1;
-                $costo->update();
+                $orden = \app\models\OrdenFabricacion::find()->where(['=','id_orden_fabricacion', $id_orden])->one();
+                $orden->asignado_taller = 1;
+                $orden->update();
                 $this->redirect(["asignacion-producto/view",'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Ya se genero el documento al proveedor.');
@@ -357,6 +350,7 @@ class AsignacionProductoController extends Controller
             $cant = 0;
             foreach ($_POST["id_detalle"] as $intCodigo) {
                $table = AsignacionProductoDetalle::findOne($intCodigo);
+                $table->tiempo_confeccion = $_POST["sam"][$intIndice];
                $table->cantidad = $_POST["cantidad"][$intIndice];
                $table->save(false);
                $this->ActualizarNuevaCantidad($id);
@@ -375,9 +369,10 @@ class AsignacionProductoController extends Controller
         
         $detalle = AsignacionProductoDetalle::find()->where(['=','id_asignacion', $id])->all();
         $asignacion = AsignacionProducto::findOne($id);
-        $total = 0; $granTotal = 0; $unidades = 0;
+        $total = 0; $granTotal = 0; $unidades = 0; $valor_prenda = 0; 
         foreach ($detalle as $valor):
-            $total = round($valor->cantidad * $valor->valor_minuto);
+            $valor_prenda = round($valor->tiempo_confeccion * $valor->valor_minuto);
+            $total = round($valor->cantidad * $valor_prenda);
             $valor->subtotal_producto = $total; 
             $valor->update();
             $granTotal += $total;
@@ -472,8 +467,8 @@ class AsignacionProductoController extends Controller
                 ->setCellValue('H' . $i, $val->asignacion->total_orden)
                 ->setCellValue('I' . $i, $val->asignacion->usuario_editado)
                 ->setCellValue('J' . $i, $val->asignacion->observacion)
-                ->setCellValue('K' . $i, $val->producto->descripcion)
-                ->setCellValue('L' . $i, $val->productoTalla->talla->talla)
+                ->setCellValue('K' . $i, $val->referencia)
+                ->setCellValue('L' . $i, $val->talla->talla)
                 ->setCellValue('M' . $i, $val->cantidad)
                 ->setCellValue('N' . $i, $val->subtotal_producto);
                 $i++;

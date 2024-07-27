@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\SalidaBodega */
 
-$this->title = 'Actualizar referencia: ' . $model->codigo_producto;
+$this->title = 'Actualizar orden: ' . $model->orden->numero_orden;
 $this->params['breadcrumbs'][] = ['label' => 'Salida Bodegas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id_salida_bodega, 'url' => ['index']];
 $this->params['breadcrumbs'][] = 'Actualizar';
@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = 'Actualizar';
 
     <?= $this->render('_form', [
         'model' => $model,
-        'ConReferencia' => $ConReferencia,
+        'Consulta' => $Consulta,
     ]) ?>
 
 </div>

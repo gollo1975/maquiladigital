@@ -45,13 +45,14 @@ class SalidaBodega extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_producto', 'fecha_salida', 'responsable'], 'required'],
-            [['id_producto', 'unidades', 'autorizado', 'proceso_cerrado','numero_salida','exportar_inventario'], 'integer'],
+            [['id_orden_fabricacion', 'fecha_salida', 'responsable'], 'required'],
+            [['idcliente', 'unidades', 'autorizado', 'proceso_cerrado','numero_salida','exportar_inventario','unidades_vendidas'], 'integer'],
             [['fecha_salida'], 'safe'],
             [['codigo_producto', 'user_name'], 'string', 'max' => 15],
             [['responsable'], 'string', 'max' => 40],
             [['observacion'],'string' ,'max' => 100],
-            [['id_producto'], 'exist', 'skipOnError' => true, 'targetClass' => CostoProducto::className(), 'targetAttribute' => ['id_producto' => 'id_producto']],
+            [['id_orden_fabricacion'], 'exist', 'skipOnError' => true, 'targetClass' => OrdenFabricacion::className(), 'targetAttribute' => ['id_orden_fabricacion' => 'id_orden_fabricacion']],
+            [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
         ];
     }
 
@@ -62,7 +63,7 @@ class SalidaBodega extends \yii\db\ActiveRecord
     {
         return [
             'id_salida_bodega' => 'iD',
-            'id_producto' => 'Referencia:',
+            'id_orden_fabricacion' => 'Orden fabricacion:',
             'codigo_producto' => 'Codigo Producto',
             'unidades' => 'Unidades',
             'fecha_salida' => 'Fecha salida:',
@@ -73,15 +74,25 @@ class SalidaBodega extends \yii\db\ActiveRecord
             'numero_salida' => 'Numero salida:',
             'exportar_inventario' => 'Exportado:',
             'observacion' => 'Nota:',
+            'idcliente' => 'Nombre del cliente:',
+            'unidades_vendidas' => 'Unidades vendidas:',
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProducto()
+    public function getOrden()
     {
-        return $this->hasOne(CostoProducto::className(), ['id_producto' => 'id_producto']);
+        return $this->hasOne(OrdenFabricacion::className(), ['id_orden_fabricacion' => 'id_orden_fabricacion']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCliente()
+    {
+        return $this->hasOne(Cliente::className(), ['idcliente' => 'idcliente']);
     }
 
     /**

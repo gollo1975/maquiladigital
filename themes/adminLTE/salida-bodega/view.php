@@ -31,11 +31,11 @@ $view = 'salida-bodega';
                 if ($model->autorizado == 1 && $model->numero_salida == 0){
                     echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_salida_bodega, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
                     echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar salida', ['cerrar_despacho', 'id' => $model->id_salida_bodega, 'token' => $token],['class' => 'btn btn-warning btn-sm',
-                               'data' => ['confirm' => 'Esta seguro de CERRAR y CREAR el consecutivo a la salida de insumos de la referencia ('.$model->producto->descripcion.')', 'method' => 'post']]);
+                               'data' => ['confirm' => 'Esta seguro de CERRAR y CREAR el consecutivo a la salida de insumos de la referencia ('.$model->orden->referencia->referencia.')', 'method' => 'post']]);
                 }else{ 
                     if($model->exportar_inventario == 0){
                         echo Html::a('<span class="glyphicon glyphicon-import"></span> Descargar inventario', ['enviar_inventario', 'id' => $model->id_salida_bodega, 'token' => $token],['class' => 'btn btn-success btn-sm',
-                             'data' => ['confirm' => 'Esta seguro de ENVIAR este inventario de la referencia ('.$model->producto->descripcion.') para ser descargado del modulo de insumos', 'method' => 'post']]);
+                             'data' => ['confirm' => 'Esta seguro de ENVIAR este inventario de la referencia ('.$model->orden->referencia->referencia.') para ser descargado del modulo de insumos', 'method' => 'post']]);
                     }else{
                        echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir_salida', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-default btn-sm']);            
                        echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 20, 'codigo' => $model->id_salida_bodega,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                              
@@ -59,9 +59,9 @@ $view = 'salida-bodega';
                     <td><?= Html::encode($model->numero_salida) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo_producto') ?>:</th>
                     <td><?= Html::encode($model->codigo_producto) ?></td>
-                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Descripcion') ?>:</th>
-                    <td><?= Html::encode($model->producto->descripcion) ?> (Cant. lote: <?= Html::encode($model->producto->cantidad) ?>) Uniades</td>
-                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'unidades') ?>:</th>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Referencia') ?>:</th>
+                    <td><?= Html::encode($model->orden->referencia->referencia) ?> (Cant. lote: <?= Html::encode($model->orden->cantidades) ?>) Unidades</td>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Total_insumos') ?>:</th>
                     <td align="right"><?= Html::encode(''.number_format($model->unidades,0)) ?></td>
                    
                 </tr>
@@ -115,23 +115,35 @@ $view = 'salida-bodega';
                                             <td><?= $val->codigo_insumo ?></td>
                                             <td><?= $val->insumo->descripcion ?></td>
                                             <td><?= $val->insumo->tipomedida->medida?></td>
-                                            <td style="padding-right:1;padding-right: 1; text-align: right"><input type="text" name="cantidad_despachar[]" value="<?= $val->cantidad_despachar ?>"  style='text-align: right'  size="10" required = true></td>
-                                            <td style="padding-left: 1;padding-right: 1;"><input type="text" name="observacion[]" value="<?= $val->nota ?>" size="70" maxlength="60" ></td>
-                                             <input type="hidden" name="materia_prima[]" value="<?= $val->id?>">  
+                                            <?php if($model->autorizado == 0){?>
+                                                <td style="padding-right:1;padding-right: 1; text-align: right"><input type="text" name="cantidad_despachar[]" value="<?= $val->cantidad_despachar ?>"  style='text-align: right'  size="10" required = true></td>
+                                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="observacion[]" value="<?= $val->nota ?>" size="70" maxlength="60" ></td>
+                                            <?php }else{?>
+                                                <td style="text-align: right" ><?= ''.number_format($val->cantidad_despachar,0) ?></td>
+                                                <td style="width: 350px;"><?= $val->nota ?></td>
+                                            <?php }?> 
+                                            <input type="hidden" name="materia_prima[]" value="<?= $val->id?>"> 
                                             <td style="width: 30px;"><input type="checkbox" name="listado_eliminar[]" value="<?= $val->id ?>"></td>
-                                            
                                        </tr>  
                                     <?php endforeach;?>   
                                 </<body>
                             </table>
                         </div>
-                        <?php if($model->autorizado == 0){?>
-                            <div class="panel-footer text-right"> 
-                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Cargar insumo', ['salida-bodega/cargar_insumos', 'id' => $model->id_salida_bodega, 'token' => $token,'id_producto' => $model->id_producto], ['class' => 'btn btn-success btn-sm']) ?>
-                                <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizar_inventario']) ?>
-                                <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminar_todo']) ?>
-                            </div> 
-                        <?php }else{?>
+                        <?php
+                        if($model->autorizado == 0){
+                            if(count($listado_insumos) == null){?>
+                                <div class="panel-footer text-right"> 
+                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Cargar insumo', ['salida-bodega/cargar_nuevo_insumo', 'id' => $model->id_salida_bodega, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                </div> 
+                            <?php
+                            }else{?>
+                                <div class="panel-footer text-right"> 
+                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Cargar insumo', ['salida-bodega/cargar_nuevo_insumo', 'id' => $model->id_salida_bodega, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                    <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizar_inventario']) ?>
+                                    <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminar_todo']) ?>
+                                </div>     
+                            <?php }
+                        } else {?>
                               <div class="panel-footer text-right"> 
                                 <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar a excel', ['salida-bodega/exportar_detalle', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-primary btn-sm']) ?>
                               </div>    

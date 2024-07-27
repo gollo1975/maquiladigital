@@ -10,15 +10,17 @@ use yii\base\Model;
  */
 class FormFiltroSalidaBodega extends Model
 {        
-    public $referencia;
+    public $orden_fabricacion;
+    public $cliente;
     public $codigo_producto;
     public $fecha_inicio;
     public $fecha_corte;
+    public $numero;
 
     public function rules()
     {
         return [            
-            [['referencia'], 'integer'],
+            [['orden_fabricacion','cliente','numero'], 'integer'],
             [['fecha_inicio','fecha_corte'], 'safe'],
             [['codigo_producto'], 'string'],
         ];
@@ -27,10 +29,12 @@ class FormFiltroSalidaBodega extends Model
     public function attributeLabels()
     {
         return [                        
-            'referencia' => 'Referencia:',                      
-            'codigo_producto' => 'Codigo:',
+            'orden_fabricacion' => 'Orden fabricacion:',                      
+            'codigo_producto' => 'Codigo de referencia:',
             'fecha_inicio' => 'Fecha inicio:',
             'fecha_corte' => 'Fecha corte:',
+            'cliente' => 'Nombre del cliente:',
+            'numero' => 'Numero de salida:',
         ];
     }
     

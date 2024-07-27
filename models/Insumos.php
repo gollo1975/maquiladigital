@@ -139,6 +139,7 @@ class Insumos extends \yii\db\ActiveRecord
         return $this->hasOne(Impuestos::className(), ['id_impuesto' => 'id_impuesto']);
     }
     
+    //procso que une al grupo
       public function getGrupo()
     {
         return $this->hasOne(GrupoInsumos::className(), ['id_grupo' => 'id_grupo']);

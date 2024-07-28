@@ -215,7 +215,8 @@ class SalidaBodegaController extends Controller
     public function actionView($id, $token)
     {
         $listado_insumos = \app\models\SalidaBodegaDetalle::find()->where(['=','id_salida_bodega', $id])->all();
-        //PROCESO QUE ELIMA LOS REGISTROS
+        $listado_operaciones = \app\models\SalidaBodegaOperaciones::find()->where(['=','id_salida_bodega', $id])->all();
+        //PROCESO QUE ELIMINA LOS REGISTROS DE INSUMOS
         if (Yii::$app->request->post()) {
           if (isset($_POST["eliminar_todo"])) {
               if (isset($_POST["listado_eliminar"])) {
@@ -240,27 +241,71 @@ class SalidaBodegaController extends Controller
            }
         }    
         
+        //PROCESO QUE ELIMINA LOS REGISTROS DE OPERACIONES
+        if (Yii::$app->request->post()) {
+          if (isset($_POST["eliminar_operacion"])) {
+              if (isset($_POST["listado_operaciones"])) {
+                  foreach ($_POST["listado_operaciones"] as $intCodigo) {
+                      try {
+                          $eliminar = \app\models\SalidaBodegaOperaciones::findOne($intCodigo);
+                          $eliminar->delete();
+                          Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
+                          $this->ContadorConfeccionTerminacion($id);
+                          $this->redirect(["salida-bodega/view", 'id' => $id, 'token' => $token]);
+                      } catch (IntegrityException $e) {
+
+                          Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+                      } catch (\Exception $e) {
+                          Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+
+                      }
+                  }
+              } else {
+                  Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro.');
+              }    
+           }
+        }    
+        
         //PROCESO QUE ACTUALIZAR EL INVENTARIO
         if(isset($_POST["actualizar_inventario"])){
            if(isset($_POST["materia_prima"])){
                 $intIndice = 0;
-                $cantidad = 0;
+                $cantidad = 0; $subtotal = 0; $iva = 0; $total = 0;
                 foreach ($_POST["materia_prima"] as $intCodigo):
                     //buscamos la existencia del insumo
                     $buscar = \app\models\SalidaBodegaDetalle::findOne($intCodigo);
                     $insumo = \app\models\Insumos::findOne($buscar->id_insumo); 
                     //validamos la existencia;
                     $cantidad = $_POST["cantidad_despachar"]["$intIndice"];
-                    if($cantidad <= $insumo->stock_real){
+                    $subtotal = round($insumo->precio_unitario * $cantidad);
+                    if($insumo->aplica_iva == 0){
+                        $iva = 0;
+                    }else{
+                        $iva = round(($subtotal * $insumo->porcentaje_iva)/100);
+                    }
+                    $total = $subtotal + $iva;
+                    if($insumo->aplica_inventario == 1){
+                        if($cantidad <= $insumo->stock_real){
+                            $buscar->cantidad_despachar = $_POST["cantidad_despachar"]["$intIndice"];
+                            $buscar->nota = $_POST["observacion"]["$intIndice"];
+                            $buscar->subtotal = $subtotal;
+                            $buscar->iva = $iva;
+                            $buscar->total_linea = $total;
+                            $buscar->save (false);
+                            $intIndice++;
+                        }else{
+                            Yii::$app->getSession()->setFlash('warning', 'No hay existencia del insumo ('.$insumo->descripcion.')');
+                            $intIndice++;  
+                        }
+                    }else{
                         $buscar->cantidad_despachar = $_POST["cantidad_despachar"]["$intIndice"];
                         $buscar->nota = $_POST["observacion"]["$intIndice"];
+                        $buscar->iva = $iva;
+                        $buscar->total_linea = $total;
+                        $buscar->save (false);
                         $buscar->save (false);
                         $intIndice++;
-                    }else{
-                        Yii::$app->getSession()->setFlash('warning', 'No hay existencia del insumo ('.$insumo->descripcion.')');
-                        $intIndice++;  
-                    }
-                   
+                    }    
                endforeach;
                $this->Actualizar_unidades($id);
               return $this->redirect(['view','id' =>$id, 'token' => $token]);
@@ -272,6 +317,7 @@ class SalidaBodegaController extends Controller
             'model' => $this->findModel($id),
             'token' => $token,
             'listado_insumos' => $listado_insumos,
+            'listado_operaciones' => $listado_operaciones,
         ]);
     }
     //PROCESO QUE ACTUALIZAR LAS UNIDADES
@@ -417,6 +463,7 @@ class SalidaBodegaController extends Controller
                         $table->codigo_insumo = $insumo->codigo_insumo;
                         $table->nombre_insumo = $insumo->descripcion;
                         $table->cantidad_despachar = $bodega->unidades_vendidas;
+                        $table->valor_unitario = $insumo->precio_unitario;
                         $table->insert(); 
                     }
                 }
@@ -435,6 +482,142 @@ class SalidaBodegaController extends Controller
         ]);
     }
    
+    //CREAR OPERACIONES AL PRODUCTO
+     public function actionCargar_operaciones($id, $token)
+    {
+        $operacion = \app\models\ProcesoProduccion::find()->where(['=','estado', 0])->orderBy('proceso asc')->all();
+        $form = new \app\models\FormMaquinaBuscar();
+        $q = null;
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $q = Html::encode($form->q);                                
+                    $operacion = \app\models\ProcesoProduccion::find()
+                            ->where(['like','proceso',$q])
+                            ->orwhere(['=','idproceso',$q]);
+                    $operacion = $operacion->orderBy('proceso asc');                    
+                    $count = clone $operacion;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => $count->count()
+                    ]);
+                    $operacion = $operacion
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();         
+                           
+            } else {
+                $form->getErrors();
+            }                    
+        }else{
+            $operacion = \app\models\ProcesoProduccion::find()->where(['=','estado', 0])->orderBy('proceso asc');
+            $count = clone $operacion;
+            $pages = new Pagination([
+                'pageSize' => 20,
+                'totalCount' => $count->count(),
+            ]);
+            $operacion = $operacion
+                    ->offset($pages->offset)
+                    ->limit($pages->limit)
+                    ->all();
+        }
+         if (isset($_POST["guardar_operacion"])) {
+            if(isset($_POST["idproceso"])){
+                $intIndice = 0;
+                foreach ($_POST["idproceso"] as $intCodigo) {
+                   $listado = \app\models\SalidaBodegaOperaciones::find()
+                            ->where(['=', 'idproceso', $intCodigo])
+                            ->andWhere(['=', 'id_salida_bodega', $id])
+                            ->all();
+                    $reg = count($listado);
+                    if ($reg == 0) {
+                        $segundo = 0;
+                        $minutos = 0;
+                        if($_POST["id_tipo"][$intIndice] > 0){
+                            $table = new \app\models\SalidaBodegaOperaciones();
+                            $table->idproceso = $intCodigo;
+                            $table->id_salida_bodega = $id;
+                            $segundo = $_POST["segundos"][$intIndice];
+                            $minutos = $_POST["minutos"][$intIndice];
+                            if($segundo == 0){
+                               $table->minutos = $minutos;
+                               $table->segundos = $table->minutos * 60;
+                            }else{
+                                $table->segundos = $segundo;
+                                $table->minutos = number_format($segundo / 60, 2);
+                            }   
+                            $table->idtipo = 1;
+                            $table->fecha_creacion = date('Y-m-d');
+                            $table->user_name = Yii::$app->user->identity->username;
+                            $table->id_tipo = $_POST["id_tipo"][$intIndice];
+                            $table->save(false);
+                        }   
+                    }
+                    $intIndice++;
+                }
+                $this->ContadorConfeccionTerminacion($id);
+            }
+        }
+        return $this->render('crear_operaciones_salida', [
+            'operacion' => $operacion,            
+            'pagination' => $pages,
+            'id' => $id,
+            'form' => $form,
+            'token' => $token,
+
+        ]);
+    }
+    
+     //EDITAR LAS OPERACIONES PARA CAMBIAR SI EN CONFECCION O TERMINACION
+     public function actionEditar_operaciones($id, $token) {
+        $mds = \app\models\SalidaBodegaOperaciones::find()->where(['=', 'id_salida_bodega', $id])->orderBy('idtipo, idproceso desc ')->all();
+        $error = 0;
+      
+        if (isset($_POST["id_operacion"])) {
+            $intIndice = 0;
+            $aux= 0; $nuevo_minuto = 0;
+            foreach ($_POST["id_operacion"] as $intCodigo) {
+                $table = \app\models\SalidaBodegaOperaciones::findOne($intCodigo);
+                $table->segundos = $_POST["segundos"][$intIndice];
+                $aux = $table->segundos;
+                $nuevo_minuto = number_format($aux/60,2);
+                $table->minutos = $nuevo_minuto;
+                $table->idtipo = $_POST["proceso"][$intIndice];
+                $table->id_tipo = $_POST["id_tipo"][$intIndice];
+                $table->save(false);                    
+                $intIndice++;
+            }
+            $this->ContadorConfeccionTerminacion($id);
+            $mds = \app\models\SalidaBodegaOperaciones::find()->where(['=', 'id_salida_bodega', $id])->orderBy('idtipo, idproceso desc ')->all();
+           $this->redirect(["salida-bodega/view", 'id' => $id,'mds' =>$mds, 'token' => $token]);            
+        }
+        return $this->render('_formeditar_operaciones', [
+                    'mds' => $mds,
+                    'id' => $id,
+                    'token' => $token,
+        ]);
+    }
+    
+     //PROCESO QUE CUENTA el TIEMPO DE CONFECCION Y TERMINACION
+    
+    protected function ContadorConfeccionTerminacion($id) {
+        $producto = SalidaBodega::findOne($id);
+        $operacion = \app\models\SalidaBodegaOperaciones::find()->where(['=','id_salida_bodega', $id])->all();
+        $confeccion = 0; $terminacion = 0; 
+        $config = \app\models\Matriculaempresa::findOne(1);
+        foreach ($operacion as $operaciones):
+            if($operaciones->idtipo == 1){
+                $confeccion += $operaciones->minutos;
+            }else{
+                $terminacion += $operaciones->minutos;
+            }
+            $producto->tiempo_confeccion = $confeccion;
+            $producto->tiempo_terminacion = $terminacion;
+            $producto->costo_confeccion = $confeccion * $config->valor_minuto_confeccion;
+            $producto->costo_terminacion = $terminacion * $config->valor_minuto_terminacion;
+            $producto->save(false);
+        endforeach;
+    }
     
     //AUTORIZAR EL PROCESO
     public function actionAutorizado($id, $token) {
@@ -470,7 +653,22 @@ class SalidaBodegaController extends Controller
         //cierrar la referencia
         $producto->salida_insumo = 1;
         $producto->save(false);
-        return $this->redirect(['view', 'id' => $id,'token' => $token]);
+        $this->CalcularCostoInsumo($id);
+       return $this->redirect(['view', 'id' => $id,'token' => $token]);
+    }
+    
+    //PROCESO QUE CANCULA EL COSTO DEL INSUMOS
+    protected function CalcularCostoInsumo($id) {
+        $model = SalidaBodega::findOne($id);
+        $salidas = SalidaBodegaDetalle::find()->where(['=','id_salida_bodega', $id])->all();
+        $total = 0;
+        $referencia = $model->orden->codigo_producto;
+        foreach ($salidas as $salida):
+                $total += $salida->total_linea;
+        endforeach;
+        $model->costo_insumos = $total ;
+        $model->costo_total = $model->costo_insumos + $model->costo_terminacion + $model->costo_confeccion + $model->otros_costos;
+        $model->save();
     }
 
     //ENVIA EL INVENTARIO PARA SER DESCARGADO DEL  MODULO DE INSUMOS
@@ -496,9 +694,16 @@ class SalidaBodegaController extends Controller
     
     //informes
        //IMPRIME LA REMISION DE SEGUNDAS
-     public function actionImprimir_salida($id) {
+     public function actionImprimir_insumos($id) {
 
         return $this->render('../formatos/reporte_salida_insumos', [
+            'model' => SalidaBodega::findOne($id),
+        ]);
+    }
+    
+     public function actionImprimir_operaciones($id) {
+
+        return $this->render('../formatos/costoProductOperaciones', [
             'model' => SalidaBodega::findOne($id),
         ]);
     }

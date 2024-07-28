@@ -108,8 +108,9 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Vendidas</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Orden fabricacion</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Total insumo</th> 
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha salida</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Cant. insumo</th> 
+                <th scope="col" style='background-color:#B9D5CE;'>Costo insumo</th> 
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Costo Autorizado">Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Proceso cerrado">Cerr.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -128,8 +129,9 @@ $form = ActiveForm::begin([
                         <td><?= $val->cliente->nombrecorto?></td>
                         <td style="text-align: right"><?= ''.number_format($val->unidades_vendidas,0)?></td>
                         <td><?= $val->orden->numero_orden?></td>
+                         <td><?= $val->fecha_salida?></td>
                         <td style="text-align: right"><?= ''.number_format($val->unidades,0)?></td>
-                        <td><?= $val->fecha_salida?></td>
+                         <td style="text-align: right"><?= ''.number_format($val->costo_insumos,0)?></td>
                         <td><?= $val->autorizadoSalida?></td>
                         <td><?= $val->cerradoSalida?></td>
                         <td style="width: 25px;">				

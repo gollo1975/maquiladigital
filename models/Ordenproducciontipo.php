@@ -42,6 +42,7 @@ class Ordenproducciontipo extends \yii\db\ActiveRecord
             [['activo'], 'integer'],
             [['remision','ver_registro'], 'integer'],
             [['tipo'], 'string', 'max' => 50],
+            [['color'], 'string', 'max' => 15],
         ];
     }
 
@@ -56,6 +57,7 @@ class Ordenproducciontipo extends \yii\db\ActiveRecord
             'activo' => 'Activo',
             'ver_registro' => 'Ver registro',
             'remision' => 'Requiere Remisión',
+            'color' => 'color',
         ];
     }
 

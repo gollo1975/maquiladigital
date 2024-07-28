@@ -67,7 +67,7 @@ class PDF extends FPDF {
         $this->Cell(30, 7, utf8_decode('N°. ' . str_pad($salida->numero_salida, 5, "0", STR_PAD_LEFT)), 0, 0, 'l', 0);
            // $this->SetFillColor(200, 200, 200);
         //ORDEN PRODUCCION
-         $this->SetXY(10, 48);
+        $this->SetXY(10, 48);
         $this->SetFont('Arial', 'B', 7);
         $this->Cell(25, 5, utf8_decode("CODIGO:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);

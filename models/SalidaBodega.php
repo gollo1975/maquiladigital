@@ -46,8 +46,10 @@ class SalidaBodega extends \yii\db\ActiveRecord
     {
         return [
             [['id_orden_fabricacion', 'fecha_salida', 'responsable'], 'required'],
-            [['idcliente', 'unidades', 'autorizado', 'proceso_cerrado','numero_salida','exportar_inventario','unidades_vendidas'], 'integer'],
+            [['idcliente', 'unidades', 'autorizado', 'proceso_cerrado','numero_salida','exportar_inventario','unidades_vendidas','costo_insumos','costo_confeccion',
+                'costo_terminacion','otros_costos', 'costo_total'], 'integer'],
             [['fecha_salida'], 'safe'],
+            [['tiempo_confeccion','tiempo_terminacion'], 'number'],
             [['codigo_producto', 'user_name'], 'string', 'max' => 15],
             [['responsable'], 'string', 'max' => 40],
             [['observacion'],'string' ,'max' => 100],
@@ -76,6 +78,14 @@ class SalidaBodega extends \yii\db\ActiveRecord
             'observacion' => 'Nota:',
             'idcliente' => 'Nombre del cliente:',
             'unidades_vendidas' => 'Unidades vendidas:',
+            'costo_total' => 'costo_total',
+            'otros_costos'=>'Otros costos:',
+            'costo_confeccion' => 'costo_connfeccion',
+            'costo_insumos' => 'costo_insumos',
+            'costo_terminacion' => 'costo_terminacion',
+            'tiempo_terminacion' => 'tiempo_terminacion',
+            'tiempo_confeccion' => 'tiempo_confeccion',
+            
         ];
     }
 

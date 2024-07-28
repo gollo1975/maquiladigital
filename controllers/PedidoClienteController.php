@@ -166,6 +166,7 @@ class PedidoClienteController extends Controller
         return $this->render('view', [
             'model' => $model,
             'token' => $token,
+            '$id' => $id,
             'referencias' => $referencias,
         ]);
     }
@@ -175,14 +176,14 @@ class PedidoClienteController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($token = 0)
     {
         $model = new PedidoCliente();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->user_name = Yii::$app->user->identity->username;
             $model->save();
-            return $this->redirect(['view', 'id' => $model->id_pedido]);
+            $this->redirect(['pedido-cliente/view', 'id' => $model->id_pedido, 'token' => $token]);
         }
 
         return $this->render('create', [

@@ -425,7 +425,6 @@
                                             'items' => [                                              
                                                 ['label' => 'Entradas', 'icon' => 'plus-square-o', 'url' => ['/entrada-materia-prima/index']],
                                                 ['label' => 'Salidas', 'icon' => 'plus-square-o', 'url' => ['/salida-bodega/index']],
-                                                ['label' => 'Costo producto', 'icon' => 'plus-square-o', 'url' => ['/costo-producto/index']],
                                                 ['label' => 'Remision x producto', 'icon' => 'plus-square-o', 'url' => ['/remision-entrega-prendas/index']],
                                                 ['label' => 'Referencias', 'icon' => 'plus-square-o', 'url' => ['/referencias/index']],
                                                

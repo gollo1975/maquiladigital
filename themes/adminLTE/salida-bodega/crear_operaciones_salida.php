@@ -21,7 +21,7 @@ $maquinas = ArrayHelper::map(TiposMaquinas::find()->where(['=','estado', 1])->al
         
         <?php $formulario = ActiveForm::begin([
             "method" => "get",
-            "action" => Url::toRoute(["costo-producto/nuevaoperacionproducto", 'id' => $id, 'token' => $token]),
+            "action" => Url::toRoute(["salida-bodega/cargar_operaciones", 'id' => $id, 'token' => $token]),
             "enableClientValidation" => true,
             'options' => ['class' => 'form-horizontal'],
             'fieldConfig' => [
@@ -44,7 +44,7 @@ $maquinas = ArrayHelper::map(TiposMaquinas::find()->where(['=','estado', 1])->al
                 </div>
                 <div class="panel-footer text-right">
                     <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-                    <a align="right" href="<?= Url::toRoute(["costo-producto/nuevaoperacionproducto", 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+                    <a align="right" href="<?= Url::toRoute(["salida-bodega/cargar_operaciones", 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
                 </div>
             </div>
         </div>
@@ -90,15 +90,15 @@ $maquinas = ArrayHelper::map(TiposMaquinas::find()->where(['=','estado', 1])->al
                             <td><input type="text" name="segundos[]" style="text-align: right;"  value="<?= $val->segundos ?>" required></td>
                             <td><input type="text"  name="minutos[]" style="text-align: right;" value="<?= number_format($val->minutos,2) ?>" required></td>
                             <td><?= Html::dropDownList('id_tipo[]', $val->estado, $maquinas, ['class' => 'col-sm-12', 'prompt' => 'Seleccion la maquina']) ?></td>
-                            <input type="hidden" name="proceso[]" value="<?= $val->proceso ?>">
                             <input type="hidden" name="idproceso[]" value="<?= $val->idproceso ?>">
+                            
                         </tr>
                         </tbody>
                         <?php endforeach; ?>
                     </table>
                 </div>
                 <div class="panel-footer text-right">
-                    <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar y Nuevo", ["class" => "btn btn-success btn-sm", 'name' => 'guardarynuevo']) ?>
+                    <?= Html::submitButton("<span class='glyphicon glyphicon-send'></span> Enviar", ["class" => "btn btn-success btn-sm", 'name' => 'guardar_operacion']) ?>
                 </div>
 
             </div>

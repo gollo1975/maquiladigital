@@ -114,7 +114,7 @@ $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
                     <td><?= $val->numero_pedido ?></td>
                      <td><?= $val->cliente->cedulanit ?></td>
                     <td><?= $val->cliente->nombrecorto ?></td>
-                    <td><?= $val->fecha_pedido ?></td>.
+                    <td><?= $val->fecha_pedido ?></td>
                      <td><?= $val->fecha_entrega ?></td>
                     <td style="text-align: right"><?= ''. number_format($val->total_unidades,0) ?></td>
                     <td style="text-align: right"><?= '$'. number_format($val->valor_total,0) ?></td>
@@ -123,9 +123,13 @@ $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["pedido-cliente/view", "id" => $val->id_pedido, 'token' => $token,]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["pedido-cliente/update", "id" => $val->id_pedido ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
+                    <?php if(!\app\models\PedidoClienteReferencias::find()->where(['=','id_pedido', $val->id_pedido])->one()){?>
+                        <td style= 'width: 25px; height: 25px;'>
+                                <a href="<?= Url::toRoute(["pedido-cliente/update", "id" => $val->id_pedido ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                        </td>
+                    <?php }else{?>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                    <?php }?>    
              
             </tbody>            
             <?php endforeach; ?>

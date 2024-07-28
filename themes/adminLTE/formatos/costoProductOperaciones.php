@@ -1,8 +1,8 @@
 <?php
 
 use inquid\pdf\FPDF;
-use app\models\CostoProducto;
-use app\models\ProductoOperaciones;
+use app\models\SalidaBodega;
+use app\models\SalidaBodegaOperaciones;
 use app\models\Matriculaempresa;
 use app\models\Municipio;
 use app\models\Departamento;
@@ -10,8 +10,8 @@ use app\models\Departamento;
 class PDF extends FPDF {
 
     function Header() {
-        $id_producto = $GLOBALS['id_producto'];
-        $producto = CostoProducto::findOne($id_producto);
+        $id_salida_bodega = $GLOBALS['id_salida_bodega'];
+        $salida = SalidaBodega::findOne($id_salida_bodega);
         $config = Matriculaempresa::findOne(1);
         $municipio = Municipio::findOne($config->idmunicipio);
         $departamento = Departamento::findOne($config->iddepartamento);        
@@ -63,51 +63,51 @@ class PDF extends FPDF {
         $this->SetFillColor(220, 220, 220);
         $this->SetXY(10, 39);
         $this->SetFont('Arial', 'B', 15);
-        $this->Cell(162, 7, utf8_decode("COSTO PRODUCTO(INSUMOS)"), 0, 0, 'l', 0);
-        $this->Cell(20, 7, utf8_decode('REF. :' .$producto->codigo_producto), 0, 0, 'l', 0);
+        $this->Cell(162, 7, utf8_decode("LISTADO DE OPERACIONES"), 0, 0, 'l', 0);
+        $this->Cell(20, 7, utf8_decode('REF.: ' .$salida->codigo_producto), 0, 0, 'l', 0);
            // $this->SetFillColor(200, 200, 200);
         //ORDEN PRODUCCION
-         $this->SetXY(10, 48);
+        $this->SetXY(10, 48);
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("ID:"),0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("CODIGO:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(24, 5, utf8_decode($producto->id_producto), 0, 0, 'L');
+        $this->Cell(24, 5, utf8_decode($salida->codigo_producto), 0, 0, 'L');
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("TIPO PRODUCTO:"),0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("REFERENCIA:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(50, 5, utf8_decode($producto->tipoProducto->concepto), 0, 0, 'L');
+        $this->Cell(50, 5, utf8_decode($salida->orden->referencia->referencia), 0, 0, 'L');
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("PRODUCTO:"),0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("AUTORIZADO:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(40, 5, utf8_decode($producto->descripcion), 0, 0, 'L');
+        $this->Cell(40, 5, utf8_decode($salida->autorizadoSalida), 0, 0, 'L');
         //fin
         $this->SetXY(10, 52);
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("FECHA CREACION:"),0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("FECHA SALIDA:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(24, 5, utf8_decode($producto->fecha_creacion), 0, 0, 'L');
+        $this->Cell(24, 5, utf8_decode($salida->fecha_salida), 0, 0, 'L');
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("USUARIO:"), 0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("USUARIO:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(50, 5, utf8_decode($producto->usuariosistema), 0, 0, 'L');
+        $this->Cell(50, 5, utf8_decode($salida->user_name), 0, 0, 'L');
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("AUTORIZADO:"),0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("CERRADO:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(40  , 5, utf8_decode($producto->autorizadocosto), 0, 0, 'L');
+        $this->Cell(40  , 5, utf8_decode($salida->cerradoSalida), 0, 0, 'L');
             //FIN
         $this->SetXY(10, 56);
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("COSTO SIN IVA:"),0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("EXPORTADO:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(24, 5, utf8_decode(number_format($producto->costo_sin_iva,0)), 0, 0, 'R');
+        $this->Cell(24, 5, utf8_decode($salida->insumosExportado), 0, 0, 'L');
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("IMPUESTO:"),0, 0, 0, 'R');
+        $this->Cell(25, 5, utf8_decode("RESPONSABLE:"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(50, 5, utf8_decode($producto->porcentaje_iva), 0, 0, 'L');
+        $this->Cell(50, 5, utf8_decode($salida->responsable), 0, 0, 'L');
         $this->SetFont('Arial', 'B', 7);
-        $this->Cell(25, 5, utf8_decode("COSTO TOTAL:"),0, 0, 0, 'L');
+        $this->Cell(25, 5, utf8_decode("NOTA"), 0, 0, 'L');
         $this->SetFont('Arial', '', 7);
-        $this->Cell(40  , 5, utf8_decode(number_format($producto->costo_con_iva,0)), 0, 0, 'R');
+        $this->Cell(40  , 5, utf8_decode($salida->observacion), 0, 0, 'R');
             //FIN
         //Lineas del encabezado
         $this->Line(10, 66, 10, 200);//x1,y1,x2,y2        
@@ -147,19 +147,19 @@ class PDF extends FPDF {
     }
 
     function Body($pdf, $model) {
-        $insumos = ProductoOperaciones::find()->where(['=', 'id_producto', $model->id_producto])->all();
-        $producto = CostoProducto::findOne($model->id_producto);
+        $operacion = SalidaBodegaOperaciones::find()->where(['=', 'id_salida_bodega', $model->id_salida_bodega])->all();
+        $producto = SalidaBodega::findOne($model->id_salida_bodega);
         $pdf->SetX(10);
         $pdf->SetFont('Arial', '', 8);
-        $items = count($insumos);
+        $items = count($operacion);
         $total = 0;
-        foreach ($insumos as $detalle) {
+        foreach ($operacion as $detalle) {
             $pdf->Cell(20, 5, $detalle->proceso->idproceso, 0, 0, 'J');          
             $pdf->Cell(70, 5, utf8_decode($detalle->proceso->proceso), 0, 0, 'J');
             $pdf->Cell(25, 4, utf8_decode($detalle->tipo->tipo), 0, 0, 'J');
             $pdf->Cell(36, 4, utf8_decode($detalle->tipoMaquinas->descripcion), 0, 0, 'J');
             $pdf->Cell(21, 4, number_format($detalle->segundos, 0), 0, 0, 'R');
-            $pdf->Cell(21, 4, number_format($detalle->minutos, 0), 0, 0, 'R');
+            $pdf->Cell(21, 4, number_format($detalle->minutos, 2), 0, 0, 'R');
             $pdf->Ln();
             $pdf->SetAutoPageBreak(true, 20);
         }
@@ -169,10 +169,10 @@ class PDF extends FPDF {
         $pdf->MultiCell(90, 8, 'ITEMS: '.$items, 1, 'J');
         //FIN
         $pdf->SetXY(100, 200);
-        $pdf->MultiCell(61, 8, 'MIN. CONF.:'.$producto->tiempo_confeccion, 1, 'R');
+        $pdf->MultiCell(61, 8, 'MIN. CONF. :'.$producto->tiempo_confeccion, 1, 'R');
         //FIN
         $pdf->SetXY(161, 200);
-        $pdf->MultiCell(42, 8, 'MIN. TERM.: '.$producto->tiempo_terminacion,1 , 'R');
+        $pdf->MultiCell(42, 8, 'MIN. TERM. : '.$producto->tiempo_terminacion,1 , 'R');
         //fin
         
         $pdf->SetXY(10, 255);//firma trabajador
@@ -192,8 +192,8 @@ class PDF extends FPDF {
 
 }
 
-global $id_producto;
-$id_producto = $model->id_producto;
+global $id_salida_bodega;
+$id_salida_bodega = $model->id_salida_bodega;
 //$pdf = new PDF('L','mm','letter'); para datos horizontal
 $pdf = new PDF();
 $pdf->AliasNbPages();
@@ -201,7 +201,7 @@ $pdf->AddPage();
 $pdf->Body($pdf, $model);
 $pdf->AliasNbPages();
 $pdf->SetFont('Times', '', 10);
-$pdf->Output("Insumos_Producto_$model->id_producto.pdf", 'D');
+$pdf->Output("Operaciones_Referencia$model->numero_salida.pdf", 'D');
 
 exit;
 

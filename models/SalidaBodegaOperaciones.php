@@ -5,31 +5,32 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "producto_operaciones".
+ * This is the model class for table "salida_bodega_operaciones".
  *
  * @property int $id_operacion
  * @property int $idproceso
  * @property int $idtipo
  * @property int $id_tipo
- * @property int $id_producto
- * @property int $segundos
+ * @property int $id_salida_bodega
+ * @property int $codigo_operacion
+ * @property string $nombre_operacion
  * @property double $minutos
  * @property string $fecha_creacion
- * @property string $usuario
+ * @property string $user_name
  *
  * @property ProcesoProduccion $proceso
  * @property Ordenproducciontipo $tipo
  * @property TiposMaquinas $tipo0
- * @property CostoProducto $producto
+ * @property SalidaBodega $salidaBodega
  */
-class ProductoOperaciones extends \yii\db\ActiveRecord
+class SalidaBodegaOperaciones extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'producto_operaciones';
+        return 'salida_bodega_operaciones';
     }
 
     /**
@@ -38,15 +39,14 @@ class ProductoOperaciones extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idproceso', 'idtipo', 'id_tipo', 'id_producto', 'segundos'], 'integer'],
+            [['idproceso', 'idtipo', 'id_tipo', 'id_salida_bodega','segundos'], 'integer'],
             [['minutos'], 'number'],
             [['fecha_creacion'], 'safe'],
-            [['usuario'], 'string', 'max' => 15],
-            [['id_producto'], 'unique'],
+            [['user_name'], 'string', 'max' => 15],
             [['idproceso'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoProduccion::className(), 'targetAttribute' => ['idproceso' => 'idproceso']],
             [['idtipo'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciontipo::className(), 'targetAttribute' => ['idtipo' => 'idtipo']],
             [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => TiposMaquinas::className(), 'targetAttribute' => ['id_tipo' => 'id_tipo']],
-            [['id_producto'], 'exist', 'skipOnError' => true, 'targetClass' => CostoProducto::className(), 'targetAttribute' => ['id_producto' => 'id_producto']],
+            [['id_salida_bodega'], 'exist', 'skipOnError' => true, 'targetClass' => SalidaBodega::className(), 'targetAttribute' => ['id_salida_bodega' => 'id_salida_bodega']],
         ];
     }
 
@@ -60,11 +60,11 @@ class ProductoOperaciones extends \yii\db\ActiveRecord
             'idproceso' => 'Idproceso',
             'idtipo' => 'Idtipo',
             'id_tipo' => 'Id Tipo',
-            'id_producto' => 'Id Producto',
-            'segundos' => 'Segundos',
+            'id_salida_bodega' => 'Id Salida Bodega',
             'minutos' => 'Minutos',
             'fecha_creacion' => 'Fecha Creacion',
-            'usuario' => 'Usuario',
+            'user_name' => 'User Name',
+            'segundos' => 'Segundos:',
         ];
     }
 
@@ -95,8 +95,8 @@ class ProductoOperaciones extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProducto()
+    public function getSalidaBodega()
     {
-        return $this->hasOne(CostoProducto::className(), ['id_producto' => 'id_producto']);
+        return $this->hasOne(SalidaBodega::className(), ['id_salida_bodega' => 'id_salida_bodega']);
     }
 }

@@ -34,7 +34,8 @@ class SalidaBodegaDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_salida_bodega', 'id_insumo', 'cantidad_despachar'], 'integer'],
+            [['id_salida_bodega', 'id_insumo','subtotal','iva','total_linea','valor_unitario'], 'integer'],
+            [['cantidad_despachar'],'number'],
             [['cantidad_despachar'], 'required'],
             [['codigo_insumo'], 'string', 'max' => 15],
             [['nombre_insumo'], 'string', 'max' => 40],
@@ -57,6 +58,10 @@ class SalidaBodegaDetalle extends \yii\db\ActiveRecord
             'nombre_insumo' => 'Nombre Insumo',
             'cantidad_despachar' => 'Cantidad Despachar',
             'nota' => 'Nota',
+            'subtotal' => 'Subtotal:',
+            'iva' => 'Iva:',
+            'total_linea' => 'Total linea:',
+            'valor_unitario' => 'valor_unitario',
         ];
     }
 

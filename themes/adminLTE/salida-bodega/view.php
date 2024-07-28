@@ -37,7 +37,8 @@ $view = 'salida-bodega';
                         echo Html::a('<span class="glyphicon glyphicon-import"></span> Descargar inventario', ['enviar_inventario', 'id' => $model->id_salida_bodega, 'token' => $token],['class' => 'btn btn-success btn-sm',
                              'data' => ['confirm' => 'Esta seguro de ENVIAR este inventario de la referencia ('.$model->orden->referencia->referencia.') para ser descargado del modulo de insumos', 'method' => 'post']]);
                     }else{
-                       echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir_salida', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-default btn-sm']);            
+                       echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir insumos', ['imprimir_insumos', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-default btn-sm']);            
+                       echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir operaciones', ['imprimir_operaciones', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-default btn-sm']);            
                        echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 20, 'codigo' => $model->id_salida_bodega,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                              
                     }
                 }    
@@ -54,7 +55,7 @@ $view = 'salida-bodega';
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
-                <tr style="font-size: 85%;">
+                <tr style="font-size: 90%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'numero_salida') ?></th>
                     <td><?= Html::encode($model->numero_salida) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo_producto') ?>:</th>
@@ -65,7 +66,7 @@ $view = 'salida-bodega';
                     <td align="right"><?= Html::encode(''.number_format($model->unidades,0)) ?></td>
                    
                 </tr>
-                <tr style="font-size: 85%;">
+                <tr style="font-size: 90%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_salida') ?></th>
                     <td><?= Html::encode($model->fecha_salida) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'autorizado') ?></th>
@@ -92,6 +93,7 @@ $view = 'salida-bodega';
     <div>
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#listadoinsumos" aria-controls="listadoinsumos" role="tab" data-toggle="tab">Insumos <span class="badge"><?= count($listado_insumos) ?></span></a></li>
+            <li role="presentation"><a href="#listadoperaciones" aria-controls="listadoperaciones" role="tab" data-toggle="tab">Operaciones <span class="badge"><?= count($listado_operaciones) ?></span></a></li>
         </ul>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="listadoinsumos">
@@ -100,7 +102,7 @@ $view = 'salida-bodega';
                         <div class="panel-body">
                             <table class="table table-bordered table-hover">
                                 <thead>
-                                    <tr>
+                                    <tr style="font-size: 90%;">
                                         <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Nombre de insumo</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Medida</th>
@@ -111,7 +113,7 @@ $view = 'salida-bodega';
                                 </thead>
                                 <tbody>
                                     <?php foreach ($listado_insumos as $val): ?>
-                                       <tr style="font-size: 85%;">
+                                       <tr style="font-size: 90%;">
                                             <td><?= $val->codigo_insumo ?></td>
                                             <td><?= $val->insumo->descripcion ?></td>
                                             <td><?= $val->insumo->tipomedida->medida?></td>
@@ -151,7 +153,67 @@ $view = 'salida-bodega';
                     </div>    
                 </div>
             </div> 
-            <!--TERMINA TABS DE OPERACIONES-->
+            <!--TERMINA TABS DE INSUMOSS-->
+            <div role="tabpanel" class="tab-pane" id="listadoperaciones">
+                <div class="table-responsive">
+                    <div class="panel panel-success">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr style="font-size: 90%;">
+                                        <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Operación</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Tipo proceso</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Tipo maquina</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Minutos</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>User name</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($listado_operaciones as $val): ?>
+                                        <tr style="font-size: 90%;">                                    
+                                            <td><?= $val->idproceso ?></td>
+                                                 <td><?= $val->proceso->proceso ?></td>
+                                                 <?php if($val->idtipo == ''){?>
+                                                       <td><?= 'No found' ?></td>
+                                                 <?php }else{?>
+                                                       <td style='background-color:<?= $val->tipo->color?>;'><?= $val->tipo->tipo ?></td>
+                                                 <?php }?>      
+                                                 <td><?= $val->tipoMaquinas->descripcion ?></td>
+                                                 <td><?= $val->segundos?></td>
+                                                 <td><?= $val->minutos?></td>
+                                             <td><?= $val->user_name?></td>
+                                             <td style="width: 30px;"><input type="checkbox" name="listado_operaciones[]" value="<?= $val->id_operacion ?>"></td>
+                                        </tr>      
+                                    <?php endforeach;?>   
+                                </<body>
+                            </table>
+                        </div>
+                        <?php
+                        if($model->autorizado == 0){
+                            if(count($listado_operaciones) == null){?>
+                                <div class="panel-footer text-right"> 
+                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Cargar operaciones', ['salida-bodega/cargar_operaciones', 'id' => $model->id_salida_bodega, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                </div> 
+                            <?php
+                            }else{?>
+                                <div class="panel-footer text-right"> 
+                                   <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Cargar operaciones', ['salida-bodega/cargar_operaciones', 'id' => $model->id_salida_bodega, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
+                                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['salida-bodega/editar_operaciones', 'id' => $model->id_salida_bodega, 'token' => $token], ['class' => 'btn btn-primary btn-sm']) ?>                    
+                                   <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminar_operacion']) ?>
+                                </div>     
+                            <?php }
+                        } else {?>
+                              <div class="panel-footer text-right"> 
+                                <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar a excel', ['salida-bodega/exportar_detalle', 'id' => $model->id_salida_bodega], ['class' => 'btn btn-primary btn-sm']) ?>
+                              </div>    
+                        <?php } ?>
+                    </div>    
+                </div>
+            </div> 
+            <!--TEMRINA TABSA DE OPERACIONES-->
         </div>
     </div>
     <?php ActiveForm::end(); ?>

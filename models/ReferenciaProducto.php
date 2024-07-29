@@ -44,6 +44,7 @@ class ReferenciaProducto extends \yii\db\ActiveRecord
             [['id_tipo_producto', 'costo_producto'], 'integer'],
             [['fecha_registro'], 'safe'],
             [['descripcion_referencia'], 'string', 'max' => 40],
+             [['descripcion'], 'string', 'max' => 150],
             [['user_name'], 'string', 'max' => 15],
             [['id_tipo_producto'], 'exist', 'skipOnError' => true, 'targetClass' => TipoProducto::className(), 'targetAttribute' => ['id_tipo_producto' => 'id_tipo_producto']],
         ];
@@ -61,6 +62,7 @@ class ReferenciaProducto extends \yii\db\ActiveRecord
             'costo_producto' => 'Costo producto:',
             'fecha_registro' => 'Fecha Registro:',
             'user_name' => 'User name:',
+            'descripcion' =>'Observacion(150):',
         ];
     }
 

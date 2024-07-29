@@ -44,7 +44,10 @@ $tipoPrenda = ArrayHelper::map(TipoProducto::find()->orderBy('concepto ASC')->al
                     'allowClear' => true
                 ],
             ]); ?>
-        </div>        		
+        </div>   
+        <div class="row">
+            <?= $form->field($model, 'descripcion', ['template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>'])->textarea(['rows' => 3, 'size' => 150, 'maxlength' => true]) ?>
+        </div>
         <div class="panel-footer text-right">            
             <a href="<?= Url::toRoute("referencia-producto/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>		

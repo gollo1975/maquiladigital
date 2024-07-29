@@ -162,6 +162,7 @@ class ReferenciaProductoController extends Controller
             $model->descripcion_referencia = $model->descripcion_referencia;
             $model->id_tipo_producto = $model->id_tipo_producto;
             $model->user_name = Yii::$app->user->identity->username;
+             $model->descripcion= $model->descripcion;
             $model->save();
             return $this->redirect(['index']);
         }

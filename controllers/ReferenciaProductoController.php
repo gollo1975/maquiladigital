@@ -163,14 +163,6 @@ class ReferenciaProductoController extends Controller
             $model->id_tipo_producto = $model->id_tipo_producto;
             $model->user_name = Yii::$app->user->identity->username;
             $model->save();
-            $producto = new \app\models\CostoProducto();
-            $producto->codigo_producto = $codigo;
-            $producto->descripcion = $model->descripcion_referencia;
-            $producto->id_tipo_producto = $model->id_tipo_producto;
-            $producto->fecha_creacion = date('Y-m-d');
-            $producto->aplicar_iva = 1;
-            $producto->porcentaje_iva =  $empresa->porcentajeiva;
-            $producto->save(false);
             return $this->redirect(['index']);
         }
         return $this->render('create', [

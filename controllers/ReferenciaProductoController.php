@@ -192,10 +192,6 @@ class ReferenciaProductoController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $table = \app\models\CostoProducto::find()->where(['=','codigo_producto', $model->codigo])->one();
-            $table->descripcion = $model->descripcion_referencia;
-            $table->id_tipo_producto = $model->id_tipo_producto;
-            $table->save(false);
             return $this->redirect(['index']);
         }
 

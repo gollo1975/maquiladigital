@@ -139,11 +139,7 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <td align = "right"><?= number_format($val->totalorden,0) ?></td>              
                 <td><?= $val->autorizar ?></td>
                 <td><?= $val->facturar ?></td>
-                <?php if($val->idtipo == 1){?>
-                     <td style='background-color:#138D75; color: white;'><?= $val->tipo->tipo ?></td>
-                <?php }else{?>
-                     <td style='background-color:#D3EBDD; color: black;'><?= $val->tipo->tipo ?></td>
-                <?php }?>     
+                <td style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>
                 <td style="width: 25px;">				
                 <a href="<?= Url::toRoute(["orden-produccion/viewconsulta", "id" => $val->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                 </td>

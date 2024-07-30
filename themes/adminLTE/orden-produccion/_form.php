@@ -14,6 +14,7 @@ use kartik\depdrop\DepDrop;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 /* @var $form yii\widgets\ActiveForm */
+$tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tipo_producto', 'concepto');
 ?>
 
 <?php
@@ -90,6 +91,15 @@ $form = ActiveForm::begin([
         </div>
         <div class="row">
             <div id="porcentaje_exportacion" style="display:block"> <?= $form->field($model, 'porcentaje_exportacion')->textInput(['maxlength' => true]) ?></div>
+            <?= $form->field($model, 'id_tipo_producto')->widget(Select2::classname(), [
+                'data' => $tipoProducto,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+        </div>
+        <div class="row">
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
          <div class="checkbox checkbox-success" align ="center">

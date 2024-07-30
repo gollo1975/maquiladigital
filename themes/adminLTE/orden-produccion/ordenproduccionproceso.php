@@ -105,7 +105,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechaprocesada")) ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
-                <td><?= $val->tipo->tipo ?></td>
+                <td  style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>
                 <td><?= 'Proceso '.'<b>'.round($val->porcentaje_proceso,1).' % - </b>Cantidad '.'<b>'.round($val->porcentaje_cantidad,1).' %' ?></td>
                 <td style="width: 25px;">
                     <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_detalle', 'id' => $val->idordenproduccion] ) ?>

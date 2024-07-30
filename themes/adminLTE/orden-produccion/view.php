@@ -120,7 +120,7 @@ $view = 'orden-produccion';
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
                     <td><?= Html::encode($model->cliente->nombrecorto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'idtipo') ?></th>
-                    <td><?= Html::encode($model->tipo->tipo) ?></td>
+                    <td style="background-color: <?= $model->tipo->color?>"><?= Html::encode($model->tipo->tipo) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Unidades') ?>:</th>
                     <td><?= Html::encode($model->cantidad) ?></td>
                 </tr>
@@ -145,12 +145,21 @@ $view = 'orden-produccion';
                     <td style="text-align: right"><?= Html::encode(''.number_format($model->duracion,0)) ?></td>                    
                 </tr>
                 <tr style="font-size: 85%;">
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?></th>
-                    <td colspan="3"><?= Html::encode($model->observacion) ?></td>    
+                    <?php if($model->id_tipo_producto == ''){?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_producto') ?></th>
+                        <td colspan="3"><?= Html::encode('NO FOUND') ?></td>    
+                    <?php }else{?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Tipo_referencia') ?></th>
+                        <td colspan="3"><?= Html::encode($model->tipoProducto->concepto) ?></td>    
+                    <?php }?>    
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Exportacion') ?>:</th>
                     <td><?= Html::encode($model->exportarOrden) ?></td>    
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalorden') ?>:</th>
                     <td  style="text-align: right"><?= Html::encode('$ '.number_format($model->totalorden,0)) ?></td>
+                </tr>
+                <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?></th>
+                    <td colspan="8"><?= Html::encode($model->observacion) ?></td>    
                 </tr>
               
             </table>

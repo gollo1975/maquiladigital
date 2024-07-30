@@ -103,7 +103,7 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <th style='background-color:#F0F3EF;' scope="col">Cedula/Nit</th>
                 <th style='background-color:#F0F3EF;' scope="col">Cliente</th>
                 <th style='background-color:#F0F3EF;' scope="col">Fecha llegada</th>
-                <th style='background-color:#F0F3EF; ' scope="col">Tipo servicio</th>
+                <th style='background-color:#F0F3EF;' scope="col">Tipo servicio</th>
                 <th style='background-color:#F0F3EF;' scope="col"></th>                               
                
             </tr>
@@ -117,11 +117,8 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                         <td><?= $val->cliente->cedulanit ?></td>
                         <td><?= $val->cliente->nombrecorto ?></td>
                         <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
-                         <?php if($val->idtipo == 1){?>
-                             <td style='background-color:#138D75; color: white;'><?= $val->tipo->tipo ?></td>
-                        <?php }else{?>
-                             <td style='background-color:#D3EBDD; color: black;'><?= $val->tipo->tipo ?></td>
-                        <?php }?>     
+                       <td style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>
+    
                         <td style="width: 25px; height: 25px;">
                            <a href="<?= Url::toRoute(["orden-produccion/view_asignacion", "id" => $val->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                       </td>

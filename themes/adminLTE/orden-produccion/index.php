@@ -45,6 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 $clientes = ArrayHelper::map(Cliente::find()->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombreClientes');
 $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
+$tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tipo_producto', 'concepto');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -77,7 +78,13 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                     'todayHighlight' => true]])
             ?>
             <?= $formulario->field($form, 'facturado')->dropDownList(['0' => 'NO', '1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
-            <?= $formulario->field($form, "ordenproduccionint")->input("search") ?>
+            <?= $formulario->field($form, 'ordenproduccionint')->widget(Select2::classname(), [
+                'data' => $tipoProducto,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
             <?= $formulario->field($form, "ordenproduccioncliente")->input("search") ?>
             <?= $formulario->field($form, 'tipo')->dropDownList($tipos, ['prompt' => 'Seleccione un tipo...']) ?>
         </div>
@@ -138,12 +145,8 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <?php }else{ ?>
                       <td style='background-color:#BCE7E0; color: black;'><?= $val->lavanderiaPrenda ?></td>
                 <?php } ?>      
-                <?php if($val->idtipo == 1){?>
-                     <td style='background-color:#138D75; color: white;'><?= $val->tipo->tipo ?></td>
-                <?php }else{?>
-                     <td style='background-color:#D3EBDD; color: black;'><?= $val->tipo->tipo ?></td>
-                <?php }?>     
-                <td style="width: 25px;">				
+                <td style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>
+               <td style="width: 25px;">				
                      <a href="<?= Url::toRoute(["orden-produccion/view", "id" => $val->idordenproduccion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                 </td>
                 <td style="width: 25px;">				

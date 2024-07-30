@@ -140,7 +140,7 @@ $listar_proceso = ArrayHelper::map(Ordenproducciontipo::find()->orderBy('tipo AS
                 <td><?= $val->cliente->nombrecorto?></td>
                 <td><?= $val->idordenproduccion ?></td>
                  <td><?= $val->codigo_producto ?></td>
-                <td><?= $val->tipo->tipo ?></td>
+                <td style='background-color:<?= $val->tipo->color?>'><?= $val->tipo->tipo ?></td>
                 <td><?= ''.number_format($val->vlr_minuto,0) ?></td>
                 <td><?= $val->cantidad_minutos ?></td>
                 <td><?= ''.number_format($val->total_pagar,0) ?></td>

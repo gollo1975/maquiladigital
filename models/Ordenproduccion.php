@@ -51,9 +51,10 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idcliente', 'fechallegada', 'fechaprocesada', 'fechaentrega', 'observacion', 'idtipo','ponderacion','ordenproduccion','ordenproduccionext','codigoproducto','exportacion'], 'required', 'message' => 'Campo requerido'],            
+            [['idcliente', 'fechallegada', 'fechaprocesada', 'fechaentrega', 'observacion', 'idtipo','ponderacion','ordenproduccion','ordenproduccionext',
+                'codigoproducto','exportacion','id_tipo_producto'], 'required', 'message' => 'Campo requerido'],            
             [['idcliente', 'estado', 'idtipo','autorizado','facturado','proceso_control','cantidad','aplicar_balanceo','faltante','cerrar_orden','pagada',
-                'proceso_sin_lavanderia','proceso_lavanderia','exportacion','lavanderia'], 'integer'],
+                'proceso_sin_lavanderia','proceso_lavanderia','exportacion','lavanderia','id_tipo_producto'], 'integer'],
             [['fechallegada', 'fechaprocesada', 'fechaentrega'], 'safe'],            
             [['totalorden','ponderacion','porcentaje_proceso','porcentaje_cantidad','segundosficha','duracion','sam_balanceo','sam_preparacion','sam_operativo','porcentaje_exportacion'], 'number'],
             [['valorletras', 'observacion','codigoproducto'], 'string'],
@@ -61,6 +62,7 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             [['usuariosistema'], 'string', 'max' => 50],            
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
             [['idtipo'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciontipo::className(), 'targetAttribute' => ['idtipo' => 'idtipo']],
+            [['id_tipo_producto'], 'exist', 'skipOnError' => true, 'targetClass' => TipoProducto::className(), 'targetAttribute' => ['id_tipo_producto' => 'id_tipo_producto']],
         ];
     }
 
@@ -91,7 +93,7 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             'porcentaje_cantidad' => '% cantidad:',
             'ponderacion' => 'Ponderación:',
             'codigoproducto' => 'Referencia:',
-            'duracion' => 'Duración:',
+            'duracion' => 'Sam:',
             'aplicar_balanceo' => 'Aplicar balanceo:',
             'faltante' => 'Faltante',
             'sam_balanceo' => 'Sam Balanceo:',
@@ -102,6 +104,7 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             'lavanderia' => 'Lavanderia',
             'proceso_lavanderia' => 'proceso_lavanderia',
             'proceso_sin_lavanderia' => 'proceso_sin_lavanderia',
+            'id_tipo_producto' => 'Tipo referencia:',
           
         ];
     }
@@ -129,6 +132,14 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Ordenproducciontipo::className(), ['idtipo' => 'idtipo']);
     }
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTipoProducto()
+    {
+        return $this->hasOne(TipoProducto::className(), ['id_tipo_producto' => 'id_tipo_producto']);
+    }
+    
 //proceso que va en la creacion de la orden de produccion
     public function getOrdenProduccion()
     {

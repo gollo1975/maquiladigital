@@ -109,7 +109,7 @@ class OrdenProduccionController extends Controller {
                             ->andFilterWhere(['<=', 'fechallegada', $hasta])
                             ->andFilterWhere(['=', 'facturado', $facturado])
                             ->andFilterWhere(['=', 'idtipo', $tipo])
-                            ->andFilterWhere(['=', 'idordenproduccion', $ordenproduccionint])
+                            ->andFilterWhere(['=', 'id_tipo_producto', $ordenproduccionint])
                             ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
                             ->andFilterWhere(['=', 'ordenproduccion', $ordenproduccioncliente]);
                     $table = $table->orderBy('idordenproduccion desc');

@@ -249,7 +249,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             }    
                                         }   
                                     } 
-                                    if ($modelo){
+                                    if ($modelo && $modelo2){
                                         foreach ($modelo2 as $eficiencia): 
 
                                                 $cumplimiento = 0;

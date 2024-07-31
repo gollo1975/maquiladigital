@@ -164,6 +164,7 @@ class ValorPrendaUnidadController extends Controller
                 $validar_eficiencia = 0;
                 $modelo = null;
                 $pages = null;
+                $modelo2 = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $validar_eficiencia = Html::encode($form->validar_eficiencia);
@@ -210,6 +211,7 @@ class ValorPrendaUnidadController extends Controller
                             'fecha_corte' => $fecha_corte,
                             'id_operario' => $id_operario,
                             'bodega' => $bodega,
+                            'modelo2' => $modelo2,
                             'tipo_servicio' => $tipo_servicio,
                 ]);
             } else {
@@ -410,7 +412,6 @@ class ValorPrendaUnidadController extends Controller
                         $table->control_fecha = $_POST["control_fecha"][$intIndice];
                         $table->aplica_sabado = $_POST["aplica_sabado"][$intIndice];
                         $auxiliar = $table->control_fecha;
-                        var_dump($_POST["id_operario"][$intIndice]);
                         $operario = Operarios::find()->where(['=','id_operario', $_POST["id_operario"][$intIndice]])->one();
                         $valor_unidad = ValorPrendaUnidad::find()->where(['=','id_valor', $id])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
                         $vlr_unidad = 0; 

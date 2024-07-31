@@ -71,6 +71,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                     'todayHighlight' => true]])
                 ?>
                  <?= $formulario->field($form, 'aplica_sabado')->dropDownList(['0' => 'NO', '1' => 'SI']) ?>
+                <?= $formulario->field($form, 'alimentacion')->dropDownList(['0' => 'NO', '1' => 'SI']) ?>
                 <?= $formulario->field($form, 'modulo')->widget(Select2::classname(), [
                        'data' => $nombre_modulo,
                        'options' => ['prompt' => 'Seleccione...'],
@@ -85,6 +86,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                            'allowClear' => true
                        ],
                 ]); ?>
+
            </div>
         </div>    
             <div class="panel-footer text-right">
@@ -113,6 +115,8 @@ $form = ActiveForm::begin([
                     <th scope="col" style='background-color:#B9D5CE;'>T. minutos</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Valor vinculado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Valor contrato</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>H. inicio</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>H. corte</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
                 </tr>
             </thead>
@@ -131,7 +135,9 @@ $form = ActiveForm::begin([
                             <td><?= $val->minutos ?></td> 
                             <td style="text-align: right"><?= $valor_vinculado?></td> 
                             <td style="text-align: right"><?= $valor_contrato?></td> 
-                            <td style="padding-left: 1;padding-right: 1;"><input type="text" name="cantidad[]" style="text-align: right"  value="0" size="6" ></td>
+                            <td style="padding-left: 1;padding-right: 1;"><input type="time" name="hora_inicio[]" style="text-align: right"  value="<?= $conCorteProceso->hora_inicio ?>" size="8" ></td> 
+                            <td style="text-align: left"><?= $conCorteProceso->hora_corte?></td>     
+                            <td style="padding-right: 1;padding-right: 1; text-align: right"><input type="text" name="cantidad[]" style="text-align: right"  value="0" size="6" ></td>
                              <input type="hidden" name="operaciones[]" value="<?= $val->id_detalle ?>">
                         </tr>     
                    <?php endforeach;

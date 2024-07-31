@@ -49,11 +49,12 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     {
         return [
             [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria',
-                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso'], 'integer'],
+                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
             [['porcentaje_cumplimiento'], 'number'],
             [['usuariosistema', 'observacion','hora_inicio_modulo'], 'string', 'max' => 20],
             [['operacion'], 'string', 'max' => 1],
+            [['hora_inicio', 'hora_corte'], 'string'],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['id_valor'], 'exist', 'skipOnError' => true, 'targetClass' => ValorPrendaUnidad::className(), 'targetAttribute' => ['id_valor' => 'id_valor']],
@@ -90,6 +91,10 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'aplicar_porcentaje' => 'aplicar_porcentaje',
             'idproceso' => 'idproceso',
             'iddetalleorden' => 'Tallas:',
+            'hora_inicio' => 'Hora inicio:',
+            'hora_corte' => 'Hora corte:',
+            'alimentacion' => 'alimentacion',
+            'hora_descontar' => 'hora_descontar',
         ];
     }
 

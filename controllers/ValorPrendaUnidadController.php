@@ -594,11 +594,14 @@ class ValorPrendaUnidadController extends Controller
         $operario = null;
         $detalle_balanceo = 0;
         $fecha_entrada = null;
-        $aplica_sabado = null;
+        $aplica_sabado = null; $alimentacion = null;
         $modulo = null;
         $id_detalle = null;
+        $hora_inicio = null;
+        $hora_corte = null;
         $nombre_modulo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
         $empresa = \app\models\Matriculaempresa::findOne(1);
+        $conCorteProceso = \app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $id])->orderBy('id_corte DESC')->one();
         if($tokenPlanta == 0){
           $listado_tallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();  
         }else{
@@ -610,21 +613,32 @@ class ValorPrendaUnidadController extends Controller
             $aplica_sabado = Html::encode($form->aplica_sabado);
             $modulo = Html::encode($form->modulo);
             $fecha_entrada = Html::encode($form->fecha_entrada);
+            $alimentacion = Html::encode($form->alimentacion);
             $id_detalle = Html::encode($form->id_detalle);
-            if ($operario > 0 && $fecha_entrada != null && $modulo != null && $id_detalle != null) {
-                $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
-                                                                        ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                        ->andWhere(['=','estado_operacion', 0])
-                                                                        ->andWhere(['=','id_balanceo', $modulo])->all();
-            }else{
-                Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO y TALLA para la busqueda.');
-                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]);
+            if($conCorteProceso){
+               $hora_corte = $conCorteProceso->hora_corte;
+               $hora_inicio = $conCorteProceso->hora_inicio;
             }
+            $conCrearCorte = \app\models\ValorPrendaCorteConfeccion::find(['=','id_valor', $id])->andWhere(['=','fecha_proceso', $fecha_entrada])->one();
+            if($conCrearCorte){ 
+                if ($operario > 0 && $fecha_entrada != null && $modulo != null && $id_detalle != null && $hora_inicio != null && $hora_corte != null) {
+                    $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
+                                                                            ->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                            ->andWhere(['=','estado_operacion', 0])
+                                                                            ->andWhere(['=','id_balanceo', $modulo])->all();
+                }else{
+                    Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO, TALLA, HORA INICIO Y HORA CPRTE para la busqueda.');
+                    return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]);
+                }
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Debe de crear la HORA DE INICIO y la HORA DE CORTE para ingresar las operaciones de cada empleado. Favor regresar y presionar el boton Crear_hora_corte');
+                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]); 
+            }    
         }
         if (isset($_POST["envia_dato_confeccion"])) {
             if ($fecha_entrada != null) {
                 $intIndice = 0; $cantidad = 0;
-               foreach ($_POST["operaciones"] as $intCodigo) {
+                foreach ($_POST["operaciones"] as $intCodigo) {
                     if ($_POST["cantidad"][$intIndice] > 0){
                         $total_unidades = 0; $cant = 0; $confeccionada = 0; $sumar_unidades = 0; $total_operacion = 0; $total_unidades_faltante = 0;
                         $conCantidad = \app\models\Ordenproducciondetalle::findOne($id_detalle);
@@ -634,6 +648,7 @@ class ValorPrendaUnidadController extends Controller
                         foreach ($detalle_valor_prenda as $detalle_valor):
                             $sumar_unidades += $detalle_valor->cantidad;
                         endforeach;
+                        
                         $total_unidades_faltante = $conCantidad->cantidad - $sumar_unidades; //totaliza las uniades faltantes
                         $cant = $_POST["cantidad"][$intIndice];
                         $confeccionada = $conCantidad->cantidad_confeccionada;
@@ -645,6 +660,8 @@ class ValorPrendaUnidadController extends Controller
                                 $tipo_proceso = ValorPrendaUnidad::findOne($id);
                                 $operarios = Operarios::findOne($detalle->id_operario);//busca el operario
                                 $con = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario])->andWhere(['=','dia_pago', $fecha_entrada])->one();
+                                $con_hora_repetida = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario])->andWhere(['=','dia_pago', $fecha_entrada])
+                                                                                      ->andWhere(['=','hora_inicio', $hora_inicio])->one(); //permite descontar un hora de entrada
                                 $table = new ValorPrendaUnidadDetalles();
                                 $table->id_operario = $operario;
                                 $table->idordenproduccion = $idordenproduccion;
@@ -664,6 +681,9 @@ class ValorPrendaUnidadController extends Controller
                                     if($con){
                                         $table->control_fecha = 1;
                                     }
+                                    if($con_hora_repetida){
+                                        $table->hora_descontar = 1;
+                                    }
                                 }
                                 $table->vlr_prenda = $valor_prenda;
                                 $table->vlr_pago = $valor_prenda * $cantidad;
@@ -673,11 +693,14 @@ class ValorPrendaUnidadController extends Controller
                                 $table->id_planta = $id_planta;
                                 $table->id_tipo = $tipo_proceso->idtipo;
                                 $table->aplica_regla = 1;
+                                $table->alimentacion = $alimentacion;
                                 if($aplica_sabado == 1){
                                     $table->aplica_sabado = 1;
                                 }
                                 $table->iddetalleorden = $id_detalle;
                                 $table->idproceso = $detalle->id_proceso;
+                                $table->hora_inicio = $_POST["hora_inicio"][$intIndice];
+                                $table->hora_corte = $hora_corte;
                                 $table->save(false);
                                 $this->SumarCantidadCostoConfeccion($id, $id_detalle, $idordenproduccion);
                                 $this->CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle);
@@ -687,9 +710,10 @@ class ValorPrendaUnidadController extends Controller
                         }else{
                             Yii::$app->getSession()->setFlash('info', 'No se puede ingresar mas operaciones del codigo ('.$detalle->id_proceso.') porque supera la cantidad de prendas. Cantidad de prendas: ('.$conCantidad->cantidad.'), cantidad faltante: ('. $total_unidades_faltante .'). Favor validar la informacion de ingreso.');
                         }
+                       
                     }    
                     $intIndice++;  
-               } 
+               }// cirra el foreach 
             }else{
                 Yii::$app->getSession()->setFlash('info', 'Debe de seleccionar la fecha de confeccion de la lista para enviar la información.');
                 
@@ -702,12 +726,38 @@ class ValorPrendaUnidadController extends Controller
             'detalle_balanceo' =>  $detalle_balanceo,
             'id_detalle' => $id_detalle,
             'empresa' => $empresa,
-             'codigo' => $codigo,
-             'tokenPlanta' => $tokenPlanta,
+            'codigo' => $codigo,
+            'tokenPlanta' => $tokenPlanta,
+            'conCorteProceso' => $conCorteProceso, 
             'nombre_modulo' => ArrayHelper::map($nombre_modulo, "id_balanceo", "nombreBalanceo"),
             'listado_tallas' => ArrayHelper::map($listado_tallas, "iddetalleorden", "listadoTalla"),
           
         ]);
+    }
+    
+    ///PROCESO QUE CREA LA HORA DE INICIO O CORTE
+    public function actionCrear_hora_corte($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
+
+        $model = new \app\models\FormCostoGastoEmpresa();
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["generar_hora_corte"])) {
+                $orden = Ordenproduccion::findOne($idordenproduccion);
+                $table = new \app\models\ValorPrendaCorteConfeccion();
+                $table->id_valor = $id;
+                $table->idordenproduccion = $idordenproduccion;
+                $table->codigo_producto = $orden->codigoproducto;
+                $table->hora_inicio = $model->hora_inicio;
+                $table->hora_corte = $model->hora_corte;
+                $table->fecha_proceso = date('Y-m-d');
+                $table->user_name = Yii::$app->user->identity->username;
+                $table->save(false);
+                return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
+           }
+            
+        }
+        return $this->renderAjax('crear_hora_corte', [
+            'model' => $model,       
+        ]);    
     }
    
    //VISTA DE BUSQUEDA DE OPERACION POR TALLAS
@@ -751,62 +801,54 @@ class ValorPrendaUnidadController extends Controller
     protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {
         $table = ValorPrendaUnidadDetalles::find()->orderBy('consecutivo DESC')->one();
         $operarios = Operarios::findOne($operario);
-        $hora_operario = $operarios->horarios->desde;
         $conMatricula = \app\models\Matriculaempresa::findOne(1);
         $auxiliar = $table->control_fecha;
-        $balanceoModulo= \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
-        $totalHoras = 0; $totalTiempo = 0;
+        $totalHoras = 0; $totalTiempo = 0; $Talimento = 0;
         $total_diario = 0; $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos = 0; $metaDiaria = 0; $cumplimiento = 0;
         if($operarios->vinculado == 1){
             $this->CostoOperarioVinculado($table, $auxiliar);
-            foreach ($balanceoModulo as $modulo):
-                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $hora_operario) {
-                    $horad = explode(":", $table->hora_inicio_modulo);
-                    $horah = explode(":", $operarios->horarios->hasta);
-                    $sumarh = $horah[0] - $horad[0];
-                    $sumarm = $horah[1] + $horad[1];
-                    $totalTiempo = $sumarh;
-                    $totalTiempo = ($sumarh * 60) + $sumarm;
-                    $totalTiempo = $totalTiempo / 60;
-                    $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado;
-                    $total_diario = round((60 / $can_minutos) * $totalTiempo, 0);
-                    $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
-                    $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
-                    $sw = 1;
-                }
-            endforeach;
-            if ($sw == 0) {
-                $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado;
-                $total_diario = round((60 / $can_minutos) * $operarios->horarios->total_horas, 0);
-                $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
-                $metaDiaria = round((((60 / $can_minutos) * $operarios->horarios->total_horas) * $conMatricula->porcentaje_empresa) / 100);
-            }
+            $horad = explode(":", $table->hora_inicio);
+            $horah = explode(":", $table->hora_corte);
+            $sumarh = $horah[0] - $horad[0];
+            $sumarm = $horah[1] + $horad[1];
+            $totalTiempo = $sumarh; //suma las horas
+            if($table->hora_inicio >= '06:00' && $table->hora_corte <= '12:00'){
+                $Talimento = $operarios->horarios->tiempo_desayuno;
+            }else{
+                $Talimento = $operarios->horarios->tiempo_almuerzo;
+            }    
+            $totalTiempo = (($sumarh * 60) + ($sumarm - $Talimento)); // convierte a minuto las horas
+            $totalTiempo = $totalTiempo / 60; //suma todo los minutos y vonvierte a hora
+           //busca valor del minuto vinculado
+            $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado;
+            $total_diario = round((60 / $can_minutos) * $totalTiempo, 0); //saca la meta por corte al 100%
+            $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2); //genera el cumplimiento por corte
+            $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
+            //calcula 
             $table->porcentaje_cumplimiento = $cumplimiento;
             $table->meta_diaria = $metaDiaria;
             $table->save(false);
-        }else{
-            //calculo para hallar el % de cumplimiento
-            foreach ($balanceoModulo as $modulo):
-                if ($table->dia_pago == $modulo->fecha_inicio && $table->hora_inicio_modulo > $hora_operario) {
-                    $horad = explode(":", $table->hora_inicio_modulo);
-                    $horah = explode(":", $operarios->horarios->hasta);
-                    $sumarh = $horah[0] - $horad[0];
-                    $sumarm = $horah[1] + $horad[1];
-                    $totalTiempo = ($sumarh * 60) + $sumarm;
-                    $totalTiempo = $totalTiempo / 60;
-                    $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato;
-                    $total_diario = round((60 / $can_minutos) * $totalTiempo, 0);
-                    $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
-                    $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
-                    $sw = 1;
-                }
-            endforeach;
-            if ($sw == 0) {
-                $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato;
-                $total_diario = round((60 / $can_minutos) * $operarios->horarios->total_horas, 0);
-                $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2);
-                $metaDiaria = round((((60 / $can_minutos) * $operarios->horarios->total_horas) * $conMatricula->porcentaje_empresa) / 100);
-            }
+        }
+        else{ // personal no vinculado
+            $this->CostoOperarioVinculado($table, $auxiliar);
+            $horad = explode(":", $table->hora_inicio);
+            $horah = explode(":", $table->hora_corte);
+            $sumarh = $horah[0] - $horad[0];
+            $sumarm = $horah[1] + $horad[1];
+            $totalTiempo = $sumarh; //suma las horas
+            if($table->hora_inicio >= '06:00' && $table->hora_corte <= '12:00'){
+                $Talimento = $operarios->horarios->tiempo_desayuno;
+            }else{
+                $Talimento = $operarios->horarios->tiempo_almuerzo;
+            }    
+            $totalTiempo = (($sumarh * 60) + ($sumarm - $Talimento)); // convierte a minuto las horas
+            $totalTiempo = $totalTiempo / 60; //suma todo los minutos y vonvierte a hora
+           //busca valor del minuto vinculado
+            $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato;
+            $total_diario = round((60 / $can_minutos) * $totalTiempo, 0); //saca la meta por corte al 100%
+            $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2); //genera el cumplimiento por corte
+            $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
+            //calcula 
             $table->porcentaje_cumplimiento = $cumplimiento;
             $table->meta_diaria = $metaDiaria;
             $table->save(false);

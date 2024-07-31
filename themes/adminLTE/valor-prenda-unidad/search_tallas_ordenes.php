@@ -27,9 +27,23 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-    <?php if ($model->autorizado == 0) { ?>
-                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-success btn-sm']);
-        } else { 
+    <?php if ($model->autorizado == 0) { 
+            echo Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-success btn-sm']);?>
+                      
+                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear hora corte',
+                    ['/valor-prenda-unidad/crear_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
+                      ['title' => 'Crear hora de corte para ingresar las operaciones',
+                       'data-toggle'=>'modal',
+                       'data-target'=>'#modalcrearhoracorte',
+                       'class' => 'btn btn-warning btn-xs'
+                      ])    
+                ?>
+                <div class="modal remote fade" id="modalcrearhoracorte">
+                     <div class="modal-dialog modal-lg" style ="width: 450px;">    
+                         <div class="modal-content"></div>
+                     </div>
+                </div>
+    <?php } else { 
              if ($model->cerrar_pago == 0) { 
                 echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-default btn-sm']);
                 echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago', ['cerrarpago', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],['class' => 'btn btn-warning btn-xs',

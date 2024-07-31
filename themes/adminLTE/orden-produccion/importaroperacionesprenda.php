@@ -28,12 +28,13 @@ $this->params['breadcrumbs'][] = $this->title;
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
                     'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
-                    'labelOptions' => ['class' => 'col-sm-3 control-label'],
+                    'labelOptions' => ['class' => 'col-sm-4 control-label'],
                     'options' => []
                 ],
 
 ]);
 ?>
+
 <p>
      <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_detalle', 'id' => $id ], ['class' => 'btn btn-primary btn-sm']) ?>
    </p>
@@ -46,7 +47,9 @@ $this->params['breadcrumbs'][] = $this->title;
         <div  class="row">
           <?= $formulario->field($form, "orden_produccion")->input("search") ?>  
         </div>  
-         
+        <div class="row checkbox checkbox-success" align ="center">
+              <?= $formulario->field($form, 'buscar')->checkbox(['label' => 'Buscar desde inventario', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'buscar']) ?>
+        </div>
      </div>    
     <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar operaciones", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -84,11 +87,24 @@ $this->params['breadcrumbs'][] = $this->title;
                     foreach ($model as $val):?>
                             <tr style='font-size:85%;'>             
                                 <td><?= $val->idproceso ?></td>    
-                                <td><?= $val->proceso ?></td>
-                                <td style="text-align: right"><?= ''.number_format($val->total,0)?></td>
-                                <td><?= $val->tipomaquina->descripcion ?></td>
-                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->iddetalleproceso ?>"></td> 
-                                <input type="hidden" name="id_detalle[]" value="<?= $val->iddetalleproceso ?>">
+                                <?php if($buscar == 0){?>
+                                    <td><?= $val->proceso ?></td>
+                                    <td style="text-align: right"><?= ''.number_format($val->total,0)?></td>
+                                    <td><?= $val->tipomaquina->descripcion ?></td>
+                                <?php }else{?>
+                                    <td><?= $val->proceso->proceso ?></td>
+                                    <td style="text-align: right"><?= ''.number_format($val->segundos,0)?></td>
+                                    <td><?= $val->tipoMaquinas->descripcion ?></td>
+                                <?php }
+                                if($buscar == 0){?>
+                                    <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->iddetalleproceso ?>"></td> 
+                                    <input type="hidden" name="id_detalle[]" value="<?= $val->iddetalleproceso ?>">
+                                <?php }else{?>
+                                    <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->id_operacion ?>"></td> 
+                                    <input type="hidden" name="id_detalle[]" value="<?= $val->id_operacion ?>">
+                                <?php }?>    
+                               
+                               
 
                             </tr>  
                     <?php endforeach;

@@ -10,13 +10,14 @@ use yii\base\Model;
  */
 class FormImportarOperaciones extends Model
 {
-    public $orden_produccion;    
+    public $orden_produccion;  
+    public $buscar;
 
     public function rules()
     {
         return [
             [['orden_produccion'],'required'],     //, 'messaje' => 'Campo requerido para la consulta'    
-            [['orden_produccion'],'integer'],            
+            [['orden_produccion','buscar'],'integer'],            
            
         ];
     }
@@ -24,7 +25,8 @@ class FormImportarOperaciones extends Model
     public function attributeLabels()
     {
         return [
-            'orden_produccion' => 'Digite la orden producción a buscar:',            
+            'orden_produccion' => 'Digite la orden de producción/Salida de bodega:',
+            'buscar' => 'buscar',                
           
         ];
     }

@@ -3476,20 +3476,32 @@ class OrdenProduccionController extends Controller {
             $form = new \app\models\FormImportarOperaciones();
             $orden_produccion = null;
             $model = null;
+            $buscar = 0;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $orden_produccion = Html::encode($form->orden_produccion);
-                    $orden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->one();
-                    if ($orden){
-                       $detalle = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $orden->iddetalleorden])->orderBy('proceso ASC')->all(); 
-                       $model = $detalle;
+                    $buscar = Html::encode($form->buscar);
+                    if($buscar == 0){
+                        $orden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->one();
                     }else{
-                        Yii::$app->getSession()->setFlash('warning', 'La orden de produccion que digito NO existe en la base de datos. ');
+                       $orden = \app\models\SalidaBodegaOperaciones::find()->where(['=','id_salida_bodega', $orden_produccion])->one(); 
+                    }    
+                    if ($orden){
+                        if($buscar == 0){
+                            $detalle = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $orden->iddetalleorden])->orderBy('proceso ASC')->all(); 
+                        }else{
+                            echo $orden->id_salida_bodega;
+                           $detalle = \app\models\SalidaBodegaOperaciones::find()->where(['=','id_salida_bodega', $orden->id_salida_bodega])->orderBy('idproceso ASC')->all(); 
+                        }    
+                         $model = $detalle;
+                    }else{
+                        Yii::$app->getSession()->setFlash('warning', 'La orden de produccion / Salida de bodega que digito NO existe en la base de datos. ');
                         return $this->render('importaroperacionesprenda', [
                                         'form' => $form,
                                         'model' => $model,
                                         'id' => $id,
                                         'iddetalleorden' => $iddetalleorden,
+                                        'buscar' => $buscar,
                                         ]);
                     }
                 }else{
@@ -3501,20 +3513,37 @@ class OrdenProduccionController extends Controller {
                     $intIndice = 0;
                     $cont = 0;
                     foreach ($_POST["operaciones"] as $intCodigo) {
-                        $proceso = Ordenproducciondetalleproceso::findOne($intCodigo);
-                        if($proceso){
-                            $table = new Ordenproducciondetalleproceso();
-                            $table->proceso = $proceso->proceso;
-                            $table->duracion = $proceso->duracion;
-                            $table->total = $proceso->total;
-                            $table->idproceso = $proceso->idproceso;
-                            $table->iddetalleorden = $iddetalleorden;
-                            $table->id_tipo = $proceso->id_tipo;
-                            $table->cantidad_operada = 0;
-                            $cont += 1;
-                            $table->insert();
-                        }
-                        $intIndice++; 
+                        if($buscar == 0){
+                            $proceso = Ordenproducciondetalleproceso::findOne($intCodigo);
+                            if($proceso){
+                                $table = new Ordenproducciondetalleproceso();
+                                $table->proceso = $proceso->proceso;
+                                $table->duracion = $proceso->duracion;
+                                $table->total = $proceso->total;
+                                $table->idproceso = $proceso->idproceso;
+                                $table->iddetalleorden = $iddetalleorden;
+                                $table->id_tipo = $proceso->id_tipo;
+                                $table->cantidad_operada = 0;
+                                $cont += 1;
+                                $table->insert();
+                            }
+                            $intIndice++; 
+                        }else{
+                            $proceso = \app\models\SalidaBodegaOperaciones::findOne($intCodigo);
+                            if($proceso){
+                                $table = new Ordenproducciondetalleproceso();
+                                $table->proceso = $proceso->proceso->proceso;
+                                $table->duracion = $proceso->segundos;
+                                $table->total = $proceso->segundos;
+                                $table->idproceso = $proceso->idproceso;
+                                $table->iddetalleorden = $iddetalleorden;
+                                $table->id_tipo = $proceso->id_tipo;
+                                $table->cantidad_operada = 0;
+                                $cont += 1;
+                                $table->insert();
+                            }
+                            $intIndice++;  
+                        }    
                     }
                     Yii::$app->getSession()->setFlash('info', 'Se importaron '.  $cont. ' registros de forma exitosa. ');
                    return $this->render('importaroperacionesprenda', [
@@ -3522,6 +3551,7 @@ class OrdenProduccionController extends Controller {
                                         'model' => $model,
                                         'id' => $id,
                                         'iddetalleorden' => $iddetalleorden,
+                                        'buscar' => $buscar,
                                         ]);
                 }
             }            
@@ -3530,6 +3560,7 @@ class OrdenProduccionController extends Controller {
                            'model' => $model,
                            'id' => $id,
                            'iddetalleorden' => $iddetalleorden,
+                           'buscar' => $buscar,
                            ]);
         }else{
              $this->redirect(["orden-produccion/view_detalle", 'id' => $id]);

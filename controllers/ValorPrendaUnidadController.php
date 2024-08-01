@@ -155,34 +155,43 @@ class ValorPrendaUnidadController extends Controller
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 107])->all()) {
                 $form = new FormFiltroResumePagoPrenda();
                 $id_operario = null;
-                $idordenproduccion = null;
-                $operacion = null;
                 $dia_pago = '';
                 $fecha_corte = '';
-                $bodega = null;
-                $tipo_servicio = null;
                 $validar_eficiencia = 0;
                 $modelo = null;
                 $pages = null;
-                $modelo2 = null;
+                $sw = 0;
+                $id_planta = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $validar_eficiencia = Html::encode($form->validar_eficiencia);
+                        $id_planta = Html::encode($form->id_planta);
                         $id_operario = Html::encode($form->id_operario);
-                        $idordenproduccion = Html::encode($form->idordenproduccion);
-                        $operacion = Html::encode($form->operacion);
                         $dia_pago = Html::encode($form->dia_pago);
                         $fecha_corte = Html::encode($form->fecha_corte);
-                        $bodega = Html::encode($form->id_planta);
-                        $tipo_servicio =Html::encode($form->tipo_servicio);
-                        $table = ValorPrendaUnidadDetalles::find()
-                                ->andFilterWhere(['=', 'id_operario', $id_operario])
-                                ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
-                                ->andFilterWhere(['=', 'operacion', $operacion])
-                                ->andFilterWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                ->andFilterWhere(['=', 'id_tipo', $tipo_servicio])
-                                ->andFilterWhere(['=', 'id_planta', $bodega]);
-                        $table = $table->orderBy('consecutivo DESC');
+                        if($dia_pago == null && $fecha_corte == null){
+                            Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
+                            return $this->redirect(['indexsoporte']);
+                        }else{
+                            if($id_operario <> null ){
+                                $sw = 1;
+                                $table = ValorPrendaUnidadDetalles::find()
+                                        ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andWhere(['=','id_operario', $id_operario]);
+                                        $table = $table->orderBy('dia_pago DESC');
+                            }else{
+                                $sw = 2;
+                                if($id_planta <> null ){
+                                    $table = ValorPrendaUnidadDetalles::find()
+                                        ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andWhere(['=', 'id_planta', $id_planta])
+                                        ->groupBy('id_operario');
+                                }else{
+                                   Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
+                                   return $this->redirect(['eficiencia_diaria']);
+                                 }    
+                            }    
+                        }
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
@@ -205,14 +214,12 @@ class ValorPrendaUnidadController extends Controller
                 return $this->render('indexsoporte', [
                             'modelo' => $modelo,
                             'form' => $form,
+                            'sw' => $sw,
                             'pagination' => $pages,
                             'validar_eficiencia' => $validar_eficiencia,
                             'dia_pago' =>$dia_pago,
                             'fecha_corte' => $fecha_corte,
                             'id_operario' => $id_operario,
-                            'bodega' => $bodega,
-                            'modelo2' => $modelo2,
-                            'tipo_servicio' => $tipo_servicio,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -662,7 +669,7 @@ class ValorPrendaUnidadController extends Controller
                                 $operarios = Operarios::findOne($detalle->id_operario);//busca el operario
                                 $con = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario])->andWhere(['=','dia_pago', $fecha_entrada])->one();
                                 $con_hora_repetida = ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario])->andWhere(['=','dia_pago', $fecha_entrada])
-                                                                                      ->andWhere(['=','hora_inicio', $hora_inicio])->one(); //permite descontar un hora de entrada
+                                                                                      ->andWhere(['=','hora_corte', $hora_corte])->orderBy('consecutivo DESC')->one(); //permite descontar un hora de entrada
                                 $table = new ValorPrendaUnidadDetalles();
                                 $table->id_operario = $operario;
                                 $table->idordenproduccion = $idordenproduccion;
@@ -682,7 +689,7 @@ class ValorPrendaUnidadController extends Controller
                                     if($con){
                                         $table->control_fecha = 1;
                                     }
-                                    if($con_hora_repetida){
+                                    if(!$con_hora_repetida){
                                         $table->hora_descontar = 1;
                                     }
                                 }

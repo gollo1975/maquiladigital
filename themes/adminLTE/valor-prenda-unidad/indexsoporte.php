@@ -149,8 +149,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <th scope="col" style='background-color:#B9D5CE;'>Total</th>
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Porcentaje de cumplimiento">%</span></th>
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Bodega o planta" >Planta</span></th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Hora inicio</th>
-                                 <th scope="col" style='background-color:#B9D5CE;'>Hora corte</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>H. inicio</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>H. corte</th>
+                                <th scope="col" style='background-color:#B9D5CE;'>Linea</th>
                             </thead>
                             <body>
                                 <?php 
@@ -182,6 +183,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             <td><?= $val->planta->nombre_planta?></td>
                                             <td><?= $val->hora_inicio?></td>
                                             <td><?= $val->hora_corte?></td>
+                                             <td><?= $val->hora_descontar?></td>
 
                                     <?php endforeach;
                                 }?>

@@ -185,7 +185,8 @@ class ValorPrendaUnidadController extends Controller
                                     $table = ValorPrendaUnidadDetalles::find()
                                         ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
                                         ->andWhere(['=', 'id_planta', $id_planta])
-                                        ->groupBy('id_operario');
+                                        ->groupBy('id_operario')
+                                        ->orderBy('id_operario ASC');
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
                                    return $this->redirect(['eficiencia_diaria']);

@@ -3,7 +3,7 @@
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $model app\models\ContactForm */
 
-
+//hola
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;

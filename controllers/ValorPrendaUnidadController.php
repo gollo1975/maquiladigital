@@ -184,8 +184,8 @@ class ValorPrendaUnidadController extends Controller
                                 if($id_planta <> null ){
                                     $table = ValorPrendaUnidadDetalles::find()
                                         ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                        ->andWhere(['=', 'id_planta', $id_planta])
-                                        ->groupBy('id_operario');
+                                        ->andWhere(['=','id_planta', $id_planta]);
+                                        $table = $table->orderBy('id_operario ASC');
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
                                    return $this->redirect(['eficiencia_diaria']);
@@ -220,6 +220,7 @@ class ValorPrendaUnidadController extends Controller
                             'dia_pago' =>$dia_pago,
                             'fecha_corte' => $fecha_corte,
                             'id_operario' => $id_operario,
+                            'id_planta' => $id_planta,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -256,22 +257,20 @@ class ValorPrendaUnidadController extends Controller
                                 $table = ValorPrendaUnidadDetalles::find()
                                         ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
                                         ->andWhere(['=','id_operario', $id_operario])
-                                        ->andwhere(['=','aplica_sabado', 0])->all();
-
-                            } else { 
+                                        ->orderBy('dia_pago DESC')->all();
+                            }else{
                                 $sw = 2;
                                 if($id_planta <> null ){
                                     $table = ValorPrendaUnidadDetalles::find()
                                         ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                        ->andWhere(['=', 'id_planta', $id_planta])
-                                        ->groupBy('id_operario')->all();
-                                        
+                                        ->andWhere(['=','id_planta', $id_planta])
+                                        ->orderBy('id_operario ASC')->all();
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
                                    return $this->redirect(['eficiencia_diaria']);
                                  }    
-                            }  
-                          $modelo = $table;     
+                            }    
+                            $modelo = $table;     
                         }  
                         
                     } else {
@@ -683,6 +682,9 @@ class ValorPrendaUnidadController extends Controller
                                     $nota = 'Contrato';
                                     $valor_costo = $valor_prenda * $cantidad;
                                     $table->costo_dia_operaria = $valor_costo;
+                                    if(!$con_hora_repetida){
+                                        $table->hora_descontar = 1;
+                                    }
                                 }else{ // operaria vinculada
                                     $valor_prenda = round($detalle->minutos * $empresa->vlr_minuto_vinculado);
                                     $nota = 'Vinculado';

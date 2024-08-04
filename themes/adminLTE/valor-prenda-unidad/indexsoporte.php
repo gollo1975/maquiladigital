@@ -8,6 +8,9 @@ use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
+use yii\db\Query;
+use yii\db\Command;
+use yii\db\ActiveQuery;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
 use app\models\ValorPrendaUnidadDetalles;
@@ -203,17 +206,29 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                 <div class="panel panel-success">
                     <div class="panel-body">
                         <table class="table table-bordered table-hover">
-                            <thead>
-                                <tr style ='font-size:85%;'>    
-                                <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Fecha operación</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Sabado</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
-                            </thead>
+                            <?php if($sw == 1){?>
+                                <thead>
+                                    <tr style ='font-size:85%;'>    
+                                    <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Fecha operación</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Sabado</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
+                                </thead>
+                            <?php }else{?>
+                                <thead>
+                                    <tr style ='font-size:85%;'>    
+                                    <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
+                                </thead>
+                            <?php }?>    
                             <body>
                                 <?php
                                if($modelo){
@@ -233,11 +248,16 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                              $auxiliar = $val->dia_pago; 
                                           } 
                                         endforeach;
-                                        $promedio = ''.number_format($sumarPorcentaje / $contarDia,2);
+                                        if($contarDia){
+                                                 $promedio = ''.number_format($sumarPorcentaje / $contarDia,2);
+                                        }else{
+                                                 $promedio = 0;
+                                        }    
+                                       
                                         foreach ($modelo as $validar):
                                             if($auxiliar <> $validar->id_operario){
                                                $auxiliar = $validar->id_operario;?>
-                                                <tr>
+                                                <tr style ='font-size:85%;'>
                                                     <td><?= $validar->operarioProduccion->documento?></td>
                                                     <td><?= $validar->operarioProduccion->nombrecompleto?></td>
                                                     <td><?= $validar->dia_pago?></td>
@@ -245,21 +265,21 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     
 
                                                      <?php if($cont > 0){?>
-                                                        <td><?= $promedio?>%</td>
+                                                        <td style="background-color:#83c5be; text-align: right"><?= $promedio?>%</td>
                                                         <?php if($promedio >= $empresa->porcentaje_empresa){?>
                                                              <td style="text-align: right"><?= ''. number_format($totalPagar,0)?></td>
                                                             <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION'  ?>   <span class="glyphicon glyphicon-blackboard"></span></td>
                                                         <?php } else{
                                                             if($promedio >= $empresa->porcentaje_minima_eficiencia){ ?>
-                                                                      <td style="text-align: right"><?= ''. number_format($totalPagar,0)?></td>
+                                                                      <td style="text-align: right"><?= '$'. number_format($totalPagar,0)?></td>
                                                                     <td style='background-color:#83c5be;'><?= 'LE CUMPLE A LA EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-up"></span></td>
                                                             <?php }else{ ?>
-                                                                    <td style="text-align: right"><?= ''. number_format($totalPagar,0)?></td>
+                                                                    <td style="text-align: right"><?= '$'. number_format($totalPagar,0)?></td>
                                                                 <td style='background-color:#b5c99a;'><?= 'NO CUMPLE LA EFICIENCIA DE EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-down"></span></td>
                                                             <?php }      
                                                         }?>
                                                     <?php } else{ ?>
-                                                          <td style="text-align: right"><?= ''. number_format($totalPagar,0)?></td>
+                                                          <td style="text-align: right"><?= '$'. number_format($totalPagar,0)?></td>
                                                          <td><?= 'NO GANA BONIFICACION'?></td>
                                                     <?php }?>   
                                                     <td><?= $validar->planta->nombre_planta?></td>
@@ -271,7 +291,60 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             }
                                         endforeach;
                                     }else{
-                                        //CICLO QUE BUSQUEDA EFICIENCIA POR PLANTA
+                                     
+                                        $query = ValorPrendaUnidadDetalles::find()
+                                            ->joinWith('operarioProduccion')
+                                            ->where(['valor_prenda_unidad_detalles.id_planta' => $id_planta])
+                                            ->andWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                            ->groupBy('id_operario')
+                                            ->orderBy('id_operario ASC');
+                                        $resultados = $query->all();
+                                        $con = 0; $totalPorcentaje = 0; $totalDiaCorte = 0; $totalPagado = 0;
+                                        foreach ($resultados as $resultado):
+                                            $con += 1;
+                                            $buscarEficiencia = ValorPrendaUnidadDetalles::find ()->where (['=','id_operario', $resultado->id_operario])
+                                                                                                   ->andWhere(['between','dia_pago', $dia_pago, $fecha_corte])->all ();
+                                            foreach ($buscarEficiencia as $buscar):
+                                                $sumarPorcentaje += $buscar->porcentaje_cumplimiento;
+                                                $totalPagar += $buscar->vlr_pago;
+                                                if($buscar->hora_descontar == 1){
+                                                    $contarDia += 1;
+                                                }
+                                            endforeach;
+                                            //actualiza y descarga variables
+                                            $totalPorcentaje = $sumarPorcentaje;
+                                            $totalDiaCorte = $contarDia;
+                                            $totalPagado = $totalPagar;
+                                            if($totalDiaCorte){
+                                                $promedio = round(($totalPorcentaje / $totalDiaCorte),2);
+                                            }else{
+                                                 $promedio = 0;
+                                            }  ?>  
+                                            <tr style ='font-size:85%;'>
+                                                <td><?= $resultado->operarioProduccion->documento?></td>
+                                                <td><?= $resultado->operarioProduccion->nombrecompleto?></td>
+                                                <td style="text-align: right; "><?= $promedio ?> %</td>
+                                                <?php if($promedio > $empresa->porcentaje_empresa){?>
+                                                    <td style="text-align: right"><?= '$'. number_format($totalPagado,0)?></td>
+                                                    <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION'  ?>   <span class="glyphicon glyphicon-blackboard"></span></td>
+                                                <?php }else{
+                                                    if($promedio > $empresa->porcentaje_minima_eficiencia){?>
+                                                        <td style="text-align: right"><?= '$'. number_format($totalPagado,0)?></td>
+                                                        <td style='background-color:#83c5be;'><?= 'LE CUMPLE A LA EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-up"></span></td>
+                                                    <?php }else{?>
+                                                        <td style="text-align: right"><?= '$'. number_format($totalPagado,0)?></td>
+                                                        <td style='background-color:#b5c99a;'><?= 'NO CUMPLE LA EFICIENCIA DE EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-down"></span></td>
+                                                    <?php }
+                                                }?> 
+                                                 <td><?= $resultado->planta->nombre_planta?></td>        
+                                            </tr>
+                                            <?php
+                                            $sumarPorcentaje = 0;
+                                            $promedio = 0;
+                                            $contarDia = 0; 
+                                            $totalPagar = 0;
+                                        endforeach;
+                                        
                                     }    
                                }     
                                       

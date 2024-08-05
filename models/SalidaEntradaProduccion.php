@@ -46,7 +46,7 @@ class SalidaEntradaProduccion extends \yii\db\ActiveRecord
     {
         return [
             [['idcliente', 'idordenproduccion', 'tipo_proceso', 'fecha_entrada_salida','id_entrada_tipo'], 'required'],
-            [['idcliente', 'idordenproduccion', 'tipo_proceso', 'total_cantidad','numero_tulas','id_entrada_tipo'], 'integer'],
+            [['idcliente', 'idordenproduccion', 'tipo_proceso', 'total_cantidad','numero_tulas','id_entrada_tipo','servicio_cobrado'], 'integer'],
             [['fecha_entrada_salida', 'fecha_proceso'], 'safe'],
             [['codigo_producto'], 'string', 'max' => 15],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -75,6 +75,7 @@ class SalidaEntradaProduccion extends \yii\db\ActiveRecord
             'observacion' => 'Observacion:',
             'numero_tulas'=> 'Nro tulas:',
             'id_entrada_tipo' => 'Tipo entrada:',
+            'servicio_cobrado' => 'servicio_cobrado',
         ];
     }
 
@@ -105,6 +106,12 @@ class SalidaEntradaProduccion extends \yii\db\ActiveRecord
     public function getTipoentrada()
     {
         return $this->hasOne(TipoEntrada::className(), ['id_entrada_tipo' => 'id_entrada_tipo']);
+    }
+    
+    //PROCESO QEU AGRUPA EL CODGIO DE LA REFERENCIA
+    public function getNombreReferencia()
+    {
+        return "Refe: {$this->codigo_producto} - Orden: {$this->idordenproduccion} - Fecha salida: {$this->fecha_entrada_salida}";
     }
     
     public function getTipoProceso()

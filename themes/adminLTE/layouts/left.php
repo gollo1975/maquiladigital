@@ -248,6 +248,15 @@
                                                 ['label' => 'Orden Producción', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/index']],
                                                 ['label' => 'Orden Tercero', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indextercero']],
                                                 ['label' => 'Entrada / Salida', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indexentradasalida']],
+                                                [
+                                                'label' => 'Despachos',
+                                                'icon' => 'database',
+                                                'url' => '#',
+                                                'items' => [
+                                                    ['label' => 'Despachos/Fletes', 'icon' => 'plus-square-o', 'url' => ['/despachos/index']],
+                                                    ['label' => 'Descargar pagos', 'icon' => 'plus-square-o', 'url' => ['/despachos/descargar_pagos']],
+                                                ]],
+                                                
                                                 ['label' => 'Ficha Operaciones', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/proceso']],
                                                 ['label' => 'Asignacion talla', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/index_asignacion']],
                                             ],

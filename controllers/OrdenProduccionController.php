@@ -779,9 +779,15 @@ class OrdenProduccionController extends Controller {
         $clientes = Cliente::find()->all();
         $orden = Ordenproduccion::find()->where(['=','cerrar_orden', 0])->orderBy('idordenproduccion DESC')->all();        
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+           $tipo = \app\models\TipoEntrada::findOne($model->id_entrada_tipo);
             $model->usuariosistema = Yii::$app->user->identity->username;
             $orden = Ordenproduccion::findOne($model->idordenproduccion);
             $model->codigo_producto = $orden->codigoproducto;
+            if($tipo->genera_cobro == 1){
+                $model->servicio_cobrado = 0; 
+            }else{
+                $model->servicio_cobrado = 1;
+            }
             $model->update();
             return $this->redirect(['indexentradasalida']);
         }
@@ -843,8 +849,14 @@ class OrdenProduccionController extends Controller {
             Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
         } else {
             if ($model->load(Yii::$app->request->post()) && $model->save()) {
+                $tipo = \app\models\TipoEntrada::findOne($model->id_entrada_tipo);
                 $orden_produccion = Ordenproduccion::find()->where(['=','idordenproduccion', $model->idordenproduccion])->one();
                 $model->codigo_producto = $orden_produccion->codigoproducto;
+                if($tipo->genera_cobro == 1){
+                    $model->servicio_cobrado = 0; 
+                }else{
+                    $model->servicio_cobrado = 1;
+                }
                 $model->update();
                 return $this->redirect(['indexentradasalida']);
             }

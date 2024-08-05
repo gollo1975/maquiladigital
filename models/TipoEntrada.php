@@ -27,6 +27,7 @@ class TipoEntrada extends \yii\db\ActiveRecord
     {
         return [
             [['concepto'], 'required'],
+            [['genera_cobro'], 'integer'],
             [['concepto'], 'string', 'max' => 20],
         ];
     }
@@ -39,6 +40,7 @@ class TipoEntrada extends \yii\db\ActiveRecord
         return [
             'id_entrada_tipo' => 'Id Entrada Tipo',
             'concepto' => 'Concepto',
+            'genera_cobro' => 'genera_cobro',
         ];
     }
 }

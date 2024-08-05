@@ -142,7 +142,7 @@ class DespachosController extends Controller
                                                         ->orWhere(['=','id_entrada_tipo', 9])
                                                         ->orWhere(['=','id_entrada_tipo', 10])
                                                         ->orWhere(['=','id_entrada_tipo', 11])
-                                                         ->orWhere(['=','servicio_cobrado', 0])->orderBy('id_salida DESC')->all();
+                                                         ->andWhere(['=','servicio_cobrado', 0])->orderBy('id_salida DESC')->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $salida = SalidaEntradaProduccion::findOne($model->id_salida);
             $proveedor = \app\models\Proveedor::findOne($model->idproveedor);

@@ -137,12 +137,11 @@ if($tokenPlanta == null){
                     <td align="right"><?= ''.number_format($val->vlr_vinculado,0) ?></td>
                     <td align="right"><?= ''.number_format($val->vlr_contrato,0) ?></td>
                     <td align="right"><?= ''.number_format($val->total_pagar,0) ?></td>
-                    
-                    <td><?= $val->planta->nombre_planta ?></td>
+                    <td style="background-color: <?= $val->planta->nombre_color?> " ><?= $val->planta->nombre_planta ?></td>
                     <td><?= $val->autorizadoPago?></td>
                     <td><?= $val->cerradoPago?></td>
                      <td><?= $val->estadovalor?></td>
-                <?php }else {?>
+                <?php }else { ?>
                     <td style='background-color:#DDE6E4;'><?= $val->id_valor ?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->idordenproduccion ?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->ordenproduccion->codigoproducto ?></td>
@@ -162,7 +161,7 @@ if($tokenPlanta == null){
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_vinculado,0) ?></td>
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_contrato,0) ?></td>
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->total_pagar,0) ?></td>
-                    <td style='background-color:#DDE6E4;'><?= $val->planta->nombre_planta ?></td>
+                    <td style="background-color: <?= $val->planta->nombre_color?> " ><?= $val->planta->nombre_planta ?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->autorizadoPago?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->cerradoPago?></td>
                      <td style='background-color:#DDE6E4;'><?= $val->estadovalor?></td>

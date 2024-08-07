@@ -99,7 +99,6 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>F. Inicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. Final</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
-                <th scope="col" style='background-color:#B9D5CE;'><span title="Total segundos">T. Seg.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Minutos balanceo">M. Bal.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Minutos por operarios">M/O</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'> <span title="Unidades">Uni.</span></th>
@@ -123,7 +122,6 @@ $form = ActiveForm::begin([
                 <td><?= $val->fecha_inicio ?></td>
                 <td><?= $val->fecha_terminacion ?></td>
                 <td><?= $val->cliente->nombrecorto ?></td>
-                <td><?= $val->ordenproduccion->sam_balanceo * 60,2 ?></td>
                 <td><?= $val->ordenproduccion->sam_balanceo ?></td>
                 <td><?= $val->tiempo_operario ?></td>
                 <td><?= $val->ordenproduccion->cantidad ?></td>
@@ -137,7 +135,7 @@ $form = ActiveForm::begin([
                           <?php } 
                  }?>      
                 <td><?= $val->estadomodulo ?></td>
-                <td><?= $val->plantaempresa->nombre_planta ?></td>
+                <td style="background-color: <?= $val->plantaempresa->nombre_color?> "><?= $val->plantaempresa->nombre_planta ?></td>
                 <td><?= ''.number_format($val->total_eficiencia,1) ?></td>
                  <?php 
                     if($val->estado_modulo == 0){?>

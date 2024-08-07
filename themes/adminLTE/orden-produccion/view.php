@@ -190,6 +190,7 @@ $view = 'orden-produccion';
                                     <thead>
                                         <tr>
                                             <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
@@ -203,6 +204,7 @@ $view = 'orden-produccion';
                                         <?php foreach ($modeldetalles as $val): ?>
                                             <tr style="font-size: 85%;">
                                                 <td><?= $val->iddetalleorden ?></td>
+                                                <td style="background-color: <?= $val->plantaProduccion->nombre_color?> "><?= $val->plantaProduccion->nombre_planta ?></td>
                                                 <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla   ?></td>
                                                 <td><?= $val->codigoproducto ?></td>
                                                 <td><?= $val->cantidad ?></td>

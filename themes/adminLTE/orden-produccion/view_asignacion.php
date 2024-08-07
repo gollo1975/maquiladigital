@@ -130,11 +130,7 @@ $view = 'orden-produccion';
                                                 <td><?= $val->iddetalleorden ?></td>
                                                 <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla   ?></td>
                                                 <td><?= $val->codigoproducto ?></td>
-                                                <?php if($val->id_planta == 1){?>
-                                                    <td><?= $val->plantaProduccion->nombre_planta ?></td>
-                                                <?php }else{?>
-                                                    <td style='background-color:#F6F7B3'><?= $val->plantaProduccion->nombre_planta ?></td>
-                                                <?php }?>    
+                                                <td style='background-color: <?= $val->plantaProduccion->nombre_color ?>'><?= $val->plantaProduccion->nombre_planta ?></td>
                                                 <td><?= $val->cantidad ?></td>
                                                 <td><?= '$ '.number_format($val->vlrprecio,2) ?></td>
                                                 <td><?= '$ '.number_format($val->subtotal,2) ?></td>

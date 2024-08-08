@@ -48,7 +48,7 @@ class ProcesoProduccionSearch extends ProcesoProduccion
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => ['proceso' => SORT_ASC]] // Agregar esta linea para agregar el orden por defecto
+            'sort'=> ['defaultOrder' => ['idproceso' => SORT_DESC]] // Agregar esta linea para agregar el orden por defecto
         ]);
 
         $this->load($params);

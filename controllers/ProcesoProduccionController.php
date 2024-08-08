@@ -84,13 +84,23 @@ class ProcesoProduccionController extends Controller
                 $table->proceso = $model->proceso;
                 if ($model->estado == 1){
                      $table->segundos = $model->segundos;
-                     $table->minutos = round($table->segundos /60, 2);
+                    if($table->segundos > 0){
+                        $table->minutos = round($table->segundos /60, 2);
+                    }else{
+                       Yii::$app->getSession()->setFlash('error', 'Debe de ingresarel los segundos de la operacion.');
+                       return $this->redirect(['create', 'model' => $model]);
+                    }    
                     $table->estandarizado = $model->estandarizado;
                     $table->save(false);
                     return $this->redirect(['index']);
                 }else{
                     $table->minutos = $model->minutos;
-                    $table->segundos = round($table->minutos * 60);
+                    if($table->minutos > 0){
+                        $table->segundos = round($table->minutos * 60);
+                    }else{
+                       Yii::$app->getSession()->setFlash('error', 'Debe de ingresarel los MInutos de la operacion.');
+                       return $this->redirect(['create', 'model' => $model]); 
+                    }    
                     $table->estandarizado = $model->estandarizado;
                     $table->save(false);
                     return $this->redirect(['index']);

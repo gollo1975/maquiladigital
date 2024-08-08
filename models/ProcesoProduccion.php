@@ -37,7 +37,7 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['proceso'], 'required','message'=> 'Campo obligatorio'],
+            [['proceso','estandarizado'], 'required','message'=> 'Campo obligatorio'],
             [['estado','estandarizado'], 'integer'],
            [['segundos','minutos'], 'number'],
             [['proceso'], 'string', 'max' => 50],
@@ -51,11 +51,11 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
     {
         return [
             'idproceso' => 'Id',
-            'proceso' => 'Operación',
-            'estado' => 'Estado',
-            'segundos' => 'Segundos',
-            'minutos' => 'Minutos',
-            'estandarizado' => 'Estandar',
+            'proceso' => 'Nombre de la operación:',
+            'estado' => 'Tipo de tiempo:',
+            'segundos' => 'Sam segundos:',
+            'minutos' => 'Sam minutos:',
+            'estandarizado' => 'Estandarizado:',
         ];
     }
 

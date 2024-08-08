@@ -68,6 +68,7 @@ class Banco extends \yii\db\ActiveRecord
             'producto' => 'Producto',
             'numerocuenta' => 'N° Cuenta',            
             'activo' => 'Activo',
+            'nitmatricula' => 'nitmatricula',
         ];
     }
 

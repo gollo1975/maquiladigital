@@ -255,6 +255,7 @@ class EmpleadoController extends Controller
                 $table->tipo_transacion = $model->tipo_transacion;
                 $table->id_centro_costo = $model->id_centro_costo;
                 $table->id_nivel_estudio = $model->id_nivel_estudio;
+                $table->id_sucursal = 1;
                 $table->usuario_crear =  Yii::$app->user->identity->username;
                 if ($table->insert()) {
                     $this->redirect(["empleado/index"]);
@@ -462,6 +463,11 @@ class EmpleadoController extends Controller
                         $table->idmunicipio = $operario->idmunicipio;
                         $table->iddepartamento = $operario->iddepartamento;
                         $table->fecha_nacimiento = $operario->fecha_nacimiento;
+                        $table->direccion = $operario->direccion_operario;
+                        $table->id_banco_empleado = $operario->id_banco_empleado;
+                        $table->tipo_cuenta = $operario->tipo_cuenta;
+                        $table->cuenta_bancaria = $operario->numero_cuenta;
+                        $table->tipo_transacion = $operario->tipo_transacion;
                         $table->contrato = 0;
                         $table->id_horario = $operario->id_horario;
                         $table->id_sucursal = $operario->id_planta;

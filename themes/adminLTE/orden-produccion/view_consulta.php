@@ -81,16 +81,12 @@ $view = 'orden-produccion';
                     <td><?= Html::encode($model->ordenproduccionext) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigoproducto') ?>:</th>
                     <td><?= Html::encode($model->codigoproducto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Minutos') ?>:</th>
-                    <td><?= Html::encode($model->duracion) ?></td>                    
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Exportacion') ?>:</th>
+                    <td><?= Html::encode($model->exportarOrden) ?></td>                       
                 </tr>
                 <tr style="font-size: 85%;">
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>
-                    <td colspan="3"><?= Html::encode($model->observacion) ?></td>    
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Exportacion') ?>:</th>
-                    <td><?= Html::encode($model->exportarOrden) ?></td>    
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalorden') ?>:</th>
-                    <td  style="text-align: right"><?= Html::encode('$ '.number_format($model->totalorden,0)) ?></td>
+                    <td colspan="8"><?= Html::encode($model->observacion) ?></td>    
                 </tr>
               
             </table>
@@ -100,7 +96,7 @@ $view = 'orden-produccion';
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#detalle_orden" aria-controls="detalle_orden" role="tab" data-toggle="tab">Detalle <span class="badge"><?= count($modeldetalles) ?></span></a></li>
-            <li role="presentation"><a href="#costo_adicional" aria-controls="costo_adicional" role="tab" data-toggle="tab">Costos <span class="badge"><?= count($otrosCostosProduccion) ?></span></a></li>
+            <li role="presentation"><a href="#avanceprenda" aria-controls="avanceprenda" role="tab" data-toggle="tab">Avance de la OP <span class="badge"><?= count($modeldetalles) ?></span></a></li>
             <li role="presentation"><a href="#novedadesorden" aria-controls="novedadesorden" role="tab" data-toggle="tab">Novedades <span class="badge"><?= count($novedad_orden) ?></span></a></li>
         </ul>
             <div class="tab-content">
@@ -111,7 +107,7 @@ $view = 'orden-produccion';
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
@@ -124,7 +120,7 @@ $view = 'orden-produccion';
                                     <body>
                                         <?php foreach ($modeldetalles as $val): ?>
                                             <tr style="font-size: 85%;">
-                                                <td><?= $val->iddetalleorden ?></td>
+                                                <td style="background-color: <?= $val->plantaProduccion->nombre_color?> "><?= $val->plantaProduccion->nombre_planta ?></td>
                                                 <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla   ?></td>
                                                 <td><?= $val->codigoproducto ?></td>
                                                 <td><?= $val->cantidad ?></td>
@@ -222,34 +218,40 @@ $view = 'orden-produccion';
                 </div>
               
                 <!-- TERMINA TABS DE DETALLE -->
-                <div role="tabpanel" class="tab-pane" id="costo_adicional">
+                <div role="tabpanel" class="tab-pane" id="avanceprenda">
                     <div class="table-responsive">
                         <div class="panel panel-success">
                             <div class="panel-body">
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th scope="col" align="center" style='background-color:#B9D5CE;'><b>Documento</b></th>                        
-                                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Tercero</th>                        
-                                            <th scope="col" align="center" style='background-color:#B9D5CE;'>F. compra</th>       
-                                             <th scope="col" align="center" style='background-color:#B9D5CE;'>F. proceso</th>  
-                                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Usuario</th>                        
-                                            <th scope="col" align="center" style='background-color:#B9D5CE;'>Vr. compra</th>  
+                                            <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Producto / Referencia</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Progreso de confección</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>U. Confeccionadas</th>
+
                                         </tr>
                                     </thead>
                                     <body>
-                                         <?php
-                                         foreach ($otrosCostosProduccion as $val):?>
+                                        <?php
+                                        foreach ($modeldetalles as $val): ?>
                                             <tr style="font-size: 85%;">
-                                                <td><?= $val->nrofactura ?></td>
-                                                <td><?= $val->proveedorCostos->nombrecorto ?></td>
-                                                <td><?= $val->fecha_compra ?></td>
-                                                <td><?= $val->fecha_proceso ?></td>
-                                                <td><?= $val->usuariosistema ?></td>
-                                                <td style="text-align:right"><?= ''.number_format($val->vlr_costo,2) ?></td>
-                                               
+                                                <td style="background-color: <?= $val->plantaProduccion->nombre_color?> "><?= $val->plantaProduccion->nombre_planta ?></td>
+                                                <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
+                                                <td><?= $val->codigoproducto ?></td>
+                                                <td><?= $val->cantidad ?></td>
+                                                <td><div class="progress"><b>Operación:&nbsp;</b>
+                                                        <progress id="html5" max="100" value="<?= $val->porcentaje_proceso ?>"></progress>
+                                                        <span><b><?= Html::encode(round($val->porcentaje_proceso,1)).' %' ?></b></span>&nbsp;&nbsp;-&nbsp;&nbsp;<b>Cantidad:</b>
+                                                        <progress id="html5" max="100" value="<?= $val->porcentaje_cantidad ?>"></progress>
+                                                        <span><b><?= Html::encode(round($val->porcentaje_cantidad,1)).' %' ?></b></span>
+                                                    </div>
+                                                </td>
+                                                <td style ="text-align: right "><?= $val->cantidad_operada ?></td>
                                             </tr>
-                                         <?php endforeach;?>          
+                                        <?php endforeach; ?>      
                                     </body>
                                 </table>
                             </div>

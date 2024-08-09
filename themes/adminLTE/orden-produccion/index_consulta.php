@@ -107,14 +107,11 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <th style='background-color:#F0F3EF;' scope="col">Codigo</th>                
                 <th style='background-color:#F0F3EF;' scope="col">Op cliente</th>
                 <th style='background-color:#F0F3EF;' scope="col">Cant.</th>
-                <th style='background-color:#F0F3EF;' scope="col">Time</th>
-                 <th style='background-color:#F0F3EF;' scope="col">Sam</th>
                 <th style='background-color:#F0F3EF;' scope="col">F. llegada</th>
                 <th style='background-color:#F0F3EF;' scope="col">F. entrega</th>
-                <th style='background-color:#F0F3EF;' scope="col">Total</th>                
                 <th style='background-color:#F0F3EF;' scope="col">Aut.</th>
                 <th style='background-color:#F0F3EF;' scope="col">Fact.</th>
-                <th style='background-color:#F0F3EF; width: 150px;' scope="col">Tipo servicio</th>
+                <th style='background-color:#F0F3EF; width: 190px;' scope="col">Tipo servicio</th>
                 <th style='background-color:#F0F3EF;' scope="col" colspan="3"></th>                               
                
             </tr>
@@ -132,11 +129,8 @@ $tipos = ArrayHelper::map(Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
                 <td><?= $val->codigoproducto ?></td>
                 <td><?= $val->ordenproduccion ?></td>
                 <td><?= $val->cantidad ?></td>
-                <td><?= $val->duracion ?></td>
-                <td><?= $val->sam_operativo?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
-                <td align = "right"><?= number_format($val->totalorden,0) ?></td>              
                 <td><?= $val->autorizar ?></td>
                 <td><?= $val->facturar ?></td>
                 <td style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>

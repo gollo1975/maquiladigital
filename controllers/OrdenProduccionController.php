@@ -2936,7 +2936,7 @@ class OrdenProduccionController extends Controller {
                     $count = clone $table;
                     $to = $count->count();
                     $pages = new Pagination([
-                        'pageSize' => 60,
+                        'pageSize' => 15,
                         'totalCount' => $count->count()
                     ]);
                     $model = $table
@@ -2951,12 +2951,12 @@ class OrdenProduccionController extends Controller {
                     $form->getErrors();
                 }
             } else {
-                $table = Ordenproduccion::find()
+                $table = Ordenproduccion::find()->where(['=','facturado', 0])
                         ->orderBy('idordenproduccion desc');
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $pages = new Pagination([
-                    'pageSize' => 60,
+                    'pageSize' => 15,
                     'totalCount' => $count->count(),
                 ]);
                 $model = $table
@@ -3152,7 +3152,7 @@ class OrdenProduccionController extends Controller {
     
     public function actionViewconsultaficha($id, $condicion) {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
-        $modulos = Balanceo::find()->where(['=','idordenproduccioSn', $id])->orderBy('id_balanceo DESC')->all();
+        $modulos = Balanceo::find()->where(['=','idordenproduccion', $id])->orderBy('id_balanceo DESC')->all();
         $modeldetalle = new Ordenproducciondetalle();
         return $this->render('view_consulta_ficha', [
                     'model' => $this->findModel($id),

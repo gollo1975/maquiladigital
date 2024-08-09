@@ -132,7 +132,7 @@ if ($mensaje != ""){
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['eficiencia-modulo-diario/view', 'id' => $id, 'id_planta' => $val->id_planta], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['eficiencia-modulo-diario/view', 'id' => $id, 'id_planta' => $id_planta], ['class' => 'btn btn-primary btn-sm']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm",]) ?>
         </div>
     </div>

@@ -64,7 +64,7 @@ class ReferenciaProducto extends \yii\db\ActiveRecord
             'costo_producto' => 'Costo producto:',
             'fecha_registro' => 'Fecha Registro:',
             'user_name' => 'User name:',
-            'descripcion' =>'Observacion:',
+            'descripcion' =>'Ficha tecnica:',
             'codigo_homologado' => 'Codigo homologado:',
         ];
     }

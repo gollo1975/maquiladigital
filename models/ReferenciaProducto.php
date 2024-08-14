@@ -31,6 +31,7 @@ class ReferenciaProducto extends \yii\db\ActiveRecord
             return false;
         }
 	$this->descripcion_referencia = strtoupper($this->descripcion_referencia);
+        $this->codigo_homologado = strtoupper($this->codigo_homologado);
         return true;
     }
     
@@ -44,8 +45,9 @@ class ReferenciaProducto extends \yii\db\ActiveRecord
             [['id_tipo_producto', 'costo_producto'], 'integer'],
             [['fecha_registro'], 'safe'],
             [['descripcion_referencia'], 'string', 'max' => 40],
-             [['descripcion'], 'string', 'max' => 150],
-            [['user_name'], 'string', 'max' => 15],
+             [['descripcion'], 'string'],
+            [['user_name','codigo_homologado'], 'string', 'max' => 15],
+           
             [['id_tipo_producto'], 'exist', 'skipOnError' => true, 'targetClass' => TipoProducto::className(), 'targetAttribute' => ['id_tipo_producto' => 'id_tipo_producto']],
         ];
     }
@@ -56,13 +58,14 @@ class ReferenciaProducto extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'codigo' => 'Codigo del producto:',
-            'descripcion_referencia' => 'Referencia:',
+            'codigo' => 'Referencia:',
+            'descripcion_referencia' => 'Nombre referencia:',
             'id_tipo_producto' => 'Grupo/Producto:',
             'costo_producto' => 'Costo producto:',
             'fecha_registro' => 'Fecha Registro:',
             'user_name' => 'User name:',
-            'descripcion' =>'Observacion(150):',
+            'descripcion' =>'Observacion:',
+            'codigo_homologado' => 'Codigo homologado:',
         ];
     }
 

@@ -16,8 +16,8 @@ use app\models\TipoProducto;
     <?php $form = ActiveForm::begin([
 		'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
 	'fieldConfig' => [
-                    'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
-                    'labelOptions' => ['class' => 'col-sm-3 control-label'],
+                    'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
+                    'labelOptions' => ['class' => 'col-sm-2 control-label'],
                     'options' => []
                 ],
 	]); ?>
@@ -31,8 +31,6 @@ $tipoPrenda = ArrayHelper::map(TipoProducto::find()->orderBy('concepto ASC')->al
     <div class="panel-body">        														   		
         <div class="row">
             <?= $form->field($model, 'codigo')->textInput(['maxlength' => true, 'readonly' => true]) ?>    
-        </div>
-        <div class="row">
             <?= $form->field($model, 'descripcion_referencia')->textInput(['maxlength' => true]) ?>  					
         </div>
 
@@ -44,10 +42,12 @@ $tipoPrenda = ArrayHelper::map(TipoProducto::find()->orderBy('concepto ASC')->al
                     'allowClear' => true
                 ],
             ]); ?>
-        </div>   
-        <div class="row">
-            <?= $form->field($model, 'descripcion', ['template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>'])->textarea(['rows' => 3, 'size' => 150, 'maxlength' => true]) ?>
+             <?= $form->field($model, 'codigo_homologado')->textInput(['maxlength' => true]) ?> 
         </div>
+        <div class = "row">
+               <?= $form->field($model, 'descripcion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 15, 'maxlength' => true]) ?>
+        </div>
+        
         <div class="panel-footer text-right">            
             <a href="<?= Url::toRoute("referencia-producto/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>		

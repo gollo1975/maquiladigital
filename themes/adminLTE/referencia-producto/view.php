@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Municipio */
@@ -26,23 +27,23 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->orderBy('id_li
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
                 <tr style="font-size: 90%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo') ?>:</th>
-                    <td><?= Html::encode($model->codigo) ?></td>                    
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion_referencia') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo') ?></th>
+                    <td>R-<?= Html::encode($model->codigo) ?></td>                    
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion_referencia') ?></th>
                     <td><?= Html::encode($model->descripcion_referencia) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_producto') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_producto') ?></th>
                     <td><?= Html::encode($model->tipoProducto->concepto) ?></td>                    
                 </tr>
                 <tr style="font-size: 90%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_registro') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'F._registro') ?></th>
                     <td><?= Html::encode($model->fecha_registro) ?></td>                    
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'user_name') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'user_name') ?></th>
                     <td><?= Html::encode($model->user_name) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'costo_producto') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'costo_producto') ?></th>
                     <td style="text-align: right"><?= Html::encode(''. number_format($model->costo_producto,0)) ?></td>                    
                 </tr>    
                  <tr style="font-size: 90%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?></th>
                     <td colspan="6"><?= Html::encode($model->descripcion) ?></td>                    
                 </tr>          
             </table>
@@ -58,7 +59,8 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->orderBy('id_li
     ]);?>
     <div>
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#listaprecion" aria-controls="listaprecion" role="tab" data-toggle="tab">Lista de precios <span class="badge"><?= count($lista_precio) ?></span></a></li>
+            <li role="presentation" class="active"><a href="#listaprecion"aria-controls="listaprecion" role="tab" data-toggle="tab">Lista de precios <span class="badge"><?= count($lista_precio) ?></span></a></li>
+            
         </ul>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="listaprecion">
@@ -115,9 +117,7 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->orderBy('id_li
                         </div>
                     </div>
                 </div>    
-            </div>
-            <!--TERMINA TABS-->
-        </div>
+                <!--TERMINA TABS-->
     </div>  
       <?php ActiveForm::end(); ?>
 </div>

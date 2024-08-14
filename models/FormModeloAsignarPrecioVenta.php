@@ -25,7 +25,7 @@ class FormModeloAsignarPrecioVenta extends Model
     public function attributeLabels()
     {
         return [
-             'nuevo_precio' => 'Nuevo precio de venta:',
+             'nuevo_precio' => 'Nuevo precio:',
             'nuevo_cupo' => 'Nuevo cupo comercial',
             
 

@@ -144,8 +144,8 @@ class ReferenciaProductoController extends Controller
             'lista_precio' => $lista_precio,
         ]);
     }
-
-    /**
+    
+       /**
      * Creates a new ReferenciaProducto model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
@@ -231,6 +231,32 @@ class ReferenciaProductoController extends Controller
             }    
         }
         return $this->renderAjax('new_precio_venta', [
+            'model' => $model,
+            'id' => $id,
+        ]);
+    }    
+    
+    //PERMITE CREAR EL COSTO DEL PRODUCTO
+     public function actionNuevo_costo_producto($id) {
+        $model = new \app\models\FormModeloAsignarPrecioVenta();
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+                if (isset($_POST["crear_precio"])) {
+                    if($model->nuevo_precio > 0){
+                        $table = ReferenciaProducto::findOne($id);
+                        $table->costo_producto = $model->nuevo_precio;
+                        $table->save(false);
+                        $this->redirect(["referencia-producto/index"]);
+                    }else{
+                        Yii::$app->getSession()->setFlash('warning', 'No se asignó ningun valor de costo. Ingrese nuevamente.'); 
+                        $this->redirect(["index"]);
+                    }    
+                }    
+            }else{
+                $model->getErrors();
+            }    
+        }
+        return $this->renderAjax('new_costo_producto', [
             'model' => $model,
             'id' => $id,
         ]);

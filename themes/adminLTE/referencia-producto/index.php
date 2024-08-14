@@ -86,25 +86,41 @@ $tipoPrenda = ArrayHelper::map(TipoProducto::find()->orderBy('concepto ASC')->al
                 <th scope="col" style='background-color:#B9D5CE;'>Costo producto</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th> 
                 <th scope="col" style='background-color:#B9D5CE;'></th> 
+                  <th scope="col" style='background-color:#B9D5CE;'></th> 
             </tr>
             </thead>
             <tbody>
             <?php foreach ($model as $val): ?>
                 <tr style='font-size:84%;'>   
-                    <td><?= $val->codigo ?></td>
+                    <td>R-<?= $val->codigo ?></td>
                     <td><?= $val->descripcion_referencia ?></td>
                     <td><?= $val->tipoProducto->concepto ?></td>
                     <td align="right"><?= number_format($val->costo_producto,0) ?></td>
+                    <!-- Inicio Nuevo Detalle proceso -->
+                    <td style= 'width: 25px;'>	
+                        <?= Html::a('<span class="glyphicon glyphicon-list"></span>',
+                            ['/referencia-producto/nuevo_costo_producto','id' => $val->codigo],
+                            [
+                                'title' => 'Crear nuevo precio de costo',
+                                'data-toggle'=>'modal',
+                                'data-target'=>'#modalnuevocostoproducto'.$val->codigo,
+                               
+                            ])    
+                       ?>
+                      <div class="modal remote fade" id="modalnuevocostoproducto<?= $val->codigo ?>">
+                          <div class="modal-dialog modal-lg" style ="width: 500px;">
+                               <div class="modal-content"></div>
+                          </div>
+                      </div> 
+                    </td>    
                     <td style= 'width: 25px;'>				
                        <a href="<?= Url::toRoute(["referencia-producto/view", "id" => $val->codigo]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                     </td>
-                    <?php if(!app\models\ReferenciaListaPrecio::find()->where(['=','codigo', $val->codigo])->one()){ ?>
+                   
                         <td style= 'width: 25px;'>				
                            <a href="<?= Url::toRoute(["referencia-producto/update", "id" => $val->codigo]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                
                         </td>
-                    <?php }else{?>
-                        <td style= 'width: 25px;'></td>	
-                    <?php  }?>    
+                   
                 </tr>
             </tbody>
             <?php endforeach; ?>

@@ -1005,7 +1005,6 @@ class ContratoController extends Controller
                             $table->id_formato_contenido = $modeloadicion->id_formato_contenido; 
                             $table->vlr_adicion = $modeloadicion->vlr_adicion; 
                             $table->fecha_aplicacion = $modeloadicion->fecha_aplicacion; 
-                            $table->fecha_proceso = $modeloadicion->fecha_proceso; 
                             $table->usuariosistema = Yii::$app->user->identity->username; 
                             $table->codigo_salario = $modeloadicion->codigo_salario; 
                             $table->estado_adicion = 1; 
@@ -1017,7 +1016,6 @@ class ContratoController extends Controller
                             $table->id_formato_contenido = $modeloadicion->id_formato_contenido; 
                             $table->vlr_adicion = $modeloadicion->vlr_adicion; 
                             $table->fecha_aplicacion = $modeloadicion->fecha_aplicacion; 
-                            $table->fecha_proceso = $modeloadicion->fecha_proceso; 
                             $table->usuariosistema = Yii::$app->user->identity->username; 
                             $table->codigo_salario = $modeloadicion->codigo_salario; 
                             $table->estado_adicion = 1; 
@@ -1056,7 +1054,6 @@ class ContratoController extends Controller
                     $table->id_formato_contenido = $modeloadicion->id_formato_contenido; 
                     $table->vlr_adicion = $modeloadicion->vlr_adicion; 
                     $table->fecha_aplicacion = $modeloadicion->fecha_aplicacion; 
-                    $table->fecha_proceso = $modeloadicion->fecha_proceso; 
                     $table->codigo_salario = $modeloadicion->codigo_salario; 
                     $table->save(false);
                      return $this->redirect(["contrato/view",'id' => $id, 'token' => $token]);  
@@ -1069,8 +1066,7 @@ class ContratoController extends Controller
                 $modeloadicion->id_formato_contenido = $table->id_formato_contenido;
                 $modeloadicion->vlr_adicion = $table->vlr_adicion;
                 $modeloadicion->fecha_aplicacion = $table->fecha_aplicacion;
-                $modeloadicion->fecha_proceso = $table->fecha_proceso;
-                $modeloadicion->codigo_salario = $table->codigo_salario;
+                 $modeloadicion->codigo_salario = $table->codigo_salario;
             } 
         }
     

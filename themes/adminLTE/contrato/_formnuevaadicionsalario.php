@@ -52,24 +52,17 @@ $form = ActiveForm::begin([
                 </div>
                 <div class="row">
                         <?=
-                        $form->field($modeloadicion, 'fecha_proceso')->widget(DatePicker::className(), ['name' => 'check_issue_date',
-                            'value' => date('d-M-Y', strtotime('+2 days')),
-                            'options' => ['placeholder' => 'Seleccione una fecha ...'],
-                            'pluginOptions' => [
-                                'format' => 'yyyy-mm-dd',
-                                'todayHighlight' => true]])
-                        ?>  
-                        <?=
                         $form->field($modeloadicion, 'fecha_aplicacion')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                             'value' => date('d-M-Y', strtotime('+2 days')),
                             'options' => ['placeholder' => 'Seleccione una fecha ...'],
                             'pluginOptions' => [
                                 'format' => 'yyyy-mm-dd',
                                 'todayHighlight' => true]])
-                        ?>        
+                        ?>  
+                         <?= $form->field($modeloadicion, 'vlr_adicion')->textInput(['maxlength' => true]) ?>
                     </div>  
                 <div class="row">
-                        <?= $form->field($modeloadicion, 'vlr_adicion')->textInput(['maxlength' => true]) ?>
+                       
                     </div>
                 
                 <div class="panel-footer text-right">			

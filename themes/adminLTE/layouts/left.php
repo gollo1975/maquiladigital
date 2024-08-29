@@ -143,6 +143,7 @@
                                                 ['label' => 'Operación prenda', 'icon' => 'plus-square-o', 'url' => ['proceso-produccion/index']],
                                                 ['label' => 'Tipos Orden', 'icon' => 'plus-square-o', 'url' => ['/ordenproducciontipo/index']],
                                                 ['label' => 'Productos', 'icon' => 'plus-square-o', 'url' => ['/producto/index']],
+                                                ['label' => 'Tipo prenda', 'icon' => 'plus-square-o', 'url' => ['/tipo-producto/index']],
                                                 ['label' => 'Calificación Ficha', 'icon' => 'plus-square-o', 'url' => ['/fichatiempocalificacion/index']],
                                                 ['label' => 'Colores', 'icon' => 'plus-square-o', 'url' => ['/color/index']],
                                                 [

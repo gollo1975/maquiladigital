@@ -20,6 +20,15 @@ class TipoProducto extends \yii\db\ActiveRecord
     {
         return 'tipo_producto';
     }
+    
+    public function beforeSave($insert) {
+	if(!parent::beforeSave($insert)){
+            return false;
+        }
+	# ToDo: Cambiar a cliente cargada de configuración.    
+	$this->concepto = strtoupper($this->concepto);
+        return true;
+    }
 
     /**
      * {@inheritdoc}
@@ -27,7 +36,7 @@ class TipoProducto extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['concepto', 'estado'], 'required'],
+            [['concepto'], 'required'],
             [['estado'], 'integer'],
             [['concepto'], 'string', 'max' => 30],
         ];
@@ -39,9 +48,18 @@ class TipoProducto extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id_tipo_producto' => 'Id Tipo Producto',
-            'concepto' => 'Concepto',
-            'estado' => 'Estado',
+            'id_tipo_producto' => 'Codigo',
+            'concepto' => 'Descripcion de la prenda',
+            'estado' => 'Activo',
         ];
+    }
+    
+    public function getEstadoRegistro() {
+        if($this->estado == 0){
+            $estadoregistro = 'SI';
+        }else{
+            $estadoregistro = 'NO';
+        }
+        return $estadoregistro;
     }
 }

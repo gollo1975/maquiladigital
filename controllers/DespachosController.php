@@ -285,10 +285,7 @@ class DespachosController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setAutoSize(true);
-        $objPHPExcel->setActiveSheetIndex(0)
+              $objPHPExcel->setActiveSheetIndex(0)
                      ->setCellValue('A1', 'ID')
                     ->setCellValue('B1', 'NUMERO DESPACHO')
                     ->setCellValue('C1', 'NUMERO SALIDA')
@@ -299,11 +296,12 @@ class DespachosController extends Controller
                     ->setCellValue('H1', 'CIUDAD DESTINO')
                     ->setCellValue('I1', 'TULAS FACT.')
                     ->setCellValue('J1', 'TULAS REALES')
-                    ->setCellValue('K1', 'FECHA PROCESO')
-                    ->setCellValue('L1', 'FECHA REGISTRO')
-                    ->setCellValue('M1', 'AUTORIZADO')
-                    ->setCellValue('N1', 'CERRADO')
-                    ->setCellValue('O1', 'OBSERVACION');
+                    ->setCellValue('K1', 'VALOR FLETE')
+                    ->setCellValue('L1', 'FECHA PROCESO')
+                    ->setCellValue('M1', 'FECHA REGISTRO')
+                    ->setCellValue('N1', 'AUTORIZADO')
+                    ->setCellValue('O1', 'CERRADO')
+                    ->setCellValue('P1', 'OBSERVACION');
                      
                    
         $i = 2  ;
@@ -321,11 +319,13 @@ class DespachosController extends Controller
                     ->setCellValue('H' . $i, $val->municipio_origen)
                     ->setCellValue('I' . $i, $val->total_tulas)
                     ->setCellValue('J' . $i, $val->tulas_reales)
-                    ->setCellValue('K' . $i, $val->fecha_despacho)
-                    ->setCellValue('L' . $i, $val->fecha_registro)
-                    ->setCellValue('M' . $i, $val->autorizadoRegistro)
-                    ->setCellValue('N' . $i, $val->procesoCerrado)
-                    ->setCellValue('O' . $i, $val->observacion);
+                    ->setCellValue('K' . $i, $val->valor_flete)
+                    ->setCellValue('L' . $i, $val->fecha_despacho)
+                    ->setCellValue('M' . $i, $val->fecha_registro)
+                    ->setCellValue('N' . $i, $val->autorizadoRegistro)
+                    ->setCellValue('O' . $i, $val->procesoCerrado)
+                    ->setCellValue('P' . $i, $val->observacion);
+                   
                   
             $i++;
         }

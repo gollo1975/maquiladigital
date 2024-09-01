@@ -31,7 +31,7 @@ class CarteraEmpresa extends \yii\db\ActiveRecord
         return [
             [['id_cartera'], 'required'],
             [['id_cartera', 'numero_factura', 'dias_adicionales', 'estado_registro'], 'integer'],
-            [['fecha_vencimiento'], 'safe'],
+            [['fecha_vencimiento','fecha_suspension'], 'safe'],
             [['id_cartera'], 'unique'],
         ];
     }
@@ -47,6 +47,7 @@ class CarteraEmpresa extends \yii\db\ActiveRecord
             'numero_factura' => 'Numero Factura',
             'dias_adicionales' => 'Dias Adicionales',
             'estado_registro' => 'Estado Registro',
+            'fecha_suspension' => 'fecha_suspension',
         ];
     }
 }

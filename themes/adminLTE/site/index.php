@@ -19,7 +19,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
 $fecha_actual = date('Y-m-d');
     if($cartera->estado_registro == 0){
         if($fecha_actual > $cartera->fecha_vencimiento){
-           Yii::$app->getSession()->setFlash('error', 'La empresa se encuentra en MORA con la factura Electronica No ('.$cartera->numero_factura.'), dicho documento electrónico se venció el dia ('.$cartera->fecha_vencimiento.'). Lo invitamos a ponerser al dia con la cartera.');
+           Yii::$app->getSession()->setFlash('error', 'La empresa se encuentra en MORA con la factura Electronica No ('.$cartera->numero_factura.'), dicho documento electrónico se venció el dia ('.$cartera->fecha_vencimiento.'). Lo invitamos a ponerser al dia con la cartera. Fecha de suspensión de los servicios el  ('.$cartera->fecha_suspension.').');
         }
     }
 ?>

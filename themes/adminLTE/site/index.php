@@ -4,6 +4,7 @@ use yii\bootstrap\Html;
 use app\models\Matriculaempresa;
 use app\models\Users;
 /* @var $this yii\web\View */
+$cartera = app\models\CarteraEmpresa::findOne(1);
 $empresa = Matriculaempresa::findOne(1);
 $municipio = \app\models\Municipio::find()->all();
 $departamento = app\models\Departamento::find()->all();
@@ -14,7 +15,14 @@ $cliente = \app\models\Cliente::find()->where(['=','proceso', 1])->all();
 $this->title = $empresa->nombresistema;
 $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
 ?>
-
+<?php
+$fecha_actual = date('Y-m-d');
+    if($cartera->estado_registro == 0){
+        if($fecha_actual > $cartera->fecha_vencimiento){
+           Yii::$app->getSession()->setFlash('error', 'La empresa se encuentra en MORA con la factura Electronica No ('.$cartera->numero_factura.'), dicho documento electrónico se venció el dia ('.$cartera->fecha_vencimiento.'). Lo invitamos a ponerser al dia con la cartera.');
+        }
+    }
+?>
 <div class="panel panel-success">
     <div class="login-logo">
         <a href="#"><b><?= $empresa->nombresistema ?></a>

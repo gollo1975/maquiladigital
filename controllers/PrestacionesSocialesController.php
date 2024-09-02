@@ -426,11 +426,11 @@ class PrestacionesSocialesController extends Controller
                     $this->redirect(["prestaciones-sociales/index"]);
                 } catch (IntegrityException $e) {
                     $this->redirect(["prestaciones-sociales/index"]);
-                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, la pretación Nro ' . $prestacion->id_prestacion . ' tiene registros asociados en otros procesos');
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, las prestación Nro ' . $prestacion->id_prestacion . ' tiene registros asociados en otros procesos');
                 } catch (\Exception $e) {
 
                     $this->redirect(["prestaciones-sociales/index"]);
-                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, la pretación Nro  ' . $prestacion->id_prestacion . ' tiene registros asociados en otros procesos');
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, las prestación Nro  ' . $prestacion->id_prestacion . ' tiene registros asociados en otros procesos');
                 }
             } else {
                 echo "<meta http-equiv='refresh' content='3; " . Url::toRoute("prestaciones-sociales/index") . "'>";

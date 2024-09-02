@@ -93,15 +93,14 @@ $empleado = ArrayHelper::map(Empleado::find()->orderBy('nombrecorto ASC')->all()
         <table class="table table-bordered table-hover">
             <thead>
                 <tr style ='font-size:85%;'>                
-                <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Nro pago</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Grupo_pago</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Inicio contrato</th>                
-                <th scope="col" style='background-color:#B9D5CE;'Termino contrato</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Total devengado</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Total deducción</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. inicio</th>                
+                <th scope="col" style='background-color:#B9D5CE;'>F. final</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Deducción</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Estado generado" >Eg</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Estado aplicado" >Ea</span></th>
@@ -114,16 +113,15 @@ $empleado = ArrayHelper::map(Empleado::find()->orderBy('nombrecorto ASC')->all()
             <tbody>
             <?php foreach ($model as $val): ?>
                 <tr style='font-size:85%;'>                
-                <td><?= $val->id_prestacion ?></td>
                 <td><?= $val->nro_pago ?></td>
                 <td><?= $val->documento?></td>
                 <td><?= mb_strtoupper($val->empleado->nombrecorto)?></td>
                  <td><?= $val->grupoPago->grupo_pago ?></td>
                 <td><?= $val->fecha_inicio_contrato ?></td>
                 <td><?= $val->fecha_termino_contrato ?></td>
-                <td align="right"><?= '$'.number_format($val->total_devengado,0) ?></td>
-                <td align="right"><?= '$'.number_format($val->total_deduccion,0) ?></td>
-                <td align="right"><?= '$'.number_format($val->total_pagar,0) ?></td>
+                <td align="right"><?= ''.number_format($val->total_devengado,0) ?></td>
+                <td align="right"><?= ''.number_format($val->total_deduccion,0) ?></td>
+                <td align="right"><?= ''.number_format($val->total_pagar,0) ?></td>
                 <td><?= $val->estadogenerado?></td>
                 <td><?= $val->estadoaplicado?></td>
                 <td><?= $val->estadocerrado?></td>

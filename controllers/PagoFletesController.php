@@ -223,6 +223,7 @@ class PagoFletesController extends Controller
                 }
              $intIndice++;   
             }
+            $this->TotalizarDespachos($id);
            $this->redirect(["pago-fletes/view", 'id' => $id]);
         }
         return $this->render('_listar_despachos', [
@@ -233,6 +234,19 @@ class PagoFletesController extends Controller
 
         ]);
     }
+    
+    //PROCESO QUE TOTALIZA 
+    protected function TotalizarDespachos($id) {
+        $model = PagoFletes::findOne($id);
+        $detalle = \app\models\PagoFleteDetalle::find()->where(['=','id_pago', $id])->all();
+        $suma = 0;
+        foreach ($detalle as $pagos):
+            $suma += $pagos->valor_flete;
+        endforeach;
+        $model->total_pagado = $suma;
+        $model->save();
+        
+    }
 
     public function actionEliminar($id, $id_detalle)
     {
@@ -240,6 +254,7 @@ class PagoFletesController extends Controller
             $model = \app\models\PagoFleteDetalle::findOne($id_detalle);
             $model->delete();
             Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+            $this->TotalizarDespachos($id);
            $this->redirect(["pago-fletes/view",'id' => $id]);
         } catch (IntegrityException $e) {
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene registros asociados en otros procesos');
@@ -271,16 +286,6 @@ class PagoFletesController extends Controller
     //CIERRA EL DESPACHO AL PROVEEDOR
      public function actionCerrar_pago($id) {
         $model = PagoFletes::findOne($id);
-        $detalle = \app\models\PagoFleteDetalle::find()->where(['=','id_pago', $id])->all();
-        $total = 0;
-        foreach ($detalle as $despacho):
-            $flete = \app\models\Despachos::findOne($despacho->id_despacho);
-            if($flete){
-                $flete->pagado = 1;
-                $flete->save();
-                $total += $despacho->valor_flete;
-            }
-        endforeach;
          //generar consecutivo
         $registro = \app\models\Consecutivo::findOne(21);
         $valor = $registro->consecutivo + 1;
@@ -290,9 +295,7 @@ class PagoFletesController extends Controller
         //actualiza consecutivo
         $registro->consecutivo = $valor;
         $registro->save();
-        //actualizar saldo
-        $model->total_pagado = $total;
-        $model->save();
+       
         return $this->redirect(['pago-fletes/view', 'id' => $id]); 
     }
      

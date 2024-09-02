@@ -182,6 +182,7 @@ class PagoFletesController extends Controller
     //PROCESO QUE LOS DESPACHOS POR PROVEEDOR
     public function actionListar_fletes($id, $id_proveedor) {
         $listado = \app\models\Despachos::find()->where(['=','pagado', 0])
+                                                ->andWhere(['=','idproveedor', $id_proveedor])
                                                 ->orderBy('id_despacho DESC')->all();
         $form = new \app\models\FormMaquinaBuscar();
         $q = null;
@@ -201,7 +202,8 @@ class PagoFletesController extends Controller
 
         } else {
              $listado = \app\models\Despachos::find()->where(['=','pagado', 0])
-                                                ->orderBy('id_despacho DESC')->all();
+                                                     ->andWhere(['=','idproveedor', $id_proveedor])
+                                                     ->orderBy('id_despacho DESC')->all();
         }
         if (isset($_POST["listado_despachos"])) {
             $intIndice = 0;

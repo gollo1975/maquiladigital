@@ -138,11 +138,8 @@ class DespachosController extends Controller
     public function actionCreate()
     {
         $model = new Despachos();
-        $conSalida = \app\models\SalidaEntradaProduccion::find()->where(['=','id_entrada_tipo', 8])
-                                                        ->orWhere(['=','id_entrada_tipo', 9])
-                                                        ->orWhere(['=','id_entrada_tipo', 10])
-                                                        ->orWhere(['=','id_entrada_tipo', 11])
-                                                         ->andWhere(['=','servicio_cobrado', 0])->orderBy('id_salida DESC')->all();
+        $conSalida = \app\models\SalidaEntradaProduccion::find()->where(['=','servicio_cobrado', 0])
+                                                       ->orderBy('id_salida DESC')->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $salida = SalidaEntradaProduccion::findOne($model->id_salida);
             $proveedor = \app\models\Proveedor::findOne($model->idproveedor);
@@ -155,7 +152,12 @@ class DespachosController extends Controller
             $model->municipio_destino = $muniDestino->municipio;
             $model->tulas_reales = $salida->numero_tulas;
             $model->save(false);
-            return $this->redirect(['view', 'id' => $model->id_despacho]);
+            if($salida->numero_tulas <> $model->total_tulas){
+                Yii::$app->getSession()->setFlash('warning', 'La cantidad de tulas es diferente. Favor validar esta informacion.');
+                return $this->redirect(['index']);
+            }else{
+                return $this->redirect(['view', 'id' => $model->id_despacho]);
+            }
         }
 
         return $this->render('create', [
@@ -174,11 +176,7 @@ class DespachosController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $conSalida = \app\models\SalidaEntradaProduccion::find()->where(['=','id_entrada_tipo', 8])
-                                                        ->orWhere(['=','id_entrada_tipo', 9])
-                                                        ->orWhere(['=','id_entrada_tipo', 10])
-                                                        ->orWhere(['=','id_entrada_tipo', 11])
-                                                         ->orWhere(['=','servicio_cobrado', 0])->orderBy('id_salida DESC')->all();
+        $conSalida = \app\models\SalidaEntradaProduccion::find()->Where(['=','servicio_cobrado', 0])->orderBy('id_salida DESC')->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $salida = SalidaEntradaProduccion::findOne($model->id_salida);
             $proveedor = \app\models\Proveedor::findOne($model->idproveedor);
@@ -190,8 +188,12 @@ class DespachosController extends Controller
             $model->municipio_destino = $muniDestino->municipio;
             $model->tulas_reales = $salida->numero_tulas;
             $model->save(false);
-            
-            return $this->redirect(['index']);
+            if($salida->numero_tulas <> $model->total_tulas){
+                Yii::$app->getSession()->setFlash('warning', 'La cantidad de tulas es diferente. Favor validar esta informacion.');
+                return $this->redirect(['index']);
+            }else{
+                return $this->redirect(['view', 'id' => $model->id_despacho]);
+            }
         }
 
         return $this->render('update', [

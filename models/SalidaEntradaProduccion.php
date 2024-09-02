@@ -111,7 +111,7 @@ class SalidaEntradaProduccion extends \yii\db\ActiveRecord
     //PROCESO QEU AGRUPA EL CODGIO DE LA REFERENCIA
     public function getNombreReferencia()
     {
-        return "Refe: {$this->codigo_producto} - Orden: {$this->idordenproduccion} - Fecha salida: {$this->fecha_entrada_salida}";
+        return "Ref: {$this->codigo_producto} - Op: {$this->idordenproduccion} - F. salida: {$this->fecha_entrada_salida} - Nro salida: {$this->id_salida}";
     }
     
     public function getTipoProceso()

@@ -378,7 +378,12 @@ class VacacionesController extends Controller
                             $table->dias_total_vacacion_pagados = $model->dias_pagados;
                             $table->vlr_recargo_nocturno = $contrato->ibp_recargo_nocturno;
                             $total = strtotime($model->fecha_final_disfrute ) - strtotime($model->fecha_desde_disfrute);
-                            $table->dias_total_vacacion = round($total / 86400)+1;
+                            if($model->dias_disfrutados == 0){
+                               $table->dias_total_vacacion = 0; 
+                            }else{
+                                  $table->dias_total_vacacion = round($total / 86400)+1;
+                            }
+                          
                             $table->fecha_inicio_periodo = $contrato->ultima_vacacion;
                             $table->dias_totales_periodo = 360;
                             //suma dias para la fecha proxima a vacaciones.
@@ -388,10 +393,14 @@ class VacacionesController extends Controller
                             if($model->dias_disfrutados >  $model->dias_pagados){
                                  $table->dias_real_disfrutados = $table->dias_total_vacacion - $model->dias_pagados; 
                             }else{
-                                $table->dias_real_disfrutados = $model->dias_pagados - $table->dias_total_vacacion; 
+                                if($model->dias_disfrutados  == 0){
+                                   $table->dias_real_disfrutados = 0; 
+                                }else{
+                                   $table->dias_real_disfrutados = $model->dias_pagados - $table->dias_total_vacacion;   
+                                }
                             }     
-                            $table->save(false);
-                            return $this->redirect(["vacaciones/index"]);
+                          $table->save(false);
+                          return $this->redirect(["vacaciones/index"]);
                         }
                     }
                 }
@@ -470,7 +479,11 @@ class VacacionesController extends Controller
                             $table->salario_contrato = $contrato->salario;
                             $table->vlr_recargo_nocturno = $contrato->ibp_recargo_nocturno;
                             $total = strtotime($model->fecha_final_disfrute ) - strtotime($model->fecha_desde_disfrute);
-                            $table->dias_total_vacacion = round($total / 86400)+1;
+                            if($model->dias_disfrutados == 0){
+                                $table->dias_total_vacacion = 0;
+                            }else{
+                                 $table->dias_total_vacacion = round($total / 86400)+1;
+                            }
                             $table->fecha_inicio_periodo = $contrato->ultima_vacacion;
                             $table->dias_totales_periodo = 360;
                             $table->dias_total_vacacion_pagados = $model->dias_pagados;
@@ -628,11 +641,16 @@ class VacacionesController extends Controller
                 $porcentaje_pension = $pension->porcentaje_empleado;
             }
         endforeach;
+       
         $total_ibp = $ibp_vacacion + $contrato->ibp_recargo_nocturno;
-        $salario_promedio = round(($total_ibp / $modelo->dias_totales_periodo) * 30);
+        if($contrato->tipo_salario == 'FIJO'){
+           $salario_promedio = $contrato->salario; 
+        }else{
+            $salario_promedio = round(($total_ibp / $modelo->dias_totales_periodo) * 30);
+        }    
         if($contrato->id_tiempo == 1){
             if($salario_promedio < $modelo->salario_contrato){
-                $salario_promedio = $modelo->salario_contrato;
+               $salario_promedio = $modelo->salario_contrato;
             }    
         } else {
             $salario_promedio =  $salario_promedio;
@@ -652,8 +670,8 @@ class VacacionesController extends Controller
             $modelo->dias_ausentismo = $dias_ausentismo;
             $modelo->estado_autorizado = 1;
             $modelo->vlr_vacacion_disfrute = $Vlr_vacacion_disfrute;
-            $modelo->vlr_dia_vacacion = round($salario_promedio / 30);
-            $modelo->vlr_vacacion_dinero =  $modelo->vlr_dia_vacacion * $modelo->dias_pagados;
+            $modelo->vlr_dia_vacacion =  $salario_promedio / 30;
+            $modelo->vlr_vacacion_dinero = round($modelo->vlr_dia_vacacion * $modelo->dias_pagados);
             $modelo->descuento_eps = round(($Vlr_vacacion_disfrute * $porcentaje_eps)/100); 
             $modelo->descuento_pension = round(($Vlr_vacacion_disfrute * $porcentaje_pension)/100);
             $modelo->total_pago_vacacion = $modelo->vlr_vacacion_disfrute +  $modelo->vlr_vacacion_dinero ;
@@ -663,8 +681,8 @@ class VacacionesController extends Controller
             $modelo->dias_ausentismo = 0;
             $modelo->estado_autorizado = 1;
             $modelo->vlr_vacacion_disfrute = 0;
-            $modelo->vlr_dia_vacacion = round($salario_promedio / 30);
-            $modelo->vlr_vacacion_dinero = $modelo->vlr_dia_vacacion * $modelo->dias_pagados;
+            $modelo->vlr_dia_vacacion =  $salario_promedio / 30;
+            $modelo->vlr_vacacion_dinero = round($modelo->vlr_dia_vacacion * $modelo->dias_pagados);
             $modelo->descuento_eps = 0;
             $modelo->descuento_pension = 0;
             $modelo->total_compensado = 1;
@@ -689,12 +707,7 @@ class VacacionesController extends Controller
         //RECARGA LA VISTA NUEVAMENTE
         $model = Vacaciones::findOne($id);
         $vacacion_adicion = VacacionesAdicion::find()->where(['=','id_vacacion', $id])->orderBy('id_adicion desc')->all();
-      return $this->render('view', [
-            'model' => $model,
-            'id' => $id, 
-            'vacacion_adicion' => $vacacion_adicion, 
-            'token' => $token,
-        ]);
+       return $this->render('view', ['model' => $model, 'id' => $id, 'vacacion_adicion' => $vacacion_adicion,'token' => $token]);
     }  
     public function actionDesautorizado($id, $token) {
         $model = Vacaciones::findOne($id);

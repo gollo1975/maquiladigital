@@ -371,7 +371,38 @@ class ClientesController extends Controller {
         return $this->render('view_consulta', ['table' => $table
         ]);
     }
+    //ASIGNAR PRODUCTOS
+       public function actionAsignar_productos($id) {
+        $productos = \app\models\TipoProducto::find()->all();
+        if (Yii::$app->request->post()) {
+            if (isset($_POST["enviar_productos"])) {
+                $intIndice = 0;
+                $confeccion = 0; $terminacion = 0;
+                foreach ($_POST["configuracion_productos"] as $intCodigo):
+                    $lista = \app\models\TipoProducto::findOne($intCodigo);
+                    $confeccion = $_POST["valor_confeccion"][$intIndice];
+                    $terminacion = $_POST["valor_terminacion"][$intIndice];
+                    if($confeccion <> '' && $terminacion <> ''){
+                        $model = new \app\models\ClientePrendas();
+                        $model->id_cliente = $id;
+                        $model->id_tipo_producto = $intCodigo;
+                        $model->valor_confeccion = $_POST["valor_confeccion"][$intIndice];
+                        $model->valor_terminacion = $_POST["valor_terminacion"][$intIndice];
+                        $model->save();
+                        $this->redirect(["index"]);
+                    }
+                    $intIndice ++ ;
+                endforeach;    
+             }
+        }
+        return $this->renderAjax('_asignar_productos', [
+            'id' => $id,
+            'productos' => $productos,
+            
+        ]);    
+    }
     
+    //EXCELES
     public function actionExcelconsulta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();
         // Set document properties

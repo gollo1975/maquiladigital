@@ -223,6 +223,7 @@
                                                 ['label' => 'Pago x prenda', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/searchpageprenda']],
                                                 ['label' => 'Maestro operaciones', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/maestro_operaciones']],
                                                 ['label' => 'Eficiencia diaria', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/eficiencia_diaria']],
+                                                ['label' => 'Ingresos operativos', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/costo_gasto_operario']],
                                                 ['label' => 'Abono a credito', 'icon' => 'plus-square-o', 'url' => ['/credito-operarios/search_abono_credito']],
                                                 
                                             ],

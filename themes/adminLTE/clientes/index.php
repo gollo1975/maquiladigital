@@ -93,15 +93,27 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td style="width: 25px;">
                   <a href="<?= Url::toRoute(["clientes/editar", "id" => $val->idcliente])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                 </td>
-                <td style="width: 25px;">
-		     <?= Html::a('', ['eliminar', 'id' => $val->idcliente], [
-                        'class' => 'glyphicon glyphicon-trash',
-                        'data' => [
-                            'confirm' => 'Esta seguro de eliminar el registro?',
-                            'method' => 'post',
-                        ],
-                    ]) ?>
-                </td>
+                <?php if($val->proceso == 1){?>
+                    <td style="width: 25px;">
+                        <!-- Inicio Nuevo Detalle proceso -->
+                          <?= Html::a('<span class="glyphicon glyphicon-plus"></span> ',
+                              ['/clientes/asignar_productos','id' => $val->idcliente],
+                              [
+                                  'title' => 'Permite configurar los productos que se maquilan o confeccionan',
+                                  'data-toggle'=>'modal',
+                                  'data-target'=>'#modalasignarproductos',
+                                  'class' => ''
+                              ])    
+                              ?>
+                       <div class="modal remote fade" id="modalasignarproductos">
+                              <div class="modal-dialog modal-lg" style ="width: 600px;">
+                                   <div class="modal-content"></div>
+                               </div>
+                       </div>
+                    </td>
+                <?php }else{?>
+                    <td style="width: 25px;">  </td>
+                <?php }?>    
             </tr>
             </tbody>
             <?php endforeach; ?>

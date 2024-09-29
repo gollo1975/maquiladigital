@@ -121,20 +121,6 @@ $view = 'clientes';
         </table>
     </div>
     <div class="panel-heading">
-        Información Confección
-    </div>
-    <div class="panel-body">
-        <table class="table table-bordered">
-            <tr style="font-size: 85%;">
-                <th style='background-color:#F0F3EF;'>Minuto Confección:</th>
-                <td><?= $table->minuto_confeccion ?></td>
-                <th style='background-color:#F0F3EF;'>Minuto Terminación:</th>
-                <td colspan="6"><?= $table->minuto_terminacion ?></td>
-               
-            </tr>
-        </table>
-    </div>
-    <div class="panel-heading">
         Observaciones
     </div>
     <div class="panel-body">

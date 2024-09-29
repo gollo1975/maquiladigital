@@ -17,6 +17,11 @@ class FormFiltroValorPrenda extends Model
     public $autorizado;
     public $planta;
     public $cerrar_pago;
+    public $operario;
+    public $fecha_inicio;
+    public $fecha_corte;
+    public $operacion;
+
 
     /**
      * {@inheritdoc}
@@ -24,8 +29,8 @@ class FormFiltroValorPrenda extends Model
     public function rules()
     {
         return [
-            [['idordenproduccion', 'idtipo','estado_valor','autorizado','cerrar_pago','planta'], 'integer'],
-          // ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
+            [['idordenproduccion', 'idtipo','estado_valor','autorizado','cerrar_pago','planta','operario','operacion'], 'integer'],
+            [['fecha_inicio', 'fecha_corte'], 'safe'],
         ];
     }
 
@@ -41,6 +46,11 @@ class FormFiltroValorPrenda extends Model
             'autorizado' => 'Autorizado:',
             'cerrar_pago' => 'Cerrar pago:',
             'planta' => 'Planta/Bodega',
+            'operario' => 'Nombre operario:',
+            'operacion' => 'Nombre de operacion:',
+            'fecha_inicio' =>'Fecha de inicio:',
+            'fecha_corte' => 'Fecha de corte:',
+            
            
         ];
     }

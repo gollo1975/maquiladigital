@@ -388,6 +388,77 @@ class ValorPrendaUnidadController extends Controller
         }
     } 
     
+    //PERMITE BUSCAR LOS INGRESOS OPERATIVOS POR DIA, OPERARIO, PLANTA
+    public function actionCosto_gasto_operario() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 145])->all()) {
+                $form = new FormFiltroValorPrenda();
+                $operario = null;
+                $idordenproduccion = null;
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $operacion = null;
+                $planta = null;
+                $modelo = null;
+                $pages = null;
+                $tableexcel = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $operario = Html::encode($form->operario);
+                        $idordenproduccion = Html::encode($form->idordenproduccion);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $operacion = Html::encode($form->operacion);
+                        $planta = Html::encode($form->planta); 
+                        if($fecha_inicio == '' && $fecha_corte == ''){
+                            Yii::$app->getSession()->setFlash('warning', 'Los campos Fecha de ingreso y de retiro no ser vacios. Vuelva a intentarlo.');
+                            return $this->redirect(['costo_gasto_operario']);
+                        }else{
+                            $table = ValorPrendaUnidadDetalles::find()
+                                        ->andFilterWhere(['=', 'id_operario', $operario])
+                                        ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
+                                        ->andFilterWhere(['between', 'dia_pago', $fecha_inicio, $fecha_corte])
+                                        ->andFilterWhere(['=', 'idproceso', $operacion])
+                                        ->andFilterWhere(['=', 'id_planta', $planta]);
+                            if($operario <> ''){
+                               $table = $table->orderBy('dia_pago DESC');  
+                            }else{
+                                 $table = $table->orderBy('id_operario, dia_pago DESC' ); 
+                            }                      
+                            $tableexcel = $table->all();
+                            $count = clone $table;
+                            $to = $count->count();
+                            $pages = new Pagination([
+                                'pageSize' => 20,
+                                'totalCount' => $count->count()
+                            ]);
+                            $modelo = $table
+                                    ->offset($pages->offset)
+                                    ->limit($pages->limit)
+                                    ->all();
+                            if (isset($_POST['excel'])) {
+                                $check = isset($_REQUEST['consecutivo  DESC']);
+                                $this->actionExcelConsultaIngresos($tableexcel);
+                            }
+                        }    
+                    } else {
+                        $form->getErrors();
+                    }
+                } 
+                return $this->render('index_ingresos', [
+                            'modelo' => $modelo,
+                            'form' => $form,
+                            'pagination' => $pages,
+                            'tableexcel' => $tableexcel,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
+    //ABRE Y CIERRA EL REGISTRO
     public function actionCerrarAbrirRegistro($codigo) {
         $detalle = ValorPrendaUnidadDetalles::findOne($codigo);
         if($detalle->exportado == 0){
@@ -884,13 +955,14 @@ class ValorPrendaUnidadController extends Controller
   
     protected function CostoOperarioVinculado($table, $auxiliar)
         {
+            $empresa = \app\models\Matriculaempresa::findOne(1);
             $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0;
             $totalDia = 0; $valorVacacion = 0; $valorArl = 0; $auxilioT = 0;
             $operario = Operarios::findOne($table->id_operario);
-            $vlrDia = round($operario->salario_base / 30);
+            $vlrDia = round($operario->salario_base / $empresa->dias_trabajados);
             $porcentaje = \app\models\Matriculaempresa::findOne(1);
             $auxilio = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
-            $auxilioT = round($auxilio->auxilio_transporte_actual / 30);
+            $auxilioT = round($auxilio->auxilio_transporte_actual / $empresa->dias_trabajados);
             $valorPrima = round($vlrDia * $porcentaje->porcentaje_prima)/100;
             $valorCesantia = round($vlrDia * $porcentaje->porcentaje_cesantias)/100;
             $valorInteres = round($vlrDia * $porcentaje->porcentaje_intereses)/100;
@@ -2620,7 +2692,7 @@ class ValorPrendaUnidadController extends Controller
         exit;
     }        
     
-     public function actionExcelconsultaValorPrenda($tableexcel) {                
+    public function actionExcelconsultaValorPrenda($tableexcel) {                
         $objPHPExcel = new \PHPExcel();
         // Set document properties
         $objPHPExcel->getProperties()->setCreator("EMPRESA")
@@ -2719,4 +2791,122 @@ class ValorPrendaUnidadController extends Controller
         $objWriter->save('php://output');
         exit;
     }
+    
+    //EXCEL QUE SACA EL INGRESO Y COSTO POR DIA
+     public function actionExcelConsultaIngresos($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+  
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'FECHA CONFECCION')
+                    ->setCellValue('B1', 'OPERARIO')
+                    ->setCellValue('C1', 'OP INTERNA')
+                    ->setCellValue('D1', 'OP CLIENTE')
+                    ->setCellValue('E1', 'CLIENTE')
+                    ->setCellValue('F1', 'REFERENCIA')                    
+                    ->setCellValue('G1', 'OPERACION')
+                    ->setCellValue('H1', 'CANTIDAD')
+                    ->setCellValue('I1', 'SAM CONFECCION')
+                    ->setCellValue('J1', '% CUMPLIMIENTO')
+                    ->setCellValue('K1', 'INGRESOS')
+                    ->setCellValue('L1', 'COSTOS');
+                   
+        $i = 2;
+        $costo = 0;
+        $valor = 0; $ingreso = 0; $total = 0; $total2 = 0;  
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        foreach ($tableexcel as $val) {
+            if ($val->operarioProduccion->vinculado == 0) { // personal al contrato
+                $valor = $val->vlr_prenda / $empresa->vlr_minuto_contrato;
+            } else {
+                $valor = $val->vlr_prenda / $empresa->vlr_minuto_vinculado;
+                $costo = $val->costo_dia_operaria;
+            }
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->dia_pago)
+                    ->setCellValue('B' . $i, $val->operarioProduccion->nombrecompleto)
+                    ->setCellValue('C' . $i, $val->idordenproduccion)
+                    ->setCellValue('D' . $i, $val->ordenproduccion->ordenproduccion)
+                    ->setCellValue('E' . $i, $val->ordenproduccion->cliente->nombrecorto)
+                    ->setCellValue('F' . $i, $val->ordenproduccion->codigoproducto);
+                    if($val->idproceso == null){
+                       $objPHPExcel->setActiveSheetIndex(0)
+                       ->setCellValue('G' . $i, 'NO HAY TALLAS');
+                    }else{
+                        $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('G' . $i, $val->operaciones->proceso);
+                    } 
+                    $objPHPExcel->setActiveSheetIndex(0)                    
+                    ->setCellValue('H' . $i, $val->cantidad);
+                    $tipoP = $val->ordenproduccion->tipoProducto;
+                    $tipoProceso = $val->ordenproduccion->tipo;
+                    if($tipoP){
+                        $table = \app\models\ClientePrendas::find()->where(['=', 'id_tipo_producto', $tipoP->id_tipo_producto])->one();
+                        if ($val->operarioProduccion->vinculado == 0) { //personal al contrato
+                            if ($tipoProceso->idtipo == 2) { //proceso que busca  terminacion
+                                $total = $valor * $table->valor_terminacion;
+                                $total2 = ($total * $val->cantidad);
+                            } else {
+                                $total = $valor * $table->valor_confeccion;
+                                $total2 = ($total * $val->cantidad);
+                            }
+                            $costo = $val->vlr_pago;
+                        } else {
+                            if ($tipoProceso->idtipo == 2) { //proceso que busca  terminacion
+                                $total = $valor * $table->valor_terminacion;
+                                $total2 = ($total * $val->cantidad);
+                            } else {
+                                $total = $valor * $table->valor_confeccion;
+                                $total2 = ($total * $val->cantidad);
+                            }
+                        }
+                    }
+                     $objPHPExcel->setActiveSheetIndex(0)      
+                    ->setCellValue('I' . $i, ''.number_format($valor,3))  
+                    ->setCellValue('J' . $i, $val->porcentaje_cumplimiento)
+                    ->setCellValue('K' . $i, round($total2))
+                    ->setCellValue('L' . $i, $costo);
+                  
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Resumen pago');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Resumen_pago.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }  
 }

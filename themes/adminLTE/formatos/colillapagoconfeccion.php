@@ -116,7 +116,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 7);
         $this->Cell(39, 5, utf8_decode("PAGAR:"), 0, 0, 'L', 1);
         $this->SetFont('Arial', '', 7);        
-        $this->Cell(10, 5, '$ '. number_format($programacionNomina->Total_pagar, 0), 0, 0, 'R', 1);        
+        $this->Cell(10, 5, '$ '. number_format($programacionNomina->total_pagar, 0), 0, 0, 'R', 1);        
         
         
         

@@ -66,9 +66,8 @@ class EmpleadoController extends Controller
                         $table = Empleado::find()
                                 ->andFilterWhere(['=', 'id_empleado', $id_empleado])
                                 ->andFilterWhere(['=', 'identificacion', $identificacion])
-                                ->andFilterWhere(['>=', 'fechaingreso', $fecha_desde])
-                                ->andFilterWhere(['<=', 'fecharetiro', $fecha_hasta])
-                               ->andFilterWhere(['=', 'contrato', $contrato]);
+                                ->andFilterWhere(['between', 'fechaingreso', $fecha_desde, $fecha_hasta])
+                                ->andFilterWhere(['=', 'contrato', $contrato]);
                         $table = $table->orderBy('id_empleado DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;

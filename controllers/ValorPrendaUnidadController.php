@@ -1374,7 +1374,7 @@ class ValorPrendaUnidadController extends Controller
                   }
             endforeach;
         endforeach;
-       $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 
+        return $this->redirect(["pageserviceoperario", 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' => $bodega]); 
     }
     
     
@@ -1598,11 +1598,10 @@ class ValorPrendaUnidadController extends Controller
     
     public function actionAutorizado($id, $idordenproduccion, $id_planta, $tipo_pago,$tokenPlanta) {
         $model = $this->findModel($id);
-        $mensaje = "";
         if($tipo_pago == 1){
             if($model->cantidad_procesada > $model->cantidad  || $model->cantidad_operacion > $model->cantidad){
-                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
                  Yii::$app->getSession()->setFlash('error', 'La cantidad y/o operacion procesada es mayor que las unidades entradas en la orden Nro: '. $model->idordenproduccion. '.');
+                 return $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
             }else{  
                 if ($model->autorizado == 0) {                        
                     $model->autorizado = 1;            
@@ -1611,19 +1610,19 @@ class ValorPrendaUnidadController extends Controller
                 } else{
                     $model->autorizado = 0;
                     $model->update();
-                    $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $tipo_pago]);  
+                    return $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tipo_pago' => $tipo_pago]);  
                 }
             }    
         }else{
             if ($model->autorizado == 0) {                        
                 $model->autorizado = 1;
                 $model->update();
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
+                return $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
                 
             } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
+                return $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
             }
         }    
     }

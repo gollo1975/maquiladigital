@@ -5,10 +5,10 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Resolucion */
 
-$this->title = 'Editar Resolución: ' . $model->idresolucion;
+$this->title = 'Editar Resolución: ' . $model->nroresolucion;
 $this->params['breadcrumbs'][] = ['label' => 'Resoluciones', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->idresolucion, 'url' => ['view', 'id' => $model->idresolucion]];
-$this->params['breadcrumbs'][] = 'Editar Resolución';
+$this->params['breadcrumbs'][] = 'Editar';
 ?>
 <div class="resolucion-update">
 

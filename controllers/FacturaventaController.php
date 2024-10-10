@@ -167,15 +167,15 @@ class FacturaventaController extends Controller
         $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $facturastipo = Facturaventatipo::find()->all();
         $ordenesproduccion = Ordenproduccion::find()->Where(['=', 'autorizado', 1])->andWhere(['=', 'facturado', 0])->all();
-        $resolucion = Resolucion::find()->where(['=', 'activo', 1])->one();
+        $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','abreviatura', 'FE'])->one();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
-            $fecha = date( $model->fechainicio);
+            $fecha = date( $model->fecha_inicio);
             $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
             $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
-
-            $model->nrofactura = 0;
-            $model->fechavcto = $nuevafecha;
+            $model->idresolucion = $resolucion->idresolucion;
+            $model->numero_resolucion = $resolucion->nroresolucion;
+            $model->fecha_vencimiento = $nuevafecha;
             $model->formapago = $table->formapago;
             $model->plazopago = $table->plazopago;
             $model->porcentajefuente = 0;
@@ -189,7 +189,8 @@ class FacturaventaController extends Controller
             $model->totalpagar = 0;
             $model->valorletras = "-" ;
             $model->nrofacturaelectronica = $model->nrofacturaelectronica;
-            $model->usuariosistema = Yii::$app->user->identity->username;            
+            $model->usuariosistema = Yii::$app->user->identity->username;   
+            $model->consecutivo = $resolucion->consecutivo;
             $model->update();
             return $this->redirect(['index']);
         }
@@ -207,19 +208,20 @@ class FacturaventaController extends Controller
         $model = new FormFacturaventalibre();
         $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $facturastipo = Facturaventatipo::find()->all();
-        $resolucion = Resolucion::find()->where(['=', 'activo', 1])->one();
+        $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','abreviatura', 'FE'])->one();
         if ($model->load(Yii::$app->request->post())) {            
             $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
             $fecha = date( $model->fechainicio);
             $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
             $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
             $facturalibre = new Facturaventa;
-            $facturalibre->fechainicio = $model->fechainicio;
+            $facturalibre->fecha_inicio = $model->fechainicio;
             $facturalibre->idcliente = $model->idcliente;
             $facturalibre->observacion = $model->observacion;
-            $facturalibre->nrofactura = 0;
+            $facturalibre->idresolucion = $resolucion->idresolucion;
+            $facturalibre->numero_resolucion = $resolucion->nroresolucion;
             $facturalibre->nrofacturaelectronica = $model->nrofacturaelectronica;
-            $facturalibre->fechavcto = $nuevafecha;
+            $facturalibre->fecha_vencimiento = $nuevafecha;
             $facturalibre->formapago = $table->formapago;
             $facturalibre->plazopago = $table->plazopago;
             $facturalibre->porcentajefuente = 0;
@@ -236,6 +238,7 @@ class FacturaventaController extends Controller
             $facturalibre->idresolucion = $resolucion->idresolucion;
             $facturalibre->libre = 1;
             $facturalibre->id_factura_venta_tipo = $model->id_factura_venta_tipo;
+            $facturalibre->consecutivo = $resolucion->consecutivo;
             $facturalibre->save(false);
             return $this->redirect(['index']);
         }
@@ -301,7 +304,7 @@ class FacturaventaController extends Controller
                 
                 if ($table) {
                     $table->idcliente = $model->idcliente;
-                    $table->fechainicio = $model->fechainicio;                    
+                    $table->fecha_inicio = $model->fechainicio;                    
                     $table->observacion = $model->observacion;
                     $table->id_factura_venta_tipo = $model->id_factura_venta_tipo;
                     $table->nrofacturaelectronica = $model->nrofacturaelectronica;
@@ -324,7 +327,7 @@ class FacturaventaController extends Controller
             $table = $this->findModel($id);
             if ($table) {
                 $model->idcliente = $table->idcliente;
-                $model->fechainicio = $table->fechainicio;
+                $model->fechainicio = $table->fecha_inicio;
                 $model->id_factura_venta_tipo = $table->id_factura_venta_tipo;                
                 $model->observacion = $table->observacion;      
                 $model->nrofacturaelectronica = $table->nrofacturaelectronica;      
@@ -373,66 +376,49 @@ class FacturaventaController extends Controller
 
     public function actionNuevodetalles($idordenproduccion,$idfactura, $token)
     {
-        $facturaOrden = Ordenproducciondetalle::find()->where(['=', 'idordenproduccion', $idordenproduccion])->all();
-        $mensaje = "";
+        $factura = Facturaventa::findOne($idfactura);
+        $conceptos = \app\models\ConceptoFacturacion::find()->where(['=', 'codigo_interfaz', $factura->id_factura_venta_tipo])->all();
         if(Yii::$app->request->post()) {
             if (isset($_POST["iddetalleorden"])) {
                 $intIndice = 0;
                 foreach ($_POST["iddetalleorden"] as $intCodigo) {
-                    $table = new Facturaventadetalle();
-                    $ordenProducciondetalle = Ordenproducciondetalle::find()->where(['iddetalleorden' => $intCodigo])->one();
-                    $detalles = Facturaventadetalle::find()
-                        ->where(['=', 'idfactura', $idfactura])
-                        ->andWhere(['=', 'idproductodetalle', $ordenProducciondetalle->idproductodetalle])
-                        ->all();
-                    $reg = count($detalles);
-                    if ($reg == 0) {
-                        $table->idproductodetalle = $ordenProducciondetalle->idproductodetalle;
-                        $table->cantidad = $ordenProducciondetalle->cantidad;
-                        $table->preciounitario = $ordenProducciondetalle->vlrprecio;
-                        $table->codigoproducto = $ordenProducciondetalle->codigoproducto;
-                        $table->total = $ordenProducciondetalle->subtotal;
-                        $table->idfactura = $idfactura;
-                        $table->insert();
-                        $factura = Facturaventa::findOne($idfactura);
-                        $factura->subtotal = round($factura->subtotal + $table->total);
-                        $config = Matriculaempresa::findOne(1);
-                        $cliente = Cliente::findOne($factura->idcliente);
-                        $factura->porcentajeiva = round($config->porcentajeiva);
-                        $factura->porcentajereteiva = $config->porcentajereteiva;
-                        $factura->impuestoiva = round($factura->subtotal * $factura->porcentajeiva / 100);
-                        if ($factura->subtotal >= $config->retefuente){
-                            if ($cliente->retencioniva == 1){
-                                $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                                $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-                            }
-                            if ($cliente->retencionfuente == 1){
-                                $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                                $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-                            }
+                    $orden = Ordenproduccion::findOne($idordenproduccion);
+                    $detalleOrden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->one();
+                    $items = \app\models\ConceptoFacturacion::findOne($intCodigo);
+                    if(!$detalleOrden){
+                       Yii::$app->getSession()->setFlash('error', 'Esta orden de produccion no tiene tallas asociadas para el proceso.'); 
+                       $this->redirect(["facturaventa/view", 'id' => $idfactura, 'token' => $token]);
+                    }else{
+                         $detalleFactura = Facturaventadetalle::find()->where(['=','id', $intCodigo])->one();
+                        if($detalleFactura){
+                            Yii::$app->getSession()->setFlash('warning', 'Este concepto ya esta agregado en el detalle de la factura.'); 
+                            return $this->redirect(["facturaventa/view", 'id' => $idfactura, 'token' => $token]);
                         }else{
-                            $factura->retencionfuente = 0;
-                        }
-                        if ($cliente->autoretenedor == 1){
-                            $factura->retencioniva = round($factura->impuestoiva * $config->porcentajereteiva / 100);
-                        }else{
-                            $factura->retencioniva = 0;                            
-                        }
-                        $factura->totalpagar = round($factura->subtotal + $factura->impuestoiva - $factura->retencionfuente - $factura->retencioniva);
-                        $factura->saldo = $factura->totalpagar;
-                        $factura->update();
-                    }
+                            $table = new Facturaventadetalle();
+                            $table->idfactura = $idfactura;
+                            $table->codigoproducto = $detalleOrden->codigoproducto;
+                            $table->cantidad = $orden->cantidad;
+                            $table->preciounitario = $detalleOrden->vlrprecio;
+                            $table->porcentaje_iva= $items->porcentaje_iva;
+                            $table->porcentaje_retefuente = $items->porcentaje_retencion;
+                            $table->total = round($orden->cantidad * $detalleOrden->vlrprecio);
+                            $table->id = $intCodigo;
+                            $table->save(false);
+                            $iddetallefactura = Facturaventadetalle::find()->orderBy('iddetallefactura DESC')->one();
+                            $iddetallefactura = $iddetallefactura->iddetallefactura;
+                            $this->ActualizaTotales($iddetallefactura, $idfactura);
+                        }    
+                    }        
                 }
                 $this->redirect(["facturaventa/view", 'id' => $idfactura, 'token' => $token]);
             }else{
-                $mensaje = "Debe seleccionar al menos un registro";
+                Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar al menos un registro.');
             }
         }
 
         return $this->render('_formnuevodetalles', [
-            'facturaOrden' => $facturaOrden,
+            'conceptos' => $conceptos,
             'idfactura' => $idfactura,
-            'mensaje' => $mensaje,
             'token' => $token,
 
         ]);
@@ -441,27 +427,27 @@ class FacturaventaController extends Controller
     public function actionNuevodetallelibre($id, $token) {
         $model = new FormFacturaventanuevodetallelibre;
         $factura = Facturaventa::findOne($id);        
-        $productos = Producto::find()->where(['=','idcliente',$factura->idcliente])->all();        
+        $conceptos = \app\models\ConceptoFacturacion::find()->where(['=','codigo_interfaz', 3])->all();      
         if ($model->load(Yii::$app->request->post())) {
-            $productodetalle = Productodetalle::find()->where(['=','idproducto',$model->idproducto])->all();
-            foreach ($productodetalle as $val){
-                $producto = Producto::findOne($model->idproducto);                
-                $table = new Facturaventadetalle();
-                $table->idfactura = $id;
-                $table->idproductodetalle = $val->idproductodetalle;
-                $table->codigoproducto = $producto->codigo;                                
-                $table->cantidad = 1;
-                $table->preciounitario = $model->valor;
-                $table->total = $table->preciounitario * $table->cantidad;                
-                $table->save(false);                
-            }
-            $this->calculos($id);
+            $buscar = \app\models\ConceptoFacturacion::findOne($model->idproducto); 
+            $table = new Facturaventadetalle();
+            $table->idfactura = $id;
+            $table->id = $model->idproducto;
+            $table->cantidad = $model->cantidad;
+            $table->preciounitario = $model->valor;
+            $table->porcentaje_iva = $buscar->porcentaje_iva;
+            $table->porcentaje_retefuente = $buscar->porcentaje_retencion;
+            $table->total = $table->preciounitario * $table->cantidad;                
+            $table->save(false);                
+            $idfactura = $factura->idfactura;
+            $detalle = Facturaventadetalle::find()->orderBy('iddetallefactura DESC')->one();
+            $iddetallefactura = $detalle->iddetallefactura;
+            $this->ActualizaTotales($iddetallefactura, $idfactura);
             return $this->redirect(['view','id' => $id, 'token' => $token]);
         }
         return $this->renderAjax('_formnuevodetallelibre', [
             'model' => $model,
-            'token' => $token,
-            'productos' => ArrayHelper::map($productos, "idproducto", "codigonombre"),
+            'conceptos' => ArrayHelper::map($conceptos, "id", "concepto"),
         ]);        
     }
 
@@ -471,50 +457,17 @@ class FacturaventaController extends Controller
         $idfactura = Html::encode($_POST["idfactura"]);
 
         if(Yii::$app->request->post()){
-
             if((int) $iddetallefactura)
             {
                 $table = Facturaventadetalle::findOne($iddetallefactura);
                 if ($table) {
-
                     $table->cantidad = Html::encode($_POST["cantidad"]);
                     $table->preciounitario = Html::encode($_POST["preciounitario"]);
                     $table->total = Html::encode($_POST["cantidad"]) * Html::encode($_POST["preciounitario"]);
                     $table->idfactura = Html::encode($_POST["idfactura"]);
                     $table->save(false);
-
-                    $factura = Facturaventa::findOne($table->idfactura);
-                    $factura->subtotal = $factura->subtotal - Html::encode($_POST["total"]);
-                    $factura->subtotal = $factura->subtotal + $table->total;
-
-                    $config = Matriculaempresa::findOne(1);
-                    $cliente = Cliente::findOne($factura->idcliente);
-                    $factura->porcentajeiva = $config->porcentajeiva;
-                    $factura->porcentajereteiva = $config->porcentajereteiva;
-                    $factura->impuestoiva = $factura->subtotal * $factura->porcentajeiva / 100;
-                    if ($factura->subtotal >= $config->retefuente){
-                        if ($cliente->retencioniva == 1){
-                            $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                            $factura->retencionfuente = $factura->subtotal * $factura->porcentajefuente / 100;
-                        }
-                        if ($cliente->retencionfuente == 1){
-                            $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                            $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-                        }
-                    }else{
-                        $factura->retencionfuente = 0;
-                    }
-                    if ($cliente->autoretenedor == 1){
-                        $factura->retencioniva = $factura->impuestoiva * $config->porcentajereteiva / 100;
-                    }else{
-                        $factura->retencioniva = 0;
-                    }
-                    $factura->totalpagar = round($factura->subtotal + $factura->impuestoiva - $factura->retencionfuente - $factura->retencioniva,0);
-                    $factura->saldo = $factura->totalpagar;
-                    $factura->save(false);
-
+                    $this->ActualizaTotales($iddetallefactura, $idfactura);
                     $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
-
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
                     $tipomsg = "danger";
@@ -522,60 +475,41 @@ class FacturaventaController extends Controller
             }
         }
     }
-
-    public function actionEditardetalles($idfactura, $token)
-    {
-        $mds = Facturaventadetalle::find()->where(['=', 'idfactura', $idfactura])->all();
-
-        if (isset($_POST["iddetallefactura"])) {
-            $intIndice = 0;
-            foreach ($_POST["iddetallefactura"] as $intCodigo) {
-                if($_POST["cantidad"][$intIndice] > 0 ){
-                    $table = Facturaventadetalle::findOne($intCodigo);
-                    $total = $table->total;
-                    $table->cantidad = $_POST["cantidad"][$intIndice];
-                    $table->preciounitario = $_POST["preciounitario"][$intIndice];
-                    $table->total = $_POST["cantidad"][$intIndice] * $_POST["preciounitario"][$intIndice];
-                    $table->update();
-                    $factura = Facturaventa::findOne($idfactura);
-                    $factura->subtotal = $factura->subtotal - $total;
-                    $factura->subtotal = $factura->subtotal + $table->total;
-
-                    $config = Matriculaempresa::findOne(1);
-                    $cliente = Cliente::findOne($factura->idcliente);
-                    $factura->porcentajeiva = $config->porcentajeiva;
-                    $factura->porcentajereteiva = $config->porcentajereteiva;
-                    $factura->impuestoiva = $factura->subtotal * $factura->porcentajeiva / 100;
-                    if ($factura->subtotal >= $config->retefuente){
-                        if ($cliente->retencioniva == 1){
-                            $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                            $factura->retencionfuente = $factura->subtotal * $factura->porcentajefuente / 100;
-                        }
-                        if ($cliente->retencionfuente == 1){
-                            $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                            $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-                        }
-                    }else{
-                        $factura->retencionfuente = 0;
-                    }
-                    if ($cliente->autoretenedor == 1){
-                        $factura->retencioniva = $factura->impuestoiva * $factura->facturaventatipo->porcentaje_retefuente / 100;
-                    }else{
-                        $factura->retencioniva = 0;
-                    }
-                    $factura->totalpagar = round($factura->subtotal + $factura->impuestoiva - $factura->retencionfuente - $factura->retencioniva,0);
-                    $factura->saldo = $factura->totalpagar;
-                    $factura->update();
-                }
-                $intIndice++;
-            }
-            $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
-        }
-        return $this->render('_formeditardetalles', [
-            'mds' => $mds,
-            'idfactura' => $idfactura,
-            'token' => $token,
-        ]);
+    
+    //PROCESO QUE TOTALIZA LOS REGISTRO
+    protected function ActualizaTotales($iddetallefactura, $idfactura) {
+        $factura = Facturaventa::findOne($idfactura);
+        $detalle = Facturaventadetalle::findOne($iddetallefactura);
+        $cliente = Cliente::find()->where(['=','idcliente', $factura->idcliente])->one();
+        $empresa = Matriculaempresa::findOne(1);
+        //actualiza detalle de la factura
+         $retencion = 0; $iva = 0; $reteiva = 0;
+         $iva = round(($detalle->total * $detalle->porcentaje_iva)/100);
+         if($cliente->retencionfuente == 1){
+             $retencion = round(($detalle->total * $detalle->porcentaje_retefuente)/100);
+             $detalle->valor_retencion = $retencion;
+         }else{
+             $detalle->valor_retencion = 0;
+         }
+         $detalle->valor_iva = $iva;
+         $detalle->total_linea = round(($detalle->total + $iva) - $retencion);
+         $detalle->save(false);
+         //PROCESO QUE ACTUALIZA LA FACTURA
+         $detalleFactura = Facturaventadetalle::findOne($iddetallefactura);
+         $factura->subtotal = $detalleFactura->total;
+         $factura->porcentajefuente = $detalleFactura->porcentaje_retefuente;
+         $factura->porcentajeiva = $detalleFactura->porcentaje_iva;
+         $factura->retencionfuente = $detalleFactura->valor_retencion;
+         $factura->impuestoiva = $detalleFactura->valor_iva;
+         if ($cliente->retencioniva == 1){
+             $reteiva = round(($detalleFactura->valor_iva * $empresa->porcentajereteiva)/100);
+             $factura->retencioniva = $reteiva;
+         }else{
+             $factura->retencioniva = 0;
+         }
+         $factura->totalpagar = ($factura->subtotal +  $factura->impuestoiva) - ($factura->retencionfuente + $factura->retencioniva);
+         $factura->saldo = $factura->totalpagar;
+         $factura->save(false);
     }
 
     public function actionEliminardetalle($token)
@@ -591,33 +525,16 @@ class FacturaventaController extends Controller
                 if(Facturaventadetalle::deleteAll("iddetallefactura=:iddetallefactura", [":iddetallefactura" => $iddetallefactura]))
                 {
                     $factura = Facturaventa::findOne($idfactura);
-                    $factura->subtotal = $factura->subtotal - $total;
-
-                    $config = Matriculaempresa::findOne(1);
-                    $cliente = Cliente::findOne($factura->idcliente);
-                    $factura->porcentajeiva = $config->porcentajeiva;
-                    $factura->porcentajereteiva = $config->porcentajereteiva;
-                    $factura->impuestoiva = $factura->subtotal * $factura->porcentajeiva / 100;
+                    $factura->porcentajeiva = 0;
+                    $factura->porcentajereteiva = 0;
+                    $factura->impuestoiva = 0;
                     //calculo de retefuente, reteiva
-                    if ($factura->subtotal >= $config->retefuente){
-                        if ($cliente->retencioniva == 1){
-                            $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                            $factura->retencionfuente = $factura->subtotal * $factura->porcentajefuente / 100;
-                        }
-                        if ($cliente->retencionfuente == 1){
-                            $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                            $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-                        }
-                    }else{
-                        $factura->retencionfuente = 0;
-                    }
-                    if ($cliente->autoretenedor == 1){
-                        $factura->retencioniva = $factura->impuestoiva * $config->porcentajereteiva / 100;
-                    }else{
-                        $factura->retencioniva = 0;
-                    }
-                    $factura->totalpagar = round($factura->subtotal + $factura->impuestoiva - $factura->retencionfuente - $factura->retencioniva,0);
-                    $factura->saldo = $factura->totalpagar;
+                    $factura->porcentajefuente = 0;
+                    $factura->retencionfuente = 0;
+                    $factura->retencioniva = 0;
+                    $factura->totalpagar = 0;
+                    $factura->saldo = 0;
+                    $factura->subtotal = 0;
                     $factura->save(false);
                     $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
                 }
@@ -635,65 +552,6 @@ class FacturaventaController extends Controller
         {
             return $this->redirect(["facturaventa/index"]);
         }
-    }
-
-    public function actionEliminardetalles($idfactura, $token)
-    {
-        $mds = Facturaventadetalle::find()->where(['=', 'idfactura', $idfactura])->all();
-        $mensaje = "";
-        if(Yii::$app->request->post())
-        {
-            $intIndice = 0;
-
-            if (isset($_POST["seleccion"])) {
-                foreach ($_POST["seleccion"] as $intCodigo)
-                {
-                    $facturaDetalle = Facturaventadetalle::findOne($intCodigo);
-                    $total = $facturaDetalle->total;
-                    if(Facturaventadetalle::deleteAll("iddetallefactura=:iddetallefactura", [":iddetallefactura" => $intCodigo]))
-                    {
-                        $factura = Facturaventa::findOne($idfactura);
-                        $factura->subtotal = $factura->subtotal - $total;
-
-                        $config = Matriculaempresa::findOne(1);
-                        $cliente = Cliente::findOne($factura->idcliente);
-                        $factura->porcentajeiva = $config->porcentajeiva;
-                        $factura->porcentajereteiva = $config->porcentajereteiva;
-                        $factura->impuestoiva = $factura->subtotal * $factura->porcentajeiva / 100;
-                        //calculo reteiva,retefuente
-                        if ($factura->subtotal >= $config->retefuente){
-                            if ($cliente->retencioniva == 1){
-                                $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                                $factura->retencionfuente = $factura->subtotal * $factura->porcentajefuente / 100;
-                            }
-                            if ($cliente->retencionfuente == 1){
-                                $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                                $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-                            }
-                        }else{
-                            $factura->retencionfuente = 0;
-                        }
-                        if ($cliente->autoretenedor == 1){
-                            $factura->retencioniva = $factura->impuestoiva * $config->porcentajereteiva / 100;
-                        }else{
-                            $factura->retencioniva = 0;                           
-                        }
-                        $factura->totalpagar = round($factura->subtotal + $factura->impuestoiva - $factura->retencionfuente - $factura->retencioniva,0);
-                        $factura->saldo = $factura->totalpagar;
-                        $factura->update();
-                    }
-                }
-                $this->redirect(["facturaventa/view",'id' => $idfactura, 'token' => $token]);
-            }else {
-                $mensaje = "Debe seleccionar al menos un registro";
-            }
-        }
-        return $this->render('_formeliminardetalles', [
-            'mds' => $mds,
-            'idfactura' => $idfactura,
-            'mensaje' => $mensaje,
-            'token' => $token,
-        ]);
     }
 
     public function actionAutorizado($id, $token)
@@ -778,58 +636,7 @@ class FacturaventaController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
     
-    protected function afectarcantidadfacturada($id)
-    {        
-        $detalles = Facturaventadetalle::find()->where(['idfactura' => $id])->all();
-        foreach ($detalles as $dato) {
-            $producto = Producto::findOne($dato->idproducto);            
-            $producto->stock = $producto->stock - $dato->cantidad;
-            $producto->update();
-        }
-    }
-    
-    protected function calculos($id)
-    {        
-        $detalles = Facturaventadetalle::find()->where(['idfactura' => $id])->all();
-        $subtotal = 0;
-        foreach ($detalles as $val) {
-            $subtotal = $subtotal + $val->total;
-        }
-        $factura = Facturaventa::findOne($id);
-        $factura->subtotal = round($subtotal);
-        $config = Matriculaempresa::findOne(1);
-        $cliente = Cliente::findOne($factura->idcliente);
-        $factura->porcentajeiva = round($config->porcentajeiva);
-        $factura->porcentajereteiva = $config->porcentajereteiva;
-        $factura->impuestoiva = round($factura->subtotal * $factura->porcentajeiva / 100);
-        if ($factura->subtotal >= $config->retefuente){
-            if ($cliente->retencioniva == 1){
-                $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-            }
-            if ($cliente->retencionfuente == 1){
-                $factura->porcentajefuente = $factura->facturaventatipo->porcentaje_retefuente;
-                $factura->retencionfuente = round($factura->subtotal * $factura->porcentajefuente / 100);
-            }
-        }else{
-            $factura->retencionfuente = 0;
-        }
-        if ($cliente->autoretenedor == 1){
-            $factura->retencioniva = round($factura->impuestoiva * $config->porcentajereteiva / 100);
-        }else{
-            if ($cliente->retencionfuente == 1){
-                $factura->retencioniva = round($factura->impuestoiva * $config->porcentajereteiva / 100);
-            }else {
-                $factura->retencioniva = 0;
-            }
-
-        }
-        $factura->totalpagar = round($factura->subtotal + $factura->impuestoiva - $factura->retencionfuente - $factura->retencioniva);
-        $factura->saldo = $factura->totalpagar;
-        $factura->save(false);
-        
-    }
-    
+       
     public function actionImprimir($id)
     {
                                 
@@ -859,7 +666,8 @@ class FacturaventaController extends Controller
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['>=', 'fechainicio', $desde])
                             ->andFilterWhere(['<=', 'fechainicio', $hasta])
-                            ->andFilterWhere(['=', 'nrofactura', $numero]);
+                            ->andFilterWhere(['=', 'nrofactura', $numero])
+                            ->andWhere(['>', 'nrofactura', 0]);
                     if ($pendiente == 1){
                         $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
                     }        
@@ -883,7 +691,7 @@ class FacturaventaController extends Controller
                     $form->getErrors();
                 }
             } else {
-                $table = Facturaventa::find()
+                $table = Facturaventa::find()->andWhere(['>', 'nrofactura', 0])
                         ->orderBy('idfactura desc');
                 $count = clone $table;
                 $pages = new Pagination([

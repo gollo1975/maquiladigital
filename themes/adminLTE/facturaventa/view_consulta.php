@@ -12,7 +12,7 @@ use yii\db\ActiveQuery;
 /* @var $this yii\web\View */
 /* @var $model app\models\Facturaventa */
 
-$this->title = 'Detalle de Factura';
+$this->title = 'Factura de venta';
 $this->params['breadcrumbs'][] = ['label' => 'Consulta Facturas', 'url' => ['indexconsulta']];
 $this->params['breadcrumbs'][] = $model->idfactura;
 $view = 'facturaventa';
@@ -48,16 +48,16 @@ $view = 'facturaventa';
                     <td><?= Html::encode('$ '.number_format($model->subtotal,0)) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fechainicio') ?>:</th>
-                    <td><?= Html::encode($model->fechainicio) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_inicio') ?>:</th>
+                    <td><?= Html::encode($model->fecha_inicio) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentajefuente') ?>:</th>
                     <td><?= Html::encode($model->porcentajefuente) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'impuestoiva') ?>: +</th>
                     <td><?= Html::encode('$ '.number_format($model->impuestoiva,0)) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fechavcto') ?>:</th>
-                    <td><?= Html::encode($model->fechavcto) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_vencimiento') ?>:</th>
+                    <td><?= Html::encode($model->fecha_vencimiento) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentajereteiva') ?>:</th>
                     <td><?= Html::encode($model->porcentajereteiva) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencioniva') ?>: -</th>
@@ -103,11 +103,11 @@ $view = 'facturaventa';
                     <thead>
                     <tr>
                         <th scope="col" style='background-color:#B9D5CE;'>Id</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Descripcion del servicio</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Precio</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Valor unitario</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Total servicio</th>
                         <th style='background-color:#B9D5CE;'></th>
                     </tr>
                     </thead>
@@ -115,11 +115,15 @@ $view = 'facturaventa';
                     <?php foreach ($modeldetalles as $val): ?>
                         <tr style="font-size: 85%;">
                         <td><?= $val->iddetallefactura ?></td>
-                        <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
+                        <?php if($val->idproductodetalle == ''){?>
+                            <td><?= $val->conceptoFactura->concepto?></td>
+                        <?php }else{?>
+                             <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
+                        <?php }?>    
                         <td><?= $val->codigoproducto ?></td>
                         <td><?= $val->cantidad ?></td>
-                        <td><?= '$ '.number_format($val->preciounitario,0) ?></td>
-                        <td><?= '$ '.number_format($val->total,0) ?></td>                        
+                        <td style="text-align: right"><?= '$ '.number_format($val->preciounitario,0) ?></td>
+                        <td style="text-align: right"><?= '$ '.number_format($val->total,0) ?></td>                        
                     </tr>
                     </tbody>
                     <?php endforeach; ?>

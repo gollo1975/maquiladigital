@@ -15,7 +15,7 @@ use yii\helpers\Url;
 /* @var $model app\models\Recibocaja */
 /* @var $form yii\widgets\ActiveForm */
 
-$this->title = 'Nuevo Factura Venta';
+$this->title = 'Nuevo factura';
 $this->params['breadcrumbs'][] = ['label' => 'Facturas de Ventas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;?>
 
@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;?>
 
 <div class="panel panel-success">
     <div class="panel-heading">
-        Información Factura Venta
+        Información de la factura de venta
     </div>
     <div class="panel-body">
         <div class="row">

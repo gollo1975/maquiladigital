@@ -98,12 +98,12 @@ class Banco extends \yii\db\ActiveRecord
      public function getTipoCuenta()
     {
         if ($this->producto == 'S'){
-            $tipoproducto = "AHORRO 'S'";
+            $tipoproducto = "AHORRO";
         }else{
             if ($this->producto == 'D'){
-                $tipoproducto = "CORRIENTE 'C'";
+                $tipoproducto = "CORRIENTE";
             }else{
-                $tipoproducto = "EFECTIVO 'E'";
+                $tipoproducto = "EFECTIVO";
             }    
         }
         return $tipoproducto;

@@ -38,10 +38,10 @@ $this->params['breadcrumbs'][] = $model->idresolucion;
                     <td><?= Html::encode($model->nroresolucion) ?></td>                    
                 </tr>
                 <tr>
-                    <th><?= Html::activeLabel($model, 'desde') ?>:</th>
-                    <td><?= Html::encode($model->desde) ?></td>                    
-                    <th><?= Html::activeLabel($model, 'hasta') ?>:</th>
-                    <td><?= Html::encode($model->hasta) ?></td>                    
+                    <th><?= Html::activeLabel($model, 'inicio_rango') ?>:</th>
+                    <td><?= Html::encode($model->inicio_rango) ?></td>                    
+                    <th><?= Html::activeLabel($model, 'final_rango') ?>:</th>
+                    <td><?= Html::encode($model->final_rango) ?></td>                    
                 </tr>
                 <tr>
                     <th><?= Html::activeLabel($model, 'fechacreacion') ?>:</th>
@@ -58,8 +58,8 @@ $this->params['breadcrumbs'][] = $model->idresolucion;
                 <tr>
                     <th><?= Html::activeLabel($model, 'activo') ?>:</th>
                     <td><?= Html::encode($model->estado) ?></td>                    
-                    <th></th>
-                    <td></td>                    
+                     <th><?= Html::activeLabel($model, 'Tipo_resolucion') ?>:</th>
+                    <td><?= Html::encode($model->abreviaturaResolucion) ?> - <?= Html::encode($model->consecutivo) ?></td>                  
                 </tr>
             </table>
         </div>

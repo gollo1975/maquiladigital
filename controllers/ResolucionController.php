@@ -32,6 +32,7 @@ class ResolucionController extends Controller
             ],
         ];
     }
+    
 
     /**
      * Lists all Resolucion models.
@@ -78,11 +79,8 @@ class ResolucionController extends Controller
     {
         $model = new Resolucion();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $empresa = Matriculaempresa::find(1)->one();
-            $model->nitmatricula = $empresa->nitmatricula;
-            $model->update();
-            return $this->redirect(['view', 'id' => $model->idresolucion]);
+        if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [

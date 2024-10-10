@@ -29,6 +29,14 @@ class Resolucion extends \yii\db\ActiveRecord
     {
         return 'resolucion';
     }
+    
+     public function beforeSave($insert) {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+        $this->consecutivo = strtoupper($this->consecutivo);        
+        return true;
+    }
 
     /**
      * {@inheritdoc}
@@ -36,13 +44,13 @@ class Resolucion extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nroresolucion', 'desde', 'hasta', 'fechacreacion', 'fechavencimiento', 'codigoactividad', 'descripcion'], 'required'],
+            [['nroresolucion', 'inicio_rango', 'final_rango', 'fechavencimiento', 'codigoactividad', 'descripcion','vigencia'], 'required'],
             [['fechacreacion', 'fechavencimiento'], 'safe'],
-            [['codigoactividad', 'activo'], 'integer'],
+            [['codigoactividad', 'activo','inicio_rango','final_rango'], 'integer'],
             [['nroresolucion'], 'string', 'max' => 40],
-            [['desde', 'hasta'], 'string', 'max' => 10],
-            [['nitmatricula'], 'string', 'max' => 11],
-            [['descripcion'], 'string', 'max' => 50],
+            [['descripcion','codigo_interfaz'], 'string', 'max' => 50],
+            [['consecutivo','abreviatura'],'string' ,'max' => 3],
+           
         ];
     }
 
@@ -54,14 +62,19 @@ class Resolucion extends \yii\db\ActiveRecord
         return [
             'idresolucion' => 'Id',
             'nroresolucion' => 'N° Resolucion',
-            'desde' => 'Desde',
-            'hasta' => 'Hasta',
+            'desde' => 'Inicio de rango',
+            'hasta' => 'Final de rango',
             'fechacreacion' => 'Fecha Resolución',
             'fechavencimiento' => 'Fecha Vencimiento',
             'nitmatricula' => 'Nitmatricula',
             'codigoactividad' => 'Código Actividad',
             'descripcion' => 'Descripción',
             'activo' => 'Activo',
+            'consecutivo' => 'Consecutivo',
+            'abreviatura' => 'Abreviatura',
+            'vigencia' => 'Vigencia',
+            'codigo_interfaz' => 'Codigo interfaz',
+            
         ];
     }
 
@@ -73,6 +86,8 @@ class Resolucion extends \yii\db\ActiveRecord
         return $this->hasMany(Facturaventa::className(), ['idresolucion' => 'idresolucion']);
     }
     
+   
+    
     public function getEstado()
     {
         if ($this->activo == 1){
@@ -81,5 +96,14 @@ class Resolucion extends \yii\db\ActiveRecord
             $activo = "NO";
         }
         return $activo;
+    }
+    public function getAbreviaturaResolucion()
+    {
+        if ($this->abreviatura == 'FE'){
+            $abreviaturaresolucion = "Factura electronica";
+        }else{
+            $abreviaturaresolucion = "Documento soporte";
+        }
+        return $abreviaturaresolucion;
     }
 }

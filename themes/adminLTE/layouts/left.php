@@ -67,7 +67,6 @@
                                                 ['label' => 'Departamento', 'icon' => 'plus-square-o', 'url' => ['/departamento/index']],                                                                                                
                                                 ['label' => 'Horario', 'icon' => 'plus-square-o', 'url' => ['/horario/index']],                                                
                                                 ['label' => 'Municipio', 'icon' => 'plus-square-o', 'url' => ['/municipio/index']],
-                                                ['label' => 'Resolución', 'icon' => 'plus-square-o', 'url' => ['/resolucion/index']],                                                                                                
                                                 ['label' => 'Tipo Documento', 'icon' => 'plus-square-o', 'url' => ['/tipo-documento/index']],
                                                 ['label' => 'Tipo Cargo', 'icon' => 'plus-square-o', 'url' => ['tipocargo/index']],
                                                 
@@ -515,6 +514,7 @@
                                             'icon' => 'database',
                                             'url' => '#',
                                             'items' => [
+                                                ['label' => 'Resolución', 'icon' => 'plus-square-o', 'url' => ['/resolucion/index']], 
                                                 ['label' => 'Conceptos Notas', 'icon' => 'plus-square-o', 'url' => ['conceptonota/index']],
                                                 ['label' => 'Factura de Venta Tipo', 'icon' => 'plus-square-o', 'url' => ['facturaventatipo/index']],
                                                 ['label' => 'Cliente', 'icon' => 'plus-square-o', 'url' => ['/clientes/index']],

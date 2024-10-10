@@ -23,15 +23,19 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             [
-                'attribute' => 'nroresolucion',
-                'contentOptions' => ['class' => 'col-lg-1.5'],
-            ],
-            [
-                'attribute' => 'desde',
+                'attribute' => 'idresolucion',
                 'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [
-                'attribute' => 'hasta',
+                'attribute' => 'nroresolucion',
+                'contentOptions' => ['class' => 'col-lg-1'],
+            ],
+            [
+                'attribute' => 'inicio_rango',
+                'contentOptions' => ['class' => 'col-lg-1'],
+            ],
+            [
+                'attribute' => 'final_rango',
                 'contentOptions' => ['class' => 'col-lg-1 '],
             ],
             [               
@@ -51,13 +55,19 @@ $this->params['breadcrumbs'][] = $this->title;
             'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [
-                'attribute' => 'codigoactividad',
+                'attribute' => 'vigencia',
                 'contentOptions' => ['class' => 'col-lg-1 '],
             ],
-            [
-                'attribute' => 'descripcion',
-                'contentOptions' => ['class' => 'col-lg-3.5 '],
-            ],
+            [               
+                'attribute' => 'activo',
+                'value' => function($model){
+                    $resolucion = \app\models\Resolucion::findOne($model->idresolucion);
+                    if ($resolucion->activo == 0){$estado = "SI";}else{$estado = "NO";}
+                    return $estado;
+                },
+                'contentOptions' => ['class' => 'col-lg-1'],
+            ], 					
+                    
             [
                 'class' => 'yii\grid\ActionColumn',
                  'contentOptions' => ['class' => 'col-lg-1 '],

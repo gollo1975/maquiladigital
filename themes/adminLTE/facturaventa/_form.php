@@ -27,11 +27,11 @@ use kartik\depdrop\DepDrop;
 
  <div class="panel panel-success">
     <div class="panel-heading">
-        <h4>Información Factura Venta</h4>
+        <h4>Información de la factura de venta</h4>
     </div>
     <div class="panel-body">
         <div class="row">
-            <?= $form->field($model,'fechainicio')->widget(DatePicker::className(),['name' => 'check_issue_date',
+            <?= $form->field($model,'fecha_inicio')->widget(DatePicker::className(),['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [

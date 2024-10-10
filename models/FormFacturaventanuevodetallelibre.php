@@ -12,12 +12,12 @@ class FormFacturaventanuevodetallelibre extends Model
 {    
     public $valor;
     public $idproducto;
-    
+    public $cantidad;
     public function rules()
     {
         return [            
-            [['valor','idproducto'], 'required'],            
-            [['idproducto','valor'], 'number'],                       
+            [['valor','idproducto','cantidad'], 'required'],            
+            [['idproducto','valor','cantidad'], 'integer'],                       
         ];
     }
 
@@ -25,7 +25,8 @@ class FormFacturaventanuevodetallelibre extends Model
     {
         return [                        
             'valor' => 'Valor:',   
-            'idproducto' => 'Producto:',   
+            'idproducto' => 'Servicio / Producto:', 
+            'cantidad' => 'Cantidad:',
         ];
     }
     

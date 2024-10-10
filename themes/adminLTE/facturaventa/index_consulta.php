@@ -94,7 +94,6 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
             <thead>
                 <tr style="font-size: 85%;">                
                 <th scope="col" style='background-color:#B9D5CE;'>Factura</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fact. Elect.</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cedula/Nit</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha Inicio</th>
@@ -115,11 +114,10 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                     ?>
                     <tr style="font-size: 85%;">                
                         <td><?= $val->nrofactura ?></td>
-                         <td><?= $val->nrofacturaelectronica ?></td>
                         <td><?= $val->cliente->cedulanit ?></td>
                         <td><?= $val->cliente->nombrecorto ?></td>
-                        <td><?= $val->fechainicio ?></td>
-                        <td><?= $val->fechavcto ?></td>
+                        <td><?= $val->fecha_inicio ?></td>
+                        <td><?= $val->fecha_vencimiento ?></td>
                         <td align="right"><?= number_format($val->subtotal,0) ?></td>
                         <td align="right"><?= number_format($val->totalpagar,0) ?></td>
                         <td align="right"><?= number_format($val->saldo,0) ?></td>

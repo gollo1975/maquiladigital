@@ -12,8 +12,8 @@ use kartik\depdrop\DepDrop;
 
     'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
     'fieldConfig' => [
-        'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
-        'labelOptions' => ['class' => 'col-sm-3 control-label'],
+        'template' => '{label}<div class="col-sm-7 form-group">{input}{error}</div>',
+        'labelOptions' => ['class' => 'col-sm-4 control-label'],
         'options' => []
     ],
 ]); ?>
@@ -26,11 +26,14 @@ use kartik\depdrop\DepDrop;
         <div class="table table-responsive">
             <div class="panel panel-success ">
                 <div class="panel-heading" align="left">
-                    Nuevo detalle factura venta
+                    Coneceptos de facturación
                 </div>
                 <div class="panel-body">
                     <div class="row">                                    
-                        <?= $form->field($model, 'idproducto')->dropDownList($productos,['prompt' => 'Seleccione un producto...']) ?>
+                        <?= $form->field($model, 'idproducto')->dropDownList($conceptos,['prompt' => 'Seleccione...']) ?>
+                    </div>
+                     <div class="row">            
+                        <?= $form->field($model, 'cantidad')->textInput(['maxlength' => true]) ?>
                     </div>
                     <div class="row">            
                         <?= $form->field($model, 'valor')->textInput(['maxlength' => true]) ?>
@@ -38,7 +41,7 @@ use kartik\depdrop\DepDrop;
                 </div>
                 <div class="panel-footer">
                     <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal"><span class='glyphicon glyphicon-remove'></span> Cerrar</button>                    
-                    <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-primary btn-sm", 'name' => 'Guardar']) ?>                    
+                    <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-primary btn-sm", 'name' => 'enviar_concepto']) ?>                    
                 </div>
             </div>
         </div>

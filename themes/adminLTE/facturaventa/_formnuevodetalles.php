@@ -23,6 +23,9 @@ use yii\db\ActiveQuery;
 /* @var $this yii\web\View */
 /* @var $model app\models\Facturaventadetalle */
 /* @var $form yii\widgets\ActiveForm */
+$this->title = 'Conceptos de facturacion';
+$this->params['breadcrumbs'][] = ['label' => 'Concepto de facturacion', 'url' => ['view','id' => $idfactura, 'token' => $token]];
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <?php $form = ActiveForm::begin([
@@ -35,40 +38,31 @@ use yii\db\ActiveQuery;
     ],
 ]); ?>
 
-<?php
-if ($mensaje != ""){
-    ?> <div class="alert alert-danger"><?= $mensaje ?></div> <?php
-}
-?>
 
 <div class="table table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">
-            Registros de producción
+            Conceptos de facturacion
         </div>
         <div class="panel-body">
             <table class="table table-condensed">
                 <thead>
                 <tr>
                     <th scope="col">Id</th>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Código</th>
-                    <th scope="col">Cantidad</th>
-                    <th scope="col">Precio Unitario</th>
-                    <th scope="col">Subtotal</th>
+                    <th scope="col">Concepto</th>
+                    <th scope="col">Porcentaje de retencion</th>
+                    <th scope="col">Porcentaje de iva</th>
                     <th scope="col"><input type="checkbox" onclick="marcar(this);"/></th>
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($facturaOrden as $val): ?>
+                <?php foreach ($conceptos as $val): ?>
                 <tr>
-                    <td><?= $val->iddetalleorden ?></td>
-                    <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
-                    <td><?= $val->codigoproducto ?></td>
-                    <td><?= $val->cantidad ?></td>
-                    <td><?= '$ '.number_format($val->vlrprecio,0) ?></td>
-                    <td><?= '$ '.number_format($val->subtotal,0) ?></td>
-                    <td><input type="checkbox" name="iddetalleorden[]" value="<?= $val->iddetalleorden ?>"></td>
+                    <td><?= $val->id ?></td>
+                    <td><?= $val->concepto ?></td>
+                    <td style="text-align: right"><?= $val->porcentaje_retencion ?>%</td>
+                    <td style="text-align: right"><?= $val->porcentaje_iva ?>%</td>
+                    <td><input type="checkbox" name="iddetalleorden[]" value="<?= $val->id ?>"></td>
                 </tr>
                 </tbody>
                 <?php endforeach; ?>

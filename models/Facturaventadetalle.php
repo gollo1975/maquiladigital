@@ -35,11 +35,12 @@ class Facturaventadetalle extends \yii\db\ActiveRecord
     {
         return [
             [['idfactura', 'idproductodetalle', 'codigoproducto', 'cantidad', 'preciounitario', 'total'], 'required'],
-            [['idfactura', 'idproductodetalle', 'cantidad'], 'integer'],
-            [['preciounitario', 'total'], 'number'],
+            [['idfactura', 'idproductodetalle', 'cantidad','id'], 'integer'],
+            [['preciounitario', 'total','porcentaje_iva','porcentaje_retefuente','valor_retencion','valor_iva','total_linea'], 'number'],
             [['codigoproducto'], 'string', 'max' => 15],
             [['idproductodetalle'], 'exist', 'skipOnError' => true, 'targetClass' => Productodetalle::className(), 'targetAttribute' => ['idproductodetalle' => 'idproductodetalle']],
             [['idfactura'], 'exist', 'skipOnError' => true, 'targetClass' => Facturaventa::className(), 'targetAttribute' => ['idfactura' => 'idfactura']],
+            [['id'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoFacturacion::className(), 'targetAttribute' => ['id' => 'id']],
         ];
     }
 
@@ -56,6 +57,12 @@ class Facturaventadetalle extends \yii\db\ActiveRecord
             'cantidad' => 'Cantidad',
             'preciounitario' => 'Preciounitario',
             'total' => 'Total',
+            'valor_iva' => 'valor_iva',
+            'valor_retencion' => 'valor_retencion',
+            'porcentaje_retefuente' => 'porcentaje_retefuente',
+            'porcentaje_iva' => 'porcentaje_iva',
+            'total_linea' => 'Total linea',
+            'id' => 'Concepto',
         ];
     }
 
@@ -66,7 +73,14 @@ class Facturaventadetalle extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Productodetalle::className(), ['idproductodetalle' => 'idproductodetalle']);
     }
-
+   
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getConceptoFactura()
+    {
+        return $this->hasOne(ConceptoFacturacion::className(), ['id' => 'id']);
+    }
     /**
      * @return \yii\db\ActiveQuery
      */

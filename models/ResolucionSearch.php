@@ -19,9 +19,9 @@ class ResolucionSearch extends Resolucion
     public function rules()
     {
         return [
-            [['idresolucion', 'activo','codigoactividad','descripcion'], 'integer'],
-            [['codigoactividad', 'descripcion'], 'string'],
-            [['nroresolucion', 'desde', 'hasta', 'fechacreacion','fechavencimiento', 'nitmatricula'], 'safe'],
+            [['idresolucion', 'activo','codigoactividad','descripcion','activo','vigencia','inicio_rango', 'final_rango'], 'integer'],
+            [['codigoactividad', 'descripcion','codigo_interfaz'], 'string'],
+            [['nroresolucion', 'fechacreacion','fechavencimiento'], 'safe'],
         ];
     }
 
@@ -49,6 +49,7 @@ class ResolucionSearch extends Resolucion
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort'=> ['defaultOrder' => ['idresolucion' => SORT_DESC]] // Agregar esta linea para agregar el orden por defecto
         ]);
 
         $this->load($params);
@@ -66,9 +67,8 @@ class ResolucionSearch extends Resolucion
         ]);
 
         $query->andFilterWhere(['like', 'nroresolucion', $this->nroresolucion])
-            ->andFilterWhere(['like', 'desde', $this->desde])
-            ->andFilterWhere(['like', 'hasta', $this->hasta])
-            ->andFilterWhere(['like', 'nitmatricula', $this->nitmatricula])
+            ->andFilterWhere(['=', 'inicio_rango', $this->inicio_rango])
+            ->andFilterWhere(['=', 'final_rango', $this->final_rango])
             ->andFilterWhere(['like', 'descripcion', $this->descripcion])
             ->andFilterWhere(['like', 'codigoactividad', $this->codigoactividad])
             ->andFilterWhere(['like', 'fechacreacion', $this->fechacreacion])

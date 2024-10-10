@@ -17,8 +17,8 @@ use kartik\select2\Select2;
 $form = ActiveForm::begin([
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-                'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
-                'labelOptions' => ['class' => 'col-sm-3 control-label'],
+                'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
+                'labelOptions' => ['class' => 'col-sm-2 control-label'],
                 'options' => []
             ],
         ]);
@@ -32,12 +32,7 @@ $form = ActiveForm::begin([
     <div class="panel-body">
         <div class="row">            
             <?= $form->field($model, 'nroresolucion')->textInput(['maxlength' => true]) ?>
-        </div>														   		
-        <div class="row">
-            <?= $form->field($model, 'desde')->textInput(['maxlength' => true]) ?>    
-        </div>
-        <div class="row">
-            <?= $form->field($model, 'hasta')->textInput(['maxlength' => true]) ?>  					
+            <?= $form->field($model, 'vigencia')->textInput(['maxlength' => true]) ?>  					
         </div>
         <div class="row">
             <?=
@@ -48,8 +43,6 @@ $form = ActiveForm::begin([
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
-        </div>
-        <div class="row">
             <?=
             $form->field($model, 'fechavencimiento')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
@@ -60,14 +53,23 @@ $form = ActiveForm::begin([
             ?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'codigoactividad')->textInput(['maxlength' => true]) ?>  					
+            <?= $form->field($model, 'inicio_rango')->textInput(['maxlength' => true]) ?> 
+            <?= $form->field($model, 'final_rango')->textInput(['maxlength' => true]) ?> 
         </div>
+        
         <div class="row">
+            <?= $form->field($model, 'codigoactividad')->textInput(['maxlength' => true]) ?>  					
             <?= $form->field($model, 'descripcion')->textInput(['maxlength' => true]) ?>  					
         </div>
+        
         <div class="row">
-            <?= $form->field($model, 'activo')->dropdownList(['1' => 'Activo', '0' => 'Inactivo'], ['prompt' => 'Seleccione...']) ?>
-        </div>			
+             <?= $form->field($model, 'abreviatura')->dropdownList(['FE' => 'Factura electronica', 'DS' => 'Documento soporte'], ['prompt' => 'Seleccione...']) ?>
+            <?= $form->field($model, 'activo')->dropdownList(['0' => 'Activo', '1' => 'Inactivo'], ['prompt' => 'Seleccione...']) ?>
+        </div>	
+         <div class="row">
+              <?= $form->field($model, 'consecutivo')->textInput(['maxlength' => true]) ?> 
+              <?= $form->field($model, 'codigo_interfaz')->textInput(['maxlength' => true]) ?>  
+        </div>	
         <div class="panel-footer text-right">                    
             <a href="<?= Url::toRoute("resolucion/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>		

@@ -1102,7 +1102,6 @@ class OrdenProduccionController extends Controller {
     
     public function actionAutorizado($id, $token) {
         $model = $this->findModel($id);
-        $mensaje = "";
         if($model->cerrar_orden == 0){
             if ($model->autorizado == 0) {
                 $detalles = Ordenproducciondetalle::find()
@@ -1117,19 +1116,19 @@ class OrdenProduccionController extends Controller {
                     $model->autorizado = 1;
                     $model->cantidad = $totalcantidad;
                     $model->update();
-                    $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+                    return $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
                 } else {
                     Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener productos relacionados en la orden de producción.');
-                    $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+                    return $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
                 }
             } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+                return $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
             }
         }else{
              Yii::$app->getSession()->setFlash('warning', 'La orden de producción no se puede Desautorizar porque ya se cerro el proceso de balanceo.');
-             $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+             return $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
         }    
     }
     //AUTORIZAR LA NOVEDAD DE PRODUCCION
@@ -1138,11 +1137,11 @@ class OrdenProduccionController extends Controller {
         if($model->autorizado == 0){
             $model->autorizado = 1;
             $model->update();
-            $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+            return $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
         }else{
             $model->autorizado = 0;
             $model->update();
-            $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
+            return $this->redirect(["orden-produccion/view", 'id' => $id, 'token' => $token]);
         }
     }
     
@@ -1151,16 +1150,16 @@ class OrdenProduccionController extends Controller {
         $entrada = SalidaEntradaProduccion::findOne($id);
         if($model->total_cantidad > $model->ordenproduccion->cantidad){
            Yii::$app->getSession()->setFlash('warning', 'Las unidades de entrada no pueden ser mayores que la cantidad del lote.'); 
-           $this->redirect(["orden-produccion/viewsalida", 'id' => $id]);
+           return $this->redirect(["orden-produccion/viewsalida", 'id' => $id]);
         }else{
             if ($model->autorizado == 0) {
                 $model->autorizado = 1;
                 $model->update();
-                $this->redirect(["orden-produccion/viewsalida", 'id' => $id]);
+                return $this->redirect(["orden-produccion/viewsalida", 'id' => $id]);
             } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["orden-produccion/viewsalida", 'id' => $id]);
+                return $this->redirect(["orden-produccion/viewsalida", 'id' => $id]);
             }
         }    
     }

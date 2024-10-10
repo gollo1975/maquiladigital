@@ -17,10 +17,10 @@ $view = 'comprobante-egreso';
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-primary btn-sm']) ?>
-        <?php if ($model->autorizado == 0) { ?>
-            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-success btn-sm']) ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-default btn-sm']); }
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-primary btn-sm']);?>
+        <?php if ($model->autorizado == 0) { 
+            echo Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_comprobante_egreso], ['class' => 'btn btn-success btn-sm']);
+            echo Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-default btn-sm']); }
         else {
             echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             echo Html::a('<span class="glyphicon glyphicon-check"></span> Pagar', ['pagar', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-default btn-sm']);

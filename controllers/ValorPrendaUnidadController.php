@@ -1497,7 +1497,7 @@ class ValorPrendaUnidadController extends Controller
     {                                
         $detalle = \app\models\PagoNominaServicioDetalle::findOne($id_detalle);
         $detalle->delete();
-        $this->redirect(["vistadetallepago",'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega, 'autorizado' => $autorizado]);        
+        return $this->redirect(["vistadetallepago",'id_pago' => $id_pago, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'bodega' =>$bodega, 'autorizado' => $autorizado]);        
     }
     //proceso que imprime la colilla de confeccion
     
@@ -1514,11 +1514,19 @@ class ValorPrendaUnidadController extends Controller
     
     public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago)
     {                                
-        $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
-        $detalle->delete();
-        $this->Totalpagar($id);
-        $this->TotalCantidades($id, $tipo_pago);
-        $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+        try {
+            $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
+            $detalle->delete();
+            $this->Totalpagar($id);
+            $this->TotalCantidades($id, $tipo_pago);
+            return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+        } catch (IntegrityException $e) {  
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+            return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+        }catch (\Exception $e) { 
+             Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+            return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+        }
     }
     
     //ELIMINA EL REGISTRO D EPAGO
@@ -1529,13 +1537,14 @@ class ValorPrendaUnidadController extends Controller
             $detalle = \app\models\PagoNominaServicios::findOne($id);
             $detalle->delete();
             Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con éxito.');
-            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
+            return $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
         } catch (IntegrityException $e) {
-            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
-        } catch (\Exception $e) {            
-            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
-            $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
+            return $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
+            
+        } catch (\Exception $e) {        
+             Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+            return $this->redirect(["valor-prenda-unidad/pageserviceoperario",'fecha_inicio' => $fecha_inicio, 'fecha_corte' =>$fecha_corte, 'bodega' => $bodega]);
         }
     }
     
@@ -1626,9 +1635,9 @@ class ValorPrendaUnidadController extends Controller
             $model->estado_valor = 1;
             $model->save(false);
             if ($tipo_pago == 1) {
-                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                return $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
             } else {
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
+                return $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
             }
     }
     //cerrar el pago y la orden de produccion
@@ -1642,9 +1651,9 @@ class ValorPrendaUnidadController extends Controller
            $orden->pagada = 1;
            $orden->save(false);
            if ($tipo_pago == 1) {
-                $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
+                return $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago]);
             } else {
-                $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
+               return $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
             }
     }
     
@@ -1704,7 +1713,7 @@ class ValorPrendaUnidadController extends Controller
                 }
                 $intIndice++;   
             }
-            $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
+            return $this->redirect(["valor-prenda-unidad/view", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta]);
         }
         
         return $this->render('_aplicar_regla', [

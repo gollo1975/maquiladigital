@@ -671,7 +671,6 @@ class ComprobanteEgresoController extends Controller
     public function actionAutorizado($id, $token)
     {
         $model = $this->findModel($id);
-        $mensaje = "";
         if ($model->autorizado == 0){
             $detalles = ComprobanteEgresoDetalle::find()
                 ->where(['=', 'id_comprobante_egreso', $id])
@@ -686,23 +685,23 @@ class ComprobanteEgresoController extends Controller
                 if ($error == 0){
                     $model->autorizado = 1;
                     $model->save(false);
-                    $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
+                    return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
                 }else{
                     Yii::$app->getSession()->setFlash('error', 'Los abonos no pueden ser mayores a los saldos.');
-                    $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
+                    return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
                 }
             }else{
-                Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener compras relacionados en el comprobante.');
-                $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
+                Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro debe tener compras relacionados en el comprobante.');
+                return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
             }
         } else {
             if ($model->valor <> 0) {
                 Yii::$app->getSession()->setFlash('error', 'No se puede desautorizar el registro, ya fue pagado.');
-                $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
             } else {
                 $model->autorizado = 0;
                 $model->update();
-                $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => $token]);
             }
         }
     }

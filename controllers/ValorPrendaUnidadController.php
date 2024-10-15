@@ -822,19 +822,27 @@ class ValorPrendaUnidadController extends Controller
         $model = new \app\models\FormCostoGastoEmpresa();
         if ($model->load(Yii::$app->request->post())) {
             if (isset($_POST["generar_hora_corte"])) {
+                $fechaDia = date('Y-m-d');
                 $orden = Ordenproduccion::findOne($idordenproduccion);
-                $table = new \app\models\ValorPrendaCorteConfeccion();
-                $table->id_valor = $id;
-                $table->idordenproduccion = $idordenproduccion;
-                $table->codigo_producto = $orden->codigoproducto;
-                $table->hora_inicio = $model->hora_inicio;
-                $table->hora_corte = $model->hora_corte;
-                $table->fecha_proceso = date('Y-m-d');
-                $table->user_name = Yii::$app->user->identity->username;
-                $table->save(false);
-                return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
-           }
-            
+                $buscar = \app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $id])->andWhere(['=','hora_inicio', $model->hora_inicio])
+                                                                        ->andWhere(['=','hora_corte', $model->hora_corte])->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                        ->andWhere(['=','fecha_proceso', $fechaDia])->one();
+                if(!$buscar){
+                    $table = new \app\models\ValorPrendaCorteConfeccion();
+                    $table->id_valor = $id;
+                    $table->idordenproduccion = $idordenproduccion;
+                    $table->codigo_producto = $orden->codigoproducto;
+                    $table->hora_inicio = $model->hora_inicio;
+                    $table->hora_corte = $model->hora_corte;
+                    $table->fecha_proceso = $fechaDia;
+                    $table->user_name = Yii::$app->user->identity->username;
+                    $table->save(false);
+                    return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
+                }else{
+                    Yii::$app->getSession()->setFlash('error', 'La hora de corte para el ingreso de operaciones ya existe para esta OP. Vallidar la informacion.');
+                    return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
+                }
+            }
         }
         return $this->renderAjax('crear_hora_corte', [
             'model' => $model,       

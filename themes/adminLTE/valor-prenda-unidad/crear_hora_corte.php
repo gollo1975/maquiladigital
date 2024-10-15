@@ -8,8 +8,8 @@ use yii\helpers\ArrayHelper;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
 ?>
-<?php
 
+<?php
 $form = ActiveForm::begin([
             "method" => "post",
             'id' => 'formulario',

@@ -15,7 +15,7 @@ use kartik\depdrop\DepDrop;
 /* @var $searchModel app\models\FichatiempoSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Valor de prenda';
+$this->title = 'Costo de confeccion';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <script language="JavaScript">

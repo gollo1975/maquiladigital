@@ -848,6 +848,65 @@ class ValorPrendaUnidadController extends Controller
             'model' => $model,       
         ]);    
     }
+    
+    //CREAR HORA DE INICIO Y DE CORTE MASIVO
+    public function actionHora_corte_masivo() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 146])->all()) {
+                $model = ValorPrendaUnidad::find()->Where(['=', 'cerrar_pago', 0])->orderBy('id_valor DESC')->all();
+                if(isset($_POST["enviar_masivo"])){
+                    if(isset($_POST['listado_pago'])){
+                        $intIndice = 0;
+                        $fechaActual = date('Y-m-d');
+                        foreach ($_POST["listado_pago"] as $intCodigo):
+                            $hora_inicio = $_POST["hora_inicio"][$intIndice];
+                            $hora_corte = $_POST["hora_corte"][$intIndice];
+                            if($hora_inicio <> '' && $hora_corte <> ''){
+                                $buscar = \app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $intCodigo])->andWhere(['=','hora_inicio', $hora_inicio])
+                                                                            ->andWhere(['=','hora_corte', $hora_corte])
+                                                                            ->andWhere(['=','fecha_proceso', $fechaActual])->one();
+                                if(!$buscar){
+                                    $Valor = ValorPrendaUnidad::findOne($intCodigo);
+                                    $table = new \app\models\ValorPrendaCorteConfeccion();
+                                    $table->id_valor = $intCodigo;
+                                    $table->idordenproduccion = $Valor->idordenproduccion;
+                                    $table->codigo_producto = $Valor->ordenproduccion->codigoproducto;
+                                    $table->hora_inicio = $hora_inicio;
+                                    $table->hora_corte = $hora_corte;
+                                    $table->fecha_proceso = $fechaActual;
+                                    $table->user_name = Yii::$app->user->identity->username;
+                                    $table->save(false);
+                                    return $this->redirect(['valor-prenda-unidad/hora_corte_masivo']);
+                                    $intIndice++;
+                                }else{
+                                    Yii::$app->getSession()->setFlash('error', 'La hora de INICIO Y DE CORTE ya esta creada para este costo de operacion. Vallidar la informacion.');
+                                    return $this->redirect(['valor-prenda-unidad/hora_corte_masivo']);
+                                }
+                            }else{
+                                $intIndice++;
+                            }    
+                        endforeach; 
+                    }
+                }
+                return $this->render('masivo_corte_hora', [
+                     'model' => $model,       
+                 ]);  
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }    
+    }
+    
+    //PERMITE MOSTRAR LAS HORAS DE CORTE QUE SE HAN GENERADO
+    public function actionVer_corte_hora($id_valor) {
+        $fechaActual = date('Y-m-d');
+        $model = \app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $id_valor])->andWhere(['=','fecha_proceso', $fechaActual])->orderBy('id_corte DESC')->all();
+        return $this->renderAjax('search_ver_hora_corte', [
+            'model' => $model,       
+        ]);
+    }
    
    //VISTA DE BUSQUEDA DE OPERACION POR TALLAS
     public function actionView_operacion_talla($id, $token) {

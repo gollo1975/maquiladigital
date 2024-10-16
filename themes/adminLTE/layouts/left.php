@@ -195,6 +195,7 @@
                                                 ]],
                                                 ['label' => 'Seguimiento Producción', 'icon' => 'plus-square-o', 'url' => ['seguimiento-produccion/index']],
                                                 ['label' => 'Valor prenda', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/index']],
+                                                ['label' => 'Crear corte masivo', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/hora_corte_masivo']],
                                                 ['label' => 'Aplicar porcentaje', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/aplicarporcentajeprenda']],
                                             ],
                                         ],

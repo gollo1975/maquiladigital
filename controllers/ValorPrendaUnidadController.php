@@ -876,7 +876,6 @@ class ValorPrendaUnidadController extends Controller
                                     $table->fecha_proceso = $fechaActual;
                                     $table->user_name = Yii::$app->user->identity->username;
                                     $table->save(false);
-                                    return $this->redirect(['valor-prenda-unidad/hora_corte_masivo']);
                                     $intIndice++;
                                 }else{
                                     Yii::$app->getSession()->setFlash('error', 'La hora de INICIO Y DE CORTE ya esta creada para este costo de operacion. Vallidar la informacion.');
@@ -886,6 +885,7 @@ class ValorPrendaUnidadController extends Controller
                                 $intIndice++;
                             }    
                         endforeach; 
+                        return $this->redirect(['valor-prenda-unidad/hora_corte_masivo']);
                     }
                 }
                 return $this->render('masivo_corte_hora', [

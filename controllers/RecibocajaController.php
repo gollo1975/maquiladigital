@@ -534,23 +534,23 @@ class RecibocajaController extends Controller
                 if ($error == 0){
                     $model->autorizado = 1;
                     $model->save(false);
-                    $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
+                    return $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
                 }else{
                     Yii::$app->getSession()->setFlash('error', 'Los abonos no pueden ser mayores a los saldos.');
-                    $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
+                    return $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
                 }
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener facturas relacionados en el recibo de caja.');
-                $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
             }
         } else {
             if ($model->valorpagado <> 0) {
                 Yii::$app->getSession()->setFlash('error', 'No se puede desautorizar el registro, ya fue pagado.');
-                $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
             } else {
                 $model->autorizado = 0;
                 $model->save(false);
-                $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["recibocaja/view",'id' => $id, 'token' => $token]);
             }
         }
     }

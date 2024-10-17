@@ -130,10 +130,10 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                 <?php endforeach; ?>
             </body>        
             <tr>
-                <td colspan="7"></td>
+                <td colspan="6"></td>
                 <td align="right"><b>Saldo</b></td>
                 <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
-                <td colspan="3"></td>
+                <td colspan="4"></td>
             </tr>
         </table>    
         <div class="panel-footer text-right" >            

@@ -389,7 +389,7 @@ class FacturaventaController extends Controller
                        Yii::$app->getSession()->setFlash('error', 'Esta orden de produccion no tiene tallas asociadas para el proceso.'); 
                        $this->redirect(["facturaventa/view", 'id' => $idfactura, 'token' => $token]);
                     }else{
-                         $detalleFactura = Facturaventadetalle::find()->where(['=','id', $intCodigo])->one();
+                         $detalleFactura = Facturaventadetalle::find()->where(['=','id', $intCodigo])->andWhere(['=','idfactura', $idfactura])->one();
                         if($detalleFactura){
                             Yii::$app->getSession()->setFlash('warning', 'Este concepto ya esta agregado en el detalle de la factura.'); 
                             return $this->redirect(["facturaventa/view", 'id' => $idfactura, 'token' => $token]);
@@ -566,20 +566,20 @@ class FacturaventaController extends Controller
             if ($reg <> 0) {
                 $model->autorizado = 1;
                 $model->save(false);
-                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener ordenes relacionados en la factura de venta.');
-                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }
         } else {
             $factura = Facturaventa::findOne($id);
             if ($factura->nrofactura == 0){
                 $model->autorizado = 0;
                 $model->save(false);
-                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }else {
                 Yii::$app->getSession()->setFlash('error', 'No se puede desautorizar el registro, ya fue generado el número de factura.');
-                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }
         }
     }
@@ -605,14 +605,14 @@ class FacturaventaController extends Controller
                     $ordenProduccion->save(false);
                 }                
                 //$this->afectarcantidadfacturada($id);//se resta o descuenta las cantidades facturadas en los productos por cliente
-                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'El registro ya fue generado.');
-                $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
+                return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }
         }else{
             Yii::$app->getSession()->setFlash('error', 'El registro debe estar autorizado para poder imprimir la factura.');
-            $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
+            return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
         }
     }
 

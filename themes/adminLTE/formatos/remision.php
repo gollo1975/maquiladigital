@@ -555,82 +555,82 @@ class PDF extends FPDF {
                 $pdf->Cell(29, 4.5, $estado, 1, 0, 'C',1);
             }else{
                  if ($detalle->txxs == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->xxs, 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle->xxs, 1, 0, 'R', 0);
                 }
                 if ($detalle->txs == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->xs, 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle->xs, 1, 0, 'R', 0);
                 }
                 if ($detalle->ts == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->s, 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle->s, 1, 0, 'R', 0);
                 }
                 if ($detalle->tm == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->m, 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle->m, 1, 0, 'R', 0);
                 }
                 if ($detalle->tl == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->l, 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle->l, 1, 0, 'R', 0);
                 }
                 if ($detalle->txl == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->xl, 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle->xl, 1, 0, 'R', 0);
                 }
                  if ($detalle->txxl == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->xxl, 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle->xxl, 1, 0, 'R', 0);
                 }
                 if ($detalle->t2 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c2'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c2'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t4 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c4'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c4'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t6 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c6'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c6'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t8 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c8'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c8'], 1, 0, 'R', 0);
                 }                
                 if ($detalle->t10 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c10'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c10'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t12 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c12'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c12'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t14 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c14'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c14'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t16 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c16'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c16'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t18 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c18'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c18'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t20 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c20'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c20'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t22 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c22'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c22'], 1, 0, 'R', 0);
                 }                
                 if ($detalle->t28 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c28'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c28'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t30 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c30'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c30'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t32 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c32'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c32'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t34 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c34'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c34'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t36 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c36'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c36'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t38 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c38'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c38'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t40 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c40'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c40'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t42 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c42'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c42'], 1, 0, 'R', 0);
                 }
                 
                 $pdf->Cell(29, 4.5, $estado, 1, 0, 'C');

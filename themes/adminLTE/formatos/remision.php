@@ -128,59 +128,59 @@ class PDF extends FPDF {
         $this->Cell(40, 5, utf8_decode($remision->ordenproduccion->cliente->municipio->municipio), 0, 0, 'J');
         //Lineas del encabezado
         //color
-        $this->Line(10, 92, 10, 190);//x1,y1,x2,y2 
+        $this->Line(10, 82, 10, 190);//x1,y1,x2,y2 
         //oc
-        $this->Line(40, 92, 40, 190);//x1,y1,x2,y2   
+        $this->Line(40, 82, 40, 190);//x1,y1,x2,y2   
         //tula
-        $this->Line(66, 92, 66, 190);//x1,y1,x2,y2
+        $this->Line(66, 82, 66, 190);//x1,y1,x2,y2
         $ordendetalles = Ordenproducciondetalle::find()->where(['=','idordenproduccion',$remision->idordenproduccion])->all();
         $nregistros = count($ordendetalles);
         if ($nregistros == 1) {        
-        $this->Line(81, 92, 81, 190);//x1,y1,x2,y2                                                   
+        $this->Line(81, 82, 81, 190);//x1,y1,x2,y2                                                   
         }
         if ($nregistros == 2) {        
         $this->Line(81, 92, 81, 190);//x1,y1,x2,y2           
         $this->Line(185, 92, 185, 190);//x1,y1,x2,y2                                
         }
         if ($nregistros == 3) {        
-        $this->Line(81, 92, 81, 190);//x1,y1,x2,y2           
-        $this->Line(104, 92, 104, 190);//x1,y1,x2,y2                        
-        $this->Line(127, 92, 127, 190);//x1,y1,x2,y2
+        $this->Line(81, 82, 81, 190);//x1,y1,x2,y2           
+        $this->Line(104, 82, 104, 190);//x1,y1,x2,y2                        
+        $this->Line(127, 82, 127, 190);//x1,y1,x2,y2
         }
         if ($nregistros == 4) {        
-        $this->Line(81, 92, 81, 190);//x1,y1,x2,y2           
-        $this->Line(98.5, 92, 98.5, 190);//x1,y1,x2,y2        
-        $this->Line(116, 92, 116, 190);//x1,y1,x2,y2        
-        $this->Line(133.5, 92, 133.5, 190);//x1,y1,x2,y2
+        $this->Line(81, 82, 81, 190);//x1,y1,x2,y2           
+        $this->Line(98.5, 82, 98.5, 190);//x1,y1,x2,y2        
+        $this->Line(116, 82, 116, 190);//x1,y1,x2,y2        
+        $this->Line(133.5, 82, 133.5, 190);//x1,y1,x2,y2
         }
         if ($nregistros == 5) {
         //xs
-        $this->Line(81, 92, 81, 190);//x1,y1,x2,y2   
+        $this->Line(81, 82, 81, 190);//x1,y1,x2,y2   
         //s
-        $this->Line(95, 92, 95, 190);//x1,y1,x2,y2
+        $this->Line(95, 82, 95, 190);//x1,y1,x2,y2
         //m
-        $this->Line(109, 92, 109, 190);//x1,y1,x2,y2
+        $this->Line(109, 82, 109, 190);//x1,y1,x2,y2
         //l
-        $this->Line(123, 92, 123, 190);//x1,y1,x2,y2
+        $this->Line(123, 82, 123, 190);//x1,y1,x2,y2
         //xl
-        $this->Line(137, 92, 137, 190);//x1,y1,x2,y2
+        $this->Line(137, 82, 137, 190);//x1,y1,x2,y2
         }
         if ($nregistros == 6) {        
-        $this->Line(81, 92, 81, 190);//x1,y1,x2,y2           
-        $this->Line(92.6, 92, 92.6, 190);//x1,y1,x2,y2        
-        $this->Line(104.2, 92, 104.2, 190);//x1,y1,x2,y2        
-        $this->Line(115.8, 92, 115.8, 190);//x1,y1,x2,y2
-        $this->Line(127.4, 92, 127.4, 190);//x1,y1,x2,y2        
-        $this->Line(139, 92, 139, 190);//x1,y1,x2,y2
+        $this->Line(81, 82, 81, 190);//x1,y1,x2,y2           
+        $this->Line(92.6, 82, 92.6, 190);//x1,y1,x2,y2        
+        $this->Line(104.2, 82, 104.2, 190);//x1,y1,x2,y2        
+        $this->Line(115.8, 82, 115.8, 190);//x1,y1,x2,y2
+        $this->Line(127.4, 82, 127.4, 190);//x1,y1,x2,y2        
+        $this->Line(139, 82, 139, 190);//x1,y1,x2,y2
         }
         if ($nregistros == 7) {        
-        $this->Line(81, 92, 81, 190);//x1,y1,x2,y2           
-        $this->Line(91, 92, 91, 190);//x1,y1,x2,y2        
-        $this->Line(101, 92, 101, 190);//x1,y1,x2,y2        
-        $this->Line(111, 92, 111, 190);//x1,y1,x2,y2
-        $this->Line(121, 92, 121, 190);//x1,y1,x2,y2        
-        $this->Line(131, 92, 131, 190);//x1,y1,x2,y2
-        $this->Line(141, 92, 141, 190);//x1,y1,x2,y2
+        $this->Line(81, 82, 81, 190);//x1,y1,x2,y2           
+        $this->Line(91, 82, 91, 190);//x1,y1,x2,y2        
+        $this->Line(101, 82, 101, 190);//x1,y1,x2,y2        
+        $this->Line(111, 82, 111, 190);//x1,y1,x2,y2
+        $this->Line(121, 82, 121, 190);//x1,y1,x2,y2        
+        $this->Line(131, 82, 131, 190);//x1,y1,x2,y2
+        $this->Line(141, 82, 141, 190);//x1,y1,x2,y2
         }
         if ($nregistros == 8) {        
         $this->Line(81, 92, 81, 190);//x1,y1,x2,y2           
@@ -217,11 +217,11 @@ class PDF extends FPDF {
         }
         if ($nregistros == 3){
             //estado
-            $this->Line(150, 92, 150, 190);//x1,y1,x2,y2   
+            $this->Line(150, 82, 150, 190);//x1,y1,x2,y2   
             //unidad por tula
-            $this->Line(179, 92, 179, 190);//x1,y1,x2,y2   
+            $this->Line(179, 82, 179, 190);//x1,y1,x2,y2   
             //linea final vertical
-            $this->Line(200, 92, 200, 190);//x1,y1,x2,y2
+            $this->Line(200, 82, 200, 190);//x1,y1,x2,y2
             //   
             //linea final 
             $this->Line(10, 190, 201, 190); //linea horizontal inferior x1,y1,x2,y2
@@ -231,11 +231,11 @@ class PDF extends FPDF {
             $this->Line(201, 232, 201, 265); //linea vertical
         }else{
             //estado
-            $this->Line(151, 92, 151, 190);//x1,y1,x2,y2   
+            $this->Line(151, 82, 151, 190);//x1,y1,x2,y2   
             //unidad por tula
-            $this->Line(180, 92, 180, 190);//x1,y1,x2,y2   
+            $this->Line(180, 82, 180, 190);//x1,y1,x2,y2   
             //linea final vertical
-            $this->Line(201, 92, 201, 190);//x1,y1,x2,y2
+            $this->Line(201, 82, 201, 190);//x1,y1,x2,y2
             //   
             //linea final 
             $this->Line(10, 190, 201, 190); //linea horizontal inferior x1,y1,x2,y2
@@ -252,78 +252,84 @@ class PDF extends FPDF {
         $this->Ln(7);
         $idremision = $GLOBALS['idremision'];
         $tallasremision = Remisiondetalle::find()->where(['=','id_remision',$idremision])->one();
+         if ($tallasremision->txxs == 1){
+                $datostallas[] = 'XXS';
+        }
         if ($tallasremision->txs == 1){
                 $datostallas[] = 'XS';
-            }
-            if ($tallasremision->ts == 1){
-                $datostallas[] = 'S';
-            }
-            if ($tallasremision->tm == 1){
-                $datostallas[] = 'M';
-            }
-            if ($tallasremision->tl == 1){
-                $datostallas[] = 'L';
-            }
-            if ($tallasremision->txl == 1){
-                $datostallas[] = 'XL';
-            }
-             if ($tallasremision->txxl == 1){
-                $datostallas[] = 'XXL';
-            }
-            if ($tallasremision->t2 == 1){
-                $datostallas[] = '2';
-            }
-            if ($tallasremision->t4 == 1){
-                $datostallas[] = '4';
-            }
-            if ($tallasremision->t6 == 1){
-                $datostallas[] = '6';
-            }
-            if ($tallasremision->t8 == 1){
-                $datostallas[] = '8';
-            }
-            if ($tallasremision->t10 == 1){
-                $datostallas[] = '10';
-            }
-            if ($tallasremision->t12 == 1){
-                $datostallas[] = '12';
-            }
-            if ($tallasremision->t14 == 1){
-                $datostallas[] = '14';
-            }
-            if ($tallasremision->t16 == 1){
-                $datostallas[] = '16';
-            }
-            if ($tallasremision->t18 == 1){
-                $datostallas[] = '18';
-            }
-            if ($tallasremision->t20 == 1){
-                $datostallas[] = '20';
-            }
-            if ($tallasremision->t22 == 1){
-                $datostallas[] = '22';
-            }
-            if ($tallasremision->t28 == 1){
-                $datostallas[] = '28';
-            }
-            if ($tallasremision->t30 == 1){
-                $datostallas[] = '30';
-            }
-            if ($tallasremision->t32 == 1){
-                $datostallas[] = '32';
-            }
-            if ($tallasremision->t34 == 1){
-                $datostallas[] = '34';
-            }
-            if ($tallasremision->t36 == 1){
-                $datostallas[] = '36';
-            }
-            if ($tallasremision->t38 == 1){
-                $datostallas[] = '38';
-            }
-            if ($tallasremision->t42 == 1){
-                $datostallas[] = '42';
-            }
+        }
+        if ($tallasremision->ts == 1){
+            $datostallas[] = 'S';
+        }
+        if ($tallasremision->tm == 1){
+            $datostallas[] = 'M';
+        }
+        if ($tallasremision->tl == 1){
+            $datostallas[] = 'L';
+        }
+        if ($tallasremision->txl == 1){
+            $datostallas[] = 'XL';
+        }
+         if ($tallasremision->txxl == 1){
+            $datostallas[] = 'XXL';
+        }
+        if ($tallasremision->t2 == 1){
+            $datostallas[] = '2';
+        }
+        if ($tallasremision->t4 == 1){
+            $datostallas[] = '4';
+        }
+        if ($tallasremision->t6 == 1){
+            $datostallas[] = '6';
+        }
+        if ($tallasremision->t8 == 1){
+            $datostallas[] = '8';
+        }
+        if ($tallasremision->t10 == 1){
+            $datostallas[] = '10';
+        }
+        if ($tallasremision->t12 == 1){
+            $datostallas[] = '12';
+        }
+        if ($tallasremision->t14 == 1){
+            $datostallas[] = '14';
+        }
+        if ($tallasremision->t16 == 1){
+            $datostallas[] = '16';
+        }
+        if ($tallasremision->t18 == 1){
+            $datostallas[] = '18';
+        }
+        if ($tallasremision->t20 == 1){
+            $datostallas[] = '20';
+        }
+        if ($tallasremision->t22 == 1){
+            $datostallas[] = '22';
+        }
+        if ($tallasremision->t28 == 1){
+            $datostallas[] = '28';
+        }
+        if ($tallasremision->t30 == 1){
+            $datostallas[] = '30';
+        }
+        if ($tallasremision->t32 == 1){
+            $datostallas[] = '32';
+        }
+        if ($tallasremision->t34 == 1){
+            $datostallas[] = '34';
+        }
+        if ($tallasremision->t36 == 1){
+            $datostallas[] = '36';
+        }
+        if ($tallasremision->t38 == 1){
+            $datostallas[] = '38';
+        }
+        if ($tallasremision->t40 == 1){
+            $datostallas[] = '40';
+        }
+        if ($tallasremision->t42 == 1){
+            $datostallas[] = '42';
+        }
         $array1 = array('COLOR', 'OC', 'TULA');        
         $array2 = $datostallas;
         $array3 = array('ESTADO','UNID X TULA');
@@ -419,14 +425,36 @@ class PDF extends FPDF {
         $pdf->SetFont('Arial', 'b', 10);
         $items = count($detalles);
         $sumaLineas = 0;
-        $txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0; $txxl = 0;
+        $txxs = 0;$txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0; $txxl = 0;
+        $t2 = 0;$t4 = 0;$t6 = 0;$t8 = 0;$t10 = 0;$t12 = 0;$t14 = 0;$t16 = 0;$t18 = 0;$t20 = 0;
+        $t22 = 0;$t28 = 0;$t30 = 0;$t32 = 0;$t34 = 0;$t36 = 0;$t38 = 0;$t40 = 0;$t42 = 0;
         foreach ($detalles as $detalle) {
+            $txxs = $txxs + $detalle->xxs;
             $txs = $txs + $detalle->xs;
             $ts = $ts + $detalle->s;
             $tm = $tm + $detalle->m;
             $tl = $tl + $detalle->l;
             $txl = $txl + $detalle->xl;
             $txxl = $txxl + $detalle->xxl;
+            $t2 += $detalle->c2;
+            $t4 += $detalle->c4;
+            $t6 += $detalle->c6;
+            $t8 += $detalle->c8;
+            $t10 += $detalle->c10;
+            $t12 += $detalle->c12;
+            $t14 += $detalle->c14;
+            $t16 += $detalle->c16;
+            $t18 += $detalle->c18;
+            $t20 += $detalle->c20;
+            $t22 += $detalle->c22;
+            $t28 += $detalle->c28;
+            $t30 += $detalle->c30;
+            $t32 += $detalle->c32;
+            $t34 += $detalle->c34;
+            $t36 += $detalle->c36;
+            $t38 += $detalle->c38;
+            $t40 += $detalle->c40;
+            $t42 += $detalle->c42;
             if($detalle->oc == 0){
                 $oc = 'Colombia';
             }else{
@@ -445,6 +473,9 @@ class PDF extends FPDF {
             }            
             $pdf->Cell(15, 4.5, $detalle->tula, 1, 0, 'R');
             if ($detalle->oc == 1 || $detalle->estado == 1){
+                if ($detalle->txxs == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle->xxs, 1, 0, 'R',1);
+                }
                 if ($detalle->txs == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle->xs, 1, 0, 'R',1);
                 }
@@ -464,134 +495,144 @@ class PDF extends FPDF {
                     $pdf->Cell($ancho, 4.5, $detalle->xxl, 1, 0, 'R',1);
                 }
                 if ($detalle->t2 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['2'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c2'], 1, 0, 'R',1);
                 }
                 if ($detalle->t4 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['4'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c4'], 1, 0, 'R',1);
                 }
                 if ($detalle->t6 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['6'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c6'], 1, 0, 'R',1);
                 }
                 if ($detalle->t8 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['8'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c8'], 1, 0, 'R',1);
                 }                
                 if ($detalle->t10 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['10'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c10'], 1, 0, 'R',1);
                 }
                 if ($detalle->t12 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['12'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c12'], 1, 0, 'R',1);
                 }
                 if ($detalle->t14 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['14'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c14'], 1, 0, 'R',1);
                 }
                 if ($detalle->t16 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['16'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c16'], 1, 0, 'R',1);
                 }
                 if ($detalle->t18 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['18'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c18'], 1, 0, 'R',1);
                 }
                 if ($detalle->t20 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['20'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c20'], 1, 0, 'R',1);
                 }
                 if ($detalle->t22 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['22'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c22'], 1, 0, 'R',1);
                 }                
                 if ($detalle->t28 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['28'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c28'], 1, 0, 'R',1);
                 }
                 if ($detalle->t30 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['30'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c30'], 1, 0, 'R',1);
                 }
                 if ($detalle->t32 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['32'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c32'], 1, 0, 'R',1);
                 }
                 if ($detalle->t34 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['34'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c34'], 1, 0, 'R',1);
                 }
                 if ($detalle->t36 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['36'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c36'], 1, 0, 'R',1);
                 }
                 if ($detalle->t38 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['38'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c38'], 1, 0, 'R',1);
+                }
+                if ($detalle->t40 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c40'], 1, 0, 'R',1);
                 }
                 if ($detalle->t42 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['42'], 1, 0, 'R',1);
+                    $pdf->Cell($ancho, 4.5, $detalle['c42'], 1, 0, 'R',1);
                 }
                 
                 $pdf->Cell(29, 4.5, $estado, 1, 0, 'C',1);
             }else{
+                 if ($detalle->txxs == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle->xxs, 1, 0, 'R',1);
+                }
                 if ($detalle->txs == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->xs, 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle->xs, 1, 0, 'R',1);
                 }
                 if ($detalle->ts == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->s, 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle->s, 1, 0, 'R',1);
                 }
                 if ($detalle->tm == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->m, 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle->m, 1, 0, 'R',1);
                 }
                 if ($detalle->tl == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->l, 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle->l, 1, 0, 'R',1);
                 }
                 if ($detalle->txl == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->xl, 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle->xl, 1, 0, 'R',1);
                 }
-                if ($detalle->txxl == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle->xxl, 1, 0, 'R');
+                 if ($detalle->txxl == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle->xxl, 1, 0, 'R',1);
                 }
                 if ($detalle->t2 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['2'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c2'], 1, 0, 'R',1);
                 }
                 if ($detalle->t4 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['4'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c4'], 1, 0, 'R',1);
                 }
                 if ($detalle->t6 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['6'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c6'], 1, 0, 'R',1);
                 }
                 if ($detalle->t8 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['8'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c8'], 1, 0, 'R',1);
                 }                
                 if ($detalle->t10 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['10'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c10'], 1, 0, 'R',1);
                 }
                 if ($detalle->t12 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['12'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c12'], 1, 0, 'R',1);
                 }
                 if ($detalle->t14 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['14'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c14'], 1, 0, 'R',1);
                 }
                 if ($detalle->t16 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['16'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c16'], 1, 0, 'R',1);
                 }
                 if ($detalle->t18 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['18'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c18'], 1, 0, 'R',1);
                 }
                 if ($detalle->t20 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['20'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c20'], 1, 0, 'R',1);
                 }
                 if ($detalle->t22 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['22'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c22'], 1, 0, 'R',1);
                 }                
                 if ($detalle->t28 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['28'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c28'], 1, 0, 'R',1);
                 }
                 if ($detalle->t30 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['30'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c30'], 1, 0, 'R',1);
                 }
                 if ($detalle->t32 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['32'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c32'], 1, 0, 'R',1);
                 }
                 if ($detalle->t34 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['34'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c34'], 1, 0, 'R',1);
                 }
                 if ($detalle->t36 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['36'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c36'], 1, 0, 'R',1);
                 }
                 if ($detalle->t38 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['38'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c38'], 1, 0, 'R',1);
+                }
+                if ($detalle->t40 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c40'], 1, 0, 'R',1);
                 }
                 if ($detalle->t42 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['42'], 1, 0, 'R');
+                    $pdf->Cell($ancho, 4.5, $detalle['c42'], 1, 0, 'R',1);
                 }
+                
                 $pdf->Cell(29, 4.5, $estado, 1, 0, 'C');
             }                        
             $pdf->Cell(21, 4.5, $detalle->unidades, 1, 0, 'R');
@@ -600,10 +641,13 @@ class PDF extends FPDF {
             $sumaLineas += 1;
            
         }
-        $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
-        $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0; $c42 = 0;
+        $cxxs = 0;$cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
+        $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0;$c40 = 0; $c42 = 0;
         $cantidadesremision = Remisiondetalle::find()->where(['=','id_remision',$model->id_remision])->all();
         foreach ($cantidadesremision as $val){
+            if ($val->txxs == 1){
+                $cxxs = $cxxs + $val->xxs;
+            }
             if ($val->txs == 1){
                 $cxs = $cxs + $val->xs;
             }
@@ -623,58 +667,61 @@ class PDF extends FPDF {
                 $cxxl = $cxxl + $val->xxl;
             }
             if ($val->t2 == 1){
-                $c2 = $c2 + $val['2'];
+                $c2 += $val['c2'];
             }
             if ($val->t4 == 1){
-                $c4 = $c4 + $val['4'];
+                $c4 += $val['c4'];
             }
             if ($val->t6 == 1){
-                $c6 = $c6 + $val['6'];
+                $c6 += $val['c6'];
             }
             if ($val->t8 == 1){
-                $c8 = $c8 + $val['8'];
+                $c8 += $val['c8'];
             }
             if ($val->t10 == 1){
-                $c10 = $c10 + $val['10'];
+                $c10 += $val['c10'];
             }
             if ($val->t12 == 1){
-                $c12 = $c12 + $val['12'];
+                $c12 += $val['c12'];
             }
             if ($val->t14 == 1){
-                $c14 = $c14 + $val['14'];
+                $c14 += $val['c14'];
             }
             if ($val->t16 == 1){
-                $c16 = $c16 + $val['16'];
+                $c16 += $val['c16'];
             }
             if ($val->t18 == 1){
-                $c18 = $c18 + $val['18'];
+                $c18 += $val['c18'];
             }
             if ($val->t20 == 1){
-                $c20 = $c20 + $val['20'];
+                $c20 = $c20 + $val['c20'];
             }
             if ($val->t22 == 1){
-                $c22 = $c22 + $val['22'];
+                $c22 = $c22 + $val['c22'];
             }
             if ($val->t28 == 1){
-                $c28 = $c28 + $val['28'];
+                $c28 = $c28 + $val['c28'];
             }
             if ($val->t30 == 1){
-                $c30 = $c30 + $val['30'];
+                $c30 = $c30 + $val['c30'];
             }
             if ($val->t32 == 1){
-                $c32 = $c32 +$val['32'];
+                $c32 = $c32 +$val['c32'];
             }
             if ($val->t34 == 1){
-                $c34 = $c34 + $val['34'];
+                $c34 = $c34 + $val['c34'];
             }
             if ($val->t36 == 1){
-                $c36 = $c36 + $val['36'];
+                $c36 = $c36 + $val['c36'];
             }
             if ($val->t38 == 1){
-                $c38 = $c38 + $val['38'];
+                $c38 = $c38 + $val['c38'];
+            }
+            if ($val->t40 == 1){
+                $c40 = $c40 + $val['c40'];
             }
             if ($val->t42 == 1){
-                $c42 = $c42 + $val['42'];
+                $c42 = $c42 + $val['c42'];
             }
         }
         $this->SetFillColor(200, 200, 200);
@@ -684,6 +731,9 @@ class PDF extends FPDF {
         $pdf->Cell(15, 6, '', 1, 0, 'R');
             
         $tallasremision = Remisiondetalle::find()->where(['=','id_remision',$model->id_remision])->one();
+        if ($tallasremision->txxs == 1){
+            $datostallas[] = 'XXS';
+        }
         if ($tallasremision->txs == 1){
             $datostallas[] = 'XS';
         }
@@ -753,11 +803,17 @@ class PDF extends FPDF {
         if ($tallasremision->t38 == 1){
             $datostallas[] = '38';
         }
+        if ($tallasremision->t40 == 1){
+            $datostallas[] = '40';
+        }
         if ($tallasremision->t42 == 1){
             $datostallas[] = '42';
         }
         
         foreach ($datostallas as $val) {
+            if ($val == 'xxs' or $val == 'XXS') {
+                $pdf->Cell($ancho, 6, $cxxs, 1, 0, 'R');
+            }
             if ($val == 'xs' or $val == 'XS') {
                 $pdf->Cell($ancho, 6, $cxs, 1, 0, 'R');
             }
@@ -827,12 +883,16 @@ class PDF extends FPDF {
             if ($val == '38') {
                 $pdf->Cell($ancho, 6, $c38, 1, 0, 'R');
             }
+             if ($val == '40') {
+                $pdf->Cell($ancho, 6, $c40, 1, 0, 'R');
+            }
             if ($val == '42') {
                 $pdf->Cell($ancho, 6, $c42, 1, 0, 'R');
             }
         }
         
         
+        $total = 0;
         $pdf->Cell(29, 12, ' T. Despachadas ', 1, 0, 'C');
         $pdf->Cell(21, 12, $model->total_despachadas, 1, 0, 'R');
         $pdf->SetXY(10, 199);

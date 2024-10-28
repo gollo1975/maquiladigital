@@ -621,6 +621,37 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
+    //VISTA DE PERMITE MODIFICAR LA HORA DE CORTE
+    public function actionView_edit_hora($id_valor)
+    {
+        $model = ValorPrendaUnidad::findOne($id_valor);
+        $fechaHoy = date('Y-m-d');
+        $listado = \app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $id_valor])->andWhere(['=','fecha_proceso', $fechaHoy])->orderBy('id_corte DESC')->one();    
+        if(isset($_POST["actualizar_hora"])){
+            if(isset($_POST['listado_hora'])){
+                $intIndice = 0;
+                foreach ($_POST["listado_hora"] as $intCodigo):
+                    $hora_inicio = $_POST["hora_inicio"][$intIndice];
+                    $hora_corte = $_POST["hora_corte"][$intIndice];
+                    if($hora_inicio <> '' && $hora_corte <> ''){
+                        $table = \app\models\ValorPrendaCorteConfeccion::findOne ($intCodigo);
+                        if($table){
+                            $table->hora_inicio = $hora_inicio;
+                            $table->hora_corte = $hora_corte;
+                            $table->save();
+                            $intIndice++;    
+                        }
+                    }else{
+                        Yii::$app->getSession()->setFlash('warning', 'La hora de inicio y la hora de corte no ser vacias.');
+                    }    
+                endforeach;  
+                return $this->redirect(['view_edit_hora', 'listado' => $listado, 'id_valor' => $id_valor, 'model' => $model]);
+            }
+        }    
+        return $this->render('edit_fecha_corte', ['listado' => $listado, 'id_valor' => $id_valor, 'model' => $model]);
+        
+    }
+    
     public function actionCantidad_talla_confeccion($idordenproduccion, $id, $id_planta, $id_detalle,$tokenPlanta) {
         $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         $detalle_op = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $id_detalle])->one();

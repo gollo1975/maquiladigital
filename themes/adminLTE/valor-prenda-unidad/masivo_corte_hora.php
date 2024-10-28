@@ -42,6 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col" style='background-color:#B9D5CE; width: 120px'>Hora inicio</th>
                 <th scope="col" style='background-color:#B9D5CE; width: 120px'>Hora corte</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
             </tr>
             </thead>
             <tbody>
@@ -49,7 +50,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 foreach ($model as $val):?>
                     <tr style='font-size:85%;'>  
-
                         <td style='background-color:#DDE6E4;'><?= $val->id_valor ?></td>
                         <td style='background-color:#DDE6E4;'><?= $val->idordenproduccion ?></td>
                         <td style='background-color:#DDE6E4;'><?= $val->ordenproduccion->codigoproducto ?></td>
@@ -84,6 +84,16 @@ $this->params['breadcrumbs'][] = $this->title;
                                   <div class="modal-content"></div>
                               </div>
                           </div>
+                        <?php
+                        $fechaHoy = date('Y-m-d');
+                        $buscar = app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $val->id_valor])->andWhere(['=','fecha_proceso', $fechaHoy])->one();
+                        if($buscar){ ?>
+                            <td style= 'width: 25px; height: 25px;'>
+                               <a href="<?= Url::toRoute(["valor-prenda-unidad/view_edit_hora", "id_valor" => $val->id_valor]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            </td>
+                        <?php }else{?>
+                            <td style= 'width: 25px; height: 25px;'></td>
+                        <?php }?>    
                       </td>
 
                 <?php endforeach; ?>

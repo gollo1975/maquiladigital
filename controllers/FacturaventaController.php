@@ -225,7 +225,7 @@ class FacturaventaController extends Controller
             $facturalibre->numero_resolucion = $resolucion->nroresolucion;
             $facturalibre->nrofacturaelectronica = $model->nrofacturaelectronica;
             $facturalibre->fecha_vencimiento = $nuevafecha;
-            $facturalibre->formapago = $table->formapago;
+            $facturalibre->id_forma_pago = $table->id_forma_pago;
             $facturalibre->plazopago = $table->plazopago;
             $facturalibre->porcentajefuente = 0;
             $facturalibre->porcentajeiva = 0;
@@ -747,7 +747,7 @@ class FacturaventaController extends Controller
         $clientes = Cliente::findOne($factura->idcliente);
         $detalle = Facturaventadetalle::find()->where(['=','idfactura', $id_factura])->one();
         //variables encabezado
-        $documentocliente = $clientes->nitmatricula;
+        $documentocliente = $clientes->cedulanit;
         $tipodocumento = $clientes->tipo->codigo_api;
         $nombrecliente = $clientes->nombrecorto;
         $direccioncliente = $clientes->direccioncliente;
@@ -771,7 +771,7 @@ class FacturaventaController extends Controller
         //PROCESO D ELA API
         $curl = curl_init();
         $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
-        $dataHead = [
+       $dataHead = [
             "client" => [
                 "document" => "$documentocliente",//NÚMERO DE DOCUMENTO DEL CLIENTE
                 "document_type" => "$tipodocumento", //TIPO DE DOCUMENTO DEL CLIENTE: 0 - Registro Civil, 1 - Tarjeta Identidad, 2 - Cedula Ciudadania, 3 - Tarjeta Extranjeria, 4 - Cedula Extranjeria, 5 - Nit, 6 - Pasaporte, 7 - Documento de Extranjeria, 8 - Sin indentificación o para uso de la DIAN, 10 - Permiso Especial de Permanencia, 11 - Permiso por Protección Temporal
@@ -792,8 +792,8 @@ class FacturaventaController extends Controller
             "forma_pago" => "$formapago",//FORMA PAGO DE FACTURA: 1 - EFECTIVO, 2 - T.DEBITO, 3 - T.CREDITO, 4 - CREDITO
             "date" => "$fechainicio" //FECHA FACTURA
           ];
-          $dataHead = json_encode($dataHead);
-          $dataBody = [
+        $dataHead = json_encode($dataHead);
+        $dataBody = [
             [
                 "product" => $codigoconcepto, //ID DE PRODUCTO
                 "warehouse" => 1, //ID DE BODEGA
@@ -802,30 +802,39 @@ class FacturaventaController extends Controller
                 "average" => $valor_unitario, //VALOR UNITARIO
                 "total" => $subtotal //TOTAL
             ]
-          ];
-          $dataBody = json_encode($dataBody);
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => [
-              "head"=>$dataHead,
-              "body"=>$dataBody
-            ],
-          ));
+        ];
+        $dataBody = json_encode($dataBody);
+          curl_setopt_array($curl, array(
+          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => [
+            "head"=>$dataHead,
+            "body"=>$dataBody
+          ],
+        ));
 
-          $response = curl_exec($curl);
-          
-          $data = json_decode($response, true);
-          //$cufe = $data['factura']['cufe'];
-          curl_close($curl);
-         
-          echo $response;
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if($data == 200){
+            Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
+            $cufe = $data["fe"]["cufe"]; 
+            $factura->cufe = $cufe;
+            $factura->fecha_envio_dian = date("Y-m-d H:i:s");
+            $factura->save(false);
+        }else{
+            Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la Dian. Volver a reenviar la factura');
+            $factura->reenviar_factura_dian = 1;
+            $factura->save(false);
+        }
+        return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+      
     }
     
     //PERMITE REENVIAR LA FACTURA SI NO SE CONECTA A LA DIAN
@@ -858,7 +867,16 @@ class FacturaventaController extends Controller
         ));
         $response = curl_exec($curl);
         curl_close($curl);
-        echo $response;
+        $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if($data == 200){
+            Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
+            $cufe = $data["fe"]["cufe"]; 
+            $factura->cufe = $cufe;
+            $factura->fecha_envio_dian = date("Y-m-d H:i:s");
+            $factura->save(false);
+        }else{
+            
+        }
     }
     
     

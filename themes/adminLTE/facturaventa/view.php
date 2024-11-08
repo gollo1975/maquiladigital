@@ -32,10 +32,14 @@ $view = 'facturaventa';
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
             }else{
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
-                echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
-                'data' => ['confirm' => 'Esta seguro de enviar la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
-                 echo Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-sm',
-                'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                if($model->fecha_envio_dian == ''){
+                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
+                    'data' => ['confirm' => 'Esta seguro de enviar la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                }
+                if($model->reenviar_factura == 1){
+                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-sm',
+                    'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                }
                 echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
             }
         }

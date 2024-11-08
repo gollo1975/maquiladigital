@@ -66,7 +66,7 @@ class Facturaventa extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nrofactura', 'plazopago', 'idcliente', 'idordenproduccion', 'idresolucion','estado','autorizado'], 'integer'],
+            [['nrofactura', 'plazopago', 'idcliente', 'idordenproduccion', 'idresolucion','estado','autorizado','reenviar_factura','consultar_factura'], 'integer'],
             [['fecha_inicio', 'idcliente', 'idordenproduccion','id_factura_venta_tipo'], 'required', 'message' => 'Campo requerido'],
             [['fecha_inicio', 'fecha_vencimiento', 'fechacreacion','fecha_envio_dian'], 'safe'],
             [['porcentajeiva', 'porcentajefuente', 'porcentajereteiva', 'subtotal', 'retencionfuente', 'impuestoiva', 'retencioniva', 'saldo', 'totalpagar'], 'number'],
@@ -115,6 +115,8 @@ class Facturaventa extends \yii\db\ActiveRecord
             'numero_resolucion' => 'numero_resolucion',
             'cufe' => 'cufe',
             'consecutivo' => 'consecutivo',
+            'consultar_factura' => 'consultar_factura',
+            'reenviar_factura' => 'reenviar_factura',
         ];
     }
 

@@ -870,7 +870,12 @@ class FacturaventaController extends Controller
         $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if($data == 200){
             Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
-            $cufe = $data["fe"]["cufe"]; 
+            try {
+                $cufe = $data["fe"]["cufe"];
+            } catch (Exception $e) {
+                // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
+                Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+            }
             $factura->cufe = $cufe;
             $factura->reenviar_factura_dian = 0;
             $factura->fecha_envio_dian = date("Y-m-d H:i:s");
@@ -916,7 +921,12 @@ class FacturaventaController extends Controller
         curl_close($curl);
         $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if($data == 200){
-            $cufe = $data["fe"]["cufe"]; 
+           try {
+                $cufe = $data["fe"]["cufe"];
+            } catch (Exception $e) {
+                // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
+                Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+            }
             $factura->cufe = $cufe;
             $factura->save(false);
         }else{

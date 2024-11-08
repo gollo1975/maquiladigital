@@ -770,7 +770,7 @@ class FacturaventaController extends Controller
         
         //PROCESO D ELA API
         $curl = curl_init();
-        $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
        $dataHead = [
             "client" => [
                 "document" => "$documentocliente",//NÚMERO DE DOCUMENTO DEL CLIENTE
@@ -850,7 +850,7 @@ class FacturaventaController extends Controller
              
         //PROCESO D ELA API
         $curl = curl_init();
-        $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
         $consecutivo_factura = $consecutivo; //CONSECUTIVO FACTURA
         $codigo_resolucion = $resolucion; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
 
@@ -872,10 +872,13 @@ class FacturaventaController extends Controller
             Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
             $cufe = $data["fe"]["cufe"]; 
             $factura->cufe = $cufe;
+            $factura->reenviar_factura_dian = 0;
             $factura->fecha_envio_dian = date("Y-m-d H:i:s");
             $factura->save(false);
         }else{
-            
+            Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la Dian. Volver a reenviar la factura');
+            $factura->reenviar_factura_dian = 1;
+            $factura->save(false); 
         }
     }
     
@@ -893,7 +896,7 @@ class FacturaventaController extends Controller
              
         //PROCESO QUE BUSCA UNA FACTURA EN LA API
         $curl = curl_init();
-        $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
         $consecutivo_factura = $consecutivo; //CONSECUTIVO FACTURA
         $codigo_resolucion = $resolucion; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
 
@@ -911,7 +914,14 @@ class FacturaventaController extends Controller
 
         $response = curl_exec($curl);
         curl_close($curl);
-        echo $response;
+        $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if($data == 200){
+            $cufe = $data["fe"]["cufe"]; 
+            $factura->cufe = $cufe;
+            $factura->save(false);
+        }else{
+            Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la API. Volver a intentarlo');
+        }
     }
     
     public function actionExcelconsulta($tableexcel) {                

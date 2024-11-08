@@ -72,8 +72,8 @@ $view = 'facturaventa';
                     <td><?= Html::encode('$ '.number_format($model->retencionfuente,0)) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'formapago') ?>:</th>
-                    <td><?= Html::encode($model->formadePago) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_forma_pago') ?>:</th>
+                    <td><?= Html::encode($model->formaPago->concepto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'saldo') ?>:</th>
                     <td><?= Html::encode('$ '.number_format($model->saldo,0)) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalpagar') ?>:</th>

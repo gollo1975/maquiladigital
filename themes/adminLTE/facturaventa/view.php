@@ -32,8 +32,10 @@ $view = 'facturaventa';
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
             }else{
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
-                echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
+                echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
                 'data' => ['confirm' => 'Esta seguro de enviar la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                 echo Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-sm',
+                'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
                 echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
             }
         }
@@ -94,8 +96,8 @@ $view = 'facturaventa';
                     <td style="text-align: right"><?= Html::encode('$ '.number_format($model->retencionfuente,0)) ?></td>
                 </tr>
                 <tr style='font-size: 85%;'>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'formapago') ?>:</th>
-                    <td><?= Html::encode($model->formadePago) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_forma_pago') ?>:</th>
+                    <td><?= Html::encode($model->formaPago->concepto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'numero_resolucion') ?>:</th>
                     <td><?= Html::encode($model->numero_resolucion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalpagar') ?>:</th>

@@ -103,7 +103,7 @@ $view = 'clientes';
                 <th style='background-color:#F0F3EF;'>Nit/Matricula:</th>
                 <td><?= $table->nitmatricula ?></td>
                 <th style='background-color:#F0F3EF;'>Forma de Pago:</th>
-                <td><?php if ($table->formapago = 1){echo "Contado";} else {echo "Crédito";}  ?></td>
+                <td><?= $table->formaPago->concepto  ?></td>
                 <th style='background-color:#F0F3EF;'>Plazo:</th>
                 <td colspan="4"><?= $table->plazopago ?></td>
                 

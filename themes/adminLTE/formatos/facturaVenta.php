@@ -149,7 +149,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(19, 5, utf8_decode("Forma pago:"), 0, 0, 'J', 0);
         $this->SetFont('Arial', '', 8);
-        $this->Cell(65, 5, utf8_decode($factura->formadePago.' ('.$factura->plazopago.')  Dias'), 0, 0, 'L', 0);
+        $this->Cell(65, 5, utf8_decode($factura->formaPago->concepto.' ('.$factura->plazopago.')  Dias'), 0, 0, 'L', 0);
         //FIN
       
         //Lineas del encabezado

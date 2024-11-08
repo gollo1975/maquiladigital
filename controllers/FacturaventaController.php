@@ -2,26 +2,11 @@
 
 namespace app\controllers;
 
-use app\models\Consecutivo;
-use app\models\Ordenproducciondetalle;
-use app\models\Resolucion;
-use app\models\Producto;
-use Codeception\Module\Cli;
 use Yii;
-use app\models\Facturaventa;
-use app\models\FacturaventaSearch;
-use app\models\Facturaventadetalle;
-use app\models\FormFiltroConsultaFacturaventa;
-use app\models\FormFacturaventalibre;
-use app\models\FormFacturaventanuevodetallelibre;
-use app\models\Productodetalle;
-use app\models\Facturaventatipo;
-use app\models\Matriculaempresa;
+use Codeception\Module\Cli;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use app\models\Cliente;
-use app\models\Ordenproduccion;
 use yii\db\ActiveQuery;
 use yii\base\Model;
 use yii\web\Response;
@@ -35,7 +20,25 @@ use yii\web\UploadedFile;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 use Codeception\Lib\HelperModule;
+use GuzzleHttp;
+use yii\base\Request;
+
+use app\models\Facturaventa;
+use app\models\FacturaventaSearch;
+use app\models\Facturaventadetalle;
+use app\models\FormFiltroConsultaFacturaventa;
+use app\models\FormFacturaventalibre;
+use app\models\FormFacturaventanuevodetallelibre;
+use app\models\Productodetalle;
+use app\models\Facturaventatipo;
+use app\models\Matriculaempresa;
+use app\models\Cliente;
+use app\models\Ordenproduccion;
 use app\models\UsuarioDetalle;
+use app\models\Consecutivo;
+use app\models\Ordenproducciondetalle;
+use app\models\Resolucion;
+use app\models\Producto;
 
 
 /**
@@ -176,7 +179,7 @@ class FacturaventaController extends Controller
             $model->idresolucion = $resolucion->idresolucion;
             $model->numero_resolucion = $resolucion->nroresolucion;
             $model->fecha_vencimiento = $nuevafecha;
-            $model->formapago = $table->formapago;
+            $model->id_forma_pago = $table->id_forma_pago;
             $model->plazopago = $table->plazopago;
             $model->porcentajefuente = 0;
             $model->porcentajeiva = 0;
@@ -191,7 +194,7 @@ class FacturaventaController extends Controller
             $model->nrofacturaelectronica = $model->nrofacturaelectronica;
             $model->usuariosistema = Yii::$app->user->identity->username;   
             $model->consecutivo = $resolucion->consecutivo;
-            $model->update();
+            $model->save(false);
             return $this->redirect(['index']);
         }
 
@@ -270,9 +273,11 @@ class FacturaventaController extends Controller
             $ordenesproduccion = ArrayHelper::map($ordenesproduccion, "idordenproduccion", "ordenProduccion");
             if(Facturaventadetalle::find()->where(['=', 'idfactura', $id])->all() or $model->estado <> 0){
                Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
-            }
-            else if($model->load(Yii::$app->request->post()) && $model->save()) {
-                return $this->redirect(['index']);
+            }else {
+              
+                if($model->load(Yii::$app->request->post()) && $model->save(false)) {
+                 return $this->redirect(['index']);
+                } 
             }
         }
         
@@ -308,7 +313,7 @@ class FacturaventaController extends Controller
                     $table->observacion = $model->observacion;
                     $table->id_factura_venta_tipo = $model->id_factura_venta_tipo;
                     $table->nrofacturaelectronica = $model->nrofacturaelectronica;
-                    if ($table->update(false)) {
+                    if ($table->save(false)) {
                         $msg = "El registro ha sido actualizado correctamente";
                         return $this->redirect(["index"]);
                     } else {
@@ -732,6 +737,163 @@ class FacturaventaController extends Controller
             'modeldetalles' => $modeldetalles,
             'mensaje' => $mensaje,
         ]);
+    }
+    
+    //ENVIAR DOCUMETOS A LA DIA
+    public function actionEnviar_documento_dian($id_factura, $token) {
+        
+        //INSTANCIAR VARIABLES
+        $factura = Facturaventa::findOne($id_factura);
+        $clientes = Cliente::findOne($factura->idcliente);
+        $detalle = Facturaventadetalle::find()->where(['=','idfactura', $id_factura])->one();
+        //variables encabezado
+        $documentocliente = $clientes->nitmatricula;
+        $tipodocumento = $clientes->tipo->codigo_api;
+        $nombrecliente = $clientes->nombrecorto;
+        $direccioncliente = $clientes->direccioncliente;
+        $telefono = $clientes->telefonocliente;
+        $emailcliente = $clientes->email_envio_factura_dian;
+        $ciudad = $clientes->municipio->municipio;
+        $resolucion = $factura->resolucion->codigo_interfaz;
+        $consecutivo = $factura->nrofactura;
+        $formapago = $factura->formaPago->codigo_api; 
+        $fechainicio = $factura->fecha_inicio;
+        $observacion = $factura->observacion;
+        $retefuente = "true";
+        $rete_iva = "true";
+        //variable detalle
+        $codigoconcepto = $detalle->conceptoFactura->codigo_interfaz;
+        $concepto = $detalle->conceptoFactura->concepto;
+        $cantidad = $detalle->cantidad;
+        $valor_unitario = $detalle->preciounitario;
+        $subtotal = $detalle->total;
+        
+        //PROCESO D ELA API
+        $curl = curl_init();
+        $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $dataHead = [
+            "client" => [
+                "document" => "$documentocliente",//NÚMERO DE DOCUMENTO DEL CLIENTE
+                "document_type" => "$tipodocumento", //TIPO DE DOCUMENTO DEL CLIENTE: 0 - Registro Civil, 1 - Tarjeta Identidad, 2 - Cedula Ciudadania, 3 - Tarjeta Extranjeria, 4 - Cedula Extranjeria, 5 - Nit, 6 - Pasaporte, 7 - Documento de Extranjeria, 8 - Sin indentificación o para uso de la DIAN, 10 - Permiso Especial de Permanencia, 11 - Permiso por Protección Temporal
+                "first_name" => "$nombrecliente", //NOMBRE CLIENTE
+                "last_name_one" => "-", //PRIMER APELLIDO
+                "last_name_two" => "N/A", //SEGUNDO APELLIDO
+                "address" => "$direccioncliente", //DIRECCION
+                "phone" => "$telefono",  //TELEFONO
+                "email" => "$emailcliente", //EMAIL
+                "city" => "$ciudad", //NOMBRE CIUDAD
+                "rete_fuente" => "$retefuente", //retencion en la fuente
+                "rete_iva" => "$rete_iva" //rete iva de la empresa
+              
+            ],
+            "comment" => "$observacion", //OBSERVACIÓN PÚBLICA FACTURA QUE SE VISUALIZA EN LA REPRESENTACIÓN GRÁFICA
+            "resolucion" => "$resolucion", //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
+            "consecutivo" => "$consecutivo",//CONSECUTIVO QUE SE VÁ A CONSUMIR
+            "forma_pago" => "$formapago",//FORMA PAGO DE FACTURA: 1 - EFECTIVO, 2 - T.DEBITO, 3 - T.CREDITO, 4 - CREDITO
+            "date" => "$fechainicio" //FECHA FACTURA
+          ];
+          $dataHead = json_encode($dataHead);
+          $dataBody = [
+            [
+                "product" => $codigoconcepto, //ID DE PRODUCTO
+                "warehouse" => 1, //ID DE BODEGA
+                "qty" => $cantidad, //CANTIDAD
+                "concept" => "$concepto",//CONCEPTO DEL ITEM
+                "average" => $valor_unitario, //VALOR UNITARIO
+                "total" => $subtotal //TOTAL
+            ]
+          ];
+          $dataBody = json_encode($dataBody);
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => [
+              "head"=>$dataHead,
+              "body"=>$dataBody
+            ],
+          ));
+
+          $response = curl_exec($curl);
+          
+          $data = json_decode($response, true);
+          //$cufe = $data['factura']['cufe'];
+          curl_close($curl);
+         
+          echo $response;
+    }
+    
+    //PERMITE REENVIAR LA FACTURA SI NO SE CONECTA A LA DIAN
+    public function actionReenviar_documento_dian($id_factura, $token) {
+        
+        //INSTANCIAR VARIABLES
+        $factura = Facturaventa::findOne($id_factura);
+        $clientes = Cliente::findOne($factura->idcliente);
+        $detalle = Facturaventadetalle::find()->where(['=','idfactura', $id_factura])->one();
+        //variables encabezado
+        $resolucion = $factura->resolucion->codigo_interfaz;
+        $consecutivo = $factura->nrofactura;
+             
+        //PROCESO D ELA API
+        $curl = curl_init();
+        $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $consecutivo_factura = $consecutivo; //CONSECUTIVO FACTURA
+        $codigo_resolucion = $resolucion; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/invoice?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'GET',
+          CURLOPT_POSTFIELDS => [],
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
+        echo $response;
+    }
+    
+    
+    //PROCESO QUE BUSCA LA FACTURA DE LA API
+    public function actionSearch_factura_dian($id_factura, $token) {
+        
+        //INSTANCIAR VARIABLES
+        $factura = Facturaventa::findOne($id_factura);
+        $clientes = Cliente::findOne($factura->idcliente);
+        $detalle = Facturaventadetalle::find()->where(['=','idfactura', $id_factura])->one();
+        //variables encabezado
+        $resolucion = $factura->resolucion->codigo_interfaz;
+        $consecutivo = $factura->nrofactura;
+             
+        //PROCESO QUE BUSCA UNA FACTURA EN LA API
+        $curl = curl_init();
+        $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $consecutivo_factura = $consecutivo; //CONSECUTIVO FACTURA
+        $codigo_resolucion = $resolucion; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/invoice?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'GET',
+          CURLOPT_POSTFIELDS => [],
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        echo $response;
     }
     
     public function actionExcelconsulta($tableexcel) {                

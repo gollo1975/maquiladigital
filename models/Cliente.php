@@ -123,6 +123,11 @@ class Cliente extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+     public function getFormaPago()
+    {
+        return $this->hasOne(FormaPago::className(), ['id_forma_pago' => 'id_forma_pago']);
+    }
+    
     public function getRecibocajas()
     {
         return $this->hasMany(Recibocaja::className(), ['idcliente' => 'idcliente']);

@@ -124,12 +124,23 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                         <td align="right"><?= number_format($val->saldo,0) ?></td>
                         <td><?= $val->autorizar ?></td>
                         <td><?= $val->estados ?></td>
-                        <td style="width: 25px; height: 25px;">				
-                            <a href="<?= Url::toRoute(["facturaventa/view", "id" => $val->idfactura, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
-                        </td>
-                        <td style="width: 25px; height: 25px;">				
-                             <a href="<?= Url::toRoute(["facturaventa/update", "id" => $val->idfactura]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                
-                        </td>
+                        <?php 
+                        $detalle = \app\models\Facturaventadetalle::find()->where(['=','idfactura', $val->idfactura])->one();
+                        if(!$detalle){?>
+                            <td style="width: 25px; height: 25px;">				
+                                <a href="<?= Url::toRoute(["facturaventa/view", "id" => $val->idfactura, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
+                            </td>
+                            <td style="width: 25px; height: 25px;">				
+                                 <a href="<?= Url::toRoute(["facturaventa/update", "id" => $val->idfactura]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                
+                            </td>
+                        <?php }else{ ?>
+                             <td style="width: 25px; height: 25px;">				
+                                <a href="<?= Url::toRoute(["facturaventa/view", "id" => $val->idfactura, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
+                            </td>
+                            <td style="width: 25px; height: 25px;">				
+                                <a href="<?= Url::toRoute(["facturaventa/search_factura_dian", "id_factura" => $val->idfactura, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-search"></span></a>                
+                            </td>
+                        <?php } ?>    
                     </tr>
                 <?php endforeach; ?>
             </body>        

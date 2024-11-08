@@ -114,12 +114,13 @@ class ClientesController extends Controller {
                 $table->telefonocliente = $model->telefonocliente;
                 $table->celularcliente = $model->celularcliente;
                 $table->emailcliente = $model->emailcliente;
+                $table->email_envio_factura_dian = $model->email_envio_factura_dian;
                 $table->iddepartamento = $model->iddepartamento;
                 $table->idmunicipio = $model->idmunicipio;
                 $table->contacto = $model->contacto;
                 $table->telefonocontacto = $model->telefonocontacto;
                 $table->celularcontacto = $model->celularcontacto;
-                $table->formapago = $model->formapago;
+                $table->id_forma_pago = $model->formapago;
                 $table->plazopago = $model->plazopago;
                 $table->nitmatricula = $matriculaempresa->nitmatricula;
                 $table->tiporegimen = $model->tiporegimen;
@@ -174,13 +175,14 @@ class ClientesController extends Controller {
                     $table->direccioncliente = $model->direccioncliente;
                     $table->telefonocliente = $model->telefonocliente;
                     $table->celularcliente = $model->celularcliente;
+                    $table->email_envio_factura_dian = $model->email_envio_factura_dian;
                     $table->emailcliente = $model->emailcliente;
                     $table->iddepartamento = $model->iddepartamento;
                     $table->idmunicipio = $model->idmunicipio;
                     $table->contacto = $model->contacto;
                     $table->telefonocontacto = $model->telefonocontacto;
                     $table->celularcontacto = $model->celularcontacto;
-                    $table->formapago = $model->formapago;
+                    $table->id_forma_pago = $model->formapago;
                     $table->plazopago = $model->plazopago;
                     $table->nitmatricula = $matriculaempresa->nitmatricula;
                     $table->tiporegimen = $model->tiporegimen;
@@ -230,12 +232,13 @@ class ClientesController extends Controller {
                 $model->telefonocliente = $table->telefonocliente;
                 $model->celularcliente = $table->celularcliente;
                 $model->emailcliente = $table->emailcliente;
+                $model->email_envio_factura_dian = $table->email_envio_factura_dian;
                 $model->iddepartamento = $table->iddepartamento;
                 $model->idmunicipio = $table->idmunicipio;
                 $model->contacto = $table->contacto;
                 $model->telefonocontacto = $table->telefonocontacto;
                 $model->celularcontacto = $table->celularcontacto;
-                $model->formapago = $table->formapago;
+                $model->formapago = $table->id_forma_pago;
                 $model->plazopago = $table->plazopago;
                 $model->nitmatricula = $table->nitmatricula;
                 $model->tiporegimen = $table->tiporegimen;
@@ -489,7 +492,7 @@ class ClientesController extends Controller {
                     ->setCellValue('P' . $i, $val->contacto)
                     ->setCellValue('Q' . $i, $val->telefonocontacto)
                     ->setCellValue('R' . $i, $val->celularcontacto)
-                    ->setCellValue('S' . $i, $val->formapago)
+                    ->setCellValue('S' . $i, $val->formaPago->concepto)
                     ->setCellValue('T' . $i, $val->plazopago)
                     ->setCellValue('U' . $i, $val->regimen)
                     ->setCellValue('V' . $i, $val->autoretener)

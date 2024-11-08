@@ -71,10 +71,11 @@ class Facturaventa extends \yii\db\ActiveRecord
             [['fecha_inicio', 'fecha_vencimiento', 'fechacreacion','fecha_envio_dian'], 'safe'],
             [['porcentajeiva', 'porcentajefuente', 'porcentajereteiva', 'subtotal', 'retencionfuente', 'impuestoiva', 'retencioniva', 'saldo', 'totalpagar'], 'number'],
             [['valorletras','observacion','nrofacturaelectronica','cufe','numero_resolucion'], 'string'],
-            [['formapago', 'usuariosistema','consecutivo'], 'string', 'max' => 15],
+            [['id_forma_pago', 'usuariosistema','consecutivo'], 'string', 'max' => 15],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['idresolucion'], 'exist', 'skipOnError' => true, 'targetClass' => Resolucion::className(), 'targetAttribute' => ['idresolucion' => 'idresolucion']],
+            [['id_forma_pago'], 'exist', 'skipOnError' => true, 'targetClass' => FormaPago::className(), 'targetAttribute' => ['id_forma_pago' => 'id_forma_pago']],
         ];
     }
 
@@ -89,7 +90,7 @@ class Facturaventa extends \yii\db\ActiveRecord
             'fecha_inicio' => 'Fecha Inicio factura',
             'fecha_vencimiento' => 'Fecha Vcto',
             'fechacreacion' => 'Fecha Creacion',
-            'formapago' => 'Forma Pago',
+            'id_forma_pago' => 'Forma de pago',
             'plazopago' => 'Plazo pago',
             'porcentajeiva' => '% Iva',
             'porcentajefuente' => '% Rete Fuente',
@@ -138,6 +139,14 @@ class Facturaventa extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getFormaPago()
+    {
+        return $this->hasOne(FormaPago::className(), ['id_forma_pago' => 'id_forma_pago']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getOrdenproduccion()
     {
         return $this->hasOne(Ordenproduccion::className(), ['idordenproduccion' => 'idordenproduccion']);
@@ -175,14 +184,7 @@ class Facturaventa extends \yii\db\ActiveRecord
         return $this->hasMany(Recibocajadetalle::className(), ['idfactura' => 'idfactura']);
     }
 
-    public function getFormadePago(){
-        if($this->formapago == 1){ //forma de pafo 1= contado, 2 = credito
-            return "CONTADO";
-        }elseif ($this->formapago == 2){
-            return "CRÉDITO";
-        }
-    }
-    
+     
     public function getAutorizar()
     {
         if($this->autorizado == 1){

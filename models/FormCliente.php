@@ -42,6 +42,7 @@ class FormCliente extends Model
     public $minuto_confeccion;
     public $minuto_terminacion;
     public $proceso;
+    public $email_envio_factura_dian;
 
     public function rules()
     {
@@ -60,8 +61,8 @@ class FormCliente extends Model
             ['direccioncliente', 'default'],
             ['telefonocliente', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             ['celularcliente', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
-            ['emailcliente', 'email'],
-            ['emailcliente', 'required', 'message' => 'Campo requerido'],
+            [['emailcliente','email_envio_factura_dian'], 'email'],
+            [['emailcliente','email_envio_factura_dian'], 'required', 'message' => 'Campo requerido'],
             ['emailcliente', 'email_existe'],
             ['contacto', 'match', 'pattern' => '/^[a-záéíóúñ\s]+$/i', 'message' => 'Sólo se aceptan letras'],
             ['telefonocontacto', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
@@ -96,6 +97,7 @@ class FormCliente extends Model
             'telefonocliente' => 'Teléfono:',
             'celularcliente' => 'celular:',
             'emailcliente' => 'Email:',
+            'email_envio_factura_dian' => 'Email dian:',
             'contacto' => 'Contacto:',
             'telefonocontacto' => 'Telefono contacto:',
             'celularcontacto' => 'Celular contacto:',

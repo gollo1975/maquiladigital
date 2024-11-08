@@ -43,7 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php
 $departamento= ArrayHelper::map(Departamento::find()->all(), 'iddepartamento','departamento');
-
+$formapago = ArrayHelper::map(\app\models\FormaPago::find()->all(), 'id_forma_pago', 'concepto');
 $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documento','descripcion');
 ?>
     <div class="panel panel-success">
@@ -87,7 +87,7 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
                 <?= $form->field($model, 'proceso')->dropdownList(['0' => 'N/A', '1' => 'MAQUILA', '2' => 'PAQUETE COMPLETO'], ['prompt' => 'Seleccione...']) ?>			
             </div>    
             <div class="row">
-                <?= $form->field($model, 'formapago')->dropdownList(['1' => 'CONTADO', '2' => 'CRÉDITO'], ['prompt' => 'Seleccione...', 'onchange' => 'fpago()', 'id' => 'formapago']) ?>
+                <?= $form->field($model, 'formapago')->dropdownList($formapago, ['prompt' => 'Seleccione...']) ?>
                 <?= $form->field($model, 'plazopago')->input("text",['id' => 'plazopago']) ?>			
             </div>
             <div class="row">
@@ -101,7 +101,8 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
            
             <div class="row">
                 <div class="field-tblclientes-observaciones_cliente has-success">
-                    <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
+                    <?= $form->field($model, 'email_envio_factura_dian')->input("text") ?>
+                    <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
                 </div>
             </div>        
         </div>

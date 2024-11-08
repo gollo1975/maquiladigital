@@ -232,15 +232,6 @@ function retener() {
 }
 ;
 
-function fpago() {
-    formapago = document.getElementById('formapago').value;
-    if (formapago == 1) {
-        document.getElementById('plazopago').value = 0;
-    }
-        
-}
-;
-
 
 function tipocontrato(){
    let id_tipo_contrato = document.getElementById('id_tipo_contrato').value;

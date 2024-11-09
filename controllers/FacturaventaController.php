@@ -819,24 +819,36 @@ class FacturaventaController extends Controller
           ],
         ));
 
-        $response = curl_exec($curl);
-        curl_close($curl);
-        $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if($data == 200){
-            Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
-            try {
-                $cufe = $data["fe"]["cufe"];
-            } catch (Exception $e) {
-                // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
-                Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+        try{
+            $response = curl_exec($curl); 
+            if (curl_errno($curl)) {
+                throw new Exception(curl_error($curl));
             }
-            $factura->cufe = $cufe;
-            $factura->fecha_envio_dian = date("Y-m-d H:i:s");
-            $factura->save(false);
-        }else{
-            Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la Dian. Volver a reenviar la factura');
-            $factura->reenviar_factura_dian = 1;
-            $factura->save(false);
+            curl_close($curl);
+            $data = json_decode($response, true);
+            if ($data === null) {
+                throw new Exception('Error al decodificar la respuesta JSON');
+            }
+            $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if($data == 200){
+                Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
+                try {
+                    $cufe = isset($data["fe"]["cufe"]);
+                } catch (Exception $e) {
+                    // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
+                    Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+                }
+                $factura->cufe = $cufe;
+                $factura->reenviar_factura = 0;
+                $factura->fecha_envio_dian = date("Y-m-d H:i:s");
+                $factura->save(false);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la Dian. Volver a reenviar la factura');
+                $factura->reenviar_factura_dian = 1;
+                $factura->save(false); 
+            }
+        } catch (Exception $ex) {
+             Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
         return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
       
@@ -870,26 +882,37 @@ class FacturaventaController extends Controller
           CURLOPT_CUSTOMREQUEST => 'GET',
           CURLOPT_POSTFIELDS => [],
         ));
-        $response = curl_exec($curl);
-        curl_close($curl);
-        $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if($data == 200){
-            Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
-            try {
-                $cufe = $data["fe"]["cufe"];
-            } catch (Exception $e) {
-                // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
-                Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+        try{
+            $response = curl_exec($curl); 
+            if (curl_errno($curl)) {
+                throw new Exception(curl_error($curl));
             }
-            $factura->cufe = $cufe;
-            $factura->reenviar_factura_dian = 0;
-            $factura->fecha_envio_dian = date("Y-m-d H:i:s");
-            $factura->save(false);
-        }else{
-            Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la Dian. Volver a reenviar la factura');
-            $factura->reenviar_factura_dian = 1;
-            $factura->save(false); 
+            curl_close($curl);
+            $data = json_decode($response, true);
+            if ($data === null) {
+                throw new Exception('Error al decodificar la respuesta JSON');
+            }
+            $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if($data == 200){
+                Yii::$app->getSession()->setFlash('success', 'La factura venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
+                try {
+                    $cufe = $data["fe"]["cufe"];
+                } catch (Exception $e) {
+                    // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
+                    Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+                }
+                $factura->cufe = $cufe;
+                $factura->reenviar_factura = 0;
+                $factura->save(false);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la Dian. Volver a reenviar la factura');
+                $factura->reenviar_factura = 1;
+                $factura->save(false); 
+            }
+        } catch (Exception $ex) {
+             Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
+        return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
     }
     
     
@@ -922,21 +945,33 @@ class FacturaventaController extends Controller
           CURLOPT_POSTFIELDS => [],
         ));
 
-        $response = curl_exec($curl);
-        curl_close($curl);
-        $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if($data == 200){
-           try {
-                $cufe = $data["fe"]["cufe"];
-            } catch (Exception $e) {
-                // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
-                Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+        try{
+            $response = curl_exec($curl); 
+            if (curl_errno($curl)) {
+                throw new Exception(curl_error($curl));
             }
-            $factura->cufe = $cufe;
-            $factura->save(false);
-        }else{
-            Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la API. Volver a intentarlo');
+            curl_close($curl);
+            $data = json_decode($response, true);
+            if ($data === null) {
+                throw new Exception('Error al decodificar la respuesta JSON');
+            }
+            $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if($data == 200){
+                Yii::$app->getSession()->setFlash('info', 'La factura venta electronica No ('. $consecutivo .') se consulto con exito.');
+                try {
+                   
+                } catch (Exception $e) {
+                    // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
+                    Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+                }
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Problemas de comunicacion en la consulta');
+                
+            }
+        } catch (Exception $ex) {
+             Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
+        return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
     }
     
     public function actionExcelconsulta($tableexcel) {                

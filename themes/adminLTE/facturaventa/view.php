@@ -32,7 +32,7 @@ $view = 'facturaventa';
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
             }else{
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
-                if($model->fecha_envio_dian == ''){
+                if($model->fecha_envio_begranda == ''){
                     echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
                     'data' => ['confirm' => 'Esta seguro de enviar la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
                 }

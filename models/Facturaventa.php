@@ -68,7 +68,7 @@ class Facturaventa extends \yii\db\ActiveRecord
         return [
             [['nrofactura', 'plazopago', 'idcliente', 'idordenproduccion', 'idresolucion','estado','autorizado','reenviar_factura','consultar_factura'], 'integer'],
             [['fecha_inicio', 'idcliente', 'idordenproduccion','id_factura_venta_tipo'], 'required', 'message' => 'Campo requerido'],
-            [['fecha_inicio', 'fecha_vencimiento', 'fechacreacion','fecha_envio_dian'], 'safe'],
+            [['fecha_inicio', 'fecha_vencimiento', 'fechacreacion','fecha_recepcion_dian', 'fecha_envio_begranda'], 'safe'],
             [['porcentajeiva', 'porcentajefuente', 'porcentajereteiva', 'subtotal', 'retencionfuente', 'impuestoiva', 'retencioniva', 'saldo', 'totalpagar'], 'number'],
             [['valorletras','observacion','nrofacturaelectronica','cufe','numero_resolucion'], 'string'],
             [['id_forma_pago', 'usuariosistema','consecutivo'], 'string', 'max' => 15],
@@ -112,6 +112,7 @@ class Facturaventa extends \yii\db\ActiveRecord
             'id_factura_venta_tipo' => 'Tipo de factura',
             'nrofacturaelectronica' => 'Factura Electrónica',
             'fecha_envio_dian' => 'fecha_envio_dian',
+            'fecha_envio_begranda' => 'fecha_envio_begranda',
             'numero_resolucion' => 'numero_resolucion',
             'cufe' => 'cufe',
             'consecutivo' => 'consecutivo',

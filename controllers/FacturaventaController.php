@@ -818,13 +818,14 @@ class FacturaventaController extends Controller
             "body"=>$dataBody
           ],
         ));
-
+        var_dump($dataHead);
         try{
             $response = curl_exec($curl); 
             if (curl_errno($curl)) {
                 throw new Exception(curl_error($curl));
             }
             curl_close($curl);
+               
             $data = json_decode($response, true);
             if ($data === null) {
                 throw new Exception('Error al decodificar la respuesta JSON');
@@ -840,7 +841,7 @@ class FacturaventaController extends Controller
                 }
                 $factura->cufe = $cufe;
                 $factura->reenviar_factura = 0;
-                $factura->fecha_envio_dian = date("Y-m-d H:i:s");
+               // $factura->fecha_envio_dian = date("Y-m-d H:i:s");
                 $factura->save(false);
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Problemas de conexion en la Dian. Volver a reenviar la factura');
@@ -850,7 +851,7 @@ class FacturaventaController extends Controller
         } catch (Exception $ex) {
              Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
-        return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+       // return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
       
     }
     

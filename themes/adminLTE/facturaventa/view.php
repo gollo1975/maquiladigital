@@ -33,7 +33,7 @@ $view = 'facturaventa';
             }else{
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
                 if($model->fecha_envio_begranda == ''){
-                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
+                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian','id' => 'miBoton', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
                     'data' => ['confirm' => 'Esta seguro de enviar la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
                 }
                 if($model->reenviar_factura == 1){
@@ -275,3 +275,17 @@ $view = 'facturaventa';
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    $(document).ready(function() {
+    $("#miBoton").click(function(event) {
+        // Evita que el formulario se envíe de nuevo (opcional)
+        event.preventDefault();
+
+        // Deshabilita el botón
+        $(this).prop('disabled', true);
+
+        // Puedes agregar aquí código para mostrar un mensaje de carga, etc.
+        // ...
+    });
+});
+</script>

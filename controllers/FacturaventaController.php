@@ -832,10 +832,18 @@ class FacturaventaController extends Controller
             $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             if($data == 200){
                 Yii::$app->getSession()->setFlash('success', 'La factura de venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
-                $cufe = isset($data["fe"]["cufe"]) ? $data["fe"]["cufe"] : "";
+                //$cufe = isset($data["fe"]["cufe"]) ? $data["fe"]["cufe"] : "";
+                //$factura->cufe = $cufe;
+                //$factura->reenviar_factura = ($cufe!="" ? 0 : 1);
+                //$factura->fecha_recepcion_dian = ($cufe!="" ? $data["fe"]["fecha_recepcion_dian"] : "");
+                
+                $cufe = isset($data["data"]["cufe"]) ? $data["data"]["cufe"] : "Envio vacio del cufe";
                 $factura->cufe = $cufe;
-                $factura->reenviar_factura = ($cufe!="" ? 0 : 1);
-                $factura->fecha_recepcion_dian = ($cufe!="" ? $data["fe"]["fecha_recepcion_dian"] : "");
+                //$factura->fecha_recepcion_dian = ($cufe != "" ? $data["data"]["fecha_recepcion_dian"] : null);
+                //$factura->fecha_recepcion_dian = ($cufe != "" ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : "");
+                $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");;
+                $factura->fecha_recepcion_dian = $fechaRecepcion;
+            
                 $factura->fecha_envio_begranda = date("Y-m-d H:i:s");
                 $factura->save(false);
             }else{
@@ -852,143 +860,157 @@ class FacturaventaController extends Controller
     
     
     //PERMITE REENVIAR LA FACTURA SI NO SE CONECTA A LA DIAN
-    public function actionReenviar_documento_dian($id_factura, $token) {
-    ///buscar informacion
+        public function actionReenviar_documento_dian($id_factura, $token) {
+    // Instanciar la factura desde la base de datos
         $factura = Facturaventa::findOne($id_factura);
-        $consecutivo = $factura->nrofactura;
+        if (!$factura) {
+            Yii::$app->getSession()->setFlash('error', 'Factura no encontrada.');
+            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+        }
+
         $resolucion = $factura->resolucion->codigo_interfaz;
-        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch";
+        $consecutivo = $factura->nrofactura;
 
+        // URL y clave API
+        $API_URL = "http://begranda.com/equilibrium2/public/api/send-electronic-invoice";
+        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; // Reemplazar con tu clave API
 
-        // URL para consultar la factura existente
-        $consultaUrl = "https://begranda.com/equilibrium2/public/api/invoice?key=$API_KEY&eq-consecutivo=$consecutivo&eq-id_resolucion=$resolucion";
-
-        // Realizar consulta para verificar si la factura ya fue generada
+        // Inicializar CURL
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => $consultaUrl,
+            CURLOPT_URL => "$API_URL?key=$API_KEY&consecutivo=$consecutivo&id_resolucion=$resolucion",
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $token,
-                'Content-Type: application/json'
-            ],
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 60,  // Timeout extendido
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => [],
         ]);
 
-        $consultaResponse = curl_exec($curl);
-        if (curl_errno($curl)) {
-            Yii::$app->getSession()->setFlash('error', 'Error en la consulta de la factura: ' . curl_error($curl));
-            curl_close($curl);
-            return;
-        }
-
-        $consultaData = json_decode($consultaResponse, true);
+        // Ejecutar la solicitud CURL y verificar la respuesta
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        // Comprobar si el CUFE es nulo
-        if (isset($consultaData["data"][0]["cufe"]) && is_null($consultaData["data"][0]["cufe"])) {
-            // CUFE es nulo, realizar el reenvío
-            $resendUrl = "https://begranda.com/equilibrium2/public/api/resend?key=$API_KEY";
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $resendUrl,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => json_encode([
-                    "resolucion" => $resolucion,
-                    "consecutivo" => $consecutivo,
-                ]),
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'Authorization: Bearer ' . $token
-                ],
-            ]);
+        // Registrar la respuesta completa de la API para depuración
+        Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
 
-            $resendResponse = curl_exec($curl);
-            $resendData = json_decode($resendResponse, true);
-            curl_close($curl);
-
-            if (isset($resendData["fe"]["cufe"])) {
-                Yii::$app->getSession()->setFlash('success', 'La factura fue reenviada exitosamente.');
-                $factura->cufe = $resendData["fe"]["cufe"];
-                $factura->fecha_recepcion_dian = $resendData["fe"]["fecha_recepcion_dian"];
-                $factura->save(false);
-            } else {
-                Yii::$app->getSession()->setFlash('error', 'Problemas al reenviar la factura.');
-            }
-        } else {
-            Yii::$app->getSession()->setFlash('info', 'La factura ya fue enviada anteriormente y tiene un CUFE asignado.');
+        // Verificar errores de conexión o códigos HTTP inesperados
+        if ($response === false || $httpCode !== 200) {
+            $error = $response === false ? curl_error($curl) : "HTTP $httpCode";
+            Yii::$app->getSession()->setFlash('error', 'Hubo un problema al comunicarse con la DIAN. Intenta reenviar más tarde.');
+            Yii::error("Error en la solicitud CURL: $error", __METHOD__);
+            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
         }
-       // return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]); 
-    }//FINALA PROCESO DE REENVIAR
-    
-    
-        
-        // Comentado para evitar problemas de encabezado enviado
-    // 
 
-   
+        // Decodificar la respuesta JSON
+        $data = json_decode($response, true);
 
-    // Comentado para evitar problemas de encabezado enviado
-    // return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]); 
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Yii::$app->getSession()->setFlash('error', 'Error al procesar la respuesta de la DIAN. Intenta reenviar más tarde.');
+            Yii::error("Error al decodificar JSON: " . json_last_error_msg(), __METHOD__);
+            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+        }
 
-        
-        
-        
-        /*    //INSTANCIAR VARIABLES
-            $factura = Facturaventa::findOne($id_factura);
-            $resolucion = $factura->resolucion->codigo_interfaz;
-            $consecutivo = $factura->nrofactura;
-
+        // Comprobamos el 'status' de la respuesta para determinar éxito o error
+        if (isset($data['status']) && $data['status'] == 'success') {
+            // Si la respuesta es exitosa
+            Yii::$app->getSession()->setFlash('success', "La factura de venta electrónica No ($consecutivo) se reenvió con éxito.");
             
-            $API_URL = "http://begranda.com/equilibrium2/public/api/send-electronic-invoice";
-            $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; // Reemplazar con tu clave API
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => "$API_URL?key=$API_KEY&consecutivo=$consecutivo&id_resolucion=$resolucion",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => [],
-            ]);
-            $response = curl_exec($curl);
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            curl_close($curl);
-             var_dump($curl);
-            if ($error = curl_error($curl)) {
-               // var_dump($curl);
-                echo 'Error CURL: ' . $error;
-            } else {
-                if ($httpCode !== 200) {
-                    echo 'Error HTTP: ' . $httpCode;
-                    
-                } else {
-                    // Intentar decodificar la respuesta JSON
-                    $data = json_decode($response, true);
-                    if (json_last_error() !== JSON_ERROR_NONE) {
-                        echo 'Error al decodificar JSON: ' . json_last_error_msg();
-                        // Manejar el error de decodificación
-                    } else {
-                        if($data == 200){
-                            var_dump($data);
-                            Yii::$app->getSession()->setFlash('success', 'La factura de venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
-                            $cufe = isset($data["fe"]["cufe"]) ? $data["fe"]["cufe"] : "";
-                            $factura->cufe = $cufe;
-                            $factura->reenviar_factura = ($cufe!="" ? 0 : 1);
-                            $factura->fecha_recepcion_dian = ($cufe!="" ? $data["fe"]["fecha_recepcion_dian"] : "");
-                            $factura->save(false);
-                        }else{
-                            Yii::$app->getSession()->setFlash('error', 'Hay problema de conexion en la Dian. Volver a reenviar la factura mas tarde.');
-                            $factura->reenviar_factura = 1;
-                            $factura->save(false); 
-                            // var_dump($data);
-                        }    
-                    }
-                }
-            }
+            // Asignar CUFE y fecha de recepción solo si están disponibles en la respuesta
+            $cufe = isset($data["data"]["cufe"]) ? $data["data"]["cufe"] : "";
+            $factura->cufe = $cufe;
+            //$factura->fecha_recepcion_dian = ($cufe != "" ? $data["data"]["fecha_recepcion_dian"] : null);
+            //$factura->fecha_recepcion_dian = ($cufe != "" ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : "");
+            $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");;
+            $factura->fecha_recepcion_dian = $fechaRecepcion;
+
+            $factura->reenviar_factura = 0; // Marcar como no pendiente de reenvío
+            $factura->save(false);
+            Yii::info("Respuesta exitosa de la API: " . print_r($data, true), __METHOD__);
+        } else {
+            // Si el 'status' no es success o hay un mensaje de error
+            $errorMessage = isset($data['message']) ? $data['message'] : 'Error desconocido';
+            // Mostrar el mensaje específico de la API
+            Yii::$app->getSession()->setFlash('error', "No se pudo reenviar la factura. Error: $errorMessage.");
+            Yii::error("Error al reenviar factura No ($consecutivo): " . print_r($data, true), __METHOD__);
+            $factura->reenviar_factura = 1; // Mantener la factura pendiente de reenvío
+            $factura->save(false);
+        }
+
+        // Intentar guardar la factura en la base de datos
+        if (!$factura->save(false)) {
+            Yii::error("Error al guardar la factura No ($consecutivo): " . print_r($factura->errors, true), __METHOD__);
+            Yii::$app->getSession()->setFlash('error', 'Hubo un error al guardar la factura.');
+            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+        }
+
+        // Redirigir a la vista de la factura
+        return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+    }
+
+
+        
+        
+        
+       /*  $factura = Facturaventa::findOne($id_factura);
+         $resolucion = $factura->resolucion->codigo_interfaz;
+         $consecutivo = $factura->nrofactura;
+
+
+         $API_URL = "http://begranda.com/equilibrium2/public/api/send-electronic-invoice";
+         $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; // Reemplazar con tu clave API
+         $curl = curl_init();
+         curl_setopt_array($curl, [
+             CURLOPT_URL => "$API_URL?key=$API_KEY&consecutivo=$consecutivo&id_resolucion=$resolucion",
+             CURLOPT_RETURNTRANSFER => true,
+             CURLOPT_ENCODING => '',
+             CURLOPT_MAXREDIRS => 10,
+             CURLOPT_TIMEOUT => 0,
+             CURLOPT_FOLLOWLOCATION => true,
+             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+             CURLOPT_CUSTOMREQUEST => 'POST',
+             CURLOPT_POSTFIELDS => [],
+         ]);
+         $response = curl_exec($curl);
+         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+         curl_close($curl);
+          var_dump($curl);
+         if ($error = curl_error($curl)) {
+            // var_dump($curl);
+             echo 'Error CURL: ' . $error;
+         } else {
+             if ($httpCode !== 200) {
+                 echo 'Error HTTP: ' . $httpCode;
+
+             } else {
+                 // Intentar decodificar la respuesta JSON
+                 $data = json_decode($response, true);
+                 if (json_last_error() !== JSON_ERROR_NONE) {
+                     echo 'Error al decodificar JSON: ' . json_last_error_msg();
+                     // Manejar el error de decodificación
+                 } else {
+                     if($data == 200){
+                         var_dump($data);
+                         Yii::$app->getSession()->setFlash('success', 'La factura de venta electronica No ('. $consecutivo .') se envio con exito a la Dian.');
+                         $cufe = isset($data["fe"]["cufe"]) ? $data["fe"]["cufe"] : "";
+                         $factura->cufe = $cufe;
+                         $factura->reenviar_factura = ($cufe!="" ? 0 : 1);
+                         $factura->fecha_recepcion_dian = ($cufe!="" ? $data["fe"]["fecha_recepcion_dian"] : "");
+                         $factura->save(false);
+                     }else{
+                         Yii::$app->getSession()->setFlash('error', 'Hay problema de conexion en la Dian. Volver a reenviar la factura mas tarde.');
+                         $factura->reenviar_factura = 1;
+                         $factura->save(false); 
+                          var_dump($data);
+                     }    
+                 }
+             }
+         }*/
+         // return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+    
         //PROCESO D ELA API
      /*   $curl = curl_init();
         $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
@@ -1044,7 +1066,7 @@ class FacturaventaController extends Controller
         }
         * 
         */
-     //  return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+     //  return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); */
     
     
     

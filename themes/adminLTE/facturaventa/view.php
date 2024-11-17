@@ -33,11 +33,11 @@ $view = 'facturaventa';
             }else{
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
                 if($model->fecha_envio_begranda == ''){
-                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian','id' => 'miBoton', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',
+                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
                     'data' => ['confirm' => 'Esta seguro de enviar la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
                 }
                 if($model->reenviar_factura == 1){
-                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-sm',
+                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-sm', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
                     'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
                 }
                 echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
@@ -102,12 +102,6 @@ $view = 'facturaventa';
                 <tr style='font-size: 85%;'>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_forma_pago') ?>:</th>
                     <td><?= Html::encode($model->formaPago->concepto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'numero_resolucion') ?>:</th>
-                    <td><?= Html::encode($model->numero_resolucion) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalpagar') ?>:</th>
-                    <td style="text-align: right"><?= Html::encode('$ '.number_format($model->totalpagar,0)) ?></td>
-                </tr>
-                <tr style='font-size: 85%;'>
                     <?php if ($model->libre == 0){ ?>
                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipoServicio') ?>:</th>
                         <td><?= Html::encode($model->ordenproduccion->tipo->tipo) ?></td>
@@ -115,8 +109,8 @@ $view = 'facturaventa';
                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipoFactura') ?>:</th>
                         <td><?= Html::encode($model->facturaventatipo->concepto) ?></td>
                     <?php } ?>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'nrofacturaelectronica') ?>:</th>
-                    <td colspan="4"><?= Html::encode($model->nrofacturaelectronica) ?></td>    
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalpagar') ?>:</th>
+                    <td style="text-align: right"><?= Html::encode('$ '.number_format($model->totalpagar,0)) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>
@@ -275,17 +269,4 @@ $view = 'facturaventa';
         </div>
     </div>
 </div>
-<script type="text/javascript">
-    $(document).ready(function() {
-    $("#miBoton").click(function(event) {
-        // Evita que el formulario se envíe de nuevo (opcional)
-        event.preventDefault();
 
-        // Deshabilita el botón
-        $(this).prop('disabled', true);
-
-        // Puedes agregar aquí código para mostrar un mensaje de carga, etc.
-        // ...
-    });
-});
-</script>

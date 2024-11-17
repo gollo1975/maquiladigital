@@ -96,12 +96,12 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                 <th scope="col" style='background-color:#B9D5CE;'>Numero de factura</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cedula/Nit</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha Inicio</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha Vcto</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. inicio</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. envio Dian</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. Vencimiento</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Saldo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Aut.</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Estado</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>                               
                 <th scope="col" style='background-color:#B9D5CE;'></th>  
@@ -118,11 +118,11 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                         <td><?= $val->cliente->cedulanit ?></td>
                         <td><?= $val->cliente->nombrecorto ?></td>
                         <td><?= $val->fecha_inicio ?></td>
+                         <td><?= $val->fecha_recepcion_dian ?></td>
                         <td><?= $val->fecha_vencimiento ?></td>
                         <td align="right"><?= number_format($val->subtotal,0) ?></td>
                         <td align="right"><?= number_format($val->totalpagar,0) ?></td>
                         <td align="right"><?= number_format($val->saldo,0) ?></td>
-                        <td><?= $val->autorizar ?></td>
                         <td><?= $val->estados ?></td>
                         <?php 
                         $detalle = \app\models\Facturaventadetalle::find()->where(['=','idfactura', $val->idfactura])->one();

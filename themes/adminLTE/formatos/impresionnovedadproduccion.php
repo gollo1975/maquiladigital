@@ -19,7 +19,7 @@ class PDF extends FPDF {
         //Logo
         //Logo
         $this->SetXY(43, 10);
-         $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 19);
+         $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 30);
         //Encabezado
         $this->SetFillColor(220, 220, 220);
         $this->SetXY(70, 9);

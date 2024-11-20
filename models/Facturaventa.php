@@ -72,6 +72,7 @@ class Facturaventa extends \yii\db\ActiveRecord
             [['porcentajeiva', 'porcentajefuente', 'porcentajereteiva', 'subtotal', 'retencionfuente', 'impuestoiva', 'retencioniva', 'saldo', 'totalpagar'], 'number'],
             [['valorletras','observacion','nrofacturaelectronica','cufe','numero_resolucion'], 'string'],
             [['id_forma_pago', 'usuariosistema','consecutivo'], 'string', 'max' => 15],
+            [['qrstr'], 'string', 'max' => 2500],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['idresolucion'], 'exist', 'skipOnError' => true, 'targetClass' => Resolucion::className(), 'targetAttribute' => ['idresolucion' => 'idresolucion']],
@@ -118,6 +119,7 @@ class Facturaventa extends \yii\db\ActiveRecord
             'consecutivo' => 'consecutivo',
             'consultar_factura' => 'consultar_factura',
             'reenviar_factura' => 'reenviar_factura',
+            'qrstr' => 'qrstr',
         ];
     }
 

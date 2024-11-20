@@ -1,6 +1,7 @@
 <?php
 
 use inquid\pdf\FPDF;
+//use inquid\phpqrcode\qrlib.php;
 use app\models\Facturaventa;
 use app\models\Facturaventadetalle;
 use app\models\Matriculaempresa;
@@ -16,7 +17,7 @@ class PDF extends FPDF {
         $municipio = Municipio::findOne($config->idmunicipio);
         $departamento = Departamento::findOne($config->iddepartamento);
         $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','abreviatura', 'FE'])->one();
-        //Logo
+        //Logo//
         $this->SetXY(43, 10);
          $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 30);
         //Encabezado
@@ -275,7 +276,14 @@ class PDF extends FPDF {
         $pdf->Cell(64, 8, 'ACEPTADO POR',1,'J',1);
         $pdf->SetXY(138, 210);//recibido,aceptado 
         $this->SetFont('Arial', '', 8);
-        $pdf->SetXY(10, 245);//nit,fecha,fecha,firma  
+        //$qrstr = utf8_decode($model->qrstr);
+        //$tempQRFile = 'tempqr.png';
+       // QRcode::png($qrstr, $tempQRFile);
+        $pdf->SetXY(10, 245);//nit,fecha,fecha,firma
+       // $pdf->Image($tempQRFile, 10, 245, 40, 40); 
+      //  unlink($tempQRFile);
+
+        //$pdf->MultiCell(10, 245, utf8_decode($model->qrstr),0,'J'); //CUFE
         $pdf->MultiCell(191, 4, utf8_decode($config->declaracion),1,'J');
         $pdf->SetXY(10, 266);//tipo cuenta
         $pdf->Cell(191, 5, 'Tipo de cuenta: '.$config->bancoFactura->tipoCuenta.'  - Numero de cuenta: '.$config->bancoFactura->numerocuenta.' - Entidad bancaria: '.$config->bancoFactura->entidad,1,'C');

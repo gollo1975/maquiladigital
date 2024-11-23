@@ -847,6 +847,72 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
+    //PROCESO QUE CANCULA LA EFICIENCIA DEL OPERARIO
+    protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {
+        $table = ValorPrendaUnidadDetalles::find()->orderBy('consecutivo DESC')->one();
+        $operarios = Operarios::findOne($operario);
+        $conMatricula = \app\models\Matriculaempresa::findOne(1);
+        $auxiliar = $table->control_fecha;
+        $totalHoras = 0; $totalTiempo = 0; $Talimento = 0;
+        $total_diario = 0; $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos = 0; $metaDiaria = 0; $cumplimiento = 0;
+        if($operarios->vinculado == 1){
+            $this->CostoOperarioVinculado($table, $auxiliar);
+            $horad = explode(":", $table->hora_inicio);
+            $horah = explode(":", $table->hora_corte);
+            $sumarh = $horah[0] - $horad[0];
+            $sumarm = $horah[1] + $horad[1];
+            $totalTiempo = $sumarh; //suma las horas
+            if($table->alimentacion == 0){
+                $Talimento = 0;
+            }else{
+                if($table->hora_corte <= '10:00'){
+                    $Talimento = $operarios->horarios->tiempo_desayuno; //son minutos
+                }else{
+                    $Talimento = $operarios->horarios->tiempo_almuerzo; //son minutos
+                }               
+            }    
+            $totalTiempo = (($sumarh * 60) + ($sumarm - $Talimento)); // convierte a minuto las horas
+            $totalTiempo = $totalTiempo / 60; //suma todo los minutos y vonvierte a hora
+           //busca valor del minuto vinculado
+            $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado;
+            $total_diario = round((60 / $can_minutos) * $totalTiempo, 0); //saca la meta por corte al 100%
+            $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2); //genera el cumplimiento por corte
+            $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
+            //calcula 
+            $table->porcentaje_cumplimiento = $cumplimiento;
+            $table->meta_diaria = $metaDiaria;
+            $table->save(false);
+        }
+        else{ // personal no vinculado
+            $this->CostoOperarioVinculado($table, $auxiliar);
+            $horad = explode(":", $table->hora_inicio);
+            $horah = explode(":", $table->hora_corte);
+            $sumarh = $horah[0] - $horad[0];
+            $sumarm = $horah[1] + $horad[1];
+            $totalTiempo = $sumarh; //suma las horas
+            if($table->alimentacion == 0){
+                $Talimento = 0;
+            }else{
+                if($table->hora_corte <= '10:00'){
+                    $Talimento = $operarios->horarios->tiempo_desayuno; //son minutos
+                }else{
+                    $Talimento = $operarios->horarios->tiempo_almuerzo; //son minutos
+                }               
+            }    
+            $totalTiempo = (($sumarh * 60) + ($sumarm - $Talimento)); // convierte a minuto las horas
+            $totalTiempo = $totalTiempo / 60; //suma todo los minutos y vonvierte a hora
+           //busca valor del minuto vinculado
+            $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato;
+            $total_diario = round((60 / $can_minutos) * $totalTiempo, 0); //saca la meta por corte al 100%
+            $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2); //genera el cumplimiento por corte
+            $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
+            //calcula 
+            $table->porcentaje_cumplimiento = $cumplimiento;
+            $table->meta_diaria = $metaDiaria;
+            $table->save(false);
+        }
+    }
+    
     ///PROCESO QUE CREA LA HORA DE INICIO O CORTE
     public function actionCrear_hora_corte($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
 
@@ -976,63 +1042,7 @@ class ValorPrendaUnidadController extends Controller
         $detalle_orden->save();
    }   
     
-    //PROCESO QUE CANCULA LA EFICIENCIA DEL OPERARIO
-    protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {
-        $table = ValorPrendaUnidadDetalles::find()->orderBy('consecutivo DESC')->one();
-        $operarios = Operarios::findOne($operario);
-        $conMatricula = \app\models\Matriculaempresa::findOne(1);
-        $auxiliar = $table->control_fecha;
-        $totalHoras = 0; $totalTiempo = 0; $Talimento = 0;
-        $total_diario = 0; $sw = 0; $sumarh = 0; $sumarm = 0; $can_minutos = 0; $metaDiaria = 0; $cumplimiento = 0;
-        if($operarios->vinculado == 1){
-            $this->CostoOperarioVinculado($table, $auxiliar);
-            $horad = explode(":", $table->hora_inicio);
-            $horah = explode(":", $table->hora_corte);
-            $sumarh = $horah[0] - $horad[0];
-            $sumarm = $horah[1] + $horad[1];
-            $totalTiempo = $sumarh; //suma las horas
-            if($table->hora_inicio >= '06:00' && $table->hora_corte <= '12:00'){
-                $Talimento = $operarios->horarios->tiempo_desayuno;
-            }else{
-                $Talimento = $operarios->horarios->tiempo_almuerzo;
-            }    
-            $totalTiempo = (($sumarh * 60) + ($sumarm - $Talimento)); // convierte a minuto las horas
-            $totalTiempo = $totalTiempo / 60; //suma todo los minutos y vonvierte a hora
-           //busca valor del minuto vinculado
-            $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_vinculado;
-            $total_diario = round((60 / $can_minutos) * $totalTiempo, 0); //saca la meta por corte al 100%
-            $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2); //genera el cumplimiento por corte
-            $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
-            //calcula 
-            $table->porcentaje_cumplimiento = $cumplimiento;
-            $table->meta_diaria = $metaDiaria;
-            $table->save(false);
-        }
-        else{ // personal no vinculado
-            $this->CostoOperarioVinculado($table, $auxiliar);
-            $horad = explode(":", $table->hora_inicio);
-            $horah = explode(":", $table->hora_corte);
-            $sumarh = $horah[0] - $horad[0];
-            $sumarm = $horah[1] + $horad[1];
-            $totalTiempo = $sumarh; //suma las horas
-            if($table->hora_inicio >= '06:00' && $table->hora_corte <= '12:00'){
-                $Talimento = $operarios->horarios->tiempo_desayuno;
-            }else{
-                $Talimento = $operarios->horarios->tiempo_almuerzo;
-            }    
-            $totalTiempo = (($sumarh * 60) + ($sumarm - $Talimento)); // convierte a minuto las horas
-            $totalTiempo = $totalTiempo / 60; //suma todo los minutos y vonvierte a hora
-           //busca valor del minuto vinculado
-            $can_minutos = $table->vlr_prenda / $conMatricula->vlr_minuto_contrato;
-            $total_diario = round((60 / $can_minutos) * $totalTiempo, 0); //saca la meta por corte al 100%
-            $cumplimiento = round(($table->cantidad / $total_diario) * 100, 2); //genera el cumplimiento por corte
-            $metaDiaria = round((((60 / $can_minutos) * $totalTiempo) * $conMatricula->porcentaje_empresa) / 100);
-            //calcula 
-            $table->porcentaje_cumplimiento = $cumplimiento;
-            $table->meta_diaria = $metaDiaria;
-            $table->save(false);
-        }
-    }
+    
     
     //PROCESO QUE BUSCA LAS TALLAS DE LA OP.
     

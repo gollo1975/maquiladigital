@@ -767,6 +767,17 @@ class FacturaventaController extends Controller
     $cantidad = $detalle->cantidad;
     $valor_unitario = $detalle->preciounitario;
     $subtotal = $detalle->total;
+    if($clientes->retencioniva == 1){
+        $rete_iva = true;
+    }else{
+        $rete_iva = false; 
+    }
+    if($clientes->retencionfuente == 1){
+        $rete_fuente = true;
+    }else{
+        $rete_fuente = false;
+    }
+    
 
     // Configurar cURL
     $curl = curl_init();
@@ -782,6 +793,8 @@ class FacturaventaController extends Controller
             "city" => "$ciudad"
         ],
         "comment" => "$observacion",
+        "rete_iva" => "$rete_iva",
+        "rete_fuente" => "$rete_fuente",
         "resolucion" => "$resolucion",
         "consecutivo" => "$consecutivo",
         "forma_pago" => "$formapago",
@@ -984,6 +997,10 @@ class FacturaventaController extends Controller
              Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
         return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+    }
+    
+    public function actionDesactivado($token, $id){
+       return $this->redirect(['facturaventa/view','id' => $id, 'token' => $token]);  
     }
     
     ///exceles

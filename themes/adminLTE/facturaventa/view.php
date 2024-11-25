@@ -22,25 +22,31 @@ $view = 'facturaventa';
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idfactura], ['class' => 'btn btn-primary btn-sm']) ?>
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idfactura], ['class' => 'btn btn-primary btn-xs']) ?>
         <?php if ($model->autorizado == 0 && $model->nrofactura == 0) { ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-sm']); 
+            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-xs']); 
         }else {
             if ($model->autorizado == 1 && $model->nrofactura == 0){ 
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-xs']);
+                echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-xs']);
+                echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-xs']);            
             }else{
-                echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-sm']);            
+                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-xs']);            
                 if($model->fecha_envio_begranda == ''){
-                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-sm',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
+                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar a la Dian', ['enviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
                     'data' => ['confirm' => 'Esta seguro de enviar la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
-                }
-                if($model->reenviar_factura == 1){
-                    echo Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-sm', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
+                }else{
+                    $disabled = $model->fecha_envio_begranda !== '' ? true : false;?>
+                   <?= Html::a('<span class="glyphicon glyphicon-sendt"></span> Enviar a la Dian', ['desactivado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-success btn-xs', 'id' => 'my_button' ,'disabled' => $disabled]);?>
+                 <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-xs', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
                     'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                   
                 }
-                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
+                if($model->reenviar_factura == 1){?>
+                    <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-xs', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
+                    'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                }?>
+                <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-xs']);                                                         
             }
         }
         ?>
@@ -269,4 +275,5 @@ $view = 'facturaventa';
         </div>
     </div>
 </div>
+
 

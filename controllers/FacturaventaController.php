@@ -792,7 +792,7 @@ class FacturaventaController extends Controller
             "email" => "$emailcliente",
             "city" => "$ciudad"
         ],
-        "comment" => "$observacion",
+        "observacion" => "$observacion",
         "rete_iva" => "$rete_iva",
         "rete_fuente" => "$rete_fuente",
         "resolucion" => "$resolucion",

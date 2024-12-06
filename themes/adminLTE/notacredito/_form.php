@@ -19,7 +19,9 @@ use yii\helpers\ArrayHelper;
         'labelOptions' => ['class' => 'col-sm-3 control-label'],
         'options' => []
     ],
-]); ?>
+]);
+$Motivos = ArrayHelper::map(\app\models\ConceptoNotaCreditoDevolucion::find()->all(), 'id_concepto', 'concepto')
+?>
 
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -38,6 +40,15 @@ use yii\helpers\ArrayHelper;
         <div class="row">
             <?= $form->field($model, 'idconceptonota')->widget(Select2::classname(), [
                 'data' => $conceptonotacredito,
+                'options' => ['prompt' => 'Seleccione un concepto ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+        </div>
+        <div class="row">
+            <?= $form->field($model, 'id_concepto')->widget(Select2::classname(), [
+                'data' => $Motivos,
                 'options' => ['prompt' => 'Seleccione un concepto ...'],
                 'pluginOptions' => [
                     'allowClear' => true

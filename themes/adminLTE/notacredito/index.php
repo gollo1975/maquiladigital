@@ -35,17 +35,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 return "{$clientes->nombrecorto} - {$clientes->cedulanit}";
             },
             'filter' => ArrayHelper::map(Cliente::find()->all(),'idcliente','nombreClientes'),
-            'contentOptions' => ['class' => 'col-lg-2'],
+            'contentOptions' => ['class' => 'col-lg-3'],
         ],
-        [
-            'attribute' => 'idconceptonota',
-            'value' => function($model){
-                $conceptos = Conceptonota::findOne($model->idconceptonota);
-                return "{$conceptos->concepto}";
-            },
-            'filter' => ArrayHelper::map(Conceptonota::find()->all(),'idconceptonota','concepto'),
-            'contentOptions' => ['class' => 'col-lg-1'],
-        ],
+        
         [
             'attribute' => 'fechapago',
             'contentOptions' => ['class' => 'col-lg-1'],
@@ -54,7 +46,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'valor',
             'value' => function($model) {
                 $notascredito = Notacredito::findOne($model->idnotacredito);
-                $valor = "$ ".number_format($notascredito->valor);
+                $valor = "".number_format($notascredito->valor);
                 return "{$valor}";
             },
             'contentOptions' => ['class' => 'col-lg-1'],
@@ -63,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'iva',
             'value' => function($model) {
                 $notascredito = Notacredito::findOne($model->idnotacredito);
-                $iva = "$ ".number_format($notascredito->iva);
+                $iva = "".number_format($notascredito->iva);
                 return "{$iva}";
             },
             'contentOptions' => ['class' => 'col-lg-1'],
@@ -72,7 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'reteiva',
             'value' => function($model) {
                 $notascredito = Notacredito::findOne($model->idnotacredito);
-                $reteiva = "$ ".number_format($notascredito->reteiva);
+                $reteiva = "".number_format($notascredito->reteiva);
                 return "{$reteiva}";
             },
             'contentOptions' => ['class' => 'col-lg-1'],
@@ -81,7 +73,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'retefuente',
             'value' => function($model) {
                 $notascredito = Notacredito::findOne($model->idnotacredito);
-                $retefuente = "$ ".number_format($notascredito->retefuente);
+                $retefuente = "".number_format($notascredito->retefuente);
                 return "{$retefuente}";
             },
             'contentOptions' => ['class' => 'col-lg-1'],
@@ -90,22 +82,15 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'total',
             'value' => function($model) {
                 $notascredito = Notacredito::findOne($model->idnotacredito);
-                $total = "$ ".number_format($notascredito->total);
+                $total = ''.number_format($notascredito->total);
                 return "{$total}";
             },
             'contentOptions' => ['class' => 'col-lg-1'],
         ],
+       
         [
-                'attribute' => 'autorizado',
-                'value' => function($model){
-                    $notascredito = Notacredito::findOne($model->idnotacredito);                    
-                    return $notascredito->autorizar;
-                },
-                'filter' => ArrayHelper::map(Notacredito::find()->all(),'autorizado','autorizar'),
-                'contentOptions' => ['class' => 'col-lg-1'],
-        ],            
-        [
-            'class' => 'yii\grid\ActionColumn',            
+            'class' => 'yii\grid\ActionColumn',   
+             'contentOptions' => ['class' => 'col-lg-1'],
         ],
 
     ],

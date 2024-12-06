@@ -18,7 +18,6 @@ class FormConsultaCredito extends Model
     public $fecha_corte;
     public $numero_credito;
 
-
     public function rules()
     {
         return [
@@ -26,6 +25,7 @@ class FormConsultaCredito extends Model
             [['id_empleado', 'id_tipo_pago', 'codigo_credito'], 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['saldo','id_tipo_pago','codigo_credito','numero_credito'], 'integer'],
             [['fecha_corte','fecha_inicio'], 'safe'],
+           
         ];
     }
 
@@ -39,6 +39,7 @@ class FormConsultaCredito extends Model
             'fecha_corte' => 'Fecha corte:',
             'fecha_inicio' => 'Fecha inicio:',
             'numero_credito' => 'Numero credito:',
+           
         ];
     }
 }

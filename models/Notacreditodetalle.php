@@ -35,8 +35,8 @@ class Notacreditodetalle extends \yii\db\ActiveRecord
     {
         return [
             [['fecha'], 'safe'],
-            [['idfactura', 'nrofactura', 'idnotacredito'], 'integer'],
-            [['valor'], 'number'],
+            [['idfactura', 'nrofactura', 'idnotacredito','saldo_factura','cantidad','valor_retencion','valor_iva','valor_reteiva','total_nota','valor_nota_credito'], 'integer'],
+            [['porcentaje_retefuente','porcentaje_iva','precio_unitario'],'number'],
             [['idnotacredito'], 'required'],
             [['usuariosistema'], 'string', 'max' => 50],
             [['idfactura'], 'exist', 'skipOnError' => true, 'targetClass' => Facturaventa::className(), 'targetAttribute' => ['idfactura' => 'idfactura']],
@@ -54,9 +54,18 @@ class Notacreditodetalle extends \yii\db\ActiveRecord
             'fecha' => 'Fecha',
             'idfactura' => 'Idfactura',
             'nrofactura' => 'Nrofactura',
-            'valor' => 'Valor',
+            'saldo_factura' => 'Saldo',
+            'cantidad' => 'cantidad',
+            'valor_retencion' => 'valor_retencion',
+            'valor_iva' => 'valor_iva',
+            'valor_reteiva' => 'valor_reteiva',
+            'total_nota' => 'total_nota',
+            'porcentaje_retefuente' => 'porcentaje_retefuente',
+            'porcentaje_iva' => 'porcentaje_iva',
+            'precio_unitario' => 'precio_unitario',
             'usuariosistema' => 'Usuariosistema',
             'idnotacredito' => 'Idnotacredito',
+            'valor_nota_credito' => 'valor_nota_credito',
         ];
     }
 

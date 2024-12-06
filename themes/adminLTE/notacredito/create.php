@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Notacredito */
 
-$this->title = 'Create Notacredito';
+$this->title = 'Nueva';
 $this->params['breadcrumbs'][] = ['label' => 'Notacreditos', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>

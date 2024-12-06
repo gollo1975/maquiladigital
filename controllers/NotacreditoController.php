@@ -157,18 +157,40 @@ class NotacreditoController extends Controller
     public function actionNuevodetalles($idcliente,$idnotacredito)
     {
 
-        $notacreditoFactura = Facturaventa::find()
+        $listado = Facturaventa::find()
             ->where(['=', 'idcliente', $idcliente])
             ->andWhere(['=', 'autorizado', 1])->andWhere(['<>', 'nrofactura', 0])
             ->andWhere(['>', 'saldo', 0])
-            ->all();
-        $mensaje = "";
+             ->orderBy('idfactura DESC')->all();
+        $form = new \app\models\FormMaquinaBuscar();
+        $q = null;
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $q = Html::encode($form->q);                                
+                if ($q){
+                    $listado = Facturaventa::find()
+                            ->where(['=','nrofactura', $q])
+                            ->andwhere(['>','saldo', 0])
+                            ->orderBy('idfactura DESC')->all();
+                }               
+            } else {
+                $form->getErrors();
+            }                    
+
+        } else {
+            $listado = Facturaventa::find()
+                ->where(['=', 'idcliente', $idcliente])
+                ->andWhere(['=', 'autorizado', 1])->andWhere(['<>', 'nrofactura', 0])
+                ->andWhere(['>', 'saldo', 0])
+                ->orderBy('idfactura DESC')->all();
+        }
         if(Yii::$app->request->post()) {
             if (isset($_POST["idfactura"])) {
                 $intIndice = 0;
                 foreach ($_POST["idfactura"] as $intCodigo) {
                     $table = new Notacreditodetalle();
                     $factura = Facturaventa::find()->where(['idfactura' => $intCodigo])->one();
+                    $detalle_factura = \app\models\Facturaventadetalle::find()->where(['=','idfactura', $factura->idfactura])->one();
                     $detalles = Notacreditodetalle::find()
                         ->where(['=', 'idfactura', $factura->idfactura])
                         ->andWhere(['=', 'idnotacredito', $idnotacredito])
@@ -177,282 +199,174 @@ class NotacreditoController extends Controller
                     if ($reg == 0) {
                         $table->idfactura = $factura->idfactura;
                         $table->nrofactura = $factura->nrofactura;
-                        $table->valor = $factura->saldo;
+                        $table->saldo_factura = round($factura->saldo);
                         $table->idnotacredito = $idnotacredito;
-                        $table->insert();
+                        $table->precio_unitario = $detalle_factura->preciounitario;
+                        $table->porcentaje_iva = $detalle_factura->porcentaje_iva;
+                        $table->porcentaje_retefuente =  $detalle_factura->porcentaje_retefuente;
+                        $table->usuariosistema = Yii::$app->user->identity->username;
+                        $table->save(false);
                     }
                 }
                 $this->redirect(["notacredito/view", 'id' => $idnotacredito]);
             } else {
-                $mensaje = "Debe seleccionar al menos un registro";
+                Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar al menos un registro.');
             }
         }
         return $this->render('_formnuevodetalles', [
-            'notacreditoFactura' => $notacreditoFactura,
+            'notacreditoFactura' => $listado,
             'idnotacredito' => $idnotacredito,
-            'mensaje' => $mensaje,
+            'idcliente' => $idcliente,
+            'form' => $form,
 
         ]);
     }
-
-    public function actionEditardetalle()
+  ///EDITAR LA INFORMACION DEL DETALLE DE LA NOTA CREDITO
+    
+    public function actionEditardetalle($id, $id_detalle)
     {
-        $iddetallenota = Html::encode($_POST["iddetallenota"]);
-        $idnotacredito = Html::encode($_POST["idnotacredito"]);
-
-        if(Yii::$app->request->post()){
-
-            if((int) $iddetallenota)
-            {
-                $table = Notacreditodetalle::findOne($iddetallenota);
-                if ($table) {
-                    $table->valor = Html::encode($_POST["valor"]);
-                    $table->idnotacredito = Html::encode($_POST["idnotacredito"]);
-                    $table->update();
-                    $this->redirect(["notacredito/view",'id' => $idnotacredito]);
-                } else {
-                    $msg = "El registro seleccionado no ha sido encontrado";
-                    $tipomsg = "danger";
-                }
-            }
+        $model = new \app\models\FormConsultaNotaCredito();
+        $table = Notacreditodetalle::findOne($id_detalle);
+        if ($model->load(Yii::$app->request->post())){
+            if (isset($_POST["adicionar_cantidades"])){
+                if($model->validate()){
+                    if(Notacreditodetalle::findOne($id_detalle)){;
+                        $table->cantidad = $model->nueva_cantidad;
+                        $table->precio_unitario = $model->valor_unitario;
+                        $table->save(false);
+                        $this->TotalizarImpuesto($id_detalle, $id);
+                        return $this->redirect(["view",'id' => $id]); 
+                    }    
+                }else{
+                   $model->getErrors();
+                }    
+            }  
         }
-        //return $this->render("_formeditardetalle", ["model" => $model,]);
+        if (Yii::$app->request->get()) {
+            $model->nueva_cantidad = $table->cantidad;
+            $model->valor_unitario =$table->precio_unitario;
+        }
+        return $this->renderAjax('_form_adicionar_cantidades', [
+            'model' => $model,
+            'id'=> $id,
+        ]);
+    }   
+    //TOTAL IMPUESTO EN EL DETALLE DE LA NOTA CREDITO
+    protected function TotalizarImpuesto($id_detalle, $id) {
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        $nota = Notacredito::findOne($id);
+        $detalle = Notacreditodetalle::findOne($id_detalle);
+        $subtotal_nota = round($detalle->precio_unitario * $detalle->cantidad);
+        $valor_retencion = round(($subtotal_nota * $detalle->porcentaje_retefuente)/100);
+        $valor_iva = round(($subtotal_nota * $detalle->porcentaje_iva)/100);
+        if($nota->cliente->retencioniva == 1){
+            $valor_reteiva = round(($valor_iva * $empresa->porcentajereteiva)/100);
+        }else{
+            $valor_reteiva = 0;
+        }    
+        $total_nota = ($subtotal_nota + $valor_iva) - ($valor_reteiva + $valor_retencion);
+        //asignar variables para guardar
+        $detalle->valor_iva = $valor_iva;
+        $detalle->valor_retencion = $valor_retencion;
+        $detalle->valor_reteiva = $valor_reteiva;
+        $detalle->valor_nota_credito = $subtotal_nota;
+        $detalle->total_nota = $total_nota;
+        $detalle->save();
     }
-
+     
     public function actionEliminardetalle()
     {
         if(Yii::$app->request->post())
         {
             $iddetallenota = Html::encode($_POST["iddetallenota"]);
             $idnotacredito = Html::encode($_POST["idnotacredito"]);
-            if((int) $iddetallenota)
-            {
+            if((int) $iddetallenota) {
                 $notacreditoDetalle = Notacreditodetalle::findOne($iddetallenota);
-                $total = $notacreditoDetalle->valor;
+                $total = $notacreditoDetalle->saldo_factura;
                 if(Notacreditodetalle::deleteAll("iddetallenota=:iddetallenota", [":iddetallenota" => $iddetallenota]))
                 {
+                    $this->ActualizarSaldo($idnotacredito);
                     $this->redirect(["notacredito/view",'id' => $idnotacredito]);
-                }
-                else
-                {
+                }else{
                     echo "<meta http-equiv='refresh' content='3; ".Url::toRoute("notacredito/index")."'>";
                 }
-            }
-            else
-            {
+            }else{
                 echo "<meta http-equiv='refresh' content='3; ".Url::toRoute("notacredito/index")."'>";
             }
-        }
-        else
-        {
+        }else {
             return $this->redirect(["notacredito/index"]);
         }
     }
-
-    public function actionEditardetalles($idnotacredito)
-    {
-        $mds = Notacreditodetalle::find()->where(['=', 'idnotacredito', $idnotacredito])->all();
-
-        if (isset($_POST["iddetallenota"])) {
-            $intIndice = 0;
-            foreach ($_POST["iddetallenota"] as $intCodigo) {
-                if($_POST["valor"][$intIndice] > 0 ){
-                    $table = Notacreditodetalle::findOne($intCodigo);
-                    //$total = $table->valor;
-                    $table->valor = $_POST["valor"][$intIndice];
-                    $table->update();
-                }
-                $intIndice++;
-            }
-            $this->redirect(["notacredito/view",'id' => $idnotacredito]);
-        }
-        return $this->render('_formeditardetalles', [
-            'mds' => $mds,
-            'idnotacredito' => $idnotacredito,
-        ]);
+    
+    //ACTUALIZAR SALDOS
+    protected function ActualizarSaldo($idnotacredito) {
+        $nota = Notacredito::findOne($idnotacredito);
+        $nota->valor = 0;
+        $nota->iva = 0;
+        $nota->retefuente = 0;
+        $nota->reteiva = 0;
+        $nota->total = 0;
+        $nota->save();
     }
 
-    public function actionEliminardetalles($idnotacredito)
-    {
-        $mds = Notacreditodetalle::find()->where(['=', 'idnotacredito', $idnotacredito])->all();
-        $mensaje = "";
-        if(Yii::$app->request->post())
-        {
-            $intIndice = 0;
-
-            if (isset($_POST["seleccion"])) {
-                foreach ($_POST["seleccion"] as $intCodigo)
-                {
-                    $notacreditoDetalle = Notacreditodetalle::findOne($intCodigo);
-                    $total = $notacreditoDetalle->valor;
-                    if(Notacreditodetalle::deleteAll("iddetallenota=:iddetallenota", [":iddetallenota" => $intCodigo]))
-                    {
-
-                    }
-                }
-                $this->redirect(["notacredito/view",'id' => $idnotacredito]);
-            }else {
-                $mensaje = "Debe seleccionar al menos un registro";
-            }
-        }
-        return $this->render('_formeliminardetalles', [
-            'mds' => $mds,
-            'idnotacredito' => $idnotacredito,
-            'mensaje' => $mensaje,
-        ]);
-    }
-
+    
     public function actionAutorizado($id)
     {
         $model = $this->findModel($id);
-        $mensaje = "";
-        if ($model->autorizado == 0){
-            $detalles = Notacreditodetalle::find()
-                ->where(['=', 'idnotacredito', $id])
-                ->all();
-            $reg = count($detalles);
-            if ($reg <> 0) {
-                list($error,$totalabono,$saldo) = $this->ValorNotaCredito($id); //se valida si la nota credito es mayor al saldo
-                if ($error == 0){
+        $detalles = Notacreditodetalle::find()->where(['=', 'idnotacredito', $id])->One();
+        if($detalles){
+            if ($detalles->total_nota <= $detalles->saldo_factura){
+                $model->valor = $detalles->valor_nota_credito;
+                $model->iva = $detalles->valor_iva;
+                $model->reteiva = $detalles->valor_reteiva;
+                $model->retefuente = $detalles->valor_retencion;
+                $model->total = $detalles->total_nota;
+                if($model->autorizado == 0){
                     $model->autorizado = 1;
-                    $model->update();
-                    $this->redirect(["notacredito/view",'id' => $id]);
                 }else{
-                    if ($error == 1){
-                        Yii::$app->getSession()->setFlash('error', 'EL valor de la nota crédito $'.number_format($totalabono,0).' no puede ser mayor al saldo $'.number_format($saldo,0));
-                        $this->redirect(["notacredito/view",'id' => $id]);
-                    }else{
-                        if($error == 2){
-                            Yii::$app->getSession()->setFlash('error', 'EL valor de la nota crédito no puede ser 0 o negativo');
-                            $this->redirect(["notacredito/view",'id' => $id]);
-                        }
-                    }
+                    $model->autorizado = 0;
                 }
+                $model->save();
+                $this->redirect(["notacredito/view",'id' => $id]);
+               
             }else{
-                Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro, debe tener productos relacionados en la nota de crédito.');
+                Yii::$app->getSession()->setFlash('error', 'EL valor de la nota crédito por $'.number_format($detalles->total_nota,0).' no puede ser mayor al saldo de la factura $'.number_format($detalles->saldo_factura,0));
                 $this->redirect(["notacredito/view",'id' => $id]);
             }
-        } else {
-            $model->autorizado = 0;
-            $model->update();
+        }else{
+            Yii::$app->getSession()->setFlash('error', 'Para autorizar el registro debe tener productos relacionados en la nota de crédito.');
             $this->redirect(["notacredito/view",'id' => $id]);
         }
+        
     }
 
-    public function actionNotacredito($id)
+    public function actionGenerar_documento($id)
     {
         $model = $this->findModel($id);
-        $mensaje = "";
-        if ($model->autorizado == 1){
-            if ($model->valor == 0){
-                $notacreditodetalles = Notacreditodetalle::find()
-                    ->where(['idnotacredito' => $id])
-                    ->all();
-                $subtotal = 0;
-
-                $nuevosaldo = 0;
-                $total = 0;
-                $totaliva = 0;
-                $iva = 0;
-                $totalreteiva = 0;
-                $reteiva = 0;
-                $totalretefuente = 0;
-                $retefuente = 0;
-                list($error,$totalabono,$saldo) = $this->ValorNotaCredito($id); //se valida si la nota credito es mayor al saldo
-                if ($error == 0){
-                    foreach ($notacreditodetalles as $val) {
-                        $factura = Facturaventa::findOne($val->idfactura);
-
-                        $iva = $val->valor * $factura->porcentajeiva / 100;
-                        if($factura->retencioniva > 0){
-                            $reteiva = $iva * $factura->porcentajereteiva / 100;
-                        }
-                        if($factura->retencionfuente > 0){
-                            $retefuente = $val->valor * $factura->porcentajefuente / 100;
-                        }
-                        $subtotal = $subtotal + $val->valor;
-                        $totaliva = $totaliva + $iva;
-                        $totalreteiva = $totalreteiva + $reteiva;
-                        $totalretefuente = $totalretefuente + $retefuente;
-
-                        $nuevosaldo = ($factura->saldo) - ($val->valor + $iva - $reteiva - $retefuente);
-
-                        if($nuevosaldo <= 0){
-                            $factura->estado = 3; //estado 0 = abieto, estado 1 = abono, estado 2 = pagada, estado 3 = anulada por notacredito (saldo 0 en la factura), estado 4 = descuento por nota credito
-                            $factura->saldo = $nuevosaldo;
-                        }
-                        if ($nuevosaldo > 0){
-                            $factura->estado = 4; //estado 0 = abieto, estado 1 = abono, estado 2 = pagada, estado 3 = anulada por notacredito (saldo 0 en la factura), estado 4 = descuento por nota credito
-                            $factura->saldo = $nuevosaldo;
-                        }
-                        $factura->save(false);
-                    }
-                    $model->valor = round($subtotal,0);
-                    $model->iva = round($totaliva,0);
-                    $model->reteiva = round($totalreteiva,0);
-                    $model->retefuente = round($totalretefuente,0);
-                    $model->total = round($model->valor + $model->iva - $model->reteiva - $model->retefuente,0);
-                    $model->fechapago = date('Y-m-d');
-                    //generar consecutivo numero de la nota credito
-                    $consecutivo = Consecutivo::findOne(2);//2 nota credito
-                    $consecutivo->consecutivo = $consecutivo->consecutivo + 1;
-                    $model->numero = $consecutivo->consecutivo;
-                    $model->update();
-                    $consecutivo->update();
-                    //fin generar consecutivo                    
-                    $this->redirect(["notacredito/view",'id' => $id]);
-                } else {
-                    if($error == 1){
-                        Yii::$app->getSession()->setFlash('error', 'EL valor de la nota crédito $'.number_format($totalabono,0).' no puede ser mayor al saldo $'.number_format($saldo,0));
-                        $this->redirect(["notacredito/view",'id' => $id]);
-                    }else {
-                        if($error == 2){
-                            Yii::$app->getSession()->setFlash('error', 'EL valor de la nota crédito no puede ser 0 o negativo');
-                            $this->redirect(["notacredito/view", 'id' => $id]);
-                        }
-                    }
-                }
-            }else{
-                Yii::$app->getSession()->setFlash('error', 'Ya se realizo el descuento de la nota credito.');
-                $this->redirect(["notacredito/view",'id' => $id]);
-            }
-        } else {
-            Yii::$app->getSession()->setFlash('error', 'Para pagar el recibo de caja debe estar autorizado');
+        $detalle = Notacreditodetalle::find()->where(['=','idnotacredito', $id])->one(); //busca numero de factura
+        $factura = Facturaventa::findOne($detalle->idfactura);
+       //generar consecutivo numero de la nota credito
+        $codigo = Consecutivo::findOne(2);//2 nota credito
+        $codigo->consecutivo = $codigo->consecutivo + 1;
+        $codigo->consecutivo = $codigo->consecutivo;
+        $codigo->save();
+        //factura saldo
+        if($model->motivoNota->codigo_interno == 4){
+           $factura->saldo = $factura->saldo - $model->total;
+           $factura->estado = 4; 
+        }else{
+           $factura->saldo = $factura->saldo - $model->total;
+           $factura->estado = 3;  
+        }
+        $factura->save(false);
+        $model->numero = $codigo->consecutivo;
+        if($model->save()){
+            Yii::$app->getSession()->setFlash('info', 'El consecutivo de la nota credito se genero con Exito.');
             $this->redirect(["notacredito/view",'id' => $id]);
-        }
+        }      
     }
-
-    protected function ValorNotaCredito($id)
-    {
-        $notacreditodetalles = Notacreditodetalle::find()
-            ->where(['idnotacredito' => $id])
-            ->all();
-
-        $error = 0;
-        $iva = 0;
-        $reteiva = 0;
-        $retefuente = 0;
-        foreach ($notacreditodetalles as $dato){ //se recorrer todos los registros de facturas para comprobar que el abono o nota credito no sea mayor al saldo
-            $factura = Facturaventa::findOne($dato->idfactura);
-            $iva = $dato->valor * $factura->porcentajeiva / 100;
-            if($factura->retencioniva > 0){
-                $reteiva = $iva * $factura->porcentajereteiva / 100;
-            }
-            if($factura->retencionfuente > 0){
-                $retefuente = $dato->valor * $factura->porcentajefuente / 100;
-            }
-            $totalabono = $dato->valor + $iva - $reteiva - $retefuente;
-            if (round($totalabono,0) > round($factura->saldo,0)){
-                $error = 1;
-            }else{
-                if ($dato->valor <= 0){
-                    $error = 2; //valor a ingresar es cero
-                }
-            }
-        }
-        return array($error,$totalabono,$factura->saldo);
-    }
-
+    
+ 
     /**
      * Finds the Notacredito model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

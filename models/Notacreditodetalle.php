@@ -35,12 +35,13 @@ class Notacreditodetalle extends \yii\db\ActiveRecord
     {
         return [
             [['fecha'], 'safe'],
-            [['idfactura', 'nrofactura', 'idnotacredito','saldo_factura','cantidad','valor_retencion','valor_iva','valor_reteiva','total_nota','valor_nota_credito'], 'integer'],
+            [['idfactura', 'nrofactura', 'idnotacredito','saldo_factura','cantidad','valor_retencion','valor_iva','valor_reteiva','total_nota','valor_nota_credito','id'], 'integer'],
             [['porcentaje_retefuente','porcentaje_iva','precio_unitario'],'number'],
             [['idnotacredito'], 'required'],
             [['usuariosistema'], 'string', 'max' => 50],
             [['idfactura'], 'exist', 'skipOnError' => true, 'targetClass' => Facturaventa::className(), 'targetAttribute' => ['idfactura' => 'idfactura']],
             [['idnotacredito'], 'exist', 'skipOnError' => true, 'targetClass' => Notacredito::className(), 'targetAttribute' => ['idnotacredito' => 'idnotacredito']],
+            [['id'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoFacturacion::className(), 'targetAttribute' => ['id' => 'id']],
         ];
     }
 
@@ -66,6 +67,7 @@ class Notacreditodetalle extends \yii\db\ActiveRecord
             'usuariosistema' => 'Usuariosistema',
             'idnotacredito' => 'Idnotacredito',
             'valor_nota_credito' => 'valor_nota_credito',
+            'id' => 'id',
         ];
     }
 
@@ -75,6 +77,14 @@ class Notacreditodetalle extends \yii\db\ActiveRecord
     public function getFactura()
     {
         return $this->hasOne(Facturaventa::className(), ['idfactura' => 'idfactura']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getConceptoFacturacion()
+    {
+        return $this->hasOne(ConceptoFacturacion::className(), ['id' => 'id']);
     }
 
     /**

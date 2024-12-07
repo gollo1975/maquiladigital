@@ -1,7 +1,7 @@
 <?php
-
+ob_start();
+include "../vendor/phpqrcode/qrlib.php";
 use inquid\pdf\FPDF;
-//use inquid\phpqrcode\qrlib.php;
 use app\models\Facturaventa;
 use app\models\Facturaventadetalle;
 use app\models\Matriculaempresa;
@@ -136,7 +136,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(26, 5, utf8_decode("Fecha expedición:"), 0, 0, 'l', 0);
         $this->SetFont('Arial', '', 8);
-        $this->Cell(82, 5, utf8_decode($factura->fecha_inicio), 0, 0, 'L',0);
+        $this->Cell(82, 5, utf8_decode($factura->fecha_recepcion_dian), 0, 0, 'L',0);
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(19, 5, utf8_decode("Fecha vcto:"), 0, 0, 'l', 0);
         $this->SetFont('Arial', '', 8);
@@ -161,9 +161,9 @@ class PDF extends FPDF {
         $this->Line(176,67,176,170);
         $this->Line(201,67,201,170);
         //Cuadro de la nota
-        $this->Line(10,170,156,170);//linea horizontal superior
+        $this->Line(10,170,151,170);//linea horizontal superior
         $this->Line(10,170,10,178);//linea vertical
-        $this->Line(10,178,156,178);//linea horizontal inferior
+        $this->Line(10,178,151,178);//linea horizontal inferior
         //Linea de las observacines
         $this->Line(10,178,10,202);//linea vertical
         //lineas para los cuadros de nit/cc,fecha,firma        
@@ -229,8 +229,8 @@ class PDF extends FPDF {
         $this->SetFont('Arial', '', 8);
         $pdf->MultiCell(146, 4, utf8_decode(valorEnLetras($model->totalpagar)),0,'J');
         $this->SetFont('Arial', 'B', 8);
-        $pdf->SetXY(156, 170);
-        $pdf->MultiCell(20, 8, 'SUBTOTAL:',1,'C');
+        $pdf->SetXY(151, 170);
+        $pdf->MultiCell(25, 8, 'SUBTOTAL:',1,'C');
         $this->SetFont('Arial', '', 8);
         $pdf->SetXY(176, 170);
         $pdf->MultiCell(25, 8, number_format($model->subtotal, 0, '.', ','),1,'R');
@@ -243,20 +243,20 @@ class PDF extends FPDF {
         $pdf->MultiCell(146, 4, utf8_decode('Cufe: '.$model->cufe),0,'J'); //CUFE
         //fin
          $this->SetFont('Arial', 'B', 8);
-        $pdf->SetXY(156, 178);
-        $pdf->MultiCell(20, 8, 'RETE FTE:',1,'C');
+        $pdf->SetXY(151, 178);
+        $pdf->MultiCell(25, 8, 'RETE FTE:',1,'C');
          $this->SetFont('Arial', '', 8);
         $pdf->SetXY(176, 178);
         $pdf->MultiCell(25, 8, number_format($model->retencionfuente, 0, '.', ','),1,'R');
          $this->SetFont('Arial', 'B', 8);
-        $pdf->SetXY(156, 186);
-        $pdf->MultiCell(20, 8, 'IVA:',1,'C');
+        $pdf->SetXY(151, 186);
+        $pdf->MultiCell(25, 8, 'IVA:',1,'C');
          $this->SetFont('Arial', '', 8);
         $pdf->SetXY(176, 186);
         $pdf->MultiCell(25, 8, number_format($model->impuestoiva, 0, '.', ','),1,'R');
          $this->SetFont('Arial', 'B', 8);
-        $pdf->SetXY(156, 194);
-        $pdf->MultiCell(20, 8, 'RETE IVA:',1,'C');
+        $pdf->SetXY(151, 194);
+        $pdf->MultiCell(25, 8, 'RETE IVA:',1,'C');
          $this->SetFont('Arial', '', 8);
         $pdf->SetXY(176, 194);
         $pdf->MultiCell(25, 8, number_format($model->retencioniva, 0, '.', ','),1,'R');
@@ -264,9 +264,9 @@ class PDF extends FPDF {
         $pdf->MultiCell(108, 8, '',1,'R',0);
          $this->SetFont('Arial', 'B', 8);
         $pdf->SetXY(118, 202);
-        $pdf->MultiCell(38, 8, 'TOTAL CANTIDAD: '.$cant,1,'C',0);
-        $pdf->SetXY(156, 202);           
-        $pdf->MultiCell(20, 8, 'TOTAL:',1,'C',0);
+        $pdf->MultiCell(33, 8, 'CANTIDADES: '.$cant,1,'C',0);
+        $pdf->SetXY(151, 202);           
+        $pdf->MultiCell(25, 8, 'TOTAL:',1,'C',0);
          $this->SetFont('Arial', '',9);
         $pdf->SetXY(176, 202);
         $pdf->MultiCell(25, 8, number_format($model->totalpagar, 0, '.', ','),1,'R',0);
@@ -276,14 +276,16 @@ class PDF extends FPDF {
         $pdf->Cell(64, 8, 'ACEPTADO POR',1,'J',1);
         $pdf->SetXY(138, 210);//recibido,aceptado 
         $this->SetFont('Arial', '', 8);
-        //$qrstr = utf8_decode($model->qrstr);
-        //$tempQRFile = 'tempqr.png';
-       // QRcode::png($qrstr, $tempQRFile);
-        $pdf->SetXY(10, 245);//nit,fecha,fecha,firma
-       // $pdf->Image($tempQRFile, 10, 245, 40, 40); 
-      //  unlink($tempQRFile);
-
-        //$pdf->MultiCell(10, 245, utf8_decode($model->qrstr),0,'J'); //CUFE
+        $qrstr = utf8_decode($model->qrstr);
+        $pdf->SetXY(120, 70); // Establece la posición donde aparecerá el QR
+        QRcode::png($qrstr,"test.png");
+        $pdf->Image("test.png", 150, 210.5, 38, 35, "png");
+        $pdf->SetXY(74, 239);
+        $this->SetFont('Arial', 'B', 6);
+        $pdf->Cell(64, 8, utf8_decode($config->razonsocialmatricula.'-'.$config->nitmatricula.'-'.$config->dv. ' Software Propio '),0,'J',1);
+        // Insertar la imagen base64 directamente en el PDF
+        $pdf->SetXY(10, 245); // Establecer la posición
+       
         $pdf->MultiCell(191, 4, utf8_decode($config->declaracion),1,'J');
         $pdf->SetXY(10, 266);//tipo cuenta
         $pdf->Cell(191, 5, 'Tipo de cuenta: '.$config->bancoFactura->tipoCuenta.'  - Numero de cuenta: '.$config->bancoFactura->numerocuenta.' - Entidad bancaria: '.$config->bancoFactura->entidad,1,'C');

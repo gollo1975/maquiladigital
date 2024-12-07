@@ -188,7 +188,7 @@ class NotacreditoController extends Controller
             if (isset($_POST["idfactura"])) {
                 $intIndice = 0;
                 foreach ($_POST["idfactura"] as $intCodigo) {
-                    $table = new Notacreditodetalle();
+                    
                     $factura = Facturaventa::find()->where(['idfactura' => $intCodigo])->one();
                     $detalle_factura = \app\models\Facturaventadetalle::find()->where(['=','idfactura', $factura->idfactura])->one();
                     $detalles = Notacreditodetalle::find()
@@ -197,18 +197,42 @@ class NotacreditoController extends Controller
                         ->all();
                     $reg = count($detalles);
                     if ($reg == 0) {
+                        $notaCredito = Notacredito::findOne($idnotacredito);
+                        $Motivo = \app\models\ConceptoNotaCreditoDevolucion::find()->where(['=','id_concepto', $notaCredito->id_concepto])
+                                                                                   ->andWhere(['=','codigo_interno', 3])->one();
+                        $table = new Notacreditodetalle();
                         $table->idfactura = $factura->idfactura;
                         $table->nrofactura = $factura->nrofactura;
                         $table->saldo_factura = round($factura->saldo);
                         $table->idnotacredito = $idnotacredito;
-                        $table->precio_unitario = $detalle_factura->preciounitario;
-                        $table->porcentaje_iva = $detalle_factura->porcentaje_iva;
-                        $table->porcentaje_retefuente =  $detalle_factura->porcentaje_retefuente;
-                        $table->usuariosistema = Yii::$app->user->identity->username;
-                        $table->save(false);
+                       
+                        if ($Motivo){
+                            $table->cantidad = $detalle_factura->cantidad;
+                            $table->precio_unitario = $detalle_factura->preciounitario;
+                            $table->porcentaje_iva = $detalle_factura->porcentaje_iva;
+                            $table->porcentaje_retefuente =  $detalle_factura->porcentaje_retefuente;
+                            $table->id = $detalle_factura->id;
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+                            $table->save(false);
+                            $notaCredito->cufe = $factura->cufe;
+                            $notaCredito->save();
+                            $detalle_nota = Notacreditodetalle::find()->orderBy('iddetallenota DESC')->one(); 
+                            $id_detalle =  $detalle_nota->iddetallenota;
+                            $id = $idnotacredito;
+                            $this->TotalizarImpuesto($id_detalle, $id);
+                        }else{
+                            $table->precio_unitario = $detalle_factura->preciounitario;
+                            $table->porcentaje_iva = $detalle_factura->porcentaje_iva;
+                            $table->porcentaje_retefuente =  $detalle_factura->porcentaje_retefuente;
+                            $table->id = $detalle_factura->id;
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+                            $table->save(false);
+                            $notaCredito->cufe = $factura->cufe;
+                            $notaCredito->save();
+                        }
                     }
                 }
-                $this->redirect(["notacredito/view", 'id' => $idnotacredito]);
+                return $this->redirect(["notacredito/view", 'id' => $idnotacredito]);
             } else {
                 Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar al menos un registro.');
             }
@@ -360,11 +384,59 @@ class NotacreditoController extends Controller
         }
         $factura->save(false);
         $model->numero = $codigo->consecutivo;
+        $model->fechapago = date('Y-m-d');
         if($model->save()){
             Yii::$app->getSession()->setFlash('info', 'El consecutivo de la nota credito se genero con Exito.');
-            $this->redirect(["notacredito/view",'id' => $id]);
+            return $this->redirect(["notacredito/view",'id' => $id]);
         }      
     }
+    
+    //ENVIAR DOCUMENTO NOTA CREDITO DIAN
+    public function actionEnviar_documento_dian($id)
+    {
+        $nota = Notacredito::findOne($id);
+        $detalle_nota = Notacreditodetalle::find()->where(['=','idnotacredito', $id])->one();
+        $factura = Facturaventa::findOne($detalle_nota->idfactura);
+        //asignacion variable;
+        $consecutivo = $detalle_nota->nrofactura;
+        $resolucion = $factura->resolucion->codigo_interfaz; 
+        $observacion = $nota->observacion;
+        $cantidad_devolver = $detalle_nota->cantidad;
+        $detalle_codigo = $detalle_nota->id;
+        if($nota && $detalle_nota){
+            $curl = curl_init();
+            $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; 
+            //informacion
+            $dataHead = json_encode([
+                "consecutivo_factura" => "$consecutivo",
+                "codigo_resolucion" => "$resolucion",
+                "observacion" => "$observacion"
+               
+            ]);
+            $dataBody = json_encode([
+                [
+                    "detalle_factura" => "$detalle_codigo",
+                    "cantidad" => "$cantidad_devolver",
+                ]
+            ]);
+            curl_setopt_array($curl, [
+            CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => [
+                "head" => $dataHead,
+                "body" => $dataBody
+                ],
+            ]);
+             $response = curl_exec($curl);
+              curl_close($curl);
+        }else{
+            Yii::$app->getSession()->setFlash('error', 'No los registros de envio no esta correctamente listo. Valide la informacion');
+            return $this->redirect(["notacredito/view",'id' => $id]);
+        }
+        
+    }
+    
     
  
     /**

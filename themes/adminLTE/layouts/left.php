@@ -455,6 +455,7 @@
                                             'icon' => 'database',
                                             'url' => '#',
                                             'items' => [
+                                                ['label' => 'Conceptos DS', 'icon' => 'plus-square-o', 'url' => ['/concepto-documento-soporte/index']],
                                                 ['label' => 'Cuentas', 'icon' => 'plus-square-o', 'url' => ['/cuenta-pub/index']],
                                                 ['label' => 'Tipo Recibo', 'icon' => 'plus-square-o', 'url' => ['/tipo-recibo/index']],
                                                 ['label' => 'Tipo Compra', 'icon' => 'plus-square-o', 'url' => ['/compra-tipo/index']],

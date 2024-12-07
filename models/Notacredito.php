@@ -54,7 +54,7 @@ class Notacredito extends \yii\db\ActiveRecord
             [['idcliente', 'idconceptonota', 'numero', 'autorizado', 'anulado','id_concepto'], 'integer'],
             [['fecha', 'fechapago','fecha_recepcion_dian','fecha_envio_api'], 'safe'],
             [['valor','iva','reteiva','retefuente','total'], 'number'],
-            [['observacion'], 'string'],
+            [['observacion','cufe','cude'], 'string'],
             [['usuariosistema'], 'string', 'max' => 50],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
             [['idconceptonota'], 'exist', 'skipOnError' => true, 'targetClass' => Conceptonota::className(), 'targetAttribute' => ['idconceptonota' => 'idconceptonota']],
@@ -86,6 +86,8 @@ class Notacredito extends \yii\db\ActiveRecord
             'id_concepto' => 'Motivo',
             'fecha_envio_api' => 'fecha_envio_api',
             'fecha_recepcion_dian'=> 'fecha_recepcion_dian',
+            'cufe' => 'Cufe',
+            'cude' => 'Cude',
             
             
         ];

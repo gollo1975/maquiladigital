@@ -119,7 +119,7 @@ $view = 'notacredito';
                     <thead>
                     <tr style="font-size: 85%;">
                         <th scope="col" style='background-color:#B9D5CE;'>Nro Factura</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Saldo</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Cant.</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Vl. unitario</th> 
@@ -136,7 +136,7 @@ $view = 'notacredito';
                     <?php foreach ($modeldetalles as $val): ?>
                     <tr style="font-size: 85%;">
                         <td><?= $val->nrofactura ?></td>
-                        <td><?= $val->factura->cliente->nombrecorto ?></td>
+                        <td><?= $val->conceptoFacturacion->concepto?></td>
                         <td style="text-align: right"><?= '$'.number_format($val->saldo_factura,0) ?></td>
                         <td style="text-align: right"><?= $val->cantidad ?></td>
                         <td style="text-align: right"><?= $val->precio_unitario ?></td>

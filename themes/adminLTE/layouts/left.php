@@ -500,6 +500,7 @@
                                                 ['label' => 'Recibo Caja', 'icon' => 'plus-square-o', 'url' => ['/recibocaja/index']],
                                                 ['label' => 'Compras', 'icon' => 'plus-square-o', 'url' => ['/compra/index']],
                                                 ['label' => 'Comprobante Egreso', 'icon' => 'plus-square-o', 'url' => ['/comprobante-egreso/index']],
+                                                 ['label' => 'Documento soporte', 'icon' => 'plus-square-o', 'url' => ['/documento-soporte/index']],
                                             ],
                                         ]
                                     ],

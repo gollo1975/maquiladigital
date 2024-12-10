@@ -1311,42 +1311,44 @@ class ProgramacionNominaController extends Controller {
         $contador_permanente = 0;
         $concepto_sal = ConceptoSalarios::find()->where(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
         $nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $adicionpermanente->id_empleado])->one();
-        $programacion = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $nonima->id_programacion])->andWhere(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
-        if (!$programacion) {
-            $detalleapago = new ProgramacionNominaDetalle();
-            $detalleapago->id_programacion = $nonima->id_programacion;
-            $detalleapago->codigo_salario = $adicionpermanente->codigo_salario;
-            $detalleapago->id_periodo_pago_nomina = $id;
-            $detalleapago->fecha_desde = $fecha_desde;
-            $detalleapago->fecha_hasta = $fecha_hasta;
-            $periodo_pago = PeriodoPago::find()->where(['=', 'id_periodo_pago', $grupo_pago->id_periodo_pago])->one();
-            if ($adicionpermanente->tipo_adicion == 1) {
-                if ($adicionpermanente->aplicar_dia_laborado == 1) {
-                   $dias = $periodo_pago->dias;
-                   $calculo = $adicionpermanente->vlr_adicion / $dias;
-                   
-                    $total_pagado = round($calculo * $periodo_pago->dias);
-                    if ($concepto_sal->prestacional == 1) {
-                        $detalleapago->vlr_devengado = $total_pagado;
+        if($nonima){
+            $programacion = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $nonima->id_programacion])->andWhere(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
+            if (!$programacion) {
+                $detalleapago = new ProgramacionNominaDetalle();
+                $detalleapago->id_programacion = $nonima->id_programacion;
+                $detalleapago->codigo_salario = $adicionpermanente->codigo_salario;
+                $detalleapago->id_periodo_pago_nomina = $id;
+                $detalleapago->fecha_desde = $fecha_desde;
+                $detalleapago->fecha_hasta = $fecha_hasta;
+                $periodo_pago = PeriodoPago::find()->where(['=', 'id_periodo_pago', $grupo_pago->id_periodo_pago])->one();
+                if ($adicionpermanente->tipo_adicion == 1) {
+                    if ($adicionpermanente->aplicar_dia_laborado == 1) {
+                       $dias = $periodo_pago->dias;
+                       $calculo = $adicionpermanente->vlr_adicion / $dias;
+
+                        $total_pagado = round($calculo * $periodo_pago->dias);
+                        if ($concepto_sal->prestacional == 1) {
+                            $detalleapago->vlr_devengado = $total_pagado;
+                        } else {
+                           $detalleapago->vlr_devengado_no_prestacional = $total_pagado;
+                           $detalleapago->vlr_devengado = $total_pagado;
+                        }
                     } else {
-                       $detalleapago->vlr_devengado_no_prestacional = $total_pagado;
-                       $detalleapago->vlr_devengado = $total_pagado;
+                        if ($concepto_sal->prestacional == 1) {
+                            $detalleapago->vlr_devengado = $adicionpermanente->vlr_adicion;
+
+                        } else {
+                            $detalleapago->vlr_devengado_no_prestacional = $adicionpermanente->vlr_adicion;
+                            $detalleapago->vlr_devengado = $adicionpermanente->vlr_adicion;
+                        }
                     }
                 } else {
-                    if ($concepto_sal->prestacional == 1) {
-                        $detalleapago->vlr_devengado = $adicionpermanente->vlr_adicion;
-                         
-                    } else {
-                        $detalleapago->vlr_devengado_no_prestacional = $adicionpermanente->vlr_adicion;
-                        $detalleapago->vlr_devengado = $adicionpermanente->vlr_adicion;
-                    }
+                    $detalleapago->vlr_deduccion = $adicionpermanente->vlr_adicion;
+                    $detalleapago->deduccion = $adicionpermanente->vlr_adicion;
                 }
-            } else {
-                $detalleapago->vlr_deduccion = $adicionpermanente->vlr_adicion;
-                $detalleapago->deduccion = $adicionpermanente->vlr_adicion;
+                $detalleapago->save(false);
             }
-            $detalleapago->save(false);
-        }
+        }    
     }
 
     //contralador de adicion al pago por fecha
@@ -1354,27 +1356,29 @@ class ProgramacionNominaController extends Controller {
         $contador = 0;
         $concepto_sal = ConceptoSalarios::find()->where(['=', 'codigo_salario', $adicionfecha->codigo_salario])->one();
         $nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $adicionfecha->id_empleado])->one();
-        $detalle = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $nonima->id_programacion])->andWhere(['=', 'codigo_salario', $adicionfecha->codigo_salario])->all();
-        if (!$detalle) {
-            $detalleadicionpago = new ProgramacionNominaDetalle();
-            $detalleadicionpago->id_programacion = $nonima->id_programacion;
-            $detalleadicionpago->codigo_salario = $adicionfecha->codigo_salario;
-            $detalleadicionpago->id_periodo_pago_nomina = $id;
-            $detalleadicionpago->fecha_desde = $fecha_desde;
-            $detalleadicionpago->fecha_hasta = $fecha_hasta;
-            if ($adicionfecha->tipo_adicion == 1) {
-                if ($concepto_sal->prestacional == 1) {
-                    $detalleadicionpago->vlr_devengado = $adicionfecha->vlr_adicion;
+        if($nonima){
+            $detalle = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $nonima->id_programacion])->andWhere(['=', 'codigo_salario', $adicionfecha->codigo_salario])->one();
+            if (!$detalle) {
+                $detalleadicionpago = new ProgramacionNominaDetalle();
+                $detalleadicionpago->id_programacion = $nonima->id_programacion;
+                $detalleadicionpago->codigo_salario = $adicionfecha->codigo_salario;
+                $detalleadicionpago->id_periodo_pago_nomina = $id;
+                $detalleadicionpago->fecha_desde = $fecha_desde;
+                $detalleadicionpago->fecha_hasta = $fecha_hasta;
+                if ($adicionfecha->tipo_adicion == 1) {
+                    if ($concepto_sal->prestacional == 1) {
+                        $detalleadicionpago->vlr_devengado = $adicionfecha->vlr_adicion;
+                    } else {
+                        $detalleadicionpago->vlr_devengado_no_prestacional = $adicionfecha->vlr_adicion;
+                        $detalleadicionpago->vlr_devengado = $adicionfecha->vlr_adicion;
+                    }
                 } else {
-                    $detalleadicionpago->vlr_devengado_no_prestacional = $adicionfecha->vlr_adicion;
-                    $detalleadicionpago->vlr_devengado = $adicionfecha->vlr_adicion;
+                    $detalleadicionpago->vlr_deduccion = $adicionfecha->vlr_adicion;
+                    $detalleadicionpago->deduccion = $adicionfecha->vlr_adicion;
                 }
-            } else {
-                $detalleadicionpago->vlr_deduccion = $adicionfecha->vlr_adicion;
-                $detalleadicionpago->deduccion = $adicionfecha->vlr_adicion;
+                $detalleadicionpago->save(false);
             }
-            $detalleadicionpago->save(false);
-        }
+        }    
     }
 
     //contralor de los creditos
@@ -1693,7 +1697,7 @@ class ProgramacionNominaController extends Controller {
             }
         }    
 
-     $this->redirect(["programacion-nomina/view", 'id' => $id,
+    $this->redirect(["programacion-nomina/view", 'id' => $id,
           'id_grupo_pago' => $id_grupo_pago,
           'fecha_desde' => $fecha_desde,
           'fecha_hasta' => $fecha_hasta,
@@ -1955,33 +1959,36 @@ class ProgramacionNominaController extends Controller {
  protected function ModuloActualizaSaldosPago($adicionpermanente, $id, $id_grupo_pago)
     {
        $dias = 0;
+       $nomina= [];
        $grupo_pago = PeriodoPagoNomina::find()->where(['=','id_grupo_pago', $id_grupo_pago])->andWhere(['=','estado_periodo', 0])->one();
        $concepto_salario = ConceptoSalarios::find()->where(['=', 'inicio_nomina', 1])->one(); 
        $concepto_sal = ConceptoSalarios::find()->where(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
        $nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $adicionpermanente->id_empleado])->one();
-       $detalle_nomina = ProgramacionNominadetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $concepto_salario->codigo_salario])->one();
-       $detalle_nomina_salario = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $adicionpermanente->codigo_salario])->one();
-       $dias = $nonima->dia_real_pagado;
-       if($concepto_sal->prestacional == 1 && $adicionpermanente->aplicar_dia_laborado == 1){
-           $detalle_nomina_salario->vlr_devengado = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;
-           $detalle_nomina_salario->save(false);
-       }else{
-            if($concepto_sal->prestacional == 1 && $adicionpermanente->aplicar_dia_laborado == 0){
-               $detalle_nomina_salario->vlr_devengado = $adicionpermanente->vlr_adicion;   
-               $detalle_nomina_salario->save(false);
+       if($nomina){
+            $detalle_nomina = ProgramacionNominadetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $concepto_salario->codigo_salario])->one();
+            $detalle_nomina_salario = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $adicionpermanente->codigo_salario])->one();
+            $dias = $nonima->dia_real_pagado;
+            if($concepto_sal->prestacional == 1 && $adicionpermanente->aplicar_dia_laborado == 1){
+                $detalle_nomina_salario->vlr_devengado = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;
+                $detalle_nomina_salario->save(false);
+            }else{
+                 if($concepto_sal->prestacional == 1 && $adicionpermanente->aplicar_dia_laborado == 0){
+                    $detalle_nomina_salario->vlr_devengado = $adicionpermanente->vlr_adicion;   
+                    $detalle_nomina_salario->save(false);
+                 }
             }
-       }
-       if($concepto_sal->prestacional == 0 && $adicionpermanente->aplicar_dia_laborado == 0){
-          $detalle_nomina_salario->vlr_devengado_no_prestacional = $adicionpermanente->vlr_adicion; 
-          $detalle_nomina_salario->save(false);
-       }else{
-    
-             if($concepto_sal->prestacional == 0 && $adicionpermanente->aplicar_dia_laborado == 1){
-               $detalle_nomina_salario->vlr_devengado_no_prestacional = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;   
-               $detalle_nomina_salario->vlr_devengado = round(($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias);   
+            if($concepto_sal->prestacional == 0 && $adicionpermanente->aplicar_dia_laborado == 0){
+               $detalle_nomina_salario->vlr_devengado_no_prestacional = $adicionpermanente->vlr_adicion; 
                $detalle_nomina_salario->save(false);
-             }    
-       }
+            }else{
+
+                  if($concepto_sal->prestacional == 0 && $adicionpermanente->aplicar_dia_laborado == 1){
+                    $detalle_nomina_salario->vlr_devengado_no_prestacional = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;   
+                    $detalle_nomina_salario->vlr_devengado = round(($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias);   
+                    $detalle_nomina_salario->save(false);
+                  }    
+            }
+       }    
                
     }
 
@@ -2282,32 +2289,34 @@ class ProgramacionNominaController extends Controller {
     protected function ModuloActualizarCreditos($credito, $id, $tipo_nomina)
     {
         $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->andWhere(['=','id_empleado', $credito->id_empleado])->one();
-        $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $nomina->id_programacion])->andWhere(['=','id_credito', $credito->id_credito ])->one();        
-        $vlr_cuota = $detalle_nomina->deduccion;
-        $nro_cuotas = $credito->numero_cuotas;
-        $cuota_actual  = $credito->numero_cuota_actual;
-        $saldo_credito = $credito->saldo_credito;
-        $credito->saldo_credito = $saldo_credito - $vlr_cuota;
-        $credito->numero_cuota_actual = $cuota_actual + 1;
-        if ($credito->saldo_credito <= 0){
-            $credito->estado_credito = 0;
-            $credito->estado_periodo = 0;
-        }
-        $credito->save(false);
-        $abono_credito = new AbonoCredito();
-        $abono_credito->id_credito = $credito->id_credito;
-        $abono_credito->vlr_abono = $vlr_cuota;
-        $abono_credito->saldo = $credito->saldo_credito;
-        $abono_credito->cuota_pendiente = $nro_cuotas - $credito->numero_cuota_actual;
-        if($tipo_nomina == 1){
-            $abono_credito->id_tipo_pago = 1;
-            $abono_credito->observacion = 'Deduccion de nomina'; 
-        }else{
-            $abono_credito->id_tipo_pago = 2;
-            $abono_credito->observacion = 'Deduccion de primas'; 
+        if($nomina){
+            $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $nomina->id_programacion])->andWhere(['=','id_credito', $credito->id_credito ])->one();        
+            $vlr_cuota = $detalle_nomina->deduccion;
+            $nro_cuotas = $credito->numero_cuotas;
+            $cuota_actual  = $credito->numero_cuota_actual;
+            $saldo_credito = $credito->saldo_credito;
+            $credito->saldo_credito = $saldo_credito - $vlr_cuota;
+            $credito->numero_cuota_actual = $cuota_actual + 1;
+            if ($credito->saldo_credito <= 0){
+                $credito->estado_credito = 0;
+                $credito->estado_periodo = 0;
+            }
+            $credito->save(false);
+            $abono_credito = new AbonoCredito();
+            $abono_credito->id_credito = $credito->id_credito;
+            $abono_credito->vlr_abono = $vlr_cuota;
+            $abono_credito->saldo = $credito->saldo_credito;
+            $abono_credito->cuota_pendiente = $nro_cuotas - $credito->numero_cuota_actual;
+            if($tipo_nomina == 1){
+                $abono_credito->id_tipo_pago = 1;
+                $abono_credito->observacion = 'Deduccion de nomina'; 
+            }else{
+                $abono_credito->id_tipo_pago = 2;
+                $abono_credito->observacion = 'Deduccion de primas'; 
+            }    
+            $abono_credito->usuariosistema = Yii::$app->user->identity->username;
+            $abono_credito->insert();
         }    
-        $abono_credito->usuariosistema = Yii::$app->user->identity->username;
-        $abono_credito->insert();
     }
     
     public function actionEditarcolillapagonomina($id_programacion, $id_grupo_pago, $id, $fecha_desde, $fecha_hasta) {

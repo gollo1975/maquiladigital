@@ -101,6 +101,8 @@ class ArchivodirController extends \yii\web\Controller
 
         return $this->render("Subir", ["model" => $model, "msg" => $msg,'view' => $view, 'token' => $token]);
     }
+    
+    //DESCARGAR
     public function actionDescargar($id,$numero,$codigo, $token)
     {
 

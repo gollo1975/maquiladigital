@@ -398,8 +398,8 @@ class NotacreditoController extends Controller
         $detalle_nota = Notacreditodetalle::find()->where(['=','idnotacredito', $id])->one();
         $factura = Facturaventa::findOne($detalle_nota->idfactura);
         //asignacion variable;
-        $consecutivo = $detalle_nota->nrofactura;
-        $resolucion = $factura->resolucion->codigo_interfaz; 
+       $consecutivo = $detalle_nota->nrofactura;
+       $resolucion = $factura->resolucion->codigo_interfaz; 
        // $observacion = $nota->observacion;
         //$cantidad_devolver = $detalle_nota->cantidad;
         //$detalle_codigo = $detalle_nota->id;
@@ -419,75 +419,57 @@ class NotacreditoController extends Controller
           CURLOPT_CUSTOMREQUEST => 'GET',
           CURLOPT_POSTFIELDS => [],
         ));
-        try{
-            $response = curl_exec($curl); 
-            if (curl_errno($curl)) {
-                throw new Exception(curl_error($curl));
-            }
-            curl_close($curl);
-            $data = json_decode($response, true);
-            if ($data === null) {
-                throw new Exception('Error al decodificar la respuesta JSON');
-            }
-            $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-           
-            if($data == 200){
-                $id_detalle = [];
-                if (isset($data['data']['details']) && is_array($data['data']['details'])) {
-                    foreach ($data['data']['details'] as $detalle) {
-                        $id_detalle = $detalle['id'];
-                        echo "El ID es: " . $id_detalle . "<br>";
-                    }
-                } else {
-                    echo "No se encontraron detalles o no es un array.";
-                }
-              /*  if (isset($data['data'])) {
-                    if (isset($data['data']['details'])) {
-                        if (is_array($data['data']['details'])) {
-                           foreach ($data['data']['details'] as $detalle) {
-                               if (isset($detalle['id'])) {
-                                    $ids_detalles[] = $detalle['id'];
-                                } else {
-                                    // Manejar el caso en que no exista la propiedad 'id'
-                                    echo "El detalle no tiene un ID asociado.";
-                                }
-                           }
-                            
-                        }
-                    }
-                }*/
-                 print_r($id_detalle);
-              /*  if (isset($data['data']['details']) && is_array($data['data']['details'])) {
-                    foreach ($data['data']['details'] as $detalle) {
-                        // Verifica si la propiedad 'id' existe en cada detalle
-                        if (isset($detalle['id'])) {
-                            $ids_detalles[] = $detalle['id'];
-                        } else {
-                            // Manejar el caso en que no exista la propiedad 'id'
-                            echo "El detalle no tiene un ID asociado.";
-                        }
-                    }
-                } else {
-                    echo "No se encontraron detalles en los datos.";
-                }*/
-               
-                //$id_detalle = isset($data["data"]["details"]["id"]) ? $data["data"]["details"]["id"] : "";
-               // var_dump($id_detalle);
-                Yii::$app->getSession()->setFlash('info', 'La factura de venta electronica No ('. $consecutivo .') se consulto con exito.');
-                try {
-                   
-                } catch (Exception $e) {
-                    // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
-                    Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
-                }
-            }else{
-                Yii::$app->getSession()->setFlash('error', 'Problemas de comunicacion en la consulta');
-                
-            }
-        } catch (Exception $ex) {
-             Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
+       $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+        
+        Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
+        
+        if ($response === false || $httpCode !== 200) {
+            $error = $response === false ? curl_error($curl) : "HTTP $httpCode";
+            Yii::$app->getSession()->setFlash('error', 'Hubo un problema al comunicarse con la DIAN. Intenta reenviar más tarde.');
+            Yii::error("Error en la solicitud CURL: $error", __METHOD__);
+            return $this->redirect(['nota-credito/view', 'id' => $id]);
         }
         
+        $data = json_decode($response, true);
+       
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Yii::$app->getSession()->setFlash('error', 'Error al procesar la respuesta de la DIAN. Intenta reenviar más tarde.');
+            Yii::error("Error al decodificar JSON: " . json_last_error_msg(), __METHOD__);
+            return $this->redirect(['nota-credito/view', 'id' => $id]);
+        }
+       try {
+            // Suponiendo que $data contiene tu JSON completo
+
+            // Obtener el arreglo de detalles
+            $detalles = $data['data'];
+            $detallesClave = array_keys($detalles);
+            $detallesClave = $detallesClave[0];
+            $detalles = $detalles[$detallesClave]['details'];
+           
+            
+            // Verificar si 'detalles' es un arreglo y no está vacío
+            if (is_array($detalles) && count($detalles) > 0) {
+                // Iterar sobre cada detalle y extraer el ID
+                foreach ($detalles as $detalle) {
+                    $id = $detalle['id'];
+                    echo "El ID del detalle es: " . $id . "\n";
+
+                    // Puedes realizar otras operaciones con el ID aquí
+                    // Por ejemplo, almacenarlo en un arreglo:
+                    $ids[] = $id;
+                }
+
+                // Imprimir todos los IDs obtenidos
+                print_r($ids);
+            } else {
+                throw new Exception("El arreglo 'details' no existe o está vacío.");
+            }
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+        }
       //  return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
 
     }

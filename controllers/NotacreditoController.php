@@ -400,41 +400,96 @@ class NotacreditoController extends Controller
         //asignacion variable;
         $consecutivo = $detalle_nota->nrofactura;
         $resolucion = $factura->resolucion->codigo_interfaz; 
-        $observacion = $nota->observacion;
-        $cantidad_devolver = $detalle_nota->cantidad;
-        $detalle_codigo = $detalle_nota->id;
-        if($nota && $detalle_nota){
-            $curl = curl_init();
-            $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; 
-            //informacion
-            $dataHead = json_encode([
-                "consecutivo_factura" => "$consecutivo",
-                "codigo_resolucion" => "$resolucion",
-                "observacion" => "$observacion"
+       // $observacion = $nota->observacion;
+        //$cantidad_devolver = $detalle_nota->cantidad;
+        //$detalle_codigo = $detalle_nota->id;
+        $curl = curl_init();
+        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $consecutivo_factura = "$consecutivo"; //CONSECUTIVO FACTURA
+        $codigo_resolucion = "$resolucion"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
+        //buscar informacion en la api
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/invoice?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'GET',
+          CURLOPT_POSTFIELDS => [],
+        ));
+        try{
+            $response = curl_exec($curl); 
+            if (curl_errno($curl)) {
+                throw new Exception(curl_error($curl));
+            }
+            curl_close($curl);
+            $data = json_decode($response, true);
+            if ($data === null) {
+                throw new Exception('Error al decodificar la respuesta JSON');
+            }
+            $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+           
+            if($data == 200){
+                $id_detalle = [];
+                if (isset($data['data']['details']) && is_array($data['data']['details'])) {
+                    foreach ($data['data']['details'] as $detalle) {
+                        $id_detalle = $detalle['id'];
+                        echo "El ID es: " . $id_detalle . "<br>";
+                    }
+                } else {
+                    echo "No se encontraron detalles o no es un array.";
+                }
+              /*  if (isset($data['data'])) {
+                    if (isset($data['data']['details'])) {
+                        if (is_array($data['data']['details'])) {
+                           foreach ($data['data']['details'] as $detalle) {
+                               if (isset($detalle['id'])) {
+                                    $ids_detalles[] = $detalle['id'];
+                                } else {
+                                    // Manejar el caso en que no exista la propiedad 'id'
+                                    echo "El detalle no tiene un ID asociado.";
+                                }
+                           }
+                            
+                        }
+                    }
+                }*/
+                 print_r($id_detalle);
+              /*  if (isset($data['data']['details']) && is_array($data['data']['details'])) {
+                    foreach ($data['data']['details'] as $detalle) {
+                        // Verifica si la propiedad 'id' existe en cada detalle
+                        if (isset($detalle['id'])) {
+                            $ids_detalles[] = $detalle['id'];
+                        } else {
+                            // Manejar el caso en que no exista la propiedad 'id'
+                            echo "El detalle no tiene un ID asociado.";
+                        }
+                    }
+                } else {
+                    echo "No se encontraron detalles en los datos.";
+                }*/
                
-            ]);
-            $dataBody = json_encode([
-                [
-                    "detalle_factura" => "$detalle_codigo",
-                    "cantidad" => "$cantidad_devolver",
-                ]
-            ]);
-            curl_setopt_array($curl, [
-            CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => [
-                "head" => $dataHead,
-                "body" => $dataBody
-                ],
-            ]);
-             $response = curl_exec($curl);
-              curl_close($curl);
-        }else{
-            Yii::$app->getSession()->setFlash('error', 'No los registros de envio no esta correctamente listo. Valide la informacion');
-            return $this->redirect(["notacredito/view",'id' => $id]);
+                //$id_detalle = isset($data["data"]["details"]["id"]) ? $data["data"]["details"]["id"] : "";
+               // var_dump($id_detalle);
+                Yii::$app->getSession()->setFlash('info', 'La factura de venta electronica No ('. $consecutivo .') se consulto con exito.');
+                try {
+                   
+                } catch (Exception $e) {
+                    // Manejar la excepción, por ejemplo, registrar un error o mostrar un mensaje al usuario
+                    Yii::$app->getSession()->setFlash('error', 'Error al obtener el CUFE: ' . $e->getMessage());
+                }
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Problemas de comunicacion en la consulta');
+                
+            }
+        } catch (Exception $ex) {
+             Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
         
+      //  return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+
     }
     
     

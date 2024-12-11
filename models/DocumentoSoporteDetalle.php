@@ -39,7 +39,6 @@ class DocumentoSoporteDetalle extends \yii\db\ActiveRecord
     {
         return [
             [['id_documento_soporte', 'id_concepto', 'cantidad', 'valor_unitario', 'id_retencion', 'valor_retencion', 'total_pagar'], 'integer'],
-            [['id_concepto', 'id_retencion', 'total_pagar'], 'required'],
             [['porcentaje_retencion'], 'number'],
             [['descripcion'], 'string', 'max' => 40],
             [['id_documento_soporte'], 'exist', 'skipOnError' => true, 'targetClass' => DocumentoSoporte::className(), 'targetAttribute' => ['id_documento_soporte' => 'id_documento_soporte']],

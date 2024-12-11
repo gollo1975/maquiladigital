@@ -49,7 +49,7 @@ class Compra extends \yii\db\ActiveRecord
     {
         return [
             [['id_compra_concepto', 'id_proveedor', 'factura', 'subtotal','fechainicio','fechavencimiento','id_tipo_compra'], 'required'],
-            [['id_compra_concepto', 'id_proveedor', 'estado', 'autorizado','numero','id_tipo_compra','genera_documento_soporte'], 'integer'],
+            [['id_compra_concepto', 'id_proveedor', 'estado', 'autorizado','numero','id_tipo_compra','genera_documento_soporte','documento_generado'], 'integer'],
             [['porcentajeiva', 'porcentajefuente', 'porcentajereteiva', 'subtotal', 'retencionfuente', 'impuestoiva', 'retencioniva', 'saldo', 'base_aiu', 'total'], 'number'],
             [['observacion','factura'], 'string'],
             [['fechacreacion','fechainicio','fechavencimiento'], 'safe'],
@@ -91,6 +91,7 @@ class Compra extends \yii\db\ActiveRecord
             'base_aiu' => 'Base AIU',
             'id_tipo_compra' => 'Tipo compra',
             'genera_documento_soporte' => 'Genera documento soporte:',
+            'documento_generado' => 'documento_generado',
         ];
     }
 

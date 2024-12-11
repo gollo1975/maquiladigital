@@ -13,25 +13,27 @@ use yii\helpers\Url;
 $this->title = 'Documento soporte';
 $this->params['breadcrumbs'][] = ['label' => 'Dcumento soporte', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->id_documento_soporte;
+$conceptos = \yii\helpers\ArrayHelper::map(app\models\ConceptoDocumentoSoporte::find()->orderBy('concepto ASC')->all(), 'id_concepto','concepto');
+$ConRetenciones = \yii\helpers\ArrayHelper::map(app\models\RetencionFuente::find()->all(), 'id_retencion','concepto');
 ?>
 <div class="documento-soporte-view">
 
     <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-xs']) ?>
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-xs']); ?>
 	<?php if ($model->autorizado == 0){ ?>
-            <?= Html::a('<span class="glyphicon glyphicon-check"></span> Autorizado', ['autorizado', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-success btn-xs']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-check"></span> Autorizado', ['autorizado', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-success btn-xs']) ;?>
         <?php }else {?>
-            <?php if ($model->autorizado == 1 && $model->numero_soporte == 0){ ?>
-                 <?= Html::a('<span class="glyphicon glyphicon-uncheck"></span> Desautorizar', ['autorizado', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-success btn-xs']);?>
-                 <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Generar documento', ['generar_documento', 'id' => $model->id_documento_soporte],['class' => 'btn btn-default btn-xs' ,
+            <?php if ($model->autorizado == 1 && $model->numero_soporte == 0){ 
+                echo Html::a('<span class="glyphicon glyphicon-refresh"></span> Desautorizar', ['autorizado', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-success btn-xs']);?>
+                 <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Generar consecutivo', ['generar_documento', 'id' => $model->id_documento_soporte],['class' => 'btn btn-default btn-xs' ,
                     'data' => ['confirm' => 'Esta seguro de Generar del consecutivo al documento soporte.', 'method' => 'post']]);?>
-                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir_documento', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']); 
-             
-                
+                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_documento', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']); 
             }else{  ?>  
-        
+                 <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar Documento a la Dian', ['enviar_documento_soporte_dian', 'id' => $model->id_documento_soporte],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
+                 'data' => ['confirm' => 'Esta seguro de enviar el Documento Soporte  No  '. $model->numero_soporte. ' a la DIAN', 'method' => 'post']]);?>
+                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_documento', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']); ?>
             <?php }
         }    ?>
     </p>
@@ -77,7 +79,7 @@ $this->params['breadcrumbs'][] = $model->id_documento_soporte;
     <div>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#detalledocumento" aria-controls="detalledocumento" role="tab" data-toggle="tab">Detalle del documento <span class="badge"><?= 1 ?></span></a></li>
+            <li role="presentation" class="active"><a href="#detalledocumento" aria-controls="detalledocumento" role="tab" data-toggle="tab">Detalle del documento <span class="badge"><?= count($detalles) ?></span></a></li>
             
         </ul>
         <div class="tab-content">
@@ -102,11 +104,55 @@ $this->params['breadcrumbs'][] = $model->id_documento_soporte;
                                     <?php
                                     foreach ($detalles as $key => $detalle) {?>
                                         <tr style='font-size: 85%'>
-                                            <td><?= $detalle->id_concepto?></td>
+                                            <?php if($model->autorizado == 0){?>
+                                                 <td><?= Html::dropDownList('id_concepto[]', $detalle->id_concepto, $conceptos, ['class' => 'col-sm-8', 'prompt' => 'Seleccione el concepto', 'required' => true]) ?></td>
+                                                 <td></td>
+                                                 <td style="background:#ADB9D1; font-weight:bold;"><input type="text" name="cantidad[]" style = "text-align: right" size = '4' value="<?= $detalle->cantidad?>" required></td>
+                                                 <td style="background:#ADB9D1; font-weight:bold;"><input type="text" name="valor_unitario[]" style = "text-align: right" size = '8' value="<?= $detalle->valor_unitario?>" required></td>
+                                                 <td><?= Html::dropDownList('id_retencion[]', $detalle->id_retencion, $ConRetenciones, ['class' => 'col-sm-6', 'prompt' => 'Seleccione']) ?></td>
+                                                 <td style="text-align: right"><?= ''. number_format($detalle->valor_retencion,0)?></td>
+                                                 <td style="text-align: right"><?= ''. number_format($detalle->total_pagar,0)?></td>
+                                                 <td style='width: 15px; height: 15px'>
+                                                           <?= Html::a('', ['delete', 'id' => $model->id_documento_soporte, 'id_detalle' => $detalle->id_detalle], [
+                                                             'class' => 'glyphicon glyphicon-trash',
+                                                             'data' => [
+                                                                 'confirm' => 'Esta seguro de eliminar el registro?',
+                                                                 'method' => 'post',
+                                                             ],
+                                                           ]) ?>
+                                                </td>
+                                           <?php } else { ?>
+                                                <td><?= $detalle->id_concepto ?></td>
+                                                <td><?= $detalle->descripcion ?></td>
+                                                <td><?= $detalle->cantidad ?></td>
+                                                <td style="text-align: right"><?= ''. number_format($detalle->valor_unitario,0)?></td>
+                                                <?php if($detalle->porcentaje_retencion > 0){?>
+                                                    <td style="text-align: center"><?= $detalle->retencion->porcentaje ?></td>
+                                                <?php }else{?>
+                                                  <td style="text-align: center"><?= $detalle->porcentaje_retencion  ?></td>    
+                                                <?php }?>  
+                                                <td style="text-align: right"><?= ''. number_format($detalle->valor_retencion,0)?></td>
+                                                <td style="text-align: right"><?= ''. number_format($detalle->total_pagar,0)?></td> 
+                                                <td style='width: 15px; height: 15px'></td>
+                                            <?php } ?>         
+                                            <input type="hidden" name="listado[]" value="<?= $detalle->id_detalle ?>">
                                         </tr>
                                     <?php } ?>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="panel-footer text-right">
+                            <?php if($model->autorizado == 0 && count($detalles) == 0){?>
+
+                                    <?= Html::a('<span class= "glyphicon glyphicon-plus"></span> Nueva linea',['documento-soporte/nueva_linea','id' => $model->id_documento_soporte],['class' =>'btn btn-info btn-sm']);?>
+
+                            <?php }else{
+                                if($model->autorizado == 0 && count($detalles) > 0){?>
+                                         <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'ActualizarLineas']) ?>		
+                                <?php }else{?>
+
+                                <?php }
+                            }?>
                         </div>
                     </div>
                 </div>

@@ -76,7 +76,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
             'id_forma_pago' => 'Forma de pago',
             'autorizado' => 'Autorizado',
             'user_name' => 'User Name',
-            'valor_pagar' => 'valor_pagar',
+            'valor_pagar' => 'Total documento:',
             'observacion' => 'observacion',
         ];
     }

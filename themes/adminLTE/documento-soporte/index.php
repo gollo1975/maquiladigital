@@ -110,18 +110,22 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= $val->fecha_recepcion_dian ?></td>
                 <td><?= $val->formaPago->concepto ?></td>
                  <td style="text-align: right"><?= ''. number_format($val->valor_pagar,0) ?></td>
-                <td style= 'width: 25px; height: 20px;'>
+                <td style= 'width: 15px; height: 15px;'>
                     <a href="<?= Url::toRoute(["documento-soporte/view", "id" => $val->id_documento_soporte]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                 </td>
-                <?php if($val->id_compra != ''){?>
-                    <td style= 'width: 20px; height: 20px;'>
-                        <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte,'sw' => 1])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                <?php }else{?>
-                    <td style= 'width: 20px; height: 20px;'>
-                        <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte, 'sw' => 0])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                <?php }?>    
+                <?php if(!\app\models\DocumentoSoporteDetalle::find()->where(['=','id_documento_soporte', $val->id_documento_soporte])->one()){
+                    if($val->id_compra != ''){?>
+                        <td style= 'width: 20px; height: 20px;'>
+                            <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte,'sw' => 1])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                        </td>
+                    <?php }else{?>
+                        <td style= 'width: 20px; height: 20px;'>
+                            <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte, 'sw' => 0])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                        </td>
+                    <?php }
+                }else{?>
+                        <td style= 'width: 15px; height: 15px;'></td> 
+                <?php }?>        
             </tr>
             </tbody>
             <?php endforeach; ?>

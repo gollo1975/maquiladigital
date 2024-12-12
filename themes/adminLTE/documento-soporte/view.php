@@ -142,11 +142,13 @@ $ConRetenciones = \yii\helpers\ArrayHelper::map(app\models\RetencionFuente::find
                             </table>
                         </div>
                         <div class="panel-footer text-right">
-                            <?php if($model->autorizado == 0 && count($detalles) == 0){?>
-
-                                    <?= Html::a('<span class= "glyphicon glyphicon-plus"></span> Nueva linea',['documento-soporte/nueva_linea','id' => $model->id_documento_soporte],['class' =>'btn btn-info btn-sm']);?>
-
-                            <?php }else{
+                            <?php if($model->autorizado == 0 && count($detalles) == 0){
+                                    if($model->id_compra != ''){
+                                         echo Html::a('<span class= "glyphicon glyphicon-plus"></span> Nueva linea',['documento-soporte/nueva_linea','id' => $model->id_documento_soporte ,'token' => 1],['class' =>'btn btn-info btn-sm']);
+                                    } else {
+                                        echo Html::a('<span class= "glyphicon glyphicon-plus"></span> Nueva linea',['documento-soporte/nueva_linea','id' => $model->id_documento_soporte, 'token' => 0],['class' =>'btn btn-info btn-sm']);
+                                    }
+                            }else{
                                 if($model->autorizado == 0 && count($detalles) > 0){?>
                                          <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'ActualizarLineas']) ?>		
                                 <?php }else{?>

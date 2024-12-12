@@ -228,12 +228,25 @@ class DocumentoSoporteController extends Controller
     }
 
     //CREA UNA NUEVA LINEA
-    public function actionNueva_linea($id) {
-        $table = new \app\models\DocumentoSoporteDetalle();
-        $table->id_documento_soporte = $id;
-        $table->cantidad = 1;
-        $table->save(false);
-        return $this->redirect(['view', 'id' => $id]);
+    public function actionNueva_linea($id, $token) {
+        if($token == 0){
+            $table = new \app\models\DocumentoSoporteDetalle();
+            $table->id_documento_soporte = $id;
+            $table->cantidad = 1;
+            $table->save(false);
+             return $this->redirect(['view', 'id' => $id]);
+        }else{
+            $model = $this->findModel($id);
+            $compra = Compra::findOne($model->id_compra);
+            $table = new \app\models\DocumentoSoporteDetalle();
+            $table->id_documento_soporte = $id;
+            $table->cantidad = 1;
+            $table->valor_unitario = $compra->subtotal;
+            $table->porcentaje_retencion = $compra->porcentajefuente;
+            $table->save(false);
+            return $this->redirect(['view', 'id' => $id]);
+        }    
+       
     }
     
     /**

@@ -27,7 +27,7 @@ use kartik\depdrop\DepDrop;
 
  <div class="panel panel-success">
     <div class="panel-heading">
-        <h4>Información Compra</h4>
+        <h4>Información de Compras</h4>
     </div>
     <div class="panel-body">        
         <div class="row">        
@@ -76,6 +76,9 @@ use kartik\depdrop\DepDrop;
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]]) ?>
         </div>
+        <div class="row">
+            <?= $form->field($model, 'genera_documento_soporte')->dropdownList(['0' => 'NO', '1' => 'SI']) ?>			
+        </div>    
         <div class="row">
             <?= $form->field($model, 'observacion')->textArea(['maxlength' => true]) ?>
         </div>

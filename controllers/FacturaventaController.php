@@ -855,7 +855,7 @@ class FacturaventaController extends Controller
 }
 
     
-    //PERMITE REENVIAR LA FACTURA SI NO SE CONECTA A LA DIAN
+   //PERMITE REENVIAR LA FACTURA SI NO SE CONECTA A LA DIAN
     public function actionReenviar_documento_dian($id_factura, $token) {
         // Instanciar la factura desde la base de datos
         $factura = Facturaventa::findOne($id_factura);

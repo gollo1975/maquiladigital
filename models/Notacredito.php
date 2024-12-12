@@ -51,10 +51,10 @@ class Notacredito extends \yii\db\ActiveRecord
     {
         return [
             [['idcliente', 'idconceptonota','id_concepto'], 'required'],
-            [['idcliente', 'idconceptonota', 'numero', 'autorizado', 'anulado','id_concepto'], 'integer'],
-            [['fecha', 'fechapago','fecha_recepcion_dian','fecha_envio_api'], 'safe'],
+            [['idcliente', 'idconceptonota', 'numero', 'autorizado', 'anulado','id_concepto','id_detalle_factura_api'], 'integer'],
+            [['fecha', 'fechapago','fecha_recepcion_dian','fecha_envio_api','fecha_factura_venta'], 'safe'],
             [['valor','iva','reteiva','retefuente','total'], 'number'],
-            [['observacion','cufe','cude'], 'string'],
+            [['observacion','cufe','cude','qrstr'], 'string'],
             [['usuariosistema'], 'string', 'max' => 50],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
             [['idconceptonota'], 'exist', 'skipOnError' => true, 'targetClass' => Conceptonota::className(), 'targetAttribute' => ['idconceptonota' => 'idconceptonota']],
@@ -88,6 +88,7 @@ class Notacredito extends \yii\db\ActiveRecord
             'fecha_recepcion_dian'=> 'fecha_recepcion_dian',
             'cufe' => 'Cufe',
             'cude' => 'Cude',
+            'fecha_factura_venta' => 'Fecha venta factura',
             
             
         ];

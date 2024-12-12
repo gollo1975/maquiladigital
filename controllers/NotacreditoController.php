@@ -214,6 +214,7 @@ class NotacreditoController extends Controller
                             $table->id = $detalle_factura->id;
                             $table->usuariosistema = Yii::$app->user->identity->username;
                             $table->save(false);
+                            $notaCredito->fecha_factura_venta = $factura->fecha_inicio;
                             $notaCredito->cufe = $factura->cufe;
                             $notaCredito->save();
                             $detalle_nota = Notacreditodetalle::find()->orderBy('iddetallenota DESC')->one(); 
@@ -227,6 +228,7 @@ class NotacreditoController extends Controller
                             $table->id = $detalle_factura->id;
                             $table->usuariosistema = Yii::$app->user->identity->username;
                             $table->save(false);
+                            $notaCredito->fecha_factura_venta = $factura->fecha_inicio;
                             $notaCredito->cufe = $factura->cufe;
                             $notaCredito->save();
                         }
@@ -400,6 +402,8 @@ class NotacreditoController extends Controller
         //asignacion variable;
        $consecutivo = $detalle_nota->nrofactura;
        $resolucion = $factura->resolucion->codigo_interfaz; 
+       $observacion = $nota->observacion;
+       $id_detalle_factura = $nota->id_detalle_factura_api;
        // $observacion = $nota->observacion;
         //$cantidad_devolver = $detalle_nota->cantidad;
         //$detalle_codigo = $detalle_nota->id;
@@ -419,7 +423,7 @@ class NotacreditoController extends Controller
           CURLOPT_CUSTOMREQUEST => 'GET',
           CURLOPT_POSTFIELDS => [],
         ));
-       $response = curl_exec($curl);
+        $response = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         
@@ -441,30 +445,82 @@ class NotacreditoController extends Controller
             return $this->redirect(['nota-credito/view', 'id' => $id]);
         }
        try {
-            // Suponiendo que $data contiene tu JSON completo
-
             // Obtener el arreglo de detalles
             $detalles = $data['data'];
             $detallesClave = array_keys($detalles);
             $detallesClave = $detallesClave[0];
             $detalles = $detalles[$detallesClave]['details'];
-           
-            
+
             // Verificar si 'detalles' es un arreglo y no está vacío
             if (is_array($detalles) && count($detalles) > 0) {
                 // Iterar sobre cada detalle y extraer el ID
                 foreach ($detalles as $detalle) {
                     $id = $detalle['id'];
-                    echo "El ID del detalle es: " . $id . "\n";
-
-                    // Puedes realizar otras operaciones con el ID aquí
-                    // Por ejemplo, almacenarlo en un arreglo:
-                    $ids[] = $id;
+                    $nota->id_detalle_factura_api = $id;
+                    $nota->save();
                 }
+                // se envia el body y head de la nota credito
+                $nota = Notacredito::findOne($id);
+                $id_detalle_factura = $nota->id_detalle_factura_api;
+                $cantidad = $detalle_nota->cantidad;
+                //
+                $curl = curl_init();
+                $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch";
+                $dataHead = json_encode([
+                    "consecutivo_factura" => "$consecutivo ",
+                    "codigo_resolucion" => "$resolucion",
+                    "observacion" => "$observacion",
+                 
+                ]);
+                $dataBody = json_encode([
+                    [
+                        "detalle_factura" => $id_detalle_factura,
+                        "cantidad" => $cantidad,
+                    ]
+                ]);
+                
+                //ENVIO DE LOS DATOS
+                curl_setopt_array($curl, [
+                    CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_CUSTOMREQUEST => 'POST',
+                    CURLOPT_POSTFIELDS => [
+                        "head" => $dataHead,
+                        "body" => $dataBody
+                    ],
+                ]);
+                // SE RECUPERA LA DATA
+                 try {
+                    $response = curl_exec($curl);
+                    if (curl_errno($curl)) {
+                        throw new Exception(curl_error($curl));
+                    }
+                    curl_close($curl);
 
-                // Imprimir todos los IDs obtenidos
-                print_r($ids);
-            } else {
+                    $data = json_decode($response, true);
+                    if ($data === null) {
+                        throw new Exception('Error al decodificar la respuesta JSON');
+                    }
+
+                    // Validar y extraer el CUFE
+                    if (isset($data['add']['fe']['cufe'])) {
+                        $cude = $data['add']['fe']['cufe'];
+                        $nota->cude = $cude;
+                        $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
+                        $nota->fecha_recepcion_dian = $fechaRecepcion;
+                        $nota->fecha_envio_api = date("Y-m-d H:i:s");
+                        $qrstr = $data['add']['fe']['sentDetail']['response']['QRStr'];
+                        $nota->qrstr = $qrstr;
+                        $nota->save(false);
+                        Yii::$app->getSession()->setFlash('success', "La Nota credito  No ($nota->numero) se envió con éxito a la DIAN.");
+                    } else {
+                        throw new Exception('El CUDE no se encontró en la respuesta.');
+                    }
+                } catch (Exception $e) {
+                    Yii::$app->getSession()->setFlash('error', 'Error al enviar los datos de la Nota credito: ' . $e->getMessage());
+                }
+                
+            } else { //RESPUESTA DEL ID EN AL API
                 throw new Exception("El arreglo 'details' no existe o está vacío.");
             }
         } catch (Exception $e) {

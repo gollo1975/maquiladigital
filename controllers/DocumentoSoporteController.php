@@ -122,7 +122,7 @@ class DocumentoSoporteController extends Controller
     {
         $detalles = \app\models\DocumentoSoporteDetalle::find()->where(['=','id_documento_soporte', $id])->all();
         //ACTUALIZA LINEAS DEL DOCUMENTO SOPORTE
-        if(isset($_POST["ActualizarLineas"])){
+        if(isset($_POST["actualizarlineas"])){
             if(isset($_POST["listado"])){
                 $intIndice = 0;
                 foreach ($_POST["listado"] as $intCodigo):

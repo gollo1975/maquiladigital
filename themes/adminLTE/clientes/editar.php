@@ -98,7 +98,10 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
                 <?= $form->field($model, 'retencioniva')->dropdownList(['0' => 'NO', '1' => 'SI'], ['id' => 'retencioniva', 'readonly' => 'readonly']) ?>
                 <?= $form->field($model, 'retencionfuente')->dropdownList(['0' => 'NO', '1' => 'SI'], ['id' => 'retencionfuente', 'readonly' => 'readonly']) ?>
             </div>
-           
+            <div class="row">
+                <?= $form->field($model, 'minuto_confeccion')->input("text") ?>
+                <?= $form->field($model, 'minuto_terminacion')->input("text") ?>			
+            </div>
             <div class="row">
                 <div class="field-tblclientes-observaciones_cliente has-success">
                     <?= $form->field($model, 'email_envio_factura_dian')->input("text") ?>

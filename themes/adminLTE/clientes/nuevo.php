@@ -95,6 +95,10 @@ $formapago = ArrayHelper::map(\app\models\FormaPago::find()->all(), 'id_forma_pa
         <?= $form->field($model, 'retencionfuente')->dropdownList(['0' => 'NO', '1' => 'SI'], ['id' => 'retencionfuente', 'readonly' => 'readonly']) ?>
     </div>
     <div class="row">
+        <?= $form->field($model, 'minuto_confeccion')->input("text") ?>
+        <?= $form->field($model, 'minuto_terminacion')->input("text") ?>			
+    </div>
+    <div class="row">
         <div class="field-tblclientes-observaciones_cliente has-success">
               <?= $form->field($model, 'email_envio_factura_dian')->input("text") ?>
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>

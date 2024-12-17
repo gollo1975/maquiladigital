@@ -150,7 +150,7 @@ $ConRetenciones = \yii\helpers\ArrayHelper::map(app\models\RetencionFuente::find
                                     }
                             }else{
                                 if($model->autorizado == 0 && count($detalles) > 0){?>
-                                         <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'ActualizarLineas']) ?>		
+                                         <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizarlineas']) ?>		
                                 <?php }else{?>
 
                                 <?php }

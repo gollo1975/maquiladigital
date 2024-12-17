@@ -260,10 +260,23 @@ class ClientesController extends Controller {
     }
 
     public function actionView($id, $token) {
-        // $model = new List();            
+        $listado_producto = \app\models\ClientePrendas::find()->where(['=','id_cliente', $id])->all();            
         $table = Cliente::find()->where(['idcliente' => $id])->one();
-        return $this->render('view', ['table' => $table, 'token' => $token
-                
+        if(isset($_POST["actualizar_price"])){
+            if(isset($_POST["listado"])){
+                $intIndice = 0;
+                foreach ($_POST["listado"] as $intCodigo):
+                   $searchPrenda = \app\models\ClientePrendas::findOne($intCodigo);
+                   $searchPrenda->valor_confeccion = $_POST["valor_confeccion"][$intIndice];
+                   $searchPrenda->valor_terminacion = $_POST["valor_terminacion"][$intIndice];
+                   $searchPrenda->save();
+                   $intIndice++;
+                endforeach;
+                return $this->redirect(['clientes/view','id' =>$id,'token' => $token]);
+            }
+        }    
+        return $this->render('view', ['table' => $table, 'token' => $token,
+                            'listado_producto' => $listado_producto
         ]);
     }
 

@@ -19,7 +19,7 @@ class ResolucionSearch extends Resolucion
     public function rules()
     {
         return [
-            [['idresolucion', 'activo','codigoactividad','descripcion','activo','vigencia','inicio_rango', 'final_rango'], 'integer'],
+            [['idresolucion', 'activo','codigoactividad','descripcion','activo','vigencia','inicio_rango', 'final_rango','id_documento'], 'integer'],
             [['codigoactividad', 'descripcion','codigo_interfaz'], 'string'],
             [['nroresolucion', 'fechacreacion','fechavencimiento'], 'safe'],
         ];
@@ -63,6 +63,7 @@ class ResolucionSearch extends Resolucion
         // grid filtering conditions
         $query->andFilterWhere([
             'idresolucion' => $this->idresolucion,
+            'id_documento' => $this->id_documento,
 
         ]);
 

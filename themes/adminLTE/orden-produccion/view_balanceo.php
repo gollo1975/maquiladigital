@@ -260,13 +260,13 @@ if($buscarOrden){
                                                        <td style='background-color:#A5D3E6;'><?= $val->procesoconfeccion->descripcion_proceso?></td>
                                                     <?php }?>   
                                             <td><?= $val->plantaempresa->nombre_planta ?></td>
-                                            <?php if($val->procesoconfeccion->estado_proceso == 1){
+                                            <?php if($val->id_proceso_confeccion == 1 || $val->id_proceso_confeccion == 2 || $val->id_proceso_confeccion == 3 ){
                                                    $modulo = $val->id_balanceo;
                                                     if($val->estado_modulo == 0){?>
                                                         <td style="width: 50px; height: 30px;">
                                                             <div class="panel-footer text-center">
                                                               <!-- Inicio Nuevo Detalle proceso -->
-                                                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Prendas',
+                                                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Subir prendas',
                                                                     ['/orden-produccion/subirprendaterminada','id_balanceo' => $val->id_balanceo, 'idordenproduccion' => $model->idordenproduccion, 'id_proceso_confeccion' => $val->id_proceso_confeccion,'id_planta' => $val->id_planta],
                                                                     [
                                                                         'title' => 'Prendas terminadas',

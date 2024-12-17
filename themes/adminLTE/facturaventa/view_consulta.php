@@ -22,7 +22,8 @@ $view = 'facturaventa';
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['indexconsulta', 'id' => $model->idfactura], ['class' => 'btn btn-primary btn-sm']) ?>        
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['indexconsulta', 'id' => $model->idfactura], ['class' => 'btn btn-primary btn-sm']);?>       
+        <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-xs']); ?>           
     </p>
     
     <div class="panel panel-success">

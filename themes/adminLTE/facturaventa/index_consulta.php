@@ -96,8 +96,9 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                 <th scope="col" style='background-color:#B9D5CE;'>Factura</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cedula/Nit</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha Inicio</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha Vcto</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. Inicio</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. Vencimiento</th>
+                 <th scope="col" style='background-color:#B9D5CE;'>F. envio Dian</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Saldo</th>
@@ -118,6 +119,7 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                         <td><?= $val->cliente->nombrecorto ?></td>
                         <td><?= $val->fecha_inicio ?></td>
                         <td><?= $val->fecha_vencimiento ?></td>
+                         <td><?= $val->fecha_recepcion_dian ?></td>
                         <td align="right"><?= number_format($val->subtotal,0) ?></td>
                         <td align="right"><?= number_format($val->totalpagar,0) ?></td>
                         <td align="right"><?= number_format($val->saldo,0) ?></td>

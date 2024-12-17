@@ -669,8 +669,7 @@ class FacturaventaController extends Controller
                     $pendiente = Html::encode($form->pendiente);
                     $table = Facturaventa::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
-                            ->andFilterWhere(['>=', 'fechainicio', $desde])
-                            ->andFilterWhere(['<=', 'fechainicio', $hasta])
+                            ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
                             ->andFilterWhere(['=', 'nrofactura', $numero])
                             ->andWhere(['>', 'nrofactura', 0]);
                     if ($pendiente == 1){
@@ -1070,8 +1069,8 @@ class FacturaventaController extends Controller
                     ->setCellValue('C' . $i, $val->nrofacturaelectronica)
                     ->setCellValue('D' . $i, $val->cliente->nombreClientes)
                     ->setCellValue('F' . $i, $val->idordenproduccion)
-                    ->setCellValue('F' . $i, $val->fechainicio)
-                    ->setCellValue('G' . $i, $val->fechavcto)
+                    ->setCellValue('F' . $i, $val->fecha_inicio)
+                    ->setCellValue('G' . $i, $val->fecha_vencimiento)
                     ->setCellValue('H' . $i, $val->formadepago)
                     ->setCellValue('I' . $i, $val->plazopago)
                     ->setCellValue('J' . $i, $val->porcentajeiva)

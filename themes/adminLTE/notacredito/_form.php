@@ -38,9 +38,9 @@ $Motivos = ArrayHelper::map(\app\models\ConceptoNotaCreditoDevolucion::find()->a
             ]); ?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'idconceptonota')->widget(Select2::classname(), [
-                'data' => $conceptonotacredito,
-                'options' => ['prompt' => 'Seleccione un concepto ...'],
+            <?= $form->field($model, 'id_documento')->widget(Select2::classname(), [
+                'data' => $documentos,
+                'options' => ['prompt' => 'Seleccione el concepto ...'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],

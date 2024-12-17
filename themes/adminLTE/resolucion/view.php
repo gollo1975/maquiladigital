@@ -58,8 +58,8 @@ $this->params['breadcrumbs'][] = $model->idresolucion;
                 <tr>
                     <th><?= Html::activeLabel($model, 'activo') ?>:</th>
                     <td><?= Html::encode($model->estado) ?></td>                    
-                     <th><?= Html::activeLabel($model, 'Tipo_resolucion') ?>:</th>
-                    <td><?= Html::encode($model->abreviaturaResolucion) ?> - <?= Html::encode($model->consecutivo) ?></td>                  
+                     <th><?= Html::activeLabel($model, 'id_documento') ?>:</th>
+                    <td><?= Html::encode($model->documentoelectronico->nombre_documento) ?></td>                  
                 </tr>
             </table>
         </div>

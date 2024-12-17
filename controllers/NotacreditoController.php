@@ -90,18 +90,18 @@ class NotacreditoController extends Controller
     {
         $model = new Notacredito();
         $clientes = Cliente::find()->all();
-        $conceptonotacredito = Conceptonota::find()->all();
+        $documentos = \app\models\DocumentoElectronico::find()->where(['=','codigo_interface', 4])->all();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
 
             $model->usuariosistema = Yii::$app->user->identity->username;
-            $model->update();
+            $model->save(false);
             return $this->redirect(['index']);
         }
         return $this->render('create', [
             'model' => $model,
             'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreClientes"),
-            'conceptonotacredito' => ArrayHelper::map($conceptonotacredito, "idconceptonota", "concepto"),
+            'documentos' => ArrayHelper::map($documentos, "id_documento", "nombre_documento"),
 
         ]);
     }
@@ -117,7 +117,7 @@ class NotacreditoController extends Controller
     {
         $model = $this->findModel($id);
         $clientes = Cliente::find()->all();
-        $conceptonotacredito = Conceptonota::find()->all();
+        $documentos = \app\models\DocumentoElectronico::find()->where(['=','codigo_interface', 4])->all();
         if(Notacreditodetalle::find()->where(['=', 'idnotacredito', $id])->all()){
            Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
         }
@@ -128,7 +128,7 @@ class NotacreditoController extends Controller
         return $this->render('update', [
             'model' => $model,
             'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreClientes"),
-            'conceptonotacredito' => ArrayHelper::map($conceptonotacredito, "idconceptonota", "concepto"),
+            'documentos' => ArrayHelper::map($documentos, "id_documento", "nombre_documento"),
         ]);
     }
 
@@ -393,22 +393,22 @@ class NotacreditoController extends Controller
         }      
     }
     
+    
     //ENVIAR DOCUMENTO NOTA CREDITO DIAN
-    public function actionEnviar_documento_dian($id)
+    public function actionEnviar_nota_credito_dian($id)
     {
         $nota = Notacredito::findOne($id);
         $detalle_nota = Notacreditodetalle::find()->where(['=','idnotacredito', $id])->one();
         $factura = Facturaventa::findOne($detalle_nota->idfactura);
         //asignacion variable;
-       $consecutivo = $detalle_nota->nrofactura;
-       $resolucion = $factura->resolucion->codigo_interfaz; 
-       $observacion = $nota->observacion;
-       $id_detalle_factura = $nota->id_detalle_factura_api;
-       // $observacion = $nota->observacion;
-        //$cantidad_devolver = $detalle_nota->cantidad;
-        //$detalle_codigo = $detalle_nota->id;
+        $consecutivo = $detalle_nota->nrofactura;
+        $resolucion =$factura->resolucion->codigo_interfaz; 
+        $observacion = $nota->observacion;
+        $cantidad = $detalle_nota->cantidad;
+
+       //inicio el Api
         $curl = curl_init();
-        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+            $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
         $consecutivo_factura = "$consecutivo"; //CONSECUTIVO FACTURA
         $codigo_resolucion = "$resolucion"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
         //buscar informacion en la api
@@ -437,8 +437,7 @@ class NotacreditoController extends Controller
         }
         
         $data = json_decode($response, true);
-       
-        
+               
         if (json_last_error() !== JSON_ERROR_NONE) {
             Yii::$app->getSession()->setFlash('error', 'Error al procesar la respuesta de la DIAN. Intenta reenviar más tarde.');
             Yii::error("Error al decodificar JSON: " . json_last_error_msg(), __METHOD__);
@@ -456,16 +455,13 @@ class NotacreditoController extends Controller
                 // Iterar sobre cada detalle y extraer el ID
                 foreach ($detalles as $detalle) {
                     $id = $detalle['id'];
-                    $nota->id_detalle_factura_api = $id;
-                    $nota->save();
                 }
+                $nota->id_detalle_factura_api = $id;
+                $nota->save();
                 // se envia el body y head de la nota credito
-                $nota = Notacredito::findOne($id);
-                $id_detalle_factura = $nota->id_detalle_factura_api;
-                $cantidad = $detalle_nota->cantidad;
-                //
+                
                 $curl = curl_init();
-                $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch";
+                $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X";
                 $dataHead = json_encode([
                     "consecutivo_factura" => "$consecutivo ",
                     "codigo_resolucion" => "$resolucion",
@@ -474,14 +470,14 @@ class NotacreditoController extends Controller
                 ]);
                 $dataBody = json_encode([
                     [
-                        "detalle_factura" => $id_detalle_factura,
-                        "cantidad" => $cantidad,
+                        "detalle_factura" => "$id",
+                        "cantidad" => "$cantidad",
                     ]
                 ]);
                 
                 //ENVIO DE LOS DATOS
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
+                    CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill-return?key=$API_KEY",
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => [
@@ -496,14 +492,13 @@ class NotacreditoController extends Controller
                         throw new Exception(curl_error($curl));
                     }
                     curl_close($curl);
-
                     $data = json_decode($response, true);
                     if ($data === null) {
                         throw new Exception('Error al decodificar la respuesta JSON');
                     }
-
+                     
                     // Validar y extraer el CUFE
-                    if (isset($data['add']['fe']['cufe'])) {
+                   /* if (isset($data['add']['fe']['cufe'])) {
                         $cude = $data['add']['fe']['cufe'];
                         $nota->cude = $cude;
                         $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
@@ -515,7 +510,7 @@ class NotacreditoController extends Controller
                         Yii::$app->getSession()->setFlash('success', "La Nota credito  No ($nota->numero) se envió con éxito a la DIAN.");
                     } else {
                         throw new Exception('El CUDE no se encontró en la respuesta.');
-                    }
+                    }*/
                 } catch (Exception $e) {
                     Yii::$app->getSession()->setFlash('error', 'Error al enviar los datos de la Nota credito: ' . $e->getMessage());
                 }

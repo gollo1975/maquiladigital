@@ -2,12 +2,13 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\ArrayHelper;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\ResolucionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Lista Resoluciones';
+$this->title = 'Resoluciones';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="resoluciones-index">
@@ -22,14 +23,21 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            [
-                'attribute' => 'idresolucion',
-                'contentOptions' => ['class' => 'col-lg-1'],
-            ],
+          
             [
                 'attribute' => 'nroresolucion',
                 'contentOptions' => ['class' => 'col-lg-1'],
             ],
+            [
+                'attribute' => 'id_documento',
+                'value' => function($model){
+                    $documento = app\models\DocumentoElectronico::findOne($model->id_documento);
+                    return $documento->nombre_documento;
+                },
+                'filter' => ArrayHelper::map(app\models\DocumentoElectronico::find()->all(),'id_documento','nombre_documento'),
+                'contentOptions' => ['class' => 'col-lg-1'],
+            ],
+                    
             [
                 'attribute' => 'inicio_rango',
                 'contentOptions' => ['class' => 'col-lg-1'],

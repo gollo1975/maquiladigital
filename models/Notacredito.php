@@ -50,14 +50,14 @@ class Notacredito extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idcliente', 'idconceptonota','id_concepto'], 'required'],
-            [['idcliente', 'idconceptonota', 'numero', 'autorizado', 'anulado','id_concepto','id_detalle_factura_api'], 'integer'],
+            [['idcliente', 'id_concepto','id_documento'], 'required'],
+            [['idcliente', 'id_documento', 'numero', 'autorizado', 'anulado','id_concepto','id_detalle_factura_api'], 'integer'],
             [['fecha', 'fechapago','fecha_recepcion_dian','fecha_envio_api','fecha_factura_venta'], 'safe'],
             [['valor','iva','reteiva','retefuente','total'], 'number'],
             [['observacion','cufe','cude','qrstr'], 'string'],
             [['usuariosistema'], 'string', 'max' => 50],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
-            [['idconceptonota'], 'exist', 'skipOnError' => true, 'targetClass' => Conceptonota::className(), 'targetAttribute' => ['idconceptonota' => 'idconceptonota']],
+            [['id_documento'], 'exist', 'skipOnError' => true, 'targetClass' => DocumentoElectronico::className(), 'targetAttribute' => ['id_documento' => 'id_documento']],
             [['id_concepto'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoNotaCreditoDevolucion::className(), 'targetAttribute' => ['id_concepto' => 'id_concepto']],
         ];
     }
@@ -72,7 +72,7 @@ class Notacredito extends \yii\db\ActiveRecord
             'idcliente' => 'Cliente',
             'fecha' => 'Fecha/hora',
             'fechapago' => 'Fecha creacion',
-            'idconceptonota' => 'Concepto',
+            'id_documento' => 'Tipo de documento',
             'valor' => 'Valor',
             'iva' => 'Iva',
             'reteiva' => 'Rete Iva',
@@ -88,6 +88,7 @@ class Notacredito extends \yii\db\ActiveRecord
             'fecha_recepcion_dian'=> 'fecha_recepcion_dian',
             'cufe' => 'Cufe',
             'cude' => 'Cude',
+            'id_detalle_factura_api' => 'id_detalle_factura_api',
             'fecha_factura_venta' => 'Fecha venta factura',
             
             
@@ -113,9 +114,9 @@ class Notacredito extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getConceptonota()
+    public function getDocumentoeletronico()
     {
-        return $this->hasOne(Conceptonota::className(), ['idconceptonota' => 'idconceptonota']);
+        return $this->hasOne(DocumentoElectronico::className(), ['id_documento' => 'id_documento']);
     }
     
     public function getAutorizar()

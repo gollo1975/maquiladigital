@@ -14,6 +14,7 @@ use kartik\select2\Select2;
 
 
 <?php
+$documento = yii\helpers\ArrayHelper::map(app\models\DocumentoElectronico::find()->all(), 'id_documento', 'nombre_documento');
 $form = ActiveForm::begin([
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
@@ -23,7 +24,6 @@ $form = ActiveForm::begin([
             ],
         ]);
 ?>
-
 
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -63,7 +63,7 @@ $form = ActiveForm::begin([
         </div>
         
         <div class="row">
-             <?= $form->field($model, 'abreviatura')->dropdownList(['FE' => 'Factura electronica', 'DS' => 'Documento soporte'], ['prompt' => 'Seleccione...']) ?>
+             <?= $form->field($model, 'id_documento')->dropdownList($documento, ['prompt' => 'Seleccione...']) ?>
             <?= $form->field($model, 'activo')->dropdownList(['0' => 'Activo', '1' => 'Inactivo'], ['prompt' => 'Seleccione...']) ?>
         </div>	
          <div class="row">

@@ -47,7 +47,7 @@ $view = 'notacredito';
                     'data' => ['confirm' => 'Esta seguro de Generar la Nota Credito para ser enviada a la DIAN. Tener presente que se actualiza el estado de la factura.', 'method' => 'post']]);
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir PDF', ['imprimir', 'id' => $model->idnotacredito], ['class' => 'btn btn-default btn-sm']);            
             }else{  
-                echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar nota credio a la Dian', ['enviar_documento_dian', 'id' => $model->idnotacredito],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
+                echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar nota credio a la Dian', ['enviar_nota_credito_dian', 'id' => $model->idnotacredito],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
                  'data' => ['confirm' => 'Esta seguro de enviar la Nota Credito No  '. $model->numero. ' a la DIAN', 'method' => 'post']]);?>
                  <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir PDF', ['imprimir', 'id' => $model->idnotacredito], ['class' => 'btn btn-default btn-sm']);            
 
@@ -87,8 +87,8 @@ $view = 'notacredito';
                     <td align="right"><?= Html::encode('$ '.number_format($model->reteiva,0)) ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'idconceptonota') ?>:</th>
-                    <td><?= Html::encode($model->conceptonota->concepto) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_documento') ?>:</th>
+                    <td><?= Html::encode($model->documentoeletronico->nombre_documento) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_concepto') ?>:</th>
                   <td><?= Html::encode($model->motivoNota->concepto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ReteFuente') ?>: -</th>

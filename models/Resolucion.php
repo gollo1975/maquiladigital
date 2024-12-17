@@ -44,12 +44,12 @@ class Resolucion extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nroresolucion', 'inicio_rango', 'final_rango', 'fechavencimiento', 'codigoactividad', 'descripcion','vigencia'], 'required'],
+            [['nroresolucion', 'inicio_rango', 'final_rango', 'fechavencimiento', 'codigoactividad', 'descripcion','vigencia','id_documento'], 'required'],
             [['fechacreacion', 'fechavencimiento'], 'safe'],
-            [['codigoactividad', 'activo','inicio_rango','final_rango'], 'integer'],
+            [['codigoactividad', 'activo','inicio_rango','final_rango','id_documento'], 'integer'],
             [['nroresolucion'], 'string', 'max' => 40],
             [['descripcion','codigo_interfaz'], 'string', 'max' => 50],
-            [['consecutivo','abreviatura'],'string' ,'max' => 3],
+            [['consecutivo'],'string' ,'max' => 3],
            
         ];
     }
@@ -71,7 +71,7 @@ class Resolucion extends \yii\db\ActiveRecord
             'descripcion' => 'Descripción',
             'activo' => 'Activo',
             'consecutivo' => 'Consecutivo',
-            'abreviatura' => 'Abreviatura',
+            'id_documento' => 'Documento',
             'vigencia' => 'Vigencia',
             'codigo_interfaz' => 'Codigo interfaz',
             
@@ -86,6 +86,14 @@ class Resolucion extends \yii\db\ActiveRecord
         return $this->hasMany(Facturaventa::className(), ['idresolucion' => 'idresolucion']);
     }
     
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDocumentoelectronico()
+    {
+       
+        return $this->hasOne(DocumentoElectronico::className(), ['id_documento' => 'id_documento']);
+    }
    
     
     public function getEstado()
@@ -97,13 +105,5 @@ class Resolucion extends \yii\db\ActiveRecord
         }
         return $activo;
     }
-    public function getAbreviaturaResolucion()
-    {
-        if ($this->abreviatura == 'FE'){
-            $abreviaturaresolucion = "Factura electronica";
-        }else{
-            $abreviaturaresolucion = "Documento soporte";
-        }
-        return $abreviaturaresolucion;
-    }
+    
 }

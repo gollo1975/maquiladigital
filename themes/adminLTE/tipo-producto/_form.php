@@ -26,6 +26,9 @@ use yii\helpers\Url;
         <div class="row">
             <?= $form->field($model, 'concepto')->textInput(['maxlength' => true]) ?>
         </div>
+          <div class="row">
+            <?= $form->field($model, 'linea')->textInput(['maxlength' => true]) ?>
+        </div>
       
         <div class="panel-footer text-right">            
             <a href="<?= Url::toRoute("tipo-producto/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>

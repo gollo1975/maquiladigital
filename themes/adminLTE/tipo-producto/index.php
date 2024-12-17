@@ -28,7 +28,11 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'concepto',
-                'contentOptions' => ['class' => 'col-lg-4 '],
+                'contentOptions' => ['class' => 'col-lg-3 '],
+            ],
+            [
+                'attribute' => 'linea',
+                'contentOptions' => ['class' => 'col-lg-1 '],
             ],
             [               
                 'attribute' => 'estado',

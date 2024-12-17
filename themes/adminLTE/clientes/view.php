@@ -127,6 +127,7 @@ $view = 'clientes';
                                 <thead>
                                     <tr style="font-size: 85%;">
                                         <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Linea</th>
                                         <th scope="col" style='background-color:#B9D5CE; text-align: center'>Valor confeccion</th>
                                         <th scope="col" style='background-color:#B9D5CE; text-align: center'>Valor terminacion</th>
                                     </tr>
@@ -136,6 +137,7 @@ $view = 'clientes';
                                     foreach ($listado_producto as $key => $val) {?>
                                         <tr style="font-size: 85%;">
                                             <td><?= $val->tipoProducto->concepto?></td>
+                                            <td><?= $val->tipoProducto->linea?></td>
                                             <td style="background:#ADB9D1; font-weight:bold; text-align: center"><input type="text" name="valor_confeccion[]" style = "text-align: right" size = '10' value="<?= $val->valor_confeccion?>"></td>
                                             <td style="background:#ADB9D1; font-weight:bold; text-align: center"><input type="text" name="valor_terminacion[]" style = "text-align: right" size = '10' value="<?= $val->valor_terminacion?>"></td>
                                              <input type="hidden" name="listado[]" value="<?= $val->id ?>">

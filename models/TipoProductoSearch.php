@@ -18,7 +18,7 @@ class TipoProductoSearch extends TipoProducto
     {
         return [
             [['id_tipo_producto', 'estado'], 'integer'],
-            [['concepto'], 'safe'],
+            [['concepto','linea'], 'safe'],
         ];
     }
 
@@ -59,6 +59,7 @@ class TipoProductoSearch extends TipoProducto
         // grid filtering conditions
         $query->andFilterWhere([
             'id_tipo_producto' => $this->id_tipo_producto,
+            'linea' => $this->linea,
             'estado' => $this->estado,
         ]);
 

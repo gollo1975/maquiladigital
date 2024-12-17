@@ -27,6 +27,7 @@ class TipoProducto extends \yii\db\ActiveRecord
         }
 	# ToDo: Cambiar a cliente cargada de configuración.    
 	$this->concepto = strtoupper($this->concepto);
+        $this->linea = strtoupper($this->linea);
         return true;
     }
 
@@ -38,7 +39,7 @@ class TipoProducto extends \yii\db\ActiveRecord
         return [
             [['concepto'], 'required'],
             [['estado'], 'integer'],
-            [['concepto'], 'string', 'max' => 30],
+            [['concepto','linea'], 'string', 'max' => 30],
         ];
     }
 
@@ -51,6 +52,7 @@ class TipoProducto extends \yii\db\ActiveRecord
             'id_tipo_producto' => 'Codigo',
             'concepto' => 'Descripcion de la prenda',
             'estado' => 'Activo',
+            'linea' => 'Linea',
         ];
     }
     

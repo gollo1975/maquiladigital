@@ -116,11 +116,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?php if(!\app\models\DocumentoSoporteDetalle::find()->where(['=','id_documento_soporte', $val->id_documento_soporte])->one()){
                     if($val->id_compra != ''){?>
                         <td style= 'width: 20px; height: 20px;'>
-                            <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte,'sw' => 1])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                            <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte,'sw' => 1,'Token' => 1])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                         </td>
                     <?php }else{?>
                         <td style= 'width: 20px; height: 20px;'>
-                            <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte, 'sw' => 0])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
+                            <a href="<?= Url::toRoute(["documento-soporte/update", "id" => $val->id_documento_soporte, 'sw' => 0, 'Token' => 0])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                         </td>
                     <?php }
                 }else{?>
@@ -137,8 +137,8 @@ $this->params['breadcrumbs'][] = $this->title;
                         ]);
                 ?>    
             <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>
-            <a align="right" href="<?= Url::toRoute(["documento-soporte/create",'sw' => 0]) ?>" class="btn btn-info btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo sin CC </a>
-            <a align="right" href="<?= Url::toRoute(["documento-soporte/create",'sw' => 1 ]) ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo con CC</a>
+            <a align="right" href="<?= Url::toRoute(["documento-soporte/create",'sw' => 0,'Token' => 0]) ?>" class="btn btn-info btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo sin CC </a>
+            <a align="right" href="<?= Url::toRoute(["documento-soporte/create",'sw' => 1,'Token' => 0 ]) ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo con CC</a>
             <?php $form->end() ?>
             
         </div>

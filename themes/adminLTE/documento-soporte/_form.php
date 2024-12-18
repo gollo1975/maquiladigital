@@ -29,6 +29,9 @@ $form = ActiveForm::begin([
 <?php
    $formaPago = ArrayHelper::map(\app\models\FormaPago::find()->all(), 'id_forma_pago', 'concepto');
    $conProveedor = ArrayHelper::map(app\models\Proveedor::find()->orderBy('nombrecorto ASC')->all(), 'idproveedor', 'nombrecorto');
+   $cuentaCobro = ArrayHelper::map(app\models\Compra::find()->where(['=','id_proveedor', $model->idproveedor])
+                                                       ->andWhere(['=','genera_documento_soporte', 1])->andWhere(['=','documento_generado', 0])
+                                                       ->orderBy('id_compra ASC')->all(), 'id_compra', 'Compras');
    
 ?>
 <body>
@@ -36,15 +39,24 @@ $form = ActiveForm::begin([
 
 <div class="panel panel-success">
     <div class="panel-heading">
-        Información Grupo Pago
+        Información del proveedor
     </div>
     <div class="panel-body">  
-        <?php if ($sw == 1){?>        
-            <div class="row">
-                  <?= $form->field($model, 'idproveedor')->dropDownList($conProveedor,['prompt'=>'Seleccione...', 'onchange'=>' $.get( "'.Url::toRoute('documento-soporte/cargarcompras').'", { id: $(this).val() } ) .done(function( data ) {
-                    $( "#'.Html::getInputId($model, 'id_compra',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
-                    <?= $form->field($model, 'id_compra')->dropDownList(['prompt' => 'Seleccione...']) ?>
-            </div>    
+        <?php
+        if ($sw == 1){
+            if ($Token == 0){?>
+                <div class="row">
+                      <?= $form->field($model, 'idproveedor')->dropDownList($conProveedor,['prompt'=>'Seleccione...', 'onchange'=>' $.get( "'.Url::toRoute('documento-soporte/cargarcompras').'", { id: $(this).val() } ) .done(function( data ) {
+                        $( "#'.Html::getInputId($model, 'id_compra',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
+                        <?= $form->field($model, 'id_compra')->dropDownList(['prompt' => 'Seleccione...']) ?>
+                </div>    
+            <?php }else{ ?> 
+                <div class="row">
+                        <?= $form->field($model, 'idproveedor')->dropDownList($conProveedor,['prompt'=>'Seleccione...', 'onchange'=>' $.get( "'.Url::toRoute('documento-soporte/cargarcompras').'", { id: $(this).val() } ) .done(function( data ) {
+                          $( "#'.Html::getInputId($model, 'id_compra',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
+                          <?= $form->field($model, 'id_compra')->dropDownList($cuentaCobro, ['prompt' => 'Seleccione...']) ?>
+                </div>    
+            <?php } ?>  
             <div class="row">
                 <?=$form->field($model, 'fecha_elaboracion')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                     'value' => date('d-M-Y', strtotime('+2 days')),

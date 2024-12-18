@@ -43,7 +43,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idproveedor', 'id_compra', 'numero_soporte', 'id_forma_pago', 'autorizado','valor_pagar'], 'integer'],
+            [['idproveedor', 'id_compra', 'numero_soporte', 'id_forma_pago', 'autorizado','valor_pagar','idresolucion'], 'integer'],
             [['fecha_elaboracion'], 'required'],
             [['fecha_elaboracion', 'fecha_hora_registro', 'fecha_recepcion_dian', 'fecha_envio_api'], 'safe'],
             [['documento_compra', 'user_name'], 'string', 'max' => 15],
@@ -53,6 +53,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
             [['idproveedor'], 'exist', 'skipOnError' => true, 'targetClass' => Proveedor::className(), 'targetAttribute' => ['idproveedor' => 'idproveedor']],
             [['id_compra'], 'exist', 'skipOnError' => true, 'targetClass' => Compra::className(), 'targetAttribute' => ['id_compra' => 'id_compra']],
             [['id_forma_pago'], 'exist', 'skipOnError' => true, 'targetClass' => FormaPago::className(), 'targetAttribute' => ['id_forma_pago' => 'id_forma_pago']],
+            [['idresolucion'], 'exist', 'skipOnError' => true, 'targetClass' => Resolucion::className(), 'targetAttribute' => ['idresolucion' => 'idresolucion']],
         ];
     }
 
@@ -78,6 +79,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
             'user_name' => 'User Name',
             'valor_pagar' => 'Total documento:',
             'observacion' => 'observacion',
+            'idresolucion' => 'idresolucion',
         ];
     }
 
@@ -87,6 +89,14 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
     public function getProveedor()
     {
         return $this->hasOne(Proveedor::className(), ['idproveedor' => 'idproveedor']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getResoluciones()
+    {
+        return $this->hasOne(Resolucion::className(), ['idresolucion' => 'idresolucion']);
     }
 
     /**

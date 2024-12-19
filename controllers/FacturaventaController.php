@@ -170,7 +170,7 @@ class FacturaventaController extends Controller
         $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $facturastipo = Facturaventatipo::find()->all();
         $ordenesproduccion = Ordenproduccion::find()->Where(['=', 'autorizado', 1])->andWhere(['=', 'facturado', 0])->all();
-        $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','abreviatura', 'FE'])->one();
+        $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
             $fecha = date( $model->fecha_inicio);

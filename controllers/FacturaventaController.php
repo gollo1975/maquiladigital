@@ -753,12 +753,12 @@ class FacturaventaController extends Controller
     $tipodocumento = $clientes->tipo->codigo_api;
     if($tipodocumento == 5){
        $nombre_completo = $clientes->nombrecorto; 
-       $nombre_cliente = $clientes->nombrecorto; 
-       $apellido_cliente = $clientes->nombrecorto;
+       $nombre_cliente = '.'; 
+       $apellido_cliente = '.';
     }else{
         $nombre_completo = $clientes->nombrecorto;
-        $nombre_cliente = $clientes->nombrecliente; 
-        $apellido_cliente = $clientes->apellidocliente;
+        $nombre_cliente = '.'; 
+        $apellido_cliente = '.';
     }
     $direccioncliente = $clientes->direccioncliente;
     $telefono = $clientes->telefonocliente;

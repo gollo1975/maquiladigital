@@ -312,7 +312,8 @@ class DocumentoSoporteController extends Controller
        //ASIGNACIONES
        $documento_proveedor = $proveedor->cedulanit;
        $tipo_documento = $proveedor->tipo->codigo_api;
-       $nombre_proveedor = $proveedor->nombrecorto;
+       $nombres = $proveedor->nombreproveedor;
+       $apellidos = $proveedor->apellidoproveedor;
        $direccion_proveedor = $proveedor->direccionproveedor;
        $telefono = $proveedor->telefonoproveedor;
        $email_proveedor = $proveedor->emailproveedor;
@@ -321,7 +322,6 @@ class DocumentoSoporteController extends Controller
        $forma_pago = $documento->formaPago->codigo_api_ds;
        $observacion = $documento->observacion;
        $resolucion = $resolucion->codigo_interfaz;
-       $consecutivo = $documento->numero_soporte;
        
        //DATOS DEL DETALLE 
        $cantidad = $documento_detalle->cantidad;
@@ -329,37 +329,38 @@ class DocumentoSoporteController extends Controller
        $codigo_concepto = $documento_detalle->concepto->codigo_interface;                
 
        // Configurar cURL
-     /*   $curl = curl_init();
+        $curl = curl_init();
         $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X";
         $dataHead = json_encode([
             "client" => [
                 "document" => "$documento_proveedor",
                 "document_type" => "$tipo_documento",
-                "first_name" => "$nombre_proveedor",
+                "first_name" => "$nombres",
+                "last_name_one" => "$apellidos",
+                "last_name_two" => "", 
                 "address" => "$direccion_proveedor",
                 "phone" => "$telefono",
                 "email" => "$email_proveedor",
                 "city" => "$ciudad"
             ],
             "billProvider" => "$documento_compra",
-            "warehouse" => "1",
+            "warehouse" => 1,
             "conceptId" => "$resolucion",
-            "consecutivo" => "$consecutivo",
             "forma_pago" => "$forma_pago",
             "observacion" => "$observacion",
-        ]);*/
+        ]);
        
-     /*  $dataBody = json_encode([
+      $dataBody = json_encode([
             [
                 "product" => $codigo_concepto,
                 "qty" => $cantidad,
                 "discount" => "0",
                 "cost" => $valor_unitario,
             ]
-        ]);*/
+        ]);
        
         //ENVIA LA INFORMACION
-      /*  curl_setopt_array($curl, [
+        curl_setopt_array($curl, [
             CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => 'POST',
@@ -367,7 +368,7 @@ class DocumentoSoporteController extends Controller
                 "head" => $dataHead,
                 "body" => $dataBody
             ],
-        ]);*/
+        ]);
        
         // RECUPERA EL RESPONSE
         try {
@@ -378,27 +379,29 @@ class DocumentoSoporteController extends Controller
              curl_close($curl);
 
              $data = json_decode($response, true);
+             var_dump($data);
              if ($data === null) {
                  throw new Exception('Error al decodificar la respuesta JSON');
              }
 
              // Validar y extraer el CUFE
-             if (isset($data['add']['fe']['cufe'])) {
-                 $cufe = $data['add']['fe']['cufe'];
-                 $factura->cufe = $cufe;
+          /*   if (isset($data['add']['cude'])) {
+                 $cuds = $data['add']['cude'];
+                 $documento->cuds = $cuds;
                  $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
-                 $factura->fecha_recepcion_dian = $fechaRecepcion;
-                 $factura->fecha_envio_begranda = date("Y-m-d H:i:s");
-                 $qrstr = $data['add']['fe']['sentDetail']['response']['QRStr'];
-                 $factura->qrstr = $qrstr;
-                 $factura->save(false);
-                 Yii::$app->getSession()->setFlash('success', "La factura de venta electrónica No ($consecutivo) se envió con éxito a la DIAN.");
+                 $documento->fecha_recepcion_dian = $fechaRecepcion;
+                 $documento->fecha_envio_api = date("Y-m-d H:i:s");
+                 $qrstr = $data['add']['sentDetail']['response']['QRStr'];
+                 $documento->qrstr = $qrstr;
+                 $documento->save(false);
+                 Yii::$app->getSession()->setFlash('success', "El documento soporte No ($consecutivo) se envió con éxito a la DIAN.");
              } else {
                  throw new Exception('El CUFE no se encontró en la respuesta.');
-             }
+             }*/
         } catch (Exception $e) {
              Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
+      //  return $this->redirect(['view','id' => $id]);
 
     }
     

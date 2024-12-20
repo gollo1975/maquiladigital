@@ -751,7 +751,15 @@ class FacturaventaController extends Controller
     // Preparar datos para la API
     $documentocliente = $clientes->cedulanit;
     $tipodocumento = $clientes->tipo->codigo_api;
-    $nombrecliente = $clientes->nombrecorto;
+    if($tipodocumento == 5){
+       $nombre_completo = $clientes->nombrecorto; 
+       $nombre_cliente = $clientes->nombrecorto; 
+       $apellido_cliente = $clientes->nombrecorto;
+    }else{
+        $nombre_completo = $clientes->nombrecorto;
+        $nombre_cliente = $clientes->nombrecliente; 
+        $apellido_cliente = $clientes->apellidocliente;
+    }
     $direccioncliente = $clientes->direccioncliente;
     $telefono = $clientes->telefonocliente;
     $emailcliente = $clientes->email_envio_factura_dian;
@@ -766,6 +774,7 @@ class FacturaventaController extends Controller
     $cantidad = $detalle->cantidad;
     $valor_unitario = $detalle->preciounitario;
     $subtotal = $detalle->total;
+   
     if($clientes->retencioniva == 1){
         $rete_iva = true;
     }else{
@@ -785,7 +794,9 @@ class FacturaventaController extends Controller
         "client" => [
             "document" => "$documentocliente",
             "document_type" => "$tipodocumento",
-            "first_name" => "$nombrecliente",
+            "first_name" => "$nombre_completo",
+            "last_name_one" => "$nombre_cliente",
+            "last_name_two" => "$apellido_cliente",
             "address" => "$direccioncliente",
             "phone" => "$telefono",
             "email" => "$emailcliente",
@@ -828,10 +839,11 @@ class FacturaventaController extends Controller
         curl_close($curl);
 
         $data = json_decode($response, true);
+        var_dump($data);
         if ($data === null) {
             throw new Exception('Error al decodificar la respuesta JSON');
         }
-
+        
         // Validar y extraer el CUFE
         if (isset($data['add']['fe']['cufe'])) {
             $cufe = $data['add']['fe']['cufe'];

@@ -839,7 +839,6 @@ class FacturaventaController extends Controller
         curl_close($curl);
 
         $data = json_decode($response, true);
-        var_dump($data);
         if ($data === null) {
             throw new Exception('Error al decodificar la respuesta JSON');
         }

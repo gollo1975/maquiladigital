@@ -137,9 +137,13 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                              <td style="width: 25px; height: 25px;">				
                                 <a href="<?= Url::toRoute(["facturaventa/view", "id" => $val->idfactura, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                             </td>
-                            <td style="width: 25px; height: 25px;">				
-                                <a href="<?= Url::toRoute(["facturaventa/search_factura_dian", "id_factura" => $val->idfactura, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-search"></span></a>                
-                            </td>
+                            <?php if($val->saldo > 0){?>
+                                <td style="width: 25px; height: 25px;">				
+                                    <a href="<?= Url::toRoute(["facturaventa/search_factura_dian", "id_factura" => $val->idfactura, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-search"></span></a>                
+                                </td>
+                            <?php }else{?>
+                                <td style="width: 25px; height: 25px;"></td>
+                            <?php }?>    
                         <?php } ?>    
                     </tr>
                 <?php endforeach; ?>

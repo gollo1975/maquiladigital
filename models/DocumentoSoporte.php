@@ -46,7 +46,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
             [['idproveedor', 'id_compra', 'numero_soporte', 'id_forma_pago', 'autorizado','valor_pagar','idresolucion'], 'integer'],
             [['fecha_elaboracion'], 'required'],
             [['fecha_elaboracion', 'fecha_hora_registro', 'fecha_recepcion_dian', 'fecha_envio_api'], 'safe'],
-            [['documento_compra', 'user_name'], 'string', 'max' => 15],
+            [['documento_compra', 'user_name','consecutivo'], 'string', 'max' => 15],
             [['cuds'], 'string', 'max' => 350],
             [['qrstr'], 'string', 'max' => 2000],
             ['observacion', 'string', 'max' => 50],
@@ -80,6 +80,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
             'valor_pagar' => 'Total documento:',
             'observacion' => 'observacion',
             'idresolucion' => 'idresolucion',
+            'consecutivo' => 'consecutivo',
         ];
     }
 

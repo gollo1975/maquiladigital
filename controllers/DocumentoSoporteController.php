@@ -8,6 +8,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\data\Pagination;
 use yii\helpers\Html;
+use yii\base\BaseObject; 
 //models
 use app\models\DocumentoSoporte;
 use app\models\DocumentoSoporteSearch;
@@ -176,10 +177,13 @@ class DocumentoSoporteController extends Controller
         
         $conCompra = Compra::find()->orderBy('id_compra DESC')->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
             if($sw == 1){
                 $compra = Compra::findOne($model->id_compra);
                 $model->documento_compra = $compra->factura;
             }
+            $model->idresolucion = $resolucion->idresolucion;
+            $model->consecutivo = $resolucion->consecutivo;
             $model->user_name = Yii::$app->user->identity->username;
             $model->save();
             return $this->redirect(['view', 'id' => $model->id_documento_soporte]);
@@ -312,8 +316,7 @@ class DocumentoSoporteController extends Controller
        //ASIGNACIONES
        $documento_proveedor = $proveedor->cedulanit;
        $tipo_documento = $proveedor->tipo->codigo_api;
-       $nombres = $proveedor->nombreproveedor;
-       $apellidos = $proveedor->apellidoproveedor;
+       $nombres = $proveedor->nombrecorto;
        $direccion_proveedor = $proveedor->direccionproveedor;
        $telefono = $proveedor->telefonoproveedor;
        $email_proveedor = $proveedor->emailproveedor;
@@ -321,7 +324,7 @@ class DocumentoSoporteController extends Controller
        $documento_compra = $documento->documento_compra;
        $forma_pago = $documento->formaPago->codigo_api_ds;
        $observacion = $documento->observacion;
-       $resolucion = $resolucion->codigo_interfaz;
+      $resolucion = $resolucion->codigo_interfaz;
        
        //DATOS DEL DETALLE 
        $cantidad = $documento_detalle->cantidad;
@@ -330,21 +333,22 @@ class DocumentoSoporteController extends Controller
 
        // Configurar cURL
         $curl = curl_init();
-        $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X";
+        $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //ley de desarrollo
+       // $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //Key de produccion
         $dataHead = json_encode([
             "client" => [
                 "document" => "$documento_proveedor",
                 "document_type" => "$tipo_documento",
                 "first_name" => "$nombres",
-                "last_name_one" => "$apellidos",
-                "last_name_two" => "", 
+                "last_name_one" => ".",
+                "last_name_two" => ".", 
                 "address" => "$direccion_proveedor",
                 "phone" => "$telefono",
                 "email" => "$email_proveedor",
                 "city" => "$ciudad"
             ],
             "billProvider" => "$documento_compra",
-            "warehouse" => 1,
+             "warehouse" => 1,
             "conceptId" => "$resolucion",
             "forma_pago" => "$forma_pago",
             "observacion" => "$observacion",
@@ -401,6 +405,7 @@ class DocumentoSoporteController extends Controller
         } catch (Exception $e) {
              Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
+        
       //  return $this->redirect(['view','id' => $id]);
 
     }
@@ -419,5 +424,110 @@ class DocumentoSoporteController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    
+    public function actionImprimir_documento_soporte($id) {
+        return $this->render('../formatos/documento_soporte', [
+            'model' => $this->findModel($id),
+            
+        ]);
+    }
+    
+     ///exceles
+    
+    public function actionExcelconsultaDocumentos($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
+       
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'Id')
+                    ->setCellValue('B1', 'Numero')
+                    ->setCellValue('C1', 'Proveedor')
+                    ->setCellValue('D1', 'Numero de compra')
+                    ->setCellValue('E1', 'Fecha elaboracion')
+                    ->setCellValue('F1', 'Fecha hora registro')
+                    ->setCellValue('G1', 'Fecha recepcion Dian')
+                    ->setCellValue('H1', 'Fecha envio API')
+                    ->setCellValue('I1', 'Cantidad')
+                    ->setCellValue('J1', 'Vlr unitario')
+                    ->setCellValue('K1', 'Porcenatje retencion')
+                    ->setCellValue('L1', 'Valor retencion')
+                    ->setCellValue('M1', 'Total pagar')
+                    ->setCellValue('N1', 'Oservaciones')
+                    ->setCellValue('O1', 'Concepto de compra')                      
+                    ->setCellValue('P1', 'Forma de pago')
+                    ->setCellValue('Q1', 'Cuds');
+        $i = 2;
+        
+        foreach ($tableexcel as $val) {
+            $detalle = \app\models\DocumentoSoporteDetalle::find()->where(['=','id_documento_soporte', $val->id_documento_soporte])->all();
+            foreach ($detalle as $key => $detalles) {
+                                
+                $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('A' . $i, $val->id_documento_soporte)
+                        ->setCellValue('B' . $i, $val->numero_soporte)
+                        ->setCellValue('C' . $i, $val->proveedor->nombrecorto)
+                        ->setCellValue('D' . $i, $val->documento_compra)
+                        ->setCellValue('E' . $i, $val->fecha_elaboracion)
+                        ->setCellValue('F' . $i, $val->fecha_hora_registro)
+                        ->setCellValue('G' . $i, $val->fecha_recepcion_dian)
+                        ->setCellValue('H' . $i, $val->fecha_envio_api)
+                        ->setCellValue('I' . $i, $detalles->cantidad)
+                        ->setCellValue('J' . $i, $detalles->valor_unitario)
+                        ->setCellValue('K' . $i, $detalles->porcentaje_retencion)
+                        ->setCellValue('L' . $i, $detalles->valor_retencion)
+                        ->setCellValue('M' . $i, $val->valor_pagar)
+                        ->setCellValue('N' . $i, $val->observacion)
+                        ->setCellValue('O' . $i, $detalles->descripcion)
+                        ->setCellValue('P' . $i, $val->formaPago->concepto)
+                        ->setCellValue('Q' . $i, $val->cuds);
+                $i++;
+            }
+            $i = $i;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listados');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Documento_soporte.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
     }
 }

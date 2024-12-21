@@ -789,7 +789,7 @@ class FacturaventaController extends Controller
 
     // Configurar cURL
     $curl = curl_init();
-    $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch";
+    $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
     $dataHead = json_encode([
         "client" => [
             "document" => "$documentocliente",
@@ -878,7 +878,7 @@ class FacturaventaController extends Controller
         $consecutivo = $factura->nrofactura;
         // URL y clave API
         $API_URL = "http://begranda.com/equilibrium2/public/api/send-electronic-invoice";
-        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; // Reemplazar con tu clave API
+        $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
 
         // Inicializar CURL
         $curl = curl_init();
@@ -964,7 +964,7 @@ class FacturaventaController extends Controller
              
         //PROCESO QUE BUSCA UNA FACTURA EN LA API
         $curl = curl_init();
-        $API_KEY = "XgSaK2H9kBgIG6wrYdRHpqX5ekEGB0iS2dc2877703daac9d27fe919ea661bac0fbqyFG3QVs454VEX9Fj1W9zYDZTrLGch"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
         $consecutivo_factura = "$consecutivo"; //CONSECUTIVO FACTURA
         $codigo_resolucion = "$resolucion"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
 

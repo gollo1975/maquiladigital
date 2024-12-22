@@ -57,11 +57,13 @@ class OperariosController extends Controller
                 $estado = null;
                 $vinculado = null;
                 $planta = null;
+                $tipo_operaria = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_operario = Html::encode($form->id_operario);
                         $documento = Html::encode($form->documento);
                         $estado = Html::encode($form->estado);
+                         $tipo_operaria = Html::encode($form->tipo_operaria);
                         $vinculado = Html::encode($form->vinculado);
                         $planta = Html::encode($form->planta);
                         $table = Operarios::find()
@@ -69,6 +71,7 @@ class OperariosController extends Controller
                                 ->andFilterWhere(['=', 'documento', $documento])
                                 ->andFilterWhere(['=', 'estado', $estado])
                                 ->andFilterWhere(['=','vinculado', $vinculado])
+                                ->andFilterWhere(['=','idtipo', $tipo_operaria])
                                 ->andFilterWhere(['=','id_planta', $planta]); 
                         $table = $table->orderBy('id_operario DESC');
                         $tableexcel = $table->all();
@@ -187,7 +190,7 @@ class OperariosController extends Controller
                 $table->polivalente = $model->polivalente;
                 $table->fecha_nacimiento = $model->fecha_nacimiento;
                 $table->vinculado = $model->vinculado;
-                $table->tipo_operaria = $model->tipo_operaria;
+                $table->idtipo = $model->tipo_operaria;
                 $table->idmunicipio = $model->idmunicipio;
                 $table->fecha_ingreso = $model->fecha_ingreso;
                 $table->salario_base = $model->salario;
@@ -248,7 +251,7 @@ class OperariosController extends Controller
                    $table->polivalente = $model->polivalente;
                    $table->fecha_nacimiento = $model->fecha_nacimiento;
                    $table->vinculado = $model->vinculado;
-                   $table->tipo_operaria = $model->tipo_operaria;
+                   $table->idtipo = $model->tipo_operaria;
                    $table->fecha_ingreso = $model->fecha_ingreso;
                    $table->salario_base = $model->salario;
                    $table->aplica_nomina_modulo = $model->nomina_alterna;
@@ -282,7 +285,7 @@ class OperariosController extends Controller
                 $model->polivalente = $table->polivalente;
                 $model->fecha_nacimiento = $table->fecha_nacimiento;
                 $model->vinculado = $table->vinculado;
-                $model->tipo_operaria = $table->tipo_operaria;
+                $model->tipo_operaria = $table->idtipo;
                 $model->fecha_ingreso = $table->fecha_ingreso;
                 $model->salario = $table->salario_base;
                 $model->nomina_alterna = $table->aplica_nomina_modulo;
@@ -475,6 +478,7 @@ class OperariosController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
+          $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'CODIGO')
                     ->setCellValue('B1', 'TIPO DOCUMENTO')
@@ -491,7 +495,8 @@ class OperariosController extends Controller
                     ->setCellValue('M1', 'FECHA INGRESO')
                     ->setCellValue('N1', 'PLANTA')
                     ->setCellValue('O1', 'BANCO')
-                    ->setCellValue('P1', 'No CUENTA');
+                    ->setCellValue('P1', 'No CUENTA')
+                    ->setCellValue('Q1', 'TIPO DE AREA');
         $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -512,7 +517,8 @@ class OperariosController extends Controller
                     ->setCellValue('M' . $i, $val->fecha_ingreso)
                     ->setCellValue('N' . $i, $val->planta->nombre_planta)
                     ->setCellValue('O' . $i, $val->bancoEmpleado->banco)
-                    ->setCellValue('P' . $i, $val->numero_cuenta);
+                    ->setCellValue('P' . $i, $val->numero_cuenta)
+                     ->setCellValue('Q' . $i, $val->tipoOperaria->tipo);
             $i++;
         }
 

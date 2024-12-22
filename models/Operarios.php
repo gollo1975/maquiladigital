@@ -50,7 +50,7 @@ class Operarios extends \yii\db\ActiveRecord
     {
         return [
             [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'required'],
-            [['id_tipo_documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'integer'],
+            [['id_tipo_documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion','idtipo'], 'integer'],
             [['nombres', 'apellidos', 'email','direccion_operario'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
             [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta','documento'], 'string'],
@@ -63,6 +63,7 @@ class Operarios extends \yii\db\ActiveRecord
             [['id_arl'], 'exist', 'skipOnError' => true, 'targetClass' => Arl::className(), 'targetAttribute' => ['id_arl' => 'id_arl']],
             [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
             [['id_banco_empleado'], 'exist', 'skipOnError' => true, 'targetClass' => BancoEmpleado::className(), 'targetAttribute' => ['id_banco_empleado' => 'id_banco_empleado']],
+            [['idtipo'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproducciontipo::className(), 'targetAttribute' => ['idtipo' => 'idtipo']],
         ];
     }
 
@@ -94,6 +95,7 @@ class Operarios extends \yii\db\ActiveRecord
             'numero_cuenta' => 'Numero de cuenta:',
             'tipo_transacion' => 'Tipo transacion:',
             'direccion_operario' => 'Direccion:',
+            'idtipo' => 'Area asignada',
         ];
     }
 
@@ -133,6 +135,14 @@ class Operarios extends \yii\db\ActiveRecord
     public function getMunicipio()
     {
         return $this->hasOne(Municipio::className(), ['idmunicipio' => 'idmunicipio']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTipoOperaria()
+    {
+        return $this->hasOne(Ordenproducciontipo::className(), ['idtipo' => 'idtipo']);
     }
     
     public function identificacion_no_existe($attribute, $params)
@@ -195,15 +205,7 @@ class Operarios extends \yii\db\ActiveRecord
         }
         return $vinculado;
     }
-     public function getTipoOperaria()
-     {
-        if($this->tipo_operaria == 1){
-            $tipoperaria = "CONFECCION";
-        }else{
-            $tipoperaria = "TERMINACION";
-        }
-        return $tipoperaria;
-    }
+     
     public function getNominaAlterna()
      {
         if($this->aplica_nomina_modulo == 1){

@@ -38,6 +38,7 @@ $arl = ArrayHelper::map(Arl::find()->all(), 'id_arl', 'arl');
 $horario = ArrayHelper::map(Horario::find()->all(), 'id_horario', 'horario');
 $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 $banco_empleado = ArrayHelper::map(app\models\BancoEmpleado::find()->all(), 'id_banco_empleado', 'banco');
+$AreaTrabajo = ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
 
 ?>
 <div class="panel panel-success">
@@ -81,7 +82,7 @@ $banco_empleado = ArrayHelper::map(app\models\BancoEmpleado::find()->all(), 'id_
             <?= $form->field($model, 'vinculado')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'tipo_operaria')->dropDownList(['1' => 'CONFECCION', '2' => 'TERMINACION'], ['prompt' => 'Seleccione una opcion...']) ?>
+            <?= $form->field($model, 'tipo_operaria')->dropDownList($AreaTrabajo, ['prompt' => 'Seleccione una opcion...']) ?>
             <?=  $form->field($model, 'fecha_ingreso')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                            'value' => date('Y-m-d', strtotime('+2 days')),
                            'options' => ['placeholder' => 'Seleccione una fecha ...'],

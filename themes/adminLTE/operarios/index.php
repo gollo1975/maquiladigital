@@ -40,6 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 $operario = ArrayHelper::map(Operarios::find()->orderBy('id_operario ASC')->all(), 'id_operario', 'nombrecompleto');
 $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
+$AreaTrabajo = ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -61,6 +62,13 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
             <?= $formulario->field($form, 'vinculado')->dropDownList(['' => 'TODOS', '1' => 'SI', '0' => 'NO'],['prompt' => 'Seleccione el estado ...']) ?>
              <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
                 'data' => $planta,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+            <?= $formulario->field($form, 'tipo_operaria')->widget(Select2::classname(), [
+                'data' => $AreaTrabajo,
                 'options' => ['prompt' => 'Seleccione...'],
                 'pluginOptions' => [
                     'allowClear' => true
@@ -119,7 +127,7 @@ $planta = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta',
                 <td><?= $val->municipio->municipio ?></td>
                 <td><?= $val->celular ?></td>
                    <td><?= $val->planta->nombre_planta ?></td>
-                <td><?= $val->tipoOperaria ?></td>
+                <td><?= $val->tipoOperaria->tipo ?></td>
                 <td><?= $val->estadopago?></td>
                 <td><?= $val->polivalenteOperacion?></td>
                  <td><?= $val->vinculadoOperacion?></td>

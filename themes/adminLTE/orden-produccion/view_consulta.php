@@ -230,13 +230,17 @@ $view = 'orden-produccion';
                                             <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Progreso de confección</th>
-                                            <th scope="col" style='background-color:#B9D5CE;'>U. Confeccionadas</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Confeccion</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
 
                                         </tr>
                                     </thead>
                                     <body>
                                         <?php
-                                        foreach ($modeldetalles as $val): ?>
+                                        $falta = 0;
+                                        foreach ($modeldetalles as $val):
+                                            $falta =$val->cantidad - $val->cantidad_operada 
+                                            ?>
                                             <tr style="font-size: 85%;">
                                                 <td style="background-color: <?= $val->plantaProduccion->nombre_color?> "><?= $val->plantaProduccion->nombre_planta ?></td>
                                                 <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla ?></td>
@@ -250,6 +254,7 @@ $view = 'orden-produccion';
                                                     </div>
                                                 </td>
                                                 <td style ="text-align: right "><?= $val->cantidad_operada ?></td>
+                                                <td style ="text-align: right "><?= $falta?></td>
                                             </tr>
                                         <?php endforeach; ?>      
                                     </body>

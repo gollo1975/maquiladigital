@@ -16,6 +16,7 @@ class FormFiltroOperarios extends Model
     public $estado;
     public $vinculado;
     public $planta;
+    public $tipo_operaria;
 
     /**
      * {@inheritdoc}
@@ -23,7 +24,7 @@ class FormFiltroOperarios extends Model
     public function rules()
     {
         return [
-            [['id_operario', 'documento','estado','vinculado','planta'], 'integer'],
+            [['id_operario', 'documento','estado','vinculado','planta','tipo_operaria'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
         ];
     }
@@ -39,6 +40,7 @@ class FormFiltroOperarios extends Model
             'estado' => 'Activo:',
             'vinculado' => 'Vinculado:',
             'planta' => 'Planta / Bodega:',
+            'tipo_operaria' => 'Area de trabajo',
             
         ];
     }

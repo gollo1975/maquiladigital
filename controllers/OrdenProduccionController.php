@@ -165,6 +165,73 @@ class OrdenProduccionController extends Controller {
     }
 
     //INDEX PARA ASIGNAR TALLA A UNA PLANTA
+    
+    //PANEL DE PROCESO-CAPACIDAD INSTALADA
+    public function actionPanel_procesos() {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',149])->all()){
+                $form = new \app\models\FormFiltroCapacidadInstalada();
+                $minutos = null;
+                $horario = null;
+                $totalMinutosCarga = null;
+                $tipo_servicio = null;
+                $total_minutos_carga = null; $capacidad = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $horario = Html::encode($form->horario);
+                        $tipo_servicio = Html::encode($form->tipo_servicio);
+                        if($tipo_servicio == '' && $horario == ''){
+                            Yii::$app->getSession()->setFlash('error', 'Debe de seleccionar el HORARIO y el TIPO DE SERVICIO para generar la capacidad instalada..');
+                            return $this->redirect(['orden-produccion/panel_procesos']);
+                        }else{
+                            $horario = \app\models\Horario::findOne($horario);
+                            $conOperario = \app\models\Operarios::find()->where(['=','idtipo', $tipo_servicio])->andWhere(['=','estado', 1])->all();
+                            $ordenes = Ordenproduccion::find()->where(['=','facturado', 0])->andWhere(['=','idtipo', $tipo_servicio])->all();
+                            $totalOperaciones = 0; $tiempoOperacion = 0;
+                            $totalConfeccion = 0; $granTotalMinutosConsumidos = 0;
+                            $totalMinutosAsignados = 0;
+                            $minutosCarga = 0; $tiempoConsumido = 0;
+                            foreach ($ordenes as $key => $orden) {
+                                $totalMinutosAsignados += $orden->cantidad * $orden->duracion;
+                                $minutosCarga += $orden->cantidad * $orden->duracion; 
+                                $operaciones = FlujoOperaciones::find()->where(['=','idordenproduccion', $orden->idordenproduccion])->all();
+                                foreach ($operaciones as $key => $listado) {
+                                    $totalOperaciones += 1;
+                                    $tiempoOperacion = $listado->minutos;
+                                    $detalle_valor_prenda = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','idordenproduccion', $orden->idordenproduccion])->andWhere(['=','idproceso', $listado->idproceso])->all();
+                                    foreach ($detalle_valor_prenda as $key => $detalle) {
+                                         $totalConfeccion += $detalle->cantidad;  
+                                    }
+                                    $granTotalMinutosConsumidos += $totalConfeccion * $tiempoOperacion;
+                                    $totalConfeccion = 0;
+                                }
+                            }
+                            $totalMinutosCarga = round($totalMinutosAsignados - $granTotalMinutosConsumidos);
+                            $minutos = $horario->total_horas * 60; 
+                            $capacidad = count($conOperario) * $minutos;
+                            
+                            
+                        }
+
+                    }
+                }
+                return $this->render('panel_procesos', [
+                                'form' => $form,
+                                'total_minutos_carga' => $total_minutos_carga,
+                                'minutos' => $minutos,
+                                'capacidad' => $capacidad,
+                                'totalMinutosCarga' => $totalMinutosCarga,
+                                                                
+                    ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }
+    }
+    
+    //ASIGNACION
     public function actionIndex_asignacion() {
          if (Yii::$app->user->identity){
         if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',133])->all()){
@@ -1923,7 +1990,7 @@ class OrdenProduccionController extends Controller {
                     $codigoproducto = Html::encode($form->codigoproducto);
                     $table = Ordenproduccion::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
-                            ->andFilterWhere(['like', 'ordenproduccion', $ordenproduccion])
+                            ->andFilterWhere(['like', 'idordenproduccion', $ordenproduccion])
                             ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
                             ->andFilterWhere(['=', 'idtipo', $idtipo])
                             ->orderBy('idordenproduccion desc');

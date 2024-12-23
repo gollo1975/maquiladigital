@@ -324,7 +324,7 @@ class DocumentoSoporteController extends Controller
        $documento_compra = $documento->documento_compra;
        $forma_pago = $documento->formaPago->codigo_api_ds;
        $observacion = $documento->observacion;
-      $resolucion = $resolucion->codigo_interfaz;
+       $resolucion = $resolucion->codigo_interfaz;
        
        //DATOS DEL DETALLE 
        $cantidad = $documento_detalle->cantidad;
@@ -333,8 +333,8 @@ class DocumentoSoporteController extends Controller
 
        // Configurar cURL
         $curl = curl_init();
-        $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //ley de desarrollo
-       // $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //Key de produccion
+      //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //ley de desarrollo
+        $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //Key de produccion
         $dataHead = json_encode([
             "client" => [
                 "document" => "$documento_proveedor",
@@ -350,22 +350,22 @@ class DocumentoSoporteController extends Controller
             "billProvider" => "$documento_compra",
              "warehouse" => 1,
             "conceptId" => "$resolucion",
-            "forma_pago" => "$forma_pago",
+            "formaPago" => "$forma_pago",
             "observacion" => "$observacion",
         ]);
        
       $dataBody = json_encode([
             [
-                "product" => $codigo_concepto,
-                "qty" => $cantidad,
+                "product" => "$codigo_concepto",
+                "qty" => "$cantidad",
                 "discount" => "0",
-                "cost" => $valor_unitario,
+                "cost" => "$valor_unitario",
             ]
         ]);
        
         //ENVIA LA INFORMACION
         curl_setopt_array($curl, [
-            CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill?key=$API_KEY",
+            CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/load-inventory?key=$API_KEY",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => [
@@ -383,13 +383,12 @@ class DocumentoSoporteController extends Controller
              curl_close($curl);
 
              $data = json_decode($response, true);
-             var_dump($data);
              if ($data === null) {
                  throw new Exception('Error al decodificar la respuesta JSON');
              }
 
              // Validar y extraer el CUFE
-          /*   if (isset($data['add']['cude'])) {
+            if (isset($data['add']['cude'])) {
                  $cuds = $data['add']['cude'];
                  $documento->cuds = $cuds;
                  $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
@@ -398,15 +397,15 @@ class DocumentoSoporteController extends Controller
                  $qrstr = $data['add']['sentDetail']['response']['QRStr'];
                  $documento->qrstr = $qrstr;
                  $documento->save(false);
-                 Yii::$app->getSession()->setFlash('success', "El documento soporte No ($consecutivo) se envió con éxito a la DIAN.");
+                 Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
              } else {
-                 throw new Exception('El CUFE no se encontró en la respuesta.');
-             }*/
+                 throw new Exception('El CUDS no se encontró en la respuesta.');
+             }
         } catch (Exception $e) {
-             Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
+             Yii::$app->getSession()->setFlash('error', 'Error al enviar el DOCUMENTO DE SOPORTE: ' . $e->getMessage());
         }
         
-      //  return $this->redirect(['view','id' => $id]);
+        return $this->redirect(['view','id' => $id]);
 
     }
     

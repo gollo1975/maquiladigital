@@ -286,7 +286,16 @@ class PagoFletesController extends Controller
     //CIERRA EL DESPACHO AL PROVEEDOR
      public function actionCerrar_pago($id) {
         $model = PagoFletes::findOne($id);
-         //generar consecutivo
+        $detalle_flete = \app\models\PagoFleteDetalle::find()->where(['=','id_pago', $id])->all();
+        foreach ($detalle_flete as $key => $detalle) {
+            echo $detalle->id_despacho;
+            $despacho = \app\models\Despachos::findOne($detalle->id_despacho);
+            if($despacho){
+                $despacho->pagado = 1;
+                $despacho->save(false);
+            }
+        } 
+        //generar consecutivo
         $registro = \app\models\Consecutivo::findOne(21);
         $valor = $registro->consecutivo + 1;
         $model->numero_pago = $valor;
@@ -295,7 +304,6 @@ class PagoFletesController extends Controller
         //actualiza consecutivo
         $registro->consecutivo = $valor;
         $registro->save();
-       
         return $this->redirect(['pago-fletes/view', 'id' => $id]); 
     }
      

@@ -325,7 +325,16 @@ class DocumentoSoporteController extends Controller
        $forma_pago = $documento->formaPago->codigo_api_ds;
        $observacion = $documento->observacion;
        $resolucion = $resolucion->codigo_interfaz;
-       
+       //datos de retencion
+       if($documento_detalle->porcentaje_retencion == 6){
+          $codigo_cuenta =  '6068315';
+       }else{
+           if($documento_detalle->porcentaje_retencion == 4){
+                $codigo_cuenta =  '6068314';
+           }else{
+               $codigo_cuenta =  '';
+           }     
+       }
        //DATOS DEL DETALLE 
        $cantidad = $documento_detalle->cantidad;
        $valor_unitario = $documento_detalle->valor_unitario;
@@ -345,7 +354,8 @@ class DocumentoSoporteController extends Controller
                 "address" => "$direccion_proveedor",
                 "phone" => "$telefono",
                 "email" => "$email_proveedor",
-                "city" => "$ciudad"
+                "city" => "$ciudad",
+                "cuenta_compra" => "$codigo_cuenta"
             ],
             "billProvider" => "$documento_compra",
              "warehouse" => 1,
@@ -382,14 +392,12 @@ class DocumentoSoporteController extends Controller
              }
              curl_close($curl);
              $data = json_decode($response, true);
-             
-             var_dump($data);
              if ($data === null) {
                  throw new Exception('Error al decodificar la respuesta JSON');
              }
 
              // Validar y extraer el CUFE
-            if (isset($data['add']['cude'])) {
+         /*   if (isset($data['add']['cude'])) {
                  $cuds = $data['add']['cude'];
                  $documento->cuds = $cuds;
                  $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
@@ -401,12 +409,12 @@ class DocumentoSoporteController extends Controller
                  Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
              } else {
                  throw new Exception('El CUDS no se encontró en la respuesta.');
-             }
+             }*/
         } catch (Exception $e) {
              Yii::$app->getSession()->setFlash('error', 'Error al enviar el DOCUMENTO DE SOPORTE: ' . $e->getMessage());
         }
         
-     //   return $this->redirect(['view','id' => $id]);
+        return $this->redirect(['view','id' => $id]);
 
     }
     

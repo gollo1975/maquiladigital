@@ -381,8 +381,9 @@ class DocumentoSoporteController extends Controller
                  throw new Exception(curl_error($curl));
              }
              curl_close($curl);
-
              $data = json_decode($response, true);
+             
+             var_dump($data);
              if ($data === null) {
                  throw new Exception('Error al decodificar la respuesta JSON');
              }
@@ -405,7 +406,7 @@ class DocumentoSoporteController extends Controller
              Yii::$app->getSession()->setFlash('error', 'Error al enviar el DOCUMENTO DE SOPORTE: ' . $e->getMessage());
         }
         
-        return $this->redirect(['view','id' => $id]);
+     //   return $this->redirect(['view','id' => $id]);
 
     }
     

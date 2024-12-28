@@ -325,96 +325,105 @@ class DocumentoSoporteController extends Controller
        $forma_pago = $documento->formaPago->codigo_api_ds;
        $observacion = $documento->observacion;
        $resolucion = $resolucion->codigo_interfaz;
-       //datos de retencion
-       if($documento_detalle->porcentaje_retencion == 6){
-          $codigo_cuenta =  '6068315';
+       
+       //valida la informacion
+       if($email_proveedor == '' && $direccion_proveedor == ''){
+            Yii::$app->getSession()->setFlash('error', 'Los campos DIRECCION  Y EMAIL no pueden ser vacios.'); 
+            return $this->redirect(['view', 'id' => $id]);
        }else{
-           if($documento_detalle->porcentaje_retencion == 4){
-                $codigo_cuenta =  '6068314';
-           }else{
-               $codigo_cuenta =  '';
-           }     
-       }
-       //DATOS DEL DETALLE 
-       $cantidad = $documento_detalle->cantidad;
-       $valor_unitario = $documento_detalle->valor_unitario;
-       $codigo_concepto = $documento_detalle->concepto->codigo_interface;                
+       
+            //datos de retencion
+            if($documento_detalle->porcentaje_retencion == 6){
+               $codigo_cuenta =  '6068315';
+            }else{
+                if($documento_detalle->porcentaje_retencion == 4){
+                     $codigo_cuenta =  '6068314';
+                }else{
+                    $codigo_cuenta =  '';
+                }     
+            }
+            //DATOS DEL DETALLE 
+            $cantidad = $documento_detalle->cantidad;
+            $valor_unitario = $documento_detalle->valor_unitario;
+            $codigo_concepto = $documento_detalle->concepto->codigo_interface;                
 
-       // Configurar cURL
-        $curl = curl_init();
-      //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //ley de desarrollo
-        $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //Key de produccion
-        $dataHead = json_encode([
-            "client" => [
-                "document" => "$documento_proveedor",
-                "document_type" => "$tipo_documento",
-                "first_name" => "$nombres",
-                "last_name_one" => ".",
-                "last_name_two" => ".", 
-                "address" => "$direccion_proveedor",
-                "phone" => "$telefono",
-                "email" => "$email_proveedor",
-                "city" => "$ciudad",
-                "cuenta_compra" => "$codigo_cuenta"
-            ],
-            "billProvider" => "$documento_compra",
-             "warehouse" => 1,
-            "conceptId" => "$resolucion",
-            "formaPago" => "$forma_pago",
-            "observacion" => "$observacion",
-        ]);
-       
-      $dataBody = json_encode([
-            [
-                "product" => "$codigo_concepto",
-                "qty" => "$cantidad",
-                "discount" => "0",
-                "cost" => "$valor_unitario",
-            ]
-        ]);
-       
-        //ENVIA LA INFORMACION
-        curl_setopt_array($curl, [
-            CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/load-inventory?key=$API_KEY",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => [
-                "head" => $dataHead,
-                "body" => $dataBody
-            ],
-        ]);
-       
-        // RECUPERA EL RESPONSE
-        try {
-             $response = curl_exec($curl);
-             if (curl_errno($curl)) {
-                 throw new Exception(curl_error($curl));
-             }
-             curl_close($curl);
-             $data = json_decode($response, true);
-             if ($data === null) {
-                 throw new Exception('Error al decodificar la respuesta JSON');
+            // Configurar cURL
+             $curl = curl_init();
+           //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //ley de desarrollo
+             $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //Key de produccion
+             $dataHead = json_encode([
+                 "client" => [
+                     "document" => "$documento_proveedor",
+                     "document_type" => "$tipo_documento",
+                     "first_name" => "$nombres",
+                     "last_name_one" => ".",
+                     "last_name_two" => ".", 
+                     "address" => "$direccion_proveedor",
+                     "phone" => "$telefono",
+                     "email" => "$email_proveedor",
+                     "city" => "$ciudad",
+                     "cuenta_compra" => "$codigo_cuenta"
+                 ],
+                 "billProvider" => "$documento_compra",
+                  "warehouse" => 1,
+                 "conceptId" => "$resolucion",
+                 "formaPago" => "$forma_pago",
+                 "observacion" => "$observacion",
+             ]);
+
+           $dataBody = json_encode([
+                 [
+                     "product" => "$codigo_concepto",
+                     "qty" => "$cantidad",
+                     "discount" => "0",
+                     "cost" => "$valor_unitario",
+                 ]
+             ]);
+
+             //ENVIA LA INFORMACION
+             curl_setopt_array($curl, [
+                 CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/load-inventory?key=$API_KEY",
+                 CURLOPT_RETURNTRANSFER => true,
+                 CURLOPT_CUSTOMREQUEST => 'POST',
+                 CURLOPT_POSTFIELDS => [
+                     "head" => $dataHead,
+                     "body" => $dataBody
+                 ],
+             ]);
+
+             // RECUPERA EL RESPONSE
+             try {
+                  $response = curl_exec($curl);
+                  if (curl_errno($curl)) {
+                      throw new Exception(curl_error($curl));
+                  }
+                  curl_close($curl);
+                  $data = json_decode($response, true);
+
+                  if ($data === null) {
+                      throw new Exception('Error al decodificar la respuesta JSON');
+                  }
+
+                  // Validar y extraer el CUFE
+              /*   if (isset($data['add']['cude'])) {
+                      $cuds = $data['add']['cude'];
+                      $documento->cuds = $cuds;
+                      $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
+                      $documento->fecha_recepcion_dian = $fechaRecepcion;
+                      $documento->fecha_envio_api = date("Y-m-d H:i:s");
+                      $qrstr = $data['add']['sentDetail']['response']['QRStr'];
+                      $documento->qrstr = $qrstr;
+                      $documento->save(false);
+                      Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
+                  } else {
+                      throw new Exception('El CUDS no se encontró en la respuesta.');
+                  }*/
+             } catch (Exception $e) {
+                  Yii::$app->getSession()->setFlash('error', 'Error al enviar el DOCUMENTO DE SOPORTE: ' . $e->getMessage());
              }
 
-             // Validar y extraer el CUFE
-         /*   if (isset($data['add']['cude'])) {
-                 $cuds = $data['add']['cude'];
-                 $documento->cuds = $cuds;
-                 $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
-                 $documento->fecha_recepcion_dian = $fechaRecepcion;
-                 $documento->fecha_envio_api = date("Y-m-d H:i:s");
-                 $qrstr = $data['add']['sentDetail']['response']['QRStr'];
-                 $documento->qrstr = $qrstr;
-                 $documento->save(false);
-                 Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
-             } else {
-                 throw new Exception('El CUDS no se encontró en la respuesta.');
-             }*/
-        } catch (Exception $e) {
-             Yii::$app->getSession()->setFlash('error', 'Error al enviar el DOCUMENTO DE SOPORTE: ' . $e->getMessage());
-        }
-        
-        return $this->redirect(['view','id' => $id]);
+            return $this->redirect(['view','id' => $id]);
+       }//fin condicional    
 
     }
     

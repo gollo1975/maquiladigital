@@ -30,10 +30,17 @@ $ConRetenciones = \yii\helpers\ArrayHelper::map(app\models\RetencionFuente::find
                  <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Generar consecutivo', ['generar_documento', 'id' => $model->id_documento_soporte],['class' => 'btn btn-default btn-xs' ,
                     'data' => ['confirm' => 'Esta seguro de Generar del consecutivo al documento soporte.', 'method' => 'post']]);?>
                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_documento_soporte', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']); 
-            }else{  ?>  
-                 <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar Documento a la Dian', ['enviar_documento_soporte_dian', 'id' => $model->id_documento_soporte],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
-                 'data' => ['confirm' => 'Esta seguro de enviar el Documento Soporte  No  '. $model->numero_soporte. ' a la DIAN', 'method' => 'post']]);?>
-                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_documento_soporte', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']); ?>
+            }else{  
+                if($model->cuds == ''){?>
+                    <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar Documento a la Dian', ['enviar_documento_soporte_dian', 'id' => $model->id_documento_soporte],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
+                    'data' => ['confirm' => 'Esta seguro de enviar el Documento Soporte  No  '. $model->numero_soporte. ' a la DIAN', 'method' => 'post']]);?>
+                    <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_documento_soporte', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']);
+                }else{
+                    echo Html::a('<span class="glyphicon glyphicon-send"></span> Enviar Documento a la Dian', ['enviar_documento_soporte_dian','id' => $model->id_documento_soporte],['class' => 'btn btn-default btn-xs disabled', 'id' => 'my_button']);
+                    echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_documento_soporte', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']); 
+                    
+                    
+                }?>
             <?php }
         }    ?>
     </p>

@@ -23,7 +23,7 @@ class PDF extends FPDF {
         //Encabezado
         $this->SetFillColor(220, 220, 220);
         $this->SetXY(70, 9);
-        $this->SetFont('Arial', '', 10);
+        $this->SetFont('Arial', '', 8);
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(30, 5, utf8_decode("EMPRESA:"), 0, 0, 'l', 1);
         $this->SetFont('Arial', '', 8);
@@ -58,98 +58,91 @@ class PDF extends FPDF {
         $this->Cell(40, 5, utf8_decode($config->municipio->municipio." - ".$config->departamento->departamento), 0, 0, 'L', 1);
         $this->SetXY(40, 5);
         //FIN
-       $this->SetXY(10, 29);
+        $this->SetXY(10, 27);
         $this->Cell(190, 7, utf8_decode("_________________________________________________________________________________________________________________________________________"), 0, 0, 'C', 0);
-         $this->SetXY(10, 30);
+         $this->SetXY(10, 28);
         $this->Cell(190, 7, utf8_decode("_________________________________________________________________________________________________________________________________________"), 0, 0, 'C', 0);
         //Programación Nomina
         $this->SetFillColor(220, 220, 220);
-        $this->SetXY(10, 36);
+        $this->SetXY(10, 34);
         $this->SetFont('Arial', 'B', 12);
         $this->Cell(162, 7, utf8_decode("ENTRADA / SALIDA (PRODUCCION)"), 0, 0, 'l', 0);
         $this->Cell(30, 7, utf8_decode('N°. '.str_pad($salida->id_salida, 4, "0", STR_PAD_LEFT)), 0, 0, 'l', 0);
        // $this->SetFillColor(300, 300, 300);
         //INICIO
-        $this->SetXY(10, 44); //FILA 1
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetXY(10, 41); //FILA 1
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(24, 5, utf8_decode("NIT:"), 0, 0, 'L');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(100, 5, utf8_decode($salida->cliente->cedulanit . '-' . $salida->cliente->dv), 0, 0, 'L');
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(33, 5, utf8_decode("FECHA LLEGADA:"), 0, 0, 'J');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(40, 5, utf8_decode($salida->fecha_entrada_salida), 0, 0, 'J');
         //FIN
-        $this->SetXY(10, 48); //FILA 2
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetXY(10, 45); //FILA 2
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(24, 5, utf8_decode("CLIENTE:"), 0, 0, 'L');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(100, 5, utf8_decode($salida->cliente->nombrecorto), 0, 0, 'J');
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(33, 5, utf8_decode("FECHA PROCESO:"), 0, 0, 'c');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(40, 5, utf8_decode($salida->fecha_proceso), 0, 0, 'J');
         //FIN
-        $this->SetXY(10, 52); //FILA 3
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetXY(10, 49); //FILA 3
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(24, 5, utf8_decode("TELÉFONO:"), 0, 0, 'c');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(100, 5, utf8_decode($salida->cliente->telefonocliente), 0, 0, 'J');
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(33, 5, utf8_decode("OP CLIENTE:"), 0, 0, 'c');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(40, 5, utf8_decode($salida->ordenproduccion->ordenproduccion), 0, 0, 'J');
         //FIN
-        $this->SetXY(10, 56); //FILA 4
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetXY(10, 53); //FILA 4
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(24, 5, utf8_decode("DIRECCIÓN:"), 0, 0, 'c');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(100, 5, utf8_decode($salida->cliente->direccioncliente), 0, 0, 'J');
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(33, 5, utf8_decode("OP INTERNA:"), 0, 0, 'c');
-        $this->SetFont('Arial', '', 8);
+        $this->SetFont('Arial', '', 7);
         $this->Cell(40, 5, utf8_decode($salida->idordenproduccion), 0, 0, 'J');
         //FIN
-        $this->SetXY(10, 60); //FILA 5
-        $this->SetFont('Arial', 'B', 8);
-        $this->Cell(24, 5, utf8_decode("EMAIL:"), 0, 0, 'c');
-        $this->SetFont('Arial', '', 8);
-        $this->Cell(100, 5, utf8_decode($salida->cliente->emailcliente), 0, 0, 'J');
-        $this->SetFont('Arial', 'B', 8);
+        $this->SetXY(10, 57); //FILA 5
+        $this->SetFont('Arial', 'B', 7);
+        $this->Cell(24, 5, utf8_decode("SERVICIO:"), 0, 0, 'c');
+        $this->SetFont('Arial', '', 7);
+        $this->Cell(100, 5, utf8_decode($salida->tipoentrada->concepto), 0, 0, 'J');
+        $this->SetFont('Arial', 'B', 7);
         $this->Cell(33, 5, utf8_decode("TIPO PROCESO:"), 0, 0, 'c');
         if($salida->tipo_proceso == 1){
-          $this->SetFont('Arial', '', 8);
+          $this->SetFont('Arial', '', 7);
           $this->Cell(40, 5, utf8_decode('ENTRADA'), 0, 0, 'J');
         }else{
-            $this->SetFont('', '', 8);
+            $this->SetFont('', '', 7);
           $this->Cell(40, 5, utf8_decode('SALIDA'), 0, 0, 'J');
         }
          //find
-        
-        $this->SetXY(10, 64); //FILA 5
-        $this->SetFont('Arial', 'B', 8);
-        $this->Cell(24, 5, utf8_decode("TIPO ENTRADA:"), 0, 0, 'c');
-        $this->SetFont('Arial', '', 8);
-        $this->Cell(100, 5, utf8_decode($salida->tipoentrada->concepto), 0, 0, 'J');
-             
        
         //Lineas del encabezado
-        $this->Line(10, 71, 10, 140);//x1,y1,x2,y2        
-        $this->Line(130, 71, 130, 140);
-        $this->Line(200, 71, 200, 164);
+        $this->Line(10, 67, 10, 120);//x1,y1,x2,y2        
+        $this->Line(130, 67, 130, 105);
+        $this->Line(200, 67, 200, 120);
         
-        $this->Line(10, 140, 200, 140); //linea horizontal inferior x1,y1,x2,y2
+        $this->Line(10, 105, 200, 105); //linea horizontal inferior x1,y1,x2,y2
         
         //Linea de las observacines
-        $this->Line(10, 148, 10, 164); //linea vertical
-        $this->Line(10, 164, 200, 164); //linea horizontal inferior x1,y1,x2,y2
+      
+        $this->Line(10, 120, 200, 120); //linea horizontal inferior x1,y1,x2,y2
         //Detalle factura
         $this->EncabezadoDetalles();
     }
 
     function EncabezadoDetalles() {
-        $this->Ln(7);
-        $header = array('PRODUCTO', 'CANTIDAD');
+        $this->Ln(5);
+        $header = array('DESCRIPCION REFERENCIA', 'CANTIDAD');
         $this->SetFillColor(200, 200, 200);
         $this->SetTextColor(0);
         $this->SetDrawColor(0, 0, 0);
@@ -174,52 +167,57 @@ class PDF extends FPDF {
     function Body($pdf, $model) {
         $detalles = SalidaEntradaProduccionDetalle::find()->where(['=', 'id_salida', $model->id_salida])->all();
         $pdf->SetX(10);
-        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetFont('Arial', '',7);
         $items = count($detalles);
         foreach ($detalles as $detalle) {
-            $pdf->Cell(120, 5, $detalle->productodetalle->prendatipo->prenda.' '.$detalle->productodetalle->prendatipo->talla->talla.' - '.$model->codigo_producto, 0, 0, 'J');          
-            $pdf->Cell(70, 5, $detalle->cantidad, 0, 0, 'R');
+            $pdf->Cell(120, 4, $detalle->productodetalle->prendatipo->prenda.' '.$detalle->productodetalle->prendatipo->talla->talla.' - '.$model->codigo_producto, 0, 0, 'J');          
+            $pdf->Cell(70, 4, $detalle->cantidad, 0, 0, 'R');
             $pdf->Ln();
             $pdf->SetAutoPageBreak(true, 20);
         }
         $this->SetFillColor(200, 200, 200);
-        $pdf->SetXY(10, 140);
-        $this->SetFont('Arial', 'B', 8);
-        $pdf->MultiCell(120, 8, 'ITEMS: '.$items, 1, 'J');
+        $pdf->SetXY(10, 105);
+        $this->SetFont('Arial', 'B', 7);
+        $pdf->MultiCell(40, 8, 'ITEMS: '.$items, 1, 'J');
         
-        $pdf->SetXY(50, 140);
-        $this->SetFont('Arial', 'B', 8);
+        $pdf->SetXY(50, 105);
+        $this->SetFont('Arial', 'B', 7);
         $pdf->MultiCell(80, 8, 'TULAS: '.$model->numero_tulas, 1, 'J');
         
-        $pdf->SetXY(130, 140);
+        $pdf->SetXY(130, 105);
         $pdf->MultiCell(70, 8, 'CANTIDAD: '.$model->total_cantidad, 1, 'J');
-        $pdf->SetXY(10, 149);
-        $this->SetFont('Arial', 'B', 10);
+        $pdf->SetXY(10, 114);
+        $this->SetFont('Arial', 'B', 8);
         $pdf->MultiCell(29, 6, 'Observaciones:', 0, 'J');
-        $pdf->SetXY(38, 150);
-        $this->SetFont('Arial', '', 8);
-        $pdf->MultiCell(112, 4, utf8_decode($model->observacion), 0, 'J');
+        $pdf->SetXY(34, 115);
+        $this->SetFont('Arial', '', 7);
+        $pdf->MultiCell(107, 4, utf8_decode($model->observacion), 0, 'J');
         
         	//firma trabajador
-        $pdf->SetXY(10, 230);
+        $this->SetXY(10, 129);
+        $this->Cell(38, 5, utf8_decode("___________________________"), 0, 0, 'C', 0);
+
+        $pdf->SetXY(10, 133);
         $this->SetFont('', 'B', 9);
-        $pdf->Cell(35, 5, 'FIRMA PROVEEDOR: ___________________________________________________', 0, 0, 'L',0);
-        $pdf->SetXY(10, 235);
+        $pdf->Cell(35, 5, 'FIRMA PROVEEDOR');
+        $pdf->SetXY(10, 138);
         $pdf->Cell(35, 5, 'C.C.:', 0, 0, 'L',0);
         //firma empresa
-        $pdf->SetXY(10, 255);//firma trabajador
+        $this->SetXY(100, 129);
+        $this->Cell(38, 5, utf8_decode("_____________________"), 0, 0, 'C', 0);
+        $pdf->SetXY(100, 133);//firma trabajador
         $this->SetFont('', 'B', 9);
-        $pdf->Cell(35, 5, 'FIRMA EMPRESA: ____________________________________________________', 0, 0, 'L',0);
-        $pdf->SetXY(10, 260);
+        $pdf->Cell(35, 5, 'FIRMA EMPRESA');
+        $pdf->SetXY(100, 138);
         $pdf->Cell(35, 5, 'NIT/CC.:', 0, 0, 'L',0);
     }
 
-    function Footer() {
+ /*   function Footer() {
 
         $this->SetFont('Arial', '', 8);
         $this->Text(10, 290, utf8_decode('Nuestra compañía, en favor del medio ambiente.'));
         $this->Text(170, 290, utf8_decode('Página ') . $this->PageNo() . ' de {nb}');
-    }
+    }*/
 
 }
 

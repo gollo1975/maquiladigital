@@ -176,6 +176,7 @@ class OrdenProduccionController extends Controller {
                 $totalMinutosCarga = null;
                 $tipo_servicio = null;
                 $total_minutos_carga = null; $capacidad = null;
+                $programacionOrdenes = Ordenproduccion::find()->where(['=','facturado', 0])->orderBy('idordenproduccion ASC')->all();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $horario = Html::encode($form->horario);
@@ -215,12 +216,29 @@ class OrdenProduccionController extends Controller {
 
                     }
                 }
+                if(isset($_POST["crear_nueva_fecha"])){
+                    if(isset($_POST['listado_programacion'])){
+                        $intIndice = 0;
+                        foreach ($_POST["listado_programacion"] as $intCodigo):
+                            $auxiliar = $_POST["nueva_fecha"][$intIndice];
+                            if($auxiliar <> ''){
+                                $orden = Ordenproduccion::findOne ($intCodigo);
+                                $orden->fechaentrega = $_POST["nueva_fecha"][$intIndice];
+                                $orden->save();
+                                $intIndice++;
+                                return $this->redirect(['orden-produccion/panel_procesos']);
+                            }
+                            $intIndice++;
+                        endforeach;
+                    }
+                }    
                 return $this->render('panel_procesos', [
                                 'form' => $form,
                                 'total_minutos_carga' => $total_minutos_carga,
                                 'minutos' => $minutos,
                                 'capacidad' => $capacidad,
                                 'totalMinutosCarga' => $totalMinutosCarga,
+                                'programacionOrdenes' => $programacionOrdenes,
                                                                 
                     ]);
             }else{

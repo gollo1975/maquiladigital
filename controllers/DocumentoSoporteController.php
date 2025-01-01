@@ -9,6 +9,7 @@ use yii\filters\VerbFilter;
 use yii\data\Pagination;
 use yii\helpers\Html;
 use yii\base\BaseObject; 
+
 //models
 use app\models\DocumentoSoporte;
 use app\models\DocumentoSoporteSearch;
@@ -325,9 +326,10 @@ class DocumentoSoporteController extends Controller
        $forma_pago = $documento->formaPago->codigo_api_ds;
        $observacion = $documento->observacion;
        $resolucion = $resolucion->codigo_interfaz;
+       $consecutivo = $documento->numero_soporte;
        
        //valida la informacion
-       if($email_proveedor == '' && $direccion_proveedor == ''){
+       if($email_proveedor === '' || $direccion_proveedor === ''){
             Yii::$app->getSession()->setFlash('error', 'Los campos DIRECCION  Y EMAIL no pueden ser vacios.'); 
             return $this->redirect(['view', 'id' => $id]);
        }else{
@@ -392,36 +394,36 @@ class DocumentoSoporteController extends Controller
              ]);
 
              // RECUPERA EL RESPONSE
-             try {
-                  $response = curl_exec($curl);
-                  if (curl_errno($curl)) {
+            try {
+                $response = curl_exec($curl);
+                if (curl_errno($curl)) {
                       throw new Exception(curl_error($curl));
-                  }
-                  curl_close($curl);
-                  $data = json_decode($response, true);
-
-                  if ($data === null) {
+                }
+                curl_close($curl);
+                $data = json_decode($response, true);
+                
+                if ($data === null) {
                       throw new Exception('Error al decodificar la respuesta JSON');
-                  }
-
+                }
                   // Validar y extraer el CUFE
-              /*   if (isset($data['add']['cude'])) {
-                      $cuds = $data['add']['cude'];
-                      $documento->cuds = $cuds;
-                      $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
-                      $documento->fecha_recepcion_dian = $fechaRecepcion;
-                      $documento->fecha_envio_api = date("Y-m-d H:i:s");
-                      $qrstr = $data['add']['sentDetail']['response']['QRStr'];
-                      $documento->qrstr = $qrstr;
-                      $documento->save(false);
-                      Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
-                  } else {
+                if (isset($data['data']['dse']['cude'])) {
+                    $cuds = $data['data']['dse']['cude'];
+                    $documento->cuds = $cuds;
+                    $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
+                    $documento->fecha_recepcion_dian = $fechaRecepcion;
+                    $documento->fecha_envio_api = date("Y-m-d H:i:s");
+                    $qrstr = $data['data']['dse']['sentDetail']['response']['QRStr'];
+                    $documento->qrstr = $qrstr;
+                    $documento->save(false);
+                    Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
+                     return $this->redirect(['view','id' => $id]);
+                } else {
                       throw new Exception('El CUDS no se encontró en la respuesta.');
-                  }*/
+                }
+                
              } catch (Exception $e) {
                   Yii::$app->getSession()->setFlash('error', 'Error al enviar el DOCUMENTO DE SOPORTE: ' . $e->getMessage());
              }
-
             return $this->redirect(['view','id' => $id]);
        }//fin condicional    
 

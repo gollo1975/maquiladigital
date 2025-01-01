@@ -43,6 +43,8 @@ class FormProveedor extends Model
     public $tipocuenta;
     public $cuentanumero;
     public $genera_moda;
+    public $homologar_document;
+    public $nuevo_documento;
 
     public function rules()
     {
@@ -51,8 +53,8 @@ class FormProveedor extends Model
             ['id_tipo_documento', 'required', 'message' => 'Campo requerido'],
             ['cedulanit', 'required', 'message' => 'Campo requerido'],
             ['genera_moda', 'required', 'message' => 'Campo requerido'],
-            [['genera_moda'], 'integer'],
-            ['cedulanit', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
+            [['genera_moda','homologar_document','nuevo_documento'], 'integer'],
+            [['cedulanit','nuevo_documento'], 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             ['cedulanit', 'cedulanit_existe'],            
             [['dv'], 'string', 'max' => 1],
             ['razonsocial', 'match', 'pattern' => '/^[a-záéíóúñ0123456789\s]+$/i', 'message' => 'Sólo se aceptan letrassssss'],
@@ -116,6 +118,8 @@ class FormProveedor extends Model
             'tipocuenta' => 'Tipo Cuenta:',
             'cuentanumero' => 'Numero cuenta:',
             'genera_moda' => 'Maquila:',
+            'homologar_document' => 'Homologar documento:',
+            'nuevo_documento' => 'Documento pago banco:',
         ];
     }
 

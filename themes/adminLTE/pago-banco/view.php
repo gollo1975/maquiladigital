@@ -115,7 +115,7 @@ $view = 'pago-banco';
                                 <thead>
                                     <tr style='font-size:85%;'>
                                         <th scope="col" style='background-color:#B9D5CE;'>Tipo documento</th> 
-                                        <th scope="col" style='background-color:#B9D5CE;'>Documento</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Documento de pago</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;'>Nombres</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;'>Tipo transación</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Codigo banco</th> 
@@ -147,7 +147,8 @@ $view = 'pago-banco';
                                                 <td style="text-align: right"><?=''.number_format($listados->valor_transacion,0) ?></td>
                                             <?php }
                                             if($listados->tipo_pago == 1 || $listados->tipo_pago == 2 || $listados->tipo_pago == 3){
-                                                $empleado = \app\models\Empleado::find()->where(['=','identificacion', $listados->documento])->one();
+                                                $empleado = \app\models\Empleado::find()->where(['=','identificacion', $listados->documento])
+                                                                                        ->orWhere(['=','documento_pago_banco', $listados->documento])->one();
                                                 ?>
                                                 <td><?= $empleado->tipoDocumento->descripcion ?></td>
                                                 <td><?= $listados->documento ?></td>

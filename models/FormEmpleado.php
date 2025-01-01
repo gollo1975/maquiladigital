@@ -55,6 +55,8 @@ class FormEmpleado extends Model
     public $tipo_cuenta;
     public $id_centro_costo;
     public $tipo_transacion;
+    public $documento_pago_banco;
+    public $homologar_document;
 
     /**
      * {@inheritdoc}
@@ -66,7 +68,7 @@ class FormEmpleado extends Model
                 'id_centro_costo','tipo_cuenta','cuenta_bancaria','sexo','id_estado_civil','tipo_transacion','id_nivel_estudio'], 'required', 'message' => 'Campo requerido'],
             ['identificacion', 'identificacion_existe'],
             ['email', 'email_existe'],
-            [['id_empleado_tipo', 'identificacion', 'dv','id_estado_civil','estatura','peso','libreta_militar','tipo_transacion','id_nivel_estudio'], 'integer'],
+            [['id_empleado_tipo', 'identificacion', 'dv','id_estado_civil','estatura','peso','libreta_militar','tipo_transacion','id_nivel_estudio','documento_pago_banco','homologar_document'], 'integer'],
             ['cuenta_bancaria', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['cuenta_bancaria'], 'string'],
             [['observacion','sexo','id_rh','distrito_militar','barrio','tipo_cuenta'], 'string'],            
@@ -122,6 +124,8 @@ class FormEmpleado extends Model
             'id_centro_costo' => 'Centro Costo',
             'tipo_transacion' => 'Tipo transacion',
             'id_nivel_estudio' => 'Nivel estudio',
+            'homologar_document' => 'Homologar documento:',
+            'documento_pago_banco' => 'Documento pago banco:',
         ];
     }
 

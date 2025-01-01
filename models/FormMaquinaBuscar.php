@@ -12,6 +12,7 @@ class FormMaquinaBuscar extends Model
 {
     public $q;    
     public $grupo;
+    public $nombres;
 
     public function rules()
     {
@@ -19,6 +20,7 @@ class FormMaquinaBuscar extends Model
 
             ['q', 'match', 'pattern' => '/^[a-z0-9\s]+$/i', 'message' => 'Sólo se aceptan números y letras'],   
             [['grupo'],'integer'],
+            [['nombres'],'string'],
         ];
     }
 
@@ -27,6 +29,7 @@ class FormMaquinaBuscar extends Model
         return [
             'q' => 'Dato a Buscar:',   
             'grupo' => 'Grupo insumos:',
+            'nombres' => 'Seleccione el empleado:',
         ];
     }
 }

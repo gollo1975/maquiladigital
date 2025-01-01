@@ -167,14 +167,18 @@ $nive_estudio = ArrayHelper::map(app\models\NivelEstudio::find()->orderBy('nive_
         </div>
         <div class="row">
             <?= $form->field($model, 'cuenta_bancaria')->textInput(['maxlength' => true]) ?>    
-              <?= $form->field($model, 'tipo_transacion')->dropDownList(['27' => 'ABONO A CTA CORRIENTE', '37' => 'ABONO A CTA AHORRO'], ['prompt' => 'Seleccione una opcion...']) ?> 
+             <?= $form->field($model, 'tipo_transacion')->dropDownList(['27' => 'ABONO A CTA CORRIENTE', '37' => 'ABONO A CTA AHORRO'], ['prompt' => 'Seleccione una opcion...']) ?> 
             
         </div>
         <div class="row" col>
             <?= $form->field($model, 'id_centro_costo')->dropDownList($centro_costo, ['prompt' => 'Seleccione una opcion...']) ?>
              <?= $form->field($model, 'id_nivel_estudio')->dropDownList($nive_estudio, ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
-            <div class="row" col>
+        <div class="row">
+            <?= $form->field($model, 'homologar_document')->dropDownList(['0' => 'NO', '1' => 'SI']) ?> 
+            <?= $form->field($model, 'documento_pago_banco')->textInput(['maxlength' => true]) ?>   
+        </div>
+        <div class="row" col>
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
         <div class="panel-footer text-right">			

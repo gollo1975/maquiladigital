@@ -198,18 +198,18 @@ class PagoBancoController extends Controller
   // proceso que busca los operarios para pago
       public function actionNuevopagoperario($id, $tipo_proceso, $token)
     {
-        if($tipo_proceso == 1 || $tipo_proceso == 2 ||  $tipo_proceso == 3){
+        if($tipo_proceso == 1 || $tipo_proceso == 2 ||  $tipo_proceso == 3){ //nominas, primas y cesantias
             $listadoPago = \app\models\ProgramacionNomina::find()->where(['=','pago_aplicado', 0])
                                                                  ->andWhere(['=','id_tipo_nomina', $tipo_proceso])->orderBy('id_programacion ASC')->all();
             $form = new \app\models\FormMaquinaBuscar();
-            $q = null;
+            $nombres = null;
             $mensaje = '';
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
-                    $q = Html::encode($form->q);                                
-                    if ($q){
+                    $nombres = Html::encode($form->nombres);
+                    if ($nombres){
                         $listadoPago = \app\models\ProgramacionNomina::find()
-                                ->where(['like','cedula_empleado',$q])
+                                ->where(['=','id_empleado', $nombres])
                                 ->andWhere(['=','pago_aplicado', 0])
                                 ->orderBy('id_programacion ASC')
                                 ->all();
@@ -253,9 +253,10 @@ class PagoBancoController extends Controller
                 $pago_banco = PagoBanco::findOne($id);
                 
                  //proceso de nomina, CESANTIAS Y PRIMAS
-                if($tipo_proceso == 1 || $tipo_proceso ==  2 || $tipo_proceso == 3){
+                if($tipo_proceso == 1 || $tipo_proceso ==  2 || $tipo_proceso == 3){ //nominas, cesantias y primas
                     $nomina = \app\models\ProgramacionNomina::find()->where(['id_programacion' => $intCodigo])->one();
                     $empleado = \app\models\Empleado::findOne($nomina->id_empleado);
+                   
                     $table = new PagoBancoDetalle();
                     $detalle = PagoBancoDetalle::find()
                         ->where(['=', 'id_pago_banco', $id])
@@ -265,8 +266,12 @@ class PagoBancoController extends Controller
                     if ($reg == 0) {
                         $table->id_pago_banco = $id;
                         $table->tipo_documento = $empleado->tipoDocumento->codigo_interfaz;
-                         $table->concepto_documento = $empleado->tipoDocumento->tipo;
-                        $table->documento = $nomina->cedula_empleado;
+                        $table->concepto_documento = $empleado->tipoDocumento->tipo;
+                        if($empleado->homologar_document == 0){
+                            $table->documento = $nomina->cedula_empleado;
+                        }else{
+                           $table->documento = $empleado->documento_pago_banco;
+                        }    
                         $table->nombres = utf8_decode(mb_substr($nomina->empleado->nombrecorto, 0, 20));
                         $table->tipo_transacion = $empleado->tipo_transacion;
                         $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;

@@ -98,11 +98,13 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
         <?= $form->field($model, 'cuentanumero')->textInput(['maxlength' => true]) ?>
     </div>  
      <div class="row">
-        <?= $form->field($model, 'genera_moda')->dropdownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione...']) ?>
+         <?= $form->field($model, 'genera_moda')->dropdownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione...']) ?>
+         <?= $form->field($model, 'homologar_document')->dropdownList(['0' => 'NO', '1' => 'SI']) ?> 
     </div>
     <div class="row">
         <div class="field-tblproveedor-observaciones_proveedor has-success">
-            <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
+            <?= $form->field($model, 'nuevo_documento')->input("text") ?>
+            <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
     </div> 	
     </div>    

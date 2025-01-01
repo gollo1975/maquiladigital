@@ -22,7 +22,7 @@ use yii\db\ActiveQuery;
 
 $this->title = 'Nómina x pagar';
 $this->params['breadcrumbs'][] = $this->title;
-
+$empleado = ArrayHelper::map(\app\models\Empleado::find()->where(['=','contrato', 1])->orderBy('nombrecorto ASC')->all(), 'id_empleado', 'nombrecorto');
 ?>
 
 <?php $formulario = ActiveForm::begin([
@@ -48,7 +48,13 @@ $this->params['breadcrumbs'][] = $this->title;
 	
     <div class="panel-body" id="buscarmaquina">
         <div class="row" >
-            <?= $formulario->field($form, "q")->input("search") ?>            
+            <?= $formulario->field($form, 'nombres')->widget(Select2::classname(), [
+                'data' => $empleado,
+                'options' => ['prompt' => 'Seleccione el banco...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>           
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>

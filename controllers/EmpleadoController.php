@@ -254,6 +254,8 @@ class EmpleadoController extends Controller
                 $table->tipo_transacion = $model->tipo_transacion;
                 $table->id_centro_costo = $model->id_centro_costo;
                 $table->id_nivel_estudio = $model->id_nivel_estudio;
+                $table->documento_pago_banco = $model->documento_pago_banco;
+                $table->homologar_document = $model->homologar_document;
                 $table->id_sucursal = 1;
                 $table->usuario_crear =  Yii::$app->user->identity->username;
                 if ($table->insert()) {
@@ -329,6 +331,8 @@ class EmpleadoController extends Controller
                     $table->tipo_transacion = $model->tipo_transacion;
                     $table->id_centro_costo = $model->id_centro_costo;
                     $table->id_nivel_estudio = $model->id_nivel_estudio;
+                    $table->documento_pago_banco = $model->documento_pago_banco;
+                    $table->homologar_document = $model->homologar_document;
                     $table->usuario_editar =  Yii::$app->user->identity->username;
                     if ($table->save(false)) {
                         $msg = "El registro ha sido actualizado correctamente";
@@ -392,6 +396,8 @@ class EmpleadoController extends Controller
                 $model->tipo_transacion = $table->tipo_transacion;
                 $model->id_centro_costo = $table->id_centro_costo;
                 $model->id_nivel_estudio = $table->id_nivel_estudio;
+                $model->documento_pago_banco = $table->documento_pago_banco;
+                $model->homologar_document = $table->homologar_document;
             } else {
                 return $this->redirect(["empleado/index"]);
             }

@@ -130,6 +130,8 @@ class ProveedorController extends Controller {
                 $table->tipocuenta = $model->tipocuenta;
                 $table->cuentanumero = $model->cuentanumero;
                 $table->genera_moda = $model->genera_moda;
+                $table->homologar_document = $model->homologar_document;
+                $table->nuevo_documento = $model->nuevo_documento;
                 if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9 || $model->id_tipo_documento == 4) {
                     $table->nombrecorto = $model->nombreproveedor . " " . $model->apellidoproveedor;
                     $model->razonsocial = null;
@@ -191,6 +193,8 @@ class ProveedorController extends Controller {
                     $table->tipocuenta = $model->tipocuenta;
                     $table->cuentanumero = $model->cuentanumero;
                     $table->genera_moda = $model->genera_moda;
+                    $table->homologar_document = $model->homologar_document;
+                    $table->nuevo_documento = $model->nuevo_documento;
                     if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9  || $model->id_tipo_documento == 4) {
                         $table->nombrecorto = strtoupper($model->nombreproveedor . " " . $model->apellidoproveedor);
                         $model->razonsocial = null;
@@ -243,6 +247,8 @@ class ProveedorController extends Controller {
                 $model->tipocuenta = $table->tipocuenta;
                 $model->cuentanumero = $table->cuentanumero;
                 $model->genera_moda = $table->genera_moda;
+                $model->homologar_document = $table->homologar_document;
+                $model->nuevo_documento = $table->nuevo_documento;
             } else {
                 return $this->redirect(["proveedor/index"]);
             }

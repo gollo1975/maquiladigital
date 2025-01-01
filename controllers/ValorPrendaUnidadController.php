@@ -2333,7 +2333,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('I' . $i, $val->autorizado)
                     ->setCellValue('J' . $i, $val->devengado)
                     ->setCellValue('K' . $i, $val->deduccion)
-                    ->setCellValue('L' . $i, $val->Total_pagar)
+                    ->setCellValue('L' . $i, $val->total_pagar)
                     ->setCellValue('M' . $i, $val->observacion)
                     ->setCellValue('N' . $i, $val->planta->nombre_planta);
               

@@ -119,6 +119,10 @@ $AreaTrabajo = ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(), '
             <?= $form->field($model, 'numero_cuenta')->textInput(['maxlength' => true]) ?>
         </div>  
          <div class="row">
+            <?= $form->field($model, 'homologar_document')->dropDownList(['0' => 'NO', '1' => 'SI']) ?> 
+            <?= $form->field($model, 'documento_pago_banco')->textInput(['maxlength' => true]) ?>
+        </div>  
+         <div class="row">
             <?= $form->field($model, 'tipo_transacion')->dropDownList(['27' => 'ABONO A CTA CORRIENTE', '37' => 'ABONO A CTA AHORRO'], ['prompt' => 'Seleccione una opcion...']) ?> 
             <?= $form->field($model, 'estado')->dropDownList(['1' => 'SI', '0' => 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>  

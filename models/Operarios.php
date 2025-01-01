@@ -50,7 +50,7 @@ class Operarios extends \yii\db\ActiveRecord
     {
         return [
             [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'required'],
-            [['id_tipo_documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion','idtipo'], 'integer'],
+            [['id_tipo_documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion','idtipo','homologar_document','documento_pago_banco'], 'integer'],
             [['nombres', 'apellidos', 'email','direccion_operario'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
             [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta','documento'], 'string'],
@@ -96,6 +96,8 @@ class Operarios extends \yii\db\ActiveRecord
             'tipo_transacion' => 'Tipo transacion:',
             'direccion_operario' => 'Direccion:',
             'idtipo' => 'Area asignada',
+            'documento_pago_banco' => 'Documento pago banco:',
+            'homologar_document' => 'Homologar documento:',
         ];
     }
 

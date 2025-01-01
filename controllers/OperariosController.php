@@ -202,6 +202,8 @@ class OperariosController extends Controller
                 $table->tipo_cuenta = $model->tipo_cuenta;
                 $table->numero_cuenta = $model->numero_cuenta;
                 $table->tipo_transacion = $model->tipo_transacion;
+                $table->homologar_document = $model->homologar_document;
+                $table->documento_pago_banco = $model->documento_pago_banco;
                 $table->usuariosistema =  Yii::$app->user->identity->username;
                 if($table->save(false)){;
                    return $this->redirect(["operarios/index"]);
@@ -262,6 +264,8 @@ class OperariosController extends Controller
                    $table->tipo_cuenta = $model->tipo_cuenta;
                    $table->numero_cuenta = $model->numero_cuenta;
                    $table->tipo_transacion = $model->tipo_transacion;
+                   $table->homologar_document = $model->homologar_document;
+                   $table->documento_pago_banco = $model->documento_pago_banco;
                    $table->save(false);
                     return $this->redirect(["operarios/index"]);
                }
@@ -296,6 +300,8 @@ class OperariosController extends Controller
                 $model->tipo_cuenta = $table->tipo_cuenta;
                 $model->numero_cuenta = $table->numero_cuenta;
                 $model->tipo_transacion =  $table->tipo_transacion; 
+                $model->homologar_document = $table->homologar_document;
+                $model->documento_pago_banco =  $table->documento_pago_banco;
             }else{
                  return $this->redirect(["operarios/index"]);
             }    

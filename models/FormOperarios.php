@@ -38,6 +38,8 @@ class FormOperarios extends Model
     public $tipo_cuenta;
     public $tipo_transacion;
     public $direccion;
+    public $documento_pago_banco;
+    public $homologar_document;
 
 
     /**
@@ -51,7 +53,8 @@ class FormOperarios extends Model
             ['documento', 'identificacion_existe'],
             ['email', 'email_existe'],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],
-            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta','banco','tipo_transacion'], 'integer'],
+            [['documento', 'estado', 'id_tipo_documento','polivalente','vinculado','tipo_operaria','salario','nomina_alterna','id_arl','id_horario','id_planta','banco',
+                'tipo_transacion','homologar_document','documento_pago_banco'], 'integer'],
             ['documento', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['nombres', 'apellidos','direccion'], 'string', 'max' => 50],
             [['iddepartamento', 'idmunicipio','celular','numero_cuenta'], 'string', 'max' => 15],
@@ -92,6 +95,8 @@ class FormOperarios extends Model
             'tipo_cuenta' => 'Tipo cuenta:',
             'tipo_transacion' => 'Tipo transacion:',
             'direccion' => 'Direccion:',
+            'documento_pago_banco' => 'Documento pago banco:',
+            'homologar_document' => 'Homologar documento:',
             
         ];
     }

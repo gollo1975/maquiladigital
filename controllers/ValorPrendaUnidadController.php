@@ -1334,7 +1334,12 @@ class ValorPrendaUnidadController extends Controller
                         foreach ($operario as $operarios):
                             $tabla = new \app\models\PagoNominaServicios();
                             $tabla->id_operario = $operarios->id_operario;
-                            $tabla->documento = $operarios->documento;
+                            if($operarios->homologar_document == 0){
+                                $tabla->documento = $operarios->documento;
+                            }else{
+                                $tabla->documento = $operarios->documento_pago_banco;
+                            }
+                            
                             $tabla->operario = utf8_encode($operarios->nombrecompleto);
                             $tabla->fecha_inicio = $model->fecha_inicio;
                             $tabla->fecha_corte = $model->fecha_corte;

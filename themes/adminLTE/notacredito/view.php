@@ -136,7 +136,11 @@ $view = 'notacredito';
                     <?php foreach ($modeldetalles as $val): ?>
                     <tr style="font-size: 85%;">
                         <td><?= $val->nrofactura ?></td>
-                        <td><?= $val->conceptoFacturacion->concepto?></td>
+                        <?php if ($val->id <> ''){?>
+                            <td><?= $val->conceptoFacturacion->concepto?></td>
+                        <?php }else{?>
+                            <td><?= 'NO FOUND'?></td>
+                        <?php }?>    
                         <td style="text-align: right"><?= '$'.number_format($val->saldo_factura,0) ?></td>
                         <td style="text-align: right"><?= $val->cantidad ?></td>
                         <td style="text-align: right"><?= $val->precio_unitario ?></td>

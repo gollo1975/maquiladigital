@@ -46,7 +46,7 @@ class NotacreditoController extends Controller
     {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',27])->all()){
-                $searchModel = new NotacreditoSearch();
+               $searchModel = new NotacreditoSearch();
                 $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
                 return $this->render('index', [
@@ -408,7 +408,7 @@ class NotacreditoController extends Controller
 
        //inicio el Api
         $curl = curl_init();
-            $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X"; //VARIABLE CON API KEY DE DESARROLLO O PRODUCCIÓN SEGÚN SEA EL CASO
+        $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
         $consecutivo_factura = "$consecutivo"; //CONSECUTIVO FACTURA
         $codigo_resolucion = "$resolucion"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
         //buscar informacion en la api

@@ -191,7 +191,6 @@ class FacturaventaController extends Controller
             $model->saldo = 0;
             $model->totalpagar = 0;
             $model->valorletras = "-" ;
-            $model->nrofacturaelectronica = $model->nrofacturaelectronica;
             $model->usuariosistema = Yii::$app->user->identity->username;   
             $model->consecutivo = $resolucion->consecutivo;
             $model->save(false);
@@ -211,7 +210,7 @@ class FacturaventaController extends Controller
         $model = new FormFacturaventalibre();
         $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $facturastipo = Facturaventatipo::find()->all();
-        $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','abreviatura', 'FE'])->one();
+         $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
         if ($model->load(Yii::$app->request->post())) {            
             $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
             $fecha = date( $model->fechainicio);
@@ -223,7 +222,6 @@ class FacturaventaController extends Controller
             $facturalibre->observacion = $model->observacion;
             $facturalibre->idresolucion = $resolucion->idresolucion;
             $facturalibre->numero_resolucion = $resolucion->nroresolucion;
-            $facturalibre->nrofacturaelectronica = $model->nrofacturaelectronica;
             $facturalibre->fecha_vencimiento = $nuevafecha;
             $facturalibre->id_forma_pago = $table->id_forma_pago;
             $facturalibre->plazopago = $table->plazopago;

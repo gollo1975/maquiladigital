@@ -54,9 +54,7 @@ $this->params['breadcrumbs'][] = $this->title;?>
         <div class="row">                        
             <?= $form->field($model, 'id_factura_venta_tipo')->dropDownList($facturastipo, ['prompt' => 'Seleccione un tipo...']) ?>
         </div>
-        <div class="row">
-            <?= $form->field($model, 'nrofacturaelectronica')->textInput(['maxlength' => true]) ?>
-        </div>
+       
         <div class="row">
             <?= $form->field($model, 'observacion')->textarea() ?>
         </div>

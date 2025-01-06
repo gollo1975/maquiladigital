@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Notacredito;
@@ -18,9 +17,9 @@ class NotacreditoSearch extends Notacredito
     public function rules()
     {
         return [
-            [['idnotacredito', 'idcliente', 'id_documento', 'numero', 'autorizado', 'anulado'], 'integer'],
-            [['fecha', 'fechapago', 'usuariosistema', 'observacion'], 'safe'],
-            [['valor','iva','reteiva','retefuente','total'], 'number'],
+            [['idnotacredito', 'idcliente', 'id_concepto', 'id_documento', 'numero', 'autorizado', 'anulado', 'id_detalle_factura_api'], 'integer'],
+            [['fecha', 'fechapago', 'fecha_recepcion_dian', 'fecha_envio_api', 'fecha_factura_venta', 'usuariosistema', 'observacion', 'cufe', 'cude', 'qrstr'], 'safe'],
+            [['valor', 'iva', 'reteiva', 'retefuente', 'total'], 'number'],
         ];
     }
 
@@ -48,7 +47,6 @@ class NotacreditoSearch extends Notacredito
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => ['idnotacredito' => SORT_DESC]] // Agregar esta linea para agregar el orden por defecto
         ]);
 
         $this->load($params);
@@ -63,8 +61,12 @@ class NotacreditoSearch extends Notacredito
         $query->andFilterWhere([
             'idnotacredito' => $this->idnotacredito,
             'idcliente' => $this->idcliente,
+            'id_concepto' => $this->id_concepto,
             'fecha' => $this->fecha,
             'fechapago' => $this->fechapago,
+            'fecha_recepcion_dian' => $this->fecha_recepcion_dian,
+            'fecha_envio_api' => $this->fecha_envio_api,
+            'fecha_factura_venta' => $this->fecha_factura_venta,
             'id_documento' => $this->id_documento,
             'valor' => $this->valor,
             'iva' => $this->iva,
@@ -74,10 +76,14 @@ class NotacreditoSearch extends Notacredito
             'numero' => $this->numero,
             'autorizado' => $this->autorizado,
             'anulado' => $this->anulado,
+            'id_detalle_factura_api' => $this->id_detalle_factura_api,
         ]);
 
         $query->andFilterWhere(['like', 'usuariosistema', $this->usuariosistema])
-            ->andFilterWhere(['like', 'observacion', $this->observacion]);
+            ->andFilterWhere(['like', 'observacion', $this->observacion])
+            ->andFilterWhere(['like', 'cufe', $this->cufe])
+            ->andFilterWhere(['like', 'cude', $this->cude])
+            ->andFilterWhere(['like', 'qrstr', $this->qrstr]);
 
         return $dataProvider;
     }

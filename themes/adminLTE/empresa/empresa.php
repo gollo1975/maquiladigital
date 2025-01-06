@@ -78,10 +78,7 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
             <?= $form->field($model, 'gran_contribuyente')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
             <?= $form->field($model, 'agente_retenedor')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>                
-        <div class="row">                        
-            <?= $form->field($model, 'id_banco_factura')->dropDownList($bancos, ['prompt' => 'Seleccione un cliente...']) ?>
-            <?= $form->field($model, 'idresolucion')->dropDownList($resoluciones, ['prompt' => 'Seleccione una resolucion...']) ?>
-        </div>
+        
           <div class="row">
             <?= $form->field($model, 'nombresistema')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'paginaweb')->textInput(['maxlength' => true]) ?>    
@@ -111,7 +108,9 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
              <?= $form->field($model, 'porcentaje_minima_eficiencia')->textInput(['maxlength' => true]) ?> 
         </div>
         <div class="row">
-             <?= $form->field($model, 'dias_trabajados')->textInput(['maxlength' => true]) ?>    
+             <?= $form->field($model, 'id_banco_factura')->dropDownList($bancos, ['prompt' => 'Seleccione un cliente...']) ?>
+             <?= $form->field($model, 'dias_trabajados')->textInput(['maxlength' => true]) ?>   
+            
         </div>
         <div class="row">
             <?= $form->field($model, 'declaracion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>

@@ -55,9 +55,6 @@ use kartik\depdrop\DepDrop;
         ]); ?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'nrofacturaelectronica')->textInput(['maxlength' => true]) ?>
-        </div>        
-        <div class="row">
             <?= $form->field($model, 'observacion')->textArea(['maxlength' => true]) ?>
         </div>
         <div class="panel-footer text-right">            

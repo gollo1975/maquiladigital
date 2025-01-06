@@ -8,14 +8,14 @@ use yii\helpers\ArrayHelper;
 /* @var $searchModel app\models\CuentaPubSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Lista Cuentas Pub';
+$this->title = 'Cuentas Pub';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="cuenta-pub-index">
 
 <?php
-use kartik\export\ExportMenu;
+//use kartik\export\ExportMenu;
 $gridColumns = [
     ['class' => 'yii\grid\SerialColumn'],
     'codigo_cuenta',
@@ -51,11 +51,7 @@ $gridColumns = [
     ['class' => 'yii\grid\ActionColumn'],
 ];
 
-// Renders a export dropdown menu
-echo ExportMenu::widget([
-    'dataProvider' => $dataProvider,
-    'columns' => $gridColumns
-]);
+
 ?>
     <!-- index -->
     <!--<h1><?= Html::encode($this->title) ?></h1>-->

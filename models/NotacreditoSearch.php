@@ -49,6 +49,10 @@ class NotacreditoSearch extends Notacredito
             'query' => $query,
         ]);
 
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'sort'=> ['defaultOrder' => ['idnotacredito' => SORT_DESC]] // Agregar esta linea para agregar el orden por defecto
+        ]);
         $this->load($params);
 
         if (!$this->validate()) {

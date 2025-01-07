@@ -37,7 +37,7 @@ class TipoCotizante extends \yii\db\ActiveRecord
     {
         return [
             [['tipo'], 'required'],
-            [['tipo'], 'string', 'max' => 100],
+            [['tipo','codigo_api_nomina'], 'string', 'max' => 100],
         ];
     }
 
@@ -48,7 +48,8 @@ class TipoCotizante extends \yii\db\ActiveRecord
     {
         return [
             'id_tipo_cotizante' => 'Id Tipo Cotizante',
-            'tipo' => 'Tipo',
+            'tipo' => 'Descripcion',
+            'codigo_api_nomina' => 'Codigo api nomina',
         ];
     }
 

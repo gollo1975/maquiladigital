@@ -19,7 +19,7 @@ class PeriodopagoSearch extends Periodopago
     {
         return [
             [['id_periodo_pago', 'dias', 'limite_horas', 'continua'], 'integer'],
-            [['nombre_periodo'], 'safe'],
+            [['nombre_periodo','codigo_api_nomina'], 'safe'],
             [['periodo_mes'], 'number'],
         ];
     }
@@ -65,6 +65,7 @@ class PeriodopagoSearch extends Periodopago
             'limite_horas' => $this->limite_horas,
             'continua' => $this->continua,
             'periodo_mes' => $this->periodo_mes,
+            'codigo_api_nomina' => $this->codigo_api_nomina,
         ]);
 
         $query->andFilterWhere(['like', 'nombre_periodo', $this->nombre_periodo]);

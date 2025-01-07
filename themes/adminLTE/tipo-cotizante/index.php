@@ -26,11 +26,15 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             [
                 'attribute' => 'id_tipo_cotizante',
-                'contentOptions' => ['class' => 'col-lg-4'],
+                'contentOptions' => ['class' => 'col-lg-3'],
+            ],
+            [
+                'attribute' => 'codigo_api_nomina',
+                'contentOptions' => ['class' => 'col-lg-2'],
             ],
             [
                 'attribute' => 'tipo',
-                'contentOptions' => ['class' => 'col-lg-7'],
+                'contentOptions' => ['class' => 'col-lg-4'],
             ],            
             [
                 'class' => 'yii\grid\ActionColumn',

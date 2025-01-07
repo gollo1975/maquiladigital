@@ -48,7 +48,10 @@ $configuracionformato = ArrayHelper::map(ConfiguracionFormatoPrefijo::find()->al
         </div>
         <div class="row">
           <?= $form->field($model, 'id_configuracion_prefijo')->dropDownList($configuracionformato, ['prompt' => 'Seleccione...']) ?>                      
-        </div>    
+        </div> 
+         <div class="row">
+            <?= $form->field($model, 'codigo_api_enlace')->textInput(['maxlength' => true]) ?>
+        </div>	
         <div class="panel-footer text-right">                
             <a href="<?= Url::toRoute("tipo-contrato/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>		

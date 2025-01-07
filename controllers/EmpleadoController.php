@@ -257,6 +257,7 @@ class EmpleadoController extends Controller
                 $table->documento_pago_banco = $model->documento_pago_banco;
                 $table->homologar_document = $model->homologar_document;
                 $table->id_sucursal = 1;
+                $table->id_forma_pago = $model->id_forma_pago;
                 $table->usuario_crear =  Yii::$app->user->identity->username;
                 if ($table->insert()) {
                     $this->redirect(["empleado/index"]);
@@ -334,6 +335,7 @@ class EmpleadoController extends Controller
                     $table->documento_pago_banco = $model->documento_pago_banco;
                     $table->homologar_document = $model->homologar_document;
                     $table->usuario_editar =  Yii::$app->user->identity->username;
+                    $table->id_forma_pago = $model->id_forma_pago;
                     if ($table->save(false)) {
                         $msg = "El registro ha sido actualizado correctamente";
                         return $this->redirect(["empleado/index"]);
@@ -398,6 +400,7 @@ class EmpleadoController extends Controller
                 $model->id_nivel_estudio = $table->id_nivel_estudio;
                 $model->documento_pago_banco = $table->documento_pago_banco;
                 $model->homologar_document = $table->homologar_document;
+                $model->id_forma_pago =  $table->id_forma_pago;
             } else {
                 return $this->redirect(["empleado/index"]);
             }

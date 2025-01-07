@@ -18,7 +18,7 @@ class TipoContratoSearch extends TipoContrato
     {
         return [
             [['id_tipo_contrato', 'estado', 'prorroga', 'nro_prorrogas', 'id_configuracion_prefijo'], 'integer'],
-            [['contrato', 'prefijo'], 'string'],
+            [['contrato', 'prefijo','codigo_api_enlace'], 'string'],
         ];
     }
 

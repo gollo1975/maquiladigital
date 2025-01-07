@@ -24,19 +24,23 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             [                
                 'attribute' => 'id_tipo_documento',
-                'contentOptions' => ['class' => 'col-lg-2'],
+                'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [                
                 'attribute' => 'tipo',
-                'contentOptions' => ['class' => 'col-lg-2'],                
+                'contentOptions' => ['class' => 'col-lg-1'],                
             ],
             [                
                 'attribute' => 'codigo_interfaz',
-                'contentOptions' => ['class' => 'col-lg-3'],                
+                'contentOptions' => ['class' => 'col-lg-1'],                
+            ],
+            [                
+                'attribute' => 'codigo_interface_nomina',
+                'contentOptions' => ['class' => 'col-lg-1'],                
             ],
             [               
                 'attribute' => 'descripcion',
-                'contentOptions' => ['class' => 'col-lg-4 '],
+                'contentOptions' => ['class' => 'col-lg-3 '],
             ],                                   
             [
                 'class' => 'yii\grid\ActionColumn', 

@@ -18,7 +18,7 @@ class DepartamentoSearch extends Departamento
     public function rules()
     {
         return [
-            [['iddepartamento', 'departamento'], 'safe'],
+            [['iddepartamento', 'departamento','codigo_api_nomina'], 'safe'],
             [['activo'], 'integer'],
         ];
     }
@@ -60,6 +60,7 @@ class DepartamentoSearch extends Departamento
         // grid filtering conditions
         $query->andFilterWhere([
             'activo' => $this->activo,
+            'codigo_api_nomina' => $this->codigo_api_nomina,
         ]);
 
         $query->andFilterWhere(['like', 'iddepartamento', $this->iddepartamento])

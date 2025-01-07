@@ -39,7 +39,7 @@ class TipoDocumento extends \yii\db\ActiveRecord
     {
         return [
             [['tipo', 'descripcion','codigo_interfaz'], 'required', 'message' => 'Campo requerido'],
-            [['tipo','codigo_interfaz'], 'string', 'max' => 10],
+            [['tipo','codigo_interfaz','codigo_interface_nomina'], 'string', 'max' => 10],
             [['descripcion'], 'string', 'max' => 40],
             [['codigo_api'],'integer'],
         ];
@@ -56,6 +56,7 @@ class TipoDocumento extends \yii\db\ActiveRecord
             'descripcion' => 'Descripcion',
             'codigo_interfaz' => 'Código Interfaz',
             'codigo_api' => 'Codigo api',
+            'codigo_interface_nomina' => 'Codigo api nomina'
         ];
     }
 

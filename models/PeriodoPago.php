@@ -40,7 +40,7 @@ class PeriodoPago extends \yii\db\ActiveRecord
             [['nombre_periodo', 'dias', 'limite_horas', 'continua', 'periodo_mes'], 'required'],
             [['dias', 'limite_horas', 'continua'], 'integer'],
             [['periodo_mes'], 'number'],
-            [['nombre_periodo'], 'string', 'max' => 50],
+            [['nombre_periodo','codigo_api_nomina'], 'string', 'max' => 50],
         ];
     }
 
@@ -56,6 +56,7 @@ class PeriodoPago extends \yii\db\ActiveRecord
             'limite_horas' => 'Limite Horas',
             'continua' => 'Continua',
             'periodo_mes' => 'Periodo Mes',
+            'codigo_api_nomina' => 'Codigo api nomina',
         ];
     }
     

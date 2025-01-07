@@ -22,11 +22,11 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             [
                 'attribute' => 'id_periodo_pago',
-                'contentOptions' => ['class' => 'col-lg-1.2'],
+                'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [
                 'attribute' => 'nombre_periodo',
-                'contentOptions' => ['class' => 'col-lg-3.6'],
+                'contentOptions' => ['class' => 'col-lg-2'],
             ],
             [
                 'attribute' => 'dias',
@@ -42,6 +42,10 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'periodo_mes',
+                'contentOptions' => ['class' => 'col-lg-1'],
+            ],
+            [
+                'attribute' => 'codigo_api_nomina',
                 'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [

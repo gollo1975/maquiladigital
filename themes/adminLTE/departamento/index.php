@@ -36,8 +36,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 if ($departamento->activo == 1){$estado = "SI";}else{$estado = "NO";}
                 return $estado;
             },
-            'contentOptions' => ['class' => 'col-lg-4'],
-            ],            			
+            'contentOptions' => ['class' => 'col-lg-2'],
+            ], 
+             [                
+                'attribute' => 'codigo_api_nomina',
+                'contentOptions' => ['class' => 'col-lg-1'],
+            ],       
             [
                 'class' => 'yii\grid\ActionColumn',      
                  'contentOptions' => ['class' => 'col-lg-1 '],

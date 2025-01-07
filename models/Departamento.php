@@ -30,9 +30,9 @@ class Departamento extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['iddepartamento', 'departamento'], 'required', 'message' => 'Campo requerido'],
-            [['activo'], 'integer'],
-            [['iddepartamento'], 'string', 'max' => 15],
+            [['iddepartamento', 'departamento','id_pais'], 'required', 'message' => 'Campo requerido'],
+            [['activo','id_pais'], 'integer'],
+            [['iddepartamento','codigo_api_nomina'], 'string', 'max' => 15],
             [['departamento'], 'string', 'max' => 100],
             [['iddepartamento'], 'unique'],
         ];
@@ -47,6 +47,8 @@ class Departamento extends \yii\db\ActiveRecord
             'iddepartamento' => 'Id (Dane)',
             'departamento' => 'Departamento',
             'activo' => 'Activo',
+            'id_pais' => 'Pais:',
+            'codigo_api_nomina' => 'Codigo api nomina',
         ];
     }
 
@@ -64,6 +66,14 @@ class Departamento extends \yii\db\ActiveRecord
     public function getMunicipios()
     {
         return $this->hasMany(Municipio::className(), ['iddepartamento' => 'iddepartamento']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPais()
+    {
+        return $this->hasOne(Paises::className(), ['id_pais' => 'id_pais']);
     }
     
     public function getEstado()

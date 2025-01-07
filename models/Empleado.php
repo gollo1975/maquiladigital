@@ -99,7 +99,7 @@ class Empleado extends \yii\db\ActiveRecord
     {
         return [
             [['id_empleado_tipo', 'id_tipo_documento', 'identificacion', 'dv', 'id_estado_civil', 'estatura', 'peso', 'id_rh', 'padre_familia', 'cabeza_hogar', 'id_nivel_estudio', 'discapacidad', 'id_horario','id_banco_empleado',
-                'id_centro_costo','tipo_transacion','homologar_document','documento_pago_banco'], 'integer'],
+                'id_centro_costo','tipo_transacion','homologar_document','documento_pago_banco','id_forma_pago'], 'integer'],
             [['identificacion'], 'required'],
             [['fecha_expedicion', 'fecha_nacimiento', 'fechacreacion'], 'safe'],
             [['observacion','tipo_cuenta'], 'string'],
@@ -123,6 +123,7 @@ class Empleado extends \yii\db\ActiveRecord
             [['id_empleado_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => EmpleadoTipo::className(), 'targetAttribute' => ['id_empleado_tipo' => 'id_empleado_tipo']],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
             [['id_sucursal'], 'exist', 'skipOnError' => true, 'targetClass' => Sucursal::className(), 'targetAttribute' => ['id_sucursal' => 'id_sucursal']],
+            [['id_forma_pago'], 'exist', 'skipOnError' => true, 'targetClass' => FormaPago::className(), 'targetAttribute' => ['id_forma_pago' => 'id_forma_pago']],
         ];
     }
 
@@ -179,6 +180,7 @@ class Empleado extends \yii\db\ActiveRecord
             'tipo_transacion' => 'Tipo transación',
             'homologar_document' => 'Homologar documento:',
             'documento_pago_banco' => 'Documento pago banco:',
+            'id_forma_pago' => 'Forma de pago:',
         ];
     }
 
@@ -196,6 +198,14 @@ class Empleado extends \yii\db\ActiveRecord
     public function getEstadoCivil()
     {
         return $this->hasOne(EstadoCivil::className(), ['id_estado_civil' => 'id_estado_civil']);
+    }
+    
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFormaPago()
+    {
+        return $this->hasOne(FormaPago::className(), ['id_forma_pago' => 'id_forma_pago']);
     }
 
     /**

@@ -59,6 +59,7 @@ $horario = ArrayHelper::map(Horario::find()->all(), 'id_horario', 'horario');
 $banco_empleado = ArrayHelper::map(BancoEmpleado::find()->all(), 'id_banco_empleado', 'banco');
 $centro_costo = ArrayHelper::map(CentroCosto::find()->all(), 'id_centro_costo', 'centro_costo');
 $rh = ArrayHelper::map(Rh::find()->all(), 'id_rh', 'rh');
+$FormaPago = ArrayHelper::map(\app\models\FormaPago::find()->where(['<>','codigo_api_nomina', ''])->all(), 'id_forma_pago', 'concepto');
 $nive_estudio = ArrayHelper::map(app\models\NivelEstudio::find()->orderBy('nive_estudio ASC')->all(), 'id_nivel_estudio', 'nive_estudio');
 ?>
 <div class="panel panel-success">
@@ -179,6 +180,7 @@ $nive_estudio = ArrayHelper::map(app\models\NivelEstudio::find()->orderBy('nive_
             <?= $form->field($model, 'documento_pago_banco')->textInput(['maxlength' => true]) ?>   
         </div>
         <div class="row" col>
+             <?= $form->field($model, 'id_forma_pago')->dropDownList($FormaPago, ['prompt' => 'Seleccione una opcion...']) ?>
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
         <div class="panel-footer text-right">			

@@ -18,7 +18,7 @@ class TipoCotizanteSearch extends TipoCotizante
     {
         return [
             [['id_tipo_cotizante'], 'integer'],
-            [['tipo'], 'safe'],
+            [['tipo','codigo_api_nomina'], 'safe'],
         ];
     }
 
@@ -59,6 +59,7 @@ class TipoCotizanteSearch extends TipoCotizante
         // grid filtering conditions
         $query->andFilterWhere([
             'id_tipo_cotizante' => $this->id_tipo_cotizante,
+            'codigo_api_nomina' => $this->codigo_api_nomina,
         ]);
 
         $query->andFilterWhere(['like', 'tipo', $this->tipo]);

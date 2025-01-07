@@ -28,7 +28,7 @@ class FormaPago extends \yii\db\ActiveRecord
     {
         return [
             [['concepto', 'codigo_api'], 'required'],
-            [['codigo_api'], 'integer'],
+            [['codigo_api','codigo_api_nomina'], 'integer'],
             [['concepto'], 'string', 'max' => 20],
         ];
     }
@@ -42,6 +42,7 @@ class FormaPago extends \yii\db\ActiveRecord
             'id_forma_pago' => 'Id Forma Pago',
             'concepto' => 'Concepto',
             'codigo_api' => 'Codigo Api',
+            'codigo_api_nomina' => 'codigo_api_nomina'
         ];
     }
 }

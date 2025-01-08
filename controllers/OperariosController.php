@@ -523,8 +523,14 @@ class OperariosController extends Controller
                     ->setCellValue('M' . $i, $val->fecha_ingreso)
                     ->setCellValue('N' . $i, $val->planta->nombre_planta)
                     ->setCellValue('O' . $i, $val->bancoEmpleado->banco)
-                    ->setCellValue('P' . $i, $val->numero_cuenta)
-                     ->setCellValue('Q' . $i, $val->tipoOperaria->tipo);
+                    ->setCellValue('P' . $i, $val->numero_cuenta);
+                        if($val->idtipo == ''){
+                            $objPHPExcel->setActiveSheetIndex(0)
+                            ->setCellValue('Q' . $i, 'NO FOUND');
+                        }else{
+                            $objPHPExcel->setActiveSheetIndex(0)
+                            ->setCellValue('Q' . $i, $val->tipoOperaria->tipo);
+                        }    
             $i++;
         }
 

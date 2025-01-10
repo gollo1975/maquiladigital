@@ -324,8 +324,8 @@
                                             'icon' => 'cube',
                                             'url' => '#',
                                             'items' => [
-                                              
                                                 ['label' => 'Periodo de nomina', 'icon' => 'plus-square-o', 'url' => ['/periodo-nomina/indexconsulta']],
+                                                ['label' => 'Documento electronico', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/documento_electronico']],
                                             ],
                                         ],
                                     ],

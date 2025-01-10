@@ -34,6 +34,8 @@ use app\models\Consecutivo;
 use app\models\ConfiguracionPrestaciones;
 use app\models\InteresesCesantia;
 use app\models\FormMaquinaBuscar;
+use app\models\PeriodoNominaElectronica;
+
 // clases de yii
 use Yii;
 use yii\web\Controller;
@@ -135,6 +137,69 @@ class ProgramacionNominaController extends Controller {
                 }
                 $to = $count->count();
                 return $this->render('index', [
+                            'model' => $model,
+                            'form' => $form,
+                            'pagination' => $pages,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
+    
+    //PROCESO QUE CARGA EL LISTADO DE NOMINA ELECTRONICA
+    public function actionDocumento_electronico() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 150])->all()) {
+                $form = new \app\models\FormFiltroBuscarNomina();
+                $desde = null;
+                $hasta = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $desde = Html::encode($form->desde);
+                        $hasta = Html::encode($form->hasta);
+                        $table = PeriodoNominaElectronica::find()
+                                ->Where(['between', 'fecha_inicio_periodo', $desde, $hasta]);
+                        $table = $table->orderBy('id_periodo_electronico DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                       /* if (isset($_POST['excel'])) {
+                            $check = isset($_REQUEST['id_periodo_electronico DESC']);
+                            $this->actionExcelconsulta($tableexcel);
+                        }*/
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = PeriodoNominaElectronica::find()->orderBy('id_periodo_electronico DESC');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 15,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                   /* if (isset($_POST['excel'])) {
+                        //$table = $table->all();
+                        $this->actionExcelconsulta($tableexcel);
+                    }*/
+                }
+                //$to = $count->count();
+                return $this->render('crear_periodo_nomina_electronica', [
                             'model' => $model,
                             'form' => $form,
                             'pagination' => $pages,
@@ -2503,6 +2568,40 @@ class ProgramacionNominaController extends Controller {
             'model' => $model, 
             ]);
     }  
+    
+    //PERMITE CREAR EL PERIODO DE PAGO
+    public function actionCrear_nuevo_documento() {
+        $model = new \app\models\FormCostoGastoEmpresa();
+         if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()){
+                if (isset($_POST["crear_periodo"])) {
+                     $table = new PeriodoNominaElectronica();
+                     $table->fecha_inicio_periodo = $model->fecha_inicio;
+                     $table->fecha_corte_periodo = $model->fecha_corte;
+                     $table->user_name = Yii::$app->user->identity->username;
+                     $table->save();
+                     return $this->redirect(["documento_electronico"]); 
+                }
+            } 
+         }
+        return $this->renderAjax('crear_nuevo_periodo', [
+            'model' => $model,       
+        ]);    
+    }
+    
+    //CARGAR EMPLEADOS PARA NOMINA
+    public function actionCargar_empleados_nomina($id_periodo, $fecha_inicio, $fecha_corte)
+    {
+        $nomina = ProgramacionNomina::find()->where(['=','documento_generado', 0])->all();
+        foreach ($nomina as $key => $items) {
+            $table = new \app\models\NominaElectronica();
+            $table->id_periodo_pago = $items->periodoPagoNomina->periodoPago->id_periodo_pago;
+            $table->save();
+            
+        }
+        return $this->redirect(["documento_electronico"]); 
+        
+    }
     
     public function actionExcelpago($id) {
         $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();

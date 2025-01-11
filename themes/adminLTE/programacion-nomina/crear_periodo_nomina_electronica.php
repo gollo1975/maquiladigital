@@ -96,12 +96,15 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha corte</th>
                 <th scope="col" style='background-color:#B9D5CE;'>No empleados</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha hora creacion</th>
-                <th scope="col" style='background-color:#B9D5CE;'></th>                          
+                <th scope="col" style='background-color:#B9D5CE;'></th> 
+                 <th scope="col" style='background-color:#B9D5CE;'></th> 
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($model as $val):?>
-            <tr style ='font-size: 85%;'>                
+            <?php foreach ($model as $val):
+                $detalle = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $val->id_periodo_electronico])->one();
+                ?>
+            <tr style ='font-size: 85%;'>                 
                 <td><?= $val->id_periodo_electronico ?></td>
                 <td><?= $val->fecha_inicio_periodo ?></td>
                 <td><?= $val->fecha_corte_periodo ?></td>
@@ -116,7 +119,14 @@ $form = ActiveForm::begin([
                                                'method' => 'post',
                                            ],
                     ])?>
-                </td>   
+                </td>  
+                <?php if($detalle){?>
+                    <td style= 'width: 25px; height: 25px;'>
+                        <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                    </td>
+                <?php }else{?>
+                    <td style= 'width: 25px; height: 25px;'></td>
+                <?php } ?>
                         
             </tr>            
             <?php endforeach; ?>

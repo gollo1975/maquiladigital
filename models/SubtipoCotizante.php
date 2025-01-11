@@ -37,7 +37,7 @@ class SubtipoCotizante extends \yii\db\ActiveRecord
     {
         return [
             [['subtipo'], 'required'],
-            [['subtipo'], 'string', 'max' => 100],
+            [['subtipo','codigo_api_nomina'], 'string', 'max' => 100],
         ];
     }
 
@@ -49,6 +49,7 @@ class SubtipoCotizante extends \yii\db\ActiveRecord
         return [
             'id_subtipo_cotizante' => 'Id',
             'subtipo' => 'Subtipo',
+            'codigo_api_nomina' => 'Codigo api nomina',
         ];
     }
 

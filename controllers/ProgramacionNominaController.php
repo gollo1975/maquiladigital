@@ -2592,15 +2592,142 @@ class ProgramacionNominaController extends Controller {
     //CARGAR EMPLEADOS PARA NOMINA
     public function actionCargar_empleados_nomina($id_periodo, $fecha_inicio, $fecha_corte)
     {
-        $nomina = ProgramacionNomina::find()->where(['=','documento_generado', 0])->all();
+        $nomina = ProgramacionNomina::find()->where(['=','documento_generado', 0])->orderBy('id_empleado ASC')->all();
+        $periodo = PeriodoNominaElectronica::findOne($id_periodo);
+        $auxiliar = 0;
+        $contador = 0;
         foreach ($nomina as $key => $items) {
-            $table = new \app\models\NominaElectronica();
-            $table->id_periodo_pago = $items->periodoPagoNomina->periodoPago->id_periodo_pago;
-            $table->save();
+            if($items->id_empleado <> $auxiliar){
+                $contador += 1;
+                $totales = ProgramacionNomina::find()->where(['=','id_empleado', $items->id_empleado])->andWhere(['=','documento_generado', 0])->all();
+                $tDevengado = 0; $tDeduccion = 0; $tPagar = 0;
+                foreach ($totales as $key => $total) {
+                    $tDevengado += $total->total_devengado;
+                    $tDeduccion += $total->total_deduccion;
+                    $tPagar += $total->total_pagar;
+                }
+                $table = new \app\models\NominaElectronica();
+                $table->id_periodo_pago = $items->periodoPagoNomina->periodoPago->id_periodo_pago;
+                $table->id_tipo_nomina = $items->id_tipo_nomina;
+                $table->id_contrato = $items->id_contrato;
+                $table->id_empleado = $items->id_empleado;
+                $table->codigo_documento = $items->empleado->tipoDocumento->codigo_interface_nomina;
+                $table->id_periodo_electronico = $id_periodo;
+                $table->id_grupo_pago = $items->id_grupo_pago;
+                $table->documento_empleado = $items->cedula_empleado;
+                $table->primer_nombre = $items->empleado->nombre1;
+                $table->segundo_nombre = $items->empleado->nombre2;
+                $table->primer_apellido = $items->empleado->apellido1;
+                $table->segundo_apellido = $items->empleado->apellido2;
+                $table->nombre_completo = $items->empleado->nombrecorto;
+                $table->email_empleado = $items->empleado->email;
+                $table->salario_contrato = $items->salario_contrato;
+                $table->type_worker_id = $items->contrato->tipoCotizante->codigo_api_nomina;
+                $table->sub_type_worker_id = $items->contrato->subtipoCotizante->codigo_api_nomina;
+                $table->codigo_municipio = $items->empleado->municipio->codigomunicipio;
+                $table->direccion_empleado = $items->empleado->direccion;
+                $table->codigo_forma_pago = $items->empleado->formaPago->codigo_api_nomina;
+                $table->nombre_banco = $items->empleado->bancoEmpleado->banco;
+                if($items->empleado->tipo_cuenta == 'S'){
+                     $table->nombre_cuenta = 'Ahorro';
+                }else{
+                    $table->nombre_cuenta = 'Corriente';
+                }
+                $table->numero_cuenta = $items->empleado->cuenta_bancaria;
+                $table->fecha_inicio_nomina = $fecha_inicio;
+                $table->fecha_final_nomina = $fecha_corte;
+                $table->fecha_inicio_contrato = $items->fecha_inicio_contrato;
+                $table->fecha_terminacion_contrato = $items->fecha_final_contrato;
+                $table->fecha_envio_nomina = date('Y-m-d');
+                $table->fecha_inicio_contrato = $items->fecha_inicio_contrato;
+                $table->total_devengado = $tDevengado;
+                $table->total_deduccion = $tDeduccion;
+                $table->total_pagar = $tPagar;
+                $table->user_name = Yii::$app->user->identity->username;
+                $table->save(false);
+                $auxiliar =  $items->id_empleado;
+                $periodo->cantidad_empleados = $contador;
+                $periodo->save();
+            }else{
+               $auxiliar =  $items->id_empleado;
+            }    
             
         }
         return $this->redirect(["documento_electronico"]); 
         
+    }
+    
+    //VISTA DE EMPLEADOS CON DOCUMENTOS ELECTRONICOS
+    
+    public function actionVista_empleados($id_periodo) {
+        $form = new \app\models\FormFiltroDocumentoElectronico();
+        $documento = null;
+        $empleado = null;
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $documento = Html::encode($form->documento);
+                $empleado = Html::encode($form->empleado);
+                $table = \app\models\NominaElectronica::find()
+                         ->andFilterWhere(['=','documento_empleado', $documento])
+                         ->andFilterWhere(['like','nombre_completo', $empleado])
+                        ->andWhere(['=','id_periodo_electronico', $id_periodo]);
+                $table = $table->orderBy('id_nomina_electronica ASC');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $to = $count->count();
+                $pages = new Pagination([
+                    'pageSize' => 40,
+                    'totalCount' => $count->count()
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                   $this->actionExcelconsultaDocumentos($tableexcel);
+                }
+            }
+        }else{
+           $table = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->orderBy('id_nomina_electronica ASC');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 40,
+                    'totalCount' => $count->count(),
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                    $this->actionExcelconsultaDocumentos($tableexcel);
+                }  
+        }
+        if (isset($_POST["crear_documento_electronico"])) {
+            if (isset($_POST["documento_electronico"])) {
+                $intIndice = 0;
+                foreach ($_POST["documento_electronico"] as $intCodigo) { //vector que cargar cada items
+                    $conRegistro = \app\models\NominaElectronica::findOne($intCodigo);
+                    $buscarNomina = ProgramacionNomina::find()->where(['=','id_empleado', $conRegistro->id_empleado])->andWhere(['=','documento_detalle_generado', 0])->all();
+                    foreach ($buscarNomina as $key => $datos) {
+                        $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $datos->id_programacion])->all();
+                        foreach ($detalle_nomina as $key => $detalle) {
+                           
+                        }
+                    }
+                }
+            }else{
+                Yii::$app->getSession()->setFlash('error','Debe de seleccionar al menos un registro. ');
+            }
+        }    
+        return $this->render('importar_detalle_nomina', [
+            'model' => $model, 
+            'id_periodo' => $id_periodo,
+            'form' => $form,
+            'pagination' => $pages,
+        ]);    
     }
     
     public function actionExcelpago($id) {

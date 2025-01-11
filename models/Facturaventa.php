@@ -66,8 +66,8 @@ class Facturaventa extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nrofactura', 'plazopago', 'idcliente', 'idordenproduccion', 'idresolucion','estado','autorizado','reenviar_factura','consultar_factura'], 'integer'],
-            [['fecha_inicio', 'idcliente', 'idordenproduccion','id_factura_venta_tipo'], 'required', 'message' => 'Campo requerido'],
+            [['nrofactura', 'plazopago', 'idcliente', 'idordenproduccion', 'idresolucion','estado','autorizado','reenviar_factura','consultar_factura','tipo_facturacion'], 'integer'],
+            [['fecha_inicio', 'idcliente', 'idordenproduccion','id_factura_venta_tipo','tipo_facturacion'], 'required', 'message' => 'Campo requerido'],
             [['fecha_inicio', 'fecha_vencimiento', 'fechacreacion','fecha_recepcion_dian', 'fecha_envio_begranda'], 'safe'],
             [['porcentajeiva', 'porcentajefuente', 'porcentajereteiva', 'subtotal', 'retencionfuente', 'impuestoiva', 'retencioniva', 'saldo', 'totalpagar'], 'number'],
             [['valorletras','observacion','nrofacturaelectronica','cufe','numero_resolucion'], 'string'],
@@ -120,6 +120,7 @@ class Facturaventa extends \yii\db\ActiveRecord
             'consultar_factura' => 'consultar_factura',
             'reenviar_factura' => 'reenviar_factura',
             'qrstr' => 'qrstr',
+            'tipo_facturacion'=> 'Tipo facturacion:',
         ];
     }
 
@@ -198,6 +199,16 @@ class Facturaventa extends \yii\db\ActiveRecord
             $autorizar = "NO";
         }
         return $autorizar;
+    }
+    
+    public function getTipoFacturacion()
+    {
+        if($this->tipo_facturacion ==0){
+            $tipofacturacion = "Completa";
+        }else{
+            $tipofacturacion = "Parcial";
+        }
+        return $tipofacturacion;
     }
     
     public function getEstados()

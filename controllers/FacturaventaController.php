@@ -603,9 +603,9 @@ class FacturaventaController extends Controller
                 $factura->nrofactura = $consecutivo->consecutivo;
                 $factura->save(false);
                 $consecutivo->save(false);
-                if ($factura->libre == 0){
-                    $ordenProduccion->facturado = 1;
-                    $ordenProduccion->save(false);
+                if ($factura->libre == 0 && $factura->tipo_facturacion == 0){
+                        $ordenProduccion->facturado = 1;
+                        $ordenProduccion->save(false);
                 }                
                 //$this->afectarcantidadfacturada($id);//se resta o descuenta las cantidades facturadas en los productos por cliente
                 return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);

@@ -55,6 +55,9 @@ use kartik\depdrop\DepDrop;
         ]); ?>
         </div>
         <div class="row">
+            <?= $form->field($model, 'tipo_facturacion')->dropDownList(['0' => 'Completo', '1' => 'Parcial'], ['prompt' => 'Seleccione una opcion...']) ?>
+        </div>   
+        <div class="row">
             <?= $form->field($model, 'observacion')->textArea(['maxlength' => true]) ?>
         </div>
         <div class="panel-footer text-right">            

@@ -68,7 +68,8 @@ $this->params['breadcrumbs'][] = $this->title;
    </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr style ='font-size:85%;'>                
+                <tr style ='font-size:85%;'>  
+                    <th scope="col" style='background-color:#B9D5CE;'>Consecutivo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
@@ -82,11 +83,12 @@ $this->params['breadcrumbs'][] = $this->title;
             </thead>
             <tbody>
                 <?php 
-              
+                 $periodo = app\models\PeriodoNominaElectronica::findOne($id_periodo);
                 foreach ($model as $val):?>
-                    <tr style='font-size:85%;'>             
+                    <tr style='font-size:85%;'> 
+                        <td><?= $val->consecutivo?> - <?= $val->numero_nomina_electronica?></td>  
                         <td><?= $val->documento_empleado ?></td>    
-                         <td><?= $val->empleado->nombrecorto ?></td>
+                        <td><?= $val->empleado->nombrecorto ?></td>
                         <td><?= $val->fecha_inicio_nomina ?></td>
                         <td><?= $val->fecha_final_nomina ?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_devengado,0)?></td>
@@ -98,10 +100,12 @@ $this->params['breadcrumbs'][] = $this->title;
                
             </tbody> 
         </table>   
-        <div class="panel-footer text-right" >  
-                <?= Html::submitButton("<span class='glyphicon glyphicon-plus'></span> Crear documentos", ["class" => "btn btn-success btn-sm", 'name' => 'crear_documento_electronico']) ?>
-                                
-        </div>
+        <?php if($periodo->cerrar_proceso == 0){?>
+            <div class="panel-footer text-right" >  
+                    <?= Html::submitButton("<span class='glyphicon glyphicon-plus'></span> Crear documentos", ["class" => "btn btn-success btn-sm", 'name' => 'crear_documento_electronico']) ?>
+
+            </div>
+        <?php }?>
 
     </div>
 </div>

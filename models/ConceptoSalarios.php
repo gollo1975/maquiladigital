@@ -54,11 +54,12 @@ class ConceptoSalarios extends \yii\db\ActiveRecord
         return [
             [['codigo_salario', 'nombre_concepto', 'debito_credito', 'tipo_adicion'], 'required'],
             [['codigo_salario', 'compone_salario', 'aplica_porcentaje', 'prestacional', 'ingreso_base_prestacional', 'ingreso_base_cotizacion', 'debito_credito', 'adicion', 'auxilio_transporte', 'concepto_incapacidad', 'concepto_pension', 'concepto_salud', 'concepto_vacacion',
-                'provisiona_vacacion', 'provisiona_indemnizacion', 'tipo_adicion', 'recargo_nocturno', 'inicio_nomina','hora_extra','concepto_comision','concepto_licencia', 'fsp','concepto_prima', 'concepto_cesantias', 'intereses'], 'integer'],
+                'provisiona_vacacion', 'provisiona_indemnizacion', 'tipo_adicion', 'recargo_nocturno', 'inicio_nomina','hora_extra','concepto_comision','concepto_licencia', 'fsp','concepto_prima', 'concepto_cesantias', 'intereses','id_agrupado','devengado_deduccion'], 'integer'],
             [['porcentaje', 'porcentaje_tiempo_extra'], 'number'],
             [['fecha_creacion'], 'safe'],
             [['nombre_concepto'], 'string', 'max' => 50],
             [['codigo_salario'], 'unique'],
+            [['id_agrupado'], 'exist', 'skipOnError' => true, 'targetClass' => AgruparConceptoSalario::className(), 'targetAttribute' => ['id_agrupado' => 'id_agrupado']],
         ];
     }
 
@@ -97,6 +98,8 @@ class ConceptoSalarios extends \yii\db\ActiveRecord
             'concepto_prima' => 'Prima',
             'concepto_cesantias' => 'Cesantias',
             'intereses' => 'Intereses',
+            'devengado_deduccion' => 'Devengado / Deduccion:',
+            'id_agrupado' => 'Tipo de concepto:',
         ];
     }
 

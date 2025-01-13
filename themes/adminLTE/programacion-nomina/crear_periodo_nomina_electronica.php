@@ -95,9 +95,14 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha corte</th>
                 <th scope="col" style='background-color:#B9D5CE;'>No empleados</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha hora creacion</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Fecha / hora</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Deduccion</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Cerrado</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th> 
-                 <th scope="col" style='background-color:#B9D5CE;'></th> 
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
             </tr>
             </thead>
             <tbody>
@@ -110,24 +115,48 @@ $form = ActiveForm::begin([
                 <td><?= $val->fecha_corte_periodo ?></td>
                 <td><?= $val->cantidad_empleados ?></td>
                 <td><?= $val->fecha_registro ?></td>
-                <td style= 'width: 25px; height: 25px;'>
-                    <?= Html::a('<span class="glyphicon glyphicon-user"></span> ', ['cargar_empleados_nomina', 'id_periodo' => $val->id_periodo_electronico, 'fecha_inicio' => $val->fecha_inicio_periodo,'fecha_corte' => $val->fecha_corte_periodo], [
-                                           'class' => '',
-                                           'title' => 'Proceso que permite cargar los empleados para generar el documento electronico.', 
-                                           'data' => [
-                                               'confirm' => 'Esta seguro de CARGAR los empleados que generaron NOMINA desde ('.$val->fecha_inicio_periodo.') hasta el ('.$val->fecha_corte_periodo.')'.'',
-                                               'method' => 'post',
-                                           ],
-                    ])?>
-                </td>  
-                <?php if($detalle){?>
+                <td style="text-align: right"><?= ''.number_format($val->devengado_nomina,0) ?></td>
+                <td style="text-align: right"><?= ''.number_format($val->deduccion_nomina,0) ?></td>
+                <td style="text-align: right"><?= ''.number_format($val->total_nomina,0) ?></td>
+                <td><?= $val->cerradoProceso ?></td>
+                <?php if($val->cerrar_proceso == 0){?>
                     <td style= 'width: 25px; height: 25px;'>
-                        <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                    </td>
-                <?php }else{?>
-                    <td style= 'width: 25px; height: 25px;'></td>
-                <?php } ?>
-                        
+                        <?= Html::a('<span class="glyphicon glyphicon-user"></span> ', ['cargar_empleados_nomina', 'id_periodo' => $val->id_periodo_electronico, 'fecha_inicio' => $val->fecha_inicio_periodo,'fecha_corte' => $val->fecha_corte_periodo], [
+                                               'class' => '',
+                                               'title' => 'Proceso que permite cargar los empleados para generar el documento electronico.', 
+                                               'data' => [
+                                                   'confirm' => 'Esta seguro de CARGAR los empleados que generaron NOMINA desde ('.$val->fecha_inicio_periodo.') hasta el ('.$val->fecha_corte_periodo.')'.'',
+                                                   'method' => 'post',
+                                               ],
+                        ])?>
+                    </td>  
+                    <?php if($detalle){?>
+                        <td style= 'width: 25px; height: 25px;'>
+                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            
+                        </td>
+                        <td style= 'width: 25px; height: 25px;'>
+                        <?= Html::a('<span class="glyphicon glyphicon-eye-close"></span> ', ['cerrar_periodo_nomina', 'id_periodo' => $val->id_periodo_electronico], [
+                                               'class' => '',
+                                               'title' => 'Proceso que permite cerrar el periodo para documentos electronicos.', 
+                                               'data' => [
+                                                   'confirm' => 'Esta seguro de CERRAR el periodo para cargar nominas desde ('.$val->fecha_inicio_periodo.') hasta el ('.$val->fecha_corte_periodo.')'.'. Tener presente que los detalles de nomina deben de quedar listos.',
+                                                   'method' => 'post',
+                                               ],
+                        ])?>
+                    </td>  
+                    <?php }else{?>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                    <?php }
+                }else{?>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                         <td style= 'width: 25px; height: 25px;'>
+                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            
+                        </td>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                <?php }?>        
             </tr>            
             <?php endforeach; ?>
             </tbody>    

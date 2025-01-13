@@ -32,7 +32,7 @@ class PeriodoNominaElectronica extends \yii\db\ActiveRecord
         return [
             [['fecha_inicio_periodo', 'fecha_corte_periodo'], 'required'],
             [['fecha_inicio_periodo', 'fecha_corte_periodo', 'fecha_registro'], 'safe'],
-            [['cantidad_empleados'], 'integer'],
+            [['cantidad_empleados','cerrar_proceso','total_nomina','devengado_nomina','deduccion_nomina'], 'integer'],
             [['user_name'], 'string', 'max' => 15],
         ];
     }
@@ -49,6 +49,16 @@ class PeriodoNominaElectronica extends \yii\db\ActiveRecord
             'cantidad_empleados' => 'Cantidad empleados:',
             'fecha_registro' => 'Fecha hora registro:',
             'user_name' => 'User name:',
+            'cerrar_proceso' => 'cerrado:',
         ];
+    }
+    
+    public function getCerradoProceso() {
+        if($this->cerrar_proceso == 0){
+            $procesocerrado = 'NO';
+        }else{
+            $procesocerrado = 'SI';
+        }
+        return $procesocerrado;
     }
 }

@@ -71,18 +71,18 @@ class NominaElectronica extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_periodo_pago', 'id_tipo_nomina', 'id_contrato', 'id_empleado', 'id_periodo_electronico', 'id_grupo_pago', 'documento_empleado', 'type_worker_id', 'sub_type_worker_id', 'codigo_municipio', 'codigo_forma_pago', 'generado_detalle', 'exportado_nomina'], 'integer'],
+            [['id_periodo_pago', 'id_tipo_nomina', 'id_contrato', 'id_empleado', 'id_periodo_electronico', 'id_grupo_pago', 'documento_empleado', 'type_worker_id', 'sub_type_worker_id', 'codigo_municipio',
+                'codigo_forma_pago', 'generado_detalle', 'exportado_nomina','numero_nomina_electronica'], 'integer'],
             [['salario_contrato', 'total_devengado', 'total_deduccion', 'total_pagar'], 'number'],
             [['fecha_inicio_nomina', 'fecha_final_nomina', 'fecha_inicio_contrato', 'fecha_terminacion_contrato', 'fecha_envio_nomina', 'fecha_recepcion_dian'], 'safe'],
-            [['primer_nombre', 'primer_apellido', 'segundo_apellido'], 'string', 'max' => 10],
-            [['segundo_nombre'], 'string', 'max' => 1],
+            [['primer_nombre','segundo_nombre', 'primer_apellido', 'segundo_apellido'], 'string', 'max' => 10],
             [['email_empleado'], 'string', 'max' => 60],
             [['direccion_empleado','nombre_completo'], 'string', 'max' => 50],
             [['nombre_banco'], 'string', 'max' => 40],
             [['nombre_cuenta', 'numero_cuenta'], 'string', 'max' => 20],
             [['cune'], 'string', 'max' => 350],
             [['qrstr'], 'string', 'max' => 2000],
-            [['user_name','codigo_documento'], 'string', 'max' => 15],
+            [['user_name','codigo_documento','consecutivo'], 'string', 'max' => 15],
             [['id_periodo_pago'], 'exist', 'skipOnError' => true, 'targetClass' => PeriodoPago::className(), 'targetAttribute' => ['id_periodo_pago' => 'id_periodo_pago']],
             [['id_tipo_nomina'], 'exist', 'skipOnError' => true, 'targetClass' => TipoNomina::className(), 'targetAttribute' => ['id_tipo_nomina' => 'id_tipo_nomina']],
             [['id_contrato'], 'exist', 'skipOnError' => true, 'targetClass' => Contrato::className(), 'targetAttribute' => ['id_contrato' => 'id_contrato']],
@@ -135,6 +135,8 @@ class NominaElectronica extends \yii\db\ActiveRecord
             'user_name' => 'User Name',
             'generado_detalle' => 'Generado Detalle',
             'exportado_nomina' => 'Exportado Nomina',
+            'consecutivo' => 'consecutivo',
+            'numero_nomina_electronica' => 'numero_nomina_electronica',
         ];
     }
 

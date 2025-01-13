@@ -540,6 +540,8 @@ class PagoAdicionalFechaController extends Controller
         if(count($nominas) > 0){
             foreach ($nominas as $primas):
                  $primas->importar_prima = 1;
+                 $primas->documento_generado = 1;
+                 $primas->documento_detalle_generado = 1;
                  $primas->save(false);
             endforeach;
              return $this->redirect(["pago-adicional-fecha/view", 'id'=>$id, 'fecha_corte' => $fecha_corte]);

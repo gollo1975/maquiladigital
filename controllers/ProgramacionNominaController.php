@@ -2596,69 +2596,69 @@ class ProgramacionNominaController extends Controller {
         $periodo = PeriodoNominaElectronica::findOne($id_periodo);
         $auxiliar = 0;
         $contador = 0;
-        foreach ($nomina as $key => $items) {
-            if($items->id_empleado <> $auxiliar){
-                $contador += 1;
-                $totales = ProgramacionNomina::find()->where(['=','id_empleado', $items->id_empleado])->andWhere(['=','documento_generado', 0])->all();
-                $tDevengado = 0; $tDeduccion = 0; $tPagar = 0;
-                foreach ($totales as $key => $total) {
-                    $tDevengado += $total->total_devengado;
-                    $tDeduccion += $total->total_deduccion;
-                    $tPagar += $total->total_pagar;
-                }
-                $table = new \app\models\NominaElectronica();
-                $table->id_periodo_pago = $items->periodoPagoNomina->periodoPago->id_periodo_pago;
-                $table->id_tipo_nomina = $items->id_tipo_nomina;
-                $table->id_contrato = $items->id_contrato;
-                $table->id_empleado = $items->id_empleado;
-                $table->codigo_documento = $items->empleado->tipoDocumento->codigo_interface_nomina;
-                $table->id_periodo_electronico = $id_periodo;
-                $table->id_grupo_pago = $items->id_grupo_pago;
-                $table->documento_empleado = $items->cedula_empleado;
-                $table->primer_nombre = $items->empleado->nombre1;
-                $table->segundo_nombre = $items->empleado->nombre2;
-                $table->primer_apellido = $items->empleado->apellido1;
-                $table->segundo_apellido = $items->empleado->apellido2;
-                $table->nombre_completo = $items->empleado->nombrecorto;
-                $table->email_empleado = $items->empleado->email;
-                $table->salario_contrato = $items->salario_contrato;
-                $table->type_worker_id = $items->contrato->tipoCotizante->codigo_api_nomina;
-                $table->sub_type_worker_id = $items->contrato->subtipoCotizante->codigo_api_nomina;
-                $table->codigo_municipio = $items->empleado->municipio->codigomunicipio;
-                $table->direccion_empleado = $items->empleado->direccion;
-                $table->codigo_forma_pago = $items->empleado->formaPago->codigo_api_nomina;
-                $table->nombre_banco = $items->empleado->bancoEmpleado->banco;
-                if($items->empleado->tipo_cuenta == 'S'){
-                     $table->nombre_cuenta = 'Ahorro';
+        if(count($nomina) > 0){
+            foreach ($nomina as $key => $items) {
+                if($items->id_empleado <> $auxiliar){
+                    $contador += 1;
+                    $totales = ProgramacionNomina::find()->where(['=','id_empleado', $items->id_empleado])->andWhere(['=','documento_generado', 0])->all();
+                    $tDevengado = 0; $tDeduccion = 0; $tPagar = 0;
+                    foreach ($totales as $key => $total) {
+                        $total->documento_generado = 1;
+                        $total->save();
+                    }
+                    $table = new \app\models\NominaElectronica();
+                    $table->id_periodo_pago = $items->periodoPagoNomina->periodoPago->id_periodo_pago;
+                    $table->id_tipo_nomina = $items->id_tipo_nomina;
+                    $table->id_contrato = $items->id_contrato;
+                    $table->id_empleado = $items->id_empleado;
+                    $table->codigo_documento = $items->empleado->tipoDocumento->codigo_interface_nomina;
+                    $table->id_periodo_electronico = $id_periodo;
+                    $table->id_grupo_pago = $items->id_grupo_pago;
+                    $table->documento_empleado = $items->cedula_empleado;
+                    $table->primer_nombre = $items->empleado->nombre1;
+                    $table->segundo_nombre = $items->empleado->nombre2;
+                    $table->primer_apellido = $items->empleado->apellido1;
+                    $table->segundo_apellido = $items->empleado->apellido2;
+                    $table->nombre_completo = $items->empleado->nombrecorto;
+                    $table->email_empleado = $items->empleado->email;
+                    $table->salario_contrato = $items->salario_contrato;
+                    $table->type_worker_id = $items->contrato->tipoCotizante->codigo_api_nomina;
+                    $table->sub_type_worker_id = $items->contrato->subtipoCotizante->codigo_api_nomina;
+                    $table->codigo_municipio = $items->empleado->municipio->codigomunicipio;
+                    $table->direccion_empleado = $items->empleado->direccion;
+                    $table->codigo_forma_pago = $items->empleado->formaPago->codigo_api_nomina;
+                    $table->nombre_banco = $items->empleado->bancoEmpleado->banco;
+                    if($items->empleado->tipo_cuenta == 'S'){
+                         $table->nombre_cuenta = 'Ahorro';
+                    }else{
+                        $table->nombre_cuenta = 'Corriente';
+                    }
+                    $table->numero_cuenta = $items->empleado->cuenta_bancaria;
+                    $table->fecha_inicio_nomina = $fecha_inicio;
+                    $table->fecha_final_nomina = $fecha_corte;
+                    $table->fecha_inicio_contrato = $items->fecha_inicio_contrato;
+                    $table->fecha_terminacion_contrato = $items->fecha_final_contrato;
+                    $table->fecha_envio_nomina = date('Y-m-d');
+                    $table->fecha_inicio_contrato = $items->fecha_inicio_contrato;
+                    $table->user_name = Yii::$app->user->identity->username;
+                    $table->save(false);
+                    $auxiliar =  $items->id_empleado;
+                    $periodo->cantidad_empleados = $contador;
+                    $periodo->save();
                 }else{
-                    $table->nombre_cuenta = 'Corriente';
-                }
-                $table->numero_cuenta = $items->empleado->cuenta_bancaria;
-                $table->fecha_inicio_nomina = $fecha_inicio;
-                $table->fecha_final_nomina = $fecha_corte;
-                $table->fecha_inicio_contrato = $items->fecha_inicio_contrato;
-                $table->fecha_terminacion_contrato = $items->fecha_final_contrato;
-                $table->fecha_envio_nomina = date('Y-m-d');
-                $table->fecha_inicio_contrato = $items->fecha_inicio_contrato;
-                $table->total_devengado = $tDevengado;
-                $table->total_deduccion = $tDeduccion;
-                $table->total_pagar = $tPagar;
-                $table->user_name = Yii::$app->user->identity->username;
-                $table->save(false);
-                $auxiliar =  $items->id_empleado;
-                $periodo->cantidad_empleados = $contador;
-                $periodo->save();
-            }else{
-               $auxiliar =  $items->id_empleado;
-            }    
+                   $auxiliar =  $items->id_empleado;
+                }    
             
-        }
-        return $this->redirect(["documento_electronico"]); 
+            }
+            return $this->redirect(["documento_electronico"]); 
+        }else{
+            Yii::$app->getSession()->setFlash('info','No existen empleado con nominas pendientes para procesar.');
+             return $this->redirect(["documento_electronico"]); 
+        }    
         
     }
     
-    //VISTA DE EMPLEADOS CON DOCUMENTOS ELECTRONICOS
-    
+    //VISTA DE EMPLEADOS CON DOCUMENTOS ELECTRONICOS PARA GENERAR EL DETALLE
     public function actionVista_empleados($id_periodo) {
         $form = new \app\models\FormFiltroDocumentoElectronico();
         $documento = null;
@@ -2705,19 +2705,105 @@ class ProgramacionNominaController extends Controller {
                     $this->actionExcelconsultaDocumentos($tableexcel);
                 }  
         }
-        if (isset($_POST["crear_documento_electronico"])) {
+        if (isset($_POST["crear_documento_electronico"])) { ////entra al ciclo cuando presiona el boton crear documentos
             if (isset($_POST["documento_electronico"])) {
                 $intIndice = 0;
+                $contador = 0;
                 foreach ($_POST["documento_electronico"] as $intCodigo) { //vector que cargar cada items
-                    $conRegistro = \app\models\NominaElectronica::findOne($intCodigo);
-                    $buscarNomina = ProgramacionNomina::find()->where(['=','id_empleado', $conRegistro->id_empleado])->andWhere(['=','documento_detalle_generado', 0])->all();
-                    foreach ($buscarNomina as $key => $datos) {
-                        $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $datos->id_programacion])->all();
-                        foreach ($detalle_nomina as $key => $detalle) {
-                           
+                    $contador += 1;
+                    $conRegistro = \app\models\NominaElectronica::find()->where(['=','id_nomina_electronica', $intCodigo])->andWhere(['=','generado_detalle', 0])->one();//array que busca el empleado
+                    if($conRegistro){
+                        $buscarNomina = ProgramacionNomina::find()->where(['=','id_empleado', $conRegistro->id_empleado])->andWhere(['=','documento_detalle_generado', 0])->all();
+                        foreach ($buscarNomina as $key => $datos) {
+
+                            $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $datos->id_programacion])->all();
+                            foreach ($detalle_nomina as $key => $detalle) {
+                                $buscar = \app\models\NominaElectronicaDetalle::find()->where(['=','codigo_salario', $detalle->codigo_salario])->andWhere(['=','id_periodo_electronico', $id_periodo])
+                                                                                      ->andWhere(['=','id_empleado', $conRegistro->id_empleado])->one();
+                                if(!$buscar){
+                                    $table = new \app\models\NominaElectronicaDetalle();
+                                    $table->id_nomina_electronica = $intCodigo;
+                                    $table->codigo_salario = $detalle->codigo_salario;
+                                    $table->id_empleado = $conRegistro->id_empleado;
+                                    $table->decripcion = $detalle->codigoSalario->nombre_concepto;
+                                    $table->devengado_deduccion = $detalle->codigoSalario->devengado_deduccion;
+                                    $table->fecha_inicio = $conRegistro->fecha_inicio_nomina;
+                                    $table->fecha_final = $conRegistro->fecha_final_nomina;
+                                    if($table->devengado_deduccion == 1){
+                                        if($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
+                                          $table->devengado = $detalle->auxilio_transporte;
+                                          $table->total_dias = $detalle->dias_reales;
+                                          $table->auxilio_transporte = $detalle->auxilio_transporte; 
+                                        }else{
+                                            if($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
+                                                $table->devengado = $detalle->vlr_devengado;
+                                                $table->total_dias = $detalle->dias_reales;
+                                                $table->porcentaje = $detalle->codigoSalario->porcentaje;
+                                            }else{
+                                                if($detalle->codigoSalario->id_agrupado == 3){ //horas extras y festivas
+                                                    $table->devengado = $detalle->vlr_devengado;
+                                                    $table->porcentaje = $detalle->codigoSalario->porcentaje_tiempo_extra;
+                                                }else{
+                                                    $table->devengado = $detalle->vlr_devengado;
+                                                    $table->total_dias = $detalle->dias_reales;
+                                                }
+                                            }             
+                                        }
+                                    }else{
+                                        if($detalle->codigoSalario->id_agrupado == 6){ //seguridad social
+                                             $table->deduccion= $detalle->vlr_deduccion;  
+                                             $table->porcentaje = $detalle->codigoSalario->porcentaje; 
+                                        }else{
+                                           $table->deduccion= $detalle->vlr_deduccion;  
+                                        }
+
+                                    }
+                                    $table->id_agrupado = $detalle->codigoSalario->id_agrupado;
+                                    $table->id_periodo_electronico = $id_periodo;
+                                    $table->save(false);
+                               }else{// si esta regista esta en la base de datos
+                                    if($buscar->devengado_deduccion == 1){
+                                        if($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
+                                          $buscar->devengado += $detalle->auxilio_transporte;
+                                          $buscar->total_dias += $detalle->dias_reales;
+                                          $buscar->auxilio_transporte += $detalle->auxilio_transporte; 
+                                        }else{
+                                            if($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
+                                                $buscar->devengado += $detalle->vlr_devengado;
+                                                $buscar->total_dias += $detalle->dias_reales;
+                                                $buscar->porcentaje = $detalle->codigoSalario->porcentaje;
+                                            }else{
+                                                if($detalle->codigoSalario->id_agrupado == 3){ //horas extras y festivas
+                                                    $buscar->devengado += $detalle->vlr_devengado;
+                                                    $buscar->porcentaje = $detalle->codigoSalario->porcentaje_tiempo_extra;
+                                                }else{
+                                                    $buscar->devengado += $detalle->vlr_devengado;
+                                                    $buscar->total_dias += $detalle->dias_reales;
+                                                }
+                                            }             
+                                        }
+                                    }else{
+                                        $buscar->deduccion += $detalle->vlr_deduccion; 
+                                    }
+                                    $buscar->save(false);
+                               }
+                            }
+                        //cierre en programacion turnos
+                        $datos->documento_detalle_generado = 1;
+                        $datos->save();    
                         }
-                    }
+                        //cierra en nomina electronica
+                        $conRegistro->generado_detalle = 1;
+                        $conRegistro->save();
+                        
+                    }else{
+                        $conRegistro = \app\models\NominaElectronica::findOne($intCodigo);
+                        Yii::$app->getSession()->setFlash('info','A este empleado ('.$conRegistro->nombre_completo.'), ya se le genero el detalle de la Nomina para enviarlo a la DIAN.');
+                        return $this->redirect(['vista_empleados','id_periodo' => $id_periodo]); 
+                    }    
                 }
+                Yii::$app->getSession()->setFlash('success','Se procesaron ('.$contador.') registros para el documento electrónica de nomina.');
+                return $this->redirect(['vista_empleados','id_periodo' => $id_periodo]);
             }else{
                 Yii::$app->getSession()->setFlash('error','Debe de seleccionar al menos un registro. ');
             }
@@ -2730,6 +2816,91 @@ class ProgramacionNominaController extends Controller {
         ]);    
     }
     
+    //CERRAR PERIODO DE NOMINA ELECTRONICA
+    public function actionCerrar_periodo_nomina($id_periodo) {
+        $sw = 0;
+        $periodo = PeriodoNominaElectronica::findOne($id_periodo);
+        $documentos = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all();
+        foreach ($documentos as $key => $validar) {
+            if($validar->generado_detalle ==0){
+                $sw = 1;
+                break;
+            }
+        }
+        if($sw == 0){
+            $this->AcumularTotalesNominaElectronica($id_periodo);
+            $this->GranTotalNominaElectronica($id_periodo);
+            $this->GenerarConsecutivos($id_periodo);
+           // $periodo->cerrar_proceso = 1;
+           // $periodo->save();
+          //  return $this->redirect(['documento_electronico']);
+        }else{
+            Yii::$app->getSession()->setFlash('error','El periodo no se puede cerrar porque hay nominas que no se han validado. Consulte con el administrador. ');
+            return $this->redirect(['documento_electronico']);
+        }
+        
+    }
+    
+    //PROCESO DE ACUMULA LOS TOTALES 
+    protected function AcumularTotalesNominaElectronica($id_periodo) {
+        $documento = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all();
+        $devengado = 0; $deduccion = 0;
+        foreach ($documento as $key => $datos) {
+            $detalles = \app\models\NominaElectronicaDetalle::find()->where(['=','id_empleado', $datos->id_empleado])->andWhere(['=','id_periodo_electronico', $id_periodo])->all();
+            if(count($detalles) > 0){
+                foreach ($detalles as $key => $val) {
+                     if($val->devengado_deduccion == 1){
+                         $devengado += $val->devengado;
+                     }else{
+                         $deduccion += $val->deduccion;
+                     }
+                }
+                $datos->total_devengado = $devengado;
+                $datos->total_deduccion = $deduccion;
+                $datos->total_pagar = $devengado - $deduccion;
+                $datos->save();
+                $devengado = 0; $deduccion = 0;
+            }
+        }
+    }
+    
+    //PROCESO QUE TOLIZA EL VALOR DE LA NOMINA DEL MES
+    protected function GranTotalNominaElectronica($id_periodo)
+    {
+        $periodo = PeriodoNominaElectronica::findOne($id_periodo);
+        $nomina = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all(); 
+        $total = 0; $devengado = 0; $deduccion = 0;
+        foreach ($nomina as $key => $val) {
+            $devengado += $val->total_devengado;
+            $deduccion += $val->total_deduccion;
+            $total += $val->total_pagar;
+        }
+        $periodo->total_nomina = $total;
+        $periodo->devengado_nomina = $devengado;
+        $periodo->deduccion_nomina = $deduccion;
+        $periodo->save();
+    }
+    
+    //GENERAR CONSECUTIVOS
+    protected function GenerarConsecutivos($id_periodo)
+    {
+       $nomina = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all();
+       $documento_electronico = \app\models\DocumentoElectronico::findOne(5);
+       $numero = Consecutivo::findOne(23);
+       foreach ($nomina as $key => $validar)
+       {
+           $codigo = $numero->consecutivo + 1;
+           $validar->numero_nomina_electronica = $codigo;
+           $validar->consecutivo = $documento_electronico->consecutivo;
+           $validar->save();
+           $numero->consecutivo = $codigo;
+           $numero->save();
+           
+       }
+    }
+    
+    
+    //EXCELES
     public function actionExcelpago($id) {
         $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
          $objPHPExcel = new \PHPExcel();

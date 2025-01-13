@@ -54,7 +54,7 @@ class ProgramacionNominaDetalle extends \yii\db\ActiveRecord
     {
         return [
             [['id_programacion', 'codigo_salario', 'horas_periodo', 'horas_periodo_reales', 'dias', 'dias_reales', 'dias_transporte', 'factor_dia', 'id_credito', 'dias_salario', 'id_grupo_pago', 'id_periodo_pago_nomina',
-                'vlr_ibc_medio_tiempo','vlr_ajuste_incapacidad','vlr_vacacion'], 'integer'],
+                'vlr_ibc_medio_tiempo','vlr_ajuste_incapacidad','vlr_vacacion','id_periodo_electronico'], 'integer'],
             [['fecha_desde', 'fecha_hasta'], 'safe'],
             [['salario_basico', 'vlr_devengado', 'vlr_deduccion', 'vlr_credito', 'vlr_hora', 'vlr_dia', 'vlr_neto_pagar', 'descuento_salud', 'descuento_pension', 'auxilio_transporte', 'vlr_licencia', 'nro_horas', 'vlr_incapacidad', 'vlr_pagar', 'deduccion','vlr_licencia_no_pagada'], 'number'],
             [['codigo_salario'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoSalarios::className(), 'targetAttribute' => ['codigo_salario' => 'codigo_salario']],
@@ -62,6 +62,7 @@ class ProgramacionNominaDetalle extends \yii\db\ActiveRecord
             [['id_credito'], 'exist', 'skipOnError' => true, 'targetClass' => Credito::className(), 'targetAttribute' => ['id_credito' => 'id_credito']],
             [['id_incapacidad'], 'exist', 'skipOnError' => true, 'targetClass' => Incapacidad::className(), 'targetAttribute' => ['id_incapacidad' => 'id_incapacidad']],
             [['id_licencia'], 'exist', 'skipOnError' => true, 'targetClass' => Licencia::className(), 'targetAttribute' => ['id_licencia' => 'id_licencia']],
+            [['id_periodo_electronico'], 'exist', 'skipOnError' => true, 'targetClass' => PeriodoNominaElectronica::className(), 'targetAttribute' => ['id_periodo_electronico' => 'id_periodo_electronico']],
         ];
     }
 
@@ -98,6 +99,7 @@ class ProgramacionNominaDetalle extends \yii\db\ActiveRecord
             'vlr_ajuste_incapacidad' => 'Vlr ajuste',
             'deduccion' => 'Deduccion',
             'vlr_ibc_medio_tiempo'=>'vlr_ibc_medio_tiempo',
+            'id_periodo_electronico' => 'id_periodo_electronico',
         ];
     }
 
@@ -115,5 +117,13 @@ class ProgramacionNominaDetalle extends \yii\db\ActiveRecord
     public function getCodigoSalario()
     {
         return $this->hasOne(ConceptoSalarios::className(), ['codigo_salario' => 'codigo_salario']);
+    }
+    
+      /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPeriodoNominaElectronico()
+    {
+        return $this->hasOne(PeriodoNominaElectronica::className(), ['id_periodo_electronico' => 'id_periodo_electronico']);
     }
 }

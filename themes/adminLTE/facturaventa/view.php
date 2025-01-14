@@ -16,6 +16,7 @@ $this->title = 'Factura de Venta';
 $this->params['breadcrumbs'][] = ['label' => 'Facturas de ventas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->idfactura;
 $view = 'facturaventa';
+ $detalle = app\models\Notacreditodetalle::find()->where(['=','idfactura', $model->idfactura])->one();
 ?>
 <div class="facturaventa-view">
 
@@ -38,14 +39,19 @@ $view = 'facturaventa';
                 }else{
                     $disabled = $model->fecha_envio_begranda !== '' ? true : false;?>
                     <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar factura a la Dian', ['desactivado','id' => $model->idfactura, 'token' => $token],['class' => 'btn btn-success btn-xs disabled', 'id' => 'my_button']);?>
-                 <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar factura a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-xs', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
-                    'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                    <?php if(!$detalle){?>
+                        <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar factura a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-xs', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
+                        'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                    }
                    
                 }
-                if($model->reenviar_factura == 1){?>
-                    <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar factura a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-xs', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
-                    'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
-                }?>
+               
+                if(!$detalle){
+                    if($model->reenviar_factura == 1){?>
+                        <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Reenviar factura a la dian', ['reenviar_documento_dian', 'id_factura' => $model->idfactura, 'token' => $token],['class' => 'btn btn-warning btn-xs', 'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")',
+                        'data' => ['confirm' => 'Esta seguro de REENVIAR la Factura de venta No  '. $model->nrofactura. ' a la DIAN', 'method' => 'post']]);
+                    }
+                } ?>
                 <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 1, 'codigo' => $model->idfactura,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-xs']);                                                         
             }
         }

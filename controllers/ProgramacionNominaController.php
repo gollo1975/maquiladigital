@@ -212,6 +212,71 @@ class ProgramacionNominaController extends Controller {
         }
     }
     
+    
+     //PROCESO QUE CARGA EL LISTADO DE NOMINA ELECTRONICA
+    public function actionListar_nomina_electronica() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 151])->all()) {
+                $form = new \app\models\FormFiltroDocumentoElectronico();
+                $desde = null;
+                $hasta = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $desde = Html::encode($form->desde);
+                        $hasta = Html::encode($form->hasta);
+                        $table = PeriodoNominaElectronica::find()
+                                ->Where(['between', 'fecha_inicio_periodo', $desde, $hasta]);
+                        $table = $table->orderBy('id_periodo_electronico DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                       /* if (isset($_POST['excel'])) {
+                            $check = isset($_REQUEST['id_periodo_electronico DESC']);
+                            $this->actionExcelconsulta($tableexcel);
+                        }*/
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = PeriodoNominaElectronica::find()->orderBy('id_periodo_electronico DESC');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 15,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                   /* if (isset($_POST['excel'])) {
+                        //$table = $table->all();
+                        $this->actionExcelconsulta($tableexcel);
+                    }*/
+                }
+                //$to = $count->count();
+                return $this->render('crear_periodo_nomina_electronica', [
+                            'model' => $model,
+                            'form' => $form,
+                            'pagination' => $pages,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
+    
+    //COMPROBANTES DE NOMINAS
     public function actionComprobantepagonomina() {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 88])->all()) {
@@ -2725,7 +2790,7 @@ class ProgramacionNominaController extends Controller {
                                     $table->id_nomina_electronica = $intCodigo;
                                     $table->codigo_salario = $detalle->codigo_salario;
                                     $table->id_empleado = $conRegistro->id_empleado;
-                                    $table->decripcion = $detalle->codigoSalario->nombre_concepto;
+                                    $table->descripcion = $detalle->codigoSalario->nombre_concepto;
                                     $table->devengado_deduccion = $detalle->codigoSalario->devengado_deduccion;
                                     $table->fecha_inicio = $conRegistro->fecha_inicio_nomina;
                                     $table->fecha_final = $conRegistro->fecha_final_nomina;
@@ -2899,6 +2964,20 @@ class ProgramacionNominaController extends Controller {
        }
     }
     
+    
+    //VISTA DEL DETALLE DEL DOCUMENTO ELECTRONICO
+    public function actionDetalle_documento_electronico($id_nomina, $id_periodo) 
+    {
+        $model = \app\models\NominaElectronica::findOne($id_nomina);
+        $detalle_documento = \app\models\NominaElectronicaDetalle::find()->where(['=','id_nomina_electronica', $id_nomina])->orderBy('devengado_deduccion ASC')->all();     
+        return $this->render('view_detalle_documento_electronico', [
+            'model' => $model, 
+            'id_nomina' => $id_nomina,
+            'id_periodo' => $id_periodo,
+            'detalle_documento' => $detalle_documento,
+        ]);    
+        
+    }
     
     //EXCELES
     public function actionExcelpago($id) {

@@ -402,18 +402,19 @@ class NotacreditoController extends Controller
         $factura = Facturaventa::findOne($detalle_nota->idfactura);
         //asignacion variable;
         $consecutivo = $detalle_nota->nrofactura;
-        $resolucion =$factura->resolucion->codigo_interfaz; 
+       $resolucion =$factura->resolucion->codigo_interfaz; 
         $observacion = $nota->observacion;
         $cantidad = $detalle_nota->cantidad;
 
        //inicio el Api
         $curl = curl_init();
-        $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
-        $consecutivo_factura = "$consecutivo"; //CONSECUTIVO FACTURA
-        $codigo_resolucion = "$resolucion"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
+        $API_KEY = 'wWSlfY9KGruftAmxAIEP37j5ziZiICsD37cd84ff371bdbcc71a0dcc0ee91f994Eu3IVGIV2hyQuNjB1sgYs23T2V56RRZT';
+        //$API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+        $consecutivo_factura = "1484"; //CONSECUTIVO FACTURA
+        $codigo_resolucion = "1"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
         //buscar informacion en la api
         curl_setopt_array($curl, array(
-          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/invoice?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
+          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill-return?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -437,19 +438,19 @@ class NotacreditoController extends Controller
         }
         
         $data = json_decode($response, true);
-               
         if (json_last_error() !== JSON_ERROR_NONE) {
             Yii::$app->getSession()->setFlash('error', 'Error al procesar la respuesta de la DIAN. Intenta reenviar más tarde.');
             Yii::error("Error al decodificar JSON: " . json_last_error_msg(), __METHOD__);
             return $this->redirect(['nota-credito/view', 'id' => $id]);
         }
-       try {
+        
+    try {
             // Obtener el arreglo de detalles
             $detalles = $data['data'];
             $detallesClave = array_keys($detalles);
             $detallesClave = $detallesClave[0];
             $detalles = $detalles[$detallesClave]['details'];
-
+           
             // Verificar si 'detalles' es un arreglo y no está vacío
             if (is_array($detalles) && count($detalles) > 0) {
                 // Iterar sobre cada detalle y extraer el ID
@@ -461,7 +462,7 @@ class NotacreditoController extends Controller
                 // se envia el body y head de la nota credito
                 
                 $curl = curl_init();
-                $API_KEY = "ybb0jhtlcug4Dhbpi6CEP7Up68LriYcPc4209786b008c6327dbe47644f133aadVlJUB0iK5VXzg0CIM8JNNHfU7EoHzU2X";
+                $API_KEY = "wWSlfY9KGruftAmxAIEP37j5ziZiICsD37cd84ff371bdbcc71a0dcc0ee91f994Eu3IVGIV2hyQuNjB1sgYs23T2V56RRZT";
                 $dataHead = json_encode([
                     "consecutivo_factura" => "$consecutivo ",
                     "codigo_resolucion" => "$resolucion",
@@ -492,19 +493,20 @@ class NotacreditoController extends Controller
                         throw new Exception(curl_error($curl));
                     }
                     curl_close($curl);
-                    $data = json_decode($response, true);
-                    if ($data === null) {
+                    $data_envio = json_decode($response, true);
+                    var_dump($data_envio);
+                    if ($data_envio === null) {
                         throw new Exception('Error al decodificar la respuesta JSON');
                     }
                      
                     // Validar y extraer el CUFE
-                   /* if (isset($data['add']['fe']['cufe'])) {
-                        $cude = $data['add']['fe']['cufe'];
+                  /*  if (isset($data_envio['add']['fe']['cufe'])) {
+                        $cude = $data_envio['add']['fe']['cufe'];
                         $nota->cude = $cude;
-                        $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
+                        $fechaRecepcion = isset($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data_envio["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
                         $nota->fecha_recepcion_dian = $fechaRecepcion;
                         $nota->fecha_envio_api = date("Y-m-d H:i:s");
-                        $qrstr = $data['add']['fe']['sentDetail']['response']['QRStr'];
+                        $qrstr = $data_envio['add']['fe']['sentDetail']['response']['QRStr'];
                         $nota->qrstr = $qrstr;
                         $nota->save(false);
                         Yii::$app->getSession()->setFlash('success', "La Nota credito  No ($nota->numero) se envió con éxito a la DIAN.");
@@ -518,7 +520,7 @@ class NotacreditoController extends Controller
             } else { //RESPUESTA DEL ID EN AL API
                 throw new Exception("El arreglo 'details' no existe o está vacío.");
             }
-        } catch (Exception $e) {
+       } catch (Exception $e) {
             echo "Error: " . $e->getMessage();
         }
       //  return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 

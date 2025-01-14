@@ -77,6 +77,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Deduccion</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
+                    <th scope="col" style='background-color:#B9D5CE;'></th>
                     <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                     
                 </tr>
@@ -94,7 +95,15 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td style="text-align: right"><?= ''.number_format($val->total_devengado,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_deduccion,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_pagar,0)?></td>
+                        <?php if(app\models\NominaElectronicaDetalle::find()->where(['=','id_nomina_electronica', $val->id_nomina_electronica])->one()){?>
+                            <td style= 'width: 25px; height: 25px;'>
+                                <a href="<?= Url::toRoute(["programacion-nomina/detalle_documento_electronico",'id_nomina' =>$val->id_nomina_electronica , 'id_periodo' => $val->id_periodo_electronico]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            </td>
+                        <?php }else{?>
+                            <td style= 'width: 25px; height: 25px;'></td>
+                        <?php }?>    
                         <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_electronico[]" value="<?= $val->id_nomina_electronica ?>"></td> 
+                       
                     </tr>  
                 <?php endforeach;?>
                

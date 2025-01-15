@@ -31,6 +31,7 @@ $this->title = 'Detalle Nota de Crédito';
 $this->params['breadcrumbs'][] = ['label' => 'Notas Créditos', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->idnotacredito;
 $view = 'notacredito';
+$nota = Notacredito::findOne($model->idnotacredito);
 ?>
 <div class="notacredito-view">
 
@@ -47,12 +48,15 @@ $view = 'notacredito';
                     'data' => ['confirm' => 'Esta seguro de Generar la Nota Credito para ser enviada a la DIAN. Tener presente que se actualiza el estado de la factura.', 'method' => 'post']]);
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir PDF', ['imprimir', 'id' => $model->idnotacredito], ['class' => 'btn btn-default btn-sm']);            
             }else{  
-                echo Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar nota credio a la Dian', ['enviar_nota_credito_dian', 'id' => $model->idnotacredito],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
-                 'data' => ['confirm' => 'Esta seguro de enviar la Nota Credito No  '. $model->numero. ' a la DIAN', 'method' => 'post']]);?>
-                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir PDF', ['imprimir', 'id' => $model->idnotacredito], ['class' => 'btn btn-default btn-sm']);            
-
-            }
-        }    
+                if($nota->cude == ''){?>
+                    <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar nota credio a la Dian', ['enviar_nota_credito_dian', 'id' => $model->idnotacredito],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
+                     'data' => ['confirm' => 'Esta seguro de enviar la Nota Credito No  '. $model->numero. ' a la DIAN', 'method' => 'post']]);?>
+                     <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir PDF', ['imprimir', 'id' => $model->idnotacredito], ['class' => 'btn btn-default btn-sm']);  ?>         
+           <?php }else{ ?>
+               <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir PDF', ['imprimir', 'id' => $model->idnotacredito], ['class' => 'btn btn-default btn-sm']);   ?>          
+            <?php }
+        }
+        }  
         ?>
     </p>
 

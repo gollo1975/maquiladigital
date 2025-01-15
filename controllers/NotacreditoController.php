@@ -414,7 +414,7 @@ class NotacreditoController extends Controller
         $codigo_resolucion = "1"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
         //buscar informacion en la api
         curl_setopt_array($curl, array(
-          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/bill-return?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
+          CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/invoice?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -464,15 +464,15 @@ class NotacreditoController extends Controller
                 $curl = curl_init();
                 $API_KEY = "wWSlfY9KGruftAmxAIEP37j5ziZiICsD37cd84ff371bdbcc71a0dcc0ee91f994Eu3IVGIV2hyQuNjB1sgYs23T2V56RRZT";
                 $dataHead = json_encode([
-                    "consecutivo_factura" => "$consecutivo ",
-                    "codigo_resolucion" => "$resolucion",
-                    "observacion" => "$observacion",
+                    "consecutivo_factura" => "1484 ",
+                    "codigo_resolucion" => "1",
+                    "observacion" => "Calculo de reteiva mal",
                  
                 ]);
                 $dataBody = json_encode([
                     [
-                        "detalle_factura" => "$id",
-                        "cantidad" => "$cantidad",
+                        "detalle_factura" => "1",
+                        "cantidad" => "15",
                     ]
                 ]);
                 
@@ -500,14 +500,12 @@ class NotacreditoController extends Controller
                     }
                      
                     // Validar y extraer el CUFE
-                  /*  if (isset($data_envio['add']['fe']['cufe'])) {
+               /*     if (isset($data_envio['add']['fe']['cufe'])) {
                         $cude = $data_envio['add']['fe']['cufe'];
                         $nota->cude = $cude;
                         $fechaRecepcion = isset($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data_envio["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
                         $nota->fecha_recepcion_dian = $fechaRecepcion;
                         $nota->fecha_envio_api = date("Y-m-d H:i:s");
-                        $qrstr = $data_envio['add']['fe']['sentDetail']['response']['QRStr'];
-                        $nota->qrstr = $qrstr;
                         $nota->save(false);
                         Yii::$app->getSession()->setFlash('success', "La Nota credito  No ($nota->numero) se envió con éxito a la DIAN.");
                     } else {

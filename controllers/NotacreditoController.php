@@ -404,16 +404,15 @@ class NotacreditoController extends Controller
         $factura = Facturaventa::findOne($detalle_nota->idfactura);
         //asignacion variable;
         $consecutivo = $detalle_nota->nrofactura;
-       $resolucion =$factura->resolucion->codigo_interfaz; 
+        $resolucion =$factura->resolucion->codigo_interfaz; 
         $observacion = $nota->observacion;
         $cantidad = $detalle_nota->cantidad;
 
        //inicio el Api
         $curl = curl_init();
-        $API_KEY = 'wWSlfY9KGruftAmxAIEP37j5ziZiICsD37cd84ff371bdbcc71a0dcc0ee91f994Eu3IVGIV2hyQuNjB1sgYs23T2V56RRZT';
-        //$API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
-        $consecutivo_factura = "1484"; //CONSECUTIVO FACTURA
-        $codigo_resolucion = "1"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
+        $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+        $consecutivo_factura = "$consecutivo"; //CONSECUTIVO FACTURA
+        $codigo_resolucion = "$resolucion"; //CÓDIGO DE LA RESOLUCIÓN QUE SE OBTIENE DESDE EL SISTEMA EN TABLAS>RESOLUCIONES
         //buscar informacion en la api
         curl_setopt_array($curl, array(
           CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/invoice?key=$API_KEY&eq-consecutivo=$consecutivo_factura&eq-id_resolucion=$codigo_resolucion",
@@ -464,17 +463,17 @@ class NotacreditoController extends Controller
                 // se envia el body y head de la nota credito
                 
                 $curl = curl_init();
-                $API_KEY = "wWSlfY9KGruftAmxAIEP37j5ziZiICsD37cd84ff371bdbcc71a0dcc0ee91f994Eu3IVGIV2hyQuNjB1sgYs23T2V56RRZT";
+                $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
                 $dataHead = json_encode([
-                    "consecutivo_factura" => "1484 ",
-                    "codigo_resolucion" => "1",
-                    "observacion" => "Calculo de reteiva mal",
+                    "consecutivo_factura" => "$consecutivo",
+                    "codigo_resolucion" => "$resolucion",
+                    "observacion" => "$observacion",
                  
                 ]);
                 $dataBody = json_encode([
                     [
-                        "detalle_factura" => "1",
-                        "cantidad" => "15",
+                        "detalle_factura" => "$id",
+                        "cantidad" => "$cantidad",
                     ]
                 ]);
                 
@@ -496,14 +495,14 @@ class NotacreditoController extends Controller
                     }
                     curl_close($curl);
                     $data_envio = json_decode($response, true);
-                    var_dump($data_envio);
+                  //  var_dump($data_envio);
                     if ($data_envio === null) {
                         throw new Exception('Error al decodificar la respuesta JSON');
                     }
                      
                     // Validar y extraer el CUFE
-                  /*  if (isset($data_envio['data']['cufe'])) {
-                        $cude = $data_envio['data']['cufe'];
+                   if (isset($data_envio['add']['fe']['cufe'])) {
+                        $cude = $data_envio['add']['fe']['cufe'];
                         $nota->cude = $cude;
                         $fechaRecepcion = isset($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data_envio["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
                         $nota->fecha_recepcion_dian = $fechaRecepcion;
@@ -512,7 +511,7 @@ class NotacreditoController extends Controller
                         Yii::$app->getSession()->setFlash('success', "La Nota credito  No ($nota->numero) se envió con éxito a la DIAN.");
                     } else {
                         throw new Exception('El CUDE no se encontró en la respuesta.');
-                    }*/
+                    }
                 } catch (Exception $e) {
                     Yii::$app->getSession()->setFlash('error', 'Error al enviar los datos de la Nota credito: ' . $e->getMessage());
                 }
@@ -523,7 +522,7 @@ class NotacreditoController extends Controller
        } catch (Exception $e) {
             echo "Error: " . $e->getMessage();
         }
-      //  return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+        return $this->redirect(['notacredito/view','id' => $id]); 
 
     }
     

@@ -495,14 +495,14 @@ class NotacreditoController extends Controller
                     }
                     curl_close($curl);
                     $data_envio = json_decode($response, true);
-                  //  var_dump($data_envio);
+                
                     if ($data_envio === null) {
                         throw new Exception('Error al decodificar la respuesta JSON');
                     }
                      
                     // Validar y extraer el CUFE
-                   if (isset($data_envio['add']['fe']['cufe'])) {
-                        $cude = $data_envio['add']['fe']['cufe'];
+                   if (isset($data_envio['data']['fe']['cude'])) {
+                        $cude = $data_envio['data']['fe']['cude'];
                         $nota->cude = $cude;
                         $fechaRecepcion = isset($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data_envio["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
                         $nota->fecha_recepcion_dian = $fechaRecepcion;

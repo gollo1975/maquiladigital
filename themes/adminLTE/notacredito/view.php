@@ -107,8 +107,9 @@ $nota = Notacredito::findOne($model->idnotacredito);
                     <td align="right"><?= Html::encode('$ '.number_format($model->total,0)) ?></td>
                 </tr>
                <tr style="font-size: 85%;">
-                    
-                </tr>
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'cude') ?>:</th>
+                    <td colspan="6"><?= Html::encode($model->cude) ?></td> 
+               </tr>
             </table>
         </div>
     </div>

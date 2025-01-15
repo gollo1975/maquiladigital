@@ -1,5 +1,6 @@
 <?php
-
+ob_start();
+include "../vendor/phpqrcode/qrlib.php";
 use inquid\pdf\FPDF;
 use app\models\Notacredito;
 use app\models\Notacreditodetalle;
@@ -202,6 +203,7 @@ class PDF extends FPDF {
     }
 
     function Body($pdf, $model) {
+        $config = Matriculaempresa::findOne(1);
         $detalles = Notacreditodetalle::find()->where(['=', 'idnotacredito', $model->idnotacredito])->all();
         $pdf->SetX(10);
         $pdf->SetFont('Arial', '', 8);
@@ -213,7 +215,7 @@ class PDF extends FPDF {
             $pdf->Cell(20, 4, number_format($detalle->valor_iva, 2, '.', ','), 0, 0, 'R');
             $pdf->Cell(24, 4, number_format($detalle->total_nota, 2, '.', ','), 0, 0, 'R');
             $pdf->Ln();
-            $pdf->SetAutoPageBreak(true, 20);
+            $pdf->SetAutoPageBreak(true, 13);
         }
         $pdf->SetFillColor(200, 200, 200);
         $pdf->SetXY(10, 204);
@@ -244,6 +246,23 @@ class PDF extends FPDF {
         $pdf->MultiCell(20, 8, 'Total devo.:', 1, 'L');
         $pdf->SetXY(176, 236);
         $pdf->MultiCell(25, 8, number_format($model->total, 2, '.', ','), 1, 'R');
+        
+        //representacion grafica
+        $this->SetFont('Arial', '', 8);
+        $qrstr = utf8_decode($model->qrstr);
+        $pdf->SetXY(120, 70); // Establece la posición donde aparecerá el QR
+        QRcode::png($qrstr,"test.png");
+        $pdf->Image("test.png", 153, 244.5, 38, 35, "png");
+        $pdf->SetXY(140, 276);
+        $this->SetFont('Arial', 'B', 6);
+        $pdf->Cell(64, 8, utf8_decode($config->razonsocialmatricula.'-'.$config->nitmatricula.'-'.$config->dv. ' Software Propio '),0,'J',1);
+        // Insertar la imagen base64 directamente en el PDF
+        $pdf->SetXY(10, 245); // Establecer la posición
+        
+        //colocacion de cufe
+        $pdf->SetXY(10, 255);
+        $this->SetFont('Arial', '', 7);
+        $pdf->MultiCell(146, 4, utf8_decode('CUDE: '.$model->cude),0,'J'); //CUFE
     }
 
     function Footer() {

@@ -216,6 +216,7 @@ class NotacreditoController extends Controller
                             $table->save(false);
                             $notaCredito->fecha_factura_venta = $factura->fecha_inicio;
                             $notaCredito->cufe = $factura->cufe;
+                            $notaCredito->qrstr = $factura->qrstr;
                             $notaCredito->save();
                             $detalle_nota = Notacreditodetalle::find()->orderBy('iddetallenota DESC')->one(); 
                             $id_detalle =  $detalle_nota->iddetallenota;
@@ -230,6 +231,7 @@ class NotacreditoController extends Controller
                             $table->save(false);
                             $notaCredito->fecha_factura_venta = $factura->fecha_inicio;
                             $notaCredito->cufe = $factura->cufe;
+                            $notaCredito->qrstr = $factura->qrstr;
                             $notaCredito->save();
                         }
                     }
@@ -500,8 +502,8 @@ class NotacreditoController extends Controller
                     }
                      
                     // Validar y extraer el CUFE
-               /*     if (isset($data_envio['add']['fe']['cufe'])) {
-                        $cude = $data_envio['add']['fe']['cufe'];
+                  /*  if (isset($data_envio['data']['cufe'])) {
+                        $cude = $data_envio['data']['cufe'];
                         $nota->cude = $cude;
                         $fechaRecepcion = isset($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data_envio["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data_envio["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
                         $nota->fecha_recepcion_dian = $fechaRecepcion;

@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
     'filterModel' => $searchModel,
     'columns' => [
         [
-            'attribute' => 'idnotacredito',
+            'attribute' => 'numero',
             'contentOptions' => ['class' => 'col-sm-1'],
         ],
         [

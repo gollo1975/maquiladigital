@@ -42,7 +42,7 @@ class ConfiguracionPension extends \yii\db\ActiveRecord
             [['codigo_salario', 'concepto','porcentaje_empleado', 'porcentaje_empleador'], 'required'],
             [['codigo_salario'], 'integer'],
             [['porcentaje_empleado', 'porcentaje_empleador'], 'number'],
-            [['concepto'], 'string', 'max' => 30],
+            [['concepto','codigo_api_nomina'], 'string', 'max' => 30],
             ['concepto', 'match', 'pattern' => '/^[a-z\s]+$/i', 'message' => 'Sólo se aceptan letras'],
            
         ];

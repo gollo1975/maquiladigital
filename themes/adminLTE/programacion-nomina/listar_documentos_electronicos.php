@@ -16,7 +16,7 @@ use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
 
 
-$this->title = 'Documentos electronicos';
+$this->title = 'Enviar Documentos electronicos';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -26,7 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute(["programacion-nomina/vista_empleados",'id_periodo' => $id_periodo,'token' => $token]),
+    "action" => Url::toRoute(["programacion-nomina/listar_nomina_electronica"]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>    
     <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar documentos", ["class" => "btn btn-primary btn-sm",]) ?>
-            <a align="right" href="<?= Url::toRoute(["programacion-nomina/vista_empleados",'id_periodo' => $id_periodo, 'token' => $token]) ?>" class="btn btn-default btn-sm"><span class='glyphicon glyphicon-refresh'></span> Limpiar</a>
+            <a align="right" href="<?= Url::toRoute(["programacion-nomina/listar_nomina_electronica"]) ?>" class="btn btn-default btn-sm"><span class='glyphicon glyphicon-refresh'></span> Limpiar</a>
     </div>
     
 </div>
@@ -61,6 +61,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 "method" => "post",                            
             ]);
     ?>
+<div class="panel-footer text-left" >  
+         <?= Html::submitButton("<span class='glyphicon glyphicon-send'></span> Enviar documentos a la dian", ["class" => "btn btn-info btn-sm", 'name' => 'enviar_documento_electronico']) ?>
+</div>
 <div class="table-responsive">
 <div class="panel panel-success ">
     <div class="panel-heading">
@@ -68,7 +71,8 @@ $this->params['breadcrumbs'][] = $this->title;
    </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr style ='font-size:85%;'>  
+                <tr style ='font-size:85%;'> 
+                      <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                     <th scope="col" style='background-color:#B9D5CE;'>Consecutivo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
@@ -77,16 +81,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Deduccion</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Enviado</th>
                     <th scope="col" style='background-color:#B9D5CE;'></th>
-                    <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                     
                 </tr>
             </thead>
             <tbody>
                 <?php 
-                 $periodo = app\models\PeriodoNominaElectronica::findOne($id_periodo);
+                
                 foreach ($model as $val):?>
                     <tr style='font-size:85%;'> 
+                         <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_electronico_dian[]" value="<?= $val->id_nomina_electronica ?>"></td> 
                         <td><?= $val->consecutivo?> - <?= $val->numero_nomina_electronica?></td>  
                         <td><?= $val->documento_empleado ?></td>    
                         <td><?= $val->empleado->nombrecorto ?></td>
@@ -95,27 +100,18 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td style="text-align: right"><?= ''.number_format($val->total_devengado,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_deduccion,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_pagar,0)?></td>
-                        <?php if(app\models\NominaElectronicaDetalle::find()->where(['=','id_nomina_electronica', $val->id_nomina_electronica])->one()){?>
-                            <td style= 'width: 25px; height: 25px;'>
-                                <a href="<?= Url::toRoute(["programacion-nomina/detalle_documento_electronico",'id_nomina' =>$val->id_nomina_electronica , 'id_periodo' => $val->id_periodo_electronico, 'token' =>$token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                            </td>
-                        <?php }else{?>
-                            <td style= 'width: 25px; height: 25px;'></td>
-                        <?php }?>    
-                        <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_electronico[]" value="<?= $val->id_nomina_electronica ?>"></td> 
+                         <td><?= $val->exportadoNomina ?></td>
+                        <td style= 'width: 25px; height: 25px;'>
+                            <a href="<?= Url::toRoute(["programacion-nomina/detalle_documento_electronico",'id_nomina' =>$val->id_nomina_electronica, 'id_periodo' => $val->id_periodo_electronico, 'token' =>$token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                        </td>
+                       
                        
                     </tr>  
                 <?php endforeach;?>
                
             </tbody> 
         </table>   
-        <?php if($periodo->cerrar_proceso == 0){?>
-            <div class="panel-footer text-right" >  
-                    <?= Html::submitButton("<span class='glyphicon glyphicon-plus'></span> Crear documentos", ["class" => "btn btn-success btn-sm", 'name' => 'crear_documento_electronico']) ?>
-
-            </div>
-        <?php }?>
-
+       
     </div>
 </div>
 <?php $formulario->end() ?>

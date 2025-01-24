@@ -52,7 +52,10 @@ $form = ActiveForm::begin([
                                   'format' => 'yyyy-m-d',
                                   'todayHighlight' => true]])
                         ?>
-                    </div>    
+                    </div>  
+                    <div class="row">
+                         <?= $form->field($model, 'tipo_nomina')->dropDownList(['9'=> 'Nomina individual', '10'=> 'Nomina de ajuste'], ['prompt' => 'Seleccione una opcion...','required' => true]) ?>
+                    </div>
                        
                 </div>  
                     <div class="panel-footer text-right">

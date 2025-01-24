@@ -132,7 +132,7 @@ $form = ActiveForm::begin([
                     </td>  
                     <?php if($detalle){?>
                         <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                             
                         </td>
                         <td style= 'width: 25px; height: 25px;'>
@@ -152,7 +152,7 @@ $form = ActiveForm::begin([
                 }else{?>
                         <td style= 'width: 25px; height: 25px;'></td>
                          <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                             
                         </td>
                         <td style= 'width: 25px; height: 25px;'></td>

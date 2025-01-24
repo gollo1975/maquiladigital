@@ -40,6 +40,7 @@ class EntidadSalud extends \yii\db\ActiveRecord
             [['entidad'], 'required'],
             [['estado'], 'integer'],
             [['entidad'], 'string', 'max' => 100],
+             [['codigo_api_nomina'], 'string', 'max' => 10],
         ];
     }
 

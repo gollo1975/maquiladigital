@@ -16,8 +16,11 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
 
  <!--<h1><?= Html::encode($this->title) ?></h1>-->
                 <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['vista_empleados','id_periodo' => $id_periodo],['class' => 'btn btn-primary btn-xs']) ?></button>
-
+                <?php if($token == 0){?>
+                    <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['vista_empleados','id_periodo' => $id_periodo, 'token' =>$token],['class' => 'btn btn-primary btn-xs']) ?></button>
+                <?php }else{?>
+                    <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['listar_nomina_electronica'],['class' => 'btn btn-primary btn-xs']) ?></button>
+                <?php }?>
                 <div class="btn-group" role="group">
                   <button type="button" class="btn btn-default btn-sm">  <?= Html::a('<span class="glyphicon glyphicon-print"></span>Visualizar PDF', ['imprimir_detalle_documento', 'id_nomina' => $id_nomina],['class' => 'btn btn-default btn-xs']) ?></button>
                 </div>

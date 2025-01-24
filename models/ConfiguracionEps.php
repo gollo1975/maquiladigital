@@ -38,7 +38,7 @@ class ConfiguracionEps extends \yii\db\ActiveRecord
             [['codigo_salario', 'concepto_eps','porcentaje_empleado_eps', 'porcentaje_empleador_eps'], 'required'],
             [['codigo_salario'], 'integer'],
             [['porcentaje_empleado_eps', 'porcentaje_empleador_eps'], 'number'],
-            [['concepto_eps'], 'string', 'max' => 30],
+            [['concepto_eps','codigo_api_nomina'], 'string', 'max' => 30],
             ['concepto_eps', 'match', 'pattern' => '/^[a-zA-Z]+$/i', 'message' => 'Sólo se aceptan letras'],
            
         ];

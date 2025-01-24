@@ -32,8 +32,9 @@ class PeriodoNominaElectronica extends \yii\db\ActiveRecord
         return [
             [['fecha_inicio_periodo', 'fecha_corte_periodo'], 'required'],
             [['fecha_inicio_periodo', 'fecha_corte_periodo', 'fecha_registro'], 'safe'],
-            [['cantidad_empleados','cerrar_proceso','total_nomina','devengado_nomina','deduccion_nomina'], 'integer'],
+            [['cantidad_empleados','cerrar_proceso','total_nomina','devengado_nomina','deduccion_nomina','type_document_id'], 'integer'],
             [['user_name'], 'string', 'max' => 15],
+            [['nota'], 'string', 'max' => 50],
         ];
     }
 
@@ -50,6 +51,8 @@ class PeriodoNominaElectronica extends \yii\db\ActiveRecord
             'fecha_registro' => 'Fecha hora registro:',
             'user_name' => 'User name:',
             'cerrar_proceso' => 'cerrado:',
+            'nota' => 'Nota:',
+            'type_document_id' => 'Tipo de nomina',
         ];
     }
     
@@ -60,5 +63,14 @@ class PeriodoNominaElectronica extends \yii\db\ActiveRecord
             $procesocerrado = 'SI';
         }
         return $procesocerrado;
+    }
+    
+    public function getTipoNomina() {
+        if($this->type_document_id == 9){
+            $tipodnomina = 'Individual';
+        }else{
+            $tipodnomina = 'Ajuste';
+        }
+        return $tipodnomina;
     }
 }

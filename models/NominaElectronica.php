@@ -73,8 +73,8 @@ class NominaElectronica extends \yii\db\ActiveRecord
         return [
             [['id_periodo_pago', 'id_tipo_nomina', 'id_contrato', 'id_empleado', 'id_periodo_electronico', 'id_grupo_pago', 'documento_empleado', 'type_worker_id', 'sub_type_worker_id', 'codigo_municipio',
                 'codigo_forma_pago', 'generado_detalle', 'exportado_nomina','numero_nomina_electronica'], 'integer'],
-            [['salario_contrato', 'total_devengado', 'total_deduccion', 'total_pagar'], 'number'],
-            [['fecha_inicio_nomina', 'fecha_final_nomina', 'fecha_inicio_contrato', 'fecha_terminacion_contrato', 'fecha_envio_nomina', 'fecha_recepcion_dian'], 'safe'],
+            [['salario_contrato', 'total_devengado', 'total_deduccion', 'total_pagar','dias_trabajados'], 'number'],
+            [['fecha_inicio_nomina', 'fecha_final_nomina', 'fecha_inicio_contrato', 'fecha_terminacion_contrato', 'fecha_envio_nomina', 'fecha_recepcion_dian','fecha_envio_begranda'], 'safe'],
             [['primer_nombre','segundo_nombre', 'primer_apellido', 'segundo_apellido'], 'string', 'max' => 10],
             [['email_empleado'], 'string', 'max' => 60],
             [['direccion_empleado','nombre_completo'], 'string', 'max' => 50],
@@ -89,6 +89,7 @@ class NominaElectronica extends \yii\db\ActiveRecord
             [['id_empleado'], 'exist', 'skipOnError' => true, 'targetClass' => Empleado::className(), 'targetAttribute' => ['id_empleado' => 'id_empleado']],
             [['id_grupo_pago'], 'exist', 'skipOnError' => true, 'targetClass' => GrupoPago::className(), 'targetAttribute' => ['id_grupo_pago' => 'id_grupo_pago']],
             [['id_periodo_electronico'], 'exist', 'skipOnError' => true, 'targetClass' => PeriodoNominaElectronica::className(), 'targetAttribute' => ['id_periodo_electronico' => 'id_periodo_electronico']],
+           
         ];
     }
 
@@ -137,6 +138,7 @@ class NominaElectronica extends \yii\db\ActiveRecord
             'exportado_nomina' => 'Exportado Nomina',
             'consecutivo' => 'consecutivo',
             'numero_nomina_electronica' => 'numero_nomina_electronica',
+            'fecha_envio_begranda' => 'fecha_envio_begranda',
         ];
     }
 
@@ -186,5 +188,16 @@ class NominaElectronica extends \yii\db\ActiveRecord
     public function getPeriodoElectronico()
     {
         return $this->hasOne(PeriodoNominaElectronica::className(), ['id_periodo_electronico' => 'id_periodo_electronico']);
+    }
+    
+    
+    
+    public function getExportadoNomina() {
+        if($this->exportado_nomina == 0){
+            $exportadonomina = 'NO';
+        }else{
+            $exportadonomina = 'SI';
+        }
+        return $exportadonomina;
     }
 }

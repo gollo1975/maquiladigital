@@ -16,6 +16,7 @@ class FormCostoGastoEmpresa extends Model
     public  $observacion;
     public $hora_inicio;
     public $hora_corte;
+    public $tipo_nomina;
 
     public function rules()
     {
@@ -23,7 +24,8 @@ class FormCostoGastoEmpresa extends Model
            [['fecha_inicio','fecha_corte'], 'required', 'message' => 'Campo requerido'],
            [['observacion'],'string' ,'max' => '100'],
            [['fecha_corte','fecha_inicio'], 'safe'],
-           [['hora_inicio', 'hora_corte'], 'string']
+           [['hora_inicio', 'hora_corte'], 'string'],
+           ['tipo_nomina', 'integer'],
         ];
     }
 
@@ -35,6 +37,7 @@ class FormCostoGastoEmpresa extends Model
             'observacion' => 'Observacion:',
             'hora_inicio' => 'Hora de inicio:',
             'hora_corte' => 'Hora de corte:',
+            'tipo_nomina' => 'Tipo de nomina:',
             
         ];
     }

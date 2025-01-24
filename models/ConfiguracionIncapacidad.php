@@ -42,7 +42,7 @@ class ConfiguracionIncapacidad extends \yii\db\ActiveRecord
             [['nombre', 'codigo_salario'], 'required'],
             [['genera_pago', 'genera_ibc', 'codigo_salario','codigo'], 'integer'],
             [['porcentaje'], 'number'],
-            [['nombre'], 'string', 'max' => 40],
+            [['nombre','codigo_api_nomina'], 'string', 'max' => 40],
             [['codigo_salario'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoSalarios::className(), 'targetAttribute' => ['codigo_salario' => 'codigo_salario']],
         ];
     }

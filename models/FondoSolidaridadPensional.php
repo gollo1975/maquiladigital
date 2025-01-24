@@ -30,6 +30,7 @@ class FondoSolidaridadPensional extends \yii\db\ActiveRecord
             [['rango1', 'rango2', ], 'integer'],
             [['porcentaje'], 'number'],
             [['detalle'], 'string'],
+             [['codigo_api_nomina'], 'string', 'max' => 10],
         ];
     }
 

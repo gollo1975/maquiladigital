@@ -20,9 +20,7 @@ $this->title = 'Enviar Documentos electronicos';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
-<p>
-    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['documento_electronico'], ['class' => 'btn btn-primary btn-sm']) ?>
-</p>    
+   
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",

@@ -319,8 +319,8 @@ class ProgramacionNominaController extends Controller {
                                 $numero_cuenta_bancaria = $documento->empleado->cuenta_bancaria;
                                 // Configurar cURL
                                 $curl = curl_init();
-                                $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
-                                //$API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+                               // $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
+                                $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
                                 $dataBody = [
                                     "novelty" => [
                                         "novelty" => false,
@@ -519,7 +519,7 @@ class ProgramacionNominaController extends Controller {
 
                                 $data = json_decode($response, true);
                                 Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
-
+                                var_dump($data);
                                 // Verificar errores de conexión o códigos HTTP inesperados
                                 if ($response === false || $httpCode !== 200) {
                                     $error = $response === false ? curl_error($curl) : "HTTP $httpCode";
@@ -527,32 +527,38 @@ class ProgramacionNominaController extends Controller {
                                     Yii::error("Error en la solicitud CURL: $error", __METHOD__);
                                     return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
                                 }
-                              if (isset($data['add']['cune'])) {
-                                   $cune = $data['add']['cune'];
-                                   $documento->cune = $cune;
-                                   $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
-                                   $documento->fecha_recepcion_dian = $fechaRecepcion;
-                                   $documento->fecha_envio_begranda = date("Y-m-d H:i:s");
-                                   $qrstr = $data['add']['sentDetail']['response']['QRStr'];
-                                   $documento->qrstr = $qrstr;
-                                   $documento->exportado_nomina = 1;
-                                   $documento->save(false);
+                               if(isset($data) && isset($data['add']['ResponseDian']) && $data['add']['ResponseDian']['Envelope']['Body']['SendNominaSyncResponse']['SendNominaSyncResult']['IsValid'] == "true"){
+                                    if (isset($data['add']['cune'])) {
+                                        $cune = $data['add']['cune'];
+                                        $documento->cune = $cune;
+                                       // $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
+                                        //$documento->fecha_recepcion_dian = $fechaRecepcion;
+                                        $documento->fecha_envio_begranda = date("Y-m-d H:i:s");
+                                        $qrstr = $data['add']['QRStr'];
+                                        $documento->qrstr = $qrstr;
+                                        $documento->exportado_nomina = 1;
+                                        $documento->save(false); 
+                                    }    
                                }else{
-                                  // Si el 'status' no es success o hay un mensaje de error
-                                    $errorMessage = isset($data['message']) ? $data['message'] : 'Error desconocido';
-                                    // Mostrar el mensaje específico de la API
-                                    Yii::$app->getSession()->setFlash('error', "No se pudo enviar el documento electronico. Error: $errorMessage.");
-                                    Yii::error("Error al reenviar factura No ($consecutivo): " . print_r($data, true), __METHOD__);
-                                    $documento->exportado_nomina = 0; // Mantener el documento activo
-                                    $documento->save(false); 
+                                   $errors = [];
+					// Documento no procesado por la DIAN
+					if(isset($data["errors"])){ // Control Errores Begranda
+						$errors = $data["errors"];
+					}else if(isset($data['ResponseDian'])){ // Control de Errores DIAN
+						$errors = $data['ResponseDian']['Envelope']['Body']['SendNominaSyncResponse']['SendNominaSyncResult']['ErrorMessage'];
+					}else{
+                                            $errorMessage = isset($data['message']) ? $data['message'] : 'Error desconocido';
+                                            // Mostrar el mensaje específico de la API
+                                            Yii::$app->getSession()->setFlash('error', "No se pudo enviar el documento electronico. Error: $errorMessage.");
+                                            Yii::error("Error al reenviar documento de nomina No ($consecutivo): " . print_r($data, true), __METHOD__);
+                                          
+                                        }
                                }
-                                
                             } //Cierre la confirmacion de chequeo de registro que no se van a envir.
                         }//CIERRA EL PROCESO PARA
                         
                         Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
                          return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
-
                     }else{
                         Yii::$app->getSession()->setFlash('error','Debe de seleccionar el registro para enviar a la DIAN. ');
                     }

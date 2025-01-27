@@ -460,13 +460,14 @@ class ProgramacionNominaController extends Controller {
                                     }elseif ($detalle->id_agrupado == 16){ //BONIFICACIONES
                                         $dataBody["accrued"]['bonuses'] = [
                                             [
-                                               "quantity" => 0,
-                                               "payment" => $detalle->devengado,
+                                               "no_salary_bonus" => "$detalle->devengado",
                                             ],
                                         ];
-                                    }elseif ($detalle->id_agrupado == 15){ //comisiones    
+                                    }elseif ($detalle->id_agrupado == 15){ //comisiones  
                                         $dataBody["accrued"]["commissions"] = [
-                                            "commission" => "$detalle->devengado"
+                                            [    
+                                                "commission" => "$detalle->devengado",
+                                            ],
                                         ]; 
                                     }elseif ($detalle->id_agrupado == 21){ //LICENCIAS NO REMUNERADAS
                                         $dataBody["accrued"]['non_paid_leave'] = [
@@ -526,7 +527,7 @@ class ProgramacionNominaController extends Controller {
                                     Yii::error("Error en la solicitud CURL: $error", __METHOD__);
                                     return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
                                 }
-                              /* if (isset($data['add']['cune'])) {
+                              if (isset($data['add']['cune'])) {
                                    $cune = $data['add']['cune'];
                                    $documento->cune = $cune;
                                    $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
@@ -540,11 +541,11 @@ class ProgramacionNominaController extends Controller {
                                   // Si el 'status' no es success o hay un mensaje de error
                                     $errorMessage = isset($data['message']) ? $data['message'] : 'Error desconocido';
                                     // Mostrar el mensaje específico de la API
-                                    Yii::$app->getSession()->setFlash('error', "No se pudo reenviar el documento electronico. Error: $errorMessage.");
+                                    Yii::$app->getSession()->setFlash('error', "No se pudo enviar el documento electronico. Error: $errorMessage.");
                                     Yii::error("Error al reenviar factura No ($consecutivo): " . print_r($data, true), __METHOD__);
-                                    $documento->exportado_nomina = 0; // Mantener la factura pendiente de reenvío
+                                    $documento->exportado_nomina = 0; // Mantener el documento activo
                                     $documento->save(false); 
-                               }*/
+                               }
                                 
                             } //Cierre la confirmacion de chequeo de registro que no se van a envir.
                         }//CIERRA EL PROCESO PARA
@@ -3197,7 +3198,7 @@ class ProgramacionNominaController extends Controller {
                                         }elseif ($detalle->codigoSalario->id_agrupado == 6){ //FONDO solidarida
                                             $buscar->deduccion_fondo_solidaridad += $detalle->vlr_deduccion;
                                             $buscar->deduccion += $detalle->vlr_deduccion;
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 14){
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 14){ //descuentos y libranzas
                                             $buscar->deduccion += $detalle->vlr_deduccion; 
                                         }    
                                     }

@@ -72,8 +72,8 @@ class NominaElectronica extends \yii\db\ActiveRecord
     {
         return [
             [['id_periodo_pago', 'id_tipo_nomina', 'id_contrato', 'id_empleado', 'id_periodo_electronico', 'id_grupo_pago', 'documento_empleado', 'type_worker_id', 'sub_type_worker_id', 'codigo_municipio',
-                'codigo_forma_pago', 'generado_detalle', 'exportado_nomina','numero_nomina_electronica'], 'integer'],
-            [['salario_contrato', 'total_devengado', 'total_deduccion', 'total_pagar','dias_trabajados'], 'number'],
+                'codigo_forma_pago', 'generado_detalle', 'exportado_nomina','numero_nomina_electronica', 'salario_contrato', 'total_devengado',
+                'total_deduccion', 'total_pagar','dias_trabajados'], 'number'],
             [['fecha_inicio_nomina', 'fecha_final_nomina', 'fecha_inicio_contrato', 'fecha_terminacion_contrato', 'fecha_envio_nomina', 'fecha_recepcion_dian','fecha_envio_begranda'], 'safe'],
             [['primer_nombre','segundo_nombre', 'primer_apellido', 'segundo_apellido'], 'string', 'max' => 10],
             [['email_empleado'], 'string', 'max' => 60],

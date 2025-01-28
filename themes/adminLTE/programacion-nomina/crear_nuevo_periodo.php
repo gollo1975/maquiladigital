@@ -54,7 +54,7 @@ $form = ActiveForm::begin([
                         ?>
                     </div>  
                     <div class="row">
-                         <?= $form->field($model, 'tipo_nomina')->dropDownList(['9'=> 'Nomina individual', '10'=> 'Nomina de ajuste'], ['prompt' => 'Seleccione una opcion...','required' => true]) ?>
+                         <?= $form->field($model, 'tipo_nomina')->dropDownList(['9'=> 'Nomina individual'], ['prompt' => 'Seleccione una opcion...','required' => true]) ?>
                     </div>
                        
                 </div>  

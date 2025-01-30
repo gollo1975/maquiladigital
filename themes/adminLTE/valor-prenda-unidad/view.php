@@ -224,20 +224,35 @@ $ordenproduccion = ArrayHelper::map(Ordenproduccion::find()->where(['=','pagada'
                                                     <?php } ?>     
                                                     <td style="padding-left: 1;padding-right: 0;"><input type="text" name="observacion[]" value="<?= $val->observacion ?>" size="16" ></td>  
                                                     <input type="hidden" name="detalle_pago_prenda[]" value="<?= $val->consecutivo ?>">
-                                                    <?php if($model->autorizado == 0){?>        
-                                                         <td style= 'width: 15px; height: 10px;'>
-                                                              <?php if ($model->estado_valor == 0){ ?>
-                                                              <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], [
-                                                                  'class' => '',
-                                                                  'data' => [
-                                                                      'confirm' => 'Esta seguro de eliminar el registro?',
-                                                                      'method' => 'post',
-                                                                  ],
-                                                              ])
-                                                              ?>
-                                                              <?php } ?>
-                                                          </td>
-                                                    <?php }else{ ?>
+                                                    <?php if($model->autorizado == 0){
+                                                        if($val->iddetalleorden == ''){ ?>        
+                                                            <td style= 'width: 15px; height: 10px;'>
+                                                                 <?php if ($model->estado_valor == 0){ ?>
+                                                                 <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago], [
+                                                                     'class' => '',
+                                                                     'data' => [
+                                                                         'confirm' => 'Esta seguro de eliminar el registro?',
+                                                                         'method' => 'post',
+                                                                     ],
+                                                                 ])
+                                                                 ?>
+                                                                 <?php } ?>
+                                                             </td>
+                                                        <?php }else{?>
+                                                             <td style= 'width: 15px; height: 10px;'>
+                                                                 <?php if ($model->estado_valor == 0){ ?>
+                                                                 <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar_linea_operacion', 'id' => $model->id_valor, 'detalle' => $val->consecutivo, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'id_datalle_talla' => $val->iddetalleorden], [
+                                                                     'class' => '',
+                                                                     'data' => [
+                                                                         'confirm' => 'Esta seguro de eliminar el registro?',
+                                                                         'method' => 'post',
+                                                                     ],
+                                                                 ])
+                                                                 ?>
+                                                                 <?php } ?>
+                                                             </td>
+                                                        <?php }     
+                                                    }else{ ?>
                                                           <td></td>
                                                     <?php } 
                                                     if($val->aplica_regla == 0){?> 

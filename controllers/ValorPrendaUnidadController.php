@@ -1638,8 +1638,37 @@ class ValorPrendaUnidadController extends Controller
             return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
         }catch (\Exception $e) { 
              Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+             return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+        }
+    }
+    
+    //ELIMINA LINEAS QUE TIEN TALLAS 
+    public function actionEliminar_linea_operacion($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago, $id_datalle_talla) {
+        try {
+            $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
+            $unidades = $detalle->cantidad;
+            $this->DescargarUnidadConfeccionada($id_datalle_talla, $unidades);
+            $detalle->delete();
+            return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+               
+        } catch (Exception $ex) {
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+            return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]); 
+              
+        }catch (\Exception $e) { 
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
             return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
         }
+    }
+    
+    //PROCESO QUE QUE DESCARGAR DEL DETALLE DE LA ORDEN DE PRODUCCION
+    protected function DescargarUnidadConfeccionada($id_datalle_talla, $unidades) {
+        $restar = 0;
+        $detalle_orden = \app\models\Ordenproducciondetalle::findOne($id_datalle_talla);
+        $restar = $detalle_orden->cantidad_confeccionada - $unidades;
+        $detalle_orden->cantidad_confeccionada = $restar;
+        $detalle_orden->save(false);
+        
     }
     
     //ELIMINA EL REGISTRO D EPAGO

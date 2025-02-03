@@ -41,16 +41,17 @@ class NominaElectronicaDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_nomina_electronica', 'codigo_salario', 'devengado_deduccion', 'total_dias', 'id_agrupado','id_empleado','dias_prima','dias_cesantias','dias_incapacidad','dias_licencia_noremuneradas','id_incapacidad'], 'integer'],
+            [['id_nomina_electronica', 'codigo_salario', 'devengado_deduccion', 'total_dias', 'id_agrupado','id_empleado','dias_prima','dias_cesantias','dias_incapacidad','dias_licencia_noremuneradas','codigo_incapacidad',
+                'devengado', 'deduccion',  'auxilio_transporte','deduccion_pension','deduccion_eps','deduccion_fondo_solidaridad','valor_pago_prima',
+                'valor_pago_cesantias','valor_pago_incapacidad','valor_pago_licencia','valor_pago_intereses'], 'integer'],
             [['fecha_inicio', 'fecha_final','inicio_incapacidad','final_incapacidad','inicio_licencia','final_licencia'], 'safe'],
-            [['devengado', 'deduccion', 'porcentaje', 'auxilio_transporte','deduccion_pension','deduccion_eps','deduccion_fondo_solidaridad','valor_pago_prima',
-                'valor_pago_cesantias','porcentaje_intereses','valor_pago_incapacidad','valor_pago_licencia'], 'number'],
+            [['porcentaje','porcentaje_intereses'], 'number'],
             [['descripcion'], 'string', 'max' => 40],
             [['id_nomina_electronica'], 'exist', 'skipOnError' => true, 'targetClass' => NominaElectronica::className(), 'targetAttribute' => ['id_nomina_electronica' => 'id_nomina_electronica']],
             [['codigo_salario'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoSalarios::className(), 'targetAttribute' => ['codigo_salario' => 'codigo_salario']],
             [['id_agrupado'], 'exist', 'skipOnError' => true, 'targetClass' => AgruparConceptoSalario::className(), 'targetAttribute' => ['id_agrupado' => 'id_agrupado']],
             [['id_empleado'], 'exist', 'skipOnError' => true, 'targetClass' => Empleado::className(), 'targetAttribute' => ['id_empleado' => 'id_empleado']],
-            [['id_incapacidad'], 'exist', 'skipOnError' => true, 'targetClass' => Incapacidad::className(), 'targetAttribute' => ['id_incapacidad' => 'id_incapacidad']],
+            [['codigo_incapacidad'], 'exist', 'skipOnError' => true, 'targetClass' => ConfiguracionIncapacidad::className(), 'targetAttribute' => ['codigo_incapacidad' => 'codigo_incapacidad']],
         ];
     }
 
@@ -82,7 +83,8 @@ class NominaElectronicaDetalle extends \yii\db\ActiveRecord
             'dias_prima' => 'dias_prima',
             'dias_cesantias' => 'dias_cesantias',
             'porcentaje_intereses' => 'porcentaje_intereses',
-            'id_incapacidad' => 'id_incapacidad', 
+            'valor_pago_intereses'=> 'valor_pago_intereses',
+            'codigo_incapacidad' => 'codigo_incapacidad', 
             
             
         ];
@@ -123,8 +125,8 @@ class NominaElectronicaDetalle extends \yii\db\ActiveRecord
      /**
      * @return \yii\db\ActiveQuery
      */
-    public function getIncapacidad()
+    public function getConfiguracionIncapacidad()
     {
-        return $this->hasOne(Incapacidad::className(), ['id_incapacidad' => 'id_incapacidad']);
+        return $this->hasOne(ConfiguracionIncapacidad::className(), ['codigo_incapacidad' => 'codigo_incapacidad']);
     }
 }

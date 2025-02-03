@@ -59,9 +59,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 "method" => "post",                            
             ]);
     ?>
-<div class="panel-footer text-left" >  
-         <?= Html::submitButton("<span class='glyphicon glyphicon-send'></span> Enviar documentos a la dian", ["class" => "btn btn-info btn-sm", 'name' => 'enviar_documento_electronico']) ?>
-</div>
+<?php if(count($model) > 0){?>  
+    <div class="panel-footer text-left" >  
+             <?= Html::submitButton("<span class='glyphicon glyphicon-send'></span> Enviar documentos a la dian", ["class" => "btn btn-info btn-sm", 'name' => 'enviar_documento_electronico']) ?>
+    </div>
+<?php }?>
 <div class="table-responsive">
 <div class="panel panel-success ">
     <div class="panel-heading">

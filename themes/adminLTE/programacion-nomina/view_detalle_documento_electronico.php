@@ -20,10 +20,12 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                     <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['vista_empleados','id_periodo' => $id_periodo, 'token' =>$token],['class' => 'btn btn-primary btn-xs']) ?></button>
                 <?php }else{?>
                     <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['listar_nomina_electronica'],['class' => 'btn btn-primary btn-xs']) ?></button>
-                <?php }?>
-                <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-default btn-sm">  <?= Html::a('<span class="glyphicon glyphicon-print"></span>Visualizar PDF', ['imprimir_detalle_documento', 'id_nomina' => $id_nomina],['class' => 'btn btn-default btn-xs']) ?></button>
-                </div>
+                <?php }
+                if($model->cune <> ''){?>
+                    <div class="btn-group" role="group">
+                      <button type="button" class="btn btn-default btn-sm">  <?= Html::a('<span class="glyphicon glyphicon-print"></span>Visualizar PDF', ['imprimir_detalle_documento', 'id_nomina' => $id_nomina],['class' => 'btn btn-default btn-xs']) ?></button>
+                    </div>
+                <?php }?>    
             </div>
      
         <div class="panel panel-success">
@@ -90,6 +92,8 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                                     <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>  
                                     <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Agrupado</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Inicio</th>  
+                                    <th scope="col" style='background-color:#B9D5CE;'>Fin</th>  
                                     <th scope="col" style='background-color:#B9D5CE;'>Total dias</th>                        
                                     <th scope="col" style='background-color:#B9D5CE;'>Porcentaje</th>    
                                     <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>  
@@ -103,7 +107,14 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                                             <tr style='font-size:85%;'>
                                                 <td><?= $val->codigo_salario ?></td>  
                                                 <td><?= $val->descripcion ?></td>
-                                                 <td><?= $val->agrupado->concepto ?></td>
+                                                <td><?= $val->agrupado->concepto ?></td>
+                                                <?php if($val->id_agrupado == 8 || $val->id_agrupado == 10 || $val->id_agrupado == 21){?>
+                                                    <td><?= $val->inicio_licencia?></td>
+                                                    <td><?= $val->final_licencia ?></td>
+                                                <?php }else {?>
+                                                    <td><?= $val->inicio_incapacidad?></td>
+                                                    <td><?= $val->final_incapacidad ?></td>
+                                                <?php } ?>    
                                                 <td style="text-align: right"><?= $val->total_dias ?></td>
                                                 <?php if($val->porcentaje == ''){?>
                                                     <td><?= $val->porcentaje ?></td>
@@ -117,7 +128,9 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                                             <tr style='font-size:85%;'>
                                                 <td><?= $val->codigo_salario ?></td>  
                                                 <td><?= $val->descripcion ?></td>
-                                                 <td><?= $val->agrupado->concepto ?></td>
+                                                <td><?= $val->agrupado->concepto ?></td>
+                                                <td style="text-align: right"></td>
+                                                <td style="text-align: right"></td>
                                                 <td style="text-align: right"><?= $val->total_dias ?></td>
                                                 <?php if($val->porcentaje == ''){?>
                                                     <td><?= $val->porcentaje ?></td>

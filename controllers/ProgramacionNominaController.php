@@ -267,7 +267,8 @@ class ProgramacionNominaController extends Controller {
                         $contador = 0;
                         foreach ($_POST["documento_electronico_dian"] as $intCodigo) { //vector que cargar cada items
                             $documento = \app\models\NominaElectronica::findOne($intCodigo);// vector del empleado
-                            if($documento){
+                            if($documento)
+                            {
                                 $periodo = PeriodoNominaElectronica::findOne($documento->id_periodo_electronico);
                                 $contador += 1;
                                 $total_devengado = intval($documento->total_devengado, 0) . '.00';
@@ -321,8 +322,8 @@ class ProgramacionNominaController extends Controller {
                                 $numero_cuenta_bancaria = $documento->empleado->cuenta_bancaria;
                                 // Configurar cURL
                                 $curl = curl_init();
-                               // $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
-                                $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+                                $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
+                              //  $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
                                 $dataBody = [
                                     "novelty" => [
                                         "novelty" => false,
@@ -397,9 +398,10 @@ class ProgramacionNominaController extends Controller {
                                     $valor_pago_prima = intval($detalle->valor_pago_prima, 0) . '.00';
                                     $valor_pago_cesantias = intval($detalle->valor_pago_cesantias, 0) . '.00';
                                     $deducciones = intval($detalle->deduccion, 0) . '.00';
+                                    $pago_intereses_cesantias = intval($detalle->valor_pago_intereses, 0) . '.00';
                                     
-                                    if($detalle->id_incapacidad <> ''){
-                                        $tipo_incapacidad = $detalle->incapacidad->codigo_api_nomina;
+                                    if($detalle->codigo_incapacidad <> ''){
+                                        $tipo_incapacidad = $detalle->configuracionIncapacidad->codigo_api_nomina;
                                     }else{
                                         $tipo_incapacidad = 0;
                                     }   
@@ -411,44 +413,52 @@ class ProgramacionNominaController extends Controller {
                                     }elseif ($detalle->id_agrupado == 2){ //auxilio de transporte
 			                $dataBody["accrued"]["transportation_allowance"] =  $auxilio_transporte;
                                     }elseif ($detalle->id_agrupado == 3){ //horas extras diurnas
-                                         $dataBody["accrued"]['HEDs'] = [
-                                            [
-                                                "start_time" => "2024-12-16T10:00:00",
-                                                "start_date" => "2024-12-16T10:00:00",
-                                                "end_time" => "2024-12-16T10:00:00",
-                                                "end_date" => "2024-12-16T10:00:00",
-                                                "quantity" => "2",
-                                                "percentage" => 1,
-                                                "payment" => "27500"  
-                                            ],
+                                        if(!isset($dataBody["accrued"]['HEDs'])){
+                                            $dataBody["accrued"]['HEDs'] = [];
+                                        }
+                                        $dataBody["accrued"]['HEDs'][] = [
+                                            "start_time" => "2024-12-16T10:00:00",
+                                            "start_date" => "2024-12-16T10:00:00",
+                                            "end_time" => "2024-12-16T10:00:00",
+                                            "end_date" => "2024-12-16T10:00:00",
+                                            "quantity" => "2",
+                                            "percentage" => 1,
+                                            "payment" => "27500"  
                                         ]; 
                                     }elseif ($detalle->id_agrupado == 9){ // incapacidades
-                                            $dataBody["accrued"]['work_disabilities'] = [
-                                                [
-                                                "start_date" => "$detalle->inicio_incapacidad",
-                                                "end_date" => "$detalle->final_incapacidad",
-                                                "quantity" => "$detalle->dias_incapacidad",
-                                                "type" => "$tipo_incapacidad",
-                                                "payment" => $valor_pago_incapacidad
-                                                ]
-                                            ];
+                                        if(!isset($dataBody["accrued"]['work_disabilities'])){
+                                              $dataBody["accrued"]['work_disabilities'] = [];
+                                        }
+                                        $dataBody["accrued"]['work_disabilities'][] = [ 
+                                            "start_date" => "$detalle->inicio_incapacidad",
+                                            "end_date" => "$detalle->final_incapacidad",
+                                            "quantity" => "$detalle->dias_incapacidad",
+                                            "type" => "$tipo_incapacidad",
+                                            "payment" => $valor_pago_incapacidad
+
+                                        ];
+                                            
                                     }elseif($detalle->id_agrupado == 10){ //icencias de maternida
-                                        $dataBody["accrued"]['maternity_leave'] = [
-                                            [
+                                        if(!isset($dataBody["accrued"]['maternity_leave'])){
+                                            $dataBody["accrued"]['maternity_leave'] = [];
+                                        }
+                                        $dataBody["accrued"]['maternity_leave'][] = [
                                             "start_date" => "$detalle->inicio_licencia",
                                             "end_date" => "$detalle->final_licencia",
                                             "quantity" => "$detalle->dias_licencia",
                                             "payment" => $valor_pago_licencia
-                                            ],
+                                            
                                         ];
                                     }elseif ($detalle->id_agrupado == 8){ //LICENCIAS REMUNERADAS
-                                        $dataBody["accrued"]['paid_leave'] = [
-                                            [
+                                        if(!isset($dataBody["accrued"]['paid_leave'])){
+                                             $dataBody["accrued"]['paid_leave'] = [];
+                                        }
+                                        $dataBody["accrued"]['paid_leave'][] = [
                                             "start_date" => "$detalle->inicio_licencia",
                                             "end_date" => "$detalle->final_licencia",
                                             "quantity" => "$detalle->dias_licencia",
                                             "payment" => $valor_pago_licencia
-                                           ],     
+                                               
                                         ];
                                         
                                     }elseif ($detalle->id_agrupado == 11){ //PRIMAS DE SERVICIO
@@ -457,7 +467,7 @@ class ProgramacionNominaController extends Controller {
                                                "quantity" => "$detalle->dias_prima",
                                                "payment" => $valor_pago_prima,
                                                "paymentNS" => 0
-                                            ]
+                                            ],
                                         ];  
                                     }elseif ($detalle->id_agrupado == 12){ //CESANTIAS
                                         $dataBody["accrued"]['severance'] = [
@@ -465,8 +475,16 @@ class ProgramacionNominaController extends Controller {
                                                "payment" => $valor_pago_cesantias,
                                                "percentage" => 12,
                                                "interest_payment" => 0
-                                            ]
+                                            ],
                                         ];
+                                    }elseif ($detalle->id_agrupado == 13){ //INTERESES A CESANTIAS
+                                        $dataBody["accrued"]['severance'] = [
+                                            [
+                                               "payment" => 0,
+                                               "percentage" => 0,
+                                               "interest_payment" => $pago_intereses_cesantias
+                                            ],
+                                        ];    
                                     }elseif ($detalle->id_agrupado == 16){ //BONIFICACIONES
                                         $dataBody["accrued"]['bonuses'] = [
                                             [
@@ -480,7 +498,10 @@ class ProgramacionNominaController extends Controller {
                                             ],
                                         ]; 
                                     }elseif ($detalle->id_agrupado == 21){ //LICENCIAS NO REMUNERADAS
-                                        $dataBody["accrued"]['non_paid_leave'] = [
+                                        if(!isset($dataBody["accrued"]['non_paid_leave'])){ //si no existes lo declaracion vacio
+                                            $dataBody["accrued"]['non_paid_leave'] = [];
+                                        }
+                                        $dataBody["accrued"]['non_paid_leave'][] = [
                                             "start_date" => "$detalle->inicio_licencia",
                                             "end_date" => "$detalle->final_licencia",
                                             "quantity" => "$detalle->dias_licencia_noremuneradas"
@@ -489,6 +510,7 @@ class ProgramacionNominaController extends Controller {
                                     }
                                     $dataBody["accrued"]['accrued_total'] = $total_devengado;
                                     //FIN CONCEPTOS DEVENGADOS
+                                    
                                     //INICIO DEDUCCIONES
                                     if($detalle->id_agrupado == 4){ //pension
                                         $dataBody["deductions"]["pension_type_law_deductions_id"] = $pension_type_law_deductions_id;
@@ -507,6 +529,7 @@ class ProgramacionNominaController extends Controller {
                                 }//CIERRA EL PARA DEL DETALLE DEL PAGO 
                                 
                                 $dataBody = json_encode($dataBody);
+                               
                                 //   //EJECUTA EL DATABODY 
                                 curl_setopt_array($curl, [
                                     CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",
@@ -526,7 +549,6 @@ class ProgramacionNominaController extends Controller {
                                    throw new Exception(curl_error($curl));
                                 }
                                 curl_close($curl);
-
                                 $data = json_decode($response, true);
                                 Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
                                 
@@ -563,7 +585,9 @@ class ProgramacionNominaController extends Controller {
                                           
                                         }
                                }
-                            } //Cierre la confirmacion de chequeo de registro que no se van a envir.
+                            } 
+                            //Cierre la confirmacion de chequeo de registro que se van a envir.
+                            
                         }//CIERRA EL PROCESO PARA
                         
                         Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
@@ -3112,6 +3136,7 @@ class ProgramacionNominaController extends Controller {
                             foreach ($detalle_nomina as $key => $detalle) {
                                 $buscar = \app\models\NominaElectronicaDetalle::find()->where(['=','codigo_salario', $detalle->codigo_salario])->andWhere(['=','id_periodo_electronico', $id_periodo])
                                                                                       ->andWhere(['=','id_empleado', $conRegistro->id_empleado])->one();
+                                
                                 if(!$buscar){
                                     $table = new \app\models\NominaElectronicaDetalle();
                                     $table->id_nomina_electronica = $intCodigo;
@@ -3127,16 +3152,24 @@ class ProgramacionNominaController extends Controller {
                                           $table->auxilio_transporte = $detalle->auxilio_transporte; 
                                           $table->devengado = $detalle->auxilio_transporte; 
                                         }elseif ($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
+                                            $codigo_incapacidad = Incapacidad::findOne($detalle->id_incapacidad);
                                             $table->valor_pago_incapacidad = $detalle->vlr_devengado;
+                                            $table->devengado = $detalle->vlr_devengado;
                                             $table->dias_incapacidad = $detalle->dias_reales;
+                                            $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_incapacidad = $detalle->fecha_desde;
                                             $table->final_incapacidad = $detalle->fecha_hasta;
+                                            $table->codigo_incapacidad = $codigo_incapacidad->codigo_incapacidad;
+                                            $table->porcentaje = $detalle->porcentaje;
                                         }elseif ($detalle->codigoSalario->id_agrupado == 10 || $detalle->codigoSalario->id_agrupado == 8){ //licencias remuneradas y maternidad
                                             $table->valor_pago_licencia = $detalle->vlr_devengado;
+                                            $table->devengado = $detalle->vlr_devengado;
                                             $table->dias_licencia = $detalle->dias_reales;
+                                             $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
+                                            $table->total_dias = $detalle->dias_reales;
                                             $table->dias_licencia_noremuneradas = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
@@ -3146,12 +3179,15 @@ class ProgramacionNominaController extends Controller {
                                             $table->total_dias =$detalle->nro_horas; 
                                         }elseif ($detalle->codigoSalario->id_agrupado == 11){ //primas
                                             $table->valor_pago_prima = $detalle->vlr_devengado;
-                                             $table->devengado = $detalle->vlr_devengado;
+                                            $table->devengado = $detalle->vlr_devengado;
                                             $table->dias_prima = $detalle->dias_reales;
                                         }elseif ($detalle->codigoSalario->id_agrupado == 12){ //cesantias
                                             $table->valor_pago_cesantias = $detalle->vlr_devengado;
                                             $table->dias_cesantias = $detalle->dias_reales;
                                             $table->devengado = $detalle->vlr_devengado;
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 13){ //cesantias
+                                            $table->valor_pago_intereses = $detalle->vlr_devengado;
+                                            $table->devengado = $detalle->vlr_devengado;    
                                         }elseif ($detalle->codigoSalario->id_agrupado == 1){ //salario basico
                                             $conRegistro->dias_trabajados = $detalle->dias_reales;
                                             $table->devengado = $detalle->vlr_devengado;
@@ -3192,21 +3228,28 @@ class ProgramacionNominaController extends Controller {
                                             $conRegistro->dias_trabajados += $detalle->dias_reales;
                                         }elseif ($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
                                             $table = new \app\models\NominaElectronicaDetalle();
+                                            $codigo_incapacidad = Incapacidad::findOne($detalle->id_incapacidad);
                                             $table->valor_pago_incapacidad = $detalle->vlr_devengado;
                                             $table->dias_incapacidad = $detalle->dias_reales;
+                                            $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_incapacidad = $detalle->fecha_desde;
                                             $table->final_incapacidad = $detalle->fecha_hasta;
+                                            $table->id_incapacidad = $detalle->id_incapacidad;
+                                            $table->codigo_incapacidad = $codigo_incapacidad->codigo_incapacidad;
+                                            $table->porcentaje = $detalle->porcentaje;
                                             $table->save(false);
                                         }elseif ($detalle->codigoSalario->id_agrupado == 10 || $detalle->codigoSalario->id_agrupado == 8){ //licencias remuneradas
                                             $table = new \app\models\NominaElectronicaDetalle();
                                             $table->valor_pago_licencia = $detalle->vlr_devengado;
                                             $table->dias_licencia = $detalle->dias_reales;
+                                            $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
                                             $table->save(false);
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
                                             $table = new \app\models\NominaElectronicaDetalle();
                                             $table->dias_licencia_noremuneradas = $detalle->dias_reales;
+                                            $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
                                             $table->save(false);

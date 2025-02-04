@@ -613,6 +613,66 @@ class ProgramacionNominaController extends Controller {
         }
     }
     
+    //CONSULTAR DOCUMENTOS ENVIADO
+    public function actionSearch_documentos_electronicos($token = 2) {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 152])->all()) {
+                $form = new \app\models\FormFiltroDocumentoElectronico();
+                $documento = null;
+                $empleado = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $documento = Html::encode($form->documento);
+                        $empleado = Html::encode($form->empleado);
+                        $table = \app\models\NominaElectronica::find()
+                                ->andFilterWhere(['like', 'nombre_completo', $empleado])
+                                ->andFilterWhere(['=', 'documento_empleado', $documento])
+                                ->andWhere(['=', 'exportado_nomina', 1]);
+                        $table = $table->orderBy('numero_nomina_electronica ASC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 30,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = \app\models\NominaElectronica::find()->Where(['>', 'numero_nomina_electronica', 0])
+                                                                  ->andWhere(['=', 'exportado_nomina', 1])
+                                                                  ->orderBy('numero_nomina_electronica ASC');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 30,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                }
+                $to = $count->count();
+                return $this->render('search_documentos_electronicos', [
+                            'model' => $model,
+                            'form' => $form,
+                            'token' => $token,
+                            'pagination' => $pages,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }    
+                
     //COMPROBANTES DE NOMINAS
     public function actionComprobantepagonomina() {
         if (Yii::$app->user->identity) {

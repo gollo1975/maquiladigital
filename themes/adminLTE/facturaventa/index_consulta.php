@@ -43,6 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreClientes');
+$tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'id_factura_venta_tipo', 'concepto');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -75,6 +76,13 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                     'todayHighlight' => true]])
             ?>
             <?= $formulario->field($form, 'pendiente')->dropDownList(['1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
+            <?= $formulario->field($form, 'tipo_servicio')->widget(Select2::classname(), [
+                'data' => $tipoServicio,
+                'options' => ['prompt' => 'Seleccione el servicio ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
@@ -109,9 +117,11 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
             </thead>
             <tbody>
                 <?php
-                $saldo=0;
+                $saldo=0; $subtotal = 0;  $total = 0;
                 foreach ($model as $val):
                     $saldo += $val->saldo;
+                    $total += $val->totalpagar;
+                    $subtotal += $val->subtotal;
                     ?>
                     <tr style="font-size: 85%;">                
                         <td><?= $val->nrofactura ?></td>
@@ -125,15 +135,17 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                         <td align="right"><?= number_format($val->saldo,0) ?></td>
                         <td><?= $val->autorizar ?></td>
                         <td><?= $val->estados ?></td>
-                        <td>				
+                          <td style= 'width: 20px; height: 20px;'>				
                         <a href="<?= Url::toRoute(["facturaventa/viewconsulta", "id" => $val->idfactura]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </body>        
             <tr>
-                <td colspan="6"></td>
-                <td align="right"><b>Saldo</b></td>
+                <td colspan="5"></td>
+                <td align="right"><b>Totales</b></td>
+                 <td align="right" ><b><?= '$ '.number_format($subtotal,0); ?></b></td>
+                  <td align="right" ><b><?= '$ '.number_format($total,0); ?></b></td>
                 <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
                 <td colspan="4"></td>
             </tr>

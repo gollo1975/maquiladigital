@@ -43,6 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreClientes');
+$tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'id_factura_venta_tipo', 'concepto');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -75,6 +76,13 @@ $clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreCliente
                     'todayHighlight' => true]])
             ?>
             <?= $formulario->field($form, 'pendiente')->dropDownList(['1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
+             <?= $formulario->field($form, 'tipo_servicio')->widget(Select2::classname(), [
+                'data' => $tipoServicio,
+                'options' => ['prompt' => 'Seleccione el servicio ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>

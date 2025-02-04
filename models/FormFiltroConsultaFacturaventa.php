@@ -15,12 +15,14 @@ class FormFiltroConsultaFacturaventa extends Model
     public $hasta;
     public $numero;
     public $pendiente;
-    
+    public $tipo_servicio;
+
+
     public function rules()
     {
         return [
 
-            ['idcliente', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
+            [['idcliente','tipo_servicio'], 'integer'],
             ['desde', 'safe'],
             ['hasta', 'safe'],
             ['numero', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
@@ -36,6 +38,7 @@ class FormFiltroConsultaFacturaventa extends Model
             'desde' => 'Desde:',
             'hasta' => 'Hasta:',
             'pendiente' => 'Saldo Pendiente:',
+            'tipo_servicio' => 'Tipo de servicio:',
         ];
     }
 }

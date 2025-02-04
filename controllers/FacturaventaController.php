@@ -74,6 +74,7 @@ class FacturaventaController extends Controller
             $hasta = null;
             $numero = null;
             $pendiente = null;
+            $tipo_servicio = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);
@@ -81,10 +82,11 @@ class FacturaventaController extends Controller
                     $hasta = Html::encode($form->hasta);
                     $numero = Html::encode($form->numero);
                     $pendiente = Html::encode($form->pendiente);
+                    $tipo_servicio = Html::encode($form->tipo_servicio);
                     $table = Facturaventa::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
-                            ->andFilterWhere(['>=', 'fechainicio', $desde])
-                            ->andFilterWhere(['<=', 'fechainicio', $hasta])
+                            ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
+                            ->andFilterWhere(['=', 'id_factura_venta_tipo', $tipo_servicio])
                             ->andFilterWhere(['=', 'nrofactura', $numero]);
                     if ($pendiente == 1){
                         $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
@@ -658,6 +660,7 @@ class FacturaventaController extends Controller
             $hasta = null;
             $numero = null;
             $pendiente = null;
+            $tipo_servicio = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);
@@ -665,10 +668,12 @@ class FacturaventaController extends Controller
                     $hasta = Html::encode($form->hasta);
                     $numero = Html::encode($form->numero);
                     $pendiente = Html::encode($form->pendiente);
+                    $tipo_servicio = Html::encode($form->tipo_servicio);
                     $table = Facturaventa::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
                             ->andFilterWhere(['=', 'nrofactura', $numero])
+                            ->andFilterWhere(['=', 'id_factura_venta_tipo', $tipo_servicio])
                             ->andWhere(['>', 'nrofactura', 0]);
                     if ($pendiente == 1){
                         $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);

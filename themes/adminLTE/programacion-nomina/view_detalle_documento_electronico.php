@@ -18,9 +18,13 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                 <div class="btn-group" role="group" aria-label="...">
                 <?php if($token == 0){?>
                     <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['vista_empleados','id_periodo' => $id_periodo, 'token' =>$token],['class' => 'btn btn-primary btn-xs']) ?></button>
-                <?php }else{?>
-                    <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['listar_nomina_electronica'],['class' => 'btn btn-primary btn-xs']) ?></button>
-                <?php }
+                <?php }else{
+                    if($token == 1){?>
+                        <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['listar_nomina_electronica'],['class' => 'btn btn-primary btn-xs']) ?></button>
+                    <?php }else{ ?>
+                        <button type="button" class="btn btn-default btn-sm"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_documentos_electronicos'],['class' => 'btn btn-primary btn-xs']) ?></button>
+                    <?php }    
+                }
                 if($model->cune <> ''){?>
                     <div class="btn-group" role="group">
                       <button type="button" class="btn btn-default btn-sm">  <?= Html::a('<span class="glyphicon glyphicon-print"></span>Visualizar PDF', ['imprimir_detalle_documento', 'id_nomina' => $id_nomina],['class' => 'btn btn-default btn-xs']) ?></button>

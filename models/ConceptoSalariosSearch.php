@@ -18,7 +18,7 @@ class ConceptoSalariosSearch extends ConceptoSalarios
     {
         return [
             [['codigo_salario', 'compone_salario', 'aplica_porcentaje', 'prestacional', 'ingreso_base_prestacional', 'ingreso_base_cotizacion', 'debito_credito', 'adicion', 'auxilio_transporte', 'concepto_incapacidad', 'concepto_pension', 'concepto_salud', 'concepto_vacacion',
-                'provisiona_vacacion', 'provisiona_indemnizacion', 'tipo_adicion', 'recargo_nocturno', 'inicio_nomina'], 'integer'],
+                'provisiona_vacacion', 'provisiona_indemnizacion', 'tipo_adicion', 'recargo_nocturno', 'inicio_nomina','id_agrupado'], 'integer'],
             [['nombre_concepto', 'fecha_creacion'], 'safe'],
             [['porcentaje', 'porcentaje_tiempo_extra'], 'number'],
         ];
@@ -77,6 +77,7 @@ class ConceptoSalariosSearch extends ConceptoSalarios
             'concepto_vacacion' => $this->concepto_vacacion,
             'provisiona_vacacion' => $this->provisiona_vacacion,
             'tipo_adicion' => $this->tipo_adicion,
+            'id_agrupado' => $this->id_agrupado,
             'recargo_nocturno' => $this->recargo_nocturno,
             'fecha_creacion' => $this->fecha_creacion,
         ]);

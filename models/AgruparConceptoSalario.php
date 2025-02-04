@@ -28,6 +28,7 @@ class AgruparConceptoSalario extends \yii\db\ActiveRecord
         return [
             [['concepto'], 'required'],
             [['concepto'], 'string', 'max' => 30],
+            [['tipo_movimiento'],'integer'],
         ];
     }
 
@@ -39,6 +40,7 @@ class AgruparConceptoSalario extends \yii\db\ActiveRecord
         return [
             'id_agrupado' => 'Id Agrupado',
             'concepto' => 'Concepto',
+            'tipo_movimiento' => 'tipo_movimiento',
         ];
     }
     

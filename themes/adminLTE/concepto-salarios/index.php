@@ -57,13 +57,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [
-                'attribute' => 'tipo_adicion',
+                'attribute' => 'id_agrupado',
                 'value' => function($model) {
                     $tipoadicion = ConceptoSalarios::findOne($model->codigo_salario);
-                    return $tipoadicion->tipoadicion;
+                    return $tipoadicion->id_agrupado;
                 },
-                'filter' => ArrayHelper::map(ConceptoSalarios::find()->all(), 'tipo_adicion', 'tipoadicion'),
-                'contentOptions' => ['class' => 'col-lg-1.5'],
+                'filter' => ArrayHelper::map(\app\models\AgruparConceptoSalario::find()->all(), 'id_agrupado', 'concepto'),
+                'contentOptions' => ['class' => 'col-lg-1'],
             ],            
             [
                 'class' => 'yii\grid\ActionColumn',

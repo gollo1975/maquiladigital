@@ -387,7 +387,6 @@ class ProgramacionNominaController extends Controller {
                                 $detallesPago = \app\models\NominaElectronicaDetalle::find()->where(['=','id_nomina_electronica', $documento->id_nomina_electronica])->orderBy('id_agrupado ASC')->all();
                                 foreach ($detallesPago as $key => $detalle) 
                                 {
-                                    
                                     $deduccion_pension = intval($detalle->deduccion_pension, 0) . '.00';
                                     $deduccion_eps = intval($detalle->deduccion_eps, 0) . '.00';
                                     $valor_pago_incapacidad = intval($detalle->valor_pago_incapacidad, 0) . '.00';
@@ -486,11 +485,21 @@ class ProgramacionNominaController extends Controller {
                                             ],
                                         ];    
                                     }elseif ($detalle->id_agrupado == 16){ //BONIFICACIONES
-                                        $dataBody["accrued"]['bonuses'] = [
-                                            [
+                                       if(!isset($dataBody["accrued"]['bonuses'])){
+                                           $dataBody["accrued"]['bonuses'] = [];
+                                       }
+                                       $dataBody["accrued"]['bonuses'][] =  [
+                                               "salary_bonus" => 0,
                                                "no_salary_bonus" => $devengado,
-                                            ],
                                         ];
+                                    }elseif ($detalle->id_agrupado == 19){ //BONIFICACIONES PRESTACIONES
+                                       if(!isset($dataBody["accrued"]['bonuses'])){
+                                           $dataBody["accrued"]['bonuses'] = [];
+                                       }
+                                       $dataBody["accrued"]['bonuses'][] =  [
+                                               "salary_bonus" => $devengado,
+                                               "no_salary_bonus" => 0,
+                                        ];   
                                     }elseif ($detalle->id_agrupado == 15){ //comisiones  
                                         $dataBody["accrued"]["commissions"] = [
                                             [    
@@ -507,7 +516,10 @@ class ProgramacionNominaController extends Controller {
                                             "quantity" => "$detalle->dias_licencia_noremuneradas"
                                         ];
 
-                                    }
+                                    }elseif ($detalle->id_agrupado == 18){//REINTEGRO O REEMBOLSO
+                                        $dataBody["accrued"]["refund"] = $devengado;    
+                                    }   
+                                    
                                     $dataBody["accrued"]['accrued_total'] = $total_devengado;
                                     //FIN CONCEPTOS DEVENGADOS
                                     
@@ -520,11 +532,27 @@ class ProgramacionNominaController extends Controller {
                                         $dataBody["deductions"]["eps_deduction"] = $deduccion_eps;
                                     }elseif ($detalle->id_agrupado == 6){ //fondo de solidarida
                                         $dataBody["deductions"]["voluntary_pension"] = $deduccion_fondo_solidaridad; 
-                                    }elseif ($detalle->id_agrupado == 14){ //descuentos de alianzas, prestamos y deudas
-                                        if(!isset($dataBody["deductions"]["debt"])){
-                                          $dataBody["deductions"]["debt"] = [];  
+                                    }elseif ($detalle->id_agrupado == 7){ // prestamos empresa y otras deducciones
+                                        if(!isset($dataBody["deductions"]['other_deductions'])){
+                                          $dataBody["deductions"]["other_deductions"] = [];  
                                         }
-                                        $dataBody["deductions"]['debt'][] = $deducciones ;
+                                        $dataBody["deductions"]['other_deductions'][] = [
+                                            "other_deduction" => $deducciones, 
+                                        ];    
+                                    }elseif ($detalle->id_agrupado == 14){ // Libranzas prestamo
+                                        if(!isset($dataBody["deductions"]['orders'])){
+                                          $dataBody["deductions"]["orders"] = [];  
+                                        }
+                                        $dataBody["deductions"]['orders'][] = [
+                                            "description" => "$detalle->descripcion", 
+                                            "deduction" => $deducciones 
+                                        ];
+                                    }elseif ($detalle->id_agrupado == 17){//prestamo empresa
+                                         $dataBody["deductions"]["debt"] = [
+                                            [    
+                                                $dataBody["deductions"]["debt"] = $deducciones, 
+                                            ],
+                                        ]; 
                                     }
                                     $dataBody["deductions"]['deductions_total'] = $total_deduccion;
                                     
@@ -532,9 +560,9 @@ class ProgramacionNominaController extends Controller {
                                 }//CIERRA EL PARA DEL DETALLE DEL PAGO 
                                 
                                 $dataBody = json_encode($dataBody);
-                                
+                                var_dump($dataBody);
                                 //   //EJECUTA EL DATABODY 
-                                curl_setopt_array($curl, [
+                              /*  curl_setopt_array($curl, [
                                     CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_ENCODING => '',
@@ -587,14 +615,14 @@ class ProgramacionNominaController extends Controller {
                                             Yii::error("Error al reenviar documento de nomina No ($consecutivo): " . print_r($data, true), __METHOD__);
                                           
                                         }
-                               }
+                               }*/
                             } 
                             //Cierre la confirmacion de chequeo de registro que se van a envir.
                             
                         }//CIERRA EL PROCESO PARA
                         
                         Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
-                        return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
+                      //  return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
                     }else{
                         Yii::$app->getSession()->setFlash('error','Debe de seleccionar el registro para enviar a la DIAN. ');
                     }
@@ -3210,10 +3238,21 @@ class ProgramacionNominaController extends Controller {
                                     $table->fecha_inicio = $conRegistro->fecha_inicio_nomina;
                                     $table->fecha_final = $conRegistro->fecha_final_nomina;
                                     if($table->devengado_deduccion == 1){ //ingresos del empleado
-                                        if($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
+                                        if ($detalle->codigoSalario->id_agrupado == 1){ //salario basico
+                                            $conRegistro->dias_trabajados = $detalle->dias_reales;
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            $table->total_dias = $detalle->dias_reales;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
                                           $table->total_dias = $detalle->dias_reales;
                                           $table->auxilio_transporte = $detalle->auxilio_transporte; 
                                           $table->devengado = $detalle->auxilio_transporte; 
+                                          
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 3){ //horas extras diurnas ordinaria
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            $table->porcentaje = $detalle->codigoSalario->porcentaje_tiempo_extra;
+                                            $table->total_dias =$detalle->nro_horas; 
+                                            
                                         }elseif ($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
                                             $codigo_incapacidad = Incapacidad::findOne($detalle->id_incapacidad);
                                             $table->valor_pago_incapacidad = $detalle->vlr_devengado;
@@ -3224,6 +3263,7 @@ class ProgramacionNominaController extends Controller {
                                             $table->final_incapacidad = $detalle->fecha_hasta;
                                             $table->codigo_incapacidad = $codigo_incapacidad->codigo_incapacidad;
                                             $table->porcentaje = $detalle->porcentaje;
+                                            
                                         }elseif ($detalle->codigoSalario->id_agrupado == 10 || $detalle->codigoSalario->id_agrupado == 8){ //licencias remuneradas y maternidad
                                             $table->valor_pago_licencia = $detalle->vlr_devengado;
                                             $table->devengado = $detalle->vlr_devengado;
@@ -3231,46 +3271,56 @@ class ProgramacionNominaController extends Controller {
                                              $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 11){ //primas
+                                            $table->valor_pago_prima = $detalle->vlr_devengado;
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            $table->dias_prima = $detalle->dias_reales;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 12){ //cesantias
+                                            $table->valor_pago_cesantias = $detalle->vlr_devengado;
+                                            $table->dias_cesantias = $detalle->dias_reales;
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 13){ //cesantias
+                                            $table->valor_pago_intereses = $detalle->vlr_devengado;
+                                            $table->devengado = $detalle->vlr_devengado;  
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 16 || $detalle->codigoSalario->id_agrupado == 15 || $detalle->codigoSalario->id_agrupado == 18){ //bonificacion no salaria y comisiones y reintegro
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 19){ //REINTEGRO EMPLEADO
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 20){ //VACACIONES
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            $table->total_dias = $detalle->dias_reales;
+                                            
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
                                             $table->total_dias = $detalle->dias_reales;
                                             $table->dias_licencia_noremuneradas = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 3){ //horas extras diurnas ordinaria
-                                            $table->devengado = $detalle->vlr_devengado;
-                                            $table->porcentaje = $detalle->codigoSalario->porcentaje_tiempo_extra;
-                                            $table->total_dias =$detalle->nro_horas; 
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 11){ //primas
-                                            $table->valor_pago_prima = $detalle->vlr_devengado;
-                                            $table->devengado = $detalle->vlr_devengado;
-                                            $table->dias_prima = $detalle->dias_reales;
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 12){ //cesantias
-                                            $table->valor_pago_cesantias = $detalle->vlr_devengado;
-                                            $table->dias_cesantias = $detalle->dias_reales;
-                                            $table->devengado = $detalle->vlr_devengado;
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 13){ //cesantias
-                                            $table->valor_pago_intereses = $detalle->vlr_devengado;
-                                            $table->devengado = $detalle->vlr_devengado;    
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 1){ //salario basico
-                                            $conRegistro->dias_trabajados = $detalle->dias_reales;
-                                            $table->devengado = $detalle->vlr_devengado;
-                                            $table->total_dias = $detalle->dias_reales;
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 16 || $detalle->codigoSalario->id_agrupado == 15){ //bonificaciones y comisiones
-                                            $table->devengado = $detalle->vlr_devengado;
                                         }
                                     }else{// DEDUCCIONES DEL EMPLEADO
                                         if($detalle->codigoSalario->id_agrupado == 4){ //FONDO DE PENSION
                                             $table->porcentaje = $detalle->codigoSalario->porcentaje; 
                                             $table->deduccion_pension = $detalle->vlr_deduccion;
                                             $table->deduccion = $detalle->vlr_deduccion;
+                                            
                                         }elseif ($detalle->codigoSalario->id_agrupado == 5){ //FONDO DE EPS
                                             $table->porcentaje = $detalle->codigoSalario->porcentaje; 
                                             $table->deduccion_eps = $detalle->vlr_deduccion;
                                             $table->deduccion = $detalle->vlr_deduccion;
+                                            
                                         }elseif ($detalle->codigoSalario->id_agrupado == 6){ //FONDO solidarida
                                                     $table->porcentaje = $detalle->porcentaje; 
                                                     $table->deduccion_fondo_solidaridad = $detalle->vlr_deduccion;
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 14) { //descuentos y libranzas
+                                                    
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 7 || $detalle->codigoSalario->id_agrupado == 17) { //otras deducciones del empleado y prestamos empresa
+                                            $table->deduccion= $detalle->vlr_deduccion;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 14) { //libranzas y bancos
                                             $table->deduccion= $detalle->vlr_deduccion; 
                                         }
 
@@ -3281,14 +3331,16 @@ class ProgramacionNominaController extends Controller {
                                     $conRegistro->save(false);
                                }else{// Acumula informacion si el registro esta en la base de datos
                                     if($buscar->devengado_deduccion == 1){ //DEVENGADO DEL TRABAJADO
-                                        if($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
-                                          $buscar->total_dias += $detalle->dias_reales;
-                                          $buscar->auxilio_transporte += $detalle->auxilio_transporte; 
-                                          $buscar->devengado += $detalle->auxilio_transporte; 
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 1){ //salario basico
+                                        if ($detalle->codigoSalario->id_agrupado == 1){ //salario basico
                                             $buscar->devengado += $detalle->vlr_devengado;
                                             $buscar->total_dias += $detalle->dias_reales;
                                             $conRegistro->dias_trabajados += $detalle->dias_reales;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
+                                          $buscar->total_dias += $detalle->dias_reales;
+                                          $buscar->auxilio_transporte += $detalle->auxilio_transporte; 
+                                          $buscar->devengado += $detalle->auxilio_transporte; 
+                                       
                                         }elseif ($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
                                             $table = new \app\models\NominaElectronicaDetalle();
                                             $codigo_incapacidad = Incapacidad::findOne($detalle->id_incapacidad);
@@ -3309,6 +3361,13 @@ class ProgramacionNominaController extends Controller {
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
                                             $table->save(false);
+                                        
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 16 || $detalle->codigoSalario->id_agrupado == 15 || $detalle->codigoSalario->id_agrupado == 18 || $detalle->codigoSalario->id_agrupado == 19){ //bonificaciones y comisiones
+                                            $buscar->devengado += $detalle->vlr_devengado;
+                                            $buscar->total_dias += $detalle->dias_reales;
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 20 ){
+                                            $buscar->devengado += $detalle->vlr_devengado;
+                                                
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
                                             $table = new \app\models\NominaElectronicaDetalle();
                                             $table->dias_licencia_noremuneradas = $detalle->dias_reales;
@@ -3316,9 +3375,7 @@ class ProgramacionNominaController extends Controller {
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
                                             $table->save(false);
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 16 || $detalle->codigoSalario->id_agrupado == 15){ //bonificaciones y comisiones
-                                                    $buscar->devengado += $detalle->vlr_devengado;
-                                        }
+                                        }    
                                     }else{ // acumulado de deducciones
                                         if($detalle->codigoSalario->id_agrupado == 4){ //FONDO DE PENSION
                                             $buscar->deduccion_pension += $detalle->vlr_deduccion;  
@@ -3331,7 +3388,13 @@ class ProgramacionNominaController extends Controller {
                                             $buscar->deduccion += $detalle->vlr_deduccion;
                                         }elseif ($detalle->codigoSalario->id_agrupado == 14){ //descuentos y libranzas
                                             $buscar->deduccion += $detalle->vlr_deduccion; 
-                                        }    
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 7 || $detalle->codigoSalario->id_agrupado == 17){ //otras deducciones del empleado y prestamos empresa
+                                            $buscar->deduccion += $detalle->vlr_deduccion; 
+                                         
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 14) { //libranzas y bancos
+                                            $table->deduccion += $detalle->vlr_deduccion; 
+                                        }
                                     }
                                     $buscar->save(false);
                                     $conRegistro->save(false);

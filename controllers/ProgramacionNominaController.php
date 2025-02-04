@@ -521,7 +521,10 @@ class ProgramacionNominaController extends Controller {
                                     }elseif ($detalle->id_agrupado == 6){ //fondo de solidarida
                                         $dataBody["deductions"]["voluntary_pension"] = $deduccion_fondo_solidaridad; 
                                     }elseif ($detalle->id_agrupado == 14){ //descuentos de alianzas, prestamos y deudas
-                                        $dataBody["deductions"]["debt"] = $deducciones; 
+                                        if(!isset($dataBody["deductions"]["debt"])){
+                                          $dataBody["deductions"]["debt"] = [];  
+                                        }
+                                        $dataBody["deductions"]['debt'][] = $deducciones ;
                                     }
                                     $dataBody["deductions"]['deductions_total'] = $total_deduccion;
                                     
@@ -529,7 +532,7 @@ class ProgramacionNominaController extends Controller {
                                 }//CIERRA EL PARA DEL DETALLE DEL PAGO 
                                 
                                 $dataBody = json_encode($dataBody);
-                               
+                                
                                 //   //EJECUTA EL DATABODY 
                                 curl_setopt_array($curl, [
                                     CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",

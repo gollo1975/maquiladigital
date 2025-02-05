@@ -322,8 +322,8 @@ class ProgramacionNominaController extends Controller {
                                 $numero_cuenta_bancaria = $documento->empleado->cuenta_bancaria;
                                 // Configurar cURL
                                 $curl = curl_init();
-                                $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
-                              //  $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+                              //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
+                                $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
                                 $dataBody = [
                                     "novelty" => [
                                         "novelty" => false,
@@ -506,6 +506,16 @@ class ProgramacionNominaController extends Controller {
                                                 "commission" => $devengado,
                                             ],
                                         ]; 
+                                     
+                                    }elseif ($detalle->id_agrupado == 20){ //VACACIONES
+                                        if(!isset($dataBody["accrued"]['paid_vacation'])){ 
+                                            $dataBody["accrued"]['paid_vacation'] = [];
+                                        }
+                                        $dataBody["accrued"]['paid_vacation'][] = [
+                                            "quantity" => "$detalle->total_dias",
+                                            "payment" => "$detalle->devengado"
+                                        ];    
+                                        
                                     }elseif ($detalle->id_agrupado == 21){ //LICENCIAS NO REMUNERADAS
                                         if(!isset($dataBody["accrued"]['non_paid_leave'])){ //si no existes lo declaracion vacio
                                             $dataBody["accrued"]['non_paid_leave'] = [];
@@ -560,9 +570,8 @@ class ProgramacionNominaController extends Controller {
                                 }//CIERRA EL PARA DEL DETALLE DEL PAGO 
                                 
                                 $dataBody = json_encode($dataBody);
-                                var_dump($dataBody);
                                 //   //EJECUTA EL DATABODY 
-                              /*  curl_setopt_array($curl, [
+                                curl_setopt_array($curl, [
                                     CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_ENCODING => '',
@@ -615,14 +624,14 @@ class ProgramacionNominaController extends Controller {
                                             Yii::error("Error al reenviar documento de nomina No ($consecutivo): " . print_r($data, true), __METHOD__);
                                           
                                         }
-                               }*/
+                               }
                             } 
                             //Cierre la confirmacion de chequeo de registro que se van a envir.
                             
                         }//CIERRA EL PROCESO PARA
                         
                         Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
-                      //  return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
+                        return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
                     }else{
                         Yii::$app->getSession()->setFlash('error','Debe de seleccionar el registro para enviar a la DIAN. ');
                     }

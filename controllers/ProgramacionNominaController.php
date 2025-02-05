@@ -270,7 +270,6 @@ class ProgramacionNominaController extends Controller {
                             if($documento)
                             {
                                 $periodo = PeriodoNominaElectronica::findOne($documento->id_periodo_electronico);
-                                $contador += 1;
                                 $total_devengado = intval($documento->total_devengado, 0) . '.00';
                                 $total_deduccion = intval($documento->total_deduccion, 0) . '.00';
                                 $tipo_nomina_enviada = $periodo->type_document_id;
@@ -489,7 +488,7 @@ class ProgramacionNominaController extends Controller {
                                            $dataBody["accrued"]['bonuses'] = [];
                                        }
                                        $dataBody["accrued"]['bonuses'][] =  [
-                                               "salary_bonus" => 0,
+                                             
                                                "no_salary_bonus" => $devengado,
                                         ];
                                     }elseif ($detalle->id_agrupado == 19){ //BONIFICACIONES PRESTACIONES
@@ -537,9 +536,11 @@ class ProgramacionNominaController extends Controller {
                                     if($detalle->id_agrupado == 4){ //pension
                                         $dataBody["deductions"]["pension_type_law_deductions_id"] = $pension_type_law_deductions_id;
                                         $dataBody["deductions"]["pension_deduction"] = $deduccion_pension;
+                                        
                                     }elseif ($detalle->id_agrupado == 5){ //salud
                                         $dataBody["deductions"]["eps_type_law_deductions_id"] = $eps_type_law_deductions_id;
                                         $dataBody["deductions"]["eps_deduction"] = $deduccion_eps;
+                                        
                                     }elseif ($detalle->id_agrupado == 6){ //fondo de solidarida
                                         $dataBody["deductions"]["voluntary_pension"] = $deduccion_fondo_solidaridad; 
                                     }elseif ($detalle->id_agrupado == 7){ // prestamos empresa y otras deducciones
@@ -549,6 +550,7 @@ class ProgramacionNominaController extends Controller {
                                         $dataBody["deductions"]['other_deductions'][] = [
                                             "other_deduction" => $deducciones, 
                                         ];    
+                                        
                                     }elseif ($detalle->id_agrupado == 14){ // Libranzas prestamo
                                         if(!isset($dataBody["deductions"]['orders'])){
                                           $dataBody["deductions"]["orders"] = [];  
@@ -557,6 +559,7 @@ class ProgramacionNominaController extends Controller {
                                             "description" => "$detalle->descripcion", 
                                             "deduction" => $deducciones 
                                         ];
+                                        
                                     }elseif ($detalle->id_agrupado == 17){//prestamo empresa
                                          $dataBody["deductions"]["debt"] = [
                                             [    
@@ -570,6 +573,7 @@ class ProgramacionNominaController extends Controller {
                                 }//CIERRA EL PARA DEL DETALLE DEL PAGO 
                                 
                                 $dataBody = json_encode($dataBody);
+                                
                                 //   //EJECUTA EL DATABODY 
                                 curl_setopt_array($curl, [
                                     CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",
@@ -591,7 +595,6 @@ class ProgramacionNominaController extends Controller {
                                 curl_close($curl);
                                 $data = json_decode($response, true);
                                 Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
-                                
                                 // Verificar errores de conexión o códigos HTTP inesperados
                                 if ($response === false || $httpCode !== 200) {
                                     $error = $response === false ? curl_error($curl) : "HTTP $httpCode";
@@ -608,7 +611,8 @@ class ProgramacionNominaController extends Controller {
                                         $qrstr = $data['add']['QRStr'];
                                         $documento->qrstr = $qrstr;
                                         $documento->exportado_nomina = 1;
-                                        $documento->save(false); 
+                                        $documento->save(false);
+                                        $contador += 1;                               
                                     }    
                                }else{
                                    $errors = [];

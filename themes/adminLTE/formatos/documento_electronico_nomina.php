@@ -80,7 +80,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 7);
         $this->Cell(20, 5, utf8_decode("Empleado:"), 0, 0, 'L', 0);
         $this->SetFont('Arial', '', 7);
-        $this->Cell(45, 5, utf8_decode(substr($nomina->nombre_completo, 0, 29)), 0, 0, 'L', 0);
+        $this->Cell(45, 5, utf8_decode(substr($nomina->nombre_completo, 0, 28)), 0, 0, 'L', 0);
         $this->SetFont('Arial', 'B', 7);
         $this->Cell(20, 5, utf8_decode("Cargo:"), 0, 0, 'L', 0);
         $this->SetFont('Arial', '', 7);

@@ -561,11 +561,7 @@ class ProgramacionNominaController extends Controller {
                                         ];
                                         
                                     }elseif ($detalle->id_agrupado == 17){//prestamo empresa
-                                         $dataBody["deductions"]["debt"] = [
-                                            [    
-                                                $dataBody["deductions"]["debt"] = $deducciones, 
-                                            ],
-                                        ]; 
+                                        $dataBody["deductions"]["debt"] = $deducciones;
                                     }
                                     $dataBody["deductions"]['deductions_total'] = $total_deduccion;
                                     

@@ -945,6 +945,42 @@ class ValorPrendaUnidadController extends Controller
         ]);    
     }
     
+    //EDITAR CORTE DEL INGRESO DE OPERACIONES
+    ///PROCESO QUE CREA LA HORA DE INICIO O CORTE
+    public function actionEditar_hora_corte($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 153])->all()) {
+                $model = new \app\models\FormCostoGastoEmpresa();
+                if ($model->load(Yii::$app->request->post())) {
+                    if (isset($_POST["editar_hora_corte"])) {
+                        $table = \app\models\ValorPrendaCorteConfeccion::findOne($model->codigo);
+                        $table->hora_inicio = $model->hora_inicio;
+                        $table->hora_corte = $model->hora_corte;
+                        $table->fecha_proceso = $model->fecha_proceso;
+                        $table->save(false);
+                        return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
+
+                    }
+                }
+                if (Yii::$app->request->get("id")){
+                    $table = \app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $id])->orderBy('id_corte DESC')->one();
+                    $model->hora_inicio = $table->hora_inicio;
+                    $model->hora_corte = $table->hora_corte;
+                    $model->fecha_proceso = $table->fecha_proceso;
+                    $model->codigo = $table->id_corte;
+                }
+
+                return $this->renderAjax('editar_hora_corte', [
+                    'model' => $model,       
+                ]); 
+            }else{
+                return $this->redirect(['site/sinpermiso']); 
+            }  
+        }else{
+           return $this->redirect(['site/login']); 
+        }    
+    }
+    
     //CREAR HORA DE INICIO Y DE CORTE MASIVO
     public function actionHora_corte_masivo() {
         if (Yii::$app->user->identity) {

@@ -28,21 +28,35 @@ $this->params['breadcrumbs'][] = $this->title;
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
     <?php if ($model->autorizado == 0) { 
-            echo Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['valor-prenda-unidad/autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-success btn-sm']);?>
-                      
-                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear hora corte',
-                    ['/valor-prenda-unidad/crear_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
-                      ['title' => 'Crear hora de corte para ingresar las operaciones',
-                       'data-toggle'=>'modal',
-                       'data-target'=>'#modalcrearhoracorte',
-                       'class' => 'btn btn-warning btn-xs'
-                      ])    
-                ?>
-                <div class="modal remote fade" id="modalcrearhoracorte">
-                     <div class="modal-dialog modal-lg" style ="width: 450px;">    
-                         <div class="modal-content"></div>
-                     </div>
-                </div>
+        echo Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['valor-prenda-unidad/autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-success btn-sm']);?>
+
+            <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear hora corte',
+                ['/valor-prenda-unidad/crear_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
+                  ['title' => 'Crear hora de corte para ingresar las operaciones',
+                   'data-toggle'=>'modal',
+                   'data-target'=>'#modalcrearhoracorte',
+                   'class' => 'btn btn-warning btn-xs'
+                  ])    
+            ?>
+           
+            <?php echo Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar corte',
+                ['/valor-prenda-unidad/editar_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
+                  ['title' => 'Permite  editar el ultimo de corte de ingreso.',
+                   'data-toggle'=>'modal',
+                   'data-target'=>'#modaleditarhoracorte',
+                   'class' => 'btn btn-info btn-xs'
+                  ])    
+            ?>
+            <div class="modal remote fade" id="modalcrearhoracorte">
+                 <div class="modal-dialog modal-lg" style ="width: 450px;">    
+                     <div class="modal-content"></div>
+                 </div>
+            </div>
+            <div class="modal remote fade" id="modaleditarhoracorte">
+                 <div class="modal-dialog modal-lg" style ="width: 450px;">    
+                     <div class="modal-content"></div>
+                 </div>
+            </div>
     <?php } else { 
              if ($model->cerrar_pago == 0) { 
                 echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-default btn-sm']);

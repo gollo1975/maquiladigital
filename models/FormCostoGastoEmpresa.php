@@ -17,15 +17,17 @@ class FormCostoGastoEmpresa extends Model
     public $hora_inicio;
     public $hora_corte;
     public $tipo_nomina;
+    public $fecha_proceso;
+    public $codigo;
 
     public function rules()
     {
         return [            
            [['fecha_inicio','fecha_corte'], 'required', 'message' => 'Campo requerido'],
            [['observacion'],'string' ,'max' => '100'],
-           [['fecha_corte','fecha_inicio'], 'safe'],
+           [['fecha_corte','fecha_inicio','fecha_proceso'], 'safe'],
            [['hora_inicio', 'hora_corte'], 'string'],
-           ['tipo_nomina', 'integer'],
+           [['tipo_nomina','codigo'], 'integer'],
         ];
     }
 
@@ -38,6 +40,8 @@ class FormCostoGastoEmpresa extends Model
             'hora_inicio' => 'Hora de inicio:',
             'hora_corte' => 'Hora de corte:',
             'tipo_nomina' => 'Tipo de nomina:',
+            'fecha_proceso' => 'Fecha cambio:',
+            'codigo' => 'Codigo:',
             
         ];
     }

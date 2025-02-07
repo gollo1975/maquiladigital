@@ -330,6 +330,12 @@ class PDF extends FPDF {
         if ($tallasremision->t42 == 1){
             $datostallas[] = '42';
         }
+        if ($tallasremision->t44 == 1){
+            $datostallas[] = '44';
+        }
+        if ($tallasremision->t46 == 1){
+            $datostallas[] = '46';
+        }
         $array1 = array('COLOR', 'OC', 'TULA');        
         $array2 = $datostallas;
         $array3 = array('ESTADO','UNID X TULA');
@@ -427,7 +433,7 @@ class PDF extends FPDF {
         $sumaLineas = 0;
         $txxs = 0;$txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0; $txxl = 0;
         $t2 = 0;$t4 = 0;$t6 = 0;$t8 = 0;$t10 = 0;$t12 = 0;$t14 = 0;$t16 = 0;$t18 = 0;$t20 = 0;
-        $t22 = 0;$t28 = 0;$t30 = 0;$t32 = 0;$t34 = 0;$t36 = 0;$t38 = 0;$t40 = 0;$t42 = 0;
+        $t22 = 0;$t28 = 0;$t30 = 0;$t32 = 0;$t34 = 0;$t36 = 0;$t38 = 0;$t40 = 0;$t42 = 0; $t44 = 0; $t46 = 0;
         foreach ($detalles as $detalle) {
             $txxs = $txxs + $detalle->xxs;
             $txs = $txs + $detalle->xs;
@@ -455,6 +461,8 @@ class PDF extends FPDF {
             $t38 += $detalle->c38;
             $t40 += $detalle->c40;
             $t42 += $detalle->c42;
+            $t44 += $detalle->c44;
+            $t46 += $detalle->c46;
             if($detalle->oc == 0){
                 $oc = 'Colombia';
             }else{
@@ -551,6 +559,12 @@ class PDF extends FPDF {
                 if ($detalle->t42 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c42'], 1, 0, 'R',1);
                 }
+                if ($detalle->t44 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c44'], 1, 0, 'R',1);
+                }
+                if ($detalle->t46 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c46'], 1, 0, 'R',1);
+                }
                 
                 $pdf->Cell(29, 4.5, $estado, 1, 0, 'C',1);
             }else{
@@ -632,6 +646,12 @@ class PDF extends FPDF {
                 if ($detalle->t42 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c42'], 1, 0, 'R', 0);
                 }
+                if ($detalle->t44 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c44'], 1, 0, 'R', 0);
+                }
+                if ($detalle->t46 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c46'], 1, 0, 'R', 0);
+                }
                 
                 $pdf->Cell(29, 4.5, $estado, 1, 0, 'C');
             }                        
@@ -642,7 +662,7 @@ class PDF extends FPDF {
            
         }
         $cxxs = 0;$cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
-        $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0;$c40 = 0; $c42 = 0;
+        $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0;$c40 = 0; $c42 = 0; $c44 = 0; $c46 = 0;
         $cantidadesremision = Remisiondetalle::find()->where(['=','id_remision',$model->id_remision])->all();
         foreach ($cantidadesremision as $val){
             if ($val->txxs == 1){
@@ -722,6 +742,12 @@ class PDF extends FPDF {
             }
             if ($val->t42 == 1){
                 $c42 = $c42 + $val['c42'];
+            }
+            if ($val->t44 == 1){
+                $c44 = $c44 + $val['c44'];
+            }
+            if ($val->t46 == 1){
+                $c46 = $c46 + $val['c46'];
             }
         }
         $this->SetFillColor(200, 200, 200);
@@ -809,6 +835,12 @@ class PDF extends FPDF {
         if ($tallasremision->t42 == 1){
             $datostallas[] = '42';
         }
+        if ($tallasremision->t44 == 1){
+            $datostallas[] = '44';
+        }
+        if ($tallasremision->t46 == 1){
+            $datostallas[] = '46';
+        }
         
         foreach ($datostallas as $val) {
             if ($val == 'xxs' or $val == 'XXS') {
@@ -888,6 +920,12 @@ class PDF extends FPDF {
             }
             if ($val == '42') {
                 $pdf->Cell($ancho, 6, $c42, 1, 0, 'R');
+            }
+            if ($val == '44') {
+                $pdf->Cell($ancho, 6, $c44, 1, 0, 'R');
+            }
+            if ($val == '46') {
+                $pdf->Cell($ancho, 6, $c46, 1, 0, 'R');
             }
         }
         

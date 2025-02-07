@@ -298,7 +298,13 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                             <?php } ?>     
                             <?php if ($val->t42 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="42[]" value="<?= $val['c42'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
-                            <?php } ?>    
+                            <?php } ?>  
+                             <?php if ($val->t44 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="44[]" value="<?= $val['c44'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
+                            <?php } ?>  
+                             <?php if ($val->t46 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="46[]" value="<?= $val['c46'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
+                            <?php } ?>      
                             <td style="padding-left: 1;padding-right: 1;"><?= Html::dropdownList('estado[]', $val->estado ,['0' => 'PRIMERA', '1' => 'SEGUNDA'], ['class' => 'col-xs-13','prompt' => 'Seleccione...','required' => true, 'style'=> 'background-color:silver']) ?>
                         <?php } else { ?>
                             <?php if ($val->txxs == 1) { ?>
@@ -379,6 +385,12 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                             <?php if ($val->t42 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="42[]" value="<?= $val['c42'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
                             <?php } ?>
+                            <?php if ($val->t44 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="44[]" value="<?= $val['c44'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
+                            <?php } ?>
+                            <?php if ($val->t46 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="46[]" value="<?= $val['c46'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
+                            <?php } ?>    
                             <td style="padding-left: 1;padding-right: 1;"><?= Html::dropdownList('estado[]', $val->estado ,['0' => 'PRIMERA', '1' => 'SEGUNDA'], ['class' => 'col-xs-13','prompt' => 'Seleccione...','required' => true]) ?>
                         <?php } ?>                                                     
                         <td style="padding-left: 1;padding-right: 1;"><?= $val->unidades ?></td>
@@ -505,15 +517,23 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                         <?php if ($val == '38' or $val == '38'){ ?>
                             <th scope="col"><?= $c38 ?></th>
                         <?php } ?>
-                        <?php if ($val == '42' or $val == '42'){ ?>
-                            <th scope="col"><?= $c42 ?></th>
+                        <?php if ($val == '40' or $val == '40'){ ?>
+                            <th scope="col"><?= $c40 ?></th>
                         <?php } 
-                        ?>    
-                <?php endforeach; 
+                        if ($val == '42' or $val == '42'){ ?>
+                            <th scope="col"><?= $c42 ?></th>
+                        <?php }
+                        if ($val == '44' or $val == '44'){ ?>
+                            <th scope="col"><?= $c44 ?></th>
+                        <?php }
+                        if ($val == '46' or $val == '46'){ ?>
+                            <th scope="col"><?= $c46 ?></th>
+                        <?php }
+                        
+                     endforeach; 
                  } else {  ?>
                     <th scope="col"></th>
-                <?php } 
-                ?>                    
+                <?php } ?>                    
                     <th scope="col"></th>
                     <th scope="col"><?= $tunidades ?>  </th>                
                     <td></td>
@@ -525,8 +545,8 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
     <?php if($model->cerrar_remision == 0){?>    
         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['remision/nuevodetalle', 'id' => $idordenproduccion, 'token' => $token, 'id_remision' => $id_remision], ['class' => 'btn btn-success btn-sm']); ?>        
         <?php if ($datostallas) { ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar y Nuevo", ["class" => "btn btn-success btn-sm", 'name' => 'actualizarynuevo']) ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success btn-sm", 'name' => 'actualizar']) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar y Nuevo", ["class" => "btn btn-primary btn-sm", 'name' => 'actualizarynuevo']) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-info btn-sm", 'name' => 'actualizar']) ?>
         <?php } 
     } ?>
         

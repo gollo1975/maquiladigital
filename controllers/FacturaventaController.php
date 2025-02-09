@@ -173,34 +173,50 @@ class FacturaventaController extends Controller
         $facturastipo = Facturaventatipo::find()->all();
         $ordenesproduccion = Ordenproduccion::find()->Where(['=', 'autorizado', 1])->andWhere(['=', 'facturado', 0])->all();
         $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
-            $fecha = date( $model->fecha_inicio);
-            $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
-            $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
-            $model->idresolucion = $resolucion->idresolucion;
-            $model->numero_resolucion = $resolucion->nroresolucion;
-            $model->fecha_vencimiento = $nuevafecha;
-            $model->id_forma_pago = $table->id_forma_pago;
-            $model->plazopago = $table->plazopago;
-            $model->porcentajefuente = 0;
-            $model->porcentajeiva = 0;
-            $model->porcentajereteiva = 0;
-            $model->subtotal = 0;
-            $model->retencionfuente = 0;
-            $model->retencioniva = 0;
-            $model->impuestoiva = 0;
-            $model->saldo = 0;
-            $model->totalpagar = 0;
-            $model->valorletras = "-" ;
-            $model->usuariosistema = Yii::$app->user->identity->username;   
-            $model->consecutivo = $resolucion->consecutivo;
-            $model->save(false);
-            return $this->redirect(['index']);
+        $sw = 0;
+        $fecha_actual = date('Y-m-d');
+        $fecha_actual = strtotime($fecha_actual);
+        if ($model->load(Yii::$app->request->post())){
+            $fecha_inicio = strtotime($model->fecha_inicio); 
+            if($fecha_actual == $fecha_inicio ){
+                $model->save();
+                $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
+                $fecha = date( $model->fecha_inicio);
+                $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
+                $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                $model->idresolucion = $resolucion->idresolucion;
+                $model->numero_resolucion = $resolucion->nroresolucion;
+                $model->fecha_vencimiento = $nuevafecha;
+                $model->id_forma_pago = $table->id_forma_pago;
+                $model->plazopago = $table->plazopago;
+                $model->porcentajefuente = 0;
+                $model->porcentajeiva = 0;
+                $model->porcentajereteiva = 0;
+                $model->subtotal = 0;
+                $model->retencionfuente = 0;
+                $model->retencioniva = 0;
+                $model->impuestoiva = 0;
+                $model->saldo = 0;
+                $model->totalpagar = 0;
+                $model->valorletras = "-" ;
+                $model->usuariosistema = Yii::$app->user->identity->username;   
+                $model->consecutivo = $resolucion->consecutivo;
+                $model->save(false);
+                return $this->redirect(['index']);
+            }else{
+                     Yii::$app->getSession()->setFlash('error', 'Error en las fechas: La fecha de inicio DEBE de ser igual a la fecha de envio de emision de la factura. Validar la fecha de inicio.');
+            }
         }
+        $fecha_actual_dia = date('Y-m-d');
+        if($fecha_actual_dia >= $resolucion->fecha_notificacion){
+            $sw = 1; //aviso que se le esta venciendo la resolucion
+        }
+
 
         return $this->render('create', [
             'model' => $model,
+            'sw' => $sw,
+            'resolucion' => $resolucion,
             'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreclientes"),
             'ordenesproduccion' => ArrayHelper::map($ordenesproduccion, "idordenproduccion", "idordenproduccion"),
             'facturastipo' => ArrayHelper::map($facturastipo, "id_factura_venta_tipo", "concepto"),
@@ -266,6 +282,7 @@ class FacturaventaController extends Controller
         if ($model->libre == 1){
             return $this->redirect(['updatelibre', 'id' => $id]);
         }else{
+          
             $clientes = Cliente::find()->all();
             $table = Facturaventa::find()->where(['idfactura' => $id])->one();
             $facturastipo = Facturaventatipo::find()->all();
@@ -274,19 +291,28 @@ class FacturaventaController extends Controller
             if(Facturaventadetalle::find()->where(['=', 'idfactura', $id])->all() or $model->estado <> 0){
                Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
             }else {
-              
-                if($model->load(Yii::$app->request->post()) && $model->save(false)) {
-                 return $this->redirect(['index']);
-                } 
-            }
-        }
-        
+            
+                if($model->load(Yii::$app->request->post())){
+                    echo $fecha_guardada = strtotime($table->fecha_inicio),'</br>';
+                    echo   $fecha_inicio = strtotime($model->fecha_inicio); 
+                    if($fecha_guardada == $fecha_inicio ){
+                       $model->save(false);
+                       return $this->redirect(['index']);
+                    }else{
+                        Yii::$app->getSession()->setFlash('error', 'Error en las fechas: La fecha de inicio DEBE de ser igual a la fecha de envio de emision de la factura. Validar la fecha de inicio.');
 
+                    }  
+                }    
+                  
+            }
+           
+        }
         return $this->render('update', [
             'model' => $model,
             'clientes' => ArrayHelper::map($clientes, "idcliente", "nombrecorto"),
             'ordenesproduccion' => $ordenesproduccion,
             'facturastipo' => ArrayHelper::map($facturastipo, "id_factura_venta_tipo", "concepto"),
+            'sw' => 0,
 
         ]);
     }
@@ -593,32 +619,33 @@ class FacturaventaController extends Controller
     {
         $model = $this->findModel($id);
         $mensaje = "";
-        if ($model->autorizado == 1){
-            $factura = Facturaventa::findOne($id);
-            if ($factura->libre == 0){
-                $ordenProduccion = Ordenproduccion::findOne($factura->idordenproduccion);
-            }
-            
-            if ($factura->nrofactura == 0){
-                $consecutivo = Consecutivo::findOne(1);// 1 factura de venta
-                $consecutivo->consecutivo = $consecutivo->consecutivo + 1;
+        $factura = Facturaventa::findOne($id);
+        $resolucion = Resolucion::findOne($factura->idresolucion);
+        if ($factura->libre == 0){
+            $ordenProduccion = Ordenproduccion::findOne($factura->idordenproduccion);
+        }
+
+        if ($factura->nrofactura == 0){
+            $consecutivo = Consecutivo::findOne(1);// 1 factura de venta
+            $consecutivo->consecutivo = $consecutivo->consecutivo + 1;
+            if($consecutivo->consecutivo <= $resolucion->final_rango){
                 $factura->nrofactura = $consecutivo->consecutivo;
                 $factura->save(false);
                 $consecutivo->save(false);
                 if ($factura->libre == 0 && $factura->tipo_facturacion == 0){
-                        $ordenProduccion->facturado = 1;
-                        $ordenProduccion->save(false);
-                }                
-                //$this->afectarcantidadfacturada($id);//se resta o descuenta las cantidades facturadas en los productos por cliente
+                    $ordenProduccion->facturado = 1;
+                   $ordenProduccion->save(false);
+                }            
                 return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }else{
-                Yii::$app->getSession()->setFlash('error', 'El registro ya fue generado.');
+                Yii::$app->getSession()->setFlash('error', 'Los consecutivos de facturación de esta resolución ya fueron consumidos en su totalidad. Debe de sacar otrsa resolución en la DIAN.'); 
                 return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
             }
         }else{
-            Yii::$app->getSession()->setFlash('error', 'El registro debe estar autorizado para poder imprimir la factura.');
+            Yii::$app->getSession()->setFlash('error', 'El registro ya fue generado.');
             return $this->redirect(["facturaventa/view",'id' => $id, 'token' => $token]);
         }
+        
     }
 
     public function actionOrdenp($id){

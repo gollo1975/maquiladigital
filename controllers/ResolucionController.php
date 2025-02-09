@@ -82,7 +82,6 @@ class ResolucionController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
             return $this->redirect(['index']);
         }
-
         return $this->render('create', [
             'model' => $model,
         ]);

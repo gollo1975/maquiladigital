@@ -88,7 +88,7 @@ class Facturaventa extends \yii\db\ActiveRecord
         return [
             'idfactura' => 'ID',
             'nrofactura' => 'Nro Factura',
-            'fecha_inicio' => 'Fecha Inicio factura',
+            'fecha_inicio' => 'Fecha de inicio:',
             'fecha_vencimiento' => 'Fecha Vcto',
             'fechacreacion' => 'Fecha Creacion',
             'id_forma_pago' => 'Forma de pago',
@@ -103,14 +103,14 @@ class Facturaventa extends \yii\db\ActiveRecord
             'saldo' => 'Saldo',
             'totalpagar' => 'Total Pagar',
             'valorletras' => 'Valor Letras',
-            'idcliente' => 'Nombre del cliente',
-            'idordenproduccion' => 'Orden de produccion',
+            'idcliente' => 'Nombre del cliente:',
+            'idordenproduccion' => 'Orden de producción:',
             'usuariosistema' => 'Usuario Sistema',
             'idresolucion' => 'Resolucion',
             'estado' => 'Estado',
             'autorizado' => 'Autorizado',
             'observacion' => 'Observaciones',
-            'id_factura_venta_tipo' => 'Tipo de factura',
+            'id_factura_venta_tipo' => 'Tipo de factura:',
             'nrofacturaelectronica' => 'Factura Electrónica',
             'fecha_envio_dian' => 'fecha_envio_dian',
             'fecha_envio_begranda' => 'fecha_envio_begranda',
@@ -120,7 +120,7 @@ class Facturaventa extends \yii\db\ActiveRecord
             'consultar_factura' => 'consultar_factura',
             'reenviar_factura' => 'reenviar_factura',
             'qrstr' => 'qrstr',
-            'tipo_facturacion'=> 'Tipo facturacion:',
+            'tipo_facturacion'=> 'Cantidades a facturar:',
         ];
     }
 

@@ -170,8 +170,8 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
                         ]);
                 ?>    
                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary ']); ?>
-                 <a align="right" href="<?= Url::toRoute("facturaventa/createlibre") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo libre</a> 
-                <a align="right" href="<?= Url::toRoute("facturaventa/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a> 
+                 <a align="right" href="<?= Url::toRoute("facturaventa/createlibre") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-plus'></span> Crear factura libre</a> 
+                <a align="right" href="<?= Url::toRoute("facturaventa/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Crear factura</a> 
             <?php $form->end() ?>
         </div>
     </div>

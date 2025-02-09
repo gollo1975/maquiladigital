@@ -11,7 +11,9 @@ use kartik\date\DatePicker;
 use kartik\select2\Select2;
 
 ?>
-
+<?php if($Acceso == 1){
+     Yii::$app->getSession()->setFlash('warning', 'Informacion importante: La resolucion de DOCUMENTO SOPORTE se vence el dia (' .$resolucion->fechavencimiento.'). Notificacion de aviso.');
+}?>
 <?php
 $form = ActiveForm::begin([
             "method" => "post",
@@ -63,7 +65,9 @@ $form = ActiveForm::begin([
                     'options' => ['placeholder' => 'Seleccione una fecha'],
                     'pluginOptions' => [
                         'format' => 'yyyy-mm-dd',
-                        'todayHighlight' => true]])
+                        'todayHighlight' => true,
+                        'appendTo' => 'body'
+                        ]])
                 ?> 
                 <?= $form->field($model, 'id_forma_pago')->dropDownList($formaPago, ['prompt' => 'Seleccione...']) ?>
 

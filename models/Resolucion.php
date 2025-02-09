@@ -45,7 +45,7 @@ class Resolucion extends \yii\db\ActiveRecord
     {
         return [
             [['nroresolucion', 'inicio_rango', 'final_rango', 'fechavencimiento', 'codigoactividad', 'descripcion','vigencia','id_documento'], 'required'],
-            [['fechacreacion', 'fechavencimiento'], 'safe'],
+            [['fechacreacion', 'fechavencimiento','fecha_notificacion'], 'safe'],
             [['codigoactividad', 'activo','inicio_rango','final_rango','id_documento'], 'integer'],
             [['nroresolucion'], 'string', 'max' => 40],
             [['descripcion','codigo_interfaz'], 'string', 'max' => 50],
@@ -74,6 +74,7 @@ class Resolucion extends \yii\db\ActiveRecord
             'id_documento' => 'Documento',
             'vigencia' => 'Vigencia',
             'codigo_interfaz' => 'Codigo interfaz',
+            'fecha_notificacion' => 'Fecha de notificacion',
             
         ];
     }
@@ -98,12 +99,12 @@ class Resolucion extends \yii\db\ActiveRecord
     
     public function getEstado()
     {
-        if ($this->activo == 1){
-            $activo = "SI";
+        if ($this->activo == 0){
+            $activoregistro = "SI";
         }else{
-            $activo = "NO";
+            $activoregistro = "NO";
         }
-        return $activo;
+        return $activoregistro;
     }
     
 }

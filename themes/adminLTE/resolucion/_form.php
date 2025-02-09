@@ -64,12 +64,21 @@ $form = ActiveForm::begin([
         
         <div class="row">
              <?= $form->field($model, 'id_documento')->dropdownList($documento, ['prompt' => 'Seleccione...']) ?>
-            <?= $form->field($model, 'activo')->dropdownList(['0' => 'Activo', '1' => 'Inactivo'], ['prompt' => 'Seleccione...']) ?>
+            <?= $form->field($model, 'activo')->dropdownList(['0' => 'SI', '1' => 'NO'], ['prompt' => 'Seleccione...']) ?>
         </div>	
          <div class="row">
               <?= $form->field($model, 'consecutivo')->textInput(['maxlength' => true]) ?> 
               <?= $form->field($model, 'codigo_interfaz')->textInput(['maxlength' => true]) ?>  
         </div>	
+        <div class="row">
+           <?= $form->field($model, 'fecha_notificacion')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true]])
+            ?>
+        </div>
         <div class="panel-footer text-right">                    
             <a href="<?= Url::toRoute("resolucion/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>		

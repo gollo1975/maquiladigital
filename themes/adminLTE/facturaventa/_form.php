@@ -14,8 +14,15 @@ use kartik\depdrop\DepDrop;
 /* @var $this yii\web\View */
 /* @var $model app\models\Facturaventa */
 /* @var $form yii\widgets\ActiveForm */
+
+$dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
+$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+$Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".date('Y') ;
 ?>
 
+<?php if($sw == 1){
+     Yii::$app->getSession()->setFlash('warning', 'Informacion importante: La resolucion de facturación electrónica se vence el dia (' .$resolucion->fechavencimiento.'). Notificacion de aviso.');
+}?>
 <?php $form = ActiveForm::begin([
 		'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
                 'fieldConfig' => [
@@ -27,21 +34,15 @@ use kartik\depdrop\DepDrop;
 
  <div class="panel panel-success">
     <div class="panel-heading">
-        <h4>Información de la factura de venta</h4>
+        <td style="text-align: right">  <?= $Fecha ?></td>
     </div>
     <div class="panel-body">
-        <div class="row">
-            <?= $form->field($model,'fecha_inicio')->widget(DatePicker::className(),['name' => 'check_issue_date',
-                'value' => date('d-M-Y', strtotime('+2 days')),
-                'options' => ['placeholder' => 'Seleccione una fecha ...'],
-                'pluginOptions' => [
-                    'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]]) ?>
-        </div>
+       
         <div class="row">
             <?= $form->field($model, 'idcliente')->dropDownList($clientes,['prompt'=>'Seleccione un cliente...', 'onchange'=>' $.get( "'.Url::toRoute('facturaventa/ordenp').'", { id: $(this).val() } ) .done(function( data ) {
         $( "#'.Html::getInputId($model, 'idordenproduccion',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
         </div>
+         
         <div class="row">                        
             <?= $form->field($model, 'id_factura_venta_tipo')->dropDownList($facturastipo, ['prompt' => 'Seleccione un tipo...']) ?>
         </div>
@@ -53,6 +54,16 @@ use kartik\depdrop\DepDrop;
                 'allowClear' => true
             ],
         ]); ?>
+        </div>
+        <div class="row">
+            <?= $form->field($model,'fecha_inicio')->widget(DatePicker::className(),['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true,
+                    ]]) ?>
+                    
         </div>
         <div class="row">
             <?= $form->field($model, 'tipo_facturacion')->dropDownList(['0' => 'Completo', '1' => 'Parcial'], ['prompt' => 'Seleccione una opcion...']) ?>

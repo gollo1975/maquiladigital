@@ -175,10 +175,10 @@ class DocumentoSoporteController extends Controller
     public function actionCreate($sw, $Token)
     {
         $model = new DocumentoSoporte();
-        
+        $Acceso = 0;
         $conCompra = Compra::find()->orderBy('id_compra DESC')->all();
+        $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
             if($sw == 1){
                 $compra = Compra::findOne($model->id_compra);
                 $model->documento_compra = $compra->factura;
@@ -189,11 +189,16 @@ class DocumentoSoporteController extends Controller
             $model->save();
             return $this->redirect(['view', 'id' => $model->id_documento_soporte]);
         }
-
+        $fecha_actual_dia = date('Y-m-d');
+        if($fecha_actual_dia >= $resolucion->fecha_notificacion){
+            $Acceso = 1; //aviso que se le esta venciendo la resolucion
+        }
         return $this->render('create', [
             'model' => $model,
             'sw' => $sw,
+            'Acceso' => $Acceso,
             'Token' => $Token,
+            'resolucion' => $resolucion,
             'conCompra' => \yii\helpers\ArrayHelper::map($conCompra, 'id_compra', 'Compras'),
         ]);
     }

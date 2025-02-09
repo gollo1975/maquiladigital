@@ -31,36 +31,37 @@ $this->params['breadcrumbs'][] = $model->idresolucion;
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
-                <tr>
-                    <th><?= Html::activeLabel($model, 'idresolucion') ?>:</th>
+                <tr style="font-size:85%; ">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'idresolucion') ?>:</th>
                     <td><?= Html::encode($model->idresolucion) ?></td>                    
-                    <th><?= Html::activeLabel($model, 'nroresolucion') ?>:</th>
-                    <td><?= Html::encode($model->nroresolucion) ?></td>                    
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'nroresolucion') ?>:</th>
+                    <td><?= Html::encode($model->nroresolucion) ?></td>  
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'activo') ?>:</th>
+                    <td><?= Html::encode($model->estado) ?></td>   
                 </tr>
-                <tr>
-                    <th><?= Html::activeLabel($model, 'inicio_rango') ?>:</th>
+                <tr  style="font-size:85%; ">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'inicio_rango') ?>:</th>
                     <td><?= Html::encode($model->inicio_rango) ?></td>                    
-                    <th><?= Html::activeLabel($model, 'final_rango') ?>:</th>
-                    <td><?= Html::encode($model->final_rango) ?></td>                    
-                </tr>
-                <tr>
-                    <th><?= Html::activeLabel($model, 'fechacreacion') ?>:</th>
-                    <td><?= Html::encode($model->fechacreacion) ?></td>                    
-                    <th><?= Html::activeLabel($model, 'fechavencimiento') ?>:</th>
-                    <td><?= Html::encode($model->fechavencimiento) ?></td>                    
-                </tr>
-                <tr>
-                    <th><?= Html::activeLabel($model, 'codigoactividad') ?>:</th>
-                    <td><?= Html::encode($model->codigoactividad) ?></td>                    
-                    <th><?= Html::activeLabel($model, 'descripcion') ?>:</th>
-                    <td><?= Html::encode($model->descripcion) ?></td>                    
-                </tr>
-                <tr>
-                    <th><?= Html::activeLabel($model, 'activo') ?>:</th>
-                    <td><?= Html::encode($model->estado) ?></td>                    
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'final_rango') ?>:</th>
+                    <td><?= Html::encode($model->final_rango) ?></td>  
                      <th><?= Html::activeLabel($model, 'id_documento') ?>:</th>
-                    <td><?= Html::encode($model->documentoelectronico->nombre_documento) ?></td>                  
+                    <td><?= Html::encode($model->documentoelectronico->nombre_documento) ?></td>  
                 </tr>
+                <tr  style="font-size:85%; ">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fechacreacion') ?>:</th>
+                    <td><?= Html::encode($model->fechacreacion) ?></td>                    
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fechavencimiento') ?>:</th>
+                    <td><?= Html::encode($model->fechavencimiento) ?></td>      
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_notificacion') ?>:</th>
+                    <td><?= Html::encode($model->fecha_notificacion) ?></td> 
+                </tr>
+                <tr  style="font-size:85%; ">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigoactividad') ?>:</th>
+                    <td><?= Html::encode($model->codigoactividad) ?></td>                    
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?>:</th>
+                    <td colspan="3"><?= Html::encode($model->descripcion) ?></td>                    
+                </tr>
+                
             </table>
         </div>
     </div>     

@@ -117,9 +117,9 @@ $tipo_pago = ArrayHelper::map(TipoNomina::find()->where(['=','ver_registro', 1])
         $conInteres = count($interes);
         if($conInteres == 0){
             ?>
-            <li role="presentation" class="active"><a href="#pagogeneral" aria-controls="pagogeneral" role="tab" data-toggle="tab">Pagos: <span class="badge"><?= $conPago ?></span></a></li>
+            <li role="presentation" class="active"><a href="#pagogeneral" aria-controls="pagogeneral" role="tab" data-toggle="tab">Pagos <span class="badge"><?= $conPago ?></span></a></li>
         <?php }else{?>
-            <li role="presentation" class="active"><a href="#pagogeneral" aria-controls="pagogeneral" role="tab" data-toggle="tab">Pagos: <span class="badge"><?= $conPago ?></span></a></li>
+            <li role="presentation" class="active"><a href="#pagogeneral" aria-controls="pagogeneral" role="tab" data-toggle="tab">Pagos <span class="badge"><?= $conPago ?></span></a></li>
             <li role="presentation"><a href="#intereses" aria-controls="intereses" role="tab" data-toggle="tab">Intereses: <span class="badge"><?= $conInteres ?></span></a></li>
             
         <?php }?>    
@@ -185,6 +185,8 @@ $tipo_pago = ArrayHelper::map(TipoNomina::find()->where(['=','ver_registro', 1])
                                         ]);
                                 ?>    
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>
+                                <a align="right" href="<?= Url::toRoute(["programacion-nomina/detalle_nomina",'empleado' => $nombre_empleado,'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte, 'grupo_pago' => $grupo_pago, 'tipo_nomina' => $tipo_nomina]) ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-export'></span> Excel detalle</a>
+                                
                             <?php $form->end() ?>
                         </div>
                     </div>    
@@ -235,6 +237,7 @@ $tipo_pago = ArrayHelper::map(TipoNomina::find()->where(['=','ver_registro', 1])
                                         ]);
                                 ?>    
                                 <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>
+                               
                             <?php $form->end() ?>
                         </div>
                     </div>    

@@ -29,7 +29,8 @@ $view = 'facturaventa';
         }else {
             if ($model->autorizado == 1 && $model->nrofactura == 0){ 
                 echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-xs']);
-                echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->idfactura, 'token' => $token], ['class' => 'btn btn-default btn-xs']);
+                echo Html::a('<span class="glyphicon glyphicon-send"></span>  Generar consecutivo', ['generarnro', 'id' => $model->idfactura, 'token' => $token],['class' => 'btn btn-info btn-xs',
+                        'data' => ['confirm' => 'Esta seguro de GENERAR el consecutivo a la factura electronica.', 'method' => 'post']]);
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-xs']);            
             }else{
                  echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir factura', ['imprimir', 'id' => $model->idfactura], ['class' => 'btn btn-default btn-xs']);            

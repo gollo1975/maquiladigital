@@ -672,6 +672,7 @@ class ValorPrendaUnidadController extends Controller
                 ->limit($pages->limit)
                 ->all();
         if(count($listado_confeccion) > 0){
+            $this->TotalizarCostoTallas($id, $id_detalle);
             return $this->render('maestro_cantidad_talla', [
                 'model' => $this->findModel($id),
                 'id_planta' =>$id_planta,
@@ -686,15 +687,16 @@ class ValorPrendaUnidadController extends Controller
         }else{
             Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar de esta talla.');
             $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
+            $orden = Ordenproduccion::findOne($idordenproduccion);
             return $this->render('search_tallas_ordenes', [
                 'model' => $this->findModel($id),
                 'id_planta' =>$id_planta,
                 'conTallas' =>  $conTallas,
                 'tokenPlanta' => $tokenPlanta,
+                'orden' => $orden,
 
             ]);
             }
-        
     }
     
    //VISTA QUE TRAE LAS OPERACIONES DE LA OP
@@ -1794,6 +1796,7 @@ class ValorPrendaUnidadController extends Controller
             if ($model->autorizado == 0) {                        
                 $model->autorizado = 1;
                 $model->update();
+                $this->TotalizarCostoPrenda($id);
                 return $this->redirect(["valor-prenda-unidad/search_tallas_ordenes", 'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta]);
                 
             } else {
@@ -1804,6 +1807,41 @@ class ValorPrendaUnidadController extends Controller
         }    
     }
     
+    //PROCESO QUE TOTALIZA EL COSTO DEL VALOR PRENDA
+    protected function TotalizarCostoPrenda($id) {
+        $model = $this->findModel($id);
+        $detalle_prenda = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->all();
+        $costo1 = 0; $costo2 = 0; $total = 0;
+        foreach ($detalle_prenda as $key => $valor) {
+            $operario = Operarios::findOne($valor->id_operario);
+            if($operario->vinculado == 1){
+                $costo1 += $valor->vlr_pago;
+            }else{
+                $costo2 += $valor->vlr_pago;
+            }
+        }
+        $total = round(($costo1 * 38)/100);
+        $model->total_pagar = $total + $costo1 + $costo2;
+        $model->save(false);
+    }
+    
+     //PROCESO QUE TOTALIZA EL COSTO DEL VALOR PRENDA
+    protected function TotalizarCostoTallas($id, $id_detalle) {
+        $model = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        $detalle_prenda = ValorPrendaUnidadDetalles::find()->where(['=','iddetalleorden', $id_detalle])->all();
+        $costo1 = 0; $costo2 = 0; $total = 0;
+        foreach ($detalle_prenda as $key => $valor) {
+            $operario = Operarios::findOne($valor->id_operario);
+            if($operario->vinculado == 1){
+                $costo1 += $valor->vlr_pago;
+            }else{
+                $costo2 += $valor->vlr_pago;
+            }
+        }
+        $total = round(($costo1 * 38)/100);
+        $model->costo_confeccion = $total + $costo1 + $costo2;
+        $model->save(false);
+    }
     public function actionCerrarpago($id, $idordenproduccion, $id_planta, $tipo_pago, $tokenPlanta) {
             $model = $this->findModel($id);
             $orden = Ordenproduccion::findOne($idordenproduccion);

@@ -74,7 +74,8 @@ class FacturaventaController extends Controller
             $hasta = null;
             $numero = null;
             $pendiente = null;
-            $tipo_servicio = null;
+            $tipo_servicio = null; $ordenProduccion = null;
+            $ordenproduccion = Ordenproduccion::find()->orderBy('idordenproduccion DESC')->all();
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idcliente = Html::encode($form->idcliente);
@@ -82,11 +83,13 @@ class FacturaventaController extends Controller
                     $hasta = Html::encode($form->hasta);
                     $numero = Html::encode($form->numero);
                     $pendiente = Html::encode($form->pendiente);
+                    $ordenProduccion = Html::encode($form->ordenProduccion);
                     $tipo_servicio = Html::encode($form->tipo_servicio);
                     $table = Facturaventa::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
                             ->andFilterWhere(['=', 'id_factura_venta_tipo', $tipo_servicio])
+                            ->andFilterWhere(['=', 'idordenproduccion', $ordenProduccion])
                             ->andFilterWhere(['=', 'nrofactura', $numero]);
                     if ($pendiente == 1){
                         $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
@@ -133,6 +136,89 @@ class FacturaventaController extends Controller
                         'form' => $form,
                         'pagination' => $pages,
                         'token' => $token,
+                        'ordenproduccion' => ArrayHelper::map($ordenproduccion, 'idordenproduccion', 'OrdenProduccion'),
+            ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
+        }else{
+            return $this->redirect(['site/login']);
+        }
+    }
+   
+    //CONSULTA DE FACTURAS
+    public function actionIndexconsulta() {
+        if (Yii::$app->user->identity){
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',40])->all()){
+            $form = new FormFiltroConsultaFacturaventa();
+            $idcliente = null;
+            $desde = null;
+            $hasta = null;
+            $numero = null;
+            $pendiente = null;
+            $tipo_servicio = null; $ordenProduccion = null;
+            $ordenproduccion = Ordenproduccion::find()->orderBy('idordenproduccion DESC')->all();
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idcliente = Html::encode($form->idcliente);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $numero = Html::encode($form->numero);
+                    $pendiente = Html::encode($form->pendiente);
+                    $tipo_servicio = Html::encode($form->tipo_servicio);
+                    $ordenProduccion = Html::encode($form->ordenProduccion);
+                    $table = Facturaventa::find()
+                            ->andFilterWhere(['=', 'idcliente', $idcliente])
+                            ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
+                            ->andFilterWhere(['=', 'nrofactura', $numero])
+                             ->andFilterWhere(['=', 'idordenproduccion', $ordenProduccion])
+                            ->andFilterWhere(['=', 'id_factura_venta_tipo', $tipo_servicio])
+                            ->andWhere(['>', 'nrofactura', 0]);
+                    if ($pendiente == 1){
+                        $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
+                    }        
+                    $table = $table->orderBy('idfactura desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 20,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){
+                        
+                        $this->actionExcelconsulta($tableexcel);
+                    }
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = Facturaventa::find()->andWhere(['>', 'nrofactura', 0])
+                        ->orderBy('idfactura desc');
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 20,
+                    'totalCount' => $count->count(),
+                ]);
+                $tableexcel = $table->all();
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){                    
+                    $this->actionExcelconsulta($tableexcel);
+                }
+            }
+            $to = $count->count();
+            return $this->render('index_consulta', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'ordenproduccion' => ArrayHelper::map($ordenproduccion, 'idordenproduccion', 'OrdenProduccion'),
             ]);
         }else{
             return $this->redirect(['site/sinpermiso']);
@@ -678,82 +764,7 @@ class FacturaventaController extends Controller
         ]);
     }
     
-    public function actionIndexconsulta() {
-        if (Yii::$app->user->identity){
-        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',40])->all()){
-            $form = new FormFiltroConsultaFacturaventa();
-            $idcliente = null;
-            $desde = null;
-            $hasta = null;
-            $numero = null;
-            $pendiente = null;
-            $tipo_servicio = null;
-            if ($form->load(Yii::$app->request->get())) {
-                if ($form->validate()) {
-                    $idcliente = Html::encode($form->idcliente);
-                    $desde = Html::encode($form->desde);
-                    $hasta = Html::encode($form->hasta);
-                    $numero = Html::encode($form->numero);
-                    $pendiente = Html::encode($form->pendiente);
-                    $tipo_servicio = Html::encode($form->tipo_servicio);
-                    $table = Facturaventa::find()
-                            ->andFilterWhere(['=', 'idcliente', $idcliente])
-                            ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
-                            ->andFilterWhere(['=', 'nrofactura', $numero])
-                            ->andFilterWhere(['=', 'id_factura_venta_tipo', $tipo_servicio])
-                            ->andWhere(['>', 'nrofactura', 0]);
-                    if ($pendiente == 1){
-                        $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
-                    }        
-                    $table = $table->orderBy('idfactura desc');
-                    $tableexcel = $table->all();
-                    $count = clone $table;
-                    $to = $count->count();
-                    $pages = new Pagination([
-                        'pageSize' => 20,
-                        'totalCount' => $count->count()
-                    ]);
-                    $model = $table
-                            ->offset($pages->offset)
-                            ->limit($pages->limit)
-                            ->all();
-                    if(isset($_POST['excel'])){
-                        
-                        $this->actionExcelconsulta($tableexcel);
-                    }
-                } else {
-                    $form->getErrors();
-                }
-            } else {
-                $table = Facturaventa::find()->andWhere(['>', 'nrofactura', 0])
-                        ->orderBy('idfactura desc');
-                $count = clone $table;
-                $pages = new Pagination([
-                    'pageSize' => 20,
-                    'totalCount' => $count->count(),
-                ]);
-                $tableexcel = $table->all();
-                $model = $table
-                        ->offset($pages->offset)
-                        ->limit($pages->limit)
-                        ->all();
-                if(isset($_POST['excel'])){                    
-                    $this->actionExcelconsulta($tableexcel);
-                }
-            }
-            $to = $count->count();
-            return $this->render('index_consulta', [
-                        'model' => $model,
-                        'form' => $form,
-                        'pagination' => $pages,
-            ]);
-        }else{
-            return $this->redirect(['site/sinpermiso']);
-        }
-        }else{
-            return $this->redirect(['site/login']);
-        }
-    }
+   
     
     public function actionViewconsulta($id)
     {

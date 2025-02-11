@@ -91,6 +91,10 @@ $view = 'facturaventa';
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>
                     <td colspan="5"><?= Html::encode($model->observacion) ?></td>
                 </tr>
+                 <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'cufe') ?>:</th>
+                    <td colspan="6"><?= Html::encode($model->cufe) ?></td>
+                </tr>
             </table>
         </div>
     </div>

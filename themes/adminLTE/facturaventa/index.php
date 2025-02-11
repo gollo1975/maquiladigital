@@ -75,8 +75,15 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+            <?= $formulario->field($form, 'ordenProduccion')->widget(Select2::classname(), [
+                'data' => $ordenproduccion,
+                'options' => ['prompt' => 'Seleccione la referencia ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
             <?= $formulario->field($form, 'pendiente')->dropDownList(['1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
-             <?= $formulario->field($form, 'tipo_servicio')->widget(Select2::classname(), [
+            <?= $formulario->field($form, 'tipo_servicio')->widget(Select2::classname(), [
                 'data' => $tipoServicio,
                 'options' => ['prompt' => 'Seleccione el servicio ...'],
                 'pluginOptions' => [
@@ -104,9 +111,10 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
                 <th scope="col" style='background-color:#B9D5CE;'>Numero de factura</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cedula/Nit</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. inicio</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. Vencto</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. envio Dian</th>
-                <th scope="col" style='background-color:#B9D5CE;'>F. Vencimiento</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Saldo</th>
@@ -125,9 +133,10 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
                         <td><?= $val->nrofactura ?></td>
                         <td><?= $val->cliente->cedulanit ?></td>
                         <td><?= $val->cliente->nombrecorto ?></td>
+                        <td><?= $val->ordenproduccion->codigoproducto ?></td>
                         <td><?= $val->fecha_inicio ?></td>
-                         <td><?= $val->fecha_recepcion_dian ?></td>
                         <td><?= $val->fecha_vencimiento ?></td>
+                        <td><?= $val->fecha_recepcion_dian ?></td>
                         <td align="right"><?= number_format($val->subtotal,0) ?></td>
                         <td align="right"><?= number_format($val->totalpagar,0) ?></td>
                         <td align="right"><?= number_format($val->saldo,0) ?></td>
@@ -151,13 +160,14 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
                                 </td>
                             <?php }else{?>
                                 <td style="width: 25px; height: 25px;"></td>
+                                
                             <?php }?>    
                         <?php } ?>    
                     </tr>
                 <?php endforeach; ?>
             </body>        
             <tr>
-                <td colspan="7"></td>
+                <td colspan="8"></td>
                 <td align="right"><b>Saldo</b></td>
                 <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
                 <td colspan="3"></td>

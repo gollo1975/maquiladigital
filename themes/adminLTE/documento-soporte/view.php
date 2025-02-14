@@ -71,6 +71,12 @@ $ConRetenciones = \yii\helpers\ArrayHelper::map(app\models\RetencionFuente::find
                     <td style='text-align: right'><?= Html::encode(''. number_format($model->valor_pagar,0)) ?></td>
                     
                 </tr>
+                <tr style="font-size: 85%;">
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'cuds') ?></th>
+                     <td colspan="8"><?= Html::encode($model->cuds) ?></td>
+                   
+                    
+                </tr>
             </table>
         </div>
     </div> 

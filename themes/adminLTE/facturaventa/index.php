@@ -126,6 +126,7 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
             <tbody>
                 <?php
                 $saldo=0;
+                $codigo = '';
                 foreach ($model as $val):
                     $saldo += $val->saldo;
                     ?>
@@ -133,7 +134,11 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
                         <td><?= $val->nrofactura ?></td>
                         <td><?= $val->cliente->cedulanit ?></td>
                         <td><?= $val->cliente->nombrecorto ?></td>
-                        <td><?= $val->ordenproduccion->codigoproducto ?></td>
+                        <?php if($val->idordenproduccion <>  ''){?>
+                             <td><?= $val->ordenproduccion->codigoproducto ?></td>
+                        <?php }else{?>
+                            <td><?= 'NO FOUND' ?></td>
+                        <?php }?>    
                         <td><?= $val->fecha_inicio ?></td>
                         <td><?= $val->fecha_vencimiento ?></td>
                         <td><?= $val->fecha_recepcion_dian ?></td>

@@ -43,7 +43,7 @@ class Ordenproducciondetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idproductodetalle', 'codigoproducto', 'cantidad', 'vlrprecio'], 'required'],            
+            [['idproductodetalle', 'codigoproducto', 'cantidad'], 'required'],            
             [['idproductodetalle', 'cantidad', 'idordenproduccion', 'generado', 'facturado','cantidad_operada','cantidad_efectiva','id_planta'], 'integer'],
             [['vlrprecio', 'subtotal','ponderacion', 'porcentaje_proceso','porcentaje_cantidad','totalsegundos','segundosficha'], 'number'],
             [['codigoproducto'], 'string', 'max' => 15],

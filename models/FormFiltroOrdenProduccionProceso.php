@@ -23,8 +23,9 @@ class FormFiltroOrdenProduccionProceso extends Model
 
             ['idcliente', 'default' ],
             ['ordenproduccion', 'default'],
-            [['idtipo', 'orden'],'integer'],
+            [['idtipo'],'integer'],
             ['codigoproducto', 'default'],
+            ['orden','string'],
         ];
     }
 

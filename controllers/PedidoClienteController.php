@@ -632,4 +632,76 @@ class PedidoClienteController extends Controller
         $objWriter->save('php://output');
         exit;
     }
+    
+    //PERMITE EXPORTAR LAS TALLAS
+      //PERMITE EXPORTAR A EXCEL EL PRESUPUESTO DE CADA PEDIDO 
+    public function actionExcel_tallas_pedido($id, $token, $id_referencia) {   
+        $objPHPExcel = new \PHPExcel();
+        $detalle_tallas = \app\models\PedidoClienteTalla::find()->where(['=','id_referencia', $id_referencia])->all();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'ID')
+                    ->setCellValue('B1', 'No PEDIDO')
+                    ->setCellValue('C1', 'TALLA')
+                    ->setCellValue('D1', 'REFERENCIA')
+                    ->setCellValue('E1', 'FECHA PEDIDO')
+                    ->setCellValue('F1', 'FECHA ENTREGA')
+                    ->setCellValue('G1', 'CLIENTE')
+                    ->setCellValue('H1', 'TOTAL UNIDADES')
+                    ->setCellValue('I1', 'VR.UNITARIO');
+                  
+        $i = 2;
+        
+        foreach ($detalle_tallas as $val) {
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->codigo_talla)
+                    ->setCellValue('B' . $i, $val->pedido->numero_pedido)
+                    ->setCellValue('C' . $i, $val->talla->talla)
+                    ->setCellValue('D' . $i, $val->referencia->referencia)
+                    ->setCellValue('E' . $i, $val->pedido->fecha_pedido)
+                    ->setCellValue('F' . $i, $val->pedido->fecha_entrega)
+                    ->setCellValue('G' . $i, $val->pedido->cliente->nombrecorto)
+                    ->setCellValue('H' . $i, $val->cantidad)
+                    ->setCellValue('I' . $i, $val->referencia->valor_unitario);
+                  
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Listado_tallas.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
 }

@@ -44,7 +44,7 @@ use yii\filters\AccessControl;
                 <div class="panel-body">
                     <table class="table table-responsive">
                         <thead>
-                            <tr style='font-size:90%;'>
+                            <tr style='font-size:80%;'>
                                 <td scope="col" style='background-color:#B9D5CE; '><b>Id</td>
                                 <td scope="col" style='background-color:#B9D5CE; '><b>Nro remisión</td>
                                 <td scope="col" style='background-color:#B9D5CE;'><b>Op interna</td>
@@ -62,7 +62,7 @@ use yii\filters\AccessControl;
                         foreach ($model as $val):
                             $suma += $val->total_despachadas;
                             ?>
-                            <tr style="font-size: 95%;">
+                            <tr style="font-size: 80%;">
                                 <td><?= $val->id_remision ?></td>  
                                 <td><?= $val->numero ?></td>  
                                 <td><?= $val->ordenproduccion->idordenproduccion ?></td>

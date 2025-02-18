@@ -61,6 +61,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <div class="row" >
             <?= $formulario->field($form, "ordenproduccion")->input("search") ?>
+            <?= $formulario->field($form, "orden")->input("search") ?>
             <?= $formulario->field($form, "codigoproducto")->input("search") ?>
         </div>
         
@@ -80,18 +81,18 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <table class="table table-bordered table-hover">
             <thead>
-            <tr>
-                <th scope="col">Op Int.</th>
-                <th scope="col">Código</th>
-                <th scope="col">Op Cliente</th>
-                <th scope="col">Unidades</th>
-                <th scope="col">Cliente</th>
-                <th scope="col">F. llegada</th>
-                <th scope="col">F. procesada</th>
-                <th scope="col">F. entrega</th>
-                <th scope="col">Tipo</th>
-                <th scope="col">Progreso</th>
-                <th scope="col"></th>
+            <tr style="font-size: 85%;">
+                <th scope="col" style='background-color:#B9D5CE;'>Op Int.</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Código</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Op Cliente</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. llegada</th>
+                <th scope="col" style='background-color:#B9D5CE;'>F. procesada</th>
+                <th sscope="col" style='background-color:#B9D5CE;'>Tipo</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Progreso</th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
             </tr>
             </thead>
             <tbody>
@@ -104,12 +105,27 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= $val->cliente->nombrecorto ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechaprocesada")) ?></td>
-                <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
                 <td  style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>
                 <td><?= 'Proceso '.'<b>'.round($val->porcentaje_proceso,1).' % - </b>Cantidad '.'<b>'.round($val->porcentaje_cantidad,1).' %' ?></td>
-                <td style="width: 25px;">
+                <td style="width: 20px; height: 20px">
                     <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_detalle', 'id' => $val->idordenproduccion] ) ?>
                 </td>
+                <td style="width: 20px; height: 20px">
+                    <?= Html::a('<span class="glyphicon glyphicon-list"></span> ',
+                                        ['orden-produccion/ver_informacion', 'id' => $val->idordenproduccion],
+                                        [
+                                            'class' => '',   
+                                            'title' => 'Ver mas informacion de la OP',
+                                            'data-toggle'=>'modal',
+                                            'data-target'=>'#modalverinformacion'.$val->idordenproduccion,
+                                        ])    
+                                   ?>
+                    <div class="modal remote fade" id="modalverinformacion<?= $val->idordenproduccion?>">
+                        <div class="modal-dialog modal-lg" style ="width: 650px;">
+                            <div class="modal-content"></div>
+                        </div>
+                    </div>
+                </td>    
             </tr>
             </tbody>
             <?php endforeach; ?>

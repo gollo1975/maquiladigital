@@ -2071,7 +2071,7 @@ class OrdenProduccionController extends Controller {
             $idcliente = null;
             $ordenproduccion = null;
             $idtipo = null;
-            $codigoproducto = null;
+            $codigoproducto = null; $orden= null;
             $clientes = Cliente::find()->all();
             $ordenproducciontipos = Ordenproducciontipo::find()->all();
             if ($form->load(Yii::$app->request->get())) {
@@ -2080,10 +2080,12 @@ class OrdenProduccionController extends Controller {
                     $ordenproduccion = Html::encode($form->ordenproduccion);
                     $idtipo = Html::encode($form->idtipo);
                     $codigoproducto = Html::encode($form->codigoproducto);
+                    $orden = Html::encode($form->orden);
                     $table = Ordenproduccion::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['like', 'idordenproduccion', $ordenproduccion])
                             ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
+                            ->andFilterWhere(['=', 'ordenproduccion', $orden])
                             ->andFilterWhere(['=', 'idtipo', $idtipo])
                             ->orderBy('idordenproduccion desc');
                     $count = clone $table;
@@ -3784,6 +3786,21 @@ class OrdenProduccionController extends Controller {
             'token' => $token,
         ]); 
     }
+    
+    //PERMITE VER MAS INFORMAICON DE LA OP
+    //permite ver la remisiones
+    public function actionVer_informacion($id) {
+        $model = Ordenproduccion::find()->where(['=','idordenproduccion', $id])->all();
+        if (Yii::$app->request->post()) {
+           
+        }
+       
+        return $this->renderAjax('ver_informacion_orden', [
+            'id' => $id,
+            'model' => $model,
+        ]); 
+    }
+    
     
     public function actionExcelconsulta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();

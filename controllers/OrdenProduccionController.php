@@ -768,7 +768,8 @@ class OrdenProduccionController extends Controller {
                     'modeldetalles' => $modeldetalles,
         ]);  
     }
-     //ASIGNAR TALLA A PLANTA DE PRODUCCION
+    
+    //ASIGNAR TALLA A PLANTA DE PRODUCCION
     public function actionAsignacion_talla($id, $id_detalle) {
         $model = new \app\models\ModelAsignacionTalla();
         $table = Ordenproducciondetalle::findOne($id_detalle);
@@ -829,6 +830,79 @@ class OrdenProduccionController extends Controller {
                 'codigos' => ArrayHelper::map($codigos, "codigo", "codigonombre"),
                     
         ]);
+    }
+    
+    //CREA NUEVA ORDEN DE PRODUCCION AUTOMATICA
+    public function actionCrear_nueva_orden_produccion($id) {
+         if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 154])->all()) {
+                $model = new \app\models\FormCrearNuevaOrden();
+                if ($model->load(Yii::$app->request->post())) {
+                    if (isset($_POST["nueva_orden_produccion"])) {
+                        if($model->observacion <> '' && $model->tipo_servicio <> ''){
+                            $buscar = Ordenproduccion::findOne($id);
+                            if($buscar){
+                                $sw = 0;
+                                $controlOP = Ordenproduccion::find()->where(['=','codigoproducto', $buscar->codigoproducto])->all();
+                                foreach ($controlOP as $control) {
+                                    if($model->tipo_servicio == $control->idtipo){
+                                        $sw = 1;
+                                        Yii::$app->getSession()->setFlash('error', 'Ya esta creada este tipo de orden de produccion. Valide la informacion.');
+                                       return $this->redirect(['orden-produccion/index']);  
+                                    }
+                                }
+                                if($sw == 0){
+                                    $detalleOrden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
+                                    $table = new Ordenproduccion();
+                                    $table->idcliente = $buscar->idcliente;
+                                    $table->codigoproducto = $buscar->codigoproducto;
+                                    $table->fechallegada = $buscar->fechallegada;
+                                    $table->fechaprocesada = $buscar->fechaprocesada;
+                                    $table->fechaentrega = $buscar->fechaentrega;
+                                    $table->observacion = $model->observacion;
+                                    $table->ordenproduccion = $buscar->ordenproduccion;
+                                    $table->idtipo = $model->tipo_servicio;
+                                    $table->usuariosistema = Yii::$app->user->identity->username;
+                                    $table->ordenproduccionext = 0;
+                                    $table->aplicar_balanceo = 1;
+                                    $table->exportacion = 1;
+                                    $table->porcentaje_exportacion = 0;
+                                    $table->lavanderia = $buscar->lavanderia;
+                                    $table->id_tipo_producto = $buscar->id_tipo_producto;
+                                    $table->save(false);
+                                    $ultimoNumero = Ordenproduccion::find()->orderBy('idordenproduccion DESC')->one();
+                                    //grabar detalle
+                                    foreach ($detalleOrden as $key => $detalles) {
+                                        $detalle = new Ordenproducciondetalle();
+                                        $detalle->idproductodetalle = $detalles->idproductodetalle;
+                                        $detalle->codigoproducto = $detalles->codigoproducto;
+                                        $detalle->cantidad = $detalles->cantidad;
+                                        $detalle->idordenproduccion = $ultimoNumero->idordenproduccion;
+                                        $detalle->id_planta = $detalles->id_planta;
+                                        $detalle->save(false);
+                                    }
+                                    return $this->redirect(['orden-produccion/view','id' => $ultimoNumero->idordenproduccion, 'token' => 0]);
+                                }
+                               
+                            }else{
+                                Yii::$app->getSession()->setFlash('error', 'La orden de produccion NO se encontro. Valide la informacion.');
+                                return $this->redirect(['orden-produccion/index']); 
+                            }
+                        }else{
+                            Yii::$app->getSession()->setFlash('error', 'El campo TIPO ORDEN Y OBSERVACIONES no pueden ser vacios.');
+                            return $this->redirect(['orden-produccion/index']);
+                        }
+                    }
+                }
+                return $this->renderAjax('crear_nueva_orden_produccion',[
+                   'model' =>$model,
+               ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']); 
+            }  
+        }else{
+           return $this->redirect(['site/login']); 
+        }        
     }
     
     //NUEVA ORDER PARA TERCERO

@@ -106,7 +106,6 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
             <thead>
             <tr style="font-size: 85%;">                
                 <th style='background-color:#F0F3EF;' scope="col">Op</th>
-                <th style='background-color:#F0F3EF;' scope="col">Cedula/Nit</th>
                 <th style='background-color:#F0F3EF;' scope="col">Cliente</th>
                 <th style='background-color:#F0F3EF;' scope="col">Codigo</th>                
                 <th style='background-color:#F0F3EF;' scope="col">Op</th>
@@ -120,7 +119,7 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
                 <th style='background-color:#F0F3EF;' scope="col"><span title="Facturado la orden">Fac.</span></th>
                 <th style='background-color:#F0F3EF;' scope="col"><span title="Lleva o viene de lavanderia">Lav.</span></th>
                 <th style='background-color:#F0F3EF; width: 150px;' scope="col">Tipo servicio</th>
-                <th style='background-color:#F0F3EF;' scope="col" colspan="3"></th>                               
+                <th style='background-color:#F0F3EF;' scope="col" colspan="4"></th>                               
                
             </tr>
             </thead>
@@ -128,7 +127,6 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
             <?php foreach ($model as $val): ?>
             <tr style="font-size: 85%;">                
                 <td><?= $val->idordenproduccion ?></td>
-                <td><?= $val->cliente->cedulanit ?></td>
                 <td><?= $val->cliente->nombrecorto ?></td>
                 <td><?= $val->codigoproducto ?></td>
                 <td><?= $val->ordenproduccion ?></td>
@@ -146,13 +144,27 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
                       <td style='background-color:#BCE7E0; color: black;'><?= $val->lavanderiaPrenda ?></td>
                 <?php } ?>      
                 <td style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>
-               <td style="width: 25px;">				
+               <td style="width: 20px; height: 20px">				
                      <a href="<?= Url::toRoute(["orden-produccion/view", "id" => $val->idordenproduccion, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                 </td>
-                <td style="width: 25px;">				
+                <td style="width: 20px; height: 20px">					
                      <a href="<?= Url::toRoute(["orden-produccion/update", "id" => $val->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                
                 </td>
-                <td style='width: 25px;'>
+                <?php if($val->autorizado == 1 && $val->facturado == 0){?>
+                    <td style="width: 20px; height: 20px">
+                        <?= Html::a('<span class="glyphicon glyphicon-list"></span>',
+                            ['/orden-produccion/crear_nueva_orden_produccion','id' => $val->idordenproduccion],
+                            ['title' => 'Crear Ordenes de producciones',
+                             'data-toggle'=>'modal',
+                             'data-target'=>'#modalcrearordenproduccion',
+                             'class' => ''
+                            ])    
+                        ?>
+                    </td>  
+                <?php }else{?>
+                    <td style="width: 20px; height: 20px"></td>
+                <?php }?>     
+                <td style="width: 20px; height: 20px">	
                       <?= Html::a('', ['delete', 'id' => $val->idordenproduccion], [
                         'class' => 'glyphicon glyphicon-trash',
                         'data' => [
@@ -161,6 +173,11 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
                         ],
                       ]) ?>
                 </td>
+                <div class="modal remote fade" id="modalcrearordenproduccion">
+                    <div class="modal-dialog modal-lg" style ="width: 500px;">    
+                        <div class="modal-content"></div>
+                    </div>
+                </div>
             </tr>
             </tbody>
             <?php endforeach; ?>

@@ -947,8 +947,7 @@ class ValorPrendaUnidadController extends Controller
         ]);    
     }
     
-    //EDITAR CORTE DEL INGRESO DE OPERACIONES
-    ///PROCESO QUE CREA LA HORA DE INICIO O CORTE
+      ///PROCESO QUE CREA LA HORA DE INICIO O CORTE
     public function actionEditar_hora_corte($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 153])->all()) {

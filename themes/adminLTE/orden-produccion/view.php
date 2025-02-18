@@ -219,13 +219,13 @@ $view = 'orden-produccion';
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                                                                        <h4 class="modal-title">Editar detalle <?= $val->iddetalleorden ?></h4>
+                                                                        <h4 class="modal-title"></h4>
                                                                     </div>
                                                                     <?= Html::beginForm(Url::toRoute(["orden-produccion/editardetalleorden", 'token' => $token]), "POST") ?>
                                                                     <div class="modal-body">
                                                                         <div class="panel panel-success">
                                                                             <div class="panel-heading">
-                                                                                <h4>Información Orden Producción Detalle</h4>
+                                                                                <h4>Editar el registro</h4>
                                                                             </div>
                                                                             <div class="panel-body">
                                                                                 <div class="col-lg-2">
@@ -240,10 +240,11 @@ $view = 'orden-produccion';
                                                                                 <div class="col-lg-3">
                                                                                     <input type="text" name="vlrprecio" id ="vlrprecio" value="<?=  $val->vlrprecio ?>"  class="form-control" required>
                                                                                 </div>
-                                                                                <input type="hidden" name="id_detalleorden" value="<?= $val->iddetalleorden ?>">
+                                                                               
+                                                                            </div>
+                                                                             <input type="hidden" name="id_detalleorden" value="<?= $val->iddetalleorden ?>">
                                                                                 <input type="hidden" name="idordenproduccion" value="<?= $val->idordenproduccion ?>">
                                                                                 <input type="hidden" name="subtotal" value="<?= $val->subtotal ?>">
-                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                     <div class="modal-footer">
@@ -293,7 +294,7 @@ $view = 'orden-produccion';
                             <?php if ($model->autorizado == 0) { ?>
                                 <div class="panel-footer text-right">
                                     <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['orden-produccion/nuevodetalles', 'idordenproduccion' => $model->idordenproduccion,'idcliente' => $model->idcliente, 'token' => $token], ['class' => 'btn btn-success btn-sm']) ?>
-                                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['orden-produccion/editardetalles', 'idordenproduccion' => $model->idordenproduccion, 'token' => $token],[ 'class' => 'btn btn-success btn-sm']) ?>                                            
+                                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['orden-produccion/editardetalles', 'idordenproduccion' => $model->idordenproduccion, 'token' => $token],[ 'class' => 'btn btn-primary btn-sm']) ?>                                            
                                     <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['orden-produccion/eliminardetalles', 'idordenproduccion' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-danger btn-sm']) ?>
                                 </div>
                             <?php } ?>

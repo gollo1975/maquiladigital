@@ -423,7 +423,8 @@ class DocumentoSoporteController extends Controller
                     Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
                      return $this->redirect(['view','id' => $id]);
                 } else {
-                      throw new Exception('El CUDS no se encontró en la respuesta.');
+                       Yii::$app->getSession()->setFlash('error', "No se genero el CUDE del este documento");
+                       return $this->redirect(['view','id' => $id]);
                 }
                 
              } catch (Exception $e) {

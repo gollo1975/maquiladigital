@@ -224,6 +224,7 @@ class NotacreditoController extends Controller
                             $this->TotalizarImpuesto($id_detalle, $id);
                         }else{
                             $table->precio_unitario = $detalle_factura->preciounitario;
+                            $table->cantidad = $detalle_factura->cantidad;
                             $table->porcentaje_iva = $detalle_factura->porcentaje_iva;
                             $table->porcentaje_retefuente =  $detalle_factura->porcentaje_retefuente;
                             $table->id = $detalle_factura->id;
@@ -285,7 +286,11 @@ class NotacreditoController extends Controller
         $nota = Notacredito::findOne($id);
         $detalle = Notacreditodetalle::findOne($id_detalle);
         $subtotal_nota = round($detalle->precio_unitario * $detalle->cantidad);
-        $valor_retencion = round(($subtotal_nota * $detalle->porcentaje_retefuente)/100);
+        if($nota->cliente->retencionfuente == 1){
+             $valor_retencion = round(($subtotal_nota * $detalle->porcentaje_retefuente)/100);
+        }else{
+           $valor_retencion = 0; 
+        }     
         $valor_iva = round(($subtotal_nota * $detalle->porcentaje_iva)/100);
         if($nota->cliente->retencioniva == 1){
             $valor_reteiva = round(($valor_iva * $empresa->porcentajereteiva)/100);

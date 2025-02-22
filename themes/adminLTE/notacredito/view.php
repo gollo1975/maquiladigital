@@ -153,23 +153,27 @@ $nota = Notacredito::findOne($model->idnotacredito);
                         <td style="text-align: right"><?= $val->porcentaje_retefuente ?></td>
                         <td style="text-align: right"><?= '$'.number_format($val->valor_nota_credito,0) ?></td>
                          <td style="text-align: right"><?= '$'.number_format($val->total_nota,0) ?></td>
-                        <?php if ($model->autorizado == 0) { ?>
-                            <td style="width: 20px; height: 20px"> 
-                                 <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> ',
-                                     ['notacredito/editardetalle', 'id' => $model->idnotacredito, 'id_detalle' => $val->iddetallenota],
-                                       ['title' => 'Permite ingresar las cantidades a devolver',
-                                        'data-toggle'=>'modal',
-                                        'data-target'=>'#modaleditardetalle',
-                                        'class' => '',
-                                        'data-backdrop' => 'static',
-                                        'data-keyboard' => 'false'
-                                       ]);?> 
-                                <div class="modal remote fade" id="modaleditardetalle">
-                                    <div class="modal-dialog modal-lg" style ="width: 500px;">    
-                                        <div class="modal-content"></div>
-                                    </div>
-                                </div>
-                            </td>
+                        <?php if ($model->autorizado == 0 ) {
+                                if ($model->motivoNota->codigo_interno <> 3 ){?>
+                                    <td style="width: 20px; height: 20px"> 
+                                         <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> ',
+                                             ['notacredito/editardetalle', 'id' => $model->idnotacredito, 'id_detalle' => $val->iddetallenota],
+                                               ['title' => 'Permite ingresar las cantidades a devolver',
+                                                'data-toggle'=>'modal',
+                                                'data-target'=>'#modaleditardetalle',
+                                                'class' => '',
+                                                'data-backdrop' => 'static',
+                                                'data-keyboard' => 'false'
+                                               ]);?> 
+                                        <div class="modal remote fade" id="modaleditardetalle">
+                                            <div class="modal-dialog modal-lg" style ="width: 500px;">    
+                                                <div class="modal-content"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                <?php }else{?>
+                                    <td style="width: 20px; height: 20px; height: 20px"></td>
+                                <?php }?>    
                            <td style="width: 20px; height: 20px"> 
                                 <!-- Eliminar modal detalle -->
                                 <a href="#" data-toggle="modal" data-target="#iddetallenota<?= $val->iddetallenota ?>"><span class="glyphicon glyphicon-trash"></span></a>

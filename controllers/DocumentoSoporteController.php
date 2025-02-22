@@ -227,15 +227,22 @@ class DocumentoSoporteController extends Controller
     public function actionUpdate($id, $sw, $Token)
     {
         $model = $this->findModel($id);
-
+        $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
+        $Acceso = 0;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id_documento_soporte]);
         }
-
+        
+        $fecha_actual_dia = date('Y-m-d');
+        if($fecha_actual_dia >= $resolucion->fecha_notificacion){
+            $Acceso = 1; //aviso que se le esta venciendo la resolucion
+        }
         return $this->render('update', [
             'model' => $model,
             'sw' => $sw,
             'Token' => $Token,
+            'Acceso' => $Acceso,
+            'resolucion' => $resolucion,
         ]);
     }
 

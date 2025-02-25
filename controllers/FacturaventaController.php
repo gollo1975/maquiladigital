@@ -1047,8 +1047,7 @@ class FacturaventaController extends Controller
             }
             $data = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             if($data == 200){
-                  $cufe = isset($data["data"]["qr"]) ? $data["data"]["qr"] : "";
-                  var_dump($cufe);
+                $cufe = isset($data["data"]["qr"]) ? $data["data"]["qr"] : "";
                 Yii::$app->getSession()->setFlash('info', 'La factura venta electronica No ('. $consecutivo .') se consulto con exito.');
                 try {
                    
@@ -1063,7 +1062,7 @@ class FacturaventaController extends Controller
         } catch (Exception $ex) {
              Yii::$app->getSession()->setFlash('error', 'Error al enviar la factura: ' . $e->getMessage());
         }
-      //  return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
+       return $this->redirect(['facturaventa/view','id' => $id_factura, 'token' => $token]); 
     }
     
     public function actionDesactivado($token, $id){

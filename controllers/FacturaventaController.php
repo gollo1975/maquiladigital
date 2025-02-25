@@ -896,10 +896,11 @@ class FacturaventaController extends Controller
                 $qrstr = $data['add']['fe']['sentDetail']['response']['QRStr'];
                 $factura->qrstr = $qrstr;
                 $factura->save(false);
-                 Yii::$app->getSession()->setFlash('success', "La factura de venta electrónica No ($consecutivo) se envió con éxito a la DIAN.");
+                Yii::$app->getSession()->setFlash('success', "La factura de venta electrónica No ($consecutivo) se envió con éxito a la DIAN.");
             }else{
                $factura->fecha_envio_begranda = date("Y-m-d H:i:s");
                $factura->save(false);
+               Yii::$app->getSession()->setFlash('warning', "La factura de venta electrónica No ($consecutivo) NO se envió a la DIAN. Favor reenviar el documento nuevamente.");
                return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
             } 
             return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);

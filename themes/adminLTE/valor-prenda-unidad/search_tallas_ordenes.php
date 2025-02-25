@@ -100,7 +100,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <td style="text-align: right"><?= ''.number_format($val->costo_confeccion,0) ?></td>
                             <?php if($model->autorizado == 0){?>
                                 <td style= 'width: 15px; height: 10px;'>
-                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/view_search_operaciones", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'codigo' => $val->codigoproducto, 'tokenPlanta' =>$tokenPlanta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/view_search_operaciones", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta, 'codigo' => $val->codigoproducto, 'tokenPlanta' =>$tokenPlanta, 'tipo_pago' => $tipo_pago]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                                 </td>
                                 <td style= 'width: 15px; height: 10px;'>
                                     <a href="<?= Url::toRoute(["valor-prenda-unidad/cantidad_talla_confeccion", "id" => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' =>$model->id_planta,'id_detalle' => $val->iddetalleorden, 'tokenPlanta' =>$tokenPlanta]) ?>" ><span class="glyphicon glyphicon-list"></span></a>

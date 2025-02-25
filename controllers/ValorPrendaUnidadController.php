@@ -700,7 +700,7 @@ class ValorPrendaUnidadController extends Controller
     }
     
    //VISTA QUE TRAE LAS OPERACIONES DE LA OP
-    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta, $codigo, $tokenPlanta){
+    public function actionView_search_operaciones($idordenproduccion, $id, $id_planta, $codigo, $tokenPlanta, $tipo_pago){
         $form = new \app\models\ModeloBuscarOperario();
         $operario = null;
         $detalle_balanceo = 0;
@@ -710,6 +710,7 @@ class ValorPrendaUnidadController extends Controller
         $id_detalle = null;
         $hora_inicio = null;
         $hora_corte = null;
+        $conOperaciones = null;
         $nombre_modulo = \app\models\Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
         $empresa = \app\models\Matriculaempresa::findOne(1);
         $conCorteProceso = \app\models\ValorPrendaCorteConfeccion::find()->where(['=','id_valor', $id])->orderBy('id_corte DESC')->one();
@@ -730,6 +731,8 @@ class ValorPrendaUnidadController extends Controller
                $hora_corte = $conCorteProceso->hora_corte;
                $hora_inicio = $conCorteProceso->hora_inicio;
             }
+            //CODIGO QUE BUSCA ENTRADAS REGISTRADAS
+            $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])->all();
             $conCrearCorte = \app\models\ValorPrendaCorteConfeccion::find(['=','id_valor', $id])->andWhere(['=','fecha_proceso', $fecha_entrada])->one();
             if($conCrearCorte){ 
                 if ($operario > 0 && $fecha_entrada != null && $modulo != null && $id_detalle != null && $hora_inicio != null && $hora_corte != null) {
@@ -739,11 +742,11 @@ class ValorPrendaUnidadController extends Controller
                                                                             ->andWhere(['=','id_balanceo', $modulo])->all();
                 }else{
                     Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO, TALLA, HORA INICIO Y HORA CPRTE para la busqueda.');
-                    return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]);
+                    return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
                 }
             }else{
                 Yii::$app->getSession()->setFlash('error', 'Debe de crear la HORA DE INICIO y la HORA DE CORTE para ingresar las operaciones de cada empleado. Favor regresar y presionar el boton Crear_hora_corte');
-                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]); 
+                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]); 
             }    
         }
         if (isset($_POST["envia_dato_confeccion"])) {
@@ -833,6 +836,7 @@ class ValorPrendaUnidadController extends Controller
                 
             }   
         }
+        $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])->all();
          return $this->render('view_search_operario', [
             'model' => $this->findModel($id),
             'id_planta' =>$id_planta,
@@ -842,7 +846,9 @@ class ValorPrendaUnidadController extends Controller
             'empresa' => $empresa,
             'codigo' => $codigo,
             'tokenPlanta' => $tokenPlanta,
+            'tipo_pago' => $tipo_pago,
             'conCorteProceso' => $conCorteProceso, 
+            'conOperaciones' => $conOperaciones,
             'nombre_modulo' => ArrayHelper::map($nombre_modulo, "id_balanceo", "nombreBalanceo"),
             'listado_tallas' => ArrayHelper::map($listado_tallas, "iddetalleorden", "listadoTalla"),
           
@@ -1082,7 +1088,7 @@ class ValorPrendaUnidadController extends Controller
     
     //PROCESO QUE BUSCA LAS TALLAS DE LA OP.
     
-    public function actionSearch_tallas_ordenes($idordenproduccion, $id, $id_planta, $tokenPlanta) {
+    public function actionSearch_tallas_ordenes($idordenproduccion, $id, $id_planta, $tokenPlanta, $tipo_pago) {
         $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])
                                                                ->andWhere(['=','id_planta', $id_planta])->all();
         $orden = Ordenproduccion::findOne($idordenproduccion);
@@ -1091,6 +1097,7 @@ class ValorPrendaUnidadController extends Controller
             'id_planta' =>$id_planta,
             'conTallas' =>  $conTallas,
             'orden' => $orden,
+            'tipo_pago' => $tipo_pago,
             'tokenPlanta' => $tokenPlanta,
            
         ]);
@@ -1661,7 +1668,7 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
-    public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago)
+    public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago, $codigo, $tokenPlanta)
     {                                
         try {
             $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
@@ -1675,6 +1682,24 @@ class ValorPrendaUnidadController extends Controller
         }catch (\Exception $e) { 
              Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
              return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+        }
+    }
+    //ELIMINA OPERACIONES CARGADAS 
+    public function actionEliminar_operacion_cargada($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago, $id_datalle_talla, $codigo, $tokenPlanta) {
+        try {
+            $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
+            $unidades = $detalle->cantidad;
+            $this->DescargarUnidadConfeccionada($id_datalle_talla, $unidades);
+            $detalle->delete();
+            return $this->redirect(["view_search_operaciones",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago, 'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]);        
+               
+        } catch (Exception $ex) {
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+            return $this->redirect(["view_search_operaciones",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago, 'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]); 
+              
+        }catch (\Exception $e) { 
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
+            return $this->redirect(["view_search_operaciones",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago, 'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta]);        
         }
     }
     

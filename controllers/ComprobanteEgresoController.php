@@ -138,7 +138,7 @@ class ComprobanteEgresoController extends Controller
     //PROCESO QUE IMPORTAR DOCUMENTOS CONCTABLES
      public function actionImportardocumento() {
         if (Yii::$app->user->identity){
-            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso', 127])->all()){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso', 155])->all()){
                 $form = new ModelCrearComprobantes();
                 $tipo_proceso = null;
                 $fecha_inicio = null;

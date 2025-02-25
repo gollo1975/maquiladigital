@@ -732,7 +732,8 @@ class ValorPrendaUnidadController extends Controller
                $hora_inicio = $conCorteProceso->hora_inicio;
             }
             //CODIGO QUE BUSCA ENTRADAS REGISTRADAS
-            $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])->all();
+            $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])
+                                                               ->andWhere(['=','id_operario', $operario])->orderBy('iddetalleorden ASC')->all();
             $conCrearCorte = \app\models\ValorPrendaCorteConfeccion::find(['=','id_valor', $id])->andWhere(['=','fecha_proceso', $fecha_entrada])->one();
             if($conCrearCorte){ 
                 if ($operario > 0 && $fecha_entrada != null && $modulo != null && $id_detalle != null && $hora_inicio != null && $hora_corte != null) {
@@ -836,7 +837,8 @@ class ValorPrendaUnidadController extends Controller
                 
             }   
         }
-        $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])->all();
+        $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])
+                                                           ->andWhere(['=','id_operario', $operario])->orderBy('iddetalleorden ASC')->all();
          return $this->render('view_search_operario', [
             'model' => $this->findModel($id),
             'id_planta' =>$id_planta,

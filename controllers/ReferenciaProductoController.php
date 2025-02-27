@@ -125,24 +125,57 @@ class ReferenciaProductoController extends Controller
     public function actionView($id)
     {
         $lista_precio = \app\models\ReferenciaListaPrecio::find()->where(['=','codigo', $id])->all();
-        if (isset($_POST["actualizar_precio_venta"])) {
-            if (isset($_POST["listado_precios"])) {
-                 $intIndice = 0;
-                foreach ($_POST["listado_precios"] as $intCodigo) {
-                    $table = \app\models\ReferenciaListaPrecio::findOne($intCodigo);
-                    $table->valor_venta = $_POST["precio_venta_publico"][$intIndice];
-                    $table->id_lista  = $_POST["lista_precio"][$intIndice];
-                    $table->save();
-                   $intIndice++;
+        $lista_insumos = \app\models\ReferenciaInsumos::find()->where(['=','codigo', $id])->all();
+        if (Yii::$app->request->post()) {
+            if (isset($_POST["actualizar_precio_venta"])) {
+                if (isset($_POST["listado_precios"])) {
+                     $intIndice = 0;
+                    foreach ($_POST["listado_precios"] as $intCodigo) {
+                        $table = \app\models\ReferenciaListaPrecio::findOne($intCodigo);
+                        $table->valor_venta = $_POST["precio_venta_publico"][$intIndice];
+                        $table->id_lista  = $_POST["lista_precio"][$intIndice];
+                        $table->save();
+                       $intIndice++;
+                    }
+                    return $this->redirect(['view','id' => $id]);
                 }
-                return $this->redirect(['view','id' => $id]);
-            }
+            } 
+            ///PERMITE ACTUALIZAR LA INFORMACION DEL INSUMO
+            if (isset($_POST["actualizar_insumos"])) {
+                if (isset($_POST["listado_insumos"])) {
+                     $intIndice = 0;
+                    foreach ($_POST["listado_insumos"] as $intCodigo) {
+                        $table = \app\models\ReferenciaInsumos::findOne($intCodigo);
+                        $conInsumo = \app\models\Insumos::findOne($table->id_insumos);
+                        $table->idtipo= $_POST["tipo_orden"][$intIndice];
+                        $table->cantidad = $_POST["cantidad"][$intIndice];
+                        $table->costo_producto  = $table->cantidad * $conInsumo->precio_unitario;
+                        $table->save(false);
+                       $intIndice++;
+                    }
+                    $this->ActualizaCostoInsumos($id);
+                    return $this->redirect(['view','id' => $id]);
+                }
+            } 
         }    
                 
         return $this->render('view', [
             'model' => $this->findModel($id),
             'lista_precio' => $lista_precio,
+            'lista_insumos' => $lista_insumos,
         ]);
+    }
+    
+    //PROCESO QUE TOTALIZA LOS INSUMOS
+    protected function ActualizaCostoInsumos($id) {
+        $model = ReferenciaProducto::findOne($id);
+        $consulta = \app\models\ReferenciaInsumos::find()->where(['=','codigo', $id])->all();
+        $dato = 0;
+        foreach ($consulta as $valor) {
+            $dato += $valor->costo_producto;
+        }
+        $model->costo_producto = $dato;
+        $model->save();
     }
     
        /**
@@ -261,6 +294,100 @@ class ReferenciaProductoController extends Controller
             'id' => $id,
         ]);
     }    
+    
+     //BUSCA INSUMOS PARA CONFIGURAR LA REFERENCIA
+     public function actionSearch_insumos($id)
+    {
+        $insumos = \app\models\Insumos::find()->orderBy('descripcion ASC')->all();
+        $form = new \app\models\FormBuscarInsumos();
+        $codigo= null;
+        $nombre_producto = null;
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $codigo = Html::encode($form->codigo);    
+                $nombre_producto = Html::encode($form->nombre_producto);  
+                $table = \app\models\Insumos::find()
+                        ->andFilterWhere(['=','codigo_insumo', $codigo])
+                        ->andFilterWhere(['like','descripcion',$nombre_producto])
+                        ->andWhere(['>','stock_real', 0]);
+                $insumos = $table->orderBy('descripcion ASC');                    
+                $count = clone $insumos;
+                $to = $count->count();
+                $pages = new Pagination([
+                    'pageSize' => 15,
+                    'totalCount' => $count->count()
+                ]);
+                $insumos = $insumos
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();         
+                           
+            } else {
+                $form->getErrors();
+            }                    
+        }else{
+            $insumos = \app\models\Insumos::find()->where(['>','stock_real', 0])->orderBy('descripcion ASC');
+            $count = clone $insumos;
+            $pages = new Pagination([
+                'pageSize' => 15,
+                'totalCount' => $count->count(),
+            ]);
+            $insumos = $insumos
+                    ->offset($pages->offset)
+                    ->limit($pages->limit)
+                    ->all();
+        }
+         if (isset($_POST["enviar_insumos"])) {
+            if(isset($_POST["codigo_insumo"])){
+                $intIndice = 0;
+                foreach ($_POST["codigo_insumo"] as $intCodigo) {
+                   $listado = \app\models\ReferenciaInsumos::find()
+                            ->where(['=', 'id_insumos', $intCodigo])
+                            ->andWhere(['=', 'codigo', $id])
+                            ->all();
+                    $reg = count($listado);
+                    if ($reg == 0) {
+                        $table = new \app\models\ReferenciaInsumos();
+                        $table->codigo = $id;
+                        $table->id_insumos = $intCodigo;
+                        $table->cantidad = 1;
+                        $table->fecha_registro = date('Y-m-d');
+                        $table->user_name= Yii::$app->user->identity->username;
+                        $table->save(false);
+                    }
+                    $intIndice++;
+                }
+                return $this->redirect(["referencia-producto/view", 'id' => $id]);
+            }else{
+                 Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro de la lista de insumos.');
+                return $this->redirect(["referencia-producto/search_insumos", 'id' => $id]);
+            }
+        }
+        return $this->render('_buscar_insumos', [
+            'insumos' => $insumos,            
+            'pagination' => $pages,
+            'id' => $id,
+            'form' => $form,
+
+        ]);
+    }
+    
+    //ELIMINAR INSUMOS
+    public function actionEliminar_insumos($id, $id_detalle)
+    {
+        try {
+            $model = \app\models\ReferenciaInsumos::findOne($id_detalle);
+            $model->delete();
+            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+            return $this->redirect(["referencia-producto/view",'id' => $id]);
+        } catch (IntegrityException $e) {
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar la compra, tiene registros asociados en otros procesos');
+            return $this->redirect(["referencia-producto/view",'id' => $id]);
+        } catch (\Exception $e) {            
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar la compra, tiene registros asociados en otros procesos');
+            return $this->redirect(["referencia-producto/view",'id' => $id]);
+        }
+    }
 
     /**
      * Finds the ReferenciaProducto model based on its primary key value.

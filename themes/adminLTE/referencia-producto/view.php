@@ -12,7 +12,8 @@ use yii\helpers\Url;
 $this->title = 'Referencias/Productos';
 $this->params['breadcrumbs'][] = ['label' => 'Referencias', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->codigo;
-$listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->orderBy('id_lista ASC')->all(), 'id_lista', 'nombre_lista');
+$tipoOrden = ArrayHelper::map(\app\models\Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
+$listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lista', 'nombre_lista');
 ?>
 <div class="referencia-producto-view">
 
@@ -22,7 +23,7 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->orderBy('id_li
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
-            Municipio
+            Información de la referencia.
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
@@ -59,11 +60,62 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->orderBy('id_li
     ]);?>
     <div>
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#listaprecion"aria-controls="listaprecion" role="tab" data-toggle="tab">Lista de precios <span class="badge"><?= count($lista_precio) ?></span></a></li>
+            <li role="presentation" class="active"><a href="#listadoinsumos"aria-controls="listadoinsumos" role="tab" data-toggle="tab">Lista de insumos <span class="badge"><?= count($lista_insumos) ?></span></a></li>
+             <li role="presentation"><a href="#listaprecio"aria-controls="listaprecio" role="tab" data-toggle="tab">Lista de precios <span class="badge"><?= count($lista_precio) ?></span></a></li>
             
         </ul>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="listaprecion">
+            <div role="tabpanel" class="tab-pane active" id="listadoinsumos">
+                <div class="table-responsive">
+                    <div class="panel panel-success">
+                        <div class="panel-body">
+                            <div class="panel panel-success">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr style="font-size: 90%;">
+                                            <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Nombre de insumo</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Tipo servicio</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Valor_Costo</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        foreach ($lista_insumos as $lista):?>
+                                            <tr style="font-size: 90%;">
+                                                <td><?= $lista->id_detalle?></td>
+                                                 <td><?= $lista->insumos->descripcion?></td>
+                                                <td style="padding-left: 1;padding-right: 1;"><?= Html::dropDownList('tipo_orden[]', $lista->idtipo, $tipoOrden, ['class' => 'col-sm-10', 'prompt' => 'Seleccione', 'required' => true]) ?></td>
+                                                <td style="padding-right: 1;padding-right: 1; text-align: right"> <input type="text" name="cantidad[]" value="<?= $lista->cantidad?>" style="text-align: right" size="9" required="true"> </td> 
+                                                <td style="text-align:right"><?= ''. number_format($lista->costo_producto,0)?></td>
+                                                <input type="hidden" name="listado_insumos[]" value="<?= $lista->id_detalle ?>">
+                                                <td style="width: 20px; height: 20px">	
+                                                    <?= Html::a('', ['eliminar_insumos', 'id' => $model->codigo, 'id_detalle' => $lista->id_detalle], [
+                                                      'class' => 'glyphicon glyphicon-trash',
+                                                      'data' => [
+                                                          'confirm' => 'Esta seguro de eliminar el registro?',
+                                                          'method' => 'post',
+                                                      ],
+                                                    ]) ?>
+                                                </td>
+                                            </tr>
+                                        <?php
+                                        endforeach;?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="panel-footer text-right" >  
+                                 <?= Html::a('<span class="glyphicon glyphicon-search"></span> Buscar insumos', ['referencia-producto/search_insumos', 'id' => $model->codigo], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::submitButton("<span class='glyphicon glyphicon-refresh'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizar_insumos']) ?>
+                            </div>
+                        </div>   
+                    </div>
+                </div>
+            </div>  
+             <!--TERMINA TABS-->
+            <div role="tabpanel" class="tab-pane" id="listaprecio">
                 <div class="table-responsive">
                     <div class="panel panel-success">
                         <div class="panel-body">

@@ -303,7 +303,7 @@ class OrdenProduccionInsumosController extends Controller
     //PROCESO QUE EXPORTA A EXCEL TODAS LAS MERDIDAS DE LA OP
     
       public function actionExportar_excel($id) {
-        $medida = \app\models\OrdenProduccionInsumoDetalle::find()->where(['=','id_entrega', $id])->all();
+        $medida = \app\models\OrdenProduccionInsumoDetalle::find()->where(['=','id_entrega', $id])->orderBy('iddetalleorden')->all();
         $objPHPExcel = new \PHPExcel();
         // Set document properties
         $objPHPExcel->getProperties()->setCreator("EMPRESA")

@@ -29,7 +29,7 @@ class GrupoInsumos extends \yii\db\ActiveRecord
     {
         return [
             [['nombre_grupo'], 'required'],
-            [['nombre_grupo'], 'string', 'max' => 30],
+            [['nombre_grupo','abreviatura','color'], 'string', 'max' => 30],
         ];
     }
 
@@ -41,6 +41,8 @@ class GrupoInsumos extends \yii\db\ActiveRecord
         return [
             'id_grupo' => 'Id Grupo',
             'nombre_grupo' => 'Nombre Grupo',
+            'abreviatura' => 'abreviatura',
+            'color' => 'color',
         ];
     }
 

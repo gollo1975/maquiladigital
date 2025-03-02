@@ -31,7 +31,7 @@ class TipoMedida extends \yii\db\ActiveRecord
         return [
             [['medida', 'estado'], 'required'],
             [['estado'], 'integer'],
-            [['medida'], 'string', 'max' => 15],
+            [['medida','abreviatura'], 'string', 'max' => 15],
         ];
     }
 
@@ -44,6 +44,7 @@ class TipoMedida extends \yii\db\ActiveRecord
             'id_tipo_medida' => 'Id Tipo Medida',
             'medida' => 'Medida',
             'estado' => 'Estado',
+            'abreviatura' => 'abreviatura',
         ];
     }
 

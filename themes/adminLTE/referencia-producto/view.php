@@ -76,6 +76,8 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
                                             <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Nombre de insumo</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Tipo servicio</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Maneja unidad</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Valor_Costo</th>
                                             <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -84,11 +86,20 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
                                     <tbody>
                                         <?php
                                         foreach ($lista_insumos as $lista):?>
-                                            <tr style="font-size: 90%;">
+                                            <tr style="font-size: 85%;">
                                                 <td><?= $lista->id_detalle?></td>
                                                  <td><?= $lista->insumos->descripcion?></td>
                                                 <td style="padding-left: 1;padding-right: 1;"><?= Html::dropDownList('tipo_orden[]', $lista->idtipo, $tipoOrden, ['class' => 'col-sm-10', 'prompt' => 'Seleccione', 'required' => true]) ?></td>
-                                                <td style="padding-right: 1;padding-right: 1; text-align: right"> <input type="text" name="cantidad[]" value="<?= $lista->cantidad?>" style="text-align: right" size="9" required="true"> </td> 
+                                                <td align="center"><select name="maneja_unidad[]" style="width: 80px;">
+                                                        <?php if ($lista->maneja_unidad == 0){echo $pieza = "NO";}elseif ($lista->maneja_unidad == 1){echo $pieza ="SI";}else {echo $pieza ="MIXTO";}?>
+                                                        <option value="<?= $lista->maneja_unidad ?>"><?= $pieza ?></option>
+                                                        <option value="0">NO</option>
+                                                        <option value="1">SI</option>
+                                                        <option value="2">MIXTO</option>
+
+                                                </select> </td>    
+                                                 <td style="padding-right: 1;padding-right: 1; text-align: right"> <input type="text" name="unidades[]" value="<?= $lista->total_unidades?>" style="text-align: right" size="7" > </td> 
+                                                <td style="padding-right: 1;padding-right: 1; text-align: right"> <input type="text" name="cantidad[]" value="<?= $lista->cantidad?>" style="text-align: right" size="7" required="true"> </td> 
                                                 <td style="text-align:right"><?= ''. number_format($lista->costo_producto,0)?></td>
                                                 <input type="hidden" name="listado_insumos[]" value="<?= $lista->id_detalle ?>">
                                                 <td style="width: 20px; height: 20px">	

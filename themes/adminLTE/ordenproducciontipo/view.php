@@ -38,10 +38,15 @@ $this->params['breadcrumbs'][] = $model->idtipo;
                     <td><?= Html::encode($model->tipo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'remision') ?>:</th>
                     <td><?= Html::encode($model->rremision) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'activo') ?>:</th>
+                    
+                </tr>    
+                 <tr style="font-size: 85%;">
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'activo') ?>:</th>
                     <td><?= Html::encode($model->estado) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Ver_registro') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Ver_registro') ?>:</th>
                     <td><?= Html::encode($model->verregistro) ?></td>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'permite_insumos') ?>:</th>
+                    <td><?= Html::encode($model->verInsumos) ?></td>
                 </tr>                
             </table>
         </div>

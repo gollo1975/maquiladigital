@@ -147,7 +147,9 @@ class ReferenciaProductoController extends Controller
                     foreach ($_POST["listado_insumos"] as $intCodigo) {
                         $table = \app\models\ReferenciaInsumos::findOne($intCodigo);
                         $conInsumo = \app\models\Insumos::findOne($table->id_insumos);
-                        $table->idtipo= $_POST["tipo_orden"][$intIndice];
+                        $table->idtipo = $_POST["tipo_orden"][$intIndice];
+                         $table->total_unidades = $_POST["unidades"][$intIndice];
+                        $table->maneja_unidad = $_POST["maneja_unidad"][$intIndice];
                         $table->cantidad = $_POST["cantidad"][$intIndice];
                         $table->costo_producto  = $table->cantidad * $conInsumo->precio_unitario;
                         $table->save(false);

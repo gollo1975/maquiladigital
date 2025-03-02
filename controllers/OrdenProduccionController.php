@@ -3801,6 +3801,29 @@ class OrdenProduccionController extends Controller {
         ]); 
     }
     
+    //PERMITE CREAR INSUMOS A UNA OP
+    public function actionCagar_insumos_orden($id, $token) {
+       $orden = Ordenproduccion::findOne($id);
+       if($orden){
+          
+           if(\app\models\OrdenProduccionInsumos::find()->where(['=','idordenproduccion', $id])->andWhere(['=','idtipo', $orden->idtipo])->one()){
+               Yii::$app->getSession()->setFlash('error', 'Ya se GENERARON los insumos a la orden de '.$orden->tipo->tipo.'.');
+               return $this->redirect(["/orden-produccion/view", 'id' => $id, 'token' => $token]);
+           }else{
+               $insumos = new \app\models\OrdenProduccionInsumos();
+               $insumos->idordenproduccion = $id;
+               $insumos->idtipo = $orden->idtipo;
+               $insumos->codigo_producto = $orden->codigoproducto;
+               $insumos->orden_produccion_cliente = $orden->ordenproduccion;
+               $insumos->user_name = Yii::$app->user->identity->username;
+               $insumos->fecha_creada = date('Y-m-d');
+               $insumos->save(false);
+               $id_entrada = \app\models\OrdenProduccionInsumos::find()->where(['=','idordenproduccion', $id])->orderBy('id_entrega DESC')->one();
+               return $this->redirect(['orden-produccion-insumos/view', 'id' => $id_entrada->id_entrega]);
+           }
+       }       
+    }
+    
     
     public function actionExcelconsulta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();

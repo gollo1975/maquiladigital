@@ -249,6 +249,7 @@
                                             'url' => '#',
                                             'items' => [
                                                 ['label' => 'Orden Producción', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/index']],
+                                                ['label' => 'Insumos de OP', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion-insumos/index']],
                                                 ['label' => 'Orden Tercero', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indextercero']],
                                                 ['label' => 'Entrada / Salida', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indexentradasalida']],
                                                 [

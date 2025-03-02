@@ -36,8 +36,8 @@ class ReferenciaInsumos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['codigo', 'idtipo', 'id_insumos', 'costo_producto'], 'integer'],
-            [['cantidad'], 'number'],
+            [['codigo', 'idtipo', 'id_insumos', 'costo_producto','total_unidades'], 'integer'],
+            [['cantidad','maneja_unidad'], 'number'],
             [['fecha_registro'], 'safe'],
             [['user_name'], 'string', 'max' => 15],
             [['codigo'], 'exist', 'skipOnError' => true, 'targetClass' => ReferenciaProducto::className(), 'targetAttribute' => ['codigo' => 'codigo']],
@@ -60,7 +60,9 @@ class ReferenciaInsumos extends \yii\db\ActiveRecord
             'costo_producto' => 'Costo Producto',
             'fecha_registro' => 'Fecha Registro',
             'user_name' => 'User Name',
-        ];
+            'maneja_unidad' => 'maneja_unidad',
+            'total_unidades' => 'total_unidades'
+         ];
     }
 
     /**

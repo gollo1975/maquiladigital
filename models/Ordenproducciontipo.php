@@ -40,7 +40,7 @@ class Ordenproducciontipo extends \yii\db\ActiveRecord
         return [
             [['tipo'], 'required'],
             [['activo'], 'integer'],
-            [['remision','ver_registro'], 'integer'],
+            [['remision','ver_registro','permite_insumos'], 'integer'],
             [['tipo'], 'string', 'max' => 50],
             [['color'], 'string', 'max' => 15],
         ];
@@ -58,6 +58,7 @@ class Ordenproducciontipo extends \yii\db\ActiveRecord
             'ver_registro' => 'Ver registro',
             'remision' => 'Requiere Remisión',
             'color' => 'color',
+            'permite_insumos' => 'Ver insumos'
         ];
     }
 
@@ -96,5 +97,15 @@ class Ordenproducciontipo extends \yii\db\ActiveRecord
             $verregistro = "NO";
         }
         return $verregistro;
+    }
+    
+     public function getVerInsumos()
+    {
+        if($this->permite_insumos == 1){
+            $verinsumos = "SI";
+        }else{
+            $verinsumos = "NO";
+        }
+        return $verinsumos;
     }
 }

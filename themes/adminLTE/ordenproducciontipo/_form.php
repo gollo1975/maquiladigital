@@ -33,6 +33,9 @@ use yii\helpers\Url;
          <div class="row">
             <?= $form->field($model, 'ver_registro')->dropdownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione...']) ?>
         </div>
+         <div class="row">
+            <?= $form->field($model, 'permite_insumos')->dropdownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione...']) ?>
+        </div>
         <div class="panel-footer text-right">            
             <a href="<?= Url::toRoute("ordenproducciontipo/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>		

@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             [                
                 'attribute' => 'tipo',
-                'contentOptions' => ['class' => 'col-lg-3'],                
+                'contentOptions' => ['class' => 'col-lg-2'],                
             ],
             [
                 'attribute' => 'activo',
@@ -34,7 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $orden->estado;
                 },
                 'filter' => ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(),'activo','estado'),
-                'contentOptions' => ['class' => 'col-lg-3'],
+                'contentOptions' => ['class' => 'col-lg-1'],
             ],
             [
                 'attribute' => 'remision',
@@ -43,17 +43,26 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $orden->rremision;
                 },
                 'filter' => ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(),'remision','rremision'),
-                'contentOptions' => ['class' => 'col-lg-2.5'],
+                'contentOptions' => ['class' => 'col-lg-2'],
             ],    
-                        [
+            [
                 'attribute' => 'ver_registro',
                 'value' => function($model){
                     $orden = app\models\Ordenproducciontipo::findOne($model->idtipo);                    
                     return $orden->verregistro;
                 },
                 'filter' => ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(),'ver_registro','verregistro'),
-                'contentOptions' => ['class' => 'col-lg-2.5'],
-            ],            
+                'contentOptions' => ['class' => 'col-lg-2'],
+            ],  
+           [
+                'attribute' => 'permite_insumos',
+                'value' => function($model){
+                    $orden = app\models\Ordenproducciontipo::findOne($model->idtipo);                    
+                    return $orden->verinsumos;
+                },
+                'filter' => ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(),'permite_insumos','verinsumos'),
+                'contentOptions' => ['class' => 'col-lg-2'],
+            ],                    
             [
                 'class' => 'yii\grid\ActionColumn',    
                  'contentOptions' => ['class' => 'col-lg-1 '],

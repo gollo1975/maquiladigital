@@ -179,14 +179,15 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                         <th scope="col" style='background-color:#B9D5CE;'>Id</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>No balanceo</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;'>No Carga</th>   
-                                        <th scope="col" style='background-color:#B9D5CE;'>Op Interna</th>                        
+                                        <th scope="col" style='background-color:#B9D5CE;'>Talla</th>                        
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha actual</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Hora inicio</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Hora corte</th> 
                                          <th scope="col" style='background-color:#B9D5CE;'>% Eficiencia</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Confección</th>
-                                         <th scope="col" style='background-color:#B9D5CE;'>Reales</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Reales</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>No Operarios</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -196,7 +197,7 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                             <td><?= $entrada->id_entrada ?></td>
                                             <td><?= $entrada->id_balanceo ?></td>
                                             <td><?= $entrada->id_carga?></td>
-                                            <td><?= $entrada->idordenproduccion ?></td>
+                                            <td><?= $entrada->detalleorden->productodetalle->prendatipo->talla->talla ?></td>
                                             <td><?= $entrada->fecha_dia_confeccion ?></td>
                                             <td><?= $entrada->hora_inicio_dia ?></td>
                                             <td><?= $entrada->hora_corte ?></td>
@@ -204,6 +205,9 @@ $this->params['breadcrumbs'][] = $model->id_eficiencia;
                                             <td style="text-align: right"><?= ''.number_format($entrada->unidades_confeccionadas, 0) ?></td>
                                             <td style="text-align: right"><?= ''.number_format($entrada->real_confeccion, 0) ?></td>
                                             <td style="text-align: right"><?= $entrada->numero_operarios ?></td>
+                                            <td>
+                                              <a href="<?= Url::toRoute(["imprimir_ticket",'id'=>$id, 'id_planta' => $model->id_planta,'id_detalle' => $entrada->id_entrada]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir "></span></a>
+                                            </td>
                                         </tr>
                                    <?php endforeach; ?>    
                                 </tbody>      

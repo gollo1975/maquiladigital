@@ -137,6 +137,7 @@ class EficienciaModuloDiarioController extends Controller
             'modulos' => $modulos,
             'EntradaDia' => $EntradaDia,
             'id_planta' => $id_planta,
+            'id' => $id,
         ]);
     }
 
@@ -564,7 +565,16 @@ class EficienciaModuloDiarioController extends Controller
         return $this->redirect(["eficiencia-modulo-diario/view",'id' => $id, 'id_planta' =>$id_planta]);      
     }
     
-     /**
+    //IMPRESIONES
+    public function actionImprimir_ticket ($id, $id_detalle){
+         $model = \app\models\EficienciaModuloDiarioDetalle::findOne($id_detalle);
+         return $this->render('../formatos/reporte_salida_talla', [
+             'model' =>$model,
+         ]);
+    }
+
+
+    /**
      * Finds the EficienciaModuloDiario model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id

@@ -41,7 +41,8 @@ class ReferenciaProducto extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['descripcion_referencia', 'id_tipo_producto'], 'required'],
+            [['descripcion_referencia', 'id_tipo_producto','codigo'], 'required'],
+            ['codigo', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             [['id_tipo_producto', 'costo_producto'], 'integer'],
             [['fecha_registro'], 'safe'],
             [['descripcion_referencia'], 'string', 'max' => 40],

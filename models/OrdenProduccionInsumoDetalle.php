@@ -33,7 +33,7 @@ class OrdenProduccionInsumoDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_entrega', 'id_detalle', 'id_insumos', 'cantidad','iddetalleorden'], 'integer'],
+            [['id_entrega', 'id_detalle', 'id_insumos', 'cantidad','iddetalleorden','faltan_insumos','cantidad_faltante'], 'integer'],
             [['cantidad','metros','unidades'], 'number'],
             [['id_entrega'], 'exist', 'skipOnError' => true, 'targetClass' => OrdenProduccionInsumos::className(), 'targetAttribute' => ['id_entrega' => 'id_entrega']],
             [['id_detalle'], 'exist', 'skipOnError' => true, 'targetClass' => ReferenciaInsumos::className(), 'targetAttribute' => ['id_detalle' => 'id_detalle']],
@@ -56,6 +56,8 @@ class OrdenProduccionInsumoDetalle extends \yii\db\ActiveRecord
             'iddetalleorden' => 'iddetalleorden',
             'metros' => 'metros',
             'unidades' => 'unidades',
+            'cantidad_faltante' => 'cantidad_faltanete',
+            'faltan_insumos' => 'faltan_insumos',
         ];
     }
 
@@ -89,5 +91,14 @@ class OrdenProduccionInsumoDetalle extends \yii\db\ActiveRecord
     public function getOrdenDetalle()
     {
         return $this->hasOne(Ordenproducciondetalle::className(), ['iddetalleorden' => 'iddetalleorden']);
+    }
+    
+    public function getFaltanInsumos() {
+        if($this->faltan_insumos == 0){
+            $faltaninsumos = 'Ok';
+        }else{
+            $faltaninsumos = 'SI';
+        }
+        return $faltaninsumos;
     }
 }

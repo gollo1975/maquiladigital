@@ -189,20 +189,26 @@ class ReferenciaProductoController extends Controller
     {
         $model = new ReferenciaProducto();
         
-
+        $sw = 0;
         if ($model->load(Yii::$app->request->post())) {
-            $empresa = \app\models\Matriculaempresa::findOne(1);
-            $codigo = $this->CrearCodigoReferencia();
-            $model->codigo = $codigo;
-            $model->descripcion_referencia = $model->descripcion_referencia;
-            $model->id_tipo_producto = $model->id_tipo_producto;
-            $model->user_name = Yii::$app->user->identity->username;
-             $model->descripcion= $model->descripcion;
-            $model->save();
-            return $this->redirect(['index']);
+            $buscar = ReferenciaProducto::findOne($model->codigo);
+            if(!$buscar){
+                // $empresa = \app\models\Matriculaempresa::findOne(1);
+                // $codigo = $this->CrearCodigoReferencia();
+                 $model->codigo = $model->codigo;
+                 $model->descripcion_referencia = $model->descripcion_referencia;
+                 $model->id_tipo_producto = $model->id_tipo_producto;
+                 $model->user_name = Yii::$app->user->identity->username;
+                 $model->descripcion= $model->descripcion;
+                 $model->save();
+                 return $this->redirect(['index']);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'La referencia ingresada ya esta creada en el sistema.');
+            }     
         }
         return $this->render('create', [
             'model' => $model,
+            'sw' => $sw,
             
         ]);
     }
@@ -226,13 +232,14 @@ class ReferenciaProductoController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
+        $sw = 1;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['index']);
         }
 
         return $this->render('update', [
             'model' => $model,
+            'sw' => $sw,
         ]);
     }
 

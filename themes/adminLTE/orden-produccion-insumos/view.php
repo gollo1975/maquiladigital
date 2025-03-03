@@ -42,6 +42,8 @@ $this->params['breadcrumbs'][] = $model->id_entrega;
             <?php }else{ ?>
                 <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['reporte_orden_insumo', 'id' => $model->id_entrega], ['class' => 'btn btn-default btn-sm']); ?>
                 <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar a excel', ['exportar_excel', 'id' => $model->id_entrega], ['class' => 'btn btn-success btn-sm']); ?>            
+                <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Descargar insumos', ['enviar_insumos_modulo', 'id' => $model->id_entrega],['class' => 'btn btn-info btn-xs',
+                        'data' => ['confirm' => 'Esta seguro de ENVIAR los insumos al modulo de inventario.', 'method' => 'post']]);?>
             <?php } 
         } ?> 
          
@@ -129,7 +131,7 @@ $this->params['breadcrumbs'][] = $model->id_entrega;
                                             <?php if($model->autorizado == 0){?>
                                                 <td style= 'width: 25px;' >
                                                     <?= Html::a('<span class="glyphicon glyphicon-list"></span> ',
-                                                            ['orden-produccion-insumos/ver_insumos', 'id' => $model->id_entrega, 'tipo_orden' => $model->idtipo,'tallas' => $val->iddetalleorden],
+                                                            ['orden-produccion-insumos/ver_insumos', 'id' => $model->id_entrega, 'tipo_orden' => $model->idtipo,'tallas' => $val->iddetalleorden,'referencia' => $model->codigo_producto],
                                                             [
                                                                 'class' => '',   
                                                                 'title' => 'Ver el listados de insumos',
@@ -164,7 +166,10 @@ $this->params['breadcrumbs'][] = $model->id_entrega;
                                 <thead>
                                     <tr style='font-size:85%;'>
                                         <th scope="col" style='background-color:#B9D5CE;'>Código</th>                        
-                                        <th scope="col" style='background-color:#B9D5CE;'>Nombre del insumo</th>  
+                                        <th scope="col" style='background-color:#B9D5CE;'>Nombre del insumo</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>Falta</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>U. faltante</th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>T. unidades</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Tallas</th>   
                                         <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th> 
                                          <th scope="col" style='background-color:#B9D5CE;'>Unidades / Metros</th> 
@@ -181,6 +186,14 @@ $this->params['breadcrumbs'][] = $model->id_entrega;
                                         <tr style='font-size:85%;'>
                                             <td><?= $val->insumos->codigo_insumo ?></td>
                                             <td style='background-color:<?= $val->insumos->grupo->color ?>'><?= $val->insumos->descripcion ?></td>
+                                            <?php if($val->faltan_insumos == 0){?>
+                                                <td><?= $val->faltanInsumos ?></td>
+                                                <td><?= $val->cantidad_faltante ?></td>
+                                            <?php }else{?>
+                                                <td style='background-color:#faf2cc;'><?= $val->faltanInsumos ?></td>
+                                                <td><?= $val->cantidad_faltante ?></td>
+                                            <?php }?>    
+                                            <td style="text-align:right"><?= $val->detalle->total_unidades ?></td>
                                             <td><?= $val->ordenDetalle->productodetalle->prendatipo->talla->talla ?></td>
                                             <td style="text-align:right"><?= $val->cantidad ?></td>
                                             <td style="text-align:right"><?= ''.number_format($val->unidades,2)?></td>
@@ -204,7 +217,7 @@ $this->params['breadcrumbs'][] = $model->id_entrega;
                                             }
                                                 
                                             if($model->autorizado == 0){?>
-                                                <?php if($val->detalle->maneja_unidad == 1){?>
+                                                <?php if($val->detalle->maneja_unidad == 1 || $val->detalle->maneja_unidad == 2){?>
                                                     <td style= 'width: 25px;' >
                                                         <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> ',
                                                                 ['orden-produccion-insumos/editar_linea_insumo', 'id' => $model->id_entrega, 'id_detalle' => $val->id],

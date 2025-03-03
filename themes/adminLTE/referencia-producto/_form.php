@@ -28,11 +28,19 @@ $tipoPrenda = ArrayHelper::map(TipoProducto::find()->orderBy('concepto ASC')->al
     <div class="panel-heading">
         <h3>Registros</h3>
     </div>
-    <div class="panel-body">        														   		
-        <div class="row">
-            <?= $form->field($model, 'codigo')->textInput(['maxlength' => true, 'readonly' => true]) ?>    
-            <?= $form->field($model, 'descripcion_referencia')->textInput(['maxlength' => true]) ?>  					
-        </div>
+    <div class="panel-body"> 
+        <?php if($sw == 0){?>        
+            <div class="row">
+
+                <?= $form->field($model, 'codigo')->textInput(['maxlength' => true,]) ?>    
+                <?= $form->field($model, 'descripcion_referencia')->textInput(['maxlength' => true]) ?>  					
+            </div>
+        <?php }else{?>
+            <div class="row">
+                <?= $form->field($model, 'codigo')->textInput(['maxlength' => true, 'readonly' => true]) ?>    
+                <?= $form->field($model, 'descripcion_referencia')->textInput(['maxlength' => true]) ?>  					
+            </div>
+        <?php }?>
 
         <div class="row">
           <?= $form->field($model, 'id_tipo_producto')->widget(Select2::classname(), [

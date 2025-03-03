@@ -153,16 +153,17 @@ class OrdenProduccionInsumosController extends Controller
 
    
     //PEMRITE VER EL LISTADO DE INSUMOS
-    public function actionVer_insumos($id, $tipo_orden, $tallas) {
+    public function actionVer_insumos($id, $tipo_orden, $tallas, $referencia) {
         
-        $model =\app\models\ReferenciaInsumos::find()->where(['=','idtipo', $tipo_orden])->orderBy('id_insumos ASC')->all();
+        $model =\app\models\ReferenciaInsumos::find()->where(['=','idtipo', $tipo_orden])->andWhere(['=','codigo', $referencia])->orderBy('id_insumos ASC')->all();
         if (Yii::$app->request->post()) {
             if (isset($_POST["enviar_insumos_orden"])) {
                 if (isset($_POST["listado_insumos"])) {
-                    $intIndice = 0;
+                    $intIndice = 0; $stock = 0;
                     foreach ($_POST["listado_insumos"] as $intCodigo):
                        $detalleTallas = \app\models\Ordenproducciondetalle::findOne($tallas);
                        $insumos = \app\models\ReferenciaInsumos::findOne($intCodigo);
+                        $inventario = \app\models\Insumos::find()->where(['=','id_insumos', $insumos->id_insumos])->one();
                        $BusquedaItem = \app\models\OrdenProduccionInsumoDetalle::find()->where(['=','id_insumos', $insumos->id_insumos])->andWhere(['=','iddetalleorden', $tallas])->one();
                        if(!$BusquedaItem){
                             $table = new \app\models\OrdenProduccionInsumoDetalle();
@@ -170,6 +171,10 @@ class OrdenProduccionInsumosController extends Controller
                             $table->id_detalle = $intCodigo;
                             $table->id_insumos = $insumos->id_insumos;
                             $table->cantidad = $detalleTallas->cantidad;
+                            if($detalleTallas->cantidad > $inventario->stock_real){
+                                $table->faltan_insumos = 1;
+                                $table->cantidad_faltante = $inventario->stock_real - $detalleTallas->cantidad;
+                            }
                             if($insumos->total_unidades > 0){
                                 $table->unidades = $insumos->total_unidades;
                                 $table->metros = $insumos->total_unidades * $detalleTallas->cantidad;
@@ -188,12 +193,16 @@ class OrdenProduccionInsumosController extends Controller
                 }     
            }
         }
-       
-        return $this->renderAjax('ver_insumos', [
-            'id' => $id,
-            'model' => $model,
-            'tallas' => $tallas,
-        ]); 
+        if(count($model) > 0 ){
+            return $this->renderAjax('ver_insumos', [
+                'id' => $id,
+                'model' => $model,
+                'tallas' => $tallas,
+            ]); 
+        }else{
+            Yii::$app->getSession()->setFlash('error', 'Esta referencia NO tiene configurado los insumos para este proceso. Valide la informacion.');
+            return $this->redirect(['orden-produccion-insumos/view','id' => $id]);
+        }    
     }
     
     //EDITAR INSUMOS
@@ -232,6 +241,13 @@ class OrdenProduccionInsumosController extends Controller
     //AUTORIZAR PROCESO Y DESAUTORIZAR
     public function actionAutorizado($id) {
        $orden = OrdenProduccionInsumos::findOne($id);
+       $detalle_orden = \app\models\OrdenProduccionInsumoDetalle::find()->where(['=','id_entrega', $id])->all();
+       foreach ($detalle_orden as $detalle) {
+           if($detalle->faltan_insumos == 1){
+               Yii::$app->getSession()->setFlash('error','No tiene inventario suficiente para cubrir esta Orden. Favor valide la información con inventarios.');
+               return $this->redirect(['orden-produccion-insumos/view','id' => $id]);
+           }
+       }
        if($orden->autorizado == 0){
            $orden->autorizado = 1;
            $orden->save();
@@ -276,6 +292,51 @@ class OrdenProduccionInsumosController extends Controller
         $orden->save(false);
     } 
     
+    //DESCARGAR INVENTARIOS
+    public function actionEnviar_insumos_modulo($id) {
+       $ordenInsumo = OrdenProduccionInsumos::findOne($id);
+       if($ordenInsumo->exportar_insumos == 0){
+            $orden = \app\models\OrdenProduccionInsumoDetalle::find()->where(['=','id_entrega', $id])->orderBy('id_insumos ASC')->all(); 
+            $con = 0;
+            foreach ($orden as $datos) {
+                $insumo = \app\models\Insumos::findOne($datos->id_insumos);
+                if($insumo){
+                     if($datos->metros > 0){
+                        $insumo->stock_real -= $datos->metros;
+                     }else{
+                        $insumo->stock_real -= $datos->cantidad;
+                     }
+                    $insumo->save(false);
+                    $con++; 
+                    $this->ActualizaSaldosInsumos($datos);
+                }
+            }
+            $ordenInsumo->exportar_insumos = 1;
+            $ordenInsumo->save();
+             Yii::$app->getSession()->setFlash('success', 'Se enviaron (' .$con.') registros de insumos para al modulo de inventario.');
+             return $this->redirect(['orden-produccion-insumos/view','id' => $id]);
+       }else{
+            Yii::$app->getSession()->setFlash('error','Esta orden de ('.$ordenInsumo->tipo->tipo.') ya se le exportaron los insumos.');
+            return $this->redirect(['orden-produccion-insumos/view','id' => $id]); 
+       }     
+    }
+    
+    //PROCESO QUE TOTALIZA SALDOS
+    protected function ActualizaSaldosInsumos($datos) {
+        $insumo = \app\models\Insumos::findOne($datos->id_insumos);
+        $subtotal = 0; $iva = 0; $total = 0;
+        if($insumo->aplica_inventario == 1){
+            if($insumo->aplica_iva == 1){
+                $subtotal = $insumo->stock_real * $insumo->precio_unitario;
+                $iva = round(($subtotal * $insumo->porcentaje_iva)/100);
+                $total = $subtotal+ $iva;
+                $insumo->subtotal = $subtotal;
+                $insumo->total_iva = $iva;
+                $insumo->total_materia_prima = $total; 
+                $insumo->save(false);
+            }
+        }    
+    }
     //REPORTES
     public function actionReporte_orden_insumo($id) {
         $model = OrdenProduccionInsumos::findOne($id);

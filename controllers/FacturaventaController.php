@@ -1138,7 +1138,7 @@ class FacturaventaController extends Controller
                     ->setCellValue('F' . $i, $val->idordenproduccion)
                     ->setCellValue('F' . $i, $val->fecha_inicio)
                     ->setCellValue('G' . $i, $val->fecha_vencimiento)
-                    ->setCellValue('H' . $i, $val->formadepago)
+                    ->setCellValue('H' . $i, $val->formaPago->concepto)
                     ->setCellValue('I' . $i, $val->plazopago)
                     ->setCellValue('J' . $i, $val->porcentajeiva)
                     ->setCellValue('K' . $i, $val->porcentajefuente)

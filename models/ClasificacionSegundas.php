@@ -130,6 +130,8 @@ class ClasificacionSegundas extends \yii\db\ActiveRecord
             't38' => '38',
             't40' => '40',
             't42' => '42',
+            't44' => '44',
+            't46' => '46',
             'a2' => 'A2',
             'a4' => 'A4',
             'a6' => 'A6',
@@ -149,6 +151,8 @@ class ClasificacionSegundas extends \yii\db\ActiveRecord
             'a38' => 'A38',
             'a40' => 'A40',
             'a42' => 'A42',
+            'a44' => 'A44',
+            'a46' => 'A46',
             'unidades' => 'Unidades',
         ];
     }

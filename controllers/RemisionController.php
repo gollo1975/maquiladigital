@@ -824,7 +824,7 @@ class RemisionController extends Controller
             if($val->c42 > 0){
                 $model->t42 = 1;
             } 
-             if($val->c444 > 0){
+             if($val->c44 > 0){
                 $model->t44 = 1;
             } 
              if($val->c46 > 0){

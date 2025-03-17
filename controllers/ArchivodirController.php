@@ -99,7 +99,7 @@ class ArchivodirController extends \yii\web\Controller
             $model->view = $view;
         }
 
-        return $this->render("Subir", ["model" => $model, "msg" => $msg,'view' => $view, 'token' => $token]);
+        return $this->render("subir", ["model" => $model, "msg" => $msg,'view' => $view, 'token' => $token]);
     }
     
     //DESCARGAR
@@ -136,7 +136,7 @@ class ArchivodirController extends \yii\web\Controller
                 if ($table) {
                     $table->descripcion = Html::encode($_POST["descripcion"]);                                                                                
                     $table->update();                       
-                    $this->redirect(["archivodir/index",'numero' => $numero,'codigo' => $codigo,'view' => $view, 'token' => $token]); 
+                    return $this->redirect(["archivodir/index",'numero' => $numero,'codigo' => $codigo,'view' => $view, 'token' => $token]); 
                                         
                 } else {
                     $msg = "El registro seleccionado no ha sido encontrado";
@@ -157,7 +157,7 @@ class ArchivodirController extends \yii\web\Controller
                 $ruta = $carpeta.$archivo->nombre;
                 $archivo->delete();
                 unlink($ruta);
-                $this->redirect(["archivodir/index",'numero' => $numero,'codigo' => $codigo,'view' => $view, 'token' => $token]);
+                return $this->redirect(["archivodir/index",'numero' => $numero,'codigo' => $codigo,'view' => $view, 'token' => $token]);
             }
         
     }

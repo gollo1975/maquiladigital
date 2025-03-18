@@ -285,15 +285,8 @@ class CompraController extends Controller
                 $impuestoiva = round($model->subtotal * $concepto->porcentaje_iva / 100); //calculo iva
                 $porcentajeiva = $concepto->porcentaje_iva; 
                 $baseaiu = 0;
-                if ($concepto->base_retencion == 100){ //calculo retefuente cuando es el 100%
-                    $retencionfuente = round($model->subtotal * $concepto->porcentaje_retefuente / 100);
-                    if($retencionfuente == 0){
-                        $porcentajeretefuente = 0;
-                    }else{
-                        $porcentajeretefuente = $concepto->porcentaje_retefuente;                    
-                    }
-                }else{
-                    if ($model->subtotal >= $concepto->base_retencion){ //calculo retefuente cuando cumple con la base de retencion
+                if($proveedor->autoretenedor == 0){
+                    if ($concepto->base_retencion == 100){ //calculo retefuente cuando es el 100%
                         $retencionfuente = round($model->subtotal * $concepto->porcentaje_retefuente / 100);
                         if($retencionfuente == 0){
                             $porcentajeretefuente = 0;
@@ -301,9 +294,21 @@ class CompraController extends Controller
                             $porcentajeretefuente = $concepto->porcentaje_retefuente;                    
                         }
                     }else{
-                        $retencionfuente = 0;
+                        if ($model->subtotal >= $concepto->base_retencion){ //calculo retefuente cuando cumple con la base de retencion
+                            $retencionfuente = round($model->subtotal * $concepto->porcentaje_retefuente / 100);
+                            if($retencionfuente == 0){
+                                $porcentajeretefuente = 0;
+                            }else{
+                                $porcentajeretefuente = $concepto->porcentaje_retefuente;                    
+                            }
+                        }else{
+                            $retencionfuente = 0;
+                        }
                     }
-                }
+                }else{
+                    $porcentajeretefuente = 0;
+                    $retencionfuente = 0;
+                }    
             }
             
             

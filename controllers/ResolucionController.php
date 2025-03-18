@@ -3,13 +3,16 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Resolucion;
-use app\models\ResolucionSearch;
-use app\models\Matriculaempresa;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\data\Pagination;
+use yii\helpers\Html;
+//models
+use app\models\Resolucion;
+use app\models\ResolucionSearch;
+use app\models\Matriculaempresa;
 use app\models\UsuarioDetalle;
 
 
@@ -38,24 +41,67 @@ class ResolucionController extends Controller
      * Lists all Resolucion models.
      * @return mixed
      */
-    public function actionIndex()
-    {
+       public function actionIndex( $token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',7])->all()){
-                $searchModel = new ResolucionSearch();
-                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-                return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+                $form = new \app\models\FormFiltroResolucion();
+                $estado = null;
+                $tipo_documento = null;
+                $numero = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {                        
+                        $estado = Html::encode($form->estado);
+                        $tipo_documento = Html::encode($form->tipo_documento);
+                        $numero = Html::encode($form->numero);
+                        $table = Resolucion::find()
+                                ->andFilterWhere(['=', 'nroresolucion', $numero])                                                                                              
+                                ->andFilterWhere(['=', 'id_documento', $tipo_documento])
+                                ->andFilterWhere(['=','activo', $estado]);
+                        $table = $table->orderBy('idresolucion DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 10,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                            
+                } else {
+                        $form->getErrors();
+                }                    
+            } else {
+                $table = Resolucion::find()
+                        ->orderBy('idresolucion DESC');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 10,
+                    'totalCount' => $count->count(),
                 ]);
-            }else{
-                return $this->redirect(['site/sinpermiso']);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                
             }
+            $to = $count->count();
+            return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'token' => $token,
+            ]);
         }else{
-            return $this->redirect(['site/login']);
+             return $this->redirect(['site/sinpermiso']);
+        }     
+        }else{
+           return $this->redirect(['site/login']);
         }
-    }
+   }
 
     /**
      * Displays a single Resolucion model.
@@ -63,10 +109,11 @@ class ResolucionController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'token' => $token,
         ]);
     }
 
@@ -107,28 +154,7 @@ class ResolucionController extends Controller
         ]);
     }
 
-    /**
-     * Deletes an existing Resolucion model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionDelete($id)
-    {
-        try {
-            $this->findModel($id)->delete();
-            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-            $this->redirect(["resolucion/index"]);
-        } catch (IntegrityException $e) {
-            $this->redirect(["resolucion/index"]);
-            Yii::$app->getSession()->setFlash('error', 'Error al eliminar la resolución, tiene registros asociados en otros procesos');
-        } catch (\Exception $e) {            
-            Yii::$app->getSession()->setFlash('error', 'Error al eliminar la resolución, tiene registros asociados en otros procesos');
-            $this->redirect(["resolucion/index"]);
-        }
-    }
-
+    
     /**
      * Finds the Resolucion model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

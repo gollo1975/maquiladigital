@@ -80,8 +80,8 @@ $form = ActiveForm::begin([
             ?>
         </div>
         <div class="panel-footer text-right">                    
-            <a href="<?= Url::toRoute("resolucion/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>		
+            <a href="<?= Url::toRoute("resolucion/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>		
         </div>
     </div>
 </div>

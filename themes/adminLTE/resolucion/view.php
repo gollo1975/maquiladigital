@@ -9,21 +9,15 @@ use yii\widgets\DetailView;
 $this->title = 'Detalle Resolución';
 $this->params['breadcrumbs'][] = ['label' => 'Resoluciones', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->idresolucion;
+$view = 'resolucion';
 ?>
 <div class="resolucion-view">
 
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idresolucion], ['class' => 'btn btn-primary']) ?>
-		<?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->idresolucion], ['class' => 'btn btn-success']) ?>
-        <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar', ['delete', 'id' => $model->idresolucion], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Esta seguro de eliminar el registro?',
-                'method' => 'post',
-            ],
-        ]) ?>
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index', 'id' => $model->idresolucion], ['class' => 'btn btn-primary btn-sm']) ?>
+        <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 21, 'codigo' => $model->idresolucion,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">

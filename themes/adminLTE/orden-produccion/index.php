@@ -115,7 +115,7 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
                 <th style='background-color:#F0F3EF;' scope="col">F. llegada</th>
                 <th style='background-color:#F0F3EF;' scope="col">F. entrega</th>
                 <th style='background-color:#F0F3EF;' scope="col">Total</th>                
-                <th style='background-color:#F0F3EF;' scope="col"><span title="Autorizado el registro">Aut.</span></th>
+                <th style='background-color:#F0F3EF;' scope="col"><span title="Grupo de producto">Grupo</span></th>
                 <th style='background-color:#F0F3EF;' scope="col"><span title="Facturado la orden">Fac.</span></th>
                 <th style='background-color:#F0F3EF;' scope="col"><span title="Lleva o viene de lavanderia">Lav.</span></th>
                 <th style='background-color:#F0F3EF; width: 150px;' scope="col">Tipo servicio</th>
@@ -135,8 +135,12 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
                 <td><?= $val->sam_operativo?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                  <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
-                <td align = "right"><?= number_format($val->totalorden,0) ?></td>                
-                <td><?= $val->autorizar ?></td>
+                <td align = "right"><?= number_format($val->totalorden,0) ?></td>   
+                <?php if($val->id_tipo_producto <> null){?>
+                    <td><?= $val->tipoProducto->linea ?></td>
+                <?php }else{?>
+                    <td><?= 'No found' ?></td>
+                <?php }?>    
                 <td><?= $val->facturar ?></td>
                 <?php if($val->lavanderia == 0){?>
                       <td><?= $val->lavanderiaPrenda ?></td>

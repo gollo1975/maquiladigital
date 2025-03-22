@@ -11,10 +11,11 @@ use yii\widgets\LinkPager;
 use yii\bootstrap\Modal;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
+use yii\helpers\ArrayHelper;
 
 $this->title = 'Ficha de Operaciones';
 $this->params['breadcrumbs'][] = $this->title;
-
+$grupoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tipo_producto', 'concepto');
 ?>
 <script language="JavaScript">
     function mostrarfiltro() {
@@ -58,11 +59,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     'allowClear' => true
                 ],
             ]); ?>
-        </div>
-        <div class="row" >
+            <?= $formulario->field($form, 'grupo')->widget(Select2::classname(), [
+                'data' => $grupoProducto,
+                'options' => ['prompt' => 'Seleccione un tipo...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
+            <?= $formulario->field($form, "codigoproducto")->input("search") ?>
             <?= $formulario->field($form, "ordenproduccion")->input("search") ?>
             <?= $formulario->field($form, "orden")->input("search") ?>
-            <?= $formulario->field($form, "codigoproducto")->input("search") ?>
+          
         </div>
         
         <div class="panel-footer text-right">
@@ -85,8 +92,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col" style='background-color:#B9D5CE;'>Op Int.</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Op Cliente</th>
+                <th scope="col" style='background-color:#B9D5CE;'><span class="badge" title="Tiempo proveedor">TP</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span class="badge" title="Tiempo confeccion">SO</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Grupo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. llegada</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. procesada</th>
                 <th sscope="col" style='background-color:#B9D5CE;'>Tipo</th>
@@ -101,8 +111,15 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= $val->idordenproduccion ?></td>
                 <td><?= $val->codigoproducto ?></td>
                 <td><?= $val->ordenproduccion ?></td>
-                  <td><?= $val->cantidad ?></td>
+                <td><?= $val->duracion ?></td>
+                <td><?= $val->sam_operativo ?></td>
+                <td><?= $val->cantidad ?></td>
                 <td><?= $val->cliente->nombrecorto ?></td>
+                <?php if($val->id_tipo_producto <> null){?>
+                    <td><?= $val->tipoProducto->linea ?></td>
+                <?php }else{?>
+                    <td><?= 'No found' ?></td>
+                <?php }?>    
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechaprocesada")) ?></td>
                 <td  style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>

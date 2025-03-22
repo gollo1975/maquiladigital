@@ -2069,7 +2069,7 @@ class OrdenProduccionController extends Controller {
         if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',28])->all()){
             $form = new FormFiltroOrdenProduccionProceso();
             $idcliente = null;
-            $ordenproduccion = null;
+            $ordenproduccion = null; $grupo = null;
             $idtipo = null;
             $codigoproducto = null; $orden= null;
             $clientes = Cliente::find()->all();
@@ -2080,11 +2080,13 @@ class OrdenProduccionController extends Controller {
                     $ordenproduccion = Html::encode($form->ordenproduccion);
                     $idtipo = Html::encode($form->idtipo);
                     $codigoproducto = Html::encode($form->codigoproducto);
+                    $grupo = Html::encode($form->grupo);
                     $orden = Html::encode($form->orden);
                     $table = Ordenproduccion::find()
                             ->andFilterWhere(['=', 'idcliente', $idcliente])
                             ->andFilterWhere(['like', 'idordenproduccion', $ordenproduccion])
                             ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
+                              ->andFilterWhere(['=', 'id_tipo_producto', $grupo])
                             ->andFilterWhere(['=', 'ordenproduccion', $orden])
                             ->andFilterWhere(['=', 'idtipo', $idtipo])
                             ->orderBy('idordenproduccion desc');

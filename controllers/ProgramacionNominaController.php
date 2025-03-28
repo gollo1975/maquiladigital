@@ -3235,7 +3235,8 @@ class ProgramacionNominaController extends Controller {
                         foreach ($buscarNomina as $key => $datos) {
 
                             $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $datos->id_programacion])->all();
-                            foreach ($detalle_nomina as $key => $detalle) {
+                            
+                            foreach ($detalle_nomina as $key => $detalle) { //para que recorre todo los detalles
                                 $buscar = \app\models\NominaElectronicaDetalle::find()->where(['=','codigo_salario', $detalle->codigo_salario])->andWhere(['=','id_periodo_electronico', $id_periodo])
                                                                                       ->andWhere(['=','id_empleado', $conRegistro->id_empleado])->one();
                                 
@@ -3386,7 +3387,8 @@ class ProgramacionNominaController extends Controller {
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
                                             $table->save(false);
-                                        }    
+                                        }  
+                                        $buscar->save(false);      
                                     }else{ // acumulado de deducciones
                                         if($detalle->codigoSalario->id_agrupado == 4){ //FONDO DE PENSION
                                             $buscar->deduccion_pension += $detalle->vlr_deduccion;  
@@ -3406,14 +3408,15 @@ class ProgramacionNominaController extends Controller {
                                         }elseif ($detalle->codigoSalario->id_agrupado == 14) { //libranzas y bancos
                                             $table->deduccion += $detalle->vlr_deduccion; 
                                         }
+                                    $buscar->save(false);    
                                     }
-                                    $buscar->save(false);
-                                    $conRegistro->save(false);
+                                   
+                                  //  $conRegistro->save(false);
                                }
                             }
                         //cierre en programacion turnos
                         $datos->documento_detalle_generado = 1;
-                        $datos->save();    
+                        $datos->save(false);    
                         }
                         //cierra en nomina electronica
                         $conRegistro->generado_detalle = 1;

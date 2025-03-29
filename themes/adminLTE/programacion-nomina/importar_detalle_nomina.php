@@ -74,6 +74,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Fecha corte</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Activo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Devengado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Deduccion</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
@@ -92,6 +93,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $val->empleado->nombrecorto ?></td>
                         <td><?= $val->fecha_inicio_nomina ?></td>
                         <td><?= $val->fecha_final_nomina ?></td>
+                         <td><?= $val->documentoActivo ?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_devengado,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_deduccion,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_pagar,0)?></td>

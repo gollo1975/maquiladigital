@@ -74,14 +74,16 @@ class NominaElectronica extends \yii\db\ActiveRecord
             [['id_periodo_pago', 'id_tipo_nomina', 'id_contrato', 'id_empleado', 'id_periodo_electronico', 'id_grupo_pago', 'documento_empleado', 'type_worker_id', 'sub_type_worker_id', 'codigo_municipio',
                 'codigo_forma_pago', 'generado_detalle', 'exportado_nomina','numero_nomina_electronica', 'salario_contrato', 'total_devengado',
                 'total_deduccion', 'total_pagar','dias_trabajados'], 'number'],
-            [['fecha_inicio_nomina', 'fecha_final_nomina', 'fecha_inicio_contrato', 'fecha_terminacion_contrato', 'fecha_envio_nomina', 'fecha_recepcion_dian','fecha_envio_begranda'], 'safe'],
+            [['fecha_inicio_nomina', 'fecha_final_nomina', 'fecha_inicio_contrato', 'fecha_terminacion_contrato', 'fecha_envio_nomina', 'fecha_recepcion_dian',
+                'fecha_envio_begranda','fecha_hora_eliminacion'], 'safe'],
             [['primer_nombre','segundo_nombre', 'primer_apellido', 'segundo_apellido'], 'string', 'max' => 10],
-            [['email_empleado'], 'string', 'max' => 60],
+            [['email_empleado', 'nota'], 'string', 'max' => 60],
             [['direccion_empleado','nombre_completo'], 'string', 'max' => 50],
             [['nombre_banco'], 'string', 'max' => 40],
             [['nombre_cuenta', 'numero_cuenta'], 'string', 'max' => 20],
-            [['cune'], 'string', 'max' => 350],
+            [['cune','nuevo_cune'], 'string', 'max' => 350],
             [['qrstr'], 'string', 'max' => 2000],
+            [['documento_activo'], 'integer'],
             [['user_name','codigo_documento','consecutivo'], 'string', 'max' => 15],
             [['id_periodo_pago'], 'exist', 'skipOnError' => true, 'targetClass' => PeriodoPago::className(), 'targetAttribute' => ['id_periodo_pago' => 'id_periodo_pago']],
             [['id_tipo_nomina'], 'exist', 'skipOnError' => true, 'targetClass' => TipoNomina::className(), 'targetAttribute' => ['id_tipo_nomina' => 'id_tipo_nomina']],
@@ -139,6 +141,10 @@ class NominaElectronica extends \yii\db\ActiveRecord
             'consecutivo' => 'consecutivo',
             'numero_nomina_electronica' => 'numero_nomina_electronica',
             'fecha_envio_begranda' => 'fecha_envio_begranda',
+            'documento_activo' => 'documento_activo',
+            'fecha_hora_eliminacion' => 'fecha_hora_eliminacion',
+            'nota' => 'nota',
+            'nuevo_cune' => 'nuevo_cune',
         ];
     }
 
@@ -191,7 +197,6 @@ class NominaElectronica extends \yii\db\ActiveRecord
     }
     
     
-    
     public function getExportadoNomina() {
         if($this->exportado_nomina == 0){
             $exportadonomina = 'NO';
@@ -200,4 +205,14 @@ class NominaElectronica extends \yii\db\ActiveRecord
         }
         return $exportadonomina;
     }
+    
+    public function getDocumentoActivo() {
+        if($this->documento_activo == 0){
+            $documentoactivo = 'SI';
+        }else{
+            $documentoactivo = 'NO';
+        }
+        return $documentoactivo;
+    }    
+
 }

@@ -63,6 +63,14 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                         <td colspan="5"><?= Html::encode($model->cune) ?></td>                                                            
                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Neto_pagar') ?>:</th>
                         <td style="text-align: right"><?= Html::encode(''.number_format($model->total_pagar,2)) ?></td>
+                    </tr>  
+                     <tr style='font-size:85%;'>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nuevo_cune') ?>:</th>
+                        <td colspan="4"><?= Html::encode($model->nuevo_cune) ?></td>                                                            
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_eliminacion') ?>:</th>
+                        <td style="text-align: right"><?= Html::encode($model->fecha_hora_eliminacion) ?></td>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nota') ?>:</th>
+                        <td style="text-align: right"><?= Html::encode($model->nota) ?></td>
                     </tr>    
                                             
                 </table>

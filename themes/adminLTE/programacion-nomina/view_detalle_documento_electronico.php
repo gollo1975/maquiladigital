@@ -66,7 +66,7 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                     </tr>  
                      <tr style='font-size:85%;'>
                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Nuevo_cune') ?>:</th>
-                        <td colspan="4"><?= Html::encode($model->nuevo_cune) ?></td>                                                            
+                        <td colspan="5"><?= Html::encode($model->nuevo_cune) ?></td>                                                            
                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Fecha_eliminacion') ?>:</th>
                         <td style="text-align: right"><?= Html::encode($model->fecha_hora_eliminacion) ?></td>
                     </tr>    

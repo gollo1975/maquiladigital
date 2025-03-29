@@ -64,7 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="table-responsive">
 <div class="panel panel-success ">
     <div class="panel-heading">
-         Registros <span class="badge"> <?= count($model)?></span>
+         Registros <span class="badge"> <?= $pagination->totalCount ?></span>
    </div>
         <table class="table table-bordered table-hover">
             <thead>

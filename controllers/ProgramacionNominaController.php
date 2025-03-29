@@ -665,7 +665,7 @@ class ProgramacionNominaController extends Controller {
                                 ->andFilterWhere(['like', 'nombre_completo', $empleado])
                                 ->andFilterWhere(['=', 'documento_empleado', $documento])
                                 ->andWhere(['=', 'exportado_nomina', 1]);
-                        $table = $table->orderBy('numero_nomina_electronica ASC');
+                        $table = $table->orderBy('numero_nomina_electronica DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
@@ -683,7 +683,7 @@ class ProgramacionNominaController extends Controller {
                 } else {
                     $table = \app\models\NominaElectronica::find()->Where(['>', 'numero_nomina_electronica', 0])
                                                                   ->andWhere(['=', 'exportado_nomina', 1])
-                                                                  ->orderBy('numero_nomina_electronica ASC');
+                                                                  ->orderBy('numero_nomina_electronica DESC');
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([

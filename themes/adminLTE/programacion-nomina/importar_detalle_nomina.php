@@ -93,7 +93,11 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $val->empleado->nombrecorto ?></td>
                         <td><?= $val->fecha_inicio_nomina ?></td>
                         <td><?= $val->fecha_final_nomina ?></td>
-                         <td><?= $val->documentoActivo ?></td>
+                        <?php if($val->documento_activo == 0){?>
+                            <td style='background-color:#B9D5CE;'><?= $val->documentoActivo ?></td>
+                        <?php }else{?>
+                            <td style='background-color:#76c893;'><?= $val->documentoActivo ?></td>
+                        <?php }?>    
                         <td style="text-align: right"><?= ''.number_format($val->total_devengado,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_deduccion,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_pagar,0)?></td>

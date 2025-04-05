@@ -7,6 +7,7 @@ use app\models\Facturaventadetalle;
 use app\models\Matriculaempresa;
 use app\models\Municipio;
 use app\models\Departamento;
+use yii\base\ErrorException;
 
 class PDF extends FPDF {
 
@@ -16,7 +17,7 @@ class PDF extends FPDF {
         $config = Matriculaempresa::findOne(1);
         $municipio = Municipio::findOne($config->idmunicipio);
         $departamento = Departamento::findOne($config->iddepartamento);
-        $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','idresolucion', $factura->idresolucion])->one();
+        $resolucion = \app\models\Resolucion::find()->Where(['=','idresolucion', $factura->idresolucion])->one();
         //Logo//
         $this->SetXY(43, 10);
          $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 30);

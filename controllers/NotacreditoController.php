@@ -514,6 +514,7 @@ class NotacreditoController extends Controller
                         $nota->fecha_envio_api = date("Y-m-d H:i:s");
                         $nota->save(false);
                         Yii::$app->getSession()->setFlash('success', "La Nota credito  No ($nota->numero) se envió con éxito a la DIAN.");
+                        return $this->redirect(['notacredito/view','id' => $id]); 
                     } else {
                         throw new Exception('El CUDE no se encontró en la respuesta.');
                     }

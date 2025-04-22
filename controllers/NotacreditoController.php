@@ -440,14 +440,14 @@ class NotacreditoController extends Controller
             $error = $response === false ? curl_error($curl) : "HTTP $httpCode";
             Yii::$app->getSession()->setFlash('error', 'Hubo un problema al comunicarse con la DIAN. Intenta reenviar más tarde.');
             Yii::error("Error en la solicitud CURL: $error", __METHOD__);
-            return $this->redirect(['nota-credito/view', 'id' => $id]);
+            return $this->redirect(['notacredito/view', 'id' => $id]);
         }
         
         $data = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             Yii::$app->getSession()->setFlash('error', 'Error al procesar la respuesta de la DIAN. Intenta reenviar más tarde.');
             Yii::error("Error al decodificar JSON: " . json_last_error_msg(), __METHOD__);
-            return $this->redirect(['nota-credito/view', 'id' => $id]);
+            return $this->redirect(['notacredito/view', 'id' => $id]);
         }
         
     try {

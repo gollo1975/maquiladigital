@@ -322,7 +322,7 @@ class ProgramacionNominaController extends Controller {
                                 // Configurar cURL
                                 $curl = curl_init();
                               //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
-                                $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+                              //  $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
                                 $dataBody = [
                                     "novelty" => [
                                         "novelty" => false,
@@ -489,7 +489,7 @@ class ProgramacionNominaController extends Controller {
                                        }
                                        $dataBody["accrued"]['bonuses'][] =  [
                                              
-                                               "no_salary_bonus" => $devengado,
+                                               "non_salary_bonus" => $devengado,
                                         ];
                                     }elseif ($detalle->id_agrupado == 19){ //BONIFICACIONES PRESTACIONES
                                        if(!isset($dataBody["accrued"]['bonuses'])){
@@ -497,7 +497,7 @@ class ProgramacionNominaController extends Controller {
                                        }
                                        $dataBody["accrued"]['bonuses'][] =  [
                                                "salary_bonus" => $devengado,
-                                               "no_salary_bonus" => 0,
+                                               "non_salary_bonus" => 0,
                                         ];   
                                     }elseif ($detalle->id_agrupado == 15){ //comisiones  
                                         $dataBody["accrued"]["commissions"] = [
@@ -569,7 +569,7 @@ class ProgramacionNominaController extends Controller {
                                 }//CIERRA EL PARA DEL DETALLE DEL PAGO 
                                 
                                 $dataBody = json_encode($dataBody);
-                                
+                               
                                 //   //EJECUTA EL DATABODY 
                                 curl_setopt_array($curl, [
                                     CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",
@@ -612,12 +612,12 @@ class ProgramacionNominaController extends Controller {
                                     }    
                                }else{
                                    $errors = [];
-					// Documento no procesado por la DIAN
-					if(isset($data["errors"])){ // Control Errores Begranda
-						$errors = $data["errors"];
-					}else if(isset($data['ResponseDian'])){ // Control de Errores DIAN
-						$errors = $data['ResponseDian']['Envelope']['Body']['SendNominaSyncResponse']['SendNominaSyncResult']['ErrorMessage'];
-					}else{
+                                        // Documento no procesado por la DIAN
+                                        if(isset($data["errors"])){ // Control Errores Begranda
+                                            $errors = $data["errors"];
+                                        }else if(isset($data['ResponseDian'])){ // Control de Errores DIAN
+                                            $errors = $data['ResponseDian']['Envelope']['Body']['SendNominaSyncResponse']['SendNominaSyncResult']['ErrorMessage'];
+                                        }else{
                                             $errorMessage = isset($data['message']) ? $data['message'] : 'Error desconocido';
                                             // Mostrar el mensaje específico de la API
                                             Yii::$app->getSession()->setFlash('error', "No se pudo enviar el documento electronico. Error: $errorMessage.");

@@ -736,13 +736,13 @@ class ValorPrendaUnidadController extends Controller
                                                                ->andWhere(['=','id_operario', $operario])->orderBy('iddetalleorden ASC')->all();
             $conCrearCorte = \app\models\ValorPrendaCorteConfeccion::find(['=','id_valor', $id])->andWhere(['=','fecha_proceso', $fecha_entrada])->one();
             if($conCrearCorte){ 
-                if ($operario > 0 && $fecha_entrada != null && $modulo != null && $id_detalle != null && $hora_inicio != null && $hora_corte != null) {
+                if ($operario > 0 && $fecha_entrada != '' && $modulo != '' && $id_detalle != '' && $hora_inicio != '' && $hora_corte != '') {
                     $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
                                                                             ->andWhere(['=','idordenproduccion', $idordenproduccion])
                                                                             ->andWhere(['=','estado_operacion', 0])
                                                                             ->andWhere(['=','id_balanceo', $modulo])->all();
                 }else{
-                    Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO, TALLA, HORA INICIO Y HORA CPRTE para la busqueda.');
+                    Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO, TALLA, HORA INICIO Y HORA CORTE para la busqueda.');
                     return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
                 }
             }else{

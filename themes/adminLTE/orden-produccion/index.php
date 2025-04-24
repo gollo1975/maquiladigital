@@ -192,7 +192,7 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tip
                             "method" => "post",                            
                         ]);
                 ?>    
-                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary ']); ?>
+                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel detalle", ['name' => 'excel','class' => 'btn btn-primary ']); ?>
                 <a align="right" href="<?= Url::toRoute("orden-produccion/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
             <?php $form->end() ?>
         </div>

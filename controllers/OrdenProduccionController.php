@@ -117,7 +117,7 @@ class OrdenProduccionController extends Controller {
                     $count = clone $table;
                     $to = $count->count();
                     $pages = new Pagination([
-                        'pageSize' => 60,
+                        'pageSize' => 40,
                         'totalCount' => $count->count()
                     ]);
                     $model = $table
@@ -137,7 +137,7 @@ class OrdenProduccionController extends Controller {
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $pages = new Pagination([
-                    'pageSize' => 60,
+                    'pageSize' => 40,
                     'totalCount' => $count->count(),
                 ]);
                 $model = $table
@@ -3853,42 +3853,65 @@ class OrdenProduccionController extends Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
-                               
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setAutoSize(true);
+         $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);
+        
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'Id')
                     ->setCellValue('B1', 'Cod Producto')
                     ->setCellValue('C1', 'Cliente')
                     ->setCellValue('D1', 'Orden Prod Int')
                     ->setCellValue('E1', 'Orden Prod Ext')
-                    ->setCellValue('F1', 'Fecha Llegada')
-                    ->setCellValue('G1', 'Fecha Proceso')
-                    ->setCellValue('H1', 'Fecha Entrega')
-                    ->setCellValue('I1', 'Cantidad')
-                    ->setCellValue('J1', 'Tipo')
-                    ->setCellValue('K1', 'Total')
-                    ->setCellValue('L1', 'Autorizado')
-                    ->setCellValue('M1', 'Facturado')
-                    ->setCellValue('N1', 'Observacion');
+                    ->setCellValue('F1', 'Orden Cliente')
+                    ->setCellValue('G1', 'Fecha Llegada')
+                    ->setCellValue('H1', 'Fecha Proceso')
+                    ->setCellValue('I1', 'Fecha Entrega')
+                    ->setCellValue('J1', 'Cantidad')
+                    ->setCellValue('K1', 'Tipo')
+                    ->setCellValue('L1', 'Total')
+                    ->setCellValue('M1', 'Autorizado')
+                    ->setCellValue('N1', 'Facturado')
+                    ->setCellValue('O1', 'Planta')
+                    ->setCellValue('P1', 'Talla')
+                    ->setCellValue('Q1', 'Cantidad')
+                    ->setCellValue('R1', 'Precio')
+                    ->setCellValue('S1', 'Subtotal')
+                    ->setCellValue('T1', 'Porcentaje proceso');
         $i = 2;
         
         foreach ($tableexcel as $val) {
-                                  
-            $objPHPExcel->setActiveSheetIndex(0)
-                    ->setCellValue('A' . $i, $val->idordenproduccion)
-                    ->setCellValue('B' . $i, $val->codigoproducto)
-                    ->setCellValue('C' . $i, $val->cliente->nombreClientes)
-                    ->setCellValue('D' . $i, $val->ordenproduccion)
-                    ->setCellValue('E' . $i, $val->ordenproduccionext)
-                    ->setCellValue('F' . $i, $val->fechallegada)
-                    ->setCellValue('G' . $i, $val->fechaprocesada)
-                    ->setCellValue('H' . $i, $val->fechaentrega)
-                    ->setCellValue('I' . $i, $val->cantidad)
-                    ->setCellValue('J' . $i, $val->tipo->tipo)
-                    ->setCellValue('K' . $i, round($val->totalorden,0))
-                    ->setCellValue('L' . $i, $val->autorizar)
-                    ->setCellValue('M' . $i, $val->facturar)
-                    ->setCellValue('N' . $i, $val->observacion);
-            $i++;
+            $detalle = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $val->idordenproduccion])->all();  
+            foreach ($detalle as $detalles) {
+                
+                $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('A' . $i, $val->idordenproduccion)
+                        ->setCellValue('B' . $i, $val->codigoproducto)
+                        ->setCellValue('C' . $i, $val->cliente->nombreClientes)
+                        ->setCellValue('D' . $i, $val->ordenproduccion)
+                        ->setCellValue('E' . $i, $val->ordenproduccionext)
+                        ->setCellValue('F' . $i, $val->ordenproduccion)
+                        ->setCellValue('G' . $i, $val->fechallegada)
+                        ->setCellValue('H' . $i, $val->fechaprocesada)
+                        ->setCellValue('I' . $i, $val->fechaentrega)
+                        ->setCellValue('J' . $i, $val->cantidad)
+                        ->setCellValue('K' . $i, $val->tipo->tipo)
+                        ->setCellValue('L' . $i, round($val->totalorden,0))
+                        ->setCellValue('M' . $i, $val->autorizar)
+                        ->setCellValue('N' . $i, $val->facturar)
+                        ->setCellValue('O' . $i, $detalles->plantaProduccion->nombre_planta)
+                        ->setCellValue('P' . $i, $detalles->productodetalle->prendatipo->prenda.'/'. $detalles->productodetalle->prendatipo->talla->talla)
+                        ->setCellValue('Q' . $i, $detalles->cantidad)
+                        ->setCellValue('R' . $i, $detalles->vlrprecio)
+                        ->setCellValue('S' . $i, $detalles->subtotal)
+                        ->setCellValue('T' . $i, $detalles->porcentaje_proceso);
+                      
+                $i++;
+            }
+           $i = $i; 
         }
 
         $objPHPExcel->getActiveSheet()->setTitle('ordenes_produccion');
@@ -4444,8 +4467,8 @@ class OrdenProduccionController extends Controller {
         exit;
     }
     
-   //permite exportar los reprocesos de la op
-   public function actionReprocesosexcelconfeccion($id) {                
+    //permite exportar los reprocesos de la op
+    public function actionReprocesosexcelconfeccion($id) {                
         $reprocesos = \app\models\ReprocesoProduccionPrendas::find()->where(['=','idordenproduccion', $id])
                                                                    ->andWhere(['=','tipo_reproceso', 1])->orderBy('idproductodetalle ASC')->all();
        
@@ -4536,7 +4559,7 @@ class OrdenProduccionController extends Controller {
         exit;
     }// fin del exportar
    
-  //permite exportar los reprocesos de terminacion
+    //permite exportar los reprocesos de terminacion
      public function actionReprocesosexcelterminacion($id) {                
         $reprocesos = \app\models\ReprocesoProduccionPrendas::find()->where(['=','idordenproduccion', $id])
                                                                    ->andWhere(['=','tipo_reproceso', 2])->orderBy('idproductodetalle ASC')->all();

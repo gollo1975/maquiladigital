@@ -162,7 +162,7 @@ class ProductoController extends Controller
     public function actionCreate()
     {
         $model = new Producto();
-        $clientes = Cliente::find()->all();
+        $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         //$prendas = Prendatipo::find()->all();
         //$ordentipos = Ordenproducciontipo::find()->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
@@ -232,25 +232,31 @@ class ProductoController extends Controller
         $form = new FormProductosDetallesNuevo;
         $q = null;
         $mensaje = '';
+        $pages = null;
         if ($form->load(Yii::$app->request->get())) {
             if ($form->validate()) {
-                $q = Html::encode($form->q);                                
-                if ($q){
-                    $prendas = Prendatipo::find()
-                            ->where(['like','prenda',$q])
-                            ->orwhere(['like','idprendatipo',$q]);
-                    $prendas = $prendas->orderBy('prenda desc');                    
-                    $count = clone $prendas;
-                    $to = $count->count();
-                    $pages = new Pagination([
-                        'pageSize' => 30,
-                        'totalCount' => $count->count()
-                    ]);
-                    $prendas = $prendas
-                            ->offset($pages->offset)
-                            ->limit($pages->limit)
-                            ->all();         
-                }               
+                $q = Html::encode($form->q);   
+                if($q){
+                    if ($q){
+                        $prendas = Prendatipo::find()
+                                ->where(['like','prenda',$q])
+                                ->orwhere(['like','idprendatipo',$q]);
+                        $prendas = $prendas->orderBy('prenda desc');                    
+                        $count = clone $prendas;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 30,
+                            'totalCount' => $count->count()
+                        ]);
+                        $prendas = $prendas
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();         
+                    }  
+                }else{
+                    Yii::$app->getSession()->setFlash('warning', 'Campos vacios en la consulta. Favor digite un dato a buscar.');
+                    return $this->redirect(["producto/nuevodetalles", 'idproducto' => $idproducto, 'token' => $token]);
+                }    
             } else {
                 $form->getErrors();
             }                    

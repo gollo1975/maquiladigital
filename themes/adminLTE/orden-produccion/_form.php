@@ -14,7 +14,7 @@ use kartik\depdrop\DepDrop;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 /* @var $form yii\widgets\ActiveForm */
-$tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->all(), 'id_tipo_producto', 'concepto');
+$tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->orderBy('concepto ASC')->all(), 'id_tipo_producto', 'concepto');
 ?>
 
 <?php
@@ -38,14 +38,27 @@ $form = ActiveForm::begin([
     </div>
     <div class="panel-body">
         <div class="row">
-            <?= $form->field($model, 'idcliente')->dropDownList($clientes,['prompt'=>'Seleccione un cliente...', 'onchange'=>' $.get( "'.Url::toRoute('orden-produccion/productos').'", { id: $(this).val() } ) .done(function( data ) {
-        $( "#'.Html::getInputId($model, 'codigoproducto',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
+            <?= $form->field($model, 'idcliente')->widget(Select2::classname(), [
+            'data' => $clientes,
+            'options' => ['placeholder' => 'Seleccione un cliente...'],
+            'pluginOptions' => ['allowClear' => true],
+            'pluginEvents' => [
+                "change" => 'function() { $.get( "' . Url::toRoute('orden-produccion/productos') . '", { id: $(this).val() } )
+                        .done(function( data ) {
+                            $( "#' . Html::getInputId($model, 'codigoproducto') . '" ).html( data );
+                        });
+                }',
+            ],
+            ]); ?>
+
             <?= $form->field($model, 'codigoproducto')->widget(Select2::classname(), [
-            'data' => $codigos,
-            'options' => ['placeholder' => 'Seleccione un producto'],
-            'pluginOptions' => [
-                'allowClear' => true ]]);
-            ?>
+                'data' => $codigos,
+                'options' => ['placeholder' => 'Seleccione un producto'],
+                'pluginOptions' => [
+                    'allowClear' => true,
+                ],
+            ]); ?>  
+
         </div>
         <div class="row">
             <?= $form->field($model, 'idtipo')->dropDownList($ordenproducciontipos, ['prompt' => 'Seleccione un tipo...']) ?>
@@ -82,7 +95,7 @@ $form = ActiveForm::begin([
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
-            <?= $form->field($model, 'ponderacion')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'ponderacion')->textInput(['maxlength' => true, 'value' => 0]) ?>
            
         </div>
         <div class="row">

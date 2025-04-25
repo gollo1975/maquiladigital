@@ -35,16 +35,28 @@ $tipoentrada = ArrayHelper::map(TipoEntrada::find()->orderBy('concepto asc')->al
     </div>
     <div class="panel-body">
         <div class="row">
-            <?= $form->field($model, 'idcliente')->dropDownList($clientes,['prompt'=>'Seleccione un cliente...', 'onchange'=>' $.get( "'.Url::toRoute('orden-produccion/ordenes').'", { id: $(this).val() } ) .done(function( data ) {
-        $( "#'.Html::getInputId($model, 'idordenproduccion',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
+            <?= $form->field($model, 'idcliente')->widget(Select2::classname(), [
+           'data' => $clientes,
+           'options' => ['placeholder' => 'Seleccione un cliente...'],
+           'pluginOptions' => ['allowClear' => true],
+           'pluginEvents' => [
+               "change" => 'function() { $.get( "' . Url::toRoute('orden-produccion/ordenes') . '", { id: $(this).val() } )
+                       .done(function( data ) {
+                           $( "#' . Html::getInputId($model, 'idordenproduccion') . '" ).html( data );
+                       });
+               }',
+           ],
+           ]); ?>
         </div>
-        <div class="row">            
-            <?= $form->field($model, 'idordenproduccion')->widget(Select2::classname(), [
-            'data' => $orden,
-            'options' => ['placeholder' => 'Seleccione la orden'],
-            'pluginOptions' => [
-                'allowClear' => true ]]);
-            ?>
+        <div class= "row">
+           <?= $form->field($model, 'idordenproduccion')->widget(Select2::classname(), [
+               'data' => $orden,
+               'options' => ['placeholder' => 'Seleccione la orden'],
+               'pluginOptions' => [
+                   'allowClear' => true,
+               ],
+           ]); ?>  
+            
         </div>
         <div class="row">
                <?= $form->field($model, 'tipo_proceso')->dropDownList(['1'=> 'ENTRADA', '2'=> 'SALIDA'], ['prompt' => 'Seleccione']) ?>

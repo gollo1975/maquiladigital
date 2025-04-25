@@ -424,7 +424,7 @@ class OrdenProduccionController extends Controller {
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -444,7 +444,7 @@ class OrdenProduccionController extends Controller {
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 40,
+                        'pageSize' => 20,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -502,7 +502,7 @@ class OrdenProduccionController extends Controller {
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 100,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -522,7 +522,7 @@ class OrdenProduccionController extends Controller {
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 100,
+                        'pageSize' => 20,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -799,7 +799,7 @@ class OrdenProduccionController extends Controller {
      */
     public function actionCreate() {
         $model = new Ordenproduccion();
-        $clientes = Cliente::find()->all();
+        $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $codigos = Producto::find()->orderBy('idproducto desc')->all(); 
         $ordenproducciontipos = Ordenproducciontipo::find()->all();
         if ($model->load(Yii::$app->request->post())&& $model->save()) {
@@ -820,7 +820,8 @@ class OrdenProduccionController extends Controller {
                       return $this->redirect(['index']); 
                   }
               }
-            return $this->redirect(['index']);
+            $orden = Ordenproduccion::find()->orderBy('idordenproduccion DESC')->one();  
+            return $this->redirect(['view', 'id' => $orden->idordenproduccion, 'token' => 0]);
         }
 
         return $this->render('create', [
@@ -909,18 +910,20 @@ class OrdenProduccionController extends Controller {
     
      public function actionNuevaordentercero() {
         $model = new OrdenProduccionTercero();
-        $clientes = Cliente::find()->all();
+        $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $ordenproducciontipos = Ordenproducciontipo::find()->all();
         $codigos = Producto::find()->orderBy('idproducto desc')->all();        
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $orden = Ordenproduccion::find()->where(['=','idcliente', $model->idcliente])
                                            ->andWhere(['=','codigoproducto', $model->codigo_producto])
                                            ->orderBy('idordenproduccion DESC')->one();
+                       
             $model->idordenproduccion = $orden->idordenproduccion;
             $model->usuariosistema = Yii::$app->user->identity->username;
             $model->autorizado = 0;
-            $model->update();
-            return $this->redirect(['indextercero']);
+            $model->save();
+            $regitro = OrdenProduccionTercero::find()->orderBy('id_orden_tercero DESC')->one();
+           return $this->redirect(['viewtercero','id' => $regitro->id_orden_tercero]);
         }
 
         return $this->render('_formnewtercero', [
@@ -935,7 +938,7 @@ class OrdenProduccionController extends Controller {
     
     public function actionCreatesalida() {
         $model = new SalidaEntradaProduccion();
-        $clientes = Cliente::find()->all();
+        $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $orden = Ordenproduccion::find()->where(['=','cerrar_orden', 0])->orderBy('idordenproduccion DESC')->all();        
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
            $tipo = \app\models\TipoEntrada::findOne($model->id_entrada_tipo);
@@ -947,8 +950,9 @@ class OrdenProduccionController extends Controller {
             }else{
                 $model->servicio_cobrado = 1;
             }
-            $model->update();
-            return $this->redirect(['indexentradasalida']);
+            $model->save();
+            $salida = SalidaEntradaProduccion::find()->orderBy('id_salida DESC')->one();
+            return $this->redirect(['viewsalida','id' => $salida->id_salida]);
         }
 
         return $this->render('createsalida', [
@@ -968,7 +972,7 @@ class OrdenProduccionController extends Controller {
      */
     public function actionUpdate($id) {
         $model = $this->findModel($id);
-        $clientes = Cliente::find()->all();
+        $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $ordenproducciontipos = Ordenproducciontipo::find()->all();
         $codigos = Producto::find()->where(['=','idcliente',$model->idcliente])->all();
         if (Balanceo::find()->where(['=', 'idordenproduccion', $id])->all()) {
@@ -982,13 +986,13 @@ class OrdenProduccionController extends Controller {
                  $model->update();
                 }else{
                     if($valor == 2 && $campo <= 0 ){
-                          Yii::$app->getSession()->setFlash('warning', 'Debe de ingresar el porcentaje de exportacion ');
-                         return $this->redirect(['update','id' => $id]);
+                        Yii::$app->getSession()->setFlash('warning', 'Debe de ingresar el porcentaje de exportacion ');
+                        return $this->redirect(['update','id' => $id]);
                       
                     }
                 }
                 
-               return $this->redirect(['index']);
+               return $this->redirect(['view','id' => $id, 'token' => 0]);
             }
         }
         return $this->render('update', [
@@ -1002,7 +1006,7 @@ class OrdenProduccionController extends Controller {
     //actualiza el registro de la orden de salida
     public function actionUpdatesalida($id) {
         $model = SalidaEntradaProduccion::findOne($id);
-        $clientes = Cliente::find()->all();
+        $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $orden = Ordenproduccion::find()->orderBy('idordenproduccion DESC')->all(); 
         if (SalidaEntradaProduccionDetalle::find()->where(['=', 'id_salida', $id])->all()) {
             Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
@@ -1016,8 +1020,8 @@ class OrdenProduccionController extends Controller {
                 }else{
                     $model->servicio_cobrado = 1;
                 }
-                $model->update();
-                return $this->redirect(['indexentradasalida']);
+                $model->save();
+                return $this->redirect(['viewsalida','id' => $id]);
             }
         }
         return $this->render('updatesalida', [
@@ -1040,7 +1044,7 @@ class OrdenProduccionController extends Controller {
                 $orden_produccion = Ordenproduccion::find()->where(['=','codigoproducto', $model->codigo_producto])->andWhere(['=','idcliente', $model->idcliente])->one();
                 $model->idordenproduccion = $orden_produccion->idordenproduccion;
                 $model->save(false);
-                return $this->redirect(['indextercero']);
+                return $this->redirect(['viewtercero','id' => $id]);
             }
         }
         return $this->render('_formnewtercero', [

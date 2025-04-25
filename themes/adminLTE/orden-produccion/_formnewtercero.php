@@ -49,9 +49,19 @@ $form = ActiveForm::begin([
                     'allowClear' => true
                 ],
             ]); ?>
-            <?= $form->field($model, 'idcliente')->dropDownList($clientes,['prompt'=>'Seleccione un cliente...', 'onchange'=>' $.get( "'.Url::toRoute('orden-produccion/productos').'", { id: $(this).val() } ) .done(function( data ) {
-        $( "#'.Html::getInputId($model, 'codigo_producto',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
-           
+           <?= $form->field($model, 'idcliente')->widget(Select2::classname(), [
+                'data' => $clientes,
+                'options' => ['placeholder' => 'Seleccione un cliente...'],
+                'pluginOptions' => ['allowClear' => true],
+                'pluginEvents' => [
+                    "change" => 'function() { $.get( "' . Url::toRoute('orden-produccion/productos') . '", { id: $(this).val() } )
+                            .done(function( data ) {
+                                $( "#' . Html::getInputId($model, 'codigoproducto') . '" ).html( data );
+                            });
+                    }',
+                ],
+                ]); ?>
+
         </div>
         <div class="row">
              <?= $form->field($model, 'codigo_producto')->widget(Select2::classname(), [

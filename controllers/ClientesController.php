@@ -306,15 +306,12 @@ class ClientesController extends Controller {
     }
 
     public function actionMunicipio($id) {
-
-        $rows = Municipio::find()->where(['iddepartamento' => $id])->all();
-
-        echo "<option required>Seleccione...</option>";
-        if (count($rows) > 0) {
-            foreach ($rows as $row) {
-                echo "<option value='$row->idmunicipio' required>$row->municipio</option>";
-            }
+        $municipios = Municipio::find()->where(['iddepartamento' => $id])->orderBy('municipio ASC')->all();
+        $options = '<option value="">Seleccione...</option>';
+        foreach ($municipios as $municipio) {
+            $options .= '<option value=' . $municipio->idmunicipio . '>' . Html::encode($municipio->municipio) . '</option>';
         }
+        echo $options;
     }
     
     public function actionIndexconsulta() {

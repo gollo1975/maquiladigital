@@ -288,7 +288,8 @@ class FacturaventaController extends Controller
                 $model->usuariosistema = Yii::$app->user->identity->username;   
                 $model->consecutivo = $resolucion->consecutivo;
                 $model->save(false);
-                return $this->redirect(['index']);
+                $registro = Facturaventa::find()->orderBy('idfactura DESC')->one();
+                return $this->redirect(['view','id' => $registro->idfactura, 'token' => 0]);
             }else{
                      Yii::$app->getSession()->setFlash('error', 'Error en las fechas: La fecha de inicio DEBE de ser igual a la fecha de envio de emision de la factura. Validar la fecha de inicio.');
             }
@@ -372,18 +373,19 @@ class FacturaventaController extends Controller
             $clientes = Cliente::find()->all();
             $table = Facturaventa::find()->where(['idfactura' => $id])->one();
             $facturastipo = Facturaventatipo::find()->all();
-            $ordenesproduccion = Ordenproduccion::find()->Where(['=', 'idordenproduccion', $table->idordenproduccion])->all();
+            $ordenesproduccion = Ordenproduccion::find()->Where(['=', 'idcliente', $table->idcliente])->orderBy('idordenproduccion DESC')->all();
             $ordenesproduccion = ArrayHelper::map($ordenesproduccion, "idordenproduccion", "ordenProduccion");
             if(Facturaventadetalle::find()->where(['=', 'idfactura', $id])->all() or $model->estado <> 0){
                Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
             }else {
             
                 if($model->load(Yii::$app->request->post())){
-                    echo $fecha_guardada = strtotime($table->fecha_inicio),'</br>';
-                    echo   $fecha_inicio = strtotime($model->fecha_inicio); 
+                    $fecha_guardada = strtotime($table->fecha_inicio);
+                    $fecha_inicio = strtotime($model->fecha_inicio);
+                   $model->idordenproduccion = $model->idordenproduccion;
                     if($fecha_guardada == $fecha_inicio ){
                        $model->save(false);
-                       return $this->redirect(['index']);
+                       return $this->redirect(['view','id' => $id, 'token' => 0]);
                     }else{
                         Yii::$app->getSession()->setFlash('error', 'Error en las fechas: La fecha de inicio DEBE de ser igual a la fecha de envio de emision de la factura. Validar la fecha de inicio.');
 

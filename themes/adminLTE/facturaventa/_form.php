@@ -39,8 +39,19 @@ $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".dat
     <div class="panel-body">
        
         <div class="row">
-            <?= $form->field($model, 'idcliente')->dropDownList($clientes,['prompt'=>'Seleccione un cliente...', 'onchange'=>' $.get( "'.Url::toRoute('facturaventa/ordenp').'", { id: $(this).val() } ) .done(function( data ) {
-        $( "#'.Html::getInputId($model, 'idordenproduccion',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
+            <?= $form->field($model, 'idcliente')->widget(Select2::classname(), [
+            'data' => $clientes,
+            'options' => ['placeholder' => 'Seleccione un cliente...'],
+            'pluginOptions' => ['allowClear' => true],
+            'pluginEvents' => [
+                "change" => 'function() { $.get( "' . Url::toRoute('facturaventa/ordenp') . '", { id: $(this).val() } )
+                        .done(function( data ) {
+                            $( "#' . Html::getInputId($model, 'idordenproduccion') . '" ).html( data );
+                        });
+                }',
+            ],
+            ]); ?>
+  
         </div>
          
         <div class="row">                        

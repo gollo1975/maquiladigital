@@ -48,15 +48,38 @@ $form = ActiveForm::begin([
         if ($sw == 1){
             if ($Token == 0){?>
                 <div class="row">
-                      <?= $form->field($model, 'idproveedor')->dropDownList($conProveedor,['prompt'=>'Seleccione...', 'onchange'=>' $.get( "'.Url::toRoute('documento-soporte/cargarcompras').'", { id: $(this).val() } ) .done(function( data ) {
-                        $( "#'.Html::getInputId($model, 'id_compra',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
+                    <?= $form->field($model, 'idproveedor')->widget(Select2::classname(), [
+                        'data' => $conProveedor,
+                        'options' => ['placeholder' => 'Seleccione un cliente...'],
+                        'pluginOptions' => ['allowClear' => true],
+                        'pluginEvents' => [
+                            "change" => 'function() { $.get( "' . Url::toRoute('documento-soporte/cargarcompras') . '", { id: $(this).val() } )
+                                    .done(function( data ) {
+                                        $( "#' . Html::getInputId($model, 'id_compra') . '" ).html( data );
+                                });
+                            }',
+                            ],
+                        ]);
+                    ?>
+                      
                         <?= $form->field($model, 'id_compra')->dropDownList(['prompt' => 'Seleccione...']) ?>
                 </div>    
             <?php }else{ ?> 
                 <div class="row">
-                        <?= $form->field($model, 'idproveedor')->dropDownList($conProveedor,['prompt'=>'Seleccione...', 'onchange'=>' $.get( "'.Url::toRoute('documento-soporte/cargarcompras').'", { id: $(this).val() } ) .done(function( data ) {
-                          $( "#'.Html::getInputId($model, 'id_compra',['required', 'class' => 'select-2']).'" ).html( data ); });']); ?>
-                          <?= $form->field($model, 'id_compra')->dropDownList($cuentaCobro, ['prompt' => 'Seleccione...']) ?>
+                       <?= $form->field($model, 'idproveedor')->widget(Select2::classname(), [
+                        'data' => $conProveedor,
+                        'options' => ['placeholder' => 'Seleccione un cliente...'],
+                        'pluginOptions' => ['allowClear' => true],
+                        'pluginEvents' => [
+                            "change" => 'function() { $.get( "' . Url::toRoute('documento-soporte/cargarcompras') . '", { id: $(this).val() } )
+                                    .done(function( data ) {
+                                        $( "#' . Html::getInputId($model, 'id_compra') . '" ).html( data );
+                                    });
+                            }',
+                        ],
+                        ]);
+                    ?>
+                    <?= $form->field($model, 'id_compra')->dropDownList($cuentaCobro, ['prompt' => 'Seleccione...']) ?>
                 </div>    
             <?php } ?>  
             <div class="row">

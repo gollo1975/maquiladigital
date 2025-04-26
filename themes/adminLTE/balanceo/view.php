@@ -157,6 +157,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                                         <div class="panel-heading">
                                     
                                 </div>
+                                   
                                     <th><?= Html::dropDownList('id_operario', '', $operarios, ['class' => 'col-sm-4', 'prompt' => 'Seleccione el operario']) ?></th>
                                    
                                 </table>  
@@ -434,4 +435,18 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
 			}
 		}
 	}
+        
+        $(document).ready(function() {
+            $('#filtro-operario').change(function() {
+                var operarioSeleccionado = $(this).val();
+                $('#miTabla tbody tr').each(function() {
+                    var nombreOperario = $(this).find('td:eq(1)').text(); // Suponiendo que el nombre del operario está en la segunda columna (índice 1)
+                    if (operarioSeleccionado === '' || nombreOperario === operarioSeleccionado) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
 </script>

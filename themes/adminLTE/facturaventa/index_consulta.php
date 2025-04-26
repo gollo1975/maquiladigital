@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 ]);
 
-$clientes = ArrayHelper::map(Cliente::find()->all(), 'idcliente', 'nombreClientes');
+$clientes = ArrayHelper::map(Cliente::find()->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombreClientes');
 $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'id_factura_venta_tipo', 'concepto');
 ?>
 

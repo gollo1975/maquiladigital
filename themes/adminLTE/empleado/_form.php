@@ -120,7 +120,7 @@ $nive_estudio = ArrayHelper::map(app\models\NivelEstudio::find()->orderBy('nive_
                       'pluginOptions' => [
                           'allowClear' => true ]]);
                       ?>
-
+        </div>
         <div class="row">
             <?= $form->field($model, 'barrio')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'id_rh')->dropDownList($rh, ['prompt' => 'Seleccione una opcion...']) ?>

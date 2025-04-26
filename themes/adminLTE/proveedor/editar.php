@@ -12,6 +12,7 @@ use app\models\Municipio;
 use app\models\Departamento;
 use app\models\TipoDocumento;
 use yii\widgets\LinkPager;
+use kartik\select2\Select2;
 
 $this->title = 'Editar Proveedor';
 $this->params['breadcrumbs'][] = ['label' => 'Proveedores', 'url' => ['index']];
@@ -74,8 +75,19 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
                 <?= $form->field($model, 'direccionproveedor')->input("text") ?>
             </div>
             <div class="row">
-                <?= $form->field($model, 'iddepartamento')->dropDownList($departamento, ['prompt' => 'Seleccione...', 'onchange' => ' $.get( "' . Url::toRoute('clientes/municipio') . '", { id: $(this).val() } ) .done(function( data ) {
-            $( "#' . Html::getInputId($model, 'idmunicipio', ['required']) . '" ).html( data ); });']); ?>
+             <?= $form->field($model, 'iddepartamento')->widget(Select2::classname(), [
+                'data' => $departamento,
+                'options' => ['placeholder' => 'Seleccione un departamento'],
+                'pluginOptions' => ['allowClear' => true],
+                'pluginEvents' => [
+                    "change" => 'function() { $.get( "' . Url::toRoute('clientes/municipio') . '", { id: $(this).val() } )
+                            .done(function( data ) {
+                                $( "#' . Html::getInputId($model, 'idmunicipio') . '" ).html( data );
+                        });
+                    }',
+                    ],
+                ]);
+            ?>
                 <?= $form->field($model, 'idmunicipio')->dropDownList($municipio, ['prompt' => 'Seleccione...']) ?>
             </div>
             <div class="row">

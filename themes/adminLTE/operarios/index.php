@@ -127,7 +127,11 @@ $AreaTrabajo = ArrayHelper::map(app\models\Ordenproducciontipo::find()->all(), '
                 <td><?= $val->municipio->municipio ?></td>
                 <td><?= $val->celular ?></td>
                    <td><?= $val->planta->nombre_planta ?></td>
-                <td><?= $val->tipoOperaria->tipo ?></td>
+                <?php if($val->idtipo <> null){?>   
+                    <td><?= $val->tipoOperaria->tipo ?></td>
+                <?php }else{?>
+                    <td><?= 'NO FOUND' ?></td>
+                <?php }?>    
                 <td><?= $val->estadopago?></td>
                 <td><?= $val->polivalenteOperacion?></td>
                  <td><?= $val->vinculadoOperacion?></td>

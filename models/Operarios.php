@@ -49,10 +49,11 @@ class Operarios extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado','tipo_transacion'], 'required'],
+            [['id_tipo_documento', 'documento', 'nombres', 'apellidos', 'iddepartamento','idmunicipio','id_horario','id_planta','id_banco_empleado','tipo_transacion','idtipo'], 'required'],
             [['id_tipo_documento','estado','polivalente','vinculado','salario_base','id_horario','id_planta','id_banco_empleado','tipo_transacion','idtipo','homologar_document','documento_pago_banco'], 'integer'],
             [['nombres', 'apellidos', 'email','direccion_operario'], 'string', 'max' => 50],
             [['celular'], 'string', 'max' => 15],
+            [['email'],'email'],
             [['iddepartamento', 'idmunicipio','tipo_cuenta','numero_cuenta','documento'], 'string'],
             [['usuariosistema'], 'string', 'max' => 20],
             [['fecha_creacion','fecha_nacimiento','fecha_ingreso'], 'safe'],

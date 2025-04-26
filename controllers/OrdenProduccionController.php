@@ -3862,7 +3862,8 @@ class OrdenProduccionController extends Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setAutoSize(true);
-         $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('U')->setAutoSize(true);
         
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'Id')
@@ -3884,7 +3885,8 @@ class OrdenProduccionController extends Controller {
                     ->setCellValue('Q1', 'Cantidad')
                     ->setCellValue('R1', 'Precio')
                     ->setCellValue('S1', 'Subtotal')
-                    ->setCellValue('T1', 'Porcentaje proceso');
+                    ->setCellValue('T1', 'Porcentaje proceso')
+                    ->setCellValue('U1', 'Observaciones');
         $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -3911,7 +3913,8 @@ class OrdenProduccionController extends Controller {
                         ->setCellValue('Q' . $i, $detalles->cantidad)
                         ->setCellValue('R' . $i, $detalles->vlrprecio)
                         ->setCellValue('S' . $i, $detalles->subtotal)
-                        ->setCellValue('T' . $i, $detalles->porcentaje_proceso);
+                        ->setCellValue('T' . $i, $detalles->porcentaje_proceso)
+                        ->setCellValue('U' . $i, $val->observacion);
                       
                 $i++;
             }

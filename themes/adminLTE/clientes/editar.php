@@ -74,8 +74,19 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
                 <?= $form->field($model, 'direccioncliente')->input("text") ?>
             </div>
             <div class="row">
-                <?= $form->field($model, 'iddepartamento')->dropDownList($departamento, ['prompt' => 'Seleccione...', 'onchange' => ' $.get( "' . Url::toRoute('clientes/municipio') . '", { id: $(this).val() } ) .done(function( data ) {
-            $( "#' . Html::getInputId($model, 'idmunicipio', ['required']) . '" ).html( data ); });']); ?>
+           <?= $form->field($model, 'iddepartamento')->widget(Select2::classname(), [
+                'data' => $departamento,
+                'options' => ['placeholder' => 'Seleccione un departamento'],
+                'pluginOptions' => ['allowClear' => true],
+                'pluginEvents' => [
+                    "change" => 'function() { $.get( "' . Url::toRoute('clientes/municipio') . '", { id: $(this).val() } )
+                            .done(function( data ) {
+                                $( "#' . Html::getInputId($model, 'idmunicipio') . '" ).html( data );
+                        });
+                    }',
+                    ],
+                ]);
+            ?>
                 <?= $form->field($model, 'idmunicipio')->dropDownList($municipio, ['prompt' => 'Seleccione...']) ?>
             </div>
             <div class="row">

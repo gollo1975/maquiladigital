@@ -230,7 +230,7 @@ class EmpleadoController extends Controller
                 $table->idmunicipio = $model->idmunicipio;
                 $table->contrato = 0;
                 $table->observacion = $model->observacion;
-                $table->nombrecorto = utf8_decode($model->nombre1.' '.$model->nombre2.' '.$model->apellido1.' '.$model->apellido2);                
+                $table->nombrecorto = ($model->nombre1.' '.$model->nombre2.' '.$model->apellido1.' '.$model->apellido2);                
                 $table->id_tipo_documento = $model->id_tipo_documento;
                 $table->fecha_expedicion = $model->fecha_expedicion;
                 $table->ciudad_expedicion = $model->ciudad_expedicion;
@@ -301,7 +301,7 @@ class EmpleadoController extends Controller
                     $table->nombre2 = $model->nombre2;
                     $table->apellido1 = $model->apellido1;
                     $table->apellido2 = $model->apellido2;
-                    $table->nombrecorto = utf8_decode($table->nombre1.' '.$table->nombre2.' '.$table->apellido1.' '.$table->apellido2);
+                    $table->nombrecorto = ($table->nombre1.' '.$table->nombre2.' '.$table->apellido1.' '.$table->apellido2);
                     $table->direccion = $model->direccion;
                     $table->telefono = $model->telefono;
                     $table->celular = $model->celular;

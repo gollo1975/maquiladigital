@@ -322,7 +322,7 @@ class ProgramacionNominaController extends Controller {
                                 // Configurar cURL
                                 $curl = curl_init();
                               //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
-                              //  $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+                                $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
                                 $dataBody = [
                                     "novelty" => [
                                         "novelty" => false,

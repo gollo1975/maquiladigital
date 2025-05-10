@@ -652,7 +652,7 @@ class ValorPrendaUnidadController extends Controller
         
     }
     
-    public function actionCantidad_talla_confeccion($idordenproduccion, $id, $id_planta, $id_detalle,$tokenPlanta) {
+    public function actionCantidad_talla_confeccion($idordenproduccion, $id, $id_planta, $id_detalle,$tokenPlanta, $tipo_pago) {
         $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         $detalle_op = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $id_detalle])->one();
         
@@ -683,6 +683,7 @@ class ValorPrendaUnidadController extends Controller
                 'detalle_op' => $detalle_op,
                 'pagination' => $pages,
                 'tokenPlanta' => $tokenPlanta,
+                'tipo_pago' => $tipo_pago,
             ]);
         }else{
             Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar de esta talla.');

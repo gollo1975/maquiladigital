@@ -1670,20 +1670,20 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
-    public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago, $codigo, $tokenPlanta)
+    public function actionEliminar($id,$detalle, $idordenproduccion, $id_planta, $tipo_pago)
     {                                
         try {
             $detalle = ValorPrendaUnidadDetalles::findOne($detalle);
             $detalle->delete();
             $this->Totalpagar($id);
             $this->TotalCantidades($id, $tipo_pago);
-            return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+            return $this->redirect(["valor-prenda-unidad/view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
         } catch (IntegrityException $e) {  
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
-            return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+            return $this->redirect(["valor-prenda-unidad/view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
         }catch (\Exception $e) { 
              Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro, tiene registros asociados en otros procesos');
-             return $this->redirect(["view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
+             return $this->redirect(["valor-prenda-unidad/view",'id' => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta'=> $id_planta, 'tipo_pago' => $tipo_pago]);        
         }
     }
     //ELIMINA OPERACIONES CARGADAS 

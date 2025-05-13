@@ -511,19 +511,19 @@ class CompraController extends Controller
                         }else{
                             $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
                             if($resolucion){
+                                $documento = \app\models\ConceptoDocumentoSoporte::findOne($model->tipocomprobante);
                                 $table = new \app\models\DocumentoSoporte();
                                 $table->idproveedor = $compra->id_proveedor;
                                 $table->id_compra = $id;
                                 $table->idresolucion = $resolucion->idresolucion;
                                 $table->documento_compra = $compra->factura;
                                 $table->fecha_elaboracion = date('Y-m-d');
-                                $table->observacion =  $compra->observacion;
+                                $table->observacion =  $documento->concepto;
                                 $table->id_forma_pago = 4;
                                 $table->user_name = Yii::$app->user->identity->username;
                                 $table->consecutivo = $resolucion->consecutivo;
                                 $table->save(false);
                                 //cargue el detalle
-                                $documento = \app\models\ConceptoDocumentoSoporte::findOne($model->tipocomprobante);
                                 $detalle = new \app\models\DocumentoSoporteDetalle();
                                 $detalle->id_documento_soporte = $table->id_documento_soporte;
                                 $detalle->id_concepto = $model->tipocomprobante;

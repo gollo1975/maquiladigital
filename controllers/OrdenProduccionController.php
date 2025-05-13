@@ -774,10 +774,24 @@ class OrdenProduccionController extends Controller {
         $model = new \app\models\ModelAsignacionTalla();
         $table = Ordenproducciondetalle::findOne($id_detalle);
         if ($model->load(Yii::$app->request->post())) {
-            if (isset($_POST["actualizar_planta"])) { 
-                $table->id_planta = $model->planta;
-                $table->save(false);
-                $this->redirect(["orden-produccion/view_asignacion", 'id' => $id]);
+            if ($model->validate()) {
+                if (isset($_POST["actualizar_planta"])) { 
+                    if($model->todas == '1'){
+                        $detalle = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
+                        foreach ($detalle as $detalles) {
+                            $detalles->id_planta = $model->planta;
+                            $detalles->save(false);
+                        }
+                        $this->redirect(["orden-produccion/view_asignacion", 'id' => $id]);
+                    }else {
+                        $table->id_planta = $model->planta;
+                        $table->save(false);
+                        $this->redirect(["orden-produccion/view_asignacion", 'id' => $id]);
+                    }    
+                    
+                } 
+            }else{
+                $model->getErrors(); 
             }    
         }
          if (Yii::$app->request->get()) {
@@ -3668,7 +3682,6 @@ class OrdenProduccionController extends Controller {
                         if($buscar == 0){
                             $detalle = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $orden->iddetalleorden])->orderBy('proceso ASC')->all(); 
                         }else{
-                            echo $orden->id_salida_bodega;
                            $detalle = \app\models\SalidaBodegaOperaciones::find()->where(['=','id_salida_bodega', $orden->id_salida_bodega])->orderBy('idproceso ASC')->all(); 
                         }    
                          $model = $detalle;

@@ -9,7 +9,7 @@ use kartik\date\DatePicker;
 use kartik\select2\Select2;
 ?>
 <?php
-$plantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
+
 $form = ActiveForm::begin([
             "method" => "post",
             'id' => 'formulario',
@@ -17,8 +17,8 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => true,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>',
-            'labelOptions' => ['class' => 'col-sm-3 control-label'],
+            'template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>',
+            'labelOptions' => ['class' => 'col-sm-4 control-label'],
             'options' => []
         ],
         ]);
@@ -32,19 +32,17 @@ $form = ActiveForm::begin([
         <div class="table table-responsive">
             <div class="panel panel-success ">
                 <div class="panel-heading" style="text-align: left ">
-                   Asignacion de planta
+                   Cambiar impuestos
                 </div>
                 <div class="panel-body">
                     <div class="row">
-                        <?= $form->field($model, 'planta')->dropDownList($plantas, ['prompt' => 'Seleccione la planta']) ?>
+                        <?= $form->field($model, 'nuevo_iva')->textInput()?>
                     </div>
-                    <div class="row checkbox checkbox-success" align ="center">
-                       <?= $form->field($model, 'todas')->checkbox(['label' => 'Asigar a todas las plantas', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'todas']) ?>
-                  </div>
+                   
                        
                 </div>  
                     <div class="panel-footer text-right">
-                       <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary", 'name' => 'actualizar_planta']) ?>                    
+                       <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary", 'name' => 'actualizar_iva']) ?>                    
                    </div>
                 
             </div>

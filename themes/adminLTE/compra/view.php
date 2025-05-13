@@ -17,6 +17,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Compras', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->id_compra;
 $view = 'compra';
 ?>
+
 <div class="compra-view">
 
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
@@ -30,10 +31,54 @@ $view = 'compra';
             echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_compra, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             echo Html::a('<span class="glyphicon glyphicon-check"></span> Generar', ['generarnro', 'id' => $model->id_compra, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
             if (($model->numero > 0)){                
-                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 7, 'codigo' => $model->id_compra,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);                                                         
-            }
-        }
-        ?>
+                echo Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 7, 'codigo' => $model->id_compra,'view' => $view, 'token' => $token], ['class' => 'btn btn-default btn-sm']);?>                                                         
+                <?php if($model->saldo == $model->total ){ ?>
+                    <td style="width: 25px; height: 25px;">
+                        <!-- Inicio Nuevo Detalle proceso -->
+                          <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Cambiar impuesto ',
+                              ['/compra/cambiar_iva', 'id' => $model->id_compra],
+                              [
+                                  'title' => 'Cambiar el iva',
+                                  'data-toggle'=>'modal',
+                                  'data-target'=>'#modalcambiariva'.$model->id_compra,
+                                  'class' => 'btn btn-info btn-sm',
+                                  'data-backdrop' => 'static',
+
+                              ])    
+                         ?>
+                    </td>  
+                <?php }
+                if($model->proveedor->tiporegimen == 2){?>
+                    <td style="width: 25px; height: 25px;">
+                             <!-- Inicio Nuevo Detalle proceso -->
+                               <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear documento soporte ',
+                                   ['/compra/crear_documento_soporte', 'id' => $model->id_compra],
+                                   [
+                                       'title' => 'Permite crear el documento soporte desde compras',
+                                       'data-toggle'=>'modal',
+                                       'data-target'=>'#modalcreardocumentosoporte'.$model->id_compra,
+                                       'class' => 'btn btn-success btn-sm',
+                                       'data-backdrop' => 'static',
+
+                                   ])    
+                              ?>
+                     </td> 
+                <?php }?>     
+                <div class="modal remote fade" id="modalcambiariva<?= $model->id_compra ?>">
+                          <div class="modal-dialog modal-lg" style ="width: 550px;">
+                              <div class="modal-content"></div>
+                          </div>
+                      </div>
+                </td>
+                <div class="modal remote fade" id="modalcreardocumentosoporte<?= $model->id_compra ?>">
+                          <div class="modal-dialog modal-lg" style ="width: 650px;">
+                              <div class="modal-content"></div>
+                          </div>
+                      </div>
+                </td>
+            
+        <?php } 
+        }?>
     </p>
     
     <div class="panel panel-success">

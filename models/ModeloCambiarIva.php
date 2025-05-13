@@ -8,29 +8,27 @@ use yii\base\Model;
 /**
  * ContactForm is the model behind the contact form.
  */
-class ModelAsignacionTalla extends Model
+class ModeloCambiarIva extends Model
 {        
    
-    public $planta;
-    public $todas;
-
+    public $nuevo_iva;
+    public $tipocomprobante;
 
 
 
     public function rules()
     {
         return [            
-            [['planta','todas'], 'integer'],
-           [['planta'], 'required', 'message' => 'Campo requerido'],
-       
+            [['nuevo_iva','tipocomprobante'], 'number'],
+          
         ];
     }
 
     public function attributeLabels()
     {
         return [   
-            'planta' => 'Nombre planta:',
-            'todas' => 'Todas las plantas'
+            'nuevo_iva' => 'Nuevo impuesto:',
+            'tipocomprobante' => 'Tipo documento soporte:',
             
         ];
     }

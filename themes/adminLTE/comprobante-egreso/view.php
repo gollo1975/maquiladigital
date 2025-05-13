@@ -11,6 +11,7 @@ $this->title = 'Detalle Comprobante';
 $this->params['breadcrumbs'][] = ['label' => 'Comprobante Egresos', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->id_comprobante_egreso;
 $view = 'comprobante-egreso';
+
 ?>
 <div class="comprobante-egreso-view">
 
@@ -30,7 +31,29 @@ $view = 'comprobante-egreso';
                 if($model->estado == 0){  
                     echo Html::a('<span class="glyphicon glyphicon-trash"></span> Anular', ['anular_documento', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-danger btn-sm',
                      'data' => ['confirm' => 'Esta seguro de ANULAR el documento contable No '. $model->numero. '', 'method' => 'post']]); 
-                }    
+                }  
+                if($model->proveedor->tiporegimen == 2 ){?>
+                    <td style="width: 25px; height: 25px;">
+                            <!-- Inicio Nuevo Detalle proceso -->
+                              <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear documento soporte ',
+                                  ['/comprobante-egreso/crear_documento_soporte', 'id' => $model->id_comprobante_egreso],
+                                  [
+                                      'title' => 'Crear documento soporte desde',
+                                      'data-toggle'=>'modal',
+                                      'data-target'=>'#modalcreardocumentosoporte'.$model->id_comprobante_egreso,
+                                      'class' => 'btn btn-success btn-sm',
+                                      'data-backdrop' => 'static',
+
+                                  ])    
+                             ?>
+                    </td> 
+                     <div class="modal remote fade" id="modalcreardocumentosoporte<?= $model->id_comprobante_egreso ?>">
+                              <div class="modal-dialog modal-lg" style ="width: 650px;">
+                                  <div class="modal-content"></div>
+                              </div>
+                          </div>
+                    </td>
+                <?php }
             }
         }
         ?>

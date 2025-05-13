@@ -930,6 +930,60 @@ class ComprobanteEgresoController extends Controller
         ]);
     }
     
+    //documento soporte des de comprobante
+     public function actionCrear_documento_soporte ($id) {
+        $model = new \app\models\ModeloCambiarIva();
+         if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["actualizar_concepto"])) {
+                if($model->tipocomprobante <> ''){
+                    $comprobante = ComprobanteEgreso::findOne($id);
+                    if($comprobante){
+                        if($comprobante->id_comprobante_egreso = \app\models\DocumentoSoporte::find()->where(['=','id_comprobante_egreso', $id])->one()){
+                           Yii::$app->getSession()->setFlash('info', 'Este comprobante de egreso ya tiene el documento soporte generado. Valide la informacion.');
+                           return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => 0]);
+                        }else{
+                            $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
+                            if($resolucion){
+                                $table = new \app\models\DocumentoSoporte();
+                                $table->idproveedor = $comprobante->id_proveedor;
+                                $table->id_comprobante_egreso = $id;
+                                $table->idresolucion = $resolucion->idresolucion;
+                                $table->documento_compra = $comprobante->numero;
+                                $table->fecha_elaboracion = date('Y-m-d');
+                                $table->observacion =  $comprobante->observacion;
+                                $table->id_forma_pago = 4;
+                                $table->user_name = Yii::$app->user->identity->username;
+                                $table->consecutivo = $resolucion->consecutivo;
+                                $table->save(false);
+                                //cargue el detalle
+                                $documento = \app\models\ConceptoDocumentoSoporte::findOne($model->tipocomprobante);
+                                $detalle = new \app\models\DocumentoSoporteDetalle();
+                                $detalle->id_documento_soporte = $table->id_documento_soporte;
+                                $detalle->id_concepto = $model->tipocomprobante;
+                                $detalle->descripcion = $documento->concepto;
+                                $detalle->cantidad = 1;
+                                $detalle->valor_unitario = $comprobante->valor;
+                                $detalle->save(false);
+                                return $this->redirect(["documento-soporte/view",'id' => $table->id_documento_soporte]);
+                                  
+                            }else{
+                                Yii::$app->getSession()->setFlash('error', 'No existe la resolucion para documento soporte. Valide la informacion');
+                                return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => 0]);
+                            }
+                        }
+                    }
+                }else{
+                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccion al menos un registro.');
+                    return $this->redirect(["comprobante-egreso/view",'id' => $id, 'token' => 0]);
+                }
+            }
+         }
+        return $this->renderAjax('documento_soporte', [
+            'model' => $model,
+            
+        ]);   
+    }
+    
     public function actionExcelconsulta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();
         // Set document properties

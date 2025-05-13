@@ -161,7 +161,7 @@ class CompraController extends Controller
             $model->usuariosistema = Yii::$app->user->identity->username;            
             $model->update();
             $this->calculo($model->id_compra);
-            return $this->redirect(['index']);
+            return $this->redirect(['view', 'id' => $model->id_compra, 'token' => 0]);
         }
 
         return $this->render('create', [
@@ -466,6 +466,90 @@ class CompraController extends Controller
         ]);
     }
     
+    //editar impuesto
+    public function actionCambiar_iva($id) {
+        $model = new \app\models\ModeloCambiarIva();
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["actualizar_iva"])) {
+                $compra = Compra::findOne($id);
+                if($compra){
+                    $compra->impuestoiva = $model->nuevo_iva;
+                    $compra->save();
+                    $this->ActualizarSaldos($id);
+                    return $this->redirect(['view', 'id' => $id, 'token' => 0]);
+                }
+            } 
+        }
+        return $this->renderAjax('cambiar_iva', [
+            'model' => $model,
+            
+        ]);   
+    }
+    
+    //funcion que actualiza saldos
+    protected function ActualizarSaldos($id) {
+        $totalDevengado = 0; $totalPagar = 0;
+        $compra = Compra::findOne($id);
+        $totalDevengado = $compra->subtotal + $compra->impuestoiva;
+        $totalPagar =  $totalDevengado -($compra->retencionfuente + $compra->retencioniva);
+        $compra->saldo = round($totalPagar);
+        $compra->total = round($totalPagar);
+        $compra->save();
+    }
+    
+    //crer documento soporte desde compras
+    public function actionCrear_documento_soporte ($id) {
+        $model = new \app\models\ModeloCambiarIva();
+         if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["actualizar_concepto"])) {
+                if($model->tipocomprobante <> ''){
+                    $compra = Compra::findOne($id);
+                    if($compra){
+                        if($compra->id_compra = \app\models\DocumentoSoporte::find()->where(['=','id_compra', $id])->one()){
+                           Yii::$app->getSession()->setFlash('info', 'Esta compra ya tiene el documento soporte. Valide la informacion.');
+                           return $this->redirect(["compra/view",'id' => $id, 'token' => 0]);
+                        }else{
+                            $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
+                            if($resolucion){
+                                $table = new \app\models\DocumentoSoporte();
+                                $table->idproveedor = $compra->id_proveedor;
+                                $table->id_compra = $id;
+                                $table->idresolucion = $resolucion->idresolucion;
+                                $table->documento_compra = $compra->factura;
+                                $table->fecha_elaboracion = date('Y-m-d');
+                                $table->observacion =  $compra->observacion;
+                                $table->id_forma_pago = 4;
+                                $table->user_name = Yii::$app->user->identity->username;
+                                $table->consecutivo = $resolucion->consecutivo;
+                                $table->save(false);
+                                //cargue el detalle
+                                $documento = \app\models\ConceptoDocumentoSoporte::findOne($model->tipocomprobante);
+                                $detalle = new \app\models\DocumentoSoporteDetalle();
+                                $detalle->id_documento_soporte = $table->id_documento_soporte;
+                                $detalle->id_concepto = $model->tipocomprobante;
+                                $detalle->descripcion = $documento->concepto;
+                                $detalle->cantidad = 1;
+                                $detalle->valor_unitario = $compra->total;
+                                $detalle->save(false);
+                                return $this->redirect(["documento-soporte/view",'id' => $table->id_documento_soporte]);
+                            }else{
+                                Yii::$app->getSession()->setFlash('error', 'No existe la resolucion para documento soporte. Valide la informacion');
+                                return $this->redirect(["compra/view",'id' => $id, 'token' => 0]);
+                            }
+                        }
+                    }
+                }else{
+                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccion al menos un registro.');
+                    return $this->redirect(["compra/view",'id' => $id, 'token' => 0]);
+                }
+            }
+         }
+        return $this->renderAjax('documento_soporte', [
+            'model' => $model,
+            
+        ]);   
+    }
+      
     
     public function actionImprimir($id)
     {                                

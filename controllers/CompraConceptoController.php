@@ -250,6 +250,8 @@ class CompraConceptoController extends Controller
             'cuentas' => ArrayHelper::map($cuentas, "codigo_cuenta", "cuentanombre"),
         ]);        
     }
+    
+    
 
     /**
      * Finds the CompraConcepto model based on its primary key value.

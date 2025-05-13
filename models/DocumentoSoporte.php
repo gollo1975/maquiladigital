@@ -43,7 +43,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idproveedor', 'id_compra', 'numero_soporte', 'id_forma_pago', 'autorizado','valor_pagar','idresolucion'], 'integer'],
+            [['idproveedor', 'id_compra', 'numero_soporte', 'id_forma_pago', 'autorizado','valor_pagar','idresolucion','id_comprobante_egreso'], 'integer'],
             [['fecha_elaboracion'], 'required'],
             [['fecha_elaboracion', 'fecha_hora_registro', 'fecha_recepcion_dian', 'fecha_envio_api'], 'safe'],
             [['documento_compra', 'user_name','consecutivo'], 'string', 'max' => 15],
@@ -54,6 +54,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
             [['id_compra'], 'exist', 'skipOnError' => true, 'targetClass' => Compra::className(), 'targetAttribute' => ['id_compra' => 'id_compra']],
             [['id_forma_pago'], 'exist', 'skipOnError' => true, 'targetClass' => FormaPago::className(), 'targetAttribute' => ['id_forma_pago' => 'id_forma_pago']],
             [['idresolucion'], 'exist', 'skipOnError' => true, 'targetClass' => Resolucion::className(), 'targetAttribute' => ['idresolucion' => 'idresolucion']],
+            [['id_comprobante_egreso'], 'exist', 'skipOnError' => true, 'targetClass' => ComprobanteEgreso::className(), 'targetAttribute' => ['id_comprobante_egreso' => 'id_comprobante_egreso']],
         ];
     }
 
@@ -81,6 +82,7 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
             'observacion' => 'observacion',
             'idresolucion' => 'idresolucion',
             'consecutivo' => 'consecutivo',
+            'id_comprobante_egreso' => 'id_comprobante_egreso'
         ];
     }
 
@@ -122,5 +124,13 @@ class DocumentoSoporte extends \yii\db\ActiveRecord
     public function getDocumentoSoporteDetalles()
     {
         return $this->hasMany(DocumentoSoporteDetalle::className(), ['id_documento_soporte' => 'id_documento_soporte']);
+    }
+    
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getComprobanteEgreso()
+    {
+        return $this->hasOne(ComprobanteEgreso::className(), ['id_comprobante_egreso' => 'id_comprobante_egreso']);
     }
 }

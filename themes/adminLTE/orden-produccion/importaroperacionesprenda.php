@@ -90,20 +90,27 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <?php if($buscar == 0){?>
                                     <td><?= $val->proceso ?></td>
                                     <td style="text-align: right"><?= ''.number_format($val->total,0)?></td>
-                                    <td><?= $val->tipomaquina->descripcion ?></td>
-                                <?php }else{?>
+                                    <?php if($val->id_tipo <> null){?>
+                                        <td><?= $val->tipomaquina->descripcion ?></td>
+                                    <?php }else{?>
+                                        <td><?= 'NO FOUND' ?></td>
+                                    <?php }    
+                                }else{?>
                                     <td><?= $val->proceso->proceso ?></td>
                                     <td style="text-align: right"><?= ''.number_format($val->segundos,0)?></td>
                                     <td><?= $val->tipoMaquinas->descripcion ?></td>
                                 <?php }
-                                if($buscar == 0){?>
-                                    <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->iddetalleproceso ?>"></td> 
-                                    <input type="hidden" name="id_detalle[]" value="<?= $val->iddetalleproceso ?>">
-                                <?php }else{?>
-                                    <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->id_operacion ?>"></td> 
-                                    <input type="hidden" name="id_detalle[]" value="<?= $val->id_operacion ?>">
-                                <?php }?>    
-                               
+                                if($val->id_tipo <> null){
+                                    if($buscar == 0){?>
+                                        <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->iddetalleproceso ?>"></td> 
+                                        <input type="hidden" name="id_detalle[]" value="<?= $val->iddetalleproceso ?>">
+                                    <?php }else{?>
+                                        <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->id_operacion ?>"></td> 
+                                        <input type="hidden" name="id_detalle[]" value="<?= $val->id_operacion ?>">
+                                    <?php }
+                                }else{?>
+                                        <td style="width: 20px; height: 20px"></td>   
+                               <?php }?>
                                
 
                             </tr>  

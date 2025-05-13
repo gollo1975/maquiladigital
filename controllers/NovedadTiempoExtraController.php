@@ -52,9 +52,9 @@ class NovedadTiempoExtraController extends Controller
     }
 
     public function actionNovedades($id){
-       $detalle = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('cedula_empleado DESC')->all();
+       $detalle = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->andWhere(['=','tipo_salario', 'VARIABLE'])->orderBy('cedula_empleado DESC')->all();
        $model = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->one();
-       
+       $novedades = NovedadTiempoExtra::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_empleado ASC')->all();
        if($detalle == 0 ){
            
        }else{
@@ -62,12 +62,14 @@ class NovedadTiempoExtraController extends Controller
                         'model' => $model,
                         'detalle' => $detalle,
                         'id' => $id,
+                        'novedades' => $novedades,
             ]);    
        }
     }
 
     public function actionCreartiempoextra($id,$id_programacion,$tipo_salario) {
         $datos_programacion = ProgramacionNomina::findOne($id_programacion);
+        $empresa = \app\models\Matriculaempresa::findOne(1);
         $concepto_salario= ConceptoSalarios::find()->where(['=','hora_extra', 1])->all();
            if (Yii::$app->request->post()) {  
                 if (isset($_POST["codigo_salario"])) {
@@ -89,7 +91,7 @@ class NovedadTiempoExtraController extends Controller
                                $table->id_grupo_pago = $datos_programacion->id_grupo_pago;
                                $table->fecha_inicio = $datos_programacion->fecha_desde;
                                $table->fecha_corte = $datos_programacion->fecha_hasta;
-                               $table->vlr_hora = (($datos_programacion->salario_contrato / 240) * ($concepto->porcentaje_tiempo_extra)) / 100;
+                               $table->vlr_hora = (($datos_programacion->salario_contrato / $empresa->horas_mensuales) * ($concepto->porcentaje_tiempo_extra)) / 100;
                                $table->nro_horas = $_POST["horas"][$intIndice];
                                 $table->salario_contrato = $datos_programacion->salario_contrato;
                                $table->total_novedad = $table->vlr_hora * $table->nro_horas;
@@ -130,6 +132,22 @@ class NovedadTiempoExtraController extends Controller
         return $this->renderAjax('_editartiempoextra', [
             'id_empleado' => $id_empleado,
             'datos_novedad' => $datos_novedades]);
+    }
+    
+    //ELIMINAR NOVEDADES DE NOMINA
+    public function actionEliminar_detalle($id, $id_detalle) {
+        try {
+            $this->findModel($id_detalle)->delete();
+            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+            return $this->redirect(["novedad-tiempo-extra/novedades",'id' => $id]);
+        } catch (IntegrityException $e) {
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene registros asociados en otros procesos');
+           return $this->redirect(["novedad-tiempo-extra/novedades",'id' => $id]);
+           
+        } catch (\Exception $e) {
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene registros asociados en otros procesos');
+           return $this->redirect(["novedad-tiempo-extra/novedades",'id' => $id]);
+        }
     }
 
         protected function findModel($id)

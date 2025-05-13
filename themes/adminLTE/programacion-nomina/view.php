@@ -180,20 +180,18 @@ $view = 'programacion nomina';
                                     <th scope="col" style='background-color:#B9D5CE;'>Id</th>  
                                     <th scope="col" style='background-color:#B9D5CE;'>Nro_pago</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>                        
-                                     <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>    
-                                     <th scope="col" style='background-color:#B9D5CE;'>Inicio Contrato</th>  
-                                     <th scope="col" style='background-color:#B9D5CE;'>Fecha final</th>
-                                     <th scope="col" style='background-color:#B9D5CE;'>Contrato</th>  
+                                    <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>    
+                                    <th scope="col" style='background-color:#B9D5CE;'>Inicio Contrato</th>  
+                                    <th scope="col" style='background-color:#B9D5CE;'>Fecha final</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Contrato</th>  
                                     <th scope="col" style='background-color:#B9D5CE;'>Salario</th>    
                                     <th scope="col"style='background-color:#B9D5CE;'>Devengado</th>                        
                                     <th scope="col"style='background-color:#B9D5CE;'>Deducción</th>   
                                     <th scope="col" style='background-color:#B9D5CE;'>D.pagos</th>   
                                     <th scope="col" style='background-color:#B9D5CE;'>H.pagos</th>
                                     <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo servicio">Ts</span></th>
-                                     <th scope="col" style='background-color:#B9D5CE;'></th>
-                                      <th scope="col" style='background-color:#B9D5CE;'></th>
-                                        <th scope="col" style='background-color:#B9D5CE;'></th>
-                                    <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                                    <th scope="col" style='background-color:#B9D5CE;'></th>
+                                    <th scope="col" style='background-color:#B9D5CE;'></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -252,7 +250,7 @@ $view = 'programacion nomina';
                                                             'title' => 'Comprobante de pago',
                                                             'data-toggle'=>'modal',
                                                             'data-target'=>'#modalvernomina'.$val->id_programacion,
-                                                            'class' => 'btn btn-info btn-xs'
+                                                            'class' => ''
                                                         ]
                                                     );
                                                     ?>
@@ -273,7 +271,7 @@ $view = 'programacion nomina';
                                                                 'title' => 'Comprobante de pago',
                                                                 'data-toggle'=>'modal',
                                                                 'data-target'=>'#modalvernomina'.$val->id_programacion,
-                                                                'class' => 'btn btn-info btn-xs'
+                                                                'class' => ''
                                                             ]
                                                         );
                                                         ?>
@@ -286,29 +284,27 @@ $view = 'programacion nomina';
                                                     <td></td>    
                                             <?php }?>         
                                             
-                                          
-                                        <td>
                                             <?php //este condicion permite saber si es sabatino
                                             if($contrato->id_tiempo == 3 && $val->estado_liquidado == 1 && $val->estado_cerrado == 0){?> 
-                                               <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>',            
-                                               ['/programacion-nomina/editarcolillapagosabatino','id_programacion' => $val->id_programacion, 'id_grupo_pago' => $val->id_grupo_pago, 'id' => $val->id_periodo_pago_nomina, 'fecha_desde' => $val->fecha_desde, 'fecha_hasta' => $val->fecha_hasta],
-                                                   [
-                                                       'title' => 'Modificar colilla de pago',
-                                                       'data-toggle'=>'modal',
-                                                       'data-target'=>'#modaleditarcolillapagosabatino'.$val->id_programacion,
-                                                       'class' => 'btn btn-primary btn-xs'
-                                                   ]
-                                               );
-                                               ?>
-                                               <div class="modal remote fade" id="modaleditarcolillapagosabatino<?= $val->id_programacion ?>">
-                                                   <div class="modal-dialog modal-lg">
-                                                       <div class="modal-content"></div>
+                                                <td style="width: 0.5%; height: 0.5%; ">
+                                                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>',            
+                                                    ['/programacion-nomina/editarcolillapagosabatino','id_programacion' => $val->id_programacion, 'id_grupo_pago' => $val->id_grupo_pago, 'id' => $val->id_periodo_pago_nomina, 'fecha_desde' => $val->fecha_desde, 'fecha_hasta' => $val->fecha_hasta],
+                                                        [
+                                                            'title' => 'Modificar colilla de pago',
+                                                            'data-toggle'=>'modal',
+                                                            'data-target'=>'#modaleditarcolillapagosabatino'.$val->id_programacion,
+                                                            'class' => ''
+                                                        ]
+                                                    );
+                                                    ?>
+                                                    <div class="modal remote fade" id="modaleditarcolillapagosabatino<?= $val->id_programacion ?>">
+                                                        <div class="modal-dialog modal-lg">
+                                                            <div class="modal-content"></div>
+                                                        </div>
                                                    </div>
-                                             </div>
+                                                </td>     
                                             <?php }?>
-                                        </td>   
-                                        <td ><input type="checkbox" name="id_programacion[]" value="<?= $val->id_programacion ?>"></td>
-                                    </tr>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -319,15 +315,24 @@ $view = 'programacion nomina';
                 if($model->estado_periodo == 0){?>
                     <div class="panel-footer text-right">
                         <div class="btn-group">
-                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle"
-                                            data-toggle="dropdown">
-                                        <span class="glyphicon glyphicon-export"></span> Exportar
-                                    </button>
-                                    <ul class="dropdown-menu" role="menu">
-                                      <li><?= Html::a('<span class="glyphicon glyphicon-check"></span> Excel', ['excelpago', 'id' => $model->id_periodo_pago_nomina]) ?></li>
-                                      <li><?= Html::a('<span class="glyphicon glyphicon-check"></span> Excel detalle', ['exceldetallepago', 'id' => $model->id_periodo_pago_nomina]) ?></li>
-                                    </ul>
-                                   <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminardetalles']) ?>
+                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle"
+                                    data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-export"></span> Exportar
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                              <li><?= Html::a('<span class="glyphicon glyphicon-check"></span> Excel', ['excelpago', 'id' => $model->id_periodo_pago_nomina]) ?></li>
+                              <li><?= Html::a('<span class="glyphicon glyphicon-check"></span> Excel detalle', ['exceldetallepago', 'id' => $model->id_periodo_pago_nomina]) ?></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-danger btn-xs dropdown-toggle"
+                                    data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-trash"></span> Eliminar
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                              <li><?= Html::a('<span class="glyphicon glyphicon-user"></span> Empleado', ['programacion-nomina/eliminar_empleado', 'id' => $model->id_periodo_pago_nomina, 'id_grupo_pago' => $model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' => $model->fecha_hasta]) ?></li>
+                              <li><?= Html::a('<span class="glyphicon glyphicon-home"></span> Detalle', ['programacion-nomina/eliminar_todo', 'id' => $model->id_periodo_pago_nomina, 'id_grupo_pago' => $model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' => $model->fecha_hasta]) ?></li>
+                            </ul>
                         </div>
                     </div> 
                <?php } ?>
@@ -542,16 +547,4 @@ $view = 'programacion nomina';
     <?php ActiveForm::end(); ?>
 </div>
 
-    <script type="text/javascript">
-	function marcar(source) 
-	{
-		checkboxes=document.getElementsByTagName('input'); //obtenemos todos los controles del tipo Input
-		for(i=0;i<checkboxes.length;i++) //recoremos todos los controles
-		{
-			if(checkboxes[i].type == "checkbox") //solo si es un checkbox entramos
-			{
-				checkboxes[i].checked=source.checked; //si es un checkbox le damos el valor del checkbox que lo llamó (Marcar/Desmarcar Todos)
-			}
-		}
-	}
-</script>
+   

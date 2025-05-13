@@ -810,25 +810,6 @@ class ProgramacionNominaController extends Controller {
                         ->andWhere(['=', 'id_grupo_pago', $id_grupo_pago])
                         ->orderBy('id_empleado DESC')->all();
         
-        
-        if (Yii::$app->request->post()) {
-
-           if (isset($_POST["id_programacion"])) {
-                foreach ($_POST["id_programacion"] as $intCodigo) {
-                    try {
-                        $eliminar = ProgramacionNomina::findOne($intCodigo);
-                        $eliminar->delete();
-                        Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-                        $this->redirect(["programacion-nomina/view", 'id' => $id, 'id_grupo_pago' => $id_grupo_pago, 'fecha_desde' => $fecha_desde, 'fecha_hasta' => $fecha_hasta]);
-                    } catch (IntegrityException $e) {
-                        Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos de la nómina');
-                    } catch (\Exception $e) {
-                        Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos');
-                    }
-                }
-            } 
-        }
-
         return $this->render('view', [
                     'detalles' => $detalles,
                     'model' => $model,
@@ -1155,8 +1136,59 @@ class ProgramacionNominaController extends Controller {
             $this->redirect(["programacion-nomina/index"]);
         }
     }
-
-    // funciones del proceso de nomina (Validar, procesar y aplicar pago)
+    
+    /**
+     * Deletes an existing ProgramacionNomina model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionEliminar_empleado($id, $id_grupo_pago, $fecha_desde, $fecha_hasta)
+    {
+       $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->all();
+            foreach ($nomina as $dato) {
+                try {
+                    $dato->delete();
+                    Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+                    $this->redirect(["programacion-nomina/view", 'id' => $id, 'id_grupo_pago' => $id_grupo_pago, 'fecha_desde' => $fecha_desde, 'fecha_hasta' => $fecha_hasta]);
+                } catch (IntegrityException $e) {
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos de la nómina');
+                } catch (\Exception $e) {
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos');
+                }
+            }
+            return $this->redirect(['programacion-nomina/view', 'id' => $id, 'id_grupo_pago' =>$id_grupo_pago, 'fecha_desde' =>$fecha_desde, 'fecha_hasta' => $fecha_hasta]);
+    }    
+    
+     //PROCESO QUE ELIMINA TODO
+    public function actionEliminar_todo($id, $id_grupo_pago, $fecha_desde, $fecha_hasta)
+    {
+       $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->all();
+            foreach ($nomina as $dato) {
+                $detalle = \app\models\ProgramacionNominaDetalle::find()->where(['=','id_programacion', $dato->id_programacion])->all();
+                foreach ($detalle as $val){
+                    try {
+                        $val->delete();
+                        Yii::$app->getSession()->setFlash('success', 'Se eliminaron todos los registros.');
+                    } catch (IntegrityException $e) {
+                        Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos de la nómina');
+                    } catch (\Exception $e) {
+                        Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos');
+                    }
+                } 
+                try {
+                
+                } catch (IntegrityException $e) {
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos de la nómina');
+                } catch (\Exception $e) {
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos');
+                }
+            }
+            return $this->redirect(['programacion-nomina/view', 'id' => $id, 'id_grupo_pago' =>$id_grupo_pago, 'fecha_desde' =>$fecha_desde, 'fecha_hasta' => $fecha_hasta]);
+        }   
+    
+     // funciones del proceso de nomina (Validar, procesar y aplicar pago)
 
     public function actionProcesarregistros($id, $id_grupo_pago, $fecha_desde, $fecha_hasta, $tipo_nomina,  $year=NULL) {
         if($tipo_nomina == 1){ // Este condicional permite saber si el tipo de pago es de nomina
@@ -1739,6 +1771,7 @@ class ProgramacionNominaController extends Controller {
             $detalleIncapacidad->id_periodo_pago_nomina = $id;
             $detalleIncapacidad->dias_descontar_transporte = $valor_incapacidad->dias_incapacidad;
             $detalleIncapacidad->porcentaje = $valor_incapacidad->porcentaje_pago;
+            $detalleIncapacidad->id_grupo_pago = $valor_incapacidad->id_grupo_pago;
             if ($valor_incapacidad->pagar_empleado == 1) {
                 $detalleIncapacidad->vlr_devengado = $detalleIncapacidad->vlr_incapacidad;
                 $detalleIncapacidad->vlr_ajuste_incapacidad = $valor_incapacidad->ibc_total_incapacidad -  $detalleIncapacidad->vlr_devengado ;
@@ -1866,6 +1899,7 @@ class ProgramacionNominaController extends Controller {
                     }
                 }
             }
+            $detalleLicencia->id_grupo_pago = $valor_licencia->id_grupo_pago;
             $detalleLicencia->insert(false);
             //codigo que actualiza el IBP
         }
@@ -1886,6 +1920,7 @@ class ProgramacionNominaController extends Controller {
                 $detalleapago->id_periodo_pago_nomina = $id;
                 $detalleapago->fecha_desde = $fecha_desde;
                 $detalleapago->fecha_hasta = $fecha_hasta;
+                $detalleapago->id_grupo_pago = $adicionpermanente->id_grupo_pago;
                 $periodo_pago = PeriodoPago::find()->where(['=', 'id_periodo_pago', $grupo_pago->id_periodo_pago])->one();
                 if ($adicionpermanente->tipo_adicion == 1) {
                     if ($adicionpermanente->aplicar_dia_laborado == 1) {
@@ -1931,6 +1966,7 @@ class ProgramacionNominaController extends Controller {
                 $detalleadicionpago->id_periodo_pago_nomina = $id;
                 $detalleadicionpago->fecha_desde = $fecha_desde;
                 $detalleadicionpago->fecha_hasta = $fecha_hasta;
+                $detalleadicionpago->id_grupo_pago = $adicionfecha->id_grupo_pago;
                 if ($adicionfecha->tipo_adicion == 1) {
                     if ($concepto_sal->prestacional == 1) {
                         $detalleadicionpago->vlr_devengado = $adicionfecha->vlr_adicion;
@@ -1969,6 +2005,7 @@ class ProgramacionNominaController extends Controller {
                     $detallecredito->fecha_desde = $fecha_desde;
                     $detallecredito->fecha_hasta = $fecha_hasta;
                     $detallecredito->id_credito = $credito->id_credito;
+                    $detallecredito->id_grupo_pago = $credito->id_grupo_pago;
                     $detallecredito->save(false);
                 }
             }
@@ -1993,6 +2030,8 @@ class ProgramacionNominaController extends Controller {
             $detalle->fecha_desde = $fecha_desde;
             $detalle->fecha_hasta = $fecha_hasta;
             $detalle->porcentaje = $tiempo_extra->porcentaje;
+            $detalle->id_novedad = $tiempo_extra->id_novedad;
+            $detalle->id_grupo_pago = $tiempo_extra->id_grupo_pago;
             $detalle->save(false);
             $Concepto = ConceptoSalarios::find()->where(['=', 'codigo_salario', $tiempo_extra->codigo_salario])->andWhere(['=', 'ingreso_base_prestacional', 1])->one();
             if ($Concepto) {
@@ -2721,6 +2760,7 @@ class ProgramacionNominaController extends Controller {
                 $periodo_pago = PeriodoPagoNomina::findone($id);
                 $periodo_pago->estado_periodo = 1;
                 $periodo_pago->save(false);
+                
              //inserta concepto de vacacion si tiene vacaciones
               $concepto_salario = ConceptoSalarios::find()->where(['=','concepto_vacacion', 1])->one();  
               $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all(); 
@@ -2745,6 +2785,24 @@ class ProgramacionNominaController extends Controller {
                       $vacacion->save(false);
                   }
               endforeach;
+            
+            
+              //ACTUALIZAR LAS HORAS Y LA HORA LABORAL
+              $buscar = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
+              $concepto = ConceptoSalarios::findOne(1);
+              $empresa = \app\models\Matriculaempresa::findOne(1);
+              $horas = 0; $horas_generadas = 0;
+              foreach ($buscar as $val) {
+                  $detalle = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $val->id_programacion])->andWhere(['=','codigo_salario', $concepto->codigo_salario])->one();
+                  if($detalle){
+                      $horas = round(($empresa->horas_mensuales * $detalle->dias_reales)/30);
+                      $horas_generadas = round(($empresa->horas_mensuales * $detalle->dias)/30);
+                      $detalle->horas_periodo_reales = $horas;
+                      $detalle->horas_periodo = $horas_generadas;
+                      $detalle->vlr_hora = $detalle->salario_basico / $empresa->horas_mensuales;
+                      $detalle->save(false);
+                  } 
+              }
                 
         }else{ 
             //codigo para prima

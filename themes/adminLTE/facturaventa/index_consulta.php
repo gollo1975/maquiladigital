@@ -108,27 +108,42 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
         <table class="table table-bordered table-hover">
             <thead>
                 <tr style="font-size: 85%;">                
-                <th scope="col" style='background-color:#B9D5CE;'>Factura</th>
+                <th scope="col" style='background-color:#B9D5CE;'>No Factura</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cedula/Nit</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                  <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. Inicio</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. Vencto</th>
-                 <th scope="col" style='background-color:#B9D5CE;'>F. envio Dian</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Total</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Saldo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Estado</th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Estado de la factura">Estado</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Dias de mora">DM.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>                               
             </tr>
             </thead>
             <tbody>
                 <?php
-                $saldo=0; $subtotal = 0;  $total = 0;
+                
+                $saldo=0; $subtotal = 0;  $total = 0; $dias = 0;$dias_faltante = 0;
                 foreach ($model as $val):
                     $saldo += $val->saldo;
                     $total += $val->totalpagar;
                     $subtotal += $val->subtotal;
+                    //pemrite busca los dias de mora
+                    $fecha_actual_str = date('Y-m-d'); // Asegúrate de que $fecha_actual esté definida como una cadena o un objeto DateTime
+                    $fecha_vencimiento_str = $val->fecha_vencimiento; // Asumo que esto es una cadena
+                    $fecha_actual_obj = new DateTime($fecha_actual_str);
+                    $fecha_vencimiento_obj = new DateTime($fecha_vencimiento_str);
+                    $diferencia = $fecha_actual_obj->diff($fecha_vencimiento_obj);
+                    $dias = $diferencia->days;
+                    //permite buscar los dias que faltan para la mora
+                     $fecha_actual_inicio = date('Y-m-d');
+                    $fecha_vencimiento_str = $val->fecha_vencimiento; // Asumo que esto es una cadena
+                    $fecha_actual_obj = new DateTime($fecha_actual_inicio);
+                    $fecha_vencimiento_obj = new DateTime($fecha_vencimiento_str);
+                    $diferencia = $fecha_actual_obj->diff($fecha_vencimiento_obj);
+                    $dias_faltante = $diferencia->days;
                     ?>
                     <tr style="font-size: 85%;">                
                         <td><?= $val->nrofactura ?></td>
@@ -141,12 +156,24 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
                         <?php }?>    
                         <td><?= $val->fecha_inicio ?></td>
                         <td><?= $val->fecha_vencimiento ?></td>
-                         <td><?= $val->fecha_recepcion_dian ?></td>
                         <td align="right"><?= number_format($val->subtotal,0) ?></td>
                         <td align="right"><?= number_format($val->totalpagar,0) ?></td>
                         <td align="right"><?= number_format($val->saldo,0) ?></td>
-                        <td><?= $val->estados ?></td>
-                          <td style= 'width: 20px; height: 20px;'>				
+                        <?php if($val->saldo > 0){
+                            if($val->fecha_vencimiento < $fecha_actual_str){?>
+                                <td style="background-color:#ffe5ec;"><?= 'MORA' ?></td>
+                                <td><?= $dias ?> Dias</td>
+                            <?php } else{ ?>
+                                <td style="background-color:#95d5b2;"><?= 'AL DIA' ?></td>
+                                <td><?= - $dias_faltante ?> Dias</td>
+                            <?php } 
+                        }else{?>
+                            <td style="background-color:#ffe5ec;"><?= 'CANCELADA' ?></td>
+                            <td style="background-color:#95d5b2;"><?= '0' ?></td>
+                             
+                        <?php }?>
+                       
+                        <td style= 'width: 20px; height: 20px;'>				
                         <a href="<?= Url::toRoute(["facturaventa/viewconsulta", "id" => $val->idfactura]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                         </td>
                     </tr>
@@ -154,11 +181,11 @@ $tipoServicio = ArrayHelper::map(\app\models\Facturaventatipo::find()->all(), 'i
             </body>        
             <tr>
                 <td colspan="5"></td>
-                <td align="right"><b>Totales</b></td>
+                <td align="right"><b>Totales:</b></td>
                  <td align="right" ><b><?= '$ '.number_format($subtotal,0); ?></b></td>
                   <td align="right" ><b><?= '$ '.number_format($total,0); ?></b></td>
                 <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
-                <td colspan="4"></td>
+                <td colspan="2"></td>
             </tr>
         </table>    
         <div class="panel-footer text-right" >            

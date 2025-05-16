@@ -514,6 +514,7 @@ class PagoBancoController extends Controller
             }
             fputs($ar, str_pad(utf8_decode($pago->nombres), 30));
             fputs($ar, $this->RellenarNr($pago->codigo_banco, "0", 9));
+            //campos para cuentas bancarias
             if(strlen($pago->numero_cuenta) == 12){
                 fputs($ar, $pago->numero_cuenta);
                 fputs($ar, "     ");
@@ -522,9 +523,17 @@ class PagoBancoController extends Controller
                 fputs($ar, $pago->numero_cuenta);
                 fputs($ar, "      ");
             }
+            if(strlen($pago->numero_cuenta) == 10){
+                fputs($ar, $pago->numero_cuenta);
+                fputs($ar, "       ");
+            }
             if(strlen($pago->numero_cuenta) == 9){
                 fputs($ar, $pago->numero_cuenta);
                 fputs($ar, "        ");
+            }
+            if(strlen($pago->numero_cuenta) == 8){
+                fputs($ar, $pago->numero_cuenta);
+                fputs($ar, "         ");
             }
            
             fputs($ar, $letra);  

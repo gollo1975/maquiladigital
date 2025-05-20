@@ -259,6 +259,7 @@
                                                 'items' => [
                                                     ['label' => 'Despachos/Fletes', 'icon' => 'plus-square-o', 'url' => ['/despachos/index']],
                                                     ['label' => 'Descargar pagos', 'icon' => 'plus-square-o', 'url' => ['/pago-fletes/index']],
+                                                    ['label' => 'Mensajeria', 'icon' => 'plus-square-o', 'url' => ['mensajeria/index']],
                                                 ]],
                                                 
                                                 ['label' => 'Ficha Operaciones', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/proceso']],

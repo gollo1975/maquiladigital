@@ -2943,34 +2943,166 @@ class ProgramacionNominaController extends Controller {
         }    
     }
     
-    public function actionEditarcolillapagonomina($id_programacion, $id_grupo_pago, $id, $fecha_desde, $fecha_hasta) {
-        
+    //PROCESO QUE PERMITE EDITAR LA COLILLA
+    public function actionView_colilla_pagonomina($id, $id_programacion, $id_grupo_pago, $fecha_desde, $fecha_hasta) {
+        $detalle = \app\models\ProgramacionNominaDetalle::find()->where(['=','id_programacion', $id_programacion])->all();
         $model = ProgramacionNomina::findOne($id_programacion);
-        if (Yii::$app->request->post()) {
-            if (isset($_POST["eliminardetallecolilla"])) { 
-                if (isset($_POST["id_detalle_colilla"])) {
-                    $intIndice = 0; $codigo = 0;
-                    foreach ($_POST["id_detalle_colilla"] as $intCodigo):
-                        $codigo = $intCodigo;
-                        $eliminar = ProgramacionNominaDetalle::findOne($intCodigo);
-                        $this->ActualizarColillaPago($id_programacion, $codigo);
-                        $eliminar->delete(); 
-                        $this->redirect(["programacion-nomina/view", 'id' => $id, 'id_grupo_pago' => $id_grupo_pago, 'fecha_desde' => $fecha_desde, 'fecha_hasta' => $fecha_hasta]);
-                        $intIndice ++;
-                    endforeach;
+       
+        return $this->render('form_editar_colilla_pago', [
+            'id_programacion' => $id_programacion,
+            'detalle' => $detalle,
+            'model' => $model,
+            'id' => $id,
+            'id_grupo_pago' => $id_grupo_pago,
+            'fecha_desde' => $fecha_desde,
+            'fecha_hasta' => $fecha_hasta,
+            ]);
+        
+    }
+    
+    //EDITAR COLILLA
+    public function actionEditar_colilla_pagonomina($id_detalle, $id_programacion, $id, $id_grupo_pago, $fecha_desde, $fecha_hasta) {
+        $model = new \app\models\ModeloEditarColilla();
+        $table = \app\models\ProgramacionNominaDetalle::findOne($id_detalle);
+        if ($model->load(Yii::$app->request->post())){
+            if (isset($_POST["actualizar_conceptos"])) {
+                $dato = ProgramacionNominaDetalle::findOne($id_detalle);
+                if($table->codigoSalario->auxilio_transporte == 1){
+                    $dato->auxilio_transporte = $model->devengado;
                 }
-               return $this->redirect(['view','id' => $id, 'id_grupo_pago' => $id_grupo_pago, 'fecha_desde' => $fecha_desde, 'fecha_hasta' => $fecha_hasta]);
-            }    
-        }else{
-            return $this->render('editarcolillapagonomina', [
-                        'id_programacion' => $id_programacion,
-                        'model' => $model,  
-                        'id' => $id,
+                if($model->devengado > 0){
+                    $dato->vlr_devengado = $model->devengado;
+                }
+                if($model->deduccion > 0){
+                    $dato->vlr_deduccion = $model->deduccion;
+                }
+                $dato->save(false);
+                return $this->redirect(["programacion-nomina/view_colilla_pagonomina",'id' => $id, 'id_programacion' => $id_programacion, 'id_grupo_pago' => $id_grupo_pago,
                         'fecha_desde' => $fecha_desde,
-                        'fecha_hasta' => $fecha_hasta,
+                        'fecha_hasta' => $fecha_hasta,]); 
+            }
+            if (isset($_POST["cerrar_ventana"])) {
+                return $this->redirect(["programacion-nomina/view_colilla_pagonomina",'id' => $id, 'id_programacion' => $id_programacion, 'id_grupo_pago' => $id_grupo_pago,
+                        'fecha_desde' => $fecha_desde,
+                        'fecha_hasta' => $fecha_hasta,]);
+            }
+            
+        }
+        $model->codigo = $id_detalle;
+       return $this->renderAjax('editar_colilla', [
+            'model' => $model,  
+            'table' => $table,
+      
+        ]);      
+    }
+    
+     //ELIMINAR CONCEPTOS DE SALARIOA
+    public function actionEliminar_concepto_salario($id, $id_programacion, $id_detalle, $id_grupo_pago, $fecha_desde, $fecha_hasta)
+    {
+        $detalle = \app\models\ProgramacionNominaDetalle::find()->where(['=','id_detalle', $id_detalle])->one();
+            try {
+                $detalle->delete();
+                Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+                $this->redirect(["programacion-nomina/view_colilla_pagonomina", 'id' => $id, 'id_programacion' => $id_programacion,
+                    'id_grupo_pago' => $id_grupo_pago,
+                    'fecha_desde' => $fecha_desde,
+                    'fecha_hasta' => $fecha_hasta,]);
+            } catch (IntegrityException $e) {
+                Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos de la nómina');
+            } catch (\Exception $e) {
+                Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos');
+            }
+            
+            return $this->redirect(['programacion-nomina/view_colilla_pagonomina', 'id' => $id, 'id_programacion' => $id_programacion, 'id_grupo_pago' => $id_grupo_pago,
+                        'fecha_desde' => $fecha_desde,
+                        'fecha_hasta' => $fecha_hasta]);
+    }    
+    
+    //ACTUALIZAR LA COLILLA
+    public function actionActualizar_colilla($id, $id_programacion, $id_grupo_pago, $fecha_desde, $fecha_hasta) {
+        $nomina = ProgramacionNomina::findOne($id_programacion);
+        $detalle_nomina = \app\models\ProgramacionNominaDetalle::find()->where(['=','id_programacion', $id_programacion])->all();
+        $devengados = 0; $deduccion = 0; $prestacional = 0; $no_prestacional = 0; $auxilio_transporte = 0;
+        foreach ($detalle_nomina as $detalle) {
+            if($detalle->codigoSalario->devengado_deduccion == 1){
+                if($detalle->codigoSalario->ingreso_base_prestacional == 1){
+                    $prestacional += $detalle->vlr_devengado + $detalle->vlr_licencia;
+                }else{
+                    $no_prestacional += $detalle->vlr_devengado_no_prestacional;
+                }
+                $devengados += $detalle->vlr_devengado;
+                $auxilio_transporte = $detalle->auxilio_transporte;
+            } else {
+                $deduccion += $detalle->vlr_deduccion;
+            }
+        }
+        echo $devengados;
+        $nomina->ibc_prestacional = $prestacional;
+        $nomina->ibc_no_prestacional = $no_prestacional;
+        $nomina->total_deduccion = $deduccion;
+        $nomina->total_devengado = $devengados + $auxilio_transporte ;
+        $nomina->total_auxilio_transporte = $auxilio_transporte;
+        $nomina->total_pagar = $devengados - $deduccion;
+        $nomina->save(false);
+        return $this->redirect(['view_colilla_pagonomina', 
+            'id' => $id,
+            'id_programacion' => $id_programacion,
+            'id_grupo_pago' => $id_grupo_pago,
+            'fecha_desde' => $fecha_desde,
+            'fecha_hasta' => $fecha_hasta
+        ]);
+        
+    }
+    
+    
+     //AGREGAR ITEMS A LA COLILLA DE PAGO
+     //EDITAR COLILLA
+    public function actionAgregar_item_colilla($id_programacion, $id, $id_grupo_pago, $fecha_desde, $fecha_hasta) {
+        $model = new \app\models\ModeloEditarColilla();
+        
+        if ($model->load(Yii::$app->request->post())){
+            if (isset($_POST["agregar_conceptos"])) {
+                if($model->codigo_salario <> ''){
+                    $nomina = ProgramacionNomina::findOne($id_programacion);
+                    $salario = \app\models\ConceptoSalarios::findOne($model->codigo_salario);
+                    $table = new \app\models\ProgramacionNominaDetalle();
+                    $table->id_programacion = $id_programacion;
+                    $table->codigo_salario = $model->codigo_salario;
+                    $table->fecha_desde = $fecha_hasta;
+                    $table->fecha_hasta = $fecha_hasta;
+                    $table->id_periodo_pago_nomina = $id;
+                    $table->id_grupo_pago = $nomina->id_grupo_pago;
+                    if($salario->debito_credito == 1){
+                       $table->vlr_devengado = $model->devengado;   
+                       if($salario->prestacional == 0){
+                           $table->vlr_devengado_no_prestacional = $model->devengado;
+                       }
+                    }else{
+                       $table->vlr_deduccion = $model->deduccion;
+                    }
+                    $table->save(false);
+                    return $this->redirect(["programacion-nomina/view_colilla_pagonomina",'id' => $id, 'id_programacion' => $id_programacion,
                         'id_grupo_pago' => $id_grupo_pago,
-            ]); 
-        } 
+                        'fecha_desde' => $fecha_desde,
+                        'fecha_hasta' => $fecha_hasta]);
+                }else{
+                    Yii::$app->getSession()->setFlash('error', 'Debe de seleccionar un concepto de salario para agrega la informacion.');
+                    return $this->redirect(["programacion-nomina/view_colilla_pagonomina",'id' => $id, 'id_programacion' => $id_programacion,
+                         'id_grupo_pago' => $id_grupo_pago,
+                        'fecha_desde' => $fecha_desde,
+                        'fecha_hasta' => $fecha_hasta]);
+                }
+            }
+            
+        }
+       return $this->renderAjax('agregar_items_colilla', [
+            'model' => $model,  
+            'id' => $id,
+            'id_grupo_pago' => $id_grupo_pago,
+            'fecha_desde' => $fecha_desde,
+            'fecha_hasta' => $fecha_hasta
+      
+        ]);      
     }
     
     protected function ActualizarColillaPago($id_programacion, $codigo) {

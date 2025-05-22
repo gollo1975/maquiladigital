@@ -261,7 +261,7 @@ $view = 'programacion nomina';
                                                      </div>
                                                </td>
                                                 <td style="width: 25px;">				
-                                                    <a href="<?= Url::toRoute(["programacion-nomina/editarcolillapagonomina", 'id' => $model->id_periodo_pago_nomina,"id_programacion" => $val->id_programacion, 'id_grupo_pago' => $val->id_grupo_pago, 'id' => $val->id_periodo_pago_nomina, 'fecha_desde' => $val->fecha_desde, 'fecha_hasta' => $val->fecha_hasta]) ?>" ><span class="glyphicon glyphicon-book"></span></a>
+                                                    <a href="<?= Url::toRoute(["programacion-nomina/view_colilla_pagonomina", 'id' => $model->id_periodo_pago_nomina,"id_programacion" => $val->id_programacion, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' => $model->fecha_hasta]) ?>" ><span class="glyphicon glyphicon-book"></span></a>
                                                 </td>
                                             <?php }else{?>
                                                    <td style="width: 0.5%; height: 0.5%; ">  

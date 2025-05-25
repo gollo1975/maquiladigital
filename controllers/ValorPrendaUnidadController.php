@@ -2178,7 +2178,7 @@ class ValorPrendaUnidadController extends Controller
             $idordenproduccion = Html::encode($form->idordenproduccion);
             $iddetalleorden = Html::encode($form->iddetalleorden);
             $idproceso = Html::encode($form->idproceso);
-            if($id_operario > 0){
+            if($idordenproduccion > 0){
                 $sw = 1; 
             }
             
@@ -2188,7 +2188,7 @@ class ValorPrendaUnidadController extends Controller
                             ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
                             ->andFilterWhere(['=', 'iddetalleorden', $iddetalleorden])
                             ->andFilterWhere(['=', 'idproceso', $idproceso]);
-                $table = $table->orderBy('iddetalleorden DESC');
+                $table = $table->orderBy('idproceso ASC');
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $to = $count->count();
@@ -2540,7 +2540,12 @@ class ValorPrendaUnidadController extends Controller
                     
                   
         $i = 3;
-        foreach ($tableexcel as $val) {                            
+        $previousIdProceso = null; // 
+        $colSpanCount = 12;
+        foreach ($tableexcel as $val) {  
+            if ($previousIdProceso !== null && $val->idproceso !== $previousIdProceso) {
+               $i++;
+            }
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->idproceso);
                     if($val->idproceso == null){
@@ -2575,7 +2580,7 @@ class ValorPrendaUnidadController extends Controller
                     ->setCellValue('K' . $i, $val->planta->nombre_planta)
                     ->setCellValue('L' . $i, $val->tipoproceso->tipo)
                     ->setCellValue('M' . $i, $val->usuariosistema);
-              
+                     $previousIdProceso = $val->idproceso;
                    
             $i++;                        
         }
@@ -2588,7 +2593,7 @@ class ValorPrendaUnidadController extends Controller
         header("Content-Type: application/force-download");
         header("Content-Type: application/octet-stream");
         header("Content-Type: application/download");
-        header('Content-Disposition: attachment;filename="Valor_Nomina.xlsx"');
+        header('Content-Disposition: attachment;filename="Listado_operaciones.xlsx"');
         header('Cache-Control: max-age=0');
         // If you're serving to IE 9, then the following may be needed
         header('Cache-Control: max-age=1');

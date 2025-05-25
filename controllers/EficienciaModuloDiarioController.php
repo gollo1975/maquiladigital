@@ -294,12 +294,24 @@ class EficienciaModuloDiarioController extends Controller
        $orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->all();
        $modulo = \app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $id])->one();       
        $balanceo = \app\models\Balanceo::findOne($id_balanceo);
-       if (Yii::$app->request->post()) {
-         if ($model->validate()) {
+        if (isset($_POST["unidades_pordia"])) {
             if (isset($_POST["entrada_diaria"])) {
-                $intIndice = 0;
                 $registro = 0;
                 $id_detalle_talla = 0;
+                foreach ($_POST["entrada_diaria"] as $key => $intCodigo){
+                    if (isset($_POST["nueva_entrada"][$key])) {
+                        if ($_POST["nueva_entrada"][$key] > 0) {
+                            $buscar = Ordenproducciondetalle::findOne($intCodigo); 
+                            $cantidad_entrante = $_POST["nueva_entrada"][$key];
+                            $sumas = $buscar->cantidad - $buscar->faltante;
+                            if($cantidad_entrante > $sumas  ){
+                                Yii::$app->getSession()->setFlash('error', 'La cantidad confeccionada a ingresar supera la cantidad faltante de la talla. Favor validar las unidades.');
+                                return $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id,'id_planta' => $id_planta]);
+                            }
+                        }    
+                    }
+                }
+                $intIndice = 0;
                 foreach ($_POST["entrada_diaria"] as $intCodigo):
                     $carga_modulo = \app\models\Ordenproducciondetalle::findOne($intCodigo);
                     $detalle = \app\models\EficienciaModuloDetalle::findOne($id_carga);
@@ -361,9 +373,7 @@ class EficienciaModuloDiarioController extends Controller
                 endforeach;
                 $this->redirect(["eficiencia-modulo-diario/view", 'id' => $id,'id_planta' => $id_planta]);
             }
-        }else{
-             $model->getErrors();
-        }    
+         
        }
        return $this->renderAjax('_formeficienciamodulodiario', [
             'orden' => $orden,

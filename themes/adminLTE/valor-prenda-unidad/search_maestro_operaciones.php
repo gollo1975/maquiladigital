@@ -95,7 +95,7 @@ if($form->idordenproduccion > 0){
         <div class="panel-body">
             <table class="table table-bordered table-hover">
                 <thead>
-                    <tr style="font-size: 90%;">
+                    <tr style="font-size: 85%;">
                         <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Operacion</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
@@ -113,35 +113,44 @@ if($form->idordenproduccion > 0){
                 </thead>
                 <?php 
                  if($modelo){
-                    foreach ($modelo as $val):?>
-                        <tr style="font-size: 90%;">
-                            <td><?= $val->idproceso?></td>
-                            <?php if($val->idproceso == null){?>
-                                <td><?= 'REGISTRO NO ENCONTRADO'?></td>
-                            <?php }else{?>
-                                <td><?= $val->operaciones->proceso?></td>
-                            <?php }
-                            if($val->iddetalleorden == null){?>
-                                <td><?= 'REGISTRO NO ENCONTRADO'?></td>
-                            <?php }else{?>
-                                <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?></td>    
-                            <?php }?>    
-                            <td><?= $val->operarioProduccion->nombrecompleto?></td>
-                            <td><?= $val->idordenproduccion?></td>
-                             <td><?= $val->planta->nombre_planta?></td>
-                            <td><?= $val->dia_pago?></td>
-                            <?php if($val->iddetalleorden == null){?>
-                                <td><?= 'REGISTRO NO ENCONTRADO'?></td>
-                            <?php }else{?>
-                               <td><?= $val->detalleOrdenProduccion->cantidad?></td> 
-                            <?php }?>    
-                            <td><?= $val->cantidad?></td>
-                            <td><?= $val->vlr_prenda?></td>
-                             <td><?= $val->porcentaje_cumplimiento?></td>
-                            <td style="text-align: right"><?= ''.number_format($val->vlr_pago,0)?></td>
-                        </tr>
-
-                    <?php endforeach;
+                    $previousIdProceso = null; // 
+                    $colSpanCount = 12;
+                    foreach ($modelo as $val):
+                        if ($previousIdProceso !== null && $val->idproceso !== $previousIdProceso) {
+                                                ?>
+                            <tr style="background-color: #f0f0f0;"> <td colspan="<?= $colSpanCount ?>" style="text-align: center; font-weight: bold; padding: 10px;">
+                                    --- Nueva Operación: <?= $val->operaciones->proceso ?? 'Desconocida' ?> ---
+                                </td>
+                            </tr>
+                         <?php } ?>
+                            <tr style="font-size: 85%;">
+                                <td><?= $val->idproceso?></td>
+                                <?php if($val->idproceso == null){?>
+                                    <td><?= 'REGISTRO NO ENCONTRADO'?></td>
+                                <?php }else{?>
+                                    <td><?= $val->operaciones->proceso?></td>
+                                <?php }
+                                if($val->iddetalleorden == null){?>
+                                    <td><?= 'REGISTRO NO ENCONTRADO'?></td>
+                                <?php }else{?>
+                                    <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?></td>    
+                                <?php }?>    
+                                <td><?= $val->operarioProduccion->nombrecompleto?></td>
+                                <td><?= $val->idordenproduccion?></td>
+                                 <td><?= $val->planta->nombre_planta?></td>
+                                <td><?= $val->dia_pago?></td>
+                                <?php if($val->iddetalleorden == null){?>
+                                    <td><?= 'REGISTRO NO ENCONTRADO'?></td>
+                                <?php }else{?>
+                                   <td><?= $val->detalleOrdenProduccion->cantidad?></td> 
+                                <?php }?>    
+                                <td><?= $val->cantidad?></td>
+                                <td><?= $val->vlr_prenda?></td>
+                                 <td><?= $val->porcentaje_cumplimiento?></td>
+                                <td style="text-align: right"><?= ''.number_format($val->vlr_pago,0)?></td>
+                            </tr>
+                        <?php  $previousIdProceso = $val->idproceso; 
+                    endforeach;
                  }?>
             </table> 
             <div class="panel-footer text-right" >            

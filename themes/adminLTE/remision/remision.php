@@ -281,8 +281,14 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                             <?php if ($val->t30 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="30[]" value="<?= $val['c30'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
                             <?php } ?>
+                            <?php if ($val->t31 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="31[]" value="<?= $val['c31'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
+                            <?php } ?>    
                             <?php if ($val->t32 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="32[]" value="<?= $val['c32'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
+                            <?php } ?>
+                            <?php if ($val->t33 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="33[]" value="<?= $val['c33'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
                             <?php } ?>
                             <?php if ($val->t34 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="34[]" value="<?= $val['c34'] ?>" size="1" onkeypress="return esInteger(event)" style="background-color:silver" required></td>
@@ -367,9 +373,15 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                             <?php if ($val->t30 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="30[]" value="<?= $val['c30'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
                             <?php } ?>
+                            <?php if ($val->t31 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="31[]" value="<?= $val['c31'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
+                            <?php } ?>
                             <?php if ($val->t32 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="32[]" value="<?= $val['c32'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
                             <?php } ?>
+                            <?php if ($val->t33 == 1) { ?>    
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="33[]" value="<?= $val['c33'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
+                            <?php } ?>    
                             <?php if ($val->t34 == 1) { ?>    
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="34[]" value="<?= $val['c34'] ?>" size="1" onkeypress="return esInteger(event)" required></td>
                             <?php } ?>
@@ -505,9 +517,15 @@ $colores = ArrayHelper::map(app\models\Color::find()->all(), 'id', 'color');
                         <?php if ($val == '30' or $val == '30'){ ?>
                             <th scope="col"><?= $c30 ?></th>
                         <?php } ?>
+                           <?php if ($val == '31' or $val == '31'){ ?>
+                            <th scope="col"><?= $c31 ?></th>
+                        <?php } ?>    
                         <?php if ($val == '32' or $val == '32'){ ?>
                             <th scope="col"><?= $c32 ?></th>
                         <?php } ?>
+                           <?php if ($val == '33' or $val == '33'){ ?>
+                            <th scope="col"><?= $c33 ?></th>
+                        <?php } ?>    
                         <?php if ($val == '34' or $val == '34'){ ?>
                             <th scope="col"><?= $c34 ?></th>
                         <?php } ?>

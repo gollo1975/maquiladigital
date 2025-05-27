@@ -312,8 +312,14 @@ class PDF extends FPDF {
         if ($tallasremision->t30 == 1){
             $datostallas[] = '30';
         }
+        if ($tallasremision->t31 == 1){
+            $datostallas[] = '31';
+        }
         if ($tallasremision->t32 == 1){
             $datostallas[] = '32';
+        }
+        if ($tallasremision->t33 == 1){
+            $datostallas[] = '33';
         }
         if ($tallasremision->t34 == 1){
             $datostallas[] = '34';
@@ -428,12 +434,12 @@ class PDF extends FPDF {
             $ancho = 7;
         }
         $pdf->SetX(10);
-        $pdf->SetFont('Arial', 'b', 10);
+        $pdf->SetFont('Arial', 'B', 10);
         $items = count($detalles);
         $sumaLineas = 0;
         $txxs = 0;$txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0; $txxl = 0;
         $t2 = 0;$t4 = 0;$t6 = 0;$t8 = 0;$t10 = 0;$t12 = 0;$t14 = 0;$t16 = 0;$t18 = 0;$t20 = 0;
-        $t22 = 0;$t28 = 0;$t30 = 0;$t32 = 0;$t34 = 0;$t36 = 0;$t38 = 0;$t40 = 0;$t42 = 0; $t44 = 0; $t46 = 0;
+        $t22 = 0;$t28 = 0; $t30 = 0; $t31 = 0; $t32 = 0; $t33 = 0; $t34 = 0;$t36 = 0;$t38 = 0;$t40 = 0;$t42 = 0; $t44 = 0; $t46 = 0;
         foreach ($detalles as $detalle) {
             $txxs = $txxs + $detalle->xxs;
             $txs = $txs + $detalle->xs;
@@ -455,7 +461,9 @@ class PDF extends FPDF {
             $t22 += $detalle->c22;
             $t28 += $detalle->c28;
             $t30 += $detalle->c30;
+            $t31 += $detalle->c31;
             $t32 += $detalle->c32;
+            $t33 += $detalle->c33;
             $t34 += $detalle->c34;
             $t36 += $detalle->c36;
             $t38 += $detalle->c38;
@@ -541,8 +549,15 @@ class PDF extends FPDF {
                 if ($detalle->t30 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c30'], 1, 0, 'R',1);
                 }
+                if ($detalle->t31 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c31'], 1, 0, 'R',1);
+                }
+                
                 if ($detalle->t32 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c32'], 1, 0, 'R',1);
+                }
+                if ($detalle->t33 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c33'], 1, 0, 'R',1);
                 }
                 if ($detalle->t34 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c34'], 1, 0, 'R',1);
@@ -628,11 +643,17 @@ class PDF extends FPDF {
                 if ($detalle->t30 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c30'], 1, 0, 'R', 0);
                 }
+                if ($detalle->t31 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c31'], 1, 0, 'R',0);
+                }
                 if ($detalle->t32 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c32'], 1, 0, 'R', 0);
                 }
-                if ($detalle->t34 == 1) {
-                    $pdf->Cell($ancho, 4.5, $detalle['c34'], 1, 0, 'R', 0);
+                if ($detalle->t32 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c32'], 1, 0, 'R',0);
+                }
+                if ($detalle->t33 == 1) {
+                    $pdf->Cell($ancho, 4.5, $detalle['c33'], 1, 0, 'R', 0);
                 }
                 if ($detalle->t36 == 1) {
                     $pdf->Cell($ancho, 4.5, $detalle['c36'], 1, 0, 'R', 0);
@@ -662,7 +683,7 @@ class PDF extends FPDF {
            
         }
         $cxxs = 0;$cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $ct = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
-        $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c32 = 0; $c34 = 0; $c36 = 0; $c38 = 0;$c40 = 0; $c42 = 0; $c44 = 0; $c46 = 0;
+        $c20 = 0; $c22 = 0; $c28 = 0; $c30 = 0; $c31 = 0; $c32 = 0; $c33 = 0; $c34 = 0; $c36 = 0; $c38 = 0;$c40 = 0; $c42 = 0; $c44 = 0; $c46 = 0;
         $cantidadesremision = Remisiondetalle::find()->where(['=','id_remision',$model->id_remision])->all();
         foreach ($cantidadesremision as $val){
             if ($val->txxs == 1){
@@ -725,8 +746,14 @@ class PDF extends FPDF {
             if ($val->t30 == 1){
                 $c30 = $c30 + $val['c30'];
             }
+            if ($val->t31 == 1){
+                $c31 += $val['c31'];
+            }
             if ($val->t32 == 1){
                 $c32 = $c32 +$val['c32'];
+            }
+            if ($val->t33 == 1){
+                $c33 += $val['c33'];
             }
             if ($val->t34 == 1){
                 $c34 = $c34 + $val['c34'];
@@ -817,8 +844,14 @@ class PDF extends FPDF {
         if ($tallasremision->t30 == 1){
             $datostallas[] = '30';
         }
+        if ($tallasremision->t31 == 1){
+            $datostallas[] = '31';
+        }
         if ($tallasremision->t32 == 1){
             $datostallas[] = '32';
+        }
+        if ($tallasremision->t33 == 1){
+            $datostallas[] = '33';
         }
         if ($tallasremision->t34 == 1){
             $datostallas[] = '34';
@@ -903,8 +936,14 @@ class PDF extends FPDF {
             if ($val == '30') {
                 $pdf->Cell($ancho, 6, $c30, 1, 0, 'R');
             }
+            if ($val == '31') {
+                $pdf->Cell($ancho, 6, $c31, 1, 0, 'R');
+            }
             if ($val == '32') {
                 $pdf->Cell($ancho, 6, $c32, 1, 0, 'R');
+            }
+            if ($val == '33') {
+                $pdf->Cell($ancho, 6, $c33, 1, 0, 'R');
             }
             if ($val == '34') {
                 $pdf->Cell($ancho, 6, $c34, 1, 0, 'R');
@@ -948,11 +987,7 @@ class PDF extends FPDF {
             $pdf->Cell($ancho, 6, $total, 1, 0, 'R');
         }
             
-        /*$pdf->Cell($ancho, 6, $cxs, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $cs, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $cm, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $cl, 1, 0, 'R');
-        $pdf->Cell($ancho, 6, $cxl, 1, 0, 'R');*/
+      
         
         $pdf->SetXY(10, 205);
         $pdf->Cell(191, 6, 'RESUMEN DE LA ENTREGA', 1, 0, 'C',1);

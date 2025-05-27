@@ -671,7 +671,7 @@ class RemisionController extends Controller
     protected function SumarSegundas($intCodigo, $tipo) {
         $total = 0;
         $Cxxs = 0; $Cxs = 0; $Cs = 0; $Cm = 0; $Cl = 0; $Cxl = 0; $Cxxl = 0; $C2 = 0; $C4 = 0; $C6 = 0;
-        $C8 = 0; $C10 = 0; $C12 = 0; $C14 = 0; $C16 = 0;$C18 = 0;$C20 = 0;$C22 = 0;$C28 = 0;$C30 = 0;$C32 = 0;$C34 = 0;
+        $C8 = 0; $C10 = 0; $C12 = 0; $C14 = 0; $C16 = 0;$C18 = 0;$C20 = 0;$C22 = 0;$C28 = 0;$C30 = 0; $C31 = 0; $C32 = 0; $C33 = 0; $C34 = 0;
         $C36 = 0;$C38 = 0;$C40 = 0;$C42 = 0; $C44 = 0; $C46 = 0;
         $segunda = \app\models\ClasificacionSegundas::find()->where(['=','id_tipo', $tipo])->andWhere(['=','id_clasificacion', $intCodigo])->all();
         foreach ($segunda as $datos):
@@ -736,8 +736,14 @@ class RemisionController extends Controller
             if($datos->t30 > 0){
                 $C30 = $datos->a30;
             }
+            if($datos->t31 > 0){
+                $C31 = $datos->a31;
+            }
             if($datos->t32 > 0){
                 $C32 = $datos->a32;
+            }
+            if($datos->t33 > 0){
+                $C33 = $datos->a33;
             }
             if($datos->t34 > 0){
                 $C34 = $datos->a34;
@@ -761,7 +767,7 @@ class RemisionController extends Controller
                 $C46 = $datos->a46;
             }
                         
-            $total = $C2 + $C4 + $C6 + $C8 +$C10 + $C12 + $C14 + $C16 + $C18 + $C20 + $C22 + $C28 + $C30 + $C32 + $C34 + $C36 + $C38 + $C40 + $C42 + $C44 + $C46 + $Cxxs + $Cxs + $Cs + $Cm + $Cl + $Cxl + $Cxxl ;
+            $total = $C2 + $C4 + $C6 + $C8 +$C10 + $C12 + $C14 + $C16 + $C18 + $C20 + $C22 + $C28 + $C30 + $C31 + $C32 +  $C33 + $C34 + $C36 + $C38 + $C40 + $C42 + $C44 + $C46 + $Cxxs + $Cxs + $Cs + $Cm + $Cl + $Cxl + $Cxxl ;
             $datos->unidades = $total;
             $datos->save(false);
         endforeach;

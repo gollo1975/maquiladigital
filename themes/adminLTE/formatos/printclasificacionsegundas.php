@@ -190,7 +190,13 @@ class PDF extends FPDF {
         if($registros->t30 == 1){
             $nregistros += 1;
         }
+        if($registros->t31 == 1){
+            $nregistros += 1;
+        }
         if($registros->t32 == 1){
+            $nregistros += 1;
+        }
+        if($registros->t33 == 1){
             $nregistros += 1;
         }
         if($registros->t34 == 1){
@@ -229,32 +235,14 @@ class PDF extends FPDF {
         if ($nregistros == 6) {
             $this->Line(187, 78, 187, 190);//x1,y1,x2,y2 
         }
-         if ($nregistros == 7) {
+        if ($nregistros == 7) {
             $this->Line(190, 78, 190, 190);//x1,y1,x2,y2 
         }
-        
-       /* if ($nregistros == 6) {        
-        $this->Line(50, 78, 50, 190);//x1,y1,x2,y2           
-        $this->Line(67, 78, 67, 190);//x1,y1,x2,y2
-        $this->Line(84, 78, 84, 190);//x1,y1,x2,y2        
-        $this->Line(101, 78, 101, 190);//x1,y1,x2,y2        
-        $this->Line(118, 78, 118, 190);//x1,y1,x2,y2
-        $this->Line(135, 78, 135, 190);//x1,y1,x2,y2
-        $this->Line(152, 78, 152, 190);//x1,y1,x2,y2 
-        $this->Line(187, 78, 187, 190);//x1,y1,x2,y2 
-       
+        if ($nregistros == 8) {
+            $this->Line(190, 78, 190, 190);//x1,y1,x2,y2 
         }
-        if ($nregistros == 7) {        
-        $this->Line(50, 70, 50, 190);//x1,y1,x2,y2           
-        $this->Line(65, 70, 65, 190);//x1,y1,x2,y2        
-        $this->Line(80, 70, 80, 190);//x1,y1,x2,y2        
-        $this->Line(95, 70, 95, 190);//x1,y1,x2,y2
-        $this->Line(110, 70, 110, 190);//x1,y1,x2,y2        
-        $this->Line(125, 70, 125, 190);//x1,y1,x2,y2
-        $this->Line(140, 70, 141, 190);//x1,y1,x2,y2
-        $this->Line(155, 70, 155, 190);//x1,y1,x2,y2
-        $this->Line(190, 70, 190, 190);//x1,y1,x2,y2
-        }*/
+      
+     
         
         //Detalle factura
         $this->EncabezadoDetalles($nregistros);
@@ -324,8 +312,14 @@ class PDF extends FPDF {
             if ($tallasremision->t30 == 1){
                 $datostallas[] = '30';
             }
+            if ($tallasremision->t31 == 1){
+                $datostallas[] = '31';
+            }
             if ($tallasremision->t32 == 1){
                 $datostallas[] = '32';
+            }
+            if ($tallasremision->t33 == 1){
+                $datostallas[] = '33';
             }
             if ($tallasremision->t34 == 1){
                 $datostallas[] = '34';
@@ -376,6 +370,12 @@ class PDF extends FPDF {
         }
         if ($nregistros == 7){
             $w = array(40, 15, 15, 15, 15, 15, 15, 15, 35);
+        }
+        if ($nregistros == 8){
+            $w = array(40, 13, 13, 13, 13, 13, 13, 13,13, 35);
+        }
+        if ($nregistros == 9){
+            $w = array(40, 11, 11, 11, 11, 11, 11, 11, 11, 11, 35);
         }
         
         for ($i = 0; $i < count($header); $i++)
@@ -454,10 +454,16 @@ class PDF extends FPDF {
             if($registros->t28 == 1){
                 $nregistros += 1;
             }
-             if($registros->t30 == 1){
+            if($registros->t30 == 1){
+                $nregistros += 1;
+            }
+            if($registros->t31 == 1){
                 $nregistros += 1;
             }
              if($registros->t32 == 1){
+                $nregistros += 1;
+            }
+            if($registros->t33 == 1){
                 $nregistros += 1;
             }
              if($registros->t34 == 1){
@@ -499,13 +505,19 @@ class PDF extends FPDF {
         if ($nregistros == 7) {
             $ancho = 15;
         }
+        if ($nregistros == 8) {
+            $ancho = 13;
+        }
+        if ($nregistros == 9) {
+            $ancho = 11;
+        }
        
         $pdf->SetX(10);
         $pdf->SetFont('Arial', 'b', 10);
         $items = count($detalles);
         $txs = 0; $ts = 0; $tm = 0; $tl = 0; $txl = 0; $txxl = 0; $txxs = 0;
         $t2 = 0;$t4 = 0;$t6 = 0;$t8 = 0;$t10 = 0;$t12 = 0;$t14 = 0;$t16 = 0;
-        $t18 = 0;$t20 = 0;$t22 = 0;$t28 = 0;$t30 = 0;$t32 = 0;$t34 = 0;$t36 = 0;$t38 = 0;
+        $t18 = 0;$t20 = 0;$t22 = 0;$t28 = 0;$t30 = 0; $t31 = 0; $t32 = 0; $t33 = 0; $t34 = 0;$t36 = 0;$t38 = 0;
         $t40 = 0;$t42 = 0;
         foreach ($detalles as $detalle) {
             $txxs = $txxs + $detalle->xxs;
@@ -577,8 +589,14 @@ class PDF extends FPDF {
             if ($detalle->t30 == 1) {
                 $pdf->Cell($ancho, 4.5, $detalle->a30, 1, 0, 'R');
             }
+            if ($detalle->t31 == 1) {
+                $pdf->Cell($ancho, 4.5, $detalle->a31, 1, 0, 'R');
+            }
             if ($detalle->t32 == 1) {
                 $pdf->Cell($ancho, 4.5, $detalle->a32, 1, 0, 'R');
+            }
+            if ($detalle->t33 == 1) {
+                $pdf->Cell($ancho, 4.5, $detalle->a33, 1, 0, 'R');
             }
             if ($detalle->t34 == 1) {
                 $pdf->Cell($ancho, 4.5, $detalle->a34, 1, 0, 'R');
@@ -601,7 +619,7 @@ class PDF extends FPDF {
             $pdf->SetAutoPageBreak(true, 20);
         }
         $cxxs = 0; $cxs = 0; $cs = 0; $cm = 0; $cl = 0; $cxl = 0; $cxxl = 0; $c2 = 0; $c4 = 0; $c6 = 0; $c8 = 0; $c10 = 0; $c12 = 0; $c14 = 0; $c16 = 0; $c18 = 0;
-        $c20 = 0;$c22 = 0;$c28 = 0;$c30 = 0;$c32 = 0;$c34 = 0;$c36 = 0;$c38 = 0;$c40 = 0;$c42 = 0;
+        $c20 = 0;$c22 = 0;$c28 = 0;$c30 = 0; $c31 = 0; $c32 = 0; $c33 = 0; $c34 = 0;$c36 = 0;$c38 = 0;$c40 = 0;$c42 = 0;
 
         $cantidadesremision = \app\models\ClasificacionSegundas::find()->where(['=','id_remision',$model->id_remision])->all();
         $total = 0;
@@ -667,8 +685,14 @@ class PDF extends FPDF {
             if ($val->t30 == 1){
                 $c30 += $val->a30;
             }
+             if ($val->t31 == 1){
+                $c31 += $val->a31;
+            }
             if ($val->t32 == 1){
                 $c32 += $val->a32;
+            }
+             if ($val->t33 == 1){
+                $c33 += $val->a33;
             }
             if ($val->t34== 1){
                 $c34 += $val->a34;
@@ -753,8 +777,14 @@ class PDF extends FPDF {
         if ($tallasremision->t30 == 1){
             $datostallas[] = '30';
         }
+        if ($tallasremision->t31 == 1){
+            $datostallas[] = '31';
+        }
         if ($tallasremision->t32 == 1){
             $datostallas[] = '32';
+        }
+        if ($tallasremision->t33 == 1){
+            $datostallas[] = '33';
         }
         if ($tallasremision->t34 == 1){
             $datostallas[] = '34';
@@ -834,8 +864,14 @@ class PDF extends FPDF {
             if ($val == '30') {
                 $pdf->Cell($ancho, 6, $c30, 1, 0, 'R');
             }
+            if ($val == '31') {
+                $pdf->Cell($ancho, 6, $c31, 1, 0, 'R');
+            }
             if ($val == '32') {
                 $pdf->Cell($ancho, 6, $c32, 1, 0, 'R');
+            }
+            if ($val == '33') {
+                $pdf->Cell($ancho, 6, $c33, 1, 0, 'R');
             }
             if ($val == '34') {
                 $pdf->Cell($ancho, 6, $c34, 1, 0, 'R');
@@ -888,6 +924,7 @@ class PDF extends FPDF {
             $pdf->Cell(18, 6, $total, 1, 0, 'R');
             $this->SetFont('Arial', 'B', 10);
         }   
+                                                                                                                                                                        
        
              
         if($nregistros == 7){

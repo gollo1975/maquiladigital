@@ -120,8 +120,14 @@ $tipo = ArrayHelper::map(app\models\TipoClasificacionSegundas::find()->all(), 'i
                                 if($val->c30 > 0){?>
                                     <th scope="col" style='background-color:#B9D5CE;'><?= '30' ?></th>
                                 <?php }
+                                 if($val->c31 > 0){?>
+                                    <th scope="col" style='background-color:#B9D5CE;'><?= '31' ?></th>
+                                <?php }
                                 if($val->c32 > 0){?>
                                     <th scope="col" style='background-color:#B9D5CE;'><?= '32' ?></th>
+                                <?php }
+                                 if($val->c33 > 0){?>
+                                    <th scope="col" style='background-color:#B9D5CE;'><?= '33' ?></th>
                                 <?php }
                                 if($val->c34 > 0){?>
                                     <th scope="col" style='background-color:#B9D5CE;'><?= '34' ?></th>
@@ -214,9 +220,15 @@ $tipo = ArrayHelper::map(app\models\TipoClasificacionSegundas::find()->all(), 'i
                             <?php if ($val->t30 == 1) { $linea += 1;?>
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="t30[]" value="<?= $val->a30 ?>" size="1" onkeypress="return esInteger(event)"  style="background-color:white" required></td>
                             <?php } ?>    
+                            <?php if ($val->t31 == 1) { $linea += 1;?>
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="t31[]" value="<?= $val->a31 ?>" size="1" onkeypress="return esInteger(event)"  style="background-color:white" required></td>
+                            <?php } ?>    
                             <?php if ($val->t32 == 1) { $linea += 1;?>
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="t32[]" value="<?= $val->a32 ?>" size="1" onkeypress="return esInteger(event)"  style="background-color:white" required></td>
-                            <?php } ?>    
+                            <?php } ?>  
+                             <?php if ($val->t33 == 1) { $linea += 1;?>
+                                <td style="padding-left: 1;padding-right: 1;"><input type="text" name="t33[]" value="<?= $val->a33 ?>" size="1" onkeypress="return esInteger(event)"  style="background-color:white" required></td>
+                            <?php } ?>        
                             <?php if ($val->t34 == 1) { $linea += 1;?>
                                 <td style="padding-left: 1;padding-right: 1;"><input type="text" name="t34[]" value="<?= $val->a34 ?>" size="1" onkeypress="return esInteger(event)"  style="background-color:white" required></td>
                             <?php } ?>   
@@ -255,7 +267,9 @@ $tipo = ArrayHelper::map(app\models\TipoClasificacionSegundas::find()->all(), 'i
                     ?>
             </body>    
           <tr>
-              <?php if($sumar == 1){
+              <?php 
+             
+              if($sumar == 1){
                   ?>
                 <td colspan="<?= $linea ?>"></td>
                 <td align="center" ><b>TOTAL</b></td>

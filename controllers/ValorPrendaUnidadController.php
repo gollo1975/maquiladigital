@@ -2188,7 +2188,7 @@ class ValorPrendaUnidadController extends Controller
                             ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
                             ->andFilterWhere(['=', 'iddetalleorden', $iddetalleorden])
                             ->andFilterWhere(['=', 'idproceso', $idproceso]);
-                $table = $table->orderBy('idproceso ASC');
+                $table = $table->orderBy('idproceso, iddetalleorden, id_operario ASC');
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $to = $count->count();

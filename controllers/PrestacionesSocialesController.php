@@ -234,9 +234,10 @@ class PrestacionesSocialesController extends Controller
                 'descuento_prestacion' => $descuento_prestacion,
                 'descuento_credito' => $descuento_credito,
                 
-    ]);
+            ]);
     }
     
+       
     public function actionUpdate($id, $id_adicion, $tipo_adicion, $pagina)
     {
         $model = new FormAdicionPrestaciones();
@@ -527,7 +528,7 @@ class PrestacionesSocialesController extends Controller
                 $this->CrearPrima($model, $sw, $ano);
             }
             if (strtotime($model->ultimo_pago_prima)< strtotime($model->fecha_inicio_contrato )){
-                $sw = 2;
+               $sw = 2;
                 $this->CrearPrima($model, $sw, $ano);
             }
             if (strtotime($model->fecha_termino_contrato)< strtotime($model->ultimo_pago_prima  )){
@@ -565,18 +566,16 @@ class PrestacionesSocialesController extends Controller
                 $this->CrearVacion($model, $sw, $ano);
             }else{
                  $sw = 2;
-                $this->CrearVacion($model, $sw, $ano);
+                 $this->CrearVacion($model, $sw, $ano);
             }    
         }
         $model->estado_generado = 1;
         $model->save(false);
          
-    $this->redirect(["prestaciones-sociales/view", 'id' => $id,
-          'model' => $model,
-           'pagina' => $pagina,
-          ]);
-       
-       
+        return $this->redirect(["prestaciones-sociales/view", 'id' => $id,
+            'model' => $model,
+             'pagina' => $pagina,
+            ]);
     }
      protected function CrearVacion($model, $sw, $ano)
     {
@@ -704,7 +703,12 @@ class PrestacionesSocialesController extends Controller
         }
        
         $dias_reales = $total_dias - $auxiliar;
-        $salario_promedio = (($total_devengado / $total_dias)* 30);
+        if($contrato->tipo_salario == 'FIJO'){
+            $salario_promedio = $contrato->salario;
+        }else{
+            $salario_promedio = (($total_devengado / $total_dias)* 30);
+        }
+        
         if($sw == 1){
             $vacacion = round(($salario_promedio * $dias_reales)/720);
         }else{
@@ -747,7 +751,7 @@ class PrestacionesSocialesController extends Controller
             $mesInicio = substr($fecha_inicio, 5, 2);
             $anioInicio = substr($fecha_inicio, 0, 4);
         }else{
-            if ($sw==2){
+            if ($sw == 2){
                 $total_dias = 0;
             }else{
                 $fecha = date($model->ultimo_pago_cesantias);
@@ -838,7 +842,7 @@ class PrestacionesSocialesController extends Controller
                      endforeach;
              endforeach;
         }
-        if($sw==3){
+        if($sw == 3){
             $nomina = ProgramacionNomina::find()->where(['=','id_contrato',$model->id_contrato])->andWhere(['>','fecha_ultima_cesantia', $model->ultimo_pago_cesantias])->all();
              foreach ($nomina as $valor_nomina):
                  $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $valor_nomina->id_programacion])->all();
@@ -875,7 +879,7 @@ class PrestacionesSocialesController extends Controller
            $total_ibp = round($suma_cesantia + $suma_licencia + $ibp_cesantia_anterior);
         }else{
             if($sw==2){
-                $total_ibp =0;
+                $total_ibp = 0;
             }else{
                 $total_ibp = round($suma_cesantia + $suma_licencia);
             }
@@ -884,13 +888,19 @@ class PrestacionesSocialesController extends Controller
         $dias_reales = $total_dias - $auxiliar;
       
         $transporte = ConfiguracionSalario::find()->where(['=','estado', 1])->one();
-        $salario_promedio = (($total_ibp / $total_dias)*30);
-        $porcentaje_interes = (($total_dias * 12)/100)/360;
+        if($contrato->tipo_salario == 'FIJO'){
+            $salario_promedio = $contrato->salario;
+            $porcentaje_interes = (($total_dias * 12)/100)/360;
+        }else{
+            $salario_promedio = (($total_ibp / $total_dias)*30);
+            $porcentaje_interes = (($total_dias * 12)/100)/360;
+        }
+        
         if($contrato->auxilio_transporte == 1){
             $auxilio_transporte = $transporte->auxilio_transporte_actual;
         }
-        if($sw==1 or $sw == 3){    
-           $cesantias = round((($salario_promedio + $auxilio_transporte) * $dias_reales)/360);
+        if($sw == 1 or $sw == 3){    
+            $cesantias = round((($salario_promedio + $auxilio_transporte) * $dias_reales)/360);
             $intereses = round($cesantias * $porcentaje_interes);
         }else{
             $cesantias = 0;
@@ -1054,7 +1064,7 @@ class PrestacionesSocialesController extends Controller
                 $days = floor(($diff - $years * 365 * 60 * 60 * 24 - $months * 30 * 60 * 60 * 24) / (60 * 60 * 24)); 
                 $anos_restar = $years * 360;
                 $meses_restar = $months * 30;
-                $dias_restar = $days *-1 ;
+                $dias_restar = $days * -1 ;
                 $nomina = ProgramacionNomina::find()->where(['=','id_contrato', $model->id_contrato])
                                                     ->andWhere(['=','id_tipo_nomina', 2])->orderBy('id_programacion DESC')->one();
                 $total_suma = $nomina->salario_promedio;
@@ -1103,21 +1113,28 @@ class PrestacionesSocialesController extends Controller
         }else{
             
             if($dias_restar < 0){
-                $salario_promedio = $total_suma;
+                if($contrato->tipo_salario == 'FIJO'){
+                 echo   $salario_promedio = $contrato->salario;
+                }    
                 $total_dias_reales = $dias_restar;
                 $total_dias = $dias_restar;
             }else{
                 $total_dias_reales = $total_dias - $auxiliar;
-                $salario_promedio =($total_suma / $total_dias)*30;
+                if($contrato->tipo_salario == 'FIJO'){
+                    $salario_promedio = $contrato->salario;
+                }else{
+                   $salario_promedio =($total_suma / $total_dias)*30;
+                }
+             
             }   
         }    
-        
-        if($contrato->auxilio_transporte == 1){
-            $auxilio_transporte = $transporte->auxilio_transporte_actual;
-            $prima = round((($salario_promedio + $auxilio_transporte)* $total_dias_reales)/360);
+        $auxilio_transporte = $transporte->auxilio_transporte_actual;
+        if($contrato->tipo_salario == 'FIJO'){
+           $prima = round((($contrato->salario + $auxilio_transporte)* $total_dias_reales)/360);
         }else{
-             $prima = round((($salario_promedio + $auxilio_transporte)* $total_dias_reales)/360);
-        }    
+            $prima = round((($salario_promedio + $auxilio_transporte)* $total_dias_reales)/360);
+        }
+         
        $detalle_prestacion = PrestacionesSocialesDetalle::find()->where(['=','id_prestacion', $model->id_prestacion])->andWhere(['=','codigo_salario', $concepto->codigo_salario])->one();
        if(!$detalle_prestacion){
            $detalle = new PrestacionesSocialesDetalle();
@@ -1133,8 +1150,6 @@ class PrestacionesSocialesController extends Controller
            $detalle->valor_pagar = $prima;
            $detalle->insert(false);
        }
-
-        
     }
     
     public function actionDesgenerar($id, $pagina)

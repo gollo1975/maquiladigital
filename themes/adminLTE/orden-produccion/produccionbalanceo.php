@@ -91,10 +91,10 @@ $this->params['breadcrumbs'][] = $this->title;
                                     <th scope="col" style='background-color:#B9D5CE;'>Código</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>F. Llegada</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>F. Procesada</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>F. Entrega</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Servicio</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Unid.</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'><span title= "Unidades">Uni.</span></th>
+                                    <th scope="col" style='background-color:#B9D5CE;'><span title="Servicio facturado">Fac.</span></th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Estado</th>
                                     <th scope="col" style='background-color:#B9D5CE;'></th>
                                 </tr>
@@ -108,7 +108,6 @@ $this->params['breadcrumbs'][] = $this->title;
                                       <td><?= $val->codigoproducto ?></td>
                                     <td><?= $val->cliente->nombrecorto ?></td>
                                     <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
-                                    <td><?= date("Y-m-d", strtotime("$val->fechaprocesada")) ?></td>
                                     <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>
                                     <?php if($val->idtipo == 1){?>
                                         <td style='background-color:#A1D2D8;'><?= $val->tipo->tipo ?></td>
@@ -116,6 +115,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <td style='background-color:#F5DB90;'><?= $val->tipo->tipo ?></td>
                                     <?php }?>    
                                     <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
+                                    <td><?= $val->facturar ?></td>
                                     <?php if($val->faltante == $val->cantidad){?>
                                     <td style="font-size: 85%;background: #3B9785; color: #FFFFFF;"><?php echo 'PRODUCCION'?></td>
                                     <?php }else{

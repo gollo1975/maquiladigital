@@ -316,7 +316,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             $totalDiaCorte = $contarDia;
                                             $totalPagado = $totalPagar;
                                             if($totalDiaCorte){
-                                                $promedio = round(($totalPorcentaje / $totalDiaCorte),2);
+                                                $promedio = round(($totalPorcentaje / $totalDiaCorte),0);
                                             }else{
                                                  $promedio = 0;
                                             }  ?>  

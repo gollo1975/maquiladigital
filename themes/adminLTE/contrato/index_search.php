@@ -16,7 +16,7 @@ use kartik\date\DatePicker;
 //modelos
 use app\models\GrupoPago;
 use app\models\Empleado;
-use app\models\TiempoServicio;
+
 
 $this->title = 'Contratos';
 $this->params['breadcrumbs'][] = $this->title;
@@ -33,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--<h1>Lista Contratos</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute("contrato/index"),
+    "action" => Url::toRoute("contrato/index_search"),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -57,7 +57,7 @@ $pension = ArrayHelper::map(\app\models\EntidadPension::find()->orderBy ('entida
 	
     <div class="panel-body" id="filtrocontrato" style="display:none">
         <div class="row" >
-            <?= $formulario->field($form, "identificacion")->input("search") ?>            
+           <?= $formulario->field($form, "identificacion")->input("search") ?>            
             <?= $formulario->field($form, 'id_empleado')->widget(Select2::classname(), [
                 'data' => $empleado,
                 'options' => ['prompt' => 'Seleccione...'],
@@ -114,7 +114,7 @@ $pension = ArrayHelper::map(\app\models\EntidadPension::find()->orderBy ('entida
         </div>   
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
-            <a align="right" href="<?= Url::toRoute("contrato/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute("contrato/index_search") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -140,9 +140,6 @@ $pension = ArrayHelper::map(\app\models\EntidadPension::find()->orderBy ('entida
                 <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Act.</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>                               
-                <th scope="col" style='background-color:#B9D5CE;'></th>  
-                <th scope="col" style='background-color:#B9D5CE;'></th>  
-              
             </tr>
             </thead>
             <tbody>
@@ -163,46 +160,23 @@ $pension = ArrayHelper::map(\app\models\EntidadPension::find()->orderBy ('entida
                    <td style="text-align: right;"><?= ''.number_format($val->salario,0) ?></td>
                 <td><?= $val->grupoPago->grupo_pago ?></td>
                 <td><?= $val->activo ?></td>
-                <?php if($val->contrato_activo == 1){?>
                 <td style="width: 25px;">				
                       <a href="<?= Url::toRoute(["contrato/view", "id" => $val->id_contrato, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                    </td>
-                    <td style="width: 25px;">
-                       <a href="<?= Url::toRoute(["contrato/update", "id" => $val->id_contrato])?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                    <td style="width: 25px;">
-                        <?= Html::a('', ['eliminar', 'id' => $val->id_contrato], [
-                                'class' => 'glyphicon glyphicon-trash',
-                                'data' => [
-                                    'confirm' => 'Esta seguro de eliminar el registro?',
-                                    'method' => 'post',
-                                ],
-                        ]) ?>
-                    </td>
-                <?php }else{?>
-                    <td style="width: 25px;">				
-                    <a href="<?= Url::toRoute(["contrato/view", "id" => $val->id_contrato,'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                    </td>
-                    <td></td>
-                    <td></td>
-                <?php } ?>    
-            </tr>
+                </td>
+                </tr>
             </tbody>
             <?php endforeach; ?>
         </table>
-        
-            <div class="panel-footer text-right" >            
+        <div class="panel-footer text-right" >            
                  <?php
                 $form = ActiveForm::begin([
                             "method" => "post",                            
                         ]);
                 ?>   
                    <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-success btn-sm ']); ?>                
-                  <a align="right" href="<?= Url::toRoute("contrato/create") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+               
                <?php $form->end() ?>
              </div>
-            
-       
     </div>
 </div>
 <?= LinkPager::widget(['pagination' => $pagination]) ?>

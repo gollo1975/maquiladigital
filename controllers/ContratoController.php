@@ -69,52 +69,148 @@ class ContratoController extends Controller
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',64])->all()){
                 $form = new FormFiltroContrato;
                 $identificacion = null;
-                $activo = null;
+                $activo = null;   $desde = null;   $hasta = null;
+                $eps = null;   $pension = null;
                 $id_grupo_pago = null;
                 $id_empleado = null;
-                $id_tiempo = null;
+                $tipo_contrato = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $identificacion = Html::encode($form->identificacion);
                         $activo = Html::encode($form->activo);
+                        $eps = Html::encode($form->eps);
+                        $pension = Html::encode($form->pension);
+                        $desde = Html::encode($form->desde);
+                        $hasta = Html::encode($form->hasta);
                         $id_grupo_pago = Html::encode($form->id_grupo_pago);
                         $id_empleado = Html::encode($form->id_empleado);
-                        $id_tiempo = Html::encode($form->id_tiempo);
+                        $tipo_contrato = Html::encode($form->tipo_contrato);
                         $table = Contrato::find()
                                 ->andFilterWhere(['like', 'identificacion', $identificacion])
                                 ->andFilterWhere(['=', 'contrato_activo', $activo])
                                 ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                ->andFilterWhere(['=', 'id_entidad_pension', $pension])
+                                ->andFilterWhere(['=', 'id_entidad_salud', $eps])
+                                ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
                                 ->andFilterWhere(['=', 'id_empleado', $id_empleado])
-                                ->andFilterWhere(['=', 'id_tiempo', $id_tiempo])
-                                ->orderBy('id_contrato desc');
+                                ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        $table = $table->orderBy('id_contrato desc');
+                        $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 30,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
                                 ->offset($pages->offset)
                                 ->limit($pages->limit)
                                 ->all();
+                        if(isset($_POST['excel'])){                    
+                            $this->actionExcelContratos($tableexcel);
+                        }
                     } else {
                         $form->getErrors();
                     }
                 } else {
                     $table = Contrato::find()
                             ->orderBy('id_contrato desc');
+                    $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 30,
+                        'pageSize' => 15,
                         'totalCount' => $count->count(),
                     ]);
                     $model = $table
                             ->offset($pages->offset)
                             ->limit($pages->limit)
                             ->all();
+                    if(isset($_POST['excel'])){                    
+                            $this->actionExcelContratos($tableexcel);
+                        }
                 }
                 $to = $count->count();
                 return $this->render('index', [
+                            'model' => $model,
+                            'form' => $form,
+                            'pagination' => $pages,
+                            'token' => $token,
+                ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
+    }
+    
+     public function actionIndex_search($token = 1) {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',158])->all()){
+                $form = new FormFiltroContrato;
+                $identificacion = null;
+                $activo = null;   $desde = null;   $hasta = null;
+                  $eps = null;   $pension = null;
+                $id_grupo_pago = null;
+                $id_empleado = null;
+                $tipo_contrato = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                       $identificacion = Html::encode($form->identificacion);
+                        $activo = Html::encode($form->activo);
+                        $eps = Html::encode($form->eps);
+                        $pension = Html::encode($form->pension);
+                        $desde = Html::encode($form->desde);
+                        $hasta = Html::encode($form->hasta);
+                        $id_grupo_pago = Html::encode($form->id_grupo_pago);
+                        $id_empleado = Html::encode($form->id_empleado);
+                        $tipo_contrato = Html::encode($form->tipo_contrato);
+                        $table = Contrato::find()
+                                ->andFilterWhere(['like', 'identificacion', $identificacion])
+                                ->andFilterWhere(['=', 'contrato_activo', $activo])
+                                ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                ->andFilterWhere(['=', 'id_entidad_pension', $pension])
+                                ->andFilterWhere(['=', 'id_entidad_salud', $eps])
+                                ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
+                                ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        $table = $table->orderBy('id_contrato desc');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                        if(isset($_POST['excel'])){                    
+                            $this->actionExcelContratos($tableexcel);
+                        }
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = Contrato::find()
+                            ->orderBy('id_contrato desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 15,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if(isset($_POST['excel'])){                    
+                            $this->actionExcelContratos($tableexcel);
+                        }
+                }
+                $to = $count->count();
+                return $this->render('index_search', [
                             'model' => $model,
                             'form' => $form,
                             'pagination' => $pages,
@@ -493,7 +589,11 @@ class ContratoController extends Controller
             $this->redirect(["contrato/index"]);
         }
     }
-
+   //PERMITE VER DEL DETALLE DEL CONTRATO
+    public function actionDetalle_contrato($id_contrato) {
+       $modelo = Contrato::findOne($id_contrato);
+       return $this->renderAjax('_detalle_contrato_laboral', ['modelo' => $modelo, 'id_contrato' => $id_contrato]);
+    }
     /**
      * Finds the Empleado model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
@@ -1156,5 +1256,130 @@ class ContratoController extends Controller
         }else{
             return $this->redirect(['site/login']);
         }    
+    }
+    
+    //PROCESOS DE EXPORTACION
+     public function actionExcelContratos($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('U')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('V')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('W')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('X')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('Y')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('Z')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setAutoSize(true);
+                              
+        $objPHPExcel->setActiveSheetIndex(0)
+                     ->setCellValue('A1', 'NRO CONTRATO')
+                    ->setCellValue('B1', 'DOCUMENTO')
+                    ->setCellValue('C1', 'EMPLEADO')
+                    ->setCellValue('D1', 'TIPO CONTRATO')
+                    ->setCellValue('E1', 'TIEMPO SERVICIO')
+                    ->setCellValue('F1', 'CARGO')
+                    ->setCellValue('G1', 'DESCRIPCION')                    
+                    ->setCellValue('H1', 'FECHA INICIO')
+                    ->setCellValue('I1', 'FECHA TERMINACION')
+                    ->setCellValue('J1', 'TIPO SALARIO')
+                    ->setCellValue('K1', 'SALARIO')
+                    ->setCellValue('L1', 'APLICA TRANSPORTE')
+                    ->setCellValue('M1', 'EPS')
+                    ->setCellValue('N1', 'PENSION')
+                    ->setCellValue('O1', 'CAJA DE COMPENSACION')
+                    ->setCellValue('P1', 'NIVEL ARL')
+                    ->setCellValue('Q1', 'MUNICIPIO LABORAL')
+                    ->setCellValue('R1', 'MUNICIPIO CONTRATADO')
+                    ->setCellValue('S1', 'CENTRO DE TRABAJO')
+                    ->setCellValue('T1', 'GRUPO DE PAGO')
+                    ->setCellValue('U1', 'FECHA PREAVISO')
+                    ->setCellValue('V1', 'DIAS CONTRATOS')
+                    ->setCellValue('W1', 'USER NAME INGRESO')
+                    ->setCellValue('X1', 'FECHA REGISTRO')
+                    ->setCellValue('Y1', 'USER NAME EDITADO')
+                    ->setCellValue('Z1', 'FECHA HORA EDITADO')
+                    ->setCellValue('AA1', 'FUNCIONES');
+                   
+        $i = 2  ;
+        
+        foreach ($tableexcel as $val) {
+                                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->id_contrato)
+                    ->setCellValue('B' . $i, $val->identificacion)
+                    ->setCellValue('C' . $i, $val->empleado->nombrecorto)
+                    ->setCellValue('D' . $i, $val->tipoContrato->contrato)
+                    ->setCellValue('E' . $i, $val->tiempoServicio->tiempo_servicio)
+                    ->setCellValue('F' . $i, $val->cargo->cargo)
+                    ->setCellValue('G' . $i, $val->descripcion)                    
+                    ->setCellValue('H' . $i, $val->fecha_inicio)
+                    ->setCellValue('I' . $i, $val->fecha_final)
+                    ->setCellValue('J' . $i, $val->tipo_salario)
+                    ->setCellValue('K' . $i, $val->salario)
+                    ->setCellValue('L' . $i, $val->auxilio)
+                    ->setCellValue('M' . $i, $val->entidadSalud->entidad)
+                    ->setCellValue('N' . $i, $val->entidadPension->entidad)
+                    ->setCellValue('O' . $i, $val->cajaCompensacion->caja)
+                    ->setCellValue('P' . $i, $val->arl->arl)
+                    ->setCellValue('Q' . $i, $val->ciudadLaboral->municipio)
+                    ->setCellValue('R' . $i, $val->ciudadContratado->municipio)
+                    ->setCellValue('S' . $i, $val->centroTrabajo->centro_trabajo)
+                    ->setCellValue('T' . $i, $val->grupoPago->grupo_pago)
+                    ->setCellValue('U' . $i, $val->fecha_preaviso)
+                    ->setCellValue('V' . $i, $val->dias_contrato)
+                    ->setCellValue('W' . $i, $val->usuario_creador)
+                    ->setCellValue('X' . $i, $val->fecha_creacion)
+                    ->setCellValue('Y' . $i, $val->usuario_editor)
+                    ->setCellValue('Z' . $i, $val->fecha_editado)
+                    ->setCellValue('AA' . $i, $val->funciones_especificas);
+                   
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listados');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Contratos.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
     }
 }

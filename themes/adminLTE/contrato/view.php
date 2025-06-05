@@ -20,34 +20,44 @@ $view = 'contrato';
     <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-	<?php if ($model->contrato_activo == 1){ ?>
-            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_contrato], ['class' => 'btn btn-success btn-sm']) ?>
-        <?php }?>
-        <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimircontrato', 'id' => $model->id_contrato], ['class' => 'btn btn-default btn-sm']); ?>
-        <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 11, 'codigo' => $model->id_contrato,'view' => $view,'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>        
-        <?php if ($model->contrato_activo == 1){ ?>
-                <!-- Inicio Cerrar contrato -->
-                <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar Contrato',            
-                    ['/contrato/cerrarcontrato','id' => $model->id_contrato,'token' => $token],
-                    [
-                        'title' => 'Cerrar Contrato',
-                        'data-toggle'=>'modal',
-                        'data-target'=>'#modalcerrarcontrato'.$model->id_contrato,
-                        'class' => 'btn btn-default btn-sm'
-                    ]
-                );
-                ?>
-        <?php }else{ ?>
-                <!-- Abrir contrato-->
-                <?= Html::a('<span class="glyphicon glyphicon-open"></span> Abrir contrato', ['abrircontrato', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-default btn-sm']); ?>
-        <?php }?>        
-        <div class="modal remote fade" id="modalcerrarcontrato<?= $model->id_contrato ?>">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content"></div>
+        <?php
+        if($token == 0){
+            echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);
+        }else{
+            echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index_search'], ['class' => 'btn btn-primary btn-sm']);
+        }
+        if($token == 0){?>
+            <?php if ($model->contrato_activo == 1){ ?>
+                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_contrato], ['class' => 'btn btn-success btn-sm']) ?>
+            <?php }?>
+            <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimircontrato', 'id' => $model->id_contrato], ['class' => 'btn btn-default btn-sm']); ?>
+            <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 11, 'codigo' => $model->id_contrato,'view' => $view,'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>        
+            <?php if ($model->contrato_activo == 1){ ?>
+                    <!-- Inicio Cerrar contrato -->
+                    <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar Contrato',            
+                        ['/contrato/cerrarcontrato','id' => $model->id_contrato,'token' => $token],
+                        [
+                            'title' => 'Cerrar Contrato',
+                            'data-toggle'=>'modal',
+                            'data-target'=>'#modalcerrarcontrato'.$model->id_contrato,
+                            'class' => 'btn btn-default btn-sm'
+                        ]
+                    );
+                    ?>
+            <?php }else{ ?>
+                    <!-- Abrir contrato-->
+                    <?= Html::a('<span class="glyphicon glyphicon-open"></span> Abrir contrato', ['abrircontrato', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-default btn-sm']); ?>
+            <?php }?>        
+            <div class="modal remote fade" id="modalcerrarcontrato<?= $model->id_contrato ?>">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content"></div>
+                </div>
             </div>
-        </div>
-        <!-- Fin Cerrar contrato -->
+            <!-- Fin Cerrar contrato -->
+        <?php }else{?>
+              <?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimircontrato', 'id' => $model->id_contrato], ['class' => 'btn btn-default btn-sm']); ?>
+            <?= Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 11, 'codigo' => $model->id_contrato,'view' => $view,'token' => $token], ['class' => 'btn btn-default btn-sm']) ?>        
+        <?php } ?>    
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -58,21 +68,21 @@ $view = 'contrato';
                 <tr style ='font-size:85%;'>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_contrato') ?>:</th>
                     <td><?= Html::encode($model->id_contrato) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tiempo') ?>:</th>
-                    <td><?= Html::encode($model->tiempoServicio->tiempo_servicio) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_contrato') ?>:</th>
-                    <td><?= Html::encode($model->tipoContrato->contrato) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_inicio') ?>:</th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'identificacion') ?>:</th>
+                    <td><?= Html::encode($model->identificacion) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Empleado') ?>:</th>
+                     <td><?= Html::encode($model->empleado->nombrecorto) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_inicio') ?>:</th>
                     <td><?= Html::encode($model->fecha_inicio) ?></td>
                 </tr>
                 <tr style ='font-size:85%;'>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_centro_trabajo') ?>:</th>
-                    <td><?= Html::encode($model->centroTrabajo->centro_trabajo) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_cargo') ?>:</th>
-                    <td><?= Html::encode($model->cargo->cargo) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'descripcion') ?>:</th>
-                    <td><?= Html::encode($model->descripcion) ?></td>
-                    <?php
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipo_salario') ?>:</th>
+                    <td><?= Html::encode($model->tipo_salario) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'salario') ?>:</th>
+                    <td><?= Html::encode('$ '.number_format($model->salario,0)) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tiempo') ?>:</th>
+                    <td><?= Html::encode($model->tiempoServicio->tiempo_servicio) ?></td>
+                     <?php
                     if($model->fecha_final == '2099-12-31'){?>
                          <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_final') ?>:</th>
                          <td><?= Html::encode('INDEFINIDO') ?></td>
@@ -80,91 +90,53 @@ $view = 'contrato';
                          <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_final') ?>:</th>
                          <td><?= Html::encode($model->fecha_final) ?></td>
                     <?php }?>     
+                   
+                    
+                </tr>
+                 <tr style ='font-size:85%;'>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_eps') ?>:</th>
+                    <td><?= Html::encode($model->pagoEps->concepto_eps) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Salud') ?>:</th>
+                    <td><?= Html::encode($model->entidadSalud->entidad) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_pension') ?>:</th>
+                    <td><?= Html::encode($model->pagoPension->concepto) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Pension') ?>:</th>
+                    <td><?= Html::encode($model->entidadPension->entidad) ?></td>
                 </tr>
                 <tr style ='font-size:85%;'>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_preaviso') ?>:</th>
-                    <td><?= Html::encode($model->fecha_preaviso) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_centro_trabajo') ?>:</th>
+                    <td><?= Html::encode($model->centroTrabajo->centro_trabajo) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_cargo') ?>:</th>
+                    <td><?= Html::encode($model->cargo->cargo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_grupo_pago') ?>:</th>
                     <td><?= Html::encode($model->grupoPago->grupo_pago) ?></td>
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_cesantia') ?>:</th>
+                    <td><?= Html::encode($model->cesantia->cesantia) ?></td>
+                </tr>
+                <tr style ='font-size:85%;'>
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ciudad_laboral') ?>:</th>
+                    <td><?= Html::encode($model->ciudadLaboral->municipio) ?></td>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ciudad_contratado') ?>:</th>
+                    <td><?= Html::encode($model->ciudadContratado->municipio) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'auxilio_transporte') ?>:</th>
                     <td><?= Html::encode($model->auxilio) ?></td>  
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'horario_trabajo') ?>:</th>
                     <td><?= Html::encode($model->horario_trabajo) ?></td>           
                 </tr>                
                 <tr style ='font-size:85%;'>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipo_salario') ?>:</th>
-                    <td><?= Html::encode($model->tipo_salario) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'salario') ?>:</th>
-                    <td><?= Html::encode('$ '.number_format($model->salario,0)) ?></td>
+                    
+                    
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_cotizante') ?>:</th>
                     <td><?= Html::encode($model->tipoCotizante->tipo) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_subtipo_cotizante') ?>:</th>
                     <td><?= Html::encode($model->subtipoCotizante->subtipo) ?></td>
-                                     
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_contrato') ?>:</th>
+                    <td><?= Html::encode($model->tipoContrato->contrato) ?></td>
+                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'dias_contrato') ?>:</th>
+                    <td><?= Html::encode($model->dias_contrato) ?></td>                
                              
                 </tr>
-                <tr style ='font-size:85%;'>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_eps') ?>:</th>
-                    <td><?= Html::encode($model->pagoEps->concepto_eps) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_entidad_salud') ?>:</th>
-                    <td><?= Html::encode($model->entidadSalud->entidad) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_pension') ?>:</th>
-                    <td><?= Html::encode($model->pagoPension->concepto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_entidad_pension') ?>:</th>
-                    <td><?= Html::encode($model->entidadPension->entidad) ?></td>
-                </tr>
-                <tr style ='font-size:85%;'>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_caja_compensacion') ?>:</th>
-                    <td><?= Html::encode($model->cajaCompensacion->caja) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_cesantia') ?>:</th>
-                    <td><?= Html::encode($model->cesantia->cesantia) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_arl') ?>:</th>
-                    <td><?= Html::encode($model->arl->arl) ?></td>
-                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'contrato_activo') ?>:</th>
-                    <td><?= Html::encode($model->activo) ?></td>
-                    
-                </tr>
-                <tr style ='font-size:85%;'>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ciudad_laboral') ?>:</th>
-                    <td><?= Html::encode($model->ciudadLaboral->municipio) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ultimo_pago') ?>:</th>
-                    <td><?= Html::encode($model->ultimo_pago) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ultima_prima') ?>:</th>
-                    <td><?= Html::encode($model->ultima_prima) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Usuario_Editado') ?>:</th>
-                    <td><?= Html::encode($model->usuario_editor) ?></td>
-                </tr>                
-                <tr style ='font-size:85%;'>
-                  
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ultima_cesantia') ?>:</th>
-                    <td><?= Html::encode($model->ultima_cesantia) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ultima_vacacion') ?>:</th>
-                    <td><?= Html::encode($model->ultima_vacacion) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'genera_prorroga') ?>:</th>
-                    <td><?= Html::encode($model->generaprorroga) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'dias_contrato') ?>:</th>
-                    <td><?= Html::encode($model->dias_contrato) ?></td>
-                </tr>
-                <tr style ='font-size:85%;'>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Ibp_prima') ?>:</th>
-                    <td><?= Html::encode($model->ibp_prima_inicial) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Ibp_cesantia') ?>:</th>
-                    <td><?= Html::encode($model->ibp_cesantia_inicial) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Recargo_nocturno') ?>:</th>
-                     <td><?= Html::encode($model->ibp_recargo_nocturno) ?></td>
-                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Usuario_creador') ?>:</th>
-                    <td><?= Html::encode($model->usuario_creador) ?></td>
-                </tr>
-                <tr style ='font-size:85%;'>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ciudad_laboral') ?>:</th>
-                    <td><?= Html::encode($model->ciudadLaboral->municipio) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'identificacion') ?>:</th>
-                    <td><?= Html::encode($model->identificacion) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'identificacion') ?>:</th>
-                     <td><?= Html::encode($model->empleado->nombrecorto) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ciudad_contratado') ?>:</th>
-                    <td><?= Html::encode($model->ciudadContratado->municipio) ?></td>
-                </tr>
+               
                 <tr style ='font-size:85%;'>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_motivo_terminacion') ?>:</th>
                     <?php if ($model->id_motivo_terminacion){ ?>
@@ -242,11 +214,13 @@ $view = 'contrato';
                                   <?php endforeach; ?>
                             </tbody>  
                             <?php
-                            if($model->contrato_activo == 1){?>
-                               <div align="right">  
-                                  <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear', ['contrato/nuevocambiosalario', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-info btn-sm']) ?>                    
-                                </div>
-                            <?php }?>
+                            if($token == 0){
+                                if($model->contrato_activo == 1){?>
+                                   <div align="right">  
+                                      <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear', ['contrato/nuevocambiosalario', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-info btn-sm']) ?>                    
+                                    </div>
+                                <?php }
+                            }?>
                         </table>  
                     </div>
                 </div>    
@@ -290,14 +264,18 @@ $view = 'contrato';
                                         <td><?= $val->usuariosistema ?></td>
                                         <?php
                                            if($val->estado_adicion == 1){?>
-                                                <td>
+                                                <td >
                                                      <a href="<?= Url::toRoute(["contrato/imprimirotrosi",'id_pago_adicion'=>$val->id_pago_adicion]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir "></span></a>
-                                                </td>   
-                                                <td>
+                                                </td> 
+                                               <?php  if($token == 0){?>
+                                                <td style="width: 25px;">
                                                     <a href="<?= Url::toRoute(['editarpagoadicion', 'id_pago_adicion'=>$val->id_pago_adicion, 'id'=>$model->id_contrato, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-pencil" title="Editar pago"></span> </a>                   
 
                                                 </td>
-                                           <?php }else{?>        
+                                               <?php }else{?>
+                                                <td style="width: 25px;"></td>
+                                               <?php }
+                                            }else{?>        
                                                 <td>
                                                      <a href="<?= Url::toRoute(["contrato/imprimir",'id_pago_adicion'=>$val->id_pago_adicion]) ?>" ><span class="glyphicon glyphicon-print" title="Imprimir "></span></a>
                                                 </td>  
@@ -307,11 +285,13 @@ $view = 'contrato';
                                 <?php endforeach; ?>
                               </tbody>
                               <?php
+                              if($token == 0){
                                 if($model->contrato_activo == 1){?>
                                     <div align="right">  
                                         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear', ['contrato/nuevaadicioncontrato', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-info btn-sm']) ?>                    
                                     </div>
-                                <?php }?>
+                                <?php }
+                             }?>
                         </table>  
                     </div>
                 </div>
@@ -365,18 +345,19 @@ $view = 'contrato';
                                        <?php endforeach; ?>
                                     </tbody> 
                                     <?php
-                                    if($model->contrato_activo == 1){
-                                            if($cont < 3){?>
-                                                <div align="right">  
-                                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Renovar', ['contrato/nuevaprorroga', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-info btn-sm']) ?>                    
-                                               </div>
-                                            <?php }else{?>
-                                               <div align="right">  
-                                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Contrato 1 año', ['contrato/nuevaprorrogaano', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-warning btn-sm']) ?>                    
-                                               </div>
-                                            <?php }
-                                       }?>
-                                            
+                                    if($token == 0){
+                                        if($model->contrato_activo == 1){
+                                                if($cont < 3){?>
+                                                    <div align="right">  
+                                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Renovar', ['contrato/nuevaprorroga', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-info btn-sm']) ?>                    
+                                                   </div>
+                                                <?php }else{?>
+                                                   <div align="right">  
+                                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Contrato 1 año', ['contrato/nuevaprorrogaano', 'id' => $model->id_contrato, 'token' => $token], ['class' => 'btn btn-warning btn-sm']) ?>                    
+                                                   </div>
+                                                <?php }
+                                        }
+                                    } ?>    
                                 </table>  
                             </div>
                         </div>

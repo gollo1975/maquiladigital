@@ -88,6 +88,7 @@
                                             'url' => '#',
                                             'items' => [
                                               ['label' => 'Empleado', 'icon' => 'plus-square-o', 'url' => ['/empleado/indexconsulta']],
+                                                ['label' => 'Contratos', 'icon' => 'plus-square-o', 'url' => ['/contrato/index_search']],
                                             ],
                                         ],
                                         [

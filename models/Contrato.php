@@ -312,4 +312,6 @@ class Contrato extends \yii\db\ActiveRecord
         }
         return $generaprorroga;
     }
+    
+    
 }

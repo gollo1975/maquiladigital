@@ -179,6 +179,7 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                                         <th scope="col" style='background-color:#B9D5CE;'>Cargo</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Salario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Activo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -199,7 +200,24 @@ $estudio = EstudioEmpleado::find()->where(['=','id_empleado', $model->id_emplead
                                             <td><?= $valor->cargo->cargo ?></td>
                                             <td align="right"><?= '$'.number_format($valor->salario,0) ?></td>
                                             <td><?= $valor->activo ?></td>
-                                            
+                                            <td style="width: 20px; height: 20px">	
+                                            <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>',            
+                                                    ['/contrato/detalle_contrato','id_contrato' => $valor->id_contrato],
+                                                    [
+                                                        'title' => 'Detalle del contrato',
+                                                        'data-toggle'=>'modal',
+                                                        'data-target'=>'#modaldetallecontrato'.$valor->id_contrato,
+                                                        'class' => '',
+                                                        'data-backdrop' => 'static',
+                                                    ]
+                                                );
+                                                ?>
+                                               <div class="modal remote fade" id = "modaldetallecontrato<?= $valor->id_contrato ?>">
+                                                   <div class="modal-dialog modal-lg">
+                                                       <div class="modal-content"></div>
+                                                   </div>
+                                               </div>
+                                            </td>    
                                         </tr>
                                    <?php endforeach; ?>    
                                 </tbody>      

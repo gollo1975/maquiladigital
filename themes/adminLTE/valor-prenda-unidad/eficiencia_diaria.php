@@ -140,7 +140,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                  $auxiliar = $val->dia_pago; 
                                                 } 
                                             endforeach;
-                                            $promedio = ''.number_format($sumarPorcentaje / $contarDia,2);
+                                            $promedio = ''.number_format($sumarPorcentaje / $contarDia,0);
                                             foreach ($modelo as $validar):
                                                 if($auxiliar <> $validar->id_operario){
                                                    $auxiliar = $validar->id_operario;?>

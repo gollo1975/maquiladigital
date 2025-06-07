@@ -461,9 +461,9 @@ class NotacreditoController extends Controller
             if (is_array($detalles) && count($detalles) > 0) {
                 // Iterar sobre cada detalle y extraer el ID
                 foreach ($detalles as $detalle) {
-                    $id = $detalle['id'];
+                    $codigo = $detalle['id'];
                 }
-                $nota->id_detalle_factura_api = $id;
+                $nota->id_detalle_factura_api = $codigo;
                 $nota->save();
                 // se envia el body y head de la nota credito
                 
@@ -477,7 +477,7 @@ class NotacreditoController extends Controller
                 ]);
                 $dataBody = json_encode([
                     [
-                        "detalle_factura" => "$id",
+                        "detalle_factura" => "$codigo",
                         "cantidad" => "$cantidad",
                     ]
                 ]);
@@ -527,8 +527,7 @@ class NotacreditoController extends Controller
             }
        } catch (Exception $e) {
             echo "Error: " . $e->getMessage();
-        }
-        return $this->redirect(['notacredito/view','id' => $id]); 
+       }
 
     }
     

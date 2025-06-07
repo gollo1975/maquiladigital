@@ -62,6 +62,7 @@
                                                     ['label' => 'Banco Empleado', 'icon' => 'plus-square-o', 'url' => ['/banco-empleado/index']],
                                                     ['label' => 'Centro Costo', 'icon' => 'plus-square-o', 'url' => ['/centro-costo/index']],
                                                     ['label' => 'Sucursal', 'icon' => 'plus-square-o', 'url' => ['/sucursal/index']],
+                                                    ['label' => 'Motivos disciplinarios', 'icon' => 'plus-square-o', 'url' => ['/motivo-disciplinario/index']],
                                                 ]],
                                                                                                 
                                                 ['label' => 'Departamento', 'icon' => 'plus-square-o', 'url' => ['/departamento/index']],                                                                                                
@@ -88,7 +89,8 @@
                                             'url' => '#',
                                             'items' => [
                                               ['label' => 'Empleado', 'icon' => 'plus-square-o', 'url' => ['/empleado/indexconsulta']],
-                                                ['label' => 'Contratos', 'icon' => 'plus-square-o', 'url' => ['/contrato/index_search']],
+                                              ['label' => 'Contratos', 'icon' => 'plus-square-o', 'url' => ['/contrato/index_search']],
+                                              ['label' => 'Procesos disciplinario', 'icon' => 'plus-square-o', 'url' => ['/proceso-disciplinario/index_search']],
                                             ],
                                         ],
                                         [
@@ -96,7 +98,7 @@
                                             'icon' => 'exchange',
                                             'url' => '#',
                                             'items' => [
-                                            //['label' => 'Banco', 'icon' => 'plus-square-o', 'url' => ['/banco/index']],                                            
+                                            ['label' => 'Proceso discipliario', 'icon' => 'plus-square-o', 'url' => ['/proceso-disciplinario/index']],                                            
                                             ],
                                         ],
                                         [

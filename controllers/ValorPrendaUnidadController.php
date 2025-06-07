@@ -390,7 +390,7 @@ class ValorPrendaUnidadController extends Controller
     
     public function actionControl_linea_confeccion() {
         if (Yii::$app->user->identity) {
-            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 145])->all()) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 159])->all()) {
                 $form = new \app\models\FormFiltroControlLinea();
                 $operario = null;
                 $desde = null;

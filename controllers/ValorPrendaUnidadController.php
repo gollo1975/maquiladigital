@@ -388,6 +388,43 @@ class ValorPrendaUnidadController extends Controller
         }
     } 
     
+    public function actionControl_linea_confeccion() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 145])->all()) {
+                $form = new \app\models\FormFiltroControlLinea();
+                $operario = null;
+                $desde = null;
+                $hasta = null; $model = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $operario = Html::encode($form->operario);
+                        $desde = Html::encode($form->desde);
+                        $hasta = Html::encode($form->hasta);
+                        if($hasta <> null && $desde <> null && $hasta <> null){
+                            $table = ValorPrendaUnidadDetalles::find()
+                                        ->andFilterWhere(['=', 'id_operario', $operario])
+                                       ->andFilterWhere(['between', 'dia_pago', $desde, $hasta]);
+                            $table = $table->orderBy('consecutivo DESC');
+                            $model = $table->all();
+                        }else{
+                            Yii::$app->getSession()->setFlash('error', 'Todos los campos deben de estar seleccionados. Vuelva a intentarlo.');
+                                                  }    
+                    }else{
+                        $form->getErrors();
+                    }    
+                }
+                return $this->render('control_linea_confeccion', [
+                            'model' => $model,
+                            'form' => $form,
+                ]);
+           } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }     
+    }
+    
     //PERMITE BUSCAR LOS INGRESOS OPERATIVOS POR DIA, OPERARIO, PLANTA
     public function actionCosto_gasto_operario() {
         if (Yii::$app->user->identity) {
@@ -952,6 +989,38 @@ class ValorPrendaUnidadController extends Controller
             }
         }
         return $this->renderAjax('crear_hora_corte', [
+            'model' => $model,       
+        ]);    
+    }
+    
+    //EDITAR LINEA DE CONFECCION
+    public function actionEditar_linea_confeccion($id_detalle) {
+        $model = new \app\models\FormFiltroControlLinea();
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["actualizar_linea"])) {
+                $table = ValorPrendaUnidadDetalles::findOne($id_detalle);
+                if($model->nueva_fecha <> null && $model->nueva_linea <> null){
+                    $table->dia_pago = $model->nueva_fecha;
+                    $table->hora_descontar = $model->nueva_linea;
+                    $table->save(false);
+                }else{
+                     if($model->nueva_fecha <> null){
+                        $table->dia_pago = $model->nueva_fecha;
+                        $table->save(false);
+                     }else{
+                        if($model->nueva_linea <> null){
+                            $table->hora_descontar = $model->nueva_linea;
+                            $table->save(false); 
+                        } else{
+                            Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar al menos una opcion. Vallidar la informacion.'); 
+                        }   
+                     }
+                }
+                return $this->redirect(['valor-prenda-unidad/control_linea_confeccion']);
+            }
+            
+        }
+         return $this->renderAjax('_editar_linea_confeccion', [
             'model' => $model,       
         ]);    
     }

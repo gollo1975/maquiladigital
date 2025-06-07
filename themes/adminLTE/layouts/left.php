@@ -199,6 +199,7 @@
                                                 ['label' => 'Crear corte masivo', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/hora_corte_masivo']],
                                                 ['label' => 'Aplicar porcentaje', 'icon' => 'plus-square-o', 'url' => ['valor-prenda-unidad/aplicarporcentajeprenda']],
                                                 ['label' => 'Panel de procesos', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/panel_procesos']],
+                                                 ['label' => 'Panel de procesos', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/control_linea_confeccion']],
                                             ],
                                         ],
                                         [

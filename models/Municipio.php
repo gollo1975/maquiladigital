@@ -88,7 +88,7 @@ class Municipio extends \yii\db\ActiveRecord
 
     public function getMunicipioCompleto()
     {
-        return "{$this->municipio} - {$this->departamento->departamento}";
+        return "{$this->municipio}";
     }
     
     public function getEstado()

@@ -98,15 +98,14 @@ if($tokenPlanta == null){
                   <th scope="col" style='background-color:#B9D5CE;'>Cod_Prod.</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Servicio</th>
-                  <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
-                  <th scope="col" style='background-color:#B9D5CE;'>Cant.</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Vinculado</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Contrato</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Cant.</th>
                 <th scope="col" style='background-color:#B9D5CE;'>T. Pagar</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Planta/Bodega</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado" >Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Cerrado" >Cer.</span></th>
-                 <th scope="col" style='background-color:#B9D5CE;'><span title="Activo" >Act.</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Activo" >Act.</span></th>
+                <th scope="col" style='background-color:#B9D5CE;'><span title="Activo" >Fac.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -134,13 +133,12 @@ if($tokenPlanta == null){
                           <?php } 
                     }?>      
                     <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
-                    <td align="right"><?= ''.number_format($val->vlr_vinculado,0) ?></td>
-                    <td align="right"><?= ''.number_format($val->vlr_contrato,0) ?></td>
                     <td align="right"><?= ''.number_format($val->total_pagar,0) ?></td>
                     <td style="background-color: <?= $val->planta->nombre_color?> " ><?= $val->planta->nombre_planta ?></td>
                     <td><?= $val->autorizadoPago?></td>
                     <td><?= $val->cerradoPago?></td>
-                     <td><?= $val->estadovalor?></td>
+                    <td><?= $val->estadovalor?></td>
+                    <td><?= $val->ordenproduccion->facturar?></td>
                 <?php }else { ?>
                     <td style='background-color:#DDE6E4;'><?= $val->id_valor ?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->idordenproduccion ?></td>
@@ -158,13 +156,12 @@ if($tokenPlanta == null){
                                           
                     } ?>  
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->cantidad,0) ?></td>
-                    <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_vinculado,0) ?></td>
-                    <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->vlr_contrato,0) ?></td>
                     <td align="right" style='background-color:#DDE6E4;'><?= ''.number_format($val->total_pagar,0) ?></td>
                     <td style="background-color: <?= $val->planta->nombre_color?> " ><?= $val->planta->nombre_planta ?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->autorizadoPago?></td>
                     <td style='background-color:#DDE6E4;'><?= $val->cerradoPago?></td>
-                     <td style='background-color:#DDE6E4;'><?= $val->estadovalor?></td>
+                    <td style='background-color:#DDE6E4;'><?= $val->estadovalor?></td>
+                    <td><?= $val->ordenproduccion->facturar?></td> 
                 <?php }
                 if($val->tipo_proceso_pago == 1){?>     
                     <td style= 'width: 25px; height: 25px;'>

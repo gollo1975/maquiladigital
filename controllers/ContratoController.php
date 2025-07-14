@@ -1220,7 +1220,7 @@ class ContratoController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 30,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
@@ -1236,7 +1236,7 @@ class ContratoController extends Controller
                             ->orderBy('id_contrato desc');
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 30,
+                        'pageSize' => 20,
                         'totalCount' => $count->count(),
                     ]);
                     $model = $table

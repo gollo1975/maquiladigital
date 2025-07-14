@@ -19,6 +19,7 @@ class FormFiltroContrato extends Model
     public $hasta;
     public $pension;
     public $eps;
+    public $id_tiempo;
 
     public function rules()
     {
@@ -26,7 +27,7 @@ class FormFiltroContrato extends Model
 
             ['identificacion', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             ['activo', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
-            [['id_empleado', 'id_grupo_pago', 'tipo_contrato','eps','pension'], 'integer'],
+            [['id_empleado', 'id_grupo_pago', 'tipo_contrato','eps','pension','id_tiempo'], 'integer'],
             [['desde', 'hasta'], 'safe'],
         ];
     }
@@ -43,6 +44,7 @@ class FormFiltroContrato extends Model
             'hasta' => 'Fecha corte:',
             'pension' => 'Fondo de pension:',
             'eps' => 'Entidad de salud',
+            'id_tiempo' => 'Timpo de servicio:'
         ];
     }
 }

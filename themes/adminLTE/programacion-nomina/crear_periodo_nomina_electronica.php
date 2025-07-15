@@ -170,9 +170,10 @@ $form = ActiveForm::begin([
                         'data-toggle'=>'modal',
                         'data-target'=>'#modalcrearnuevodocumento',
                         'class' => 'btn btn-info btn-xs'
-                    ])    
+                       
+                     ])    
                     ?>
-             <div class="modal remote fade" id="modalcrearnuevodocumento">
+             <div class="modal remote fade" id="modalcrearnuevodocumento" data-backdrop="static" data-keyboard="false">
                      <div class="modal-dialog modal-lg-centered">
                          <div class="modal-content"></div>
                      </div>

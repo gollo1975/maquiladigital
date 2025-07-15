@@ -124,9 +124,13 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                                                 <?php }else {?>
                                                     <td><?= $val->inicio_incapacidad?></td>
                                                     <td><?= $val->final_incapacidad ?></td>
-                                                <?php } ?>    
-                                                <td style="text-align: right"><?= $val->total_dias ?></td>
-                                                <?php if($val->porcentaje == ''){?>
+                                                <?php }
+                                                if($val->id_agrupado == 11){ ?> 
+                                                    <td style="text-align: right"><?= $val->dias_prima ?></td>
+                                                <?php }else {?>    
+                                                    <td style="text-align: right"><?= $val->total_dias ?></td>
+                                                <?php }    
+                                                 if($val->porcentaje == ''){?>
                                                     <td><?= $val->porcentaje ?></td>
                                                 <?php }else{?>
                                                      <td style="text-align: right"><?= $val->porcentaje ?> %</td>

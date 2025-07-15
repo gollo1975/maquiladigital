@@ -517,6 +517,7 @@ class PagoAdicionalFechaController extends Controller
                 $table->aplicar_cesantias = 0;
                 $table->estado_registro = 1;
                 $table->estado_periodo = 1;
+                $table->total_dia_prima = $nomina->dia_real_pagado;
                 $table->detalle = 'Primas semestrales';
                 $table->usuariosistema = Yii::$app->user->identity->username;
                 $table->insert();

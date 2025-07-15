@@ -47,7 +47,8 @@ class PagoAdicionalPermanente extends \yii\db\ActiveRecord
     {
         return [
             [['id_empleado', 'codigo_salario', 'vlr_adicion'], 'required'],
-            [['id_empleado', 'codigo_salario', 'id_contrato', 'tipo_adicion', 'vlr_adicion', 'permanente', 'aplicar_dia_laborado', 'aplicar_prima', 'aplicar_cesantias', 'estado_registro', 'estado_periodo'], 'integer'],
+            [['id_empleado', 'codigo_salario', 'id_contrato', 'tipo_adicion', 'vlr_adicion', 'permanente', 'aplicar_dia_laborado', 'aplicar_prima', 'aplicar_cesantias',
+                'estado_registro', 'estado_periodo','total_dia_prima'], 'integer'],
             [['fecha_creacion'], 'safe'],
             [['detalle'], 'string', 'max' => 50],
             [['usuariosistema'], 'string', 'max' => 30],
@@ -81,6 +82,7 @@ class PagoAdicionalPermanente extends \yii\db\ActiveRecord
             'detalle' => 'Detalle',
             'fecha_creacion' => 'Fecha Creacion',
             'usuariosistema' => 'Usuariosistema',
+            'total_dia_prima' => 'total_dia_prima',
         ];
     }
     

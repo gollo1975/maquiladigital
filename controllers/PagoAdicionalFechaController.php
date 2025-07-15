@@ -57,7 +57,7 @@ class PagoAdicionalFechaController extends Controller
      */
     public function actionIndex() {
         if (Yii::$app->user->identity){
-            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',84])->all()){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',85])->all()){
                 $form = new FormFiltroPagoFecha();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {                        

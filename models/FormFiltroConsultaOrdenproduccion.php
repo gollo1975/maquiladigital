@@ -36,7 +36,7 @@ class FormFiltroConsultaOrdenproduccion extends Model
     public function attributeLabels()
     {
         return [
-            'idcliente' => 'Cliente:',
+            'idcliente' => 'Nombre del cliente:',
             'codigoproducto' => 'Referencia:',
             'desde' => 'Desde:',
             'hasta' => 'Hasta:',

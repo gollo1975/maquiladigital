@@ -99,13 +99,13 @@ $this->params['breadcrumbs'][] = $this->title;
                    <td>
                    </td>
                 <?php }else{?> 
-                   <td>
+                   <td style="width: 20px; height: 20px">
                         <a href="<?= Url::toRoute(["pago-adicional-fecha/view", "id" => $val->id_pago_fecha, 'fecha_corte' => $val->fecha_corte]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                   
                    </td>
-                   <td>
+                 <td style="width: 20px; height: 20px">
                         <a href="<?= Url::toRoute(["pago-adicional-fecha/update", "id" => $val->id_pago_fecha, 'fecha_corte' => $val->fecha_corte]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
                    </td>
-                    <td>
+                   <td style="width: 20px; height: 20px">
                       <?= Html::a('', ['eliminar', 'id' => $val->id_pago_fecha, 'fecha_corte' => $val->fecha_corte], [
                         'class' => 'glyphicon glyphicon-trash',
                         'data' => [

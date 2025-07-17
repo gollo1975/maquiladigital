@@ -72,8 +72,8 @@ class Ordenproduccion extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'idordenproduccion' => 'OP Int.',
-            'idcliente' => 'Cliente:',
+            'idordenproduccion' => 'OP interna',
+            'idcliente' => 'Nombre del cliente',
             'fechallegada' => 'Fecha llegada:',
             'fechaprocesada' => 'Fecha procesada:',
             'fechaentrega' => 'Fecha entrega:',

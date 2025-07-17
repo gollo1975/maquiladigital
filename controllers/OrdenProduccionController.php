@@ -625,6 +625,79 @@ class OrdenProduccionController extends Controller {
         }
     } 
     
+    //proceso que busque la trazabilidad de la OP
+     public function actionTrazabilidad_ordenes() {
+         if (Yii::$app->user->identity){
+        if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',163])->all()){
+            $form = new FormFiltroConsultaOrdenproduccion();
+            $idcliente = null;
+            $desde = null;
+            $hasta = null;
+            $codigoproducto = null;
+            $tipo = null;
+            $ordenproduccionint = null;
+            $ordenproduccioncliente = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $idcliente = Html::encode($form->idcliente);
+                    $desde = Html::encode($form->desde);
+                    $hasta = Html::encode($form->hasta);
+                    $codigoproducto = Html::encode($form->codigoproducto);
+                    $tipo = Html::encode($form->tipo);
+                    $ordenproduccionint = Html::encode($form->ordenproduccionint);
+                    $ordenproduccioncliente = Html::encode($form->ordenproduccioncliente);
+                    $table = Ordenproduccion::find()
+                            ->andFilterWhere(['=', 'idcliente', $idcliente])
+                            ->andFilterWhere(['between', 'fechallegada', $desde, $hasta])
+                            ->andFilterWhere(['=', 'idtipo', $tipo])
+                            ->andFilterWhere(['=', 'id_tipo_producto', $ordenproduccionint])
+                            ->andFilterWhere(['=', 'codigoproducto', $codigoproducto])
+                            ->andFilterWhere(['=', 'ordenproduccion', $ordenproduccioncliente]);
+                    $table = $table->orderBy('idordenproduccion desc');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 15,
+                        'totalCount' => $count->count()
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                } else {
+                    $form->getErrors();
+                }
+            } else {
+                $table = Ordenproduccion::find()
+                        ->orderBy('idordenproduccion desc');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 15,
+                    'totalCount' => $count->count(),
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+               
+            }
+            $to = $count->count();
+            return $this->render('trazabilidad_orden_produccion', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                       
+            ]);
+        }else{
+            return $this->redirect(['site/sinpermiso']);
+        }
+        }else{
+            return $this->redirect(['site/login']);
+        }
+    }
+    
     //vista para orden de produccion
     public function actionView($id, $token) {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
@@ -674,6 +747,16 @@ class OrdenProduccionController extends Controller {
                     'token' => $token ,
                     'remision' => $remision,
         ]);
+    }
+    
+    //vista de la trazabilidasd
+    public function actionVista_trazabilidad($id) {
+        $detalle_orden = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
+        
+        return $this->render('view_trazabilidad', [
+                    'model' => $this->findModel($id),
+                    'detalle_orden' => $detalle_orden,
+        ]); 
     }
    
     // vista para salida de produccion
@@ -3843,6 +3926,15 @@ class OrdenProduccionController extends Controller {
        }       
     }
     
+    //MOSTRAR OPERARIOS POX TALLA
+    public function actionMostrar_operarios_talla($id, $id_detalle_talla) {
+        $model = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','iddetalleorden', $id_detalle_talla])->all();
+        return $this->renderAjax('mostrar_operario_talla', [
+            'model' => $model,
+            'id' => $id,
+            
+        ]);   
+    }
     
     public function actionExcelconsulta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();

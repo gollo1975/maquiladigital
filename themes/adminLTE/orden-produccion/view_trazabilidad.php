@@ -120,7 +120,7 @@ $view = 'orden-produccion';
                                                          ?>
                                                 </td> 
                                                  <div class="modal remote fade" id="modalmostraroperariotalla<?= $model->idordenproduccion ?>">
-                                                          <div class="modal-dialog modal-lg" style ="width: 800px;">
+                                                          <div class="modal-dialog modal-lg" style ="width: 1000px;">
                                                               <div class="modal-content"></div>
                                                           </div>
                                                       </div>
@@ -140,5 +140,6 @@ $view = 'orden-produccion';
     </div>
   <?php ActiveForm::end(); ?>  
 </div>
+
 
    

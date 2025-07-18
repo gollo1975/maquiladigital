@@ -3928,12 +3928,26 @@ class OrdenProduccionController extends Controller {
     
     //MOSTRAR OPERARIOS POX TALLA
     public function actionMostrar_operarios_talla($id, $id_detalle_talla) {
-        $model = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','iddetalleorden', $id_detalle_talla])->all();
+        $pages = null;
+        $table = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','iddetalleorden', $id_detalle_talla])->orderBy('id_operario ASC');
+        $count = clone $table;
+        $pages = new Pagination([
+            'pageSize' => 40,
+            'totalCount' => $count->count(),
+        ]);
+        $model = $table
+                ->offset($pages->offset)
+                ->limit($pages->limit)
+                ->all();
+        
         return $this->renderAjax('mostrar_operario_talla', [
             'model' => $model,
             'id' => $id,
-            
-        ]);   
+            'pagination' => $pages,
+            'id_detalle_talla' => $id_detalle_talla,
+        ]);
+        
+        
     }
     
     public function actionExcelconsulta($tableexcel) {                

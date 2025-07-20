@@ -724,8 +724,8 @@ class ValorPrendaUnidadController extends Controller
             ]);
         }else{
             Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar de esta talla.');
-            $conTallas = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
-            $orden = Ordenproduccion::findOne($idordenproduccion);
+            return $this->redirect(['search_tallas_ordenes','id' => $id,'id_planta' => $id_planta, 'tipo_pago' => $tipo_pago, 'tokenPlanta' => $tokenPlanta, 'idordenproduccion' =>$idordenproduccion]);
+        }            
             return $this->render('search_tallas_ordenes', [
                 'model' => $this->findModel($id),
                 'id_planta' =>$id_planta,
@@ -734,7 +734,6 @@ class ValorPrendaUnidadController extends Controller
                 'orden' => $orden,
 
             ]);
-            }
     }
     
    //VISTA QUE TRAE LAS OPERACIONES DE LA OP
@@ -1934,7 +1933,7 @@ class ValorPrendaUnidadController extends Controller
                 $costo2 += $valor->vlr_pago;
             }
         }
-        $total = round(($costo1 * 38)/100);
+        $total = round(($costo1 * 40)/100);
         $model->costo_confeccion = $total + $costo1 + $costo2;
         $model->save(false);
     }

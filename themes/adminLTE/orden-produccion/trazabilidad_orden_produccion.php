@@ -112,6 +112,7 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->orderBy('conce
                 <th style='background-color:#B9D5CE;' scope="col">F. llegada</th>
                 <th style='background-color:#B9D5CE;' scope="col">F. salida</th>
                 <th style='background-color:#B9D5CE;' scope="col"><span title="Grupo de producto">Linea</span></th>
+                <th style='background-color:#B9D5CE;' scope="col"><span title="Grupo de producto">Fact.</span></th>
                 <th style='background-color:#B9D5CE; width: 150px;' scope="col">Tipo servicio</th>
                 <th style='background-color:#B9D5CE;' scope="col" colspan="4"></th>                               
                
@@ -132,7 +133,8 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->orderBy('conce
                     <td><?= $val->tipoProducto->linea ?></td>
                 <?php }else{?>
                     <td><?= 'No found' ?></td>
-                <?php }?>    
+                <?php }?>  
+                <td><?= $val->facturar?></td>
                 <td style='background-color:<?= $val->tipo->color?>; color: black;'><?= $val->tipo->tipo ?></td>
                <td style="width: 20px; height: 20px">				
                      <a href="<?= Url::toRoute(["orden-produccion/vista_trazabilidad", "id" => $val->idordenproduccion]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
@@ -142,7 +144,6 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->orderBy('conce
             </tbody>
             <?php endforeach; ?>
         </table>    
-        
     </div>
 </div>
 <?= LinkPager::widget(['pagination' => $pagination]) ?>

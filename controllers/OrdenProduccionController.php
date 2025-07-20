@@ -752,10 +752,16 @@ class OrdenProduccionController extends Controller {
     //vista de la trazabilidasd
     public function actionVista_trazabilidad($id) {
         $detalle_orden = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
+        $operaciones = FlujoOperaciones::find()->Where(['=','idordenproduccion', $id])
+                                                                        ->orderBy('idproceso ASC')
+                                                                       ->all();
+        
         
         return $this->render('view_trazabilidad', [
-                    'model' => $this->findModel($id),
-                    'detalle_orden' => $detalle_orden,
+            'model' => $this->findModel($id),
+            'detalle_orden' => $detalle_orden,
+            'operaciones' => $operaciones,
+            'id' => $id,
         ]); 
     }
    
@@ -1443,6 +1449,7 @@ class OrdenProduccionController extends Controller {
             Yii::$app->getSession()->setFlash('info', 'No hay registros en el detalle de la orden de producción para tercero.');
         }    
     }
+    
   // nuevo detalle para las ordenes de produccion
     public function actionNuevodetalles($idordenproduccion, $idcliente, $token) {
         $ordenProduccion = Ordenproduccion::findOne($idordenproduccion);
@@ -1603,8 +1610,9 @@ class OrdenProduccionController extends Controller {
         }
         
     }
+    
     //ESTE PROCESO EDITA UN REGISTRO DE LA ORDEN DE TERCERO
-  public function actionEditardetalletercero() {
+    public function actionEditardetalletercero() {
         $id_detalle = Html::encode($_POST["id_detalle"]);
         $id = Html::encode($_POST["id"]);
         $error = 0;
@@ -2059,7 +2067,8 @@ class OrdenProduccionController extends Controller {
                     'model' => $this->findModel($id),
         ]);
     }
-     public function actionImprimirpilotos($id) {
+   
+    public function actionImprimirpilotos($id) {
        $orden = Ordenproduccion::findOne($id);
        $piloto = PilotoDetalleProduccion::find()->where(['=','idordenproduccion', $id])->one();
        if($piloto){  
@@ -3929,10 +3938,10 @@ class OrdenProduccionController extends Controller {
     //MOSTRAR OPERARIOS POX TALLA
     public function actionMostrar_operarios_talla($id, $id_detalle_talla) {
         $pages = null;
-        $table = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','iddetalleorden', $id_detalle_talla])->orderBy('id_operario ASC');
+        $table = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','iddetalleorden', $id_detalle_talla])->orderBy('id_operario,dia_pago DESC');
         $count = clone $table;
         $pages = new Pagination([
-            'pageSize' => 40,
+            'pageSize' => 60,
             'totalCount' => $count->count(),
         ]);
         $model = $table
@@ -3948,6 +3957,17 @@ class OrdenProduccionController extends Controller {
         ]);
         
         
+    }
+    
+    public function actionListado_operarios($id, $id_proceso) {
+        
+        $model = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','idproceso', $id_proceso])
+                                                             ->andWhere(['=','idordenproduccion', $id])
+                                                             ->orderBy('id_operario ASC')->all();
+        return $this->renderAjax('mostrar_operarios', [
+            'model' => $model,
+            'id' => $id,
+        ]);
     }
     
     public function actionExcelconsulta($tableexcel) {                

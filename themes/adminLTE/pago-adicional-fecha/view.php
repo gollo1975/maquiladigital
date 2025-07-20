@@ -50,13 +50,13 @@ $conceptosalario = ArrayHelper::map(ConceptoSalarios::find()->where(['tipo_adici
     <?php if($fechacorte->estado_proceso == 1){?>   
         <?= Html::a('<span class="glyphicon glyphicon-import"></span> Importar intereses', ['pago-adicional-fecha/importinteres', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-info btn-sm'])?>
            <div class="btn-group" role="group">
-            <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Importar pago producción
+               <button type="button" class="btn btn-success btn-sm dropdown-toggle"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Importar dia sabado
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
                <li><?= Html::a('<span class="glyphicon glyphicon-import"></span> Importar', ['pago-adicional-fecha/importarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-default btn-xs']) ?></li>
-               <li><?= Html::a('<span class="glyphicon glyphicon-ok"></span> Aplicar', ['pago-adicional-fecha/aplicarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-info btn-xs']) ?></li>
+               
             </ul>
        </div> 
        <div class="btn-group" role="group">

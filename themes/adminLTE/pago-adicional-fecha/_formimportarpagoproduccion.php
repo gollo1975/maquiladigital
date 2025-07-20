@@ -3,139 +3,130 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
-use yii\bootstrap\Modal;
-use yii\base\Model;
-use yii\web\UploadedFile;
-use app\models\GrupoPago;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
-use yii\helpers\ArrayHelper;
-use kartik\select2\Select2;
-use yii\web\Session;
-use yii\data\Pagination;
-use yii\db\ActiveQuery;
+use kartik\date\DatePicker;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Facturaventadetalle */
 /* @var $form yii\widgets\ActiveForm */
 
-$this->title = 'Personal contratado';
+$this->title = 'Importar dia sabado';
 $this->params['breadcrumbs'][] = $this->title;
-$grupo = ArrayHelper::map(GrupoPago::find()->orderBy ('grupo_pago ASC')->all(), 'id_grupo_pago', 'grupo_pago');
 ?>
+<script language="JavaScript">
+    function mostrarfiltro() {
+        divC = document.getElementById("filtro");
+        if (divC.style.display == "none"){divC.style.display = "block";}else{divC.style.display = "none";}
+    }
+</script>
 
+<!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute(["pago-adicional-fecha/importarpagoproduccion", 'id' => $id, 'fecha_corte' => $fecha_corte]),
+    // *** LÍNEA CORREGIDA AQUÍ ***
+    "action" => Url::toRoute(['pago-adicional-fecha/importarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
-    
-	'fieldConfig' => [
-                    'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
-                    'labelOptions' => ['class' => 'col-sm-2 control-label'],
-                    'options' => []
-                ],
-    
-
-]);
-?>
+    'fieldConfig' => [
+        'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
+        'labelOptions' => ['class' => 'col-sm-2 control-label'],
+        'options' => []
+    ],
+]);?>
 
 <div class="panel panel-success panel-filters">
-    <div class="panel-heading">
-        Parametros de entrada
+    <div class="panel-heading" onclick="mostrarfiltro()">
+        Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
-	
-    <div class="panel-body" id="buscarmaquina">
-        <div class="row" >
-            <?= $formulario->field($form, "documento")->input("search") ?>          
-            <?= $formulario->field($form, "id_grupo_pago")->widget(Select2::classname(), [
-                'data' => $grupo,
-                'options' => ['prompt' => 'Seleccione el grupo...'],
+    
+    <div class="panel-body" id="filtro" style="display:block">
+        <div class="row">
+           <?= $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), [
+                'name' => 'check_issue_date', // Este 'name' no es el que usa ActiveForm para el modelo
+                'value' => date('d-M-Y', strtotime('+2 days')), // Esto establecerá un valor inicial
+                'options' => ['placeholder' => 'Seleccione una fecha'],
                 'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
+                    'format' => 'yyyy-mm-dd',
+                    'todayHighlight' => true
+                ]
+            ]) ?>
+           <?= $formulario->field($form, 'fecha_final')->widget(DatePicker::className(), [
+                'name' => 'check_issue_date', // Este 'name' tampoco es el que usa ActiveForm para el modelo
+                'value' => date('d-M-Y', strtotime('+2 days')), // Esto establecerá un valor inicial
+                'options' => ['placeholder' => 'Seleccione una fecha'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-mm-dd',
+                    'todayHighlight' => true
+                ]
+            ]) ?>
         </div>
-        <div class="panel-footer text-right">
-            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
+         <div class="panel-footer text-right">
+            <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
             <a align="right" href="<?= Url::toRoute(["pago-adicional-fecha/importarpagoproduccion", 'id' => $id, 'fecha_corte' => $fecha_corte]) ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
-</div>
+</div>  
 
 <?php $formulario->end() ?>
 
-<?php
-$form = ActiveForm::begin([
-            "method" => "post",
-            'id' => 'formulario',
-            'enableClientValidation' => false,
-            'enableAjaxValidation' => true,
-            'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
-            'fieldConfig' => [
-                'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
-                'labelOptions' => ['class' => 'col-sm-2 control-label'],
-                'options' => []
-            ],
-        ]);
-?>
-
-<?php
-if ($mensaje != ""){
-    ?> <div class="alert alert-danger"><?= $mensaje ?></div> <?php
-}
-?>
+<?= Html::beginForm(Url::toRoute(['pago-adicional-fecha/importarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte]), 'post') ?>
+ <!-- These fields will carry the dates used for filtering to the POST request -->
+    <?= Html::hiddenInput('fecha_inicio_filter', $form->fecha_inicio ?? '') ?>
+    <?= Html::hiddenInput('fecha_final_filter', $form->fecha_final ?? '') ?>
 
 <div class="table table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">
-            Registros  <span class="badge"><?= count($contratos) ?> </span>
+          <?php if($valores){?>
+            Registros <span class="badge"><?= count($valores) ?></span>
+          <?php }?>  
+           
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-hover">
                 <thead>
-                <tr>
+                    <tr style="font-size: 85%">
                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Grupo pago</th>                    
-                    <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Area de proceso</th> 
+                     <th scope="col" style='background-color:#B9D5CE;'>Valor generado</th> 
+                    <th scope="col" style='background-color:#B9D5CE; width: 20px;'><input type="checkbox" onclick="marcar(this);"/></th>
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($contratos as $val): ?>
-                    <tr style="font-size: 85%;">
-                    <td><?= $val->identificacion ?></td>
-                    <td><?= $val->empleado->nombrecorto ?></td>
-                    <td><?= $val->grupoPago->grupo_pago ?></td>
-                    <input type="hidden" name="fecha_corte" value="<?= $fecha_corte ?>">
-                    <td style="width: 30px;"><input type="checkbox" name="id_contrato[]" value="<?= $val->id_contrato ?>"></td>
-                </tr>
-                </tbody>
-                <?php endforeach; ?>
+                    <?php 
+                    if(!empty($valores)){
+                        foreach ($valores as $val):  ?>
+                            <tr style="font-size: 85%;">
+                                <td><?= Html::encode($val['documento']) ?></td>
+                                <td><?= Html::encode($val['nombrecompleto'])?></td>
+                                <td><?= Html::encode($val['tipo'])?></td>
+                                <td style="text-align: right;"><?= Html::encode(''. number_format($val['total_vlr_pago'],0))?></td>
+                                <td style="width: 20px; height: 20px;">
+                                        <input type="checkbox" name="id_operario_grouped[]" value="<?= Html::encode($val['id_operario']) ?>">
+                                </td>
+                             </tr>
+                        <?php endforeach;
+                    }else{ ?>
+                        <div class="alert alert-info">No hay registros para mostrar o no se han aplicado filtros.</div>
+                    <?php }?>
+                 </tbody>
             </table>
         </div>
         <div class="panel-footer text-right">
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pago-adicional-fecha/view', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-primary btn-sm']) ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-send'></span> Enviar", ["class" => "btn btn-success btn-sm",]) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar Pagos Seleccionados", ["class" => "btn btn-success btn-sm", 'name' => 'enviar_valores', 'value' => '1']) ?>
         </div>
 
     </div>
 </div>
-
-<?php $form->end() ?>    
-
+<?= Html::endForm() ?>
+ 
 <script type="text/javascript">
-	function marcar(source) 
-	{
-		checkboxes=document.getElementsByTagName('input'); //obtenemos todos los controles del tipo Input
-		for(i=0;i<checkboxes.length;i++) //recoremos todos los controles
-		{
-			if(checkboxes[i].type == "checkbox") //solo si es un checkbox entramos
-			{
-				checkboxes[i].checked=source.checked; //si es un checkbox le damos el valor del checkbox que lo llamó (Marcar/Desmarcar Todos)
-			}
-		}
-	}
+	// Función para marcar/desmarcar todos los checkboxes
+    function marcar(source) {
+        checkboxes = document.getElementsByName('id_operario_grouped[]');
+        for(var i=0, n=checkboxes.length;i<n;i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
 </script>

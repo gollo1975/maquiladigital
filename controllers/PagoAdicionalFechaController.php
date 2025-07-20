@@ -13,7 +13,10 @@ use app\models\FormAdicionPermanente;
 use app\models\Contrato;
 use app\models\FormBuscarIntereses;
 use app\models\InteresesCesantia;
+use app\models\ValorPrendaUnidadDetalles;
 use app\models\ConceptoSalarios;
+use app\models\Matriculaempresa;
+use app\models\Empleado;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -393,80 +396,198 @@ class PagoAdicionalFechaController extends Controller
    //PROCESO QUE IMPORTA LOS PAGOS O BONIFICACION DESDE VALOR PRENDA UNIDAD
     
     public function actionImportarpagoproduccion($id, $fecha_corte) {
-        $contratos = Contrato::find()->where(['=','contrato_activo', 1])->orderBy('identificacion DESC')->all();
         $form = new FormBuscarIntereses();
-        $documento = null;
-        $id_grupo_pago = null;
-        $mensaje = ''; 
-        if ($form->load(Yii::$app->request->get())) {
+        $fecha_inicio = null;
+        $fecha_final = null;
+        $valores = null; 
+        $valoresAgrupados = []; // Este será el array donde agruparemos los datos
+         $valoresAgrupadosMap = [];
+       if ($form->load(Yii::$app->request->get())) {
             if ($form->validate()) {
-                $documento = Html::encode($form->documento); 
-                $id_grupo_pago = Html::encode($form->id_grupo_pago);
-                if ($documento){
-                    $contratos = Contrato::find()
-                            ->where(['like','identificacion',$documento])
-                            ->andWhere(['=','contrato_activo', 1])
-                            ->orderBy('identificacion DESC')
-                            ->all();
-                }else{    
-                     $contratos = Contrato::find()
-                            ->where(['=','id_grupo_pago', $id_grupo_pago])
-                            ->andWhere(['=','contrato_activo', 1])
-                            ->orderBy('identificacion DESC')
-                            ->all();
-                }               
-            } else {
-                $form->getErrors();
-            }                    
-        } else {
-           $contratos = Contrato::find()->where(['=','contrato_activo', 1])->orderBy('identificacion DESC')->all();
-        }
-        if (isset($_POST["id_contrato"])) {
-            $intIndice = 0;
-            $fecha_corte = Html::encode($_POST["fecha_corte"]);
-            $matricula = \app\models\Matriculaempresa::findOne(1);
-            foreach ($_POST["id_contrato"] as $intCodigo) {
-                $contrato = Contrato::find()->where(['id_contrato' => $intCodigo])->one();
-                $operario = \app\models\Operarios::find()->where(['=','documento', $contrato->identificacion])->andWhere(['=','vinculado', 1])->andWhere(['=','estado', 1])->one();
-                if($operario){
-                   $valor_prenda = \app\models\ValorPrendaUnidadDetalles::find()->where(['=', 'exportado', 0])->andWhere(['<=', 'dia_pago', $fecha_corte])->andWhere(['=','id_operario', $operario->id_operario])->all(); 
-                   if(count($valor_prenda) > 0){
-                        $suma = 0;
-                        foreach ($valor_prenda as $pagos):
-                           $suma += $pagos->vlr_pago;
-                        endforeach;
-                        if($suma > 0){
-                            $table = new PagoAdicionalPermanente();
-                            $table->id_empleado = $contrato->id_empleado;
-                            $table->codigo_salario = $matricula->codigo_salario_pago_produccion;
-                            $table->id_contrato = $contrato->id_contrato;
-                            $table->id_grupo_pago = $contrato->id_grupo_pago;
-                            $table->id_pago_fecha = $id;
-                            $table->fecha_corte = $fecha_corte;
-                            $table->tipo_adicion = 1;
-                            $table->vlr_adicion = $suma;
-                            $table->permanente = 2;
-                            $table->aplicar_dia_laborado = 0;
-                            $table->aplicar_prima = 0;
-                            $table->aplicar_cesantias = 0;
-                            $table->estado_registro = 1;
-                            $table->estado_periodo = 1;
-                            $table->detalle = 'Bonificacion no prestacional';
-                            $table->usuariosistema = Yii::$app->user->identity->username;
-                            $table->insert();
-                        }    
+                $fecha_inicio = Html::encode($form->fecha_inicio);
+                $fecha_final = Html::encode($form->fecha_final);
+
+                if ($fecha_inicio !== null && $fecha_final !== null) {
+                    $valores = ValorPrendaUnidadDetalles::find()
+                        ->where(['between', 'dia_pago', $fecha_inicio, $fecha_final])
+                        ->andWhere(['=','aplica_sabado', 1])    
+                        ->orderBy('id_operario ASC')
+                        ->all();
+
+                    // Group values by operario for display
+                    foreach ($valores as $val) {
+                        $operarioId = $val->id_operario;
+                        if (!isset($valoresAgrupados[$operarioId])) {
+                            $valoresAgrupados[$operarioId] = [
+                                'id_operario' => $operarioId,
+                                'documento' => $val->operarioProduccion->documento,
+                                'nombrecompleto' => $val->operarioProduccion->nombrecompleto,
+                                'tipo' => $val->operarioProduccion->tipoOperaria->tipo,
+                                'total_vlr_pago' => 0,
+                            ];
+                        }
+                        $valoresAgrupados[$operarioId]['total_vlr_pago'] += $val->vlr_pago;
                     }
+                    $valoresAgrupados = array_values($valoresAgrupados);
+
+                    // Create a map for quick access during POST processing
+                    foreach ($valoresAgrupados as $item) {
+                        $valoresAgrupadosMap[$item['id_operario']] = $item;
+                    }   
+                    Yii::error('GET Request - valoresAgrupadosMap populated with IDs: ' . json_encode(array_keys($valoresAgrupadosMap)));
+                    Yii::error('GET Request - Sample data from map: ' . json_encode(array_slice($valoresAgrupadosMap, 0, 2))); // Log first 2 items
+
+                } else {
+                    Yii::$app->getSession()->setFlash('error', 'Los campos de las fechas NO pueden ser vacios.');
                 }
+            } else {
+                Yii::$app->getSession()->setFlash('error', 'Por favor, revise los errores en el formulario de fechas.');
             }
-            $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
         }
-        return $this->render('_formimportarpagoproduccion', [
-            'contratos' => $contratos,            
-            'mensaje' => $mensaje,
+        
+       if (Yii::$app->request->isPost) {
+            Yii::error('POST Request received.');
+            if (isset($_POST["enviar_valores"]) && isset($_POST["id_operario_grouped"])) {
+                $selectedOperariosIds = $_POST["id_operario_grouped"];
+                Yii::error('Selected Operario IDs from POST: ' . json_encode($selectedOperariosIds));
+
+                // Retrieve filter dates from hidden fields in the POST request
+                $fecha_inicio_post = Yii::$app->request->post('fecha_inicio_filter');
+                $fecha_final_post = Yii::$app->request->post('fecha_final_filter');
+                Yii::error('Filter dates from POST: Inicio=' . $fecha_inicio_post . ', Final=' . $fecha_final_post);
+
+                // Re-populate $valoresAgrupadosMap using the filter dates from the POST request
+                if ($fecha_inicio_post && $fecha_final_post) {
+                    $query = ValorPrendaUnidadDetalles::find()
+                        ->where(['between', 'dia_pago', $fecha_inicio_post, $fecha_final_post])
+                        ->andWhere(['=','aplica_sabado', 1])    
+                        ->orderBy('id_operario ASC');
+                    
+                    // --- NUEVOS LOGS DE DEPURACIÓN PARA LA CONSULTA ---
+                    Yii::error('POST Request - SQL Query for re-populating map: ' . $query->createCommand()->rawSql);
+                    
+                    $valores_reloaded = $query->all();
+
+                    // --- NUEVO LOG PARA VER DATOS CRUDOS RECUPERADOS ---
+                    $debugReloadedData = [];
+                    foreach ($valores_reloaded as $val) {
+                        $debugReloadedData[] = [
+                            'id_operario' => $val->id_operario,
+                            'fecha_pago' => $val->dia_pago,
+                            'vlr_pago' => $val->vlr_pago,
+                            'documento' => $val->operarioProduccion->documento, // Asegúrate de que esta relación esté cargada
+                        ];
+                    }
+                    Yii::error('POST Request - Raw reloaded data (first 5): ' . json_encode(array_slice($debugReloadedData, 0, 5)));
+
+
+                    $valoresAgrupadosMap = []; // Reset the map before re-populating
+                    foreach ($valores_reloaded as $val) {
+                        $operarioId = $val->id_operario;
+                        if (!isset($valoresAgrupadosMap[$operarioId])) {
+                            $valoresAgrupadosMap[$operarioId] = [
+                                'id_operario' => $operarioId,
+                                'documento' => $val->operarioProduccion->documento,
+                                'nombrecompleto' => $val->operarioProduccion->nombrecompleto,
+                                'tipo' => $val->operarioProduccion->tipoOperaria->tipo,
+                                'total_vlr_pago' => 0,
+                            ];
+                        }
+                        $valoresAgrupadosMap[$operarioId]['total_vlr_pago'] += $val->vlr_pago;
+                    }
+                    Yii::error('POST Request - valoresAgrupadosMap RE-POPULATED with IDs: ' . json_encode(array_keys($valoresAgrupadosMap)));
+                    Yii::error('POST Request - Sample data from RE-POPULATED map (first 2): ' . json_encode(array_slice($valoresAgrupadosMap, 0, 2)));
+
+                } else {
+                    Yii::$app->getSession()->setFlash('error', 'No se pudieron recuperar las fechas de filtro para guardar los pagos. Por favor, intente nuevamente.');
+                    return $this->redirect(['pago-adicional-fecha/importarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte]);
+                }
+
+                $matricula = Matriculaempresa::findOne(1);
+
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    $registrosGuardados = 0;
+                    foreach ($selectedOperariosIds as $operarioId) {
+                        Yii::error('Attempting to save for Operario ID: ' . $operarioId);
+                        if (isset($valoresAgrupadosMap[$operarioId])) {
+                            $operarioData = $valoresAgrupadosMap[$operarioId];
+                            $valor_pagar = $operarioData['total_vlr_pago'];
+                            $documentoOperario = $operarioData['documento'];
+
+                            Yii::error('Operario Data for ID ' . $operarioId . ': ' . json_encode($operarioData));
+                            Yii::error('Value to pay for ID ' . $operarioId . ': ' . $valor_pagar);
+
+                            $empleado = Empleado::find()->where(['identificacion' => $documentoOperario])->one();
+                            $contrato = null;
+                            if ($empleado) {
+                                $contrato = Contrato::find()
+                                    ->where(['id_empleado' => $empleado->id_empleado, 'contrato_activo' => 1])
+                                    ->one();
+                            }
+
+                            if ($contrato && $valor_pagar > 0) {
+                                $table = new PagoAdicionalPermanente();
+                                $table->id_empleado = $contrato->id_empleado;
+                                $table->codigo_salario = $matricula->codigo_salario_pago_produccion;
+                                $table->id_contrato = $contrato->id_contrato;
+                                $table->id_grupo_pago = $contrato->id_grupo_pago;
+                                $table->id_pago_fecha = $id;
+                                $table->fecha_corte = $fecha_corte;
+                                $table->tipo_adicion = 1;
+                                $table->vlr_adicion = $valor_pagar;
+                                $table->permanente = 2;
+                                $table->aplicar_dia_laborado = 0;
+                                $table->aplicar_prima = 0;
+                                $table->aplicar_cesantias = 0;
+                                $table->estado_registro = 1;
+                                $table->estado_periodo = 1;
+                                $table->detalle = 'Bonificacion por produccion';
+                                $table->usuariosistema = Yii::$app->user->identity->username;
+
+                                if ($table->save()) {
+                                    $registrosGuardados++;
+                                    Yii::error('Successfully saved record for Operario ID: ' . $operarioId . ' with value: ' . $valor_pagar);
+                                } else {
+                                    Yii::error('Failed to save record for Operario ID: ' . $operarioId . '. Errors: ' . json_encode($table->getErrors()));
+                                    Yii::$app->getSession()->setFlash('error', 'Error al guardar el pago para ' . Html::encode($operarioData['nombrecompleto']) . ': ' . json_encode($table->getErrors()));
+                                }
+                            } else {
+                                if (!$contrato) {
+                                    Yii::error('No active contract found for Operario ID: ' . $operarioId . ' (Documento: ' . $documentoOperario . ').');
+                                    Yii::$app->getSession()->setFlash('warning', 'No se encontró contrato activo para el operario: ' . Html::encode($operarioData['nombrecompleto']) . ' (Documento: ' . Html::encode($documentoOperario) . ').');
+                                } else if ($valor_pagar <= 0) {
+                                    Yii::error('Value to pay is zero or negative for Operario ID: ' . $operarioId . '. Not saved.');
+                                    Yii::$app->getSession()->setFlash('warning', 'El valor a pagar para ' . Html::encode($operarioData['nombrecompleto']) . ' es cero o negativo. No se guardó.');
+                                }
+                            }
+                        } else {
+                            Yii::error('Grouped data not found in map for Operario ID: ' . $operarioId . '. This indicates a synchronization issue or a missing ID in the re-populated map.');
+                            Yii::$app->getSession()->setFlash('warning', 'Datos agrupados no encontrados para el operario ID: ' . Html::encode($operarioId) . '. Esto puede indicar un problema de sincronización.');
+                        }
+                    }
+                    $transaction->commit();
+                    Yii::$app->getSession()->setFlash('success', "Se han guardado {$registrosGuardados} pagos de producción correctamente.");
+                    return $this->redirect(['pago-adicional-fecha/view', 'id' => $id, 'fecha_corte' => $fecha_corte]);
+
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    Yii::error('Transaction failed: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
+                    Yii::$app->getSession()->setFlash('error', 'Error al procesar los pagos: ' . $e->getMessage());
+                    return $this->redirect(['pago-adicional-fecha/importarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte]);
+                }
+            } else {
+                Yii::error('POST Request: "enviar_valores" or "id_operario_grouped" not set.');
+                Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro para guardar.');
+                return $this->redirect(['pago-adicional-fecha/importarpagoproduccion', 'id' => $id, 'fecha_corte' => $fecha_corte]);
+            }
+        }
+
+        return $this->render('_formimportarpagoproduccion', [ 
             'id' => $id,
             'form' => $form,
             'fecha_corte' => $fecha_corte,
-
+            'valores' => $valoresAgrupados, // Esto contendrá los datos filtrados o será null/vacío inicialmente
         ]);
    }
   
@@ -553,24 +674,7 @@ class PagoAdicionalFechaController extends Controller
         
    }
    
-   //PROCESO QUE APLICA LOS PAGOS  DE PRODUCCION
-   public function actionAplicarpagoproduccion($id, $fecha_corte) {
-       
-       $operarios = \app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','vinculado', 1])->all();
-       foreach ($operarios as $operario):
-           $valor_prenda = \app\models\ValorPrendaUnidadDetalles::find()->where(['=','id_operario', $operario->id_operario])
-                                                                        ->andWhere(['<=','dia_pago', $fecha_corte])
-                                                                        ->andWhere(['=','exportado', 0])->all();
-            if(count($valor_prenda)>0){
-                foreach ($valor_prenda as $valor):
-                     $valor->exportado = 1;
-                     $valor->save(false);
-                endforeach;
-            }    
-       endforeach;
-       return $this->redirect(["pago-adicional-fecha/view", 'id'=>$id, 'fecha_corte' => $fecha_corte]);
-       
-   }
+   
     
     public function actionCreate() {   
       

@@ -11,14 +11,17 @@ use yii\base\Model;
 class FormBuscarIntereses extends Model
 {
     public $documento;
-    public $id_grupo_pago;   
+    public $id_grupo_pago;
+    public $fecha_inicio;
+    public $fecha_final;
 
     public function rules()
     {
         return [
 
             ['documento', 'default' ],
-            ['id_grupo_pago', 'default'], 
+            ['id_grupo_pago', 'default'],
+            [['fecha_final','fecha_inicio'],'safe'],
         ];
     }
 
@@ -28,6 +31,8 @@ class FormBuscarIntereses extends Model
 
             'documento' => 'Documento:',
             'id_grupo_pago' => 'Grupo pago:',    
+            'fecha_inicio' => 'Fecha inicio;',
+            'fecha_final' => 'Fecha final:',
         ];
     }
 }

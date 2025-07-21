@@ -262,7 +262,11 @@ $view = 'orden-produccion';
                                             $buscar2 = $utilidad;
                                             $costo2 = $valor_total;
                                         }
-                                        $porcentaje = round(((100 * $valor_total)/$model->totalorden),2);
+                                        if ($model->totalorden != 0) {
+                                            $porcentaje = round(((100 * $valor_total) / $model->totalorden), 2);
+                                        } else {
+                                            $porcentaje = 0; // Si $model->totalorden es cero, el porcentaje es 0 para evitar el error.
+                                        }
                                          ?>
                                            <tr style="font-size: 85%;">
                                                <td><?= $id ?></td>
@@ -278,7 +282,7 @@ $view = 'orden-produccion';
                                      $total += $valor_total;
                                     $valor_total = 0;
                                     $total_ingresos += $model->totalorden; ?>
-                                  
+                                </tbody>  
                             </table>               
                         </div>                   
                     </div>                      
@@ -338,11 +342,17 @@ $view = 'orden-produccion';
                                    <?php
                                     $sumaCosto = 0;
                                     $porcentaje = 100;
-                                    $sumaCosto = number_format((($TotalGastosOperacion / $total_ingresos)*100),0);
+                                    if($TotalGastosOperacion != 0 && $total_ingresos != 0){
+                                        $sumaCosto = number_format((($TotalGastosOperacion / $total_ingresos)*100),0);
+                                    }else{
+                                        $sumaCosto = 0;
+                                    }    
                                    ?>
-                                    <td colspan="0"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 210px;" align="right"><b>Ingresos:</b> <?= ''.number_format($total_ingresos,0) ?></td>       
-                                    <td colspan="0"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 210px;" align="right"><b>Gastos:</b> <?= ''.number_format($total_gastos + $total,0)?> ( <?= ''. number_format((($TotalGastosOperacion / $total_ingresos)*100),0) ?>%)</td>    
-                                    <td colspan="0"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 210px;" align="right"><b>Utilidad:</b> <?= ''.number_format(($total_ingresos- ($total_gastos + $total)) ,0) ?> (<?= $porcentaje - $sumaCosto ?>%) </td>    
+                                    <td colspan="0"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 210px;" align="right"><b>Ingresos:</b> <?= ''.number_format($total_ingresos,0) ?></td> 
+                                    <?php  if($total != 0){?>
+                                        <td colspan="0"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 210px;" align="right"><b>Gastos:</b> <?= ''.number_format($total_gastos + $total,0)?> ( <?= ''. number_format((($TotalGastosOperacion / $total_ingresos)*100),0) ?>%)</td>    
+                                        <td colspan="0"><td style="font-size: 90%;background: #4B6C67; color: #FFFFFF; width: 210px;" align="right"><b>Utilidad:</b> <?= ''.number_format(($total_ingresos- ($total_gastos + $total)) ,0) ?> (<?= $porcentaje - $sumaCosto ?>%) </td>    
+                                    <?php }?>    
                             </table>
                         </div>    
                     </div>

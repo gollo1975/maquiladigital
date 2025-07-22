@@ -321,6 +321,7 @@
                                             'icon' => 'exchange',
                                             'url' => '#',
                                             'items' => [
+                                                ['label' => 'Ingresos y deducciones', 'icon' => 'plus-square-o', 'url' => ['/ingresos-deducciones/index']],                                            
                                                 ['label' => 'Pago adicional permanente', 'icon' => 'plus-square-o', 'url' => ['/pago-adicional-permanente/index']],                                            
                                                 ['label' => 'Pago adicional fechas', 'icon' => 'plus-square-o', 'url' => ['/pago-adicional-fecha/index']],                                            
                                                 ['label' => 'Créditos', 'icon' => 'plus-square-o', 'url' => ['/credito/index']],   

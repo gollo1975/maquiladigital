@@ -31,7 +31,7 @@ class FormBuscarIntereses extends Model
 
             'documento' => 'Documento:',
             'id_grupo_pago' => 'Grupo pago:',    
-            'fecha_inicio' => 'Fecha inicio;',
+            'fecha_inicio' => 'Fecha inicio:',
             'fecha_final' => 'Fecha final:',
         ];
     }

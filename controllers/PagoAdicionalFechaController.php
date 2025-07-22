@@ -73,7 +73,7 @@ class PagoAdicionalFechaController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
@@ -93,7 +93,7 @@ class PagoAdicionalFechaController extends Controller
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $pages = new Pagination([
-                    'pageSize' => 40,
+                    'pageSize' => 20,
                     'totalCount' => $count->count(),
                 ]);
                 $model = $table
@@ -393,8 +393,109 @@ class PagoAdicionalFechaController extends Controller
         ]);
     }
     
-   //PROCESO QUE IMPORTA LOS PAGOS O BONIFICACION DESDE VALOR PRENDA UNIDAD
+    ///PROCESO QUE IMPORTAR LOS INGRESOS Y DEDCCIONES
+     public function actionImportar_ingresos_deducciones($id, $fecha_corte)
+    {
+        $form = new FormBuscarIntereses();
+        $fecha_inicio = null;
+        $fecha_final = null;
+        $table = [];
+        $valoresAgrupados = [];
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $fecha_inicio = Html::encode($form->fecha_inicio); 
+                $fecha_final = Html::encode($form->fecha_final);
+                if($fecha_inicio != null && $fecha_final != null){
+                $table = \app\models\IngresosDeduccionesDetalle::find()
+                            ->andFilterWhere(['between','fecha_inicio',$fecha_inicio, $fecha_final])
+                            ->andFilterWhere(['=','importado', 0])
+                            ->orderBy('id_empleado ASC')
+                            ->all();
+                            //vector que agrupa los valores
+                            foreach ($table as $val) {
+                                    $operarioId = $val->id_empleado;
+                                    if (!isset($valoresAgrupados[$operarioId])) {
+                                        $valoresAgrupados[$operarioId] = [
+                                            'id_operario' => $operarioId,
+                                            'documento' => $val->empleado->identificacion,
+                                            'nombrecompleto' => $val->empleado->nombrecorto,
+                                            'fecha_inicio' => $val->fecha_inicio,
+                                            'fecha_corte' => $val->fecha_corte,
+                                            'total_valor_pago' => 0,
+                                        ];
+                                    }
+                                    $valoresAgrupados[$operarioId]['total_valor_pago'] += $val->valor_pagado;
+                            }
+                }else{
+                    Yii::$app->getSession()->setFlash('error', 'Los campos de las fechas NO pueden ser vacios.');
+                }               
+            } else {
+                $form->getErrors();
+            }                    
+        } 
+        
+        if(isset($_POST["enviardatos"])){
+            if (isset($_POST["id_interes"])) {
+                $intIndice = 0;
+                $salario = ConceptoSalarios::find()->where(['=','intereses', 1])->one();
+                $fecha_corte = Html::encode($_POST["fecha_corte"]);
+                foreach ($_POST["id_interes"] as $intCodigo) {
+                    $interes = InteresesCesantia::find()->where(['id_interes' => $intCodigo])->one();
+                    $pagos = PagoAdicionalPermanente::find()
+                        ->where(['=', 'id_contrato', $interes->id_contrato])
+                        ->andWhere(['=', 'fecha_corte', $fecha_corte])
+                        ->all();
+                    $reg = count($pagos);
+                    if ($reg == 0) {
+                        $table = new PagoAdicionalPermanente();
+                        $table->id_empleado = $interes->id_empleado;
+                        $table->codigo_salario = $salario->codigo_salario;
+                        $table->id_contrato = $interes->id_contrato;
+                        $table->id_grupo_pago = $interes->id_grupo_pago;
+                        $table->id_pago_fecha = $id;
+                        $table->fecha_corte = $fecha_corte;
+                        $table->tipo_adicion = 1;
+                        $table->vlr_adicion = $interes->vlr_intereses;
+                        $table->permanente = 2;
+                        $table->aplicar_dia_laborado = 0;
+                        $table->aplicar_prima = 0;
+                        $table->aplicar_cesantias = 0;
+                        $table->estado_registro = 1;
+                        $table->estado_periodo = 1;
+                        $table->detalle = 'Pago de intereses';
+                        $table->usuariosistema = Yii::$app->user->identity->username;
+                        $table->insert(); 
+                        $interes->enviado = 1;
+                        $interes->save(false);
+                    }
+                }
+               $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
+            }
+        } 
+        //proceso que cierra el proceso de exportado
+        if(isset($_POST["enviarexportado"])){
+            if (isset($_POST["id_interes"])) { 
+                foreach ($_POST["id_interes"] as $intCodigo) {
+                    $interes = InteresesCesantia::findOne($intCodigo);
+                    if($interes){
+                        $interes->importado = 1;
+                        $interes->save(false);
+                    }
+                }
+                $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
+            }
+        }    
+        return $this->render('_form_ingresos_deduccion', [
+            'table' => $valoresAgrupados,            
+            'id' => $id,
+            'form' => $form,
+            'fecha_corte' => $fecha_corte,
+
+        ]);
+    }    
     
+    
+   //PROCESO QUE IMPORTA LOS PAGOS O BONIFICACION DESDE VALOR PRENDA UNIDAD
     public function actionImportarpagoproduccion($id, $fecha_corte) {
         $form = new FormBuscarIntereses();
         $fecha_inicio = null;
@@ -407,7 +508,7 @@ class PagoAdicionalFechaController extends Controller
                 $fecha_inicio = Html::encode($form->fecha_inicio);
                 $fecha_final = Html::encode($form->fecha_final);
 
-                if ($fecha_inicio !== null && $fecha_final !== null) {
+                if ($fecha_inicio != null && $fecha_final != null) {
                     $valores = ValorPrendaUnidadDetalles::find()
                         ->where(['between', 'dia_pago', $fecha_inicio, $fecha_final])
                         ->andWhere(['=','aplica_sabado', 1])    

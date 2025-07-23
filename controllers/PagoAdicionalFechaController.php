@@ -362,7 +362,7 @@ class PagoAdicionalFechaController extends Controller
                         $table->estado_periodo = 1;
                         $table->detalle = 'Pago de intereses';
                         $table->usuariosistema = Yii::$app->user->identity->username;
-                        $table->insert(); 
+                        $table->save(false); 
                         $interes->enviado = 1;
                         $interes->save(false);
                     }
@@ -400,7 +400,7 @@ class PagoAdicionalFechaController extends Controller
         $fecha_inicio = null;
         $fecha_final = null;
         $table = [];
-        $valoresAgrupados = [];
+         $valoresAgrupados = [];//inicio array
         if ($form->load(Yii::$app->request->get())) {
             if ($form->validate()) {
                 $fecha_inicio = Html::encode($form->fecha_inicio); 
@@ -411,69 +411,115 @@ class PagoAdicionalFechaController extends Controller
                             ->andFilterWhere(['=','importado', 0])
                             ->orderBy('id_empleado ASC')
                             ->all();
-                            //vector que agrupa los valores
-                            foreach ($table as $val) {
-                                    $operarioId = $val->id_empleado;
-                                    if (!isset($valoresAgrupados[$operarioId])) {
-                                        $valoresAgrupados[$operarioId] = [
-                                            'id_operario' => $operarioId,
-                                            'documento' => $val->empleado->identificacion,
-                                            'nombrecompleto' => $val->empleado->nombrecorto,
-                                            'fecha_inicio' => $val->fecha_inicio,
-                                            'fecha_corte' => $val->fecha_corte,
-                                            'total_valor_pago' => 0,
-                                        ];
-                                    }
-                                    $valoresAgrupados[$operarioId]['total_valor_pago'] += $val->valor_pagado;
-                            }
+                if($table){           
+                    $valoresAgrupados = [];//inicio array
+                    foreach ($table as $val) {
+                        $empleadoId = $val->id_empleado;
+                        $codigoSalarioId = $val->codigo_salario; // id para el código de salario/concepto
+                        // Creamos una clave única combinando el ID del empleado y el ID del concepto
+                        $claveAgrupacion = $empleadoId . '_' . $codigoSalarioId; 
+
+                        if (!isset($valoresAgrupados[$claveAgrupacion])) {
+                            $valoresAgrupados[$claveAgrupacion] = [
+                                'id_empleado' => $empleadoId,
+                                'documento' => $val->empleado->identificacion,
+                                'nombrecompleto' => $val->empleado->nombrecorto,
+                                'codigo_salario' => $val->codigoSalario->codigo_salario,
+                                'nombre_concepto' => $val->codigoSalario->nombre_concepto, // Cambiado 'concepto' a 'nombre_concepto' para mayor claridad
+                                'fecha_inicio_periodo' => $val->fecha_inicio, // Cambiado a 'fecha_inicio_periodo' para evitar confusión si hay varias fechas_inicio por concepto
+                                'fecha_corte_periodo' => $val->fecha_corte, // Cambiado a 'fecha_corte_periodo'
+                                'suma_resta' => $val->suma_resta, // suma o resta'
+                                'total_valor_pagado' => 0, // Cambiado 'total_valor_pago' a 'total_valor_pagado' para mayor claridad
+                            ];
+                        }
+                        // Sumamos el valor pagado al concepto específico para este empleado
+                        $valoresAgrupados[$claveAgrupacion]['total_valor_pagado'] += $val->valor_pagado;
+                    }
                 }else{
-                    Yii::$app->getSession()->setFlash('error', 'Los campos de las fechas NO pueden ser vacios.');
+                    Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar en esta consulta. valide las fechas de busquedas.');
+                }    
+                /*    echo "<pre>";
+                    print_r($valoresAgrupados);
+                  **  echo "</pre>";*/
+    
+                }else{
+                    Yii::$app->getSession()->setFlash('error', 'Los campos de las fechas NO pueden ser vacíos. Por favor, especifica un rango de fechas válido.');
                 }               
             } else {
                 $form->getErrors();
             }                    
         } 
-        
-        if(isset($_POST["enviardatos"])){
-            if (isset($_POST["id_interes"])) {
-                $intIndice = 0;
-                $salario = ConceptoSalarios::find()->where(['=','intereses', 1])->one();
-                $fecha_corte = Html::encode($_POST["fecha_corte"]);
-                foreach ($_POST["id_interes"] as $intCodigo) {
-                    $interes = InteresesCesantia::find()->where(['id_interes' => $intCodigo])->one();
-                    $pagos = PagoAdicionalPermanente::find()
-                        ->where(['=', 'id_contrato', $interes->id_contrato])
-                        ->andWhere(['=', 'fecha_corte', $fecha_corte])
-                        ->all();
-                    $reg = count($pagos);
-                    if ($reg == 0) {
-                        $table = new PagoAdicionalPermanente();
-                        $table->id_empleado = $interes->id_empleado;
-                        $table->codigo_salario = $salario->codigo_salario;
-                        $table->id_contrato = $interes->id_contrato;
-                        $table->id_grupo_pago = $interes->id_grupo_pago;
-                        $table->id_pago_fecha = $id;
-                        $table->fecha_corte = $fecha_corte;
-                        $table->tipo_adicion = 1;
-                        $table->vlr_adicion = $interes->vlr_intereses;
-                        $table->permanente = 2;
-                        $table->aplicar_dia_laborado = 0;
-                        $table->aplicar_prima = 0;
-                        $table->aplicar_cesantias = 0;
-                        $table->estado_registro = 1;
-                        $table->estado_periodo = 1;
-                        $table->detalle = 'Pago de intereses';
-                        $table->usuariosistema = Yii::$app->user->identity->username;
-                        $table->insert(); 
-                        $interes->enviado = 1;
-                        $interes->save(false);
+        //PROCESO QUE GUARDA
+        if (Yii::$app->request->isPost) {
+            if (isset($_POST["enviar_datos"])) {
+                // Obtiene los datos de los elementos seleccionados (los checkboxes marcados)
+                $selectedItems = Yii::$app->request->post('selected_items');
+                // Obtiene todos los datos de las filas enviadas, estén seleccionadas o no
+                $allItemsData = Yii::$app->request->post('items_data');
+
+                // Verifica si hay elementos seleccionados
+                if (!empty($selectedItems) && !empty($allItemsData)) {
+                    $transaction = Yii::$app->db->beginTransaction(); // Inicia una transacción para asegurar la integridad
+                    try {
+                        foreach ($selectedItems as $key => $value) {
+                            // $key es el índice de la fila que fue seleccionada
+                            // $value es '1' porque así lo pusimos en el checkbox
+
+                            // Obtiene los datos completos de la fila seleccionada usando la misma clave ($key)
+                            $itemData = $allItemsData[$key];
+
+                            // Aquí puedes crear una nueva instancia de tu modelo o actualizar una existente
+                            // Ejemplo: Crear un nuevo registro para cada deducción seleccionada
+                            $empleado = Contrato::find()->where(['=','id_empleado', $itemData['id_empleado']])->andWhere(['=','contrato_activo', 1])->one();
+                            $table = new PagoAdicionalPermanente(); 
+                            $table->id_empleado = $itemData['id_empleado'];
+                            $table->codigo_salario = $itemData['codigo_salario'];
+                            $table->id_contrato = $empleado->id_contrato;
+                            $table->id_grupo_pago = $empleado->id_grupo_pago;
+                            $table->id_pago_fecha = $id;
+                            $table->fecha_corte = $fecha_corte;
+                            $table->tipo_adicion = $itemData['suma_resta'];;
+                            $table->vlr_adicion = $itemData['total_valor_pagado'];;
+                            $table->permanente = 2;
+                            $table->aplicar_dia_laborado = 0;
+                            $table->aplicar_prima = 0;
+                            $table->aplicar_cesantias = 0;
+                            $table->estado_registro = 1;
+                            $table->estado_periodo = 1;
+                            $table->detalle = 'Ingresos y dedicciones';
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+                            if (!$table->save()) {
+                                // Si hay un error al guardar un modelo, puedes hacer rollback y mostrar un mensaje
+                                $transaction->rollBack();
+                                Yii::$app->session->setFlash('error', 'Error al guardar una deducción: ' . json_encode($table->getErrors()));
+                                return $this->redirect(Yii::$app->request->referrer ?: ['index']); // Redirige de vuelta
+                            }
+                        }
+
+                        $transaction->commit(); // Confirma la transacción si todo fue exitoso
+                        Yii::$app->session->setFlash('success', 'Ingresos y deducciones seleccionadas guardadas exitosamente.');
+                        //proceso que actualiza los registros
+                        $detalleDed = \app\models\IngresosDeduccionesDetalle::find()->where(['=','importado', 0])->all();
+                        foreach ($detalleDed as $detalle) {
+                            $detalle->importado = 1;
+                            $detalle->save();
+                        }
+                        return $this->redirect(['pago-adicional-fecha/view','id' => $id, 'fecha_corte' =>$fecha_corte]);
+                    } catch (\Exception $e) {
+                        $transaction->rollBack(); // Revierte la transacción en caso de error
+                        Yii::$app->session->setFlash('error', 'Ocurrió un error al guardar las deducciones: ' . $e->getMessage());
                     }
+                } else {
+                    Yii::$app->session->setFlash('warning', 'No se seleccionó ninguna deducción para guardar.');
                 }
-               $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
+            } else {
+                // Si no es una solicitud POST, podrías redirigir o mostrar un mensaje de error.
+                Yii::$app->session->setFlash('error', 'Acceso denegado. Solo se permiten solicitudes POST.');
             }
-        } 
+        }    
+        
         //proceso que cierra el proceso de exportado
-        if(isset($_POST["enviarexportado"])){
+      /*  if(isset($_POST["enviarexportado"])){
             if (isset($_POST["id_interes"])) { 
                 foreach ($_POST["id_interes"] as $intCodigo) {
                     $interes = InteresesCesantia::findOne($intCodigo);
@@ -484,7 +530,7 @@ class PagoAdicionalFechaController extends Controller
                 }
                 $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
             }
-        }    
+        } */  
         return $this->render('_form_ingresos_deduccion', [
             'table' => $valoresAgrupados,            
             'id' => $id,

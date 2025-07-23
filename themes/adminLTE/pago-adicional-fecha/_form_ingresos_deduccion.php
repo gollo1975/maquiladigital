@@ -103,29 +103,47 @@ $form = ActiveForm::begin([
                     <th scope="col" style='background-color:#B9D5CE;'>Conceto salarial</th>                    
                     <th scope="col" style='background-color:#B9D5CE;'>F. Inicio</th>
                     <th scope="col" style='background-color:#B9D5CE;'>F. Corte</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Debito/Credito</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Valor pagado</th>
                     <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($table as $val): ?>
-                    <tr style="font-size: 85%;">
-                    <td><?= $val->empleado->identificacion ?></td>
-                    <td><?= $val->empleado->nombrecorto ?></td>
-                    <td><?= $val->codigoSalario->nombre_concepto ?></td>
-                    <td><?= $val->fecha_inicio ?></td>
-                    <td><?= $val->fecha_corte ?></td>
-                    <td style="text-align: right"><?= '$'.number_format($val->valor_pagado,0) ?></td>
-                    <td style="width: 30px;"><input type="checkbox" name="listado_pago[]" value="<?= $val->id_detalle ?>"></td>
-                </tr>
+                    <?php foreach ($table as $key => $val): ?>
+                        <tr style="font-size: 85%;">
+                            <td><?= Html::encode($val['documento']) ?></td>
+                            <td><?= Html::encode($val['nombrecompleto'])?></td>
+                            <td><?= Html::encode($val['nombre_concepto']) ?></td>
+                            <td><?= Html::encode($val['fecha_inicio_periodo']) ?></td>
+                            <td><?= Html::encode($val['fecha_corte_periodo']) ?></td>
+                            <?php if($val['suma_resta'] != 1 ){?>
+                                <td><?= 'DEBIDO' ?></td>
+                            <?php }else{?>
+                                <td><?= 'CREDITO' ?></td>
+                            <?php }?>    
+                            <td style="text-align: right"><?= '$'.number_format(Html::encode($val['total_valor_pagado'],0)) ?></td>
+                            <td style="width: 30px;">
+                                <input type="checkbox" name="selected_items[<?= $key ?>]" value="1">
+
+                                <?= Html::hiddenInput("items_data[{$key}][id_empleado]", $val['id_empleado']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][documento]", $val['documento']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][nombrecompleto]", $val['nombrecompleto']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][codigo_salario]", $val['codigo_salario']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][nombre_concepto]", $val['nombre_concepto']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][fecha_inicio_periodo]", $val['fecha_inicio_periodo']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][fecha_corte_periodo]", $val['fecha_corte_periodo']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][suma_resta]", $val['suma_resta']) ?>
+                                <?= Html::hiddenInput("items_data[{$key}][total_valor_pagado]", $val['total_valor_pagado']) ?>
+                            </td>
+                        </tr>
+
+                    <?php endforeach; ?>
                 </tbody>
-                <?php endforeach; ?>
             </table>
         </div>
         <div class="panel-footer text-right">
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pago-adicional-fecha/view', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-primary btn-sm']) ?>
-             <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Cerrar intereses", ["class" => "btn btn-warning btn-sm", 'name' => 'enviarexportado']) ?>
-            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar a pago", ["class" => "btn btn-success btn-sm",'name' => 'enviardatos']) ?>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar a pago", ["class" => "btn btn-success btn-sm",'name' => 'enviar_datos']) ?>
         </div>
 
     </div>

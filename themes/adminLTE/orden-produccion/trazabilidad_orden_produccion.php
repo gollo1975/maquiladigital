@@ -107,7 +107,8 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->orderBy('conce
                  <th style='background-color:#B9D5CE;' scope="col">Op cliente</th>
                 <th style='background-color:#B9D5CE;' scope="col">Nombre del cliente</th>
                 <th style='background-color:#B9D5CE;' scope="col">Referencia</th>                
-                <th style='background-color:#B9D5CE;' scope="col">Unidades</th>
+                <th style='background-color:#B9D5CE;' scope="col">Uni. Lote</th>
+                <th style='background-color:#B9D5CE;' scope="col">Uni. faltantes</th>
                 <th style='background-color:#B9D5CE;' scope="col">Sam</th>
                 <th style='background-color:#B9D5CE;' scope="col">F. llegada</th>
                 <th style='background-color:#B9D5CE;' scope="col">F. salida</th>
@@ -126,6 +127,7 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->orderBy('conce
                 <td><?= $val->cliente->nombrecorto ?></td>
                 <td><?= $val->codigoproducto ?></td>
                 <td style="text-align:right"><?= ''. number_format($val->cantidad,0) ?></td>
+                <td style="text-align:right; background-color: #F5BCA9"><?= ''. number_format($val->faltante,0) ?></td>
                 <td><?= $val->duracion ?></td>
                 <td><?= date("Y-m-d", strtotime("$val->fechallegada")) ?></td>
                  <td><?= date("Y-m-d", strtotime("$val->fechaentrega")) ?></td>

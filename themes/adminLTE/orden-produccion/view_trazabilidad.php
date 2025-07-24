@@ -158,7 +158,10 @@ $view = 'orden-produccion';
                                         <?php endforeach; ?>
                                     </body>          
                                 </table>    
-                            </div>  
+                            </div> 
+                            <div class="panel-footer text-right">
+                                <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar a excel', ['orden-produccion/exportar_ordenes_operaciones', 'id' => $id], ['class' => 'btn btn-success btn-sm']) ?>
+                            </div>
                         </div>
                     </div>    
                 </div>

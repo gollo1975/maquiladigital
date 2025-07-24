@@ -4003,6 +4003,8 @@ class OrdenProduccionController extends Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('U')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('V')->setAutoSize(true);
+         $objPHPExcel->getActiveSheet()->getColumnDimension('W')->setAutoSize(true);
         
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'Id')
@@ -4015,17 +4017,19 @@ class OrdenProduccionController extends Controller {
                     ->setCellValue('H1', 'Fecha Proceso')
                     ->setCellValue('I1', 'Fecha Entrega')
                     ->setCellValue('J1', 'Cantidad')
-                    ->setCellValue('K1', 'Tipo')
-                    ->setCellValue('L1', 'Total')
-                    ->setCellValue('M1', 'Autorizado')
-                    ->setCellValue('N1', 'Facturado')
-                    ->setCellValue('O1', 'Planta')
-                    ->setCellValue('P1', 'Talla')
-                    ->setCellValue('Q1', 'Cantidad')
-                    ->setCellValue('R1', 'Precio')
-                    ->setCellValue('S1', 'Subtotal')
-                    ->setCellValue('T1', 'Porcentaje proceso')
-                    ->setCellValue('U1', 'Observaciones');
+                    ->setCellValue('K1', 'Unid. faltantes')
+                    ->setCellValue('L1', 'Tipo')
+                    ->setCellValue('M1', 'Total')
+                    ->setCellValue('N1', 'Autorizado')
+                    ->setCellValue('O1', 'Facturado')
+                    ->setCellValue('P1', 'Planta')
+                    ->setCellValue('Q1', 'Descripcion prenda')
+                    ->setCellValue('R1', 'Talla')
+                    ->setCellValue('S1', 'Cantidad')
+                    ->setCellValue('T1', 'Precio')
+                    ->setCellValue('U1', 'Subtotal')
+                    ->setCellValue('V1', 'Porcentaje proceso')
+                    ->setCellValue('W1', 'Observaciones');
         $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -4043,17 +4047,19 @@ class OrdenProduccionController extends Controller {
                         ->setCellValue('H' . $i, $val->fechaprocesada)
                         ->setCellValue('I' . $i, $val->fechaentrega)
                         ->setCellValue('J' . $i, $val->cantidad)
-                        ->setCellValue('K' . $i, $val->tipo->tipo)
-                        ->setCellValue('L' . $i, round($val->totalorden,0))
-                        ->setCellValue('M' . $i, $val->autorizar)
-                        ->setCellValue('N' . $i, $val->facturar)
-                        ->setCellValue('O' . $i, $detalles->plantaProduccion->nombre_planta)
-                        ->setCellValue('P' . $i, $detalles->productodetalle->prendatipo->prenda.'/'. $detalles->productodetalle->prendatipo->talla->talla)
-                        ->setCellValue('Q' . $i, $detalles->cantidad)
-                        ->setCellValue('R' . $i, $detalles->vlrprecio)
-                        ->setCellValue('S' . $i, $detalles->subtotal)
-                        ->setCellValue('T' . $i, $detalles->porcentaje_proceso)
-                        ->setCellValue('U' . $i, $val->observacion);
+                        ->setCellValue('K' . $i, $val->faltante)
+                        ->setCellValue('L' . $i, $val->tipo->tipo)
+                        ->setCellValue('M' . $i, round($val->totalorden,0))
+                        ->setCellValue('N' . $i, $val->autorizar)
+                        ->setCellValue('O' . $i, $val->facturar)
+                        ->setCellValue('P' . $i, $detalles->plantaProduccion->nombre_planta)
+                        ->setCellValue('Q' . $i, $detalles->productodetalle->prendatipo->prenda)
+                        ->setCellValue('R' . $i,$detalles->productodetalle->prendatipo->talla->talla)
+                        ->setCellValue('S' . $i, $detalles->cantidad)
+                        ->setCellValue('T' . $i, $detalles->vlrprecio)
+                        ->setCellValue('U' . $i, $detalles->subtotal)
+                        ->setCellValue('V' . $i, $detalles->porcentaje_cantidad)
+                        ->setCellValue('W' . $i, $val->observacion);
                       
                 $i++;
             }
@@ -5059,7 +5065,7 @@ class OrdenProduccionController extends Controller {
     
     //PROCESO QUE EXPORTA A EXCEL TODAS LAS MERDIDAS DE LA OP
     
-      public function actionGenerarexcelmedidas($id) {
+     public function actionGenerarexcelmedidas($id) {
         $medida = PilotoDetalleProduccion::find()->where(['=','idordenproduccion', $id])->orderBy('iddetalleorden ASC')->all();
         $orden = Ordenproduccion::findOne($id);
         $objPHPExcel = new \PHPExcel();
@@ -5143,5 +5149,180 @@ class OrdenProduccionController extends Controller {
         exit;
     }
     
+    //
+    public function actionExportar_ordenes_operaciones($id)
+    {
+        $orden = Ordenproduccion::findOne($id);
+        if ($orden === null) {
+            Yii::$app->session->setFlash('error', 'La orden de producción no fue encontrada.');
+            return $this->redirect(Yii::$app->request->referrer);
+        }
+        $objPHPExcel = new \PHPExcel();
+        
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+
+        // --- Hoja 1: Ordenes de Produccion y Detalle ---
+        $objPHPExcel->setActiveSheetIndex(0);
+        $objPHPExcel->getActiveSheet()->setTitle('Ordenes_Produccion_Detalle');
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+
+        // Definir el ancho de las columnas para la primera hoja
+        foreach (range('A', 'Y') as $column) {
+            $objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+        }
+           
+        // Encabezados de la primera hoja
+        $objPHPExcel->getActiveSheet()
+            ->setCellValue('A1', 'Id')
+            ->setCellValue('B1', 'Cod Producto')
+            ->setCellValue('C1', 'Cliente')
+            ->setCellValue('D1', 'Orden Prod Int')
+            ->setCellValue('E1', 'Orden Prod Ext')
+            ->setCellValue('F1', 'Orden Cliente')
+            ->setCellValue('G1', 'Fecha Llegada')
+            ->setCellValue('H1', 'Fecha Proceso')
+            ->setCellValue('I1', 'Fecha Entrega')
+            ->setCellValue('J1', 'Cantidad')
+            ->setCellValue('K1', 'Unid. faltantes')
+            ->setCellValue('L1', 'Tipo')
+            ->setCellValue('M1', 'Total')
+            ->setCellValue('N1', 'Autorizado')
+            ->setCellValue('O1', 'Facturado')
+            ->setCellValue('P1', 'Planta')
+            ->setCellValue('Q1', 'Descripcion prenda')
+            ->setCellValue('R1', 'Talla')
+            ->setCellValue('S1', 'Cantidad talla')
+            ->setCellValue('T1', 'Confeccionadas')
+            ->setCellValue('U1', 'Faltantes')    
+            ->setCellValue('V1', 'Precio')
+            ->setCellValue('W1', 'Subtotal')
+            ->setCellValue('X1', 'Porcentaje proceso')
+            ->setCellValue('Y1', 'Observaciones');
+
+        $i = 2; // Fila de inicio para los datos en la primera hoja
+                    
+            $detalles = Ordenproducciondetalle::find()->where(['=', 'idordenproduccion', $orden->idordenproduccion])->all();
+            if (empty($detalles)) {
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A' . $i, $orden->idordenproduccion)
+                ->setCellValue('B' . $i, $orden->codigoproducto)
+                ->setCellValue('C' . $i, $orden->cliente->nombreClientes)
+                ->setCellValue('D' . $i, $orden->ordenproduccion)
+                ->setCellValue('E' . $i, $orden->ordenproduccionext)
+                ->setCellValue('F' . $i, $orden->ordenproduccion)
+                ->setCellValue('G' . $i, $orden->fechallegada)
+                ->setCellValue('H' . $i, $orden->fechaprocesada)
+                ->setCellValue('I' . $i, $orden->fechaentrega)
+                ->setCellValue('J' . $i, $orden->cantidad)
+                ->setCellValue('K' . $i, $orden->faltante)
+                ->setCellValue('L' . $i, $orden->tipo->tipo)
+                ->setCellValue('M' . $i, round($orden->totalorden, 0))
+                ->setCellValue('N' . $i, $orden->autorizado == 1 ? 'SI' : 'NO')
+                ->setCellValue('O' . $i, $orden->facturado == 1 ? 'SI' : 'NO')
+                ->setCellValue('P' . $i, '') // Empty for detail-specific columns
+                ->setCellValue('Q' . $i, '')
+                ->setCellValue('R' . $i, '')
+                ->setCellValue('S' . $i, '')
+                ->setCellValue('T' . $i, '')
+                ->setCellValue('U' . $i, '')
+                ->setCellValue('V' . $i, '')
+                ->setCellValue('W' . $i, '')
+                ->setCellValue('X' . $i, '')
+                ->setCellValue('Y' . $i, $orden->observacion);
+            $i++;
+        } else {
+            // Loop through each detail for the order
+            foreach ($detalles as $detalle) { // Changed variable name from $detalles to $detalle for clarity
+                $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $orden->idordenproduccion)
+                    ->setCellValue('B' . $i, $orden->codigoproducto)
+                    ->setCellValue('C' . $i, $orden->cliente->nombreClientes)
+                    ->setCellValue('D' . $i, $orden->ordenproduccion)
+                    ->setCellValue('E' . $i, $orden->ordenproduccionext)
+                    ->setCellValue('F' . $i, $orden->ordenproduccion)
+                    ->setCellValue('G' . $i, $orden->fechallegada)
+                    ->setCellValue('H' . $i, $orden->fechaprocesada)
+                    ->setCellValue('I' . $i, $orden->fechaentrega)
+                    ->setCellValue('J' . $i, $orden->cantidad)
+                    ->setCellValue('K' . $i, $orden->faltante)
+                    ->setCellValue('L' . $i, $orden->tipo->tipo)
+                    ->setCellValue('M' . $i, round($orden->totalorden, 0))
+                    ->setCellValue('N' . $i, $orden->autorizado == 1 ? 'SI' : 'NO')
+                    ->setCellValue('O' . $i, $orden->facturado == 1 ? 'SI' : 'NO')
+                    ->setCellValue('P' . $i, $detalle->plantaProduccion->nombre_planta)
+                    ->setCellValue('Q' . $i, $detalle->productodetalle->prendatipo->prenda)
+                    ->setCellValue('R' . $i, $detalle->productodetalle->prendatipo->talla->talla)
+                    ->setCellValue('S' . $i, $detalle->cantidad)
+                    ->setCellValue('T' . $i, $detalle->cantidad_operada)
+                    ->setCellValue('U' . $i, $detalle->cantidad - $detalle->cantidad_operada)    
+                    ->setCellValue('V' . $i, $detalle->vlrprecio)
+                    ->setCellValue('W' . $i, $detalle->subtotal)
+                    ->setCellValue('X' . $i, $detalle->porcentaje_cantidad)
+                    ->setCellValue('Y' . $i, $orden->observacion);
+                $i++;
+            }
+        }
+        
+        // --- Hoja 2: Operaciones de Produccion ---
+        $objWorkSheet = $objPHPExcel->createSheet(1); // Crear la segunda hoja (índice 1)
+        $objPHPExcel->setActiveSheetIndex(1); // Activar la segunda hoja
+        $objPHPExcel->getActiveSheet()->setTitle('Operaciones_Produccion');
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+
+        // Definir el ancho de las columnas para la segunda hoja (ajusta según tus necesidades)
+        foreach (range('A', 'G') as $column) { // Ejemplo, ajusta hasta la columna que necesites
+            $objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+        }
+        
+        // Encabezados de la segunda hoja
+        $objPHPExcel->getActiveSheet()
+            ->setCellValue('A1', 'OP Interna')
+            ->setCellValue('B1', 'Codigo')
+            ->setCellValue('C1', 'Nombre de la operacion')
+            ->setCellValue('D1', 'Segundos')
+            ->setCellValue('E1', 'Minutos')
+            ->setCellValue('F1', 'Nombre de maquina')
+            ->setCellValue('G1', 'Fecha creación');
+
+        $j = 2; // Fila de inicio para los datos en la segunda hoja
+        $operaciones = FlujoOperaciones::find()->where(['=', 'idordenproduccion', $orden->idordenproduccion])->all();
+        
+        foreach ($operaciones as $operacion) {
+            $objPHPExcel->setActiveSheetIndex(1)
+                ->setCellValue('A' . $j, $operacion->idordenproduccion)
+                ->setCellValue('B' . $j, $operacion->idproceso)
+                ->setCellValue('C' . $j, $operacion->proceso->proceso) 
+                ->setCellValue('D' . $j, $operacion->segundos)
+                ->setCellValue('E' . $j, $operacion->minutos)
+                ->setCellValue('F' . $j, $operacion->tipomaquina->descripcion)
+                ->setCellValue('G' . $j, $operacion->fecha_creacion); 
+            $j++;
+        }
+
+        // Volver a la primera hoja para que sea la predeterminada al abrir el archivo
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="ordenes_produccion.xlsx"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
 
 }

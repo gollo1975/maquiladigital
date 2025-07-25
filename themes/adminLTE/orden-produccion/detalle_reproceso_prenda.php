@@ -18,13 +18,15 @@ $orden_produccion = Ordenproduccion::findOne($id);
 ?>
 
 <div class="orden-produccion-view">
- <div class="btn-group" role="group" aria-label="...">
-     <?php if($balanceo->activo_reproceso == 0){?>
-        <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar modulo', ['cerrarmodulo', 'id_balanceo' => $id_balanceo, 'id' => $id],['class' => 'btn btn-warning btn-xs',
-             'data' => ['confirm' => 'Esta seguro de cerrar el balanceo Nro: '. $id_balanceo. '', 'method' => 'post']])?>
-        <?php } ?></button>    
-    </div>   
-   
+    </p>
+       <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_reproceso_produccion', 'id' => $id], ['class' => 'btn btn-primary btn-sm']); ?>
+
+        <?php if($balanceo->activo_reproceso == 0){?>
+            <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar modulo', ['cerrarmodulo', 'id_balanceo' => $id_balanceo, 'id' => $id],['class' => 'btn btn-warning btn-xs',
+                'data' => ['confirm' => 'Esta seguro de cerrar el balanceo Nro: '. $id_balanceo. '', 'method' => 'post']]);
+        }?>   
+        
+   </p><!-- comment -->  
     <div class="panel panel-success">
         <div class="panel-heading">
             Modulo
@@ -79,8 +81,7 @@ $orden_produccion = Ordenproduccion::findOne($id);
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     
-                                    <tr>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                                    <tr style="font-size: 85%;">
                                         <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Operaciones</th>
                                         <th scope="col" style='background-color:#B9D5CE; width: 70px;'>Proceso</th>
@@ -115,33 +116,37 @@ $orden_produccion = Ordenproduccion::findOne($id);
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $talla = 'Talla:';
-                                    foreach ($balanceo_detalle as $val):?>
-                                            <tr style="font-size: 85%;">
-                                               <td><?= $val->id_detalle?></td>
-                                               <td><?= $val->operario->nombrecompleto ?></td>
-                                               <td><?= $val->proceso->proceso ?></td>
-                                               <td align="center"><select name="tipo_reproceso[]" style="width: 85px;">
-                                                        <option value="1">Confeccion</option>
-                                                        <option value="2">Terminacion</option>
+                                    
+                                    foreach ($balanceo_detalle as $index => $val): // Added $index to uniquely identify each row ?>
+                                        <tr style="font-size: 85%;">
+                                            <td><?= $val->operario->nombrecompleto ?></td>
+                                            <td><?= $val->proceso->proceso ?></td>
+                                            <td align="center">
+                                                <select name="tipo_reproceso[<?= $val->id_detalle ?>]" style="width: 85px;">
+                                                    <option value="1">Confeccion</option>
+                                                    <option value="2">Terminacion</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" style="width: 40px;" name="cantidad[<?= $val->id_detalle ?>]" value="0" required></td>
 
-                                                </select> </td> 
-                                               <td ><input type="text" style="width: 40px;" name="cantidad[]" value="0" required></td>
-                                               <?php foreach ($detalle_orden as $talla):?>
-                                                       <td><input type="checkbox"  name="id_talla" value="<?=  $talla->idproductodetalle?>">Talla (<?=  $talla->productodetalle->prendatipo->talla->talla?>)</td>
-                                                <?php endforeach;?>   
-                                                       <td style="width: 50px;"><input type="text" name="observacion[]" value="" maxlength="27" ></td>       
-                                                       <input type="hidden" name="iddetalle[]" value="<?= $val->id_detalle ?>">
-                                             </tr>
-                                    <?php
-                                    endforeach; ?>
-                                </tbody>  
+                                            <?php foreach ($detalle_orden as $talla): ?>
+                                                <td>
+                                                    <input type="checkbox" name="id_talla[<?= $val->id_detalle ?>][]" value="<?= $talla->idproductodetalle ?>">
+                                                    Talla (<?= $talla->productodetalle->prendatipo->talla->talla ?>)
+                                                </td>
+                                            <?php endforeach; ?>
+
+                                            <td style="width: 50px;"><input type="text" name="observacion[<?= $val->id_detalle ?>]" value="" maxlength="27"></td>
+                                            <input type="hidden" name="iddetalle[]" value="<?= $val->id_detalle ?>">
+                                        </tr>
+                                    <?php endforeach; ?>
+                                                                    </tbody>  
                             </table>
                         </div>
                            <?php if($balanceo->activo_reproceso == 0){?>
                             <div class="panel-footer text-right">
 
-                                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar", ["class" => "btn btn-success btn-sm"]) ?>
+                                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Enviar datos", ["class" => "btn btn-success btn-sm"]) ?>
                             </div>
                         <?php }?>                 
                          

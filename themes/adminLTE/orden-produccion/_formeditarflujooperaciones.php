@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <table class="table table-condensed">
                 <thead>
                 <tr>
-                    <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Operacion</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Op</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
@@ -66,7 +66,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tbody>
                     <?php foreach ($mds as $val): ?>
                         <tr style="font-size: 85%;">
-                            <td><?= $val->id ?></td>
+                            <td><?= $val->idproceso ?></td>
                             <td><?= $val->proceso->proceso ?></td>
                             <td><?= $val->idordenproduccion ?></td>
                             <td><?= $val->segundos ?></td>

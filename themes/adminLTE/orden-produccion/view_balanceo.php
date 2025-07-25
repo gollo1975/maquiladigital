@@ -135,8 +135,7 @@ if($buscarOrden){
                         <div class="panel-body">
                             <table class="table table-bordered table-hover">
                                 <thead>
-                                    <tr>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Id</th>
+                                    <tr style="font-size: 85%;">
                                         <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Operación</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
@@ -151,16 +150,20 @@ if($buscarOrden){
                                 </thead>
                                 <tbody>
                                     <?php foreach ($operaciones as $val):
+                                        $orden = Ordenproduccion::findOne($id);
                                         $flujo = app\models\FlujoOperaciones::find()->where(['=','idproceso', $val->idproceso])->andWhere(['=','idordenproduccion', $model->idordenproduccion])->all();
                                         if(!$flujo){
                                             $table = new app\models\FlujoOperaciones();
                                             $table->idproceso = $val->idproceso;
                                             $table->idordenproduccion = $model->idordenproduccion;
                                             $table->id_tipo = $val->id_tipo;
+                                            if($orden->idtipo == 2){
+                                                $table->operacion = 1;
+                                            }  
                                             $table->segundos = $val->duracion;
                                             $table->minutos = ''.number_format($val->duracion/60,2);
                                             $table->usuariosistema = Yii::$app->user->identity->username;
-                                            $table->insert();
+                                            $table->save();
                                         }
                                         
                                     endforeach; ?>
@@ -170,7 +173,6 @@ if($buscarOrden){
                                     $prenda = app\models\FlujoOperaciones::find()->where(['=', 'idordenproduccion', $model->idordenproduccion])->orderBy('pieza ASC, operacion DESC, orden_aleatorio ASC')->all();
                                     foreach ($prenda as $registro):?>
                                             <tr style="font-size: 85%;">
-                                                 <td><?= $registro->id ?></td>
                                                 <td><?= $registro->idproceso ?></td>
                                                 <td><?= $registro->proceso->proceso ?></td>
                                                 <td><?= ''.number_format($registro->segundos,0) ?></td>

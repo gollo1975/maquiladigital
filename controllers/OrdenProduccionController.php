@@ -1661,32 +1661,7 @@ class OrdenProduccionController extends Controller {
         ]);
     }
     
-    //EDITAR ENTRADA DE PRENDAS CONFECCIONADAS
-    public function actionEditarentrada($id_proceso_confeccion)
-    {
-        $identrada = Html::encode($_POST["identrada"]);
-        $iddetalleorden = Html::encode($_POST["iddetalleorden"]);
-        $error = 0;
-        if (Yii::$app->request->post()) {
-            if ((int) $identrada) {
-                if($id_proceso_confeccion == 1){
-                     $table = CantidadPrendaTerminadas::findOne($identrada);
-                }else{
-                    $table = CantidadPrendaTerminadasPreparacion::findOne($identrada);
-                }     
-                if ($table) {
-                    $table->cantidad_terminada = Html::encode($_POST["cantidad_terminada"]);
-                    $table->observacion = Html::encode($_POST["observacion"]);
-                   $table->update();
-                   $this->redirect(["orden-produccion/vistatallas", 'iddetalleorden' => $iddetalleorden]);
-                                            
-                } else {
-                    Yii::$app->getSession()->setFlash('warnig', 'No se encotro ningun registo para actualizar.');
-                }
-            }
-        }
-        
-    }
+   
     
    //EDITAR DETALLES ORDEN DE PRODUCCION
     public function actionEditardetalles($idordenproduccion, $token) {
@@ -2760,6 +2735,7 @@ class OrdenProduccionController extends Controller {
                     'modeldetalles' => $modeldetalles,
                     'operaciones' => $operaciones,
                     'modulos' => $modulos,
+                    'id' => $id,
                     'cantidad_confeccionada' => $cantidad_confeccionada,
                      
         ]);
@@ -3568,55 +3544,66 @@ class OrdenProduccionController extends Controller {
     
     // PROCESO PARA SUBIR LOS REPROCESOS AL MODULO Y LA OPERACION
     
-     public function actionDetalle_reproceso_prenda($id_balanceo, $id){
-       $balanceo_detalle = BalanceoDetalle::find()->where(['=', 'id_balanceo', $id_balanceo])->andWhere(['=','estado_operacion', 0])->orderBy('id_operario asc')->all();
-       $reproceso_confeccion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
-                                                                 ->andWhere(['=','tipo_reproceso', 1])->orderBy('idproductodetalle ASC')->all();
-       $reproceso_terminacion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
-                                                                 ->andWhere(['=','tipo_reproceso', 2])->orderBy('idproductodetalle ASC')->all(); 
-        if (isset($_POST["iddetalle"])) {
-            $intIndice = 0;
-            foreach ($_POST["iddetalle"] as $intCodigo) {
-                if($_POST["cantidad"][$intIndice] > 0){
-                   $detalle = BalanceoDetalle::find()->where(['=','id_detalle', $intCodigo])->one();
-                   $table = new \app\models\ReprocesoProduccionPrendas();
-                   $table->id_detalle = $intCodigo;
-                   $table->id_proceso = $detalle->id_proceso;
-                   $table->id_balanceo = $id_balanceo ;
-                   $table->id_operario = $detalle->id_operario;
-                   $table->idordenproduccion = $id;
-                   $table->cantidad = $_POST["cantidad"][$intIndice];
-                   $table->idproductodetalle = $_POST["id_talla"];
-                   $table->tipo_reproceso = $_POST["tipo_reproceso"][$intIndice];
-                   $table->fecha_registro = date('Y-m-d'); 
-                   $table->observacion = $_POST["observacion"][$intIndice];
-                   $table->usuariosistema = Yii::$app->user->identity->username;
-                   $table->insert();
-                }    
-                $intIndice++;
-            }
-            //permite volver a cargar la consulta
-            $reproceso_confeccion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
-                                                                 ->andWhere(['=','tipo_reproceso', 1])->orderBy('idproductodetalle ASC')->all();
-            $reproceso_terminacion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
-                                                                 ->andWhere(['=','tipo_reproceso', 2])->orderBy('idproductodetalle ASC')->all(); 
-            return $this->render('detalle_reproceso_prenda', [
-                        'balanceo_detalle' => $balanceo_detalle,
-                        'id_balanceo' => $id_balanceo,
-                        'reproceso_confeccion' => $reproceso_confeccion,
-                        'reproceso_terminacion' => $reproceso_terminacion,
-                        'id' => $id,
-            ]);   
-       }     
-        return $this->render('detalle_reproceso_prenda', [
-                        'balanceo_detalle' => $balanceo_detalle,
-                        'id_balanceo' => $id_balanceo,
-                        'id' => $id,
-                        'reproceso_confeccion' => $reproceso_confeccion,
-                        'reproceso_terminacion' => $reproceso_terminacion, 
-            ]);    
-       
-    }
+        public function actionDetalle_reproceso_prenda($id_balanceo, $id){
+          $balanceo_detalle = BalanceoDetalle::find()->where(['=', 'id_balanceo', $id_balanceo])->andWhere(['=','estado_operacion', 0])->orderBy('id_operario asc')->all();
+          $reproceso_confeccion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
+                                                                    ->andWhere(['=','tipo_reproceso', 1])->orderBy('idproductodetalle ASC')->all();
+          $reproceso_terminacion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
+                                                                    ->andWhere(['=','tipo_reproceso', 2])->orderBy('idproductodetalle ASC')->all(); 
+           if (isset($_POST["iddetalle"])) {
+               $post = Yii::$app->request->post();
+                foreach ($post["iddetalle"] as $intIndice => $intCodigo) {
+                   $cantidad = $post["cantidad"][$intCodigo] ?? 0;
+                    if($cantidad > 0){
+                        $detalle = BalanceoDetalle::find()->where(['=','id_detalle', $intCodigo])->one();
+                        $selectedTallas = $post["id_talla"][$intCodigo] ?? [];
+                        foreach ($selectedTallas as $idproductodetalle) {
+                            $table = new ReprocesoProduccionPrendas();
+                            $table->id_detalle = $intCodigo;
+                            $table->id_proceso = $detalle->id_proceso;
+                            $table->id_balanceo = $id_balanceo;
+                            $table->id_operario = $detalle->id_operario;
+                            $table->idordenproduccion = $id;
+                            $table->cantidad = $cantidad; // Use the quantity from the main detail
+                            $table->idproductodetalle = $idproductodetalle; // Assign the specific talla ID
+                            $table->tipo_reproceso = $post["tipo_reproceso"][$intCodigo] ?? null; // Use $intCodigo as key
+                            $table->fecha_registro = date('Y-m-d');
+                            $table->observacion = $post["observacion"][$intCodigo] ?? ''; // Use $intCodigo as key
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+
+                            // Save the record
+                            if (!$table->save()) {
+                                // Handle save errors (e.g., log them, add flash message)
+                                Yii::error("Error al guardar ReprocesoProduccionPrendas: " . json_encode($table->errors));
+                                Yii::$app->session->setFlash('error', 'Error al guardar algunos datos de reproceso.');
+                                // You might want to break or continue based on your error handling strategy
+                            }
+                        }//cierra para
+                    }    
+               }
+               //permite volver a cargar la consulta
+               $reproceso_confeccion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
+                                                                    ->andWhere(['=','tipo_reproceso', 1])->orderBy('idproductodetalle ASC')->all();
+               $reproceso_terminacion = \app\models\ReprocesoProduccionPrendas::find()->where(['=','id_balanceo', $id_balanceo])
+                                                                    ->andWhere(['=','tipo_reproceso', 2])->orderBy('idproductodetalle ASC')->all(); 
+               Yii::$app->session->setFlash('success', 'Los datos de reproceso se han guardado exitosamente.'); // Success message
+               return $this->render('detalle_reproceso_prenda', [
+                           'balanceo_detalle' => $balanceo_detalle,
+                           'id_balanceo' => $id_balanceo,
+                           'reproceso_confeccion' => $reproceso_confeccion,
+                           'reproceso_terminacion' => $reproceso_terminacion,
+                           'id' => $id,
+               ]);   
+          }     
+           return $this->render('detalle_reproceso_prenda', [
+                           'balanceo_detalle' => $balanceo_detalle,
+                           'id_balanceo' => $id_balanceo,
+                           'id' => $id,
+                           'reproceso_confeccion' => $reproceso_confeccion,
+                           'reproceso_terminacion' => $reproceso_terminacion, 
+               ]);    
+
+       }
     
     public function actionDetalle_proceso_consulta($idordenproduccion, $iddetalleorden) {
         $procesos = Ordenproducciondetalleproceso::find()->Where(['=', 'iddetalleorden', $iddetalleorden])->orderBy('proceso asc')->all();

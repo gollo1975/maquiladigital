@@ -1052,7 +1052,7 @@ $pdf->AddPage();
 if($model->cerrar_remision == 1){
     $pdf->SetFont('Arial','',15);
     $pdf->Cell(10,20);
-    $pdf->Image('dist/images/logos/logoauditoria.jpeg' , 50 ,89.7, 110 , 100,'PNG');
+    $pdf->Image('dist/images/logos/logoauditoria.PNG' , 50 ,89.7, 110 , 100,'PNG');
 }    
 $pdf->Body($pdf, $model);
 $pdf->AliasNbPages();

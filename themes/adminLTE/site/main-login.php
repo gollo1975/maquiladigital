@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use app\models\Matriculaempresa;
@@ -8,65 +9,64 @@ use app\models\Matriculaempresa;
 /* @var $model \common\models\LoginForm */
 
 $this->title = 'Iniciar Sesión';
-
-$fieldOptions1 = [
-    'options' => ['class' => 'form-group has-feedback'],
-    'inputTemplate' => "{input}<span class='glyphicon glyphicon-envelope form-control-feedback'></span>"
-];
-
-$fieldOptions2 = [
-    'options' => ['class' => 'form-group has-feedback'],
-    'inputTemplate' => "{input}<span class='glyphicon glyphicon-lock form-control-feedback'></span>"
-];
 ?>
 
-
 <div class="login-box">
-    <div class="panel panel-primary">
-    <div class="panel-heading">
-    </div>
-    <div class="login-logo">
-        <?php $empresa = Matriculaempresa::findOne(1) ;?>
-        <a href="#"><b><?= $empresa->nombresistema ?></a>
-    </div>
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-        <p class="login-box-msg">Iniciar Sesión</p>
-
-        <?php $form = ActiveForm::begin(['id' => 'login-form', 'enableClientValidation' => false]); ?>
-
-        <?= $form
-            ->field($model, 'username', $fieldOptions1)
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('username')]) ?>
-
-        <?= $form
-            ->field($model, 'password', $fieldOptions2)
-            ->label(false)
-            ->passwordInput(['placeholder' => $model->getAttributeLabel('password')]) ?>
-
-        <div class="row">
-            <div class="col-xs-8">
-                <?= $form->field($model, 'rememberMe')->checkbox() ?>
+    <div class="panel panel-default panel-login">
+        <div class="panel-heading">
+            <div class="login-logo text-center">
+                <?php
+                // Es más eficiente y seguro buscar el modelo una sola vez y no en la vista
+                $empresa = Matriculaempresa::findOne(1);
+                $nombreSistema = $empresa ? $empresa->nombresistema : 'Mi Sistema';
+                ?>
+                <a href="#" style="color: #006d77;"><b><?= Html::encode($nombreSistema) ?></b></a>
             </div>
-            <!-- /.col -->
-            <div class="col-xs-4">
-                <?= Html::submitButton("<span class='glyphicon glyphicon-user'></span> Iniciar", ['name' => 'login-button', 'class' => 'btn btn-primary btn-lm']); ?>
-                
+        </div>
+        <div class="panel-body login-box-body">
+            <p class="login-box-msg" style="color: #006d77; font-size: 18px">Inicia sesión para comenzar</style:></p>
+
+            <?php $form = ActiveForm::begin([
+                'id' => 'login-form',
+                'enableClientValidation' => true, // Activar la validación del lado del cliente
+                'options' => ['class' => 'form-vertical']
+            ]); ?>
+
+            <?= $form->field($model, 'username', [
+                'options' => ['class' => 'form-group has-feedback'],
+                'inputTemplate' => "{input}<span class='glyphicon glyphicon-user form-control-feedback'></span>", // Usar un ícono más apropiado para el usuario
+            ])->textInput(['placeholder' => $model->getAttributeLabel('username')])->label(false) ?>
+
+            <?= $form->field($model, 'password', [
+                'options' => ['class' => 'form-group has-feedback'],
+                'inputTemplate' => "{input}<span class='glyphicon glyphicon-lock form-control-feedback'></span>",
+            ])->passwordInput(['placeholder' => $model->getAttributeLabel('password')])->label(false) ?>
+
+            <div class="row">
+                <div class="col-xs-8">
+                    <?= $form->field($model, 'rememberMe')->checkbox() ?>
+                </div>
+                <div class="col-xs-4">
+                    <?= Html::submitButton(
+                        'Iniciar',
+                        [
+                            'class' => 'btn btn-primary btn-block', // Usar clases de Bootstrap para un diseño más moderno
+                            'name' => 'login-button'
+                        ]
+                    ) ?>
+                </div>
             </div>
-            <!-- /.col -->
-        </div>
-        <br>
-        <br>        
-        <div class="row" align="center">
-            <img src="dist/images/logos/logomaquila.jpeg" align="center" width="50%" height="50%">
-        </div>
-        <?php ActiveForm::end(); ?>
 
+            <?php ActiveForm::end(); ?>
 
+            <div class="text-center" style="margin-top: 30px;">
+                <?= Html::img('@web/dist/images/logos/logomaquila.jpeg', [
+                    'alt' => 'Logo de la empresa',
+                    'class' => 'img-responsive center-block',
+                    'style' => 'max-width: 50%;' // Controlar el tamaño con CSS
+                ]) ?>
+            </div>
+
+        </div>
     </div>
-    <!-- /.login-box-body -->
-    
-</div><!-- /.login-box -->
 </div>
-

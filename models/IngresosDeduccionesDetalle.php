@@ -102,6 +102,16 @@ class IngresosDeduccionesDetalle extends \yii\db\ActiveRecord
         
     }
     
+    public function getImportadoRegistro() {
+        if ($this->importado == 0){
+            $importado = 'NO';
+        }else{
+            $importado = 'Si';
+        }
+        return $importado;
+        
+    }
+    
     
 
 }

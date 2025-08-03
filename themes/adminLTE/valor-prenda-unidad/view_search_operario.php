@@ -145,7 +145,7 @@ $form = ActiveForm::begin([
                                             <td style="text-align: right"><?= $valor_contrato?></td> 
                                             <td style="padding-left: 1;padding-right: 1;"><input type="time" name="hora_inicio[]" style="text-align: right"  value="<?= $conCorteProceso->hora_inicio ?>" size="8" ></td> 
                                             <td style="text-align: left"><?= $conCorteProceso->hora_corte?></td>     
-                                            <td style="padding-right: 1;padding-right: 1; text-align: right"><input type="text" name="cantidad[]" style="text-align: right"  value="0" size="6" ></td>
+                                            <td style="padding-right: 1;padding-right: 1; text-align: right"><input type="text" name="cantidad[]" style="text-align: right"   size="6" ></td>
                                              <input type="hidden" name="operaciones[]" value="<?= $val->id_detalle ?>">
                                         </tr>     
                                    <?php endforeach;

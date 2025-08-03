@@ -65,7 +65,7 @@ $form = ActiveForm::begin([
             <?= $form->field($model, 'ordenproduccion')->textInput(['maxlength' => true]) ?>
         </div>
         <div class="row">
-            <?= $form->field($model, 'ordenproduccionext')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'ordenproduccionext')->textInput(['maxlength' => true, 'value' => 0]) ?>
             <?= $form->field($model, 'duracion')->textInput(['maxlength' => true]) ?>
         </div>
         <div class="row">
@@ -75,7 +75,9 @@ $form = ActiveForm::begin([
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']
+                ])
             ?>
             <?=
             $form->field($model, 'fechaprocesada')->widget(DatePicker::className(), ['name' => 'check_issue_date',
@@ -83,7 +85,9 @@ $form = ActiveForm::begin([
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']
+                ])
             ?>
         </div>
         <div class="row">
@@ -93,7 +97,9 @@ $form = ActiveForm::begin([
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']
+                ])
             ?>
             <?= $form->field($model, 'ponderacion')->textInput(['maxlength' => true, 'value' => 0]) ?>
            
@@ -108,7 +114,8 @@ $form = ActiveForm::begin([
                 'data' => $tipoProducto,
                 'options' => ['prompt' => 'Seleccione...'],
                 'pluginOptions' => [
-                    'allowClear' => true
+                    'allowClear' => true,
+                    'orientation' => 'bottom'
                 ],
             ]); ?>
         </div>

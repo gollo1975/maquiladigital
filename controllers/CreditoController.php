@@ -510,6 +510,13 @@ class CreditoController extends Controller
         ]);
     }
     
+    //PROCESO PARA IMPRIMIR CREDITOS
+    public function actionImprimir_credito($id) {
+        $model = $this->findModel($id);
+        return $this->render('../formatos/reporte_credito', [
+           'model' => $model, 
+        ]);
+    }
     
         protected function findModel($id)
     {

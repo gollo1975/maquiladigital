@@ -51,7 +51,7 @@ $form = ActiveForm::begin([
             <?= $form->field($model, 'observacion')->textInput(['maxlength' => true]) ?>
         </div>
         <div class="panel-footer text-right">                
-            <a href="<?= Url::toRoute("pago-adicional-fecha/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
+            <a href="<?= Url::toRoute("ingresos-deducciones/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>		
         </div>
     </div>

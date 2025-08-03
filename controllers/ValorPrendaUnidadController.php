@@ -866,7 +866,7 @@ class ValorPrendaUnidadController extends Controller
                             Yii::$app->getSession()->setFlash('info', 'No se puede ingresar mas operaciones del codigo ('.$detalle->id_proceso.') porque supera la cantidad de prendas. Cantidad de prendas: ('.$conCantidad->cantidad.'), cantidad faltante: ('. $total_unidades_faltante .'). Favor validar la informacion de ingreso.');
                         }
                        
-                    }    
+                    }
                     $intIndice++;  
                }// cirra el foreach 
             }else{

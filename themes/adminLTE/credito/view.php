@@ -19,11 +19,13 @@ $this->params['breadcrumbs'][] = $model->id_credito;
     <?php if($model->saldo_credito <= 0){?>
         <p>
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_credito', 'id' => $model->id_credito], ['class' => 'btn btn-default btn-sm']) ?>
         </p>
     <?php }else{ ?>    
           <p>
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_credito], ['class' => 'btn btn-success btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_credito', 'id' => $model->id_credito], ['class' => 'btn btn-default btn-sm']) ?>
         </p>
     <?php }?>    
     <div class="panel panel-success">

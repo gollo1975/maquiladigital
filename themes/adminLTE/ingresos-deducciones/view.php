@@ -100,6 +100,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Hasta</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Concpeto</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Valor pago</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Importado</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Debito / Credito">D/C</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -115,6 +116,7 @@ $form = ActiveForm::begin([
                         <td><?= $fecha_corte ?></td>
                         <td><?= $val->codigoSalario->nombre_concepto?></td>
                         <td style="text-align: right"><?= '$'.number_format($val->valor_pagado,0)?></td>
+                        <td><?= $val->importadoRegistro?></td>
                         <?php if($val->suma_resta !== 1){?>
                             <td style="background-color: #f5c6cb; "><?= $val->sumaResta?></td>
                         <?php }else{?>
@@ -124,20 +126,27 @@ $form = ActiveForm::begin([
 
                             <td style="width: 20px;">
                                 <a href="<?= Url::toRoute(["ingresos-deducciones/vista",  'id' => $id , 'id_detalle' => $val->id_detalle, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                             </td>
-                             <td style="width: 20px;">
+                            </td>
+                            <?php
+                            if($val->importado == 0){ ?>  
+                                <td style="width: 20px;">
                                  <a href="<?= Url::toRoute(["ingresos-deducciones/updatevista", "id"=>$id, "id_detalle" => $val->id_detalle, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
-                            </td>
-                            <td style="width: 20px;">
-                                <?= Html::a('', ['eliminar_adicional', 'id_detalle' => $val->id_detalle, 'id' => $id, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio], [
-                                    'class' => 'glyphicon glyphicon-trash',
-                                    'data' => [
-                                        'confirm' => 'Esta seguro de eliminar el registro?',
-                                        'method' => 'post',
-                                    ],
-                                ]) ?>
-                            </td>
-                        <?php }else{ ?>
+                                </td>
+                                <td style="width: 20px;">
+                                    <?= Html::a('', ['eliminar_adicional', 'id_detalle' => $val->id_detalle, 'id' => $id, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio], [
+                                        'class' => 'glyphicon glyphicon-trash',
+                                        'data' => [
+                                            'confirm' => 'Esta seguro de eliminar el registro?',
+                                            'method' => 'post',
+                                        ],
+                                    ]) ?>
+                                </td>
+                            <?php 
+                            }else{?>
+                                <td style="width: 20px;"></td>
+                                <td style="width: 20px;"></td>
+                            <?php }    
+                        }else{ ?>
                             <td style="width: 20px;">
                                 <a href="<?= Url::toRoute(["ingresos-deducciones/vista", 'id' => $id , "id_detalle" => $val->id_detalle, 'fecha_corte' => $fecha_corte, 'fecha_inicio' => $fecha_inicio]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                              </td>   

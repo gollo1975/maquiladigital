@@ -122,7 +122,7 @@ $tipoProducto = ArrayHelper::map(app\models\TipoProducto::find()->orderBy('conce
             <tbody>
             <?php foreach ($model as $val): ?>
             <tr style="font-size: 85%;">                
-                <td><?= $val->idordenproduccion ?></td>
+                <td title="<?= Html::encode(strtoupper($val->observacion)) ?>"><?= $val->idordenproduccion ?></td>
                  <td><?= $val->ordenproduccion ?></td>
                 <td><?= $val->cliente->nombrecorto ?></td>
                 <td><?= $val->codigoproducto ?></td>

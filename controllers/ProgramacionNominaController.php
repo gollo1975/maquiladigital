@@ -1744,6 +1744,9 @@ class ProgramacionNominaController extends Controller {
     //controlador de las incapacidades
     protected function ModuloIncapacidad($fecha_desde, $fecha_hasta, $valor_incapacidad, $id) {
         $contador = 0;
+        $contrato = Contrato::findOne($valor_incapacidad->id_contrato);// busca el contrato
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        $configuracion_salario = ConfiguracionSalario::find()->where(['=','estado', 1])->one();
         $pro_nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $valor_incapacidad->id_empleado])->one();
         $tipo_incapacidad = ConfiguracionIncapacidad::find()->where(['=', 'codigo_incapacidad', $valor_incapacidad->codigo_incapacidad])->one();
         $prognomdetalle = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $pro_nonima->id_programacion])
@@ -1751,22 +1754,56 @@ class ProgramacionNominaController extends Controller {
                 ->andWhere(['=', 'id_incapacidad', $valor_incapacidad->id_incapacidad])
                 ->all();
         if (!$prognomdetalle) {
+            
             $detalleIncapacidad = new ProgramacionNominaDetalle();
             $detalleIncapacidad->id_programacion = $pro_nonima->id_programacion;
             $detalleIncapacidad->codigo_salario = $tipo_incapacidad->codigo_salario;
             $detalleIncapacidad->salario_basico = $valor_incapacidad->salario;
-            $detalleIncapacidad->vlr_dia = $valor_incapacidad->vlr_hora * $pro_nonima->factor_dia;
+            if($contrato->salario <= $configuracion_salario->salario_incapacidad){
+               $detalleIncapacidad->vlr_dia = $configuracion_salario->salario_minimo_actual /30;
+            }else{
+               $detalleIncapacidad->vlr_dia = (($contrato->salario /30) * $valor_incapacidad->codigoIncapacidad->porcentaje)/100;
+            }
+            
             $detalleIncapacidad->vlr_hora = $valor_incapacidad->vlr_hora;
             $detalleIncapacidad->id_incapacidad = $valor_incapacidad->id_incapacidad;
-            $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
-            $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final;
-            $detalleIncapacidad->vlr_incapacidad = round($valor_incapacidad->vlr_liquidado);
-            $detalleIncapacidad->nro_horas_incapacidad = $valor_incapacidad->dias_incapacidad * $pro_nonima->factor_dia;
-            $detalleIncapacidad->horas_periodo = $valor_incapacidad->dias_incapacidad * $pro_nonima->factor_dia;
-            $detalleIncapacidad->horas_periodo_reales = $valor_incapacidad->dias_incapacidad * $pro_nonima->factor_dia;
-            $detalleIncapacidad->dias = $valor_incapacidad->dias_incapacidad;
-            $detalleIncapacidad->dias_reales = $valor_incapacidad->dias_incapacidad;
-            $detalleIncapacidad->dias_incapacidad_descontar = $valor_incapacidad->dias_incapacidad;
+            
+            if($valor_incapacidad->fecha_inicio <= $fecha_desde && $valor_incapacidad->fecha_final > $fecha_hasta){ //cuando la incapacidad es mayor entre los rangos de pagos
+               $total = strtotime($fecha_hasta) - strtotime($fecha_desde);
+               $total = round($total / 86400)+1;
+               $detalleIncapacidad->fecha_desde = $fecha_desde;
+               $detalleIncapacidad->fecha_hasta = $fecha_hasta; 
+               $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+        
+            }elseif($valor_incapacidad->fecha_inicio <= $fecha_desde && $valor_incapacidad->fecha_final <= $fecha_hasta){ //cuando la incapacidad es menor que la fecha de inicio y menor que la fecha de corte 
+                $total = strtotime($valor_incapacidad->fecha_final) - strtotime($fecha_desde);
+                $total = round($total / 86400)+1;
+                $detalleIncapacidad->fecha_desde = $fecha_desde;
+                $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final; 
+                $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+            }elseif($valor_incapacidad->fecha_inicio >= $fecha_desde && $valor_incapacidad->fecha_final > $fecha_hasta){
+                $total = strtotime($fecha_hasta) - strtotime($valor_incapacidad->fecha_inicio);
+                $total = round($total / 86400)+1;
+                $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
+                $detalleIncapacidad->fecha_hasta = $fecha_hasta; 
+                $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+            }elseif($valor_incapacidad->fecha_inicio >= $fecha_desde && $valor_incapacidad->fecha_final <= $fecha_hasta){
+                $total = strtotime($valor_incapacidad->$fecha_final) - strtotime($valor_incapacidad->fecha_inicio);
+                $total = round($total / 86400)+1;
+                $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
+                $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final; 
+                $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+                
+            }
+            //busca el total de horas por dia
+            $total_horas = $empresa->horas_mensuales / 30;
+          
+            $detalleIncapacidad->nro_horas_incapacidad = $total_horas * $total ;
+            $detalleIncapacidad->horas_periodo = $detalleIncapacidad->nro_horas_incapacidad;
+            $detalleIncapacidad->horas_periodo_reales = $detalleIncapacidad->nro_horas_incapacidad;
+            $detalleIncapacidad->dias = $total;
+            $detalleIncapacidad->dias_reales = $total;
+            $detalleIncapacidad->dias_incapacidad_descontar = $total;
             $detalleIncapacidad->id_periodo_pago_nomina = $id;
             $detalleIncapacidad->dias_descontar_transporte = $valor_incapacidad->dias_incapacidad;
             $detalleIncapacidad->porcentaje = $valor_incapacidad->porcentaje_pago;
@@ -1777,7 +1814,7 @@ class ProgramacionNominaController extends Controller {
             }else{
                 $detalleIncapacidad->vlr_ajuste_incapacidad = $valor_incapacidad->ibc_total_incapacidad;
             }
-            $detalleIncapacidad->insert(false);
+            $detalleIncapacidad->save(false);
             //codigo que actualiza el IBP
             $Concepto = ConceptoSalarios::find()->where(['=', 'codigo_salario', $tipo_incapacidad->codigo_salario])->andWhere(['=', 'ingreso_base_prestacional', 1])->one();
             if ($Concepto) {
@@ -2002,8 +2039,14 @@ class ProgramacionNominaController extends Controller {
                     $detallecredito->id_programacion = $programacion_nonima->id_programacion;
                     $detallecredito->codigo_salario = $tipo_credito->codigo_salario;
                     $detallecredito->id_periodo_pago_nomina = $id;
-                    $detallecredito->vlr_deduccion = $credito->vlr_cuota;
-                    $detallecredito->deduccion = $credito->vlr_cuota;
+                    if($credito->vlr_cuota <= $credito->saldo_credito){
+                       $detallecredito->vlr_deduccion = $credito->vlr_cuota;
+                       $detallecredito->deduccion = $credito->vlr_cuota; 
+                    }else{
+                        $detallecredito->vlr_deduccion = $credito->saldo_credito;
+                        $detallecredito->deduccion = $credito->saldo_credito;
+                    }
+                    
                     $detallecredito->fecha_desde = $fecha_desde;
                     $detallecredito->fecha_hasta = $fecha_hasta;
                     $detallecredito->id_credito = $credito->id_credito;
@@ -2206,13 +2249,28 @@ class ProgramacionNominaController extends Controller {
 
     //inicio del nuevo de proceso de validar los registros
     //CODIGO QUE ACTUALIZA EL.
-
     public function actionValidarregistros($id, $id_grupo_pago, $fecha_desde, $fecha_hasta, $tipo_nomina) {
         if($tipo_nomina == 1){
-            $nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
-            foreach ($nomina as $validar):
-               $this->ModuloActualizarDiasIncapacidades($validar);
-            endforeach;
+            $buscarIncapacidad = \app\models\ProgramacionNominaDetalle::find()->where(['<>','id_incapacidad', ''])
+                                                                          ->andWhere(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion ASC')->all();
+            if(count($buscarIncapacidad)> 0){
+                $auxiliar = 0;
+                foreach ($buscarIncapacidad as $incapacidades):
+                    $contar = 0;
+                    if($auxiliar <> $incapacidades->id_programacion){
+                        $Consulta = \app\models\ProgramacionNominaDetalle::find()->where (['=','id_programacion', $incapacidades->id_programacion])->andwhere(['<>','id_incapacidad', ''])->all();
+                        foreach ($Consulta as $resultado):
+                            $contar += $resultado->dias_incapacidad_descontar;
+                            $id_programacion = $resultado->id_programacion;
+                        endforeach;
+                        $this->DescontarDiasIncapacidades($contar, $id_programacion);
+                        $auxiliar = $incapacidades->id_programacion;
+                    }else{
+                        $auxiliar = $incapacidades->id_programacion;
+                    }    
+                endforeach;
+            }
+            
             //codigo para actualizar dias de licencia
             $nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
             foreach ($nomina as $licencia):
@@ -2242,11 +2300,7 @@ class ProgramacionNominaController extends Controller {
             foreach ($detalle_nomina as $actualizar_campos):
                 $this->ModuloActualizarCampos($actualizar_campos);
             endforeach;
-            //codigo que actualiza los dias a pagar reales
-            $detalle_nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
-            foreach ($detalle_nomina as $actualizar_dias):
-               $this->ModuloActualizarDias($actualizar_dias);
-            endforeach;
+           
             // codigo que actualiza el estado_liquidado de la programacion de la nomina
             $detalle_nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
             foreach ($detalle_nomina as $validar):
@@ -2299,7 +2353,7 @@ class ProgramacionNominaController extends Controller {
                 $nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
                 foreach ($nomina as $validar):
                     $validar->estado_liquidado = 1;
-                    $validar->save(false);
+                     $validar->save(false);
                 endforeach;
             }
         }    
@@ -2310,6 +2364,7 @@ class ProgramacionNominaController extends Controller {
           'fecha_hasta' => $fecha_hasta,
           ]);
     }
+   
     protected function ModuloInsertarPrima($vlr_fecha_adicionprima, $id, $fecha_desde, $fecha_hasta) {
        
         $concepto_sal = ConceptoSalarios::find()->where(['=', 'codigo_salario', $vlr_fecha_adicionprima->codigo_salario])->one();
@@ -2365,18 +2420,7 @@ class ProgramacionNominaController extends Controller {
         }
     }
     
-    //codigo que actualiza los dias reales a pagar    
-    protected function ModuloActualizarDias($actualizar_dias) {
-        $concepto_salario = ConceptoSalarios::find()->where(['=', 'inicio_nomina', 1])->one();
-        $detalle_programacion = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $actualizar_dias->id_programacion])->all();
-        foreach ($detalle_programacion as $detalle):
-            if ($detalle->codigo_salario == $concepto_salario->codigo_salario) {
-               $actualizar_dias->dia_real_pagado = $detalle->dias_reales;
-               $actualizar_dias->horas_pago = $actualizar_dias->dia_real_pagado * 8;
-                $actualizar_dias->save(false);
-            }
-        endforeach;
-    }
+  
 
     //codigo que actualiza los saldos de deduccion, ingreso no prestacional, incapacidades
     protected function ModuloActualizarCampos($actualizar_campos) {
@@ -2566,7 +2610,7 @@ class ProgramacionNominaController extends Controller {
     }
     
     //controlador que actualiza el valor real a pagar de pago adicional.
- protected function ModuloActualizaSaldosPago($adicionpermanente, $id, $id_grupo_pago)
+    protected function ModuloActualizaSaldosPago($adicionpermanente, $id, $id_grupo_pago)
     {
        $dias = 0;
        $nomina= [];
@@ -2603,71 +2647,33 @@ class ProgramacionNominaController extends Controller {
     }
 
     //controlador de actualizacion de ibc y ibp
-    protected function ModuloActualizarDiasIncapacidades($validar) {
-        $con = 0;
-        $actualizar_incapacidad = ConceptoSalarios::find()->where(['=', 'concepto_incapacidad', 1])->andWhere(['=','compone_salario', 1])->all();
-        foreach ($actualizar_incapacidad as $actualizar):
-            $suma = 0;
-            $deta1 = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $validar->id_programacion])->andWhere(['=', 'codigo_salario', $actualizar->codigo_salario])->orderBy('codigo_salario ASC')->one();
-            if ($deta1) {
-                if ($deta1->codigo_salario <> $actualizar->codigo_salario) {
-                    $dia_incapacidad = $deta1->dias_incapacidad_descontar;
-                    $suma = $dia_incapacidad;
-                    $con = 1;
-                    $salario = ConceptoSalarios::find()->where(['=', 'inicio_nomina', 1])->one();
-                    $actuSalario = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $validar->id_programacion])->andWhere(['=', 'codigo_salario', $salario->codigo_salario])->one();
-                    if ($actuSalario) {
-                        if ($con == 1) {
-                            $actuSalario->dias_reales = $dias = $actuSalario->dias_reales;
-                            $actuSalario->horas_periodo_reales = $actuSalario->dias_reales * $validar->factor_dia;
-                            $actuSalario->vlr_devengado = round($actuSalario->vlr_dia * $actuSalario->dias_reales);
-                            $actuSalario->save(false);
-                            $con = 2;
-                        }
-                    }
-                    $transporte = ConceptoSalarios::find()->where(['=', 'auxilio_transporte', 1])->one();
-                    $actu_trans = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $validar->id_programacion])->andWhere(['=', 'codigo_salario', $transporte->codigo_salario])->one();
-                    if ($actu_trans) {
-                        if ($con == 1) {
-                            $dias_transporte = $actu_trans->dias_transporte;
-                            $actu_trans->dias_transporte = $dias_transporte - $suma ;
-                            $actu_trans->auxilio_transporte = round($actu_trans->vlr_dia * $actu_trans->dias_transporte);
-                            $actu_trans->save(false);
-                            $con = 2;
-                        }
-                    }
-                }
-            }//ternmina aca
-            $deta = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $validar->id_programacion])->andWhere(['=', 'codigo_salario', $actualizar->codigo_salario])->all();
-            foreach ($deta as $varias_incapacidad):
-                $suma = 0;
-                $dia_incapacidad = $varias_incapacidad->dias_incapacidad_descontar;
-                $suma = $suma + $dia_incapacidad;
-                $con = 1;
-                $salario = ConceptoSalarios::find()->where(['=', 'inicio_nomina', 1])->one();
-                $actu = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $validar->id_programacion])->andWhere(['=', 'codigo_salario', $salario->codigo_salario])->one();
-                if ($actu) {
-                    if ($con == 1) {
-                        $dias = $actu->dias_reales;
-                        $actu->dias_reales = $dias - $suma ;
-                        $actu->horas_periodo_reales = $actu->dias_reales * $validar->factor_dia;
-                        $actu->vlr_devengado = round($actu->vlr_dia * $actu->dias_reales);
-                        $actu->save(false);
-                    }
-                }
-                $transporte = ConceptoSalarios::find()->where(['=', 'auxilio_transporte', 1])->one();
-                $actu_trans = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $validar->id_programacion])->andWhere(['=', 'codigo_salario', $transporte->codigo_salario])->one();
-                if ($actu_trans) {
-                    if ($con == 1) {
-                        $dias_transporte = $actu_trans->dias_transporte;
-                        $actu_trans->dias_transporte = $dias_transporte - $suma ;
-                        $actu_trans->auxilio_transporte = round($actu_trans->vlr_dia * $actu_trans->dias_transporte);
-                        $actu_trans->save(false);
-                    }
-                }
-            endforeach;
-
-        endforeach;
+    protected function DescontarDiasIncapacidades($contar, $id_programacion) {
+        
+        ///codigo para el salario
+        $conceptoSalario = ConceptoSalarios::find()->where(['=','inicio_nomina', 1])->one();
+       if($conceptoSalario){
+            $dctoSalario = ProgramacionNominaDetalle::find()->where(['=','codigo_salario', $conceptoSalario->codigo_salario])->andWhere(['=','id_programacion', $id_programacion])->one();
+             $dctoSalario->dias_reales =  $dctoSalario->dias_reales - $contar;
+            if($dctoSalario->dias_reales == 0){
+               $dctoSalario->vlr_devengado = 0;
+            }else{
+                $dctoSalario->vlr_devengado = $dctoSalario->vlr_dia * $dctoSalario->dias_reales;
+            }
+            $dctoSalario->save(false);
+        }
+        //CODIGO PARA EL AUXILIO DE TRANSPORTE
+         $conceptoTransporte = ConceptoSalarios::find()->where(['=','auxilio_transporte', 1])->one();
+         if($conceptoTransporte){
+            $dctoTransporte = ProgramacionNominaDetalle::find()->where(['=','codigo_salario', $conceptoTransporte->codigo_salario])->andWhere(['=','id_programacion', $id_programacion])->one();
+            $dctoTransporte->dias_reales =  $dctoTransporte->dias_reales - $contar;
+            $dctoTransporte->dias_transporte =   $dctoTransporte->dias_reales;
+            if($dctoTransporte->dias_reales == 0){
+               $dctoTransporte->auxilio_transporte = 0;
+            }else{
+                $dctoTransporte->auxilio_transporte = $dctoTransporte->vlr_dia * $dctoTransporte->dias_reales;
+            }
+            $dctoTransporte->save(false);
+         }
     }
     //codigo que suma los dias de vacaciones
     protected function Sumardiasvacaciones($val) {
@@ -2769,26 +2775,32 @@ class ProgramacionNominaController extends Controller {
              //inserta concepto de vacacion si tiene vacaciones
               $concepto_salario = ConceptoSalarios::find()->where(['=','concepto_vacacion', 1])->one();  
               $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all(); 
+             
               foreach ($nomina as $vacacion):
-                  $saldo = 0;
-                  if($vacacion->fecha_inicio_vacacion <> ''){
-                      $detalle = new ProgramacionNominaDetalle();
-                      $detalle->codigo_salario = $concepto_salario->codigo_salario;
-                      $detalle->id_programacion = $vacacion->id_programacion;
-                      $detalle->horas_periodo = $vacacion->horas_vacacion;
-                      $detalle->horas_periodo_reales = $vacacion->horas_vacacion; 
-                      $detalle->dias = $vacacion->dias_vacacion;
-                      $detalle->dias_reales = $vacacion->dias_vacacion;
-                      $detalle->vlr_devengado = $vacacion->ibc_vacacion;
-                      $detalle->vlr_vacacion = $detalle->vlr_devengado;
-                      $detalle->id_periodo_pago_nomina = $id;
-                      $detalle->fecha_desde = $vacacion->fecha_inicio_vacacion;
-                      $detalle->fecha_hasta = $vacacion->fecha_final_vacacion;
-                      $detalle->insert(false);
-                      $saldo = $vacacion->ibc_prestacional;
-                      $vacacion->ibc_prestacional =  $saldo + $detalle->vlr_devengado;
-                      $vacacion->save(false);
-                  }
+                    $registro_Vacaciones = \app\models\Vacaciones::find()->where(['=','id_empleado', $vacacion->id_empleado])
+                                                                       ->andWhere(['>=','fecha_desde_disfrute', $fecha_desde])
+                                                                       ->andWhere(['<=','fecha_desde_disfrute', $fecha_hasta])->orderBy('id_vacacion DESC')->one();
+                    if($registro_Vacaciones){
+                        $saldo = 0;
+                        if($vacacion->fecha_inicio_vacacion <> ''){
+                          $detalle = new ProgramacionNominaDetalle();
+                          $detalle->codigo_salario = $concepto_salario->codigo_salario;
+                          $detalle->id_programacion = $vacacion->id_programacion;
+                          $detalle->horas_periodo = $vacacion->horas_vacacion;
+                          $detalle->horas_periodo_reales = $vacacion->horas_vacacion; 
+                          $detalle->dias = $vacacion->dias_vacacion;
+                          $detalle->dias_reales = $vacacion->dias_vacacion;
+                          $detalle->vlr_devengado = $vacacion->ibc_vacacion;
+                          $detalle->vlr_vacacion = $detalle->vlr_devengado;
+                          $detalle->id_periodo_pago_nomina = $id;
+                          $detalle->fecha_desde = $vacacion->fecha_inicio_vacacion;
+                          $detalle->fecha_hasta = $vacacion->fecha_final_vacacion;
+                          $detalle->insert(false);
+                          $saldo = $vacacion->ibc_prestacional;
+                          $vacacion->ibc_prestacional =  $saldo + $detalle->vlr_devengado;
+                          $vacacion->save(false);
+                      }
+                    }  
               endforeach;
             
             

@@ -87,7 +87,7 @@ class PrestacionesSocialesController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
@@ -102,7 +102,7 @@ class PrestacionesSocialesController extends Controller
                             ->orderBy('id_prestacion desc');
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 40,
+                        'pageSize' => 20,
                         'totalCount' => $count->count(),
                     ]);
                     $model = $table
@@ -153,7 +153,7 @@ class PrestacionesSocialesController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 20,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -173,7 +173,7 @@ class PrestacionesSocialesController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 40,
+                        'pageSize' => 20,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table

@@ -100,7 +100,7 @@ class IncapacidadController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 25,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
@@ -120,7 +120,7 @@ class IncapacidadController extends Controller
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $pages = new Pagination([
-                    'pageSize' => 25,
+                    'pageSize' => 15,
                     'totalCount' => $count->count(),
                 ]);
                 $model = $table
@@ -170,7 +170,7 @@ class IncapacidadController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 40,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -190,7 +190,7 @@ class IncapacidadController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 40,
+                        'pageSize' => 15,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -314,29 +314,33 @@ class IncapacidadController extends Controller
                                         $dias = round($total/ 86400)+1;
                                         
                                         //codigo que valide si el contrato es medio tiempo
-                                       $tiempo_servicio = TiempoServicio::find()->all(); 
+                                       
                                        $contador = 0;
                                        $incapacidad = 0;
-                                       foreach ($tiempo_servicio  as $tiempo):
-                                            if($contrato->id_tiempo == 2){
-                                                $contador = 1;
-                                                $incapacidad = $tiempo->pago_incapacidad_general;
-                                                $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
-                                            }else{
-                                                $incapacidad = $tiempo->pago_incapacidad_general;
-                                                $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
-                                            }
+                                       $tiempo = TiempoServicio::findOne($contrato->id_tiempo);
+                                        if($contrato->id_tiempo == 2){
+                                            $contador = 1;
+                                            $incapacidad = $tiempo->pago_incapacidad_general;
+                                            $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
+                                        }else{
+                                            $incapacidad = $tiempo->pago_incapacidad_general;
+                                            $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
+                                        }
                                                 
-                                       endforeach;
-                                        if($contador == 1){                                       
-                                            $vlr_dia = ($configuracionsalario->salario_minimo_actual/30); 
+
+                                        $configuracio_empresa = \app\models\Matriculaempresa::findOne(1);
+                                        $hora_norma_completa = 0; $hora_norma_medio = 0;
+                                        $hora_norma_completa = $configuracio_empresa->horas_mensuales / 30;
+                                        $hora_norma_medio = ($configuracio_empresa->horas_mensuales / 30) / 2;
+                                        if($contador == 1){  //medio tiempo  
+                                            $vlr_dia = (($contrato->salario / 30)* $tiempo->porcentaje)/100; 
                                             if($codigo == 1 ){
                                                 if($incapacidad != 100){
                                                     if($dias > 2){
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
-                                                        $table->dias_cobro_eps = round($dias - 2);  
+                                                        $table->dias_cobro_eps = $dias - 2;  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
                                                         $table->vlr_saldo_administradora = $table->vlr_cobro_administradora;
                                                         $table->dias_administradora = $table->dias_cobro_eps;
@@ -345,7 +349,7 @@ class IncapacidadController extends Controller
 
                                                     }else{
                                                         $table->vlr_liquidado = round(($dias * $vlr_dia) * $incapacidad)/100; 
-                                                        $table->vlr_hora =  (($vlr_dia *$incapacidad)/100) / 4;
+                                                        $table->vlr_hora =  ($vlr_dia *  $hora_norma_completa);
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -357,7 +361,7 @@ class IncapacidadController extends Controller
                                                 }else{
                                                     if($dias > 2){
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = round($dias - 2);  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -368,7 +372,7 @@ class IncapacidadController extends Controller
 
                                                     }else{
                                                        $table->vlr_liquidado = $dias * $vlr_dia; 
-                                                        $table->vlr_hora =  $vlr_dia / 8;
+                                                        $table->vlr_hora =  $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -382,10 +386,11 @@ class IncapacidadController extends Controller
                                             // codigo para calculo de incapacidades laborales.
                                             if($codigo == 2 ){
                                                 if($incapacidad_laboral != 100){
+                                                    $vlr_dia = ($contrato->salario / 30);  
                                                     if($dias > 1){
                                                        $vlr_dia = ($configuracionsalario->salario_minimo_actual/30);
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = round($dias - 1);  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -396,7 +401,7 @@ class IncapacidadController extends Controller
                                                      }else{
                                                         $vlr_dia = ($contrato->salario/30);
                                                         $table->vlr_liquidado = round($dias * $vlr_dia); 
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -406,10 +411,10 @@ class IncapacidadController extends Controller
                                                         $table->vlr_pago_empresa = round($dias * $vlr_dia);
                                                     }
                                                 }else{
-                                                     $vlr_dia = ($configuracionsalario->salario_minimo_actual/30);
+                                                    $vlr_dia = ($contrato->salario / 30); 
                                                     if($dias > 1){
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = round($dias - 1);  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -420,7 +425,7 @@ class IncapacidadController extends Controller
 
                                                     }else{
                                                        $table->vlr_liquidado = $dias * $vlr_dia; 
-                                                        $table->vlr_hora =  $vlr_dia / 8;
+                                                        $table->vlr_hora =  $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -431,16 +436,17 @@ class IncapacidadController extends Controller
                                                     }
                                                 }    
                                             }  
-                                        }else{   
-                                            if($contrato->salario <= $configuracionsalario->salario_incapacidad){
-                                                $vlr_dia = (($configuracionsalario->salario_incapacidad/30)* $configuracionincapacidad->porcentaje)/100; 
+                                        }else{ //tiempo completo  
+                                            if($contrato->salario > $configuracionsalario->salario_incapacidad){
+                                                $vlr_dia = (($configuracionsalario->salario_incapacidad /30)* $configuracionincapacidad->porcentaje)/100; 
                                             }else{
-                                                    $vlr_dia = (($contrato->salario/30)* $configuracionincapacidad->porcentaje)/100;  
+                                             $vlr_dia = ($configuracionsalario->salario_minimo_actual / 30);  
                                             }
-                                            if($codigo == 1 ){
+                                            
+                                            if($codigo == 1 ){//incapacidad general
                                                 if($dias > 2){
                                                    $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                    $table->vlr_hora = $vlr_dia / 8;
+                                                    $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = round($dias - 2);  
                                                     $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -452,7 +458,7 @@ class IncapacidadController extends Controller
 
                                                 }else{
                                                     $table->vlr_liquidado = round(($dias * $vlr_dia) * ($incapacidad))/100; 
-                                                    $table->vlr_hora =  $vlr_dia / 8;
+                                                    $table->vlr_hora =  $vlr_dia / $hora_norma_completa;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = 0;  
                                                     $table->vlr_cobro_administradora = 0;
@@ -466,9 +472,10 @@ class IncapacidadController extends Controller
                                             }//termina incapacidad general
                                             // codigo para calculo de incapacidades laborales.
                                             if($codigo == 2 ){
+                                                $vlr_dia = ($contrato->salario / 30);  
                                                 if($dias > 1){
                                                     $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                    $table->vlr_hora = $vlr_dia / 8;
+                                                    $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = round($dias - 1);  
                                                     $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -479,7 +486,7 @@ class IncapacidadController extends Controller
                                                     $table->ibc_total_incapacidad = round(($contrato->salario / 30) * $dias);
                                                  }else{
                                                     $table->vlr_liquidado = round($dias * $vlr_dia); 
-                                                    $table->vlr_hora = $vlr_dia / 8;
+                                                    $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = 0;  
                                                     $table->vlr_cobro_administradora = 0;
@@ -870,19 +877,23 @@ class IncapacidadController extends Controller
                                         }else{
                                             $table->estado_incapacidad_adicional = 0;
                                         }
-                                        $tiempo_servicio = TiempoServicio::find()->all(); 
+                                        $tiempo = TiempoServicio::findOne($contrato->id_tiempo); 
                                         $contador = 0;
                                         $incapacidad = 0;
-                                        foreach ($tiempo_servicio  as $tiempo):
-                                            if($contrato->id_tiempo == 2){
-                                                $contador = 1;
-                                                $incapacidad = $tiempo->pago_incapacidad_general;
-                                                $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
-                                            }else{
-                                                $incapacidad = $tiempo->pago_incapacidad_general;
-                                                $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
-                                            }   
-                                        endforeach;
+                                       
+                                        if($contrato->id_tiempo == 2){
+                                            $contador = 1;
+                                            $incapacidad = $tiempo->pago_incapacidad_general;
+                                            $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
+                                        }else{
+                                            $incapacidad = $tiempo->pago_incapacidad_general;
+                                            $incapacidad_laboral= $tiempo->pago_incapacidad_laboral;
+                                        }   
+
+                                        $configuracio_empresa = \app\models\Matriculaempresa::findOne(1);
+                                        $hora_norma_completa = 0; $hora_norma_medio = 0;
+                                        $hora_norma_completa = $configuracio_empresa->horas_mensuales / 30;
+                                        $hora_norma_medio = ($configuracio_empresa->horas_mensuales / 30) / 2;
                                         if($contador == 1){                                       
                                             $vlr_dia = ($configuracionsalario->salario_minimo_actual/30); 
                                             //incapacidad general
@@ -890,7 +901,7 @@ class IncapacidadController extends Controller
                                                 if($incapacidad != 100){
                                                     if($dias > 2){
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                       $table->vlr_hora = $vlr_dia / 8;
+                                                       $table->vlr_hora = $vlr_dia / $hora_norma_medio;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = round($dias - 2);  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -901,7 +912,7 @@ class IncapacidadController extends Controller
 
                                                     }else{
                                                         $table->vlr_liquidado = round(($dias * $vlr_dia) * $incapacidad)/100; 
-                                                        $table->vlr_hora =  (($vlr_dia * $incapacidad)/100) / 4;
+                                                        $table->vlr_hora =  ($vlr_dia * $hora_norma_medio);
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -913,7 +924,7 @@ class IncapacidadController extends Controller
                                                 }else{
                                                     if($dias > 2){
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_medio;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = round($dias - 2);  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -923,8 +934,8 @@ class IncapacidadController extends Controller
                                                         $table->vlr_pago_empresa = round($table->dias_empresa * $vlr_dia);
 
                                                     }else{
-                                                      echo $table->vlr_liquidado = $dias * $vlr_dia; 
-                                                        $table->vlr_hora =  $vlr_dia / 8;
+                                                        $table->vlr_liquidado = $dias * $vlr_dia; 
+                                                        $table->vlr_hora =  $vlr_dia / $hora_norma_medio;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -941,7 +952,7 @@ class IncapacidadController extends Controller
                                                     if($dias > 1){
                                                        $vlr_dia = ($configuracionsalario->salario_minimo_actual/30);
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = round($dias - 1);  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -952,7 +963,7 @@ class IncapacidadController extends Controller
                                                      }else{
                                                         $vlr_dia = ($contrato->salario/30);
                                                         $table->vlr_liquidado = round($dias * $vlr_dia); 
-                                                        $table->vlr_hora = $vlr_dia / 4;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_medio;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -965,7 +976,7 @@ class IncapacidadController extends Controller
                                                      $vlr_dia = ($configuracionsalario->salario_minimo_actual/30);
                                                     if($dias > 1){
                                                         $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                        $table->vlr_hora = $vlr_dia / 8;
+                                                        $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = round($dias - 1);  
                                                         $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -976,7 +987,7 @@ class IncapacidadController extends Controller
 
                                                     }else{
                                                        $table->vlr_liquidado = $dias * $vlr_dia; 
-                                                        $table->vlr_hora =  $vlr_dia / 8;
+                                                        $table->vlr_hora =  $vlr_dia / $hora_norma_completa;
                                                         $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                         $table->dias_cobro_eps = 0;  
                                                         $table->vlr_cobro_administradora = 0;
@@ -996,7 +1007,7 @@ class IncapacidadController extends Controller
                                             if($codigo == 1 ){
                                                 if($dias > 2){
                                                    $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                    $table->vlr_hora = $vlr_dia / 8;
+                                                    $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = round($dias - 2);  
                                                     $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -1008,7 +1019,7 @@ class IncapacidadController extends Controller
 
                                                 }else{
                                                     $table->vlr_liquidado = round(($dias * $vlr_dia) * $incapacidad)/100; 
-                                                    $table->vlr_hora =  $vlr_dia / 8;
+                                                    $table->vlr_hora =  $vlr_dia / $hora_norma_completa;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = 0;  
                                                     $table->vlr_cobro_administradora = 0;
@@ -1025,7 +1036,7 @@ class IncapacidadController extends Controller
                                                 if($dias > 1){
                                                     $vlr_dia = ($configuracionsalario->salario_minimo_actual/30);
                                                     $table->vlr_liquidado = $dias * $vlr_dia;    
-                                                    $table->vlr_hora = $vlr_dia / 8;
+                                                    $table->vlr_hora = $vlr_dia / $hora_norma_completa;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = round($dias - 1);  
                                                     $table->vlr_cobro_administradora = round($table->dias_cobro_eps * $vlr_dia);
@@ -1036,7 +1047,7 @@ class IncapacidadController extends Controller
                                                     $table->ibc_total_incapacidad = round(($contrato->salario / 30)* ($dias));
                                                  }else{
                                                     $table->vlr_liquidado = round($dias * $vlr_dia); 
-                                                    $table->vlr_hora = $vlr_dia / 4;
+                                                    $table->vlr_hora = $vlr_dia / $hora_norma_medio;
                                                     $table->porcentaje_pago =  $configuracionincapacidad->porcentaje;
                                                     $table->dias_cobro_eps = 0;  
                                                     $table->vlr_cobro_administradora = 0;

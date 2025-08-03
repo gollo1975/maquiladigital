@@ -80,7 +80,9 @@ $pension = ArrayHelper::map(ConfiguracionPension::find()->all(), 'id_pension', '
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-mm-dd',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']
+                ])
             ?>    
             <?=
             $form->field($model, 'fecha_final')->widget(DatePicker::className(), ['name' => 'check_issue_date',
@@ -88,7 +90,9 @@ $pension = ArrayHelper::map(ConfiguracionPension::find()->all(), 'id_pension', '
                 'options' => ['id' => 'fecha_final','placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-mm-dd',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']
+                ])
             ?>
         </div>                        
         <div class="row">

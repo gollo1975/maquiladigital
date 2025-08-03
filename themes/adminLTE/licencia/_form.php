@@ -35,6 +35,7 @@ $configuracionlicencia = ArrayHelper::map(ConfiguracionLicencia::find()->all(), 
         ?> <div class="alert alert-danger"><?= $mensaje ?></div> <?php
     }
 ?>
+          
         <div class="panel panel-success">
             <div class="panel-heading">
                 Información: Licencias
@@ -56,14 +57,18 @@ $configuracionlicencia = ArrayHelper::map(ConfiguracionLicencia::find()->all(), 
                            'options' => ['placeholder' => 'Seleccione una fecha ...'],
                            'pluginOptions' => [
                                'format' => 'yyyy-m-d',
-                               'todayHighlight' => true]])
+                               'todayHighlight' => true,
+                               'orientation' => 'bottom']
+                            ])
                        ?>
                        <?=  $form->field($model, 'fecha_hasta')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                            'value' => date('Y-m-d', strtotime('+2 days')),
                            'options' => ['placeholder' => 'Seleccione una fecha ...'],
                            'pluginOptions' => [
                                'format' => 'yyyy-m-d',
-                               'todayHighlight' => true]])
+                               'todayHighlight' => true,
+                               'orientation' => 'bottom']
+                           ])
                        ?>
                 </div>
                 <div class="row">
@@ -72,12 +77,14 @@ $configuracionlicencia = ArrayHelper::map(ConfiguracionLicencia::find()->all(), 
                            'options' => ['placeholder' => 'Seleccione una fecha ...'],
                            'pluginOptions' => [
                                'format' => 'yyyy-m-d',
-                               'todayHighlight' => true]])
+                               'todayHighlight' => true,
+                               'orientation' => 'bottom']
+                        ])
                        ?>
+                    <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
                 </div>
                  <div class="row" col>
-                    <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
-                </div>
+                
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         Seleccione la configuración..

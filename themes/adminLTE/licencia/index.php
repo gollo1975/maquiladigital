@@ -52,6 +52,7 @@ $configuracionlicencia = ArrayHelper::map(ConfiguracionLicencia::find()->all(), 
 	
     <div class="panel-body" id="filtro" style="display:none">
         <div class="row" >
+              <?= $formulario->field($form, "identificacion")->input("search") ?>
              <?= $formulario->field($form, 'id_empleado')->widget(Select2::classname(), [
                 'data' => $empleado,
                 'options' => ['prompt' => 'Seleccione...'],
@@ -59,7 +60,26 @@ $configuracionlicencia = ArrayHelper::map(ConfiguracionLicencia::find()->all(), 
                     'allowClear' => true
                 ],
             ]); ?>
-              <?= $formulario->field($form, "identificacion")->input("search") ?>
+            
+            <?= $formulario->field($form, 'fecha_desde')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']
+                ])
+            ?>
+        
+            <?= $formulario->field($form, 'fecha_hasta')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                'value' => date('d-M-Y', strtotime('+2 days')),
+                'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                'pluginOptions' => [
+                    'format' => 'yyyy-m-d',
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']
+                ])
+            ?>
              <?= $formulario->field($form, 'id_grupo_pago')->widget(Select2::classname(), [
                 'data' => $grupopago,
                 'options' => ['prompt' => 'Seleccione...'],
@@ -75,21 +95,7 @@ $configuracionlicencia = ArrayHelper::map(ConfiguracionLicencia::find()->all(), 
                     'allowClear' => true
                 ],
             ]); ?>
-            <?= $formulario->field($form, 'fecha_desde')->widget(DatePicker::className(), ['name' => 'check_issue_date',
-                'value' => date('d-M-Y', strtotime('+2 days')),
-                'options' => ['placeholder' => 'Seleccione una fecha ...'],
-                'pluginOptions' => [
-                    'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
-            ?>
-        
-            <?= $formulario->field($form, 'fecha_hasta')->widget(DatePicker::className(), ['name' => 'check_issue_date',
-                'value' => date('d-M-Y', strtotime('+2 days')),
-                'options' => ['placeholder' => 'Seleccione una fecha ...'],
-                'pluginOptions' => [
-                    'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
-            ?>
+            
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>

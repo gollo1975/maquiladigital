@@ -121,7 +121,10 @@ $this->params['breadcrumbs'][] = $model->id_nomina_electronica;
                                                 <?php if($val->id_agrupado == 8 || $val->id_agrupado == 10 || $val->id_agrupado == 21){?>
                                                     <td><?= $val->inicio_licencia?></td>
                                                     <td><?= $val->final_licencia ?></td>
-                                                <?php }else {?>
+                                                <?php }elseif($val->id_agrupado == 20) {?>
+                                                     <td><?= $val->fecha_inicio_vacaciones?></td>
+                                                    <td><?= $val->fecha_final_vacaciones ?></td>
+                                                <?php }else {?>    
                                                     <td><?= $val->inicio_incapacidad?></td>
                                                     <td><?= $val->final_incapacidad ?></td>
                                                 <?php }

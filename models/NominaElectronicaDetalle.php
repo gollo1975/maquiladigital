@@ -44,7 +44,7 @@ class NominaElectronicaDetalle extends \yii\db\ActiveRecord
             [['id_nomina_electronica', 'codigo_salario', 'devengado_deduccion', 'total_dias', 'id_agrupado','id_empleado','dias_prima','dias_cesantias','dias_incapacidad','dias_licencia_noremuneradas','codigo_incapacidad',
                 'devengado', 'deduccion',  'auxilio_transporte','deduccion_pension','deduccion_eps','deduccion_fondo_solidaridad','valor_pago_prima',
                 'valor_pago_cesantias','valor_pago_incapacidad','valor_pago_licencia','valor_pago_intereses'], 'integer'],
-            [['fecha_inicio', 'fecha_final','inicio_incapacidad','final_incapacidad','inicio_licencia','final_licencia'], 'safe'],
+            [['fecha_inicio', 'fecha_final','inicio_incapacidad','final_incapacidad','inicio_licencia','final_licencia','fecha_inicio_vacaciones','fecha_final_vacaciones'], 'safe'],
             [['porcentaje','porcentaje_intereses'], 'number'],
             [['descripcion'], 'string', 'max' => 40],
             [['id_nomina_electronica'], 'exist', 'skipOnError' => true, 'targetClass' => NominaElectronica::className(), 'targetAttribute' => ['id_nomina_electronica' => 'id_nomina_electronica']],
@@ -85,6 +85,8 @@ class NominaElectronicaDetalle extends \yii\db\ActiveRecord
             'porcentaje_intereses' => 'porcentaje_intereses',
             'valor_pago_intereses'=> 'valor_pago_intereses',
             'codigo_incapacidad' => 'codigo_incapacidad', 
+            'fecha_inicio_vacaciones' => 'fecha_inicio_vacaciones',
+            'fecha_final_vacaciones' => 'fecha_final_vacaciones',
             
             
         ];

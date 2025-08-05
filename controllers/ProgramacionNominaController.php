@@ -3439,11 +3439,11 @@ class ProgramacionNominaController extends Controller {
                     $conRegistro = \app\models\NominaElectronica::find()->where(['=','id_nomina_electronica', $intCodigo])->andWhere(['=','generado_detalle', 0])->one();//array que busca el empleado
                     if($conRegistro){
                         $buscarNomina = ProgramacionNomina::find()->where(['=','id_empleado', $conRegistro->id_empleado])->andWhere(['=','documento_detalle_generado', 0])->all();
-                        foreach ($buscarNomina as $key => $datos) {
+                        foreach ($buscarNomina as  $datos) {
 
                             $detalle_nomina = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $datos->id_programacion])->all();
                             
-                            foreach ($detalle_nomina as $key => $detalle) { //para que recorre todo los detalles
+                            foreach ($detalle_nomina as $detalle) { //para que recorre todo los detalles
                                 $buscar = \app\models\NominaElectronicaDetalle::find()->where(['=','codigo_salario', $detalle->codigo_salario])->andWhere(['=','id_periodo_electronico', $id_periodo])
                                                                                       ->andWhere(['=','id_empleado', $conRegistro->id_empleado])->one();
                                 
@@ -3463,7 +3463,7 @@ class ProgramacionNominaController extends Controller {
                                             $table->total_dias = $detalle->dias_reales;
                                             
                                         }elseif ($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
-                                          $table->total_dias = $detalle->dias_reales;
+                                          $table->total_dias = $detalle->dias_transporte;
                                           $table->auxilio_transporte = $detalle->auxilio_transporte; 
                                           $table->devengado = $detalle->auxilio_transporte; 
                                           
@@ -3513,7 +3513,10 @@ class ProgramacionNominaController extends Controller {
                                             
                                         }elseif ($detalle->codigoSalario->id_agrupado == 20){ //VACACIONES
                                             $table->devengado = $detalle->vlr_devengado;
-                                            $table->total_dias = $detalle->dias_reales;
+                                            $table->total_dias = $detalle->dias_reales;  
+                                            $table->devengado = $detalle->vlr_devengado; 
+                                            $table->fecha_inicio_vacaciones = $detalle->fecha_desde;
+                                            $table->fecha_final_vacaciones = $detalle->fecha_hasta;
                                             
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
                                             $table->total_dias = $detalle->dias_reales;
@@ -3522,7 +3525,7 @@ class ProgramacionNominaController extends Controller {
                                             $table->final_licencia = $detalle->fecha_hasta;
                                         }
                                     }else{// DEDUCCIONES DEL EMPLEADO
-                                        if($detalle->codigoSalario->id_agrupado == 4){ //FONDO DE PENSION
+                                       if($detalle->codigoSalario->id_agrupado == 4){ //FONDO DE PENSION
                                             $table->porcentaje = $detalle->codigoSalario->porcentaje; 
                                             $table->deduccion_pension = $detalle->vlr_deduccion;
                                             $table->deduccion = $detalle->vlr_deduccion;
@@ -3556,29 +3559,47 @@ class ProgramacionNominaController extends Controller {
                                             $conRegistro->dias_trabajados += $detalle->dias_reales;
                                             
                                         }elseif ($detalle->codigoSalario->id_agrupado == 2){ //auxilio de transporte
-                                          $buscar->total_dias += $detalle->dias_reales;
+                                          $buscar->total_dias += $detalle->dias_transporte;
                                           $buscar->auxilio_transporte += $detalle->auxilio_transporte; 
                                           $buscar->devengado += $detalle->auxilio_transporte; 
                                        
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 9){ //incapacidades de empleao
                                             $table = new \app\models\NominaElectronicaDetalle();
                                             $codigo_incapacidad = Incapacidad::findOne($detalle->id_incapacidad);
+                                            $table->id_nomina_electronica = $intCodigo;
+                                            $table->codigo_salario = $detalle->codigo_salario;
+                                            $table->descripcion = $detalle->codigoSalario->nombre_concepto;
+                                            $table->id_empleado = $conRegistro->id_empleado;
+                                            $table->devengado = $detalle->vlr_devengado;
                                             $table->valor_pago_incapacidad = $detalle->vlr_devengado;
+                                            $table->devengado_deduccion = $detalle->codigoSalario->devengado_deduccion;
                                             $table->dias_incapacidad = $detalle->dias_reales;
                                             $table->total_dias = $detalle->dias_reales;
+                                            $table->fecha_inicio = $conRegistro->fecha_inicio_nomina;
+                                            $table->fecha_final = $conRegistro->fecha_final_nomina;
                                             $table->inicio_incapacidad = $detalle->fecha_desde;
                                             $table->final_incapacidad = $detalle->fecha_hasta;
-                                            $table->id_incapacidad = $detalle->id_incapacidad;
                                             $table->codigo_incapacidad = $codigo_incapacidad->codigo_incapacidad;
                                             $table->porcentaje = $detalle->porcentaje;
+                                            $table->id_agrupado = $detalle->codigoSalario->id_agrupado;
+                                            $table->id_periodo_electronico = $id_periodo;
                                             $table->save(false);
                                         }elseif ($detalle->codigoSalario->id_agrupado == 10 || $detalle->codigoSalario->id_agrupado == 8){ //licencias remuneradas
                                             $table = new \app\models\NominaElectronicaDetalle();
+                                            $table->id_nomina_electronica = $intCodigo;
+                                            $table->codigo_salario = $detalle->codigo_salario;
+                                            $table->id_empleado = $conRegistro->id_empleado;
+                                            $table->descripcion = $detalle->codigoSalario->nombre_concepto;
+                                            $table->devengado_deduccion = $detalle->codigoSalario->devengado_deduccion;
+                                            $table->fecha_inicio = $conRegistro->fecha_inicio_nomina;
+                                            $table->fecha_final = $conRegistro->fecha_final_nomina;
                                             $table->valor_pago_licencia = $detalle->vlr_devengado;
                                             $table->dias_licencia = $detalle->dias_reales;
                                             $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
+                                            $table->id_agrupado = $detalle->codigoSalario->id_agrupado;
+                                            $table->id_periodo_electronico = $id_periodo;
                                             $table->save(false);
                                         
                                         }elseif ($detalle->codigoSalario->id_agrupado == 16 || $detalle->codigoSalario->id_agrupado == 15 || $detalle->codigoSalario->id_agrupado == 18 || $detalle->codigoSalario->id_agrupado == 19){ //bonificaciones y comisiones
@@ -3589,12 +3610,23 @@ class ProgramacionNominaController extends Controller {
                                                 
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
                                             $table = new \app\models\NominaElectronicaDetalle();
+                                            $table->id_nomina_electronica = $intCodigo;
+                                            $table->codigo_salario = $detalle->codigo_salario;
+                                            $table->id_empleado = $conRegistro->id_empleado;
+                                            $table->descripcion = $detalle->codigoSalario->nombre_concepto;
+                                            $table->devengado_deduccion = $detalle->codigoSalario->devengado_deduccion;
+                                            $table->fecha_inicio = $conRegistro->fecha_inicio_nomina;
+                                            $table->fecha_final = $conRegistro->fecha_final_nomina;
                                             $table->dias_licencia_noremuneradas = $detalle->dias_reales;
+                                            $table->valor_pago_licencia = $detalle->vlr_devengado;
                                             $table->total_dias = $detalle->dias_reales;
                                             $table->inicio_licencia = $detalle->fecha_desde;
                                             $table->final_licencia = $detalle->fecha_hasta;
+                                            $table->id_agrupado = $detalle->codigoSalario->id_agrupado;
+                                            $table->id_periodo_electronico = $id_periodo;
                                             $table->save(false);
                                         }  
+                                       
                                         $buscar->save(false);      
                                     }else{ // acumulado de deducciones
                                         if($detalle->codigoSalario->id_agrupado == 4){ //FONDO DE PENSION
@@ -3612,13 +3644,11 @@ class ProgramacionNominaController extends Controller {
                                         }elseif ($detalle->codigoSalario->id_agrupado == 7 || $detalle->codigoSalario->id_agrupado == 17){ //otras deducciones del empleado y prestamos empresa
                                             $buscar->deduccion += $detalle->vlr_deduccion; 
                                          
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 14) { //libranzas y bancos
-                                            $table->deduccion += $detalle->vlr_deduccion; 
                                         }
                                     $buscar->save(false);    
                                     }
                                    
-                                  //  $conRegistro->save(false);
+                                    $conRegistro->save(false);
                                }
                             }
                         //cierre en programacion turnos
@@ -3636,7 +3666,7 @@ class ProgramacionNominaController extends Controller {
                     }    
                 }
                 Yii::$app->getSession()->setFlash('success','Se procesaron ('.$contador.') registros para el documento electrónica de nomina.');
-                return $this->redirect(['vista_empleados','id_periodo' => $id_periodo ,'token' => $token]);
+               return $this->redirect(['vista_empleados','id_periodo' => $id_periodo ,'token' => $token]);
             }else{
                 Yii::$app->getSession()->setFlash('error','Debe de seleccionar al menos un registro. ');
             }

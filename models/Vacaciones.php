@@ -64,7 +64,7 @@ class Vacaciones extends \yii\db\ActiveRecord
             [['id_empleado', 'id_contrato', 'id_grupo_pago', 'documento', 'dias_disfrutados', 'dias_pagados', 'dias_total_vacacion', 'dias_real_disfrutados', 'salario_contrato',
             'salario_promedio', 'total_pago_vacacion', 'vlr_vacacion_disfrute', 'vlr_vacacion_dinero', 'vlr_recargo_nocturno', 'dias_ausentismo', 'descuento_eps', 'descuento_pension',
             'total_descuentos', 'total_bonificaciones', 'estado_autorizado', 'estado_cerrado', 'estado_anulado', 'nro_pago','total_pagar','vlr_dia_vacacion',
-                'dias_totales_periodo','dias_total_vacacion_pagados','vlr_vacacion_bruto','total_compensado'], 'integer'],
+                'dias_totales_periodo','dias_total_vacacion_pagados','vlr_vacacion_bruto','total_compensado','saldo_vacaciones'], 'integer'],
             [['fecha_desde_disfrute', 'fecha_hasta_disfrute', 'fecha_proceso', 'fecha_ingreso', 'fecha_inicio_periodo', 'fecha_final_periodo'], 'safe'],
             [['observacion'], 'string', 'max' => 100],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -114,6 +114,7 @@ class Vacaciones extends \yii\db\ActiveRecord
             'usuariosistema' => 'Usuariosistema',
             'nro_pago' => 'Nro Pago',
             'total_compensado' => 'Total compensado:',
+            'saldo_vacaciones' => 'saldo_vacaciones',
         ];
     }
 

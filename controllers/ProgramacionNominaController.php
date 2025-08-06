@@ -590,6 +590,7 @@ class ProgramacionNominaController extends Controller {
                                 }
                                 curl_close($curl);
                                 $data = json_decode($response, true);
+                                var_dump($data);
                                 Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
                                 // Verificar errores de conexión o códigos HTTP inesperados
                                 if ($response === false || $httpCode !== 200) {
@@ -607,7 +608,7 @@ class ProgramacionNominaController extends Controller {
                                         $qrstr = $data['add']['QRStr'];
                                         $documento->qrstr = $qrstr;
                                         $documento->exportado_nomina = 1;
-                                        $documento->save(false);
+                                    //    $documento->save(false);
                                         $contador += 1;                               
                                     }    
                                }else{
@@ -631,7 +632,7 @@ class ProgramacionNominaController extends Controller {
                         }//CIERRA EL PROCESO PARA
                         
                         Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
-                        return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
+                       // return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
                     }else{
                         Yii::$app->getSession()->setFlash('error','Debe de seleccionar el registro para enviar a la DIAN. ');
                     }
@@ -1556,11 +1557,11 @@ class ProgramacionNominaController extends Controller {
               
             }
         }    
-     $this->redirect(["programacion-nomina/view", 'id' => $id,
-            'id_grupo_pago' => $id_grupo_pago,
-            'fecha_desde' => $fecha_desde,
-            'fecha_hasta' => $fecha_hasta,
-        ]);
+            $this->redirect(["programacion-nomina/view", 'id' => $id,
+                'id_grupo_pago' => $id_grupo_pago,
+                'fecha_desde' => $fecha_desde,
+                'fecha_hasta' => $fecha_hasta,
+            ]);
     }// termina el boton de proceso de regitros 
     
     //CODIGO QUE GENERA LOS DIAS DE LAS CESANTIAS
@@ -2352,17 +2353,17 @@ class ProgramacionNominaController extends Controller {
                 
                 $nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
                 foreach ($nomina as $validar):
-                    $validar->estado_liquidado = 1;
+                  //  $validar->estado_liquidado = 1;
                      $validar->save(false);
                 endforeach;
             }
         }    
 
-    $this->redirect(["programacion-nomina/view", 'id' => $id,
-          'id_grupo_pago' => $id_grupo_pago,
-          'fecha_desde' => $fecha_desde,
-          'fecha_hasta' => $fecha_hasta,
-          ]);
+        $this->redirect(["programacion-nomina/view", 'id' => $id,
+              'id_grupo_pago' => $id_grupo_pago,
+              'fecha_desde' => $fecha_desde,
+              'fecha_hasta' => $fecha_hasta,
+              ]);
     }
    
     protected function ModuloInsertarPrima($vlr_fecha_adicionprima, $id, $fecha_desde, $fecha_hasta) {
@@ -2755,17 +2756,15 @@ class ProgramacionNominaController extends Controller {
                 }
             }
             
-            
-            
             //codigo que genera el consecutivo a la nomina nropago de la colilla
             $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
             foreach ($nomina as $generar_consecutivo) {
                     $consecutivo = Consecutivo::findOne(7);
                     $consecutivo->consecutivo = $consecutivo->consecutivo + 1;
-                    $consecutivo->save(false);
+                  //  $consecutivo->save(false);
                     $generar_consecutivo->nro_pago = $consecutivo->consecutivo;
                     $generar_consecutivo->estado_cerrado = 1;
-                   $generar_consecutivo->save(false);
+                    $generar_consecutivo->save(false);
             }
              //actualizar el estado del periodo a 1
                 $periodo_pago = PeriodoPagoNomina::findone($id);
@@ -2778,27 +2777,60 @@ class ProgramacionNominaController extends Controller {
              
               foreach ($nomina as $vacacion):
                     $registro_Vacaciones = \app\models\Vacaciones::find()->where(['=','id_empleado', $vacacion->id_empleado])
-                                                                       ->andWhere(['>=','fecha_desde_disfrute', $fecha_desde])
-                                                                       ->andWhere(['<=','fecha_desde_disfrute', $fecha_hasta])->orderBy('id_vacacion DESC')->one();
+                                                                       ->andWhere(['=','total_compensado', 0])
+                                                                        ->orderBy('id_vacacion DESC')->one();
                     if($registro_Vacaciones){
                         $saldo = 0;
-                        if($vacacion->fecha_inicio_vacacion <> ''){
-                          $detalle = new ProgramacionNominaDetalle();
-                          $detalle->codigo_salario = $concepto_salario->codigo_salario;
-                          $detalle->id_programacion = $vacacion->id_programacion;
-                          $detalle->horas_periodo = $vacacion->horas_vacacion;
-                          $detalle->horas_periodo_reales = $vacacion->horas_vacacion; 
-                          $detalle->dias = $vacacion->dias_vacacion;
-                          $detalle->dias_reales = $vacacion->dias_vacacion;
-                          $detalle->vlr_devengado = $vacacion->ibc_vacacion;
-                          $detalle->vlr_vacacion = $detalle->vlr_devengado;
-                          $detalle->id_periodo_pago_nomina = $id;
-                          $detalle->fecha_desde = $vacacion->fecha_inicio_vacacion;
-                          $detalle->fecha_hasta = $vacacion->fecha_final_vacacion;
-                          $detalle->insert(false);
-                          $saldo = $vacacion->ibc_prestacional;
-                          $vacacion->ibc_prestacional =  $saldo + $detalle->vlr_devengado;
-                          $vacacion->save(false);
+                        if($vacacion->fecha_inicio_vacacion !== null){
+                            $detalle = new ProgramacionNominaDetalle();
+                           
+                            if($registro_Vacaciones->fecha_desde_disfrute >= $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute > $fecha_hasta){ //las vacacion inician en le mismo periodo pero pasa el corte de nomina
+                                $valor_dia = $registro_Vacaciones->vlr_dia_vacacion;
+                                $total = strtotime($fecha_hasta) - strtotime($registro_Vacaciones->fecha_desde_disfrute);
+                                $total = round($total / 86400)+1;
+                                $detalle->fecha_desde = $registro_Vacaciones->fecha_desde_disfrute;
+                                $detalle->fecha_hasta = $fecha_hasta; 
+                                $detalle->vlr_devengado = round($valor_dia * $total);
+                                $detalle->dias = $total;
+                                $detalle->dias_reales = $total;
+                                $detalle->vlr_vacacion = $detalle->vlr_devengado ;
+                                $registro_Vacaciones->saldo_vacaciones = $registro_Vacaciones->total_pagar - $detalle->vlr_devengado;
+                                $registro_Vacaciones->save();
+                                
+                            }elseif($registro_Vacaciones->fecha_desde_disfrute >= $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute <= $fecha_hasta){ //las fechas estan el mismo rango del corte de nomina
+                                $total = strtotime($registro_Vacaciones->fecha_hasta_disfrute) - strtotime($registro_Vacaciones->fecha_desde_disfrute);
+                                $total = round($total / 86400)+1;
+                                $detalle->fecha_desde = $registro_Vacaciones->fecha_desde_disfrute;
+                                $detalle->fecha_hasta = $registro_Vacaciones->fecha_hasta_disfrute; 
+                                $detalle->vlr_devengado = $registro_Vacaciones->total_pagar;
+                                $detalle->dias = $registro_Vacaciones->dias_disfrutados + $registro_Vacaciones->dias_pagados;
+                                $detalle->dias_reales = $detalle->dias;
+                                $detalle->vlr_vacacion = $detalle->vlr_devengado;
+                                
+                            }elseif($registro_Vacaciones->fecha_desde_disfrute < $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute <= $fecha_hasta){ // las vacaciiones fueron en dos cortes diferentes comenzado el mes anterior
+                                $total = strtotime($registro_Vacaciones->fecha_hasta_disfrute) - strtotime($fecha_desde);
+                                $total = round($total / 86400)+1;
+                                $detalle->fecha_desde = $fecha_desde;
+                                $detalle->fecha_hasta = $registro_Vacaciones->fecha_hasta_disfrute; 
+                                $detalle->vlr_devengado = $registro_Vacaciones->saldo_vacaciones;
+                                $detalle->dias = $total;
+                                $detalle->dias_reales = $detalle->dias;
+                                $detalle->vlr_vacacion = $detalle->vlr_devengado;  
+                                $registro_Vacaciones->saldo_vacaciones = $registro_Vacaciones->saldo_vacaciones - $detalle->vlr_devengado;
+                                if($registro_Vacaciones->saldo_vacaciones == 0){                                
+                                    $registro_Vacaciones->total_compensado = 1;
+                                }
+                                $registro_Vacaciones->save();
+                                
+                            }
+                            $detalle->codigo_salario = $concepto_salario->codigo_salario;
+                            $detalle->id_programacion = $vacacion->id_programacion;
+                            $detalle->id_periodo_pago_nomina = $id;
+                            $detalle->id_grupo_pago = $id_grupo_pago;
+                            $detalle->save(false);
+                            $saldo = $vacacion->ibc_prestacional;
+                            $vacacion->ibc_prestacional =  $saldo + $detalle->vlr_devengado;
+                            $vacacion->save(false);
                       }
                     }  
               endforeach;
@@ -3467,10 +3499,12 @@ class ProgramacionNominaController extends Controller {
                                           $table->auxilio_transporte = $detalle->auxilio_transporte; 
                                           $table->devengado = $detalle->auxilio_transporte; 
                                           
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 3){ //horas extras diurnas ordinaria
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 3){ // (HEDs)horas extras diurnas ordinaria
                                             $table->devengado = $detalle->vlr_devengado;
                                             $table->porcentaje = $detalle->codigoSalario->porcentaje_tiempo_extra;
-                                            $table->total_dias =$detalle->nro_horas; 
+                                            $table->cantidad_horas =$detalle->horas_periodo_reales;
+                                            $table->hora_inicio = '07:00:00';
+                                            $table->hora_final = '16:00:00';
                                             
                                         }elseif ($detalle->codigoSalario->id_agrupado == 9){ //incapacidades
                                             $codigo_incapacidad = Incapacidad::findOne($detalle->id_incapacidad);
@@ -3512,7 +3546,6 @@ class ProgramacionNominaController extends Controller {
                                             $table->devengado = $detalle->vlr_devengado;
                                             
                                         }elseif ($detalle->codigoSalario->id_agrupado == 20){ //VACACIONES
-                                            $table->devengado = $detalle->vlr_devengado;
                                             $table->total_dias = $detalle->dias_reales;  
                                             $table->devengado = $detalle->vlr_devengado; 
                                             $table->fecha_inicio_vacaciones = $detalle->fecha_desde;
@@ -3605,8 +3638,23 @@ class ProgramacionNominaController extends Controller {
                                         }elseif ($detalle->codigoSalario->id_agrupado == 16 || $detalle->codigoSalario->id_agrupado == 15 || $detalle->codigoSalario->id_agrupado == 18 || $detalle->codigoSalario->id_agrupado == 19){ //bonificaciones y comisiones
                                             $buscar->devengado += $detalle->vlr_devengado;
                                             $buscar->total_dias += $detalle->dias_reales;
-                                        }elseif ($detalle->codigoSalario->id_agrupado == 20 ){
-                                            $buscar->devengado += $detalle->vlr_devengado;
+                                            
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 20 ){ // VACACIONES SI HAY VARIOS PAGOS LOS ACUMULA
+                                            $table = new \app\models\NominaElectronicaDetalle();
+                                            $table->id_nomina_electronica = $intCodigo;
+                                            $table->codigo_salario = $detalle->codigo_salario;
+                                            $table->id_empleado = $conRegistro->id_empleado;
+                                            $table->descripcion = $detalle->codigoSalario->nombre_concepto;
+                                            $table->devengado_deduccion = $detalle->codigoSalario->devengado_deduccion;
+                                            $table->fecha_inicio = $conRegistro->fecha_inicio_nomina;
+                                            $table->fecha_final = $conRegistro->fecha_final_nomina;
+                                            $table->total_dias = $detalle->dias_reales;
+                                            $table->devengado = $detalle->vlr_devengado;
+                                            $table->fecha_inicio_vacaciones = $detalle->fecha_desde;
+                                            $table->fecha_final_vacaciones = $detalle->fecha_hasta;
+                                            $table->id_agrupado = $detalle->codigoSalario->id_agrupado;
+                                            $table->id_periodo_electronico = $id_periodo;
+                                            $table->save(false);
                                                 
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
                                             $table = new \app\models\NominaElectronicaDetalle();
@@ -3653,11 +3701,11 @@ class ProgramacionNominaController extends Controller {
                             }
                         //cierre en programacion turnos
                         $datos->documento_detalle_generado = 1;
-                        $datos->save(false);    
+                     //   $datos->save(false);    
                         }
                         //cierra en nomina electronica
                         $conRegistro->generado_detalle = 1;
-                        $conRegistro->save();
+                      //  $conRegistro->save();
                         
                     }else{
                         $conRegistro = \app\models\NominaElectronica::findOne($intCodigo);

@@ -43,10 +43,11 @@ class NominaElectronicaDetalle extends \yii\db\ActiveRecord
         return [
             [['id_nomina_electronica', 'codigo_salario', 'devengado_deduccion', 'total_dias', 'id_agrupado','id_empleado','dias_prima','dias_cesantias','dias_incapacidad','dias_licencia_noremuneradas','codigo_incapacidad',
                 'devengado', 'deduccion',  'auxilio_transporte','deduccion_pension','deduccion_eps','deduccion_fondo_solidaridad','valor_pago_prima',
-                'valor_pago_cesantias','valor_pago_incapacidad','valor_pago_licencia','valor_pago_intereses'], 'integer'],
-            [['fecha_inicio', 'fecha_final','inicio_incapacidad','final_incapacidad','inicio_licencia','final_licencia','fecha_inicio_vacaciones','fecha_final_vacaciones'], 'safe'],
+                'valor_pago_cesantias','valor_pago_incapacidad','valor_pago_licencia','valor_pago_intereses','cantidad_horas'], 'integer'],
+            [['fecha_inicio', 'fecha_final','inicio_incapacidad','final_incapacidad','inicio_licencia','final_licencia','fecha_inicio_vacaciones','fecha_final_vacaciones','hora_inicio','hora_final'], 'safe'],
             [['porcentaje','porcentaje_intereses'], 'number'],
             [['descripcion'], 'string', 'max' => 40],
+           
             [['id_nomina_electronica'], 'exist', 'skipOnError' => true, 'targetClass' => NominaElectronica::className(), 'targetAttribute' => ['id_nomina_electronica' => 'id_nomina_electronica']],
             [['codigo_salario'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoSalarios::className(), 'targetAttribute' => ['codigo_salario' => 'codigo_salario']],
             [['id_agrupado'], 'exist', 'skipOnError' => true, 'targetClass' => AgruparConceptoSalario::className(), 'targetAttribute' => ['id_agrupado' => 'id_agrupado']],
@@ -87,6 +88,9 @@ class NominaElectronicaDetalle extends \yii\db\ActiveRecord
             'codigo_incapacidad' => 'codigo_incapacidad', 
             'fecha_inicio_vacaciones' => 'fecha_inicio_vacaciones',
             'fecha_final_vacaciones' => 'fecha_final_vacaciones',
+            'cantidad_horas' => 'cantidad_horas',
+            'hora_inicio' => 'hora_inicio',
+            'hora_final' => 'hora_final'
             
             
         ];

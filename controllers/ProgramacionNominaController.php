@@ -235,7 +235,7 @@ class ProgramacionNominaController extends Controller {
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 30,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
@@ -252,7 +252,7 @@ class ProgramacionNominaController extends Controller {
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 30,
+                        'pageSize' => 15,
                         'totalCount' => $count->count(),
                     ]);
                     $model = $table

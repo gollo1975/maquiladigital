@@ -576,7 +576,7 @@ class ProgramacionNominaController extends Controller {
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_ENCODING => '',
                                     CURLOPT_MAXREDIRS => 10,
-                                    CURLOPT_TIMEOUT => 120,
+                                    CURLOPT_TIMEOUT => 300,
                                     CURLOPT_FOLLOWLOCATION => true,
                                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                                     CURLOPT_CUSTOMREQUEST => 'POST',
@@ -590,7 +590,6 @@ class ProgramacionNominaController extends Controller {
                                 }
                                 curl_close($curl);
                                 $data = json_decode($response, true);
-                                var_dump($data);
                                 Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
                                 // Verificar errores de conexión o códigos HTTP inesperados
                                 if ($response === false || $httpCode !== 200) {
@@ -608,7 +607,7 @@ class ProgramacionNominaController extends Controller {
                                         $qrstr = $data['add']['QRStr'];
                                         $documento->qrstr = $qrstr;
                                         $documento->exportado_nomina = 1;
-                                    //    $documento->save(false);
+                                        $documento->save(false);
                                         $contador += 1;                               
                                     }    
                                }else{
@@ -632,7 +631,7 @@ class ProgramacionNominaController extends Controller {
                         }//CIERRA EL PROCESO PARA
                         
                         Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
-                       // return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
+                        return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
                     }else{
                         Yii::$app->getSession()->setFlash('error','Debe de seleccionar el registro para enviar a la DIAN. ');
                     }
@@ -3701,11 +3700,11 @@ class ProgramacionNominaController extends Controller {
                             }
                         //cierre en programacion turnos
                         $datos->documento_detalle_generado = 1;
-                     //   $datos->save(false);    
+                        $datos->save(false);    
                         }
                         //cierra en nomina electronica
                         $conRegistro->generado_detalle = 1;
-                      //  $conRegistro->save();
+                        $conRegistro->save();
                         
                     }else{
                         $conRegistro = \app\models\NominaElectronica::findOne($intCodigo);

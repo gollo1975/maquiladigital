@@ -188,4 +188,11 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
         }
         return $aplicarporcentaje;
     }
+    
+    public function getOperario()
+{
+    // Assuming the foreign key in ValorPrendaUnidadDetalles is 'id_operario'
+    // and the primary key in the Operario model is also 'id_operario'
+    return $this->hasOne(Operarios::class, ['id_operario' => 'id_operario']);
+}
 }

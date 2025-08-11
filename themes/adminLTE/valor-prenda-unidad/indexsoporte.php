@@ -95,6 +95,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
 </div>
 
 <?php $formulario->end() ?>
+
 <?php
     $form = ActiveForm::begin([
                 "method" => "post",                            
@@ -143,7 +144,6 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <tr style ='font-size:85%;'>                
                                 <th scope="col" style='background-color:#B9D5CE;'>OP</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operación</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>F. pago</th>
@@ -159,35 +159,43 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                             <body>
                                 <?php 
                                 if($modelo){
-                                    foreach ($modelo as $val):?>
-                                        <tr style='font-size:85%;'>  
+                                    $current_operario_id = null;
+                                    foreach ($modelo as $val):
+                                        // Verificamos si el operario actual es diferente al del registro anterior
+                                        if ($val->id_operario !== $current_operario_id):
+                                            // Si es diferente, mostramos una fila de encabezado para el nuevo operario.
+                                            // Esto crea el efecto de "agrupación".
+                                    ?>
+                                        <tr style='font-size:95%; font-weight:bold; background-color:#F5F5F5;'>
+                                            <td colspan="15">
+                                                <?= $val->operarioProduccion->nombrecompleto ?>
+                                            </td>
+                                        </tr>
+                                    <?php
+                                            // Actualizamos la variable con el ID del nuevo operario
+                                            $current_operario_id = $val->id_operario;
+                                        endif;
+                                    ?>
+                                        <tr style='font-size:85%;'>
                                             <td><?= $val->idordenproduccion ?></td>
                                             <td><?= $val->ordenproduccion->codigoproducto ?></td>
-                                            <?php if($val->id_operario == (NULL)){?>
-                                                <td style='background-color:#AFE7CB;'><?= 'REGISTRO EN CONSTRUCCION'?> </td> 
-                                            <?php }else{?>
-                                                <td><?= $val->operarioProduccion->nombrecompleto?> </td>
-                                            <?php }
-                                            if($val->idproceso == null){ ?>    
-                                                <td style='background-color:#B9D5CE;'><?= 'NO FOUND'?></td>
+                                           
+                                            <td><?= $val->operaciones->proceso ?? 'NO FOUND' ?></td>
+                                            <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?? 'NO FOUND' ?></td>
+                                            <td><?= $val->dia_pago ?></td>
+                                            <td align="right"><?= number_format($val->cantidad, 0) ?></td>
+                                            <td align="right"><?= number_format($val->vlr_prenda, 0) ?></td>
+                                            <td align="right"><?= number_format($val->vlr_pago, 0) ?></td>
+                                            <td><?= $val->porcentaje_cumplimiento ?> %</td>
+                                            <td><?= $val->planta->nombre_planta ?></td>
+                                            <td><?= $val->hora_inicio ?></td>
+                                            <td><?= $val->hora_corte ?></td>
+                                            <?php if($val->hora_descontar !== 0){?>
+                                            <td style="background-color: #B9D5CE"><?= $val->hora_descontar ?></td>
                                             <?php }else{?>    
-                                                <td><?= $val->operaciones->proceso?></td>
-                                            <?php }?>    
-                                            <?php if($val->iddetalleorden == null){?>
-                                                <td style='background-color:#B9D5CE;'><?= 'NO FOUND'?></td>
-                                            <?php }else{?>
-                                                <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?></td> 
-                                            <?php }?>    
-                                             <td><?= $val->dia_pago ?></td> 
-                                            <td align="right"><?= ''.number_format($val->cantidad,0) ?></td>
-                                            <td align="right"><?= ''.number_format($val->vlr_prenda,0) ?></td>
-                                            <td align="right"><?= ''.number_format($val->vlr_pago,0) ?></td>
-                                              <td><?= $val->porcentaje_cumplimiento ?> %</td>
-                                            <td><?= $val->planta->nombre_planta?></td>
-                                            <td><?= $val->hora_inicio?></td>
-                                            <td><?= $val->hora_corte?></td>
-                                             <td><?= $val->hora_descontar?></td>
-
+                                                <td><?= $val->hora_descontar ?></td>
+                                            <?php } ?>        
+                                        </tr>
                                     <?php endforeach;
                                 }?>
                                             

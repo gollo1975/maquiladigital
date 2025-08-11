@@ -175,17 +175,20 @@ class ValorPrendaUnidadController extends Controller
                         }else{
                             if($id_operario <> null ){
                                 $sw = 1;
-                                $table = ValorPrendaUnidadDetalles::find()
-                                        ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                        ->andWhere(['=','id_operario', $id_operario]);
-                                        $table = $table->orderBy('dia_pago DESC');
+                                $query = ValorPrendaUnidadDetalles::find();
+                                $query->joinWith('operarioProduccion');
+                                $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario]);
+                                $query->orderBy('operarios.nombrecompleto ASC');
+                                $table = $query;
                             }else{
                                 $sw = 2;
                                 if($id_planta <> null ){
-                                    $table = ValorPrendaUnidadDetalles::find()
-                                        ->Where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                        ->andWhere(['=','id_planta', $id_planta]);
-                                        $table = $table->orderBy('id_operario ASC');
+                                    $query = ValorPrendaUnidadDetalles::find();
+                                    $query->joinWith('operarioProduccion');
+                                    $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                          ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta]);
+                                    $query->orderBy('operarios.nombrecompleto ASC');
+                                    $table = $query;
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
                                    return $this->redirect(['eficiencia_diaria']);

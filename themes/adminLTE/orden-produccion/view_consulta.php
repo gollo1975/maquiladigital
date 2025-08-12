@@ -78,9 +78,9 @@ $view = 'orden-produccion';
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ordenproduccion') ?>:</th>
                     <td><?= Html::encode($model->ordenproduccion) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'ordenproduccionext') ?>:</th>
-                    <td><?= Html::encode($model->ordenproduccionext) ?></td>
+                    <td ><?= Html::encode($model->ordenproduccionext) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigoproducto') ?>:</th>
-                    <td><?= Html::encode($model->codigoproducto) ?></td>
+                    <td style = "background-color: #83c5be; color: black"><?= Html::encode($model->codigoproducto) ?></td>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Exportacion') ?>:</th>
                     <td><?= Html::encode($model->exportarOrden) ?></td>                       
                 </tr>
@@ -109,8 +109,9 @@ $view = 'orden-produccion';
                                         <tr>
                                             <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
-                                            <th scope="col" style='background-color:#B9D5CE;'>Código</th>
-                                            <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Confeccionadas</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Faltan x confeccionar</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Precio</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
                                             <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -122,8 +123,9 @@ $view = 'orden-produccion';
                                             <tr style="font-size: 85%;">
                                                 <td style="background-color: <?= $val->plantaProduccion->nombre_color?> "><?= $val->plantaProduccion->nombre_planta ?></td>
                                                 <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla   ?></td>
-                                                <td><?= $val->codigoproducto ?></td>
-                                                <td><?= $val->cantidad ?></td>
+                                                <td style="text-align: right; background-color: #83c5be; color: black"><?= ''. number_format($val->cantidad,0) ?></td>
+                                                <td style="text-align: right; background-color: #d8e2dc; color: black"><?= ''. number_format($val->cantidad_operada,0) ?></td>
+                                                <td style="text-align: right; background-color: #fcd5ce; color: black"><?= ''. number_format($val->cantidad - $val->cantidad_operada,0) ?></td>
                                                 <td><?= '$ '.number_format($val->vlrprecio,2) ?></td>
                                                 <td><?= '$ '.number_format($val->subtotal,2) ?></td>
                                                 <?php if ($model->autorizado == 0) { ?>

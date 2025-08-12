@@ -195,9 +195,10 @@ $view = 'orden-produccion';
                                         <tr>
                                             <th scope="col" style='background-color:#B9D5CE;'>Id</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
-                                            <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
-                                            <th scope="col" style='background-color:#B9D5CE;'>Código</th>
-                                            <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Producto y talla</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>Confeccionada</th>
+                                            <th scope="col" style='background-color:#B9D5CE;'>X Confeccionar</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Precio</th>
                                             <th scope="col" style='background-color:#B9D5CE;'>Subtotal</th>
                                             <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -210,10 +211,11 @@ $view = 'orden-produccion';
                                                 <td><?= $val->iddetalleorden ?></td>
                                                 <td style="background-color: <?= $val->plantaProduccion->nombre_color?> "><?= $val->plantaProduccion->nombre_planta ?></td>
                                                 <td><?= $val->productodetalle->prendatipo->prenda.' / '.$val->productodetalle->prendatipo->talla->talla   ?></td>
-                                                <td><?= $val->codigoproducto ?></td>
-                                                <td><?= $val->cantidad ?></td>
-                                                <td><?= '$ '.number_format($val->vlrprecio,2) ?></td>
-                                                <td><?= '$ '.number_format($val->subtotal,2) ?></td>
+                                                <td style="text-align: right; background-color: #83c5be"><?= ''.number_format($val->cantidad,0) ?></td>
+                                                <td style="text-align: right; background-color: #d8e2dc"><?= ''.number_format($val->cantidad_operada,0) ?></td>
+                                                 <td style="text-align: right; background-color: #fcd5ce"><?= ''.number_format($val->cantidad - $val->cantidad_operada,0) ?></td>
+                                                <td style="text-align: right"><?= '$ '.number_format($val->vlrprecio,2) ?></td>
+                                                <td style="text-align: right"><?= '$ '.number_format($val->subtotal,2) ?></td>
                                                 <?php if ($model->autorizado == 0) { ?>
                                                 <td style="width: 25px;">
                                                         <a href="#" data-toggle="modal" data-target="#iddetalleorden2<?= $val->iddetalleorden ?>"><span class="glyphicon glyphicon-pencil"></span></a>

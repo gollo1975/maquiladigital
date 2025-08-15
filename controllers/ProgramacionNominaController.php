@@ -1788,7 +1788,7 @@ class ProgramacionNominaController extends Controller {
                 $detalleIncapacidad->fecha_hasta = $fecha_hasta; 
                 $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
             }elseif($valor_incapacidad->fecha_inicio >= $fecha_desde && $valor_incapacidad->fecha_final <= $fecha_hasta){
-                $total = strtotime($valor_incapacidad->$fecha_final) - strtotime($valor_incapacidad->fecha_inicio);
+                $total = strtotime($valor_incapacidad->fecha_final) - strtotime($valor_incapacidad->fecha_inicio);
                 $total = round($total / 86400)+1;
                 $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
                 $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final; 

@@ -102,4 +102,9 @@ class Ordenproducciondetalle extends \yii\db\ActiveRecord
     {
         return " Id: {$this->iddetalleorden} - Talla: {$this->productodetalle->prendatipo->talla->talla}";
     }    
+    
+     public function getListadoTallaIndividual()
+    {
+        return " Talla: {$this->productodetalle->prendatipo->talla->talla}";
+    }   
 }

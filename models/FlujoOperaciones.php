@@ -33,7 +33,7 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
     {
         return [
             [['idproceso'], 'required'],
-            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza'], 'integer'],
+            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza','cantidad_operaciones','cantidad_confeccionadas'], 'integer'],
             [['fecha_creacion'], 'safe'],
             [['segundos','minutos'],'number'],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -59,6 +59,8 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
             'usuariosistema' => 'Usuariosistema',
             'operacion' => 'Proceso',
             'pieza' => 'Pieza',
+            'cantidad_operaciones' => 'cantidad_operaciones',
+            'cantidad_confeccionadas' => 'cantidad_confeccionadas'
         ];
     }
 

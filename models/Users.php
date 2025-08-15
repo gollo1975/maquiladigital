@@ -38,8 +38,10 @@ class Users extends \yii\db\ActiveRecord{
     {
         if($this->role == 1){
             $perfil = "Usuario";
-        }else{
+        }elseif($this->role == 2){
             $perfil = "Administrador";
+        }else{
+            $perfil = "Empleado";
         }
         return $perfil;
     }

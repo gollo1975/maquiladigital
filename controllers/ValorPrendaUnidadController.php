@@ -149,6 +149,39 @@ class ValorPrendaUnidadController extends Controller
         }
     }
     
+   //INDEX DE LA APP
+   public function actionIngreso_eficiencia_empleado() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 165])->all()) {
+                $tokenUsuario = Yii::$app->user->identity->username;
+                $modelo = null;
+                $tokenOperario = null;
+                $id_planta = null;
+                $tokenPlanta = Operarios::find()->where(['=','documento', Yii::$app->user->identity->username])->one();
+                 $tokenPlanta->id_planta;
+                if($tokenPlanta){
+                    $tokenOperario = $tokenPlanta->id_operario;
+                    $id_planta = $tokenPlanta->id_planta;
+                    $table = ValorPrendaUnidad::find()->where(['=','id_planta', $tokenPlanta->id_planta])->andWhere(['=','cerrar_pago', 0])->orderBy('id_valor DESC')->all();
+                    $modelo = $table;
+                }else{
+                    Yii::$app->getSession()->setFlash('error', 'El documento del operario no coincide con el usuario ingresado. valide la informacion');
+                }
+                return $this->render('app_index', [
+                      'modelo' => $modelo,  
+                      'tokenOperario' =>$tokenOperario,
+                      'id_planta' => $id_planta,
+                ]); 
+            }else{
+              return $this->redirect(['site/sinpermiso']);  
+            }
+        }else{
+           return $this->redirect(['site/login']);
+        }    
+       
+       
+   }
+    
    //index de consulta o pago
     public function actionIndexsoporte() {
         if (Yii::$app->user->identity) {
@@ -661,6 +694,28 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
+    //VISTA PARA PASARA LA TALLAS DE LA OP
+    public function actionView_produccion($id, $idordenproduccion, $id_planta, $tokenOperario){
+        $detalle_orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
+       
+        //buscamos si hay hora y corte creado
+        $buscaHora = \app\models\HoraCorteEficienciaApp::find()->where(['=','fecha_dia', date('Y-m-d')])
+                              ->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
+        if($buscaHora){
+            return $this->render('view_app_produccion', [
+                'model' => $this->findModel($id),
+                'idordenproduccion' => $idordenproduccion,
+                'detalle_orden' => $detalle_orden,
+                'id_planta' =>$id_planta,
+                'id' => $id,
+                'tokenOperario' => $tokenOperario,
+            ]); 
+        }else{
+           Yii::$app->getSession()->setFlash('error', 'No se ha creado la hora y la fecha de corte para la orden de produccion No ('.$idordenproduccion.'). Valide la informacion con el administrador.'); 
+           return $this->redirect(['ingreso_eficiencia_empleado']);
+        }    
+    }
+    
     //VISTA DE PERMITE MODIFICAR LA HORA DE CORTE
     public function actionView_edit_hora($id_valor)
     {
@@ -897,6 +952,145 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
+    //PERMITE ENVIAR LA OPERACION AL SISTEMA PARA CALIFICAR LA EFICIENCIA
+    public function actionEnviar_operacion_individual($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle, $id_operacion) {
+       
+        $flujo = \app\models\FlujoOperaciones::find()->where(['idproceso' => $id_operacion, 'idordenproduccion' => $idordenproduccion])->one();
+
+        $operario = \app\models\Operarios::findOne($tokenOperario);
+
+        // Si no se encuentra el flujo, redirigir con un mensaje de error
+        if (!$flujo || !$operario) {
+            Yii::$app->getSession()->setFlash('error', 'Error de comunicación o el código de operación no se encontró en el balanceo.');
+            return $this->redirect([
+                'entrada_operacion_talla',
+                'id_planta' => $id_planta,
+                'id_detalle' => $id_detalle,
+                'tokenOperario' => $tokenOperario,
+                'id' => $id,
+                'idordenproduccion' => $idordenproduccion,
+            ]);
+        }
+
+        // 2. Preparar el nuevo registro
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        $horaCorte = \app\models\HoraCorteEficienciaApp::find()
+            ->where(['id_valor' => $id])
+            ->orderBy(['id_valor' => SORT_DESC])
+            ->one();
+
+        $table = new \app\models\ValorPrendaUnidadDetalles();
+        $table->id_operario = $tokenOperario;
+        $table->idordenproduccion = $idordenproduccion;
+        $table->operacion = '1'; // Asumiendo que 1 es un valor fijo
+        $table->dia_pago = date('Y-m-d');
+        $table->cantidad = 1;
+        $table->minuto_prenda = $flujo->minutos;
+
+        // 3. Lógica de cálculo de valor según el tipo de operario
+        if ($operario->vinculado == 1) {
+            $table->vlr_prenda = round($empresa->vlr_minuto_vinculado * $flujo->minutos);
+            $table->vlr_pago = $table->vlr_prenda;
+
+            // Comprobar si es la primera operación del día para este operario
+            $operacionesDelDia = \app\models\ValorPrendaUnidadDetalles::find()
+                ->where(['dia_pago' => date('Y-m-d'), 'id_operario' => $tokenOperario])
+                ->count();
+            if ($operacionesDelDia == 0) {
+                $total_dia = 0;
+                $total_dia = $this->CostoOperarioVinculadoApp($tokenOperario);
+                $table->costo_dia_operaria = $total_dia;
+                $table->control_fecha = 1;
+            }
+            $table->observacion = 'Vinculado';
+        } else {
+            $table->vlr_prenda = round($empresa->vlr_minuto_contrato * $flujo->minutos);
+            $table->vlr_pago = $table->vlr_prenda;
+            $table->costo_dia_operaria = $table->vlr_prenda;
+            $table->observacion = 'Al contrato';
+        }
+
+        // 4. Asignar atributos adicionales
+        $model = \app\models\ValorPrendaUnidad::findOne($id);
+        $table->id_valor = $id;
+        $table->usuariosistema = Yii::$app->user->identity->username;
+        $table->hora_inicio_modulo = $horaCorte->hora_inicio;
+        $table->aplica_regla = 1;
+        $table->aplica_sabado = $horaCorte->aplica_sabado;
+        $table->id_planta = $id_planta;
+        $table->id_tipo = $model->idtipo;
+        $table->iddetalleorden = $id_detalle;
+        $table->idproceso = $id_operacion;
+        $table->hora_inicio = $horaCorte->hora_inicio;
+        $table->hora_corte = date('H:i:s');
+
+        // 5. Guardar el registro y manejar errores de validación
+        if ($table->save()) {
+            Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema.');
+        } else {
+            // En caso de error, obtenemos y mostramos los detalles
+            $errores = json_encode($table->getErrors());
+            Yii::$app->getSession()->setFlash('error', "Error de comunicación, no se guardaron los registros. Detalles: $errores");
+        }
+
+        // 6. Redirigir siempre después de intentar guardar
+      return $this->redirect([
+            'entrada_operacion_talla',
+            'id_planta' => $id_planta,
+            'id_detalle' => $id_detalle,
+            'tokenOperario' => $tokenOperario,
+            'id' => $id,
+            'idordenproduccion' => $idordenproduccion,
+        ]);
+    }
+    
+    
+    //PERMITE MOSTRAR LAS TALAS DE QUE TIENE CADA ORDEN DE PRODUCCION
+    public function actionEntrada_operacion_talla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle) {
+        $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $tokenOperario])
+                                                                            ->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                            ->andWhere(['=','estado_operacion', 0])->all();
+        
+        $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        
+        return $this->render('entrada_operacion_talla', [
+            'model' => $this->findModel($id),
+            'id_planta' =>$id_planta,
+            'detalle_balanceo' =>  $detalle_balanceo,
+            'id_detalle' => $id_detalle,
+            'tokenOperario' => $tokenOperario,
+            'idordenproduccion' => $idordenproduccion,
+            'tallas' => $tallas,
+        ]); 
+    }
+    
+    protected function CostoOperarioVinculadoApp($tokenOperario) {
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        $valorCesantia = 0; 
+        $valorPrima = 0;
+        $vlrDia = 0;
+        $valorInteres = 0;
+        $totalDia = 0;
+        $valorVacacion = 0; 
+        $valorArl = 0;
+        $auxilioT = 0;
+        $operario = Operarios::findOne($tokenOperario);
+        $vlrDia = round($operario->salario_base / $empresa->dias_trabajados);
+        $auxilio = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
+        $auxilioT = round($auxilio->auxilio_transporte_actual / $empresa->dias_trabajados);
+        $valorPrima = round($vlrDia * $empresa->porcentaje_prima)/100;
+        $valorCesantia = round($vlrDia * $empresa->porcentaje_cesantias)/100;
+        $valorInteres = round($vlrDia * $empresa->porcentaje_intereses)/100;
+        $valorVacacion = round($vlrDia * $empresa->porcentaje_vacacion)/100;
+        $valorArl = round($vlrDia * $operario->arl->arl)/100;
+        $total_dia = round($valorPrima + $valorCesantia + $valorInteres + $valorVacacion + $valorArl + $vlrDia + $auxilioT);
+        return ($total_dia);
+    
+    }
+    
+    
+   
+    
     //PROCESO QUE CANCULA LA EFICIENCIA DEL OPERARIO
     protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {
         $table = ValorPrendaUnidadDetalles::find()->orderBy('consecutivo DESC')->one();
@@ -995,6 +1189,66 @@ class ValorPrendaUnidadController extends Controller
         ]);    
     }
     
+    ///PROCESO QUE CREA LA HORA DE INICIO O CORTE APP
+    public function actionCrear_hora_corte_app($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
+
+        $model = new \app\models\HoraCorteEficienciaApp();
+
+        if ($model->load(Yii::$app->request->post())) {
+            // Valida los datos del modelo antes de cualquier operación.
+            if ($model->validate()) {
+                // Busca si ya existe una hora de corte para evitar duplicados.
+                $buscar = \app\models\HoraCorteEficienciaApp::find()
+                    ->where([
+                        'id_valor' => $id,
+                        'hora_inicio' => $model->hora_inicio,
+                        'hora_corte' => $model->hora_corte,
+                        'idordenproduccion' => $idordenproduccion,
+                        'fecha_dia' => date('Y-m-d')])->one();
+
+                if ($buscar) {
+                    // Si la hora de corte ya existe, muestra un mensaje de error y redirige.
+                    Yii::$app->getSession()->setFlash('error', 'La hora de corte para el ingreso de operaciones ya existe para esta OP. Validar la información.');
+                    return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes',
+                            'id_planta' => $id_planta,
+                            'idordenproduccion' => $idordenproduccion,
+                            'id' => $id,
+                            'tokenPlanta' => $tokenPlanta,
+                            'tipo_pago' => $tipo_pago
+                        ]);
+                } else {
+                    // Si no existe, crea un nuevo registro.
+                    $orden = \app\models\Ordenproduccion::findOne($idordenproduccion);
+                    $table = new \app\models\HoraCorteEficienciaApp();
+                    $table->attributes = $model->attributes; // Copia los atributos del modelo
+                    // Asigna los valores adicionales
+                    $table->id_valor = $id;
+                    $table->idordenproduccion = $idordenproduccion;
+                    $table->codigo_producto = $orden->codigoproducto;
+                    $table->fecha_registro = date('Y-m-d H:i:s');
+                    $table->user_name = Yii::$app->user->identity->username;
+                    $table->aplica_sabado = $model->aplica_sabado;
+                    if ($table->save(false)) { // Guarda el nuevo registro
+                        return $this->redirect([
+                            'valor-prenda-unidad/search_tallas_ordenes',
+                            'id_planta' => $id_planta,
+                            'idordenproduccion' => $idordenproduccion,
+                            'id' => $id,
+                            'tokenPlanta' => $tokenPlanta,
+                            'tipo_pago' => $tipo_pago
+                        ]);
+                    } else {
+                        // Maneja el error de guardado si ocurre
+                        Yii::$app->getSession()->setFlash('error', 'Ocurrió un error al guardar la información. Por favor, inténtelo de nuevo.');
+                    }
+                }
+            }
+        }
+        return $this->renderAjax('crear_hora_corte_app', [
+            'model' => $model,       
+        ]);    
+    }
+    
     //EDITAR LINEA DE CONFECCION
     public function actionEditar_linea_confeccion($id_detalle) {
         $model = new \app\models\FormFiltroControlLinea();
@@ -1027,7 +1281,7 @@ class ValorPrendaUnidadController extends Controller
         ]);    
     }
     
-      ///PROCESO QUE CREA LA HORA DE INICIO O CORTE
+    ///PROCESO QUE CREA LA HORA DE INICIO O CORTE
     public function actionEditar_hora_corte($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 153])->all()) {
@@ -1061,6 +1315,38 @@ class ValorPrendaUnidadController extends Controller
            return $this->redirect(['site/login']); 
         }    
     }
+    
+    ///PROCESO QUE EDITA LA HORA Y LA FECHA PARA LA APP
+    public function actionEditar_hora_corte_app($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
+        // 1. Verificación de permisos y autenticación
+        if (!Yii::$app->user->identity || !UsuarioDetalle::find()->where(['codusuario' => Yii::$app->user->identity->codusuario, 'id_permiso' => 166])->exists()) {
+            return $this->redirect(['site/sinpermiso']);
+        }
+      
+        $model = \app\models\HoraCorteEficienciaApp::find()->where(['id_valor' => $id])->orderBy('id_corte DESC')->one();
+
+        if (!$model) {
+            Yii::$app->getSession()->setFlash('error', 'El registro que intenta editar no existe.');
+            return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes', 'id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' => $id, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]);
+        }
+
+        if ($model->load(Yii::$app->request->post())) {
+            // Validación y guardado
+            if ($model->save()) {
+                Yii::$app->getSession()->setFlash('success', 'El registro se ha editado correctamente.');
+                return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes', 'id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' => $id, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]);
+            } else {
+                // Si el guardado falla, los errores se manejan automáticamente por la vista
+                Yii::$app->getSession()->setFlash('error', 'Ocurrió un error al guardar la información. Por favor, inténtelo de nuevo.');
+            }
+        }
+
+        // 4. Renderizar la vista
+        return $this->renderAjax('editar_hora_corte_app', [
+            'model' => $model,
+        ]);
+    }
+    
     
     //CREAR HORA DE INICIO Y DE CORTE MASIVO
     public function actionHora_corte_masivo() {

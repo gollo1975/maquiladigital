@@ -22,51 +22,97 @@ use kartik\select2\Select2;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
-$this->title = 'Consulta de tallas ('. $model->planta->nombre_planta. ')-(Referencia: '.$orden->codigoproducto.')';
+$this->title = 'Eficiencia individual ('. $model->planta->nombre_planta. ')-(Referencia: '.$orden->codigoproducto.')';
 $this->params['breadcrumbs'][] = $this->title;
-?>
-<p>
-    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-    <?php if ($model->autorizado == 0) { 
-        echo Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['valor-prenda-unidad/autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-success btn-sm']);?>
 
-            <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear hora corte',
-                ['/valor-prenda-unidad/crear_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
-                  ['title' => 'Crear hora de corte para ingresar las operaciones',
-                   'data-toggle'=>'modal',
-                   'data-target'=>'#modalcrearhoracorte',
-                   'class' => 'btn btn-warning btn-xs'
-                  ])    
-            ?>
-           
-            <?php echo Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar corte',
-                ['/valor-prenda-unidad/editar_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
-                  ['title' => 'Permite  editar el ultimo de corte de ingreso.',
-                   'data-toggle'=>'modal',
-                   'data-target'=>'#modaleditarhoracorte',
-                   'class' => 'btn btn-info btn-xs'
-                  ])    
-            ?>
-            <div class="modal remote fade" id="modalcrearhoracorte">
-                 <div class="modal-dialog modal-lg" style ="width: 450px;">    
-                     <div class="modal-content"></div>
-                 </div>
-            </div>
-            <div class="modal remote fade" id="modaleditarhoracorte">
-                 <div class="modal-dialog modal-lg" style ="width: 450px;">    
-                     <div class="modal-content"></div>
-                 </div>
-            </div>
+?>
+<?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
+    <?php if ($model->autorizado == 0) { ?>
+        <?= Html::a('<span class="glyphicon glyphicon-ok"></span> autorizado', ['valor-prenda-unidad/autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-success btn-sm']);?>
+        <div class="btn-group btn-sm" role="group">
+            <button type="button" class="btn btn-warning  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               Crear hora y fechas
+               <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                    <li> <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Hora corte individual',
+                        ['/valor-prenda-unidad/crear_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
+                          ['title' => 'Crear hora de corte para ingresar las operaciones',
+                           'data-toggle'=>'modal',
+                           'data-target'=>'#modalcrearhoracorte',
+                           'class' => ''
+                          ]) ?>
+                     </li>
+                    <li> <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Hora corte APP',
+                        ['/valor-prenda-unidad/crear_hora_corte_app','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
+                          ['title' => 'Crear hora de corte para ingresar las operaciones',
+                           'data-toggle'=>'modal',
+                           'data-target'=>'#modalcrearhoracorteapp',
+                           'class' => ''
+                          ]) ?>
+                     </li>
+                      
+            </ul>
+        </div>
+        <div class="btn-group btn-sm" role="group">
+            <button type="button" class="btn btn-info  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               Editar horas y fechas
+               <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li> <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar hora corte individual',
+                        ['/valor-prenda-unidad/editar_hora_corte','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
+                          ['title' => 'Permite  editar el ultimo de corte de ingreso.',
+                           'data-toggle'=>'modal',
+                           'data-target'=>'#modaleditarhoracorte',
+                           'class' => ''
+                          ])    
+                    ?>
+                 </li>
+                <li> <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar hora corte APP',
+                        ['/valor-prenda-unidad/editar_hora_corte_app','id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],
+                          ['title' => 'Permite  editar el ultimo de corte de ingreso.',
+                           'data-toggle'=>'modal',
+                           'data-target'=>'#modaleditarhoracorteapp',
+                           'class' => ''
+                          ])    
+                    ?>
+                 </li>
+                      
+            </ul>
+       
+        </div>  
     <?php } else { 
-             if ($model->cerrar_pago == 0) { 
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago', ['cerrarpago', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],['class' => 'btn btn-warning btn-xs',
-                'data' => ['confirm' => 'Esta seguro de cerrar el proceso de pago Nro : '. $model->id_valor. '', 'method' => 'post']]);
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago-Orden', ['cerrarpagoorden', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],['class' => 'btn btn-info btn-xs',
+             if ($model->cerrar_pago == 0) { ?>
+               <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion,'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta], ['class' => 'btn btn-default btn-sm']);?>
+                <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago', ['cerrarpago', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],['class' => 'btn btn-warning btn-xs',
+                'data' => ['confirm' => 'Esta seguro de cerrar el proceso de pago Nro : '. $model->id_valor. '', 'method' => 'post']]);?>
+                <?= Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pago-Orden', ['cerrarpagoorden', 'id' => $model->id_valor, 'idordenproduccion' => $model->idordenproduccion, 'id_planta' => $id_planta, 'tipo_pago' => $model->tipo_proceso_pago, 'tokenPlanta' => $tokenPlanta],['class' => 'btn btn-info btn-xs',
                 'data' => ['confirm' => 'Esta seguro de cerrar el proceso de pago Nro : '. $model->id_valor. ' y la orden de producción Nro: '.$model->idordenproduccion.'', 'method' => 'post']]);
              }    
-        }?>
-</p>    
+    }?>
+
+    <div class="modal remote fade" id="modalcrearhoracorte" data-backdrop="static">
+         <div class="modal-dialog modal-lg" style ="width: 450px;">    
+             <div class="modal-content"></div>
+         </div>
+    </div>
+  <div class="modal remote fade" id="modalcrearhoracorteapp" data-backdrop="static">
+         <div class="modal-dialog modal-lg" style ="width: 450px;">    
+             <div class="modal-content"></div>
+         </div>
+    </div>
+    <div class="modal remote fade" id="modaleditarhoracorte" data-backdrop="static">
+         <div class="modal-dialog modal-lg" style ="width: 450px;">    
+             <div class="modal-content"></div>
+         </div>
+    </div>
+    <div class="modal remote fade" id="modaleditarhoracorteapp" data-backdrop="static">
+         <div class="modal-dialog modal-lg" style ="width: 450px;">    
+             <div class="modal-content"></div>
+         </div>
+    </div>
+       
 <div class="table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">

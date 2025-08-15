@@ -1756,6 +1756,7 @@ class OrdenProduccionController extends Controller {
                     $table->operacion = $_POST["operacionflujo"][$intIndice];
                     $table->id_tipo = $_POST["id_tipo"][$intIndice];
                     $table->pieza = $_POST["pieza"][$intIndice];
+                    $table->cantidad_operaciones = $orden->cantidad;
                     $table->save(false); 
                     if($_POST["operacionflujo"][$intIndice] == 0){
                          $suma_balanceo += $_POST["sam_balanceo"][$intIndice]; 

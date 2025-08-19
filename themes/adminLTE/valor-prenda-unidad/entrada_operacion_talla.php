@@ -29,10 +29,39 @@ $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".dat
 $operario = \app\models\Operarios::findOne($tokenOperario);
 $this->title = ''.$operario->nombrecompleto.' - ('. $tallas->listadoTallaIndividual. ') - (Referencia:' . $model->ordenproduccion->codigoproducto.' )';
 $this->params['breadcrumbs'][] = $this->title;
+$desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
+    ->where([
+        'id_operario' => $tokenOperario,
+        'id_valor' => $model->id_valor,
+        'idordenproduccion' => $idordenproduccion,
+        'dia_pago' => date('Y-m-d')
+    ])
+    ->andWhere(['is not', 'hora_inicio_desayuno', new \yii\db\Expression('null')])
+    ->count();
+
+// Verificar si ya se ha registrado un inicio de almuerzo para el día
+$almuerzoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
+    ->where([
+        'id_operario' => $tokenOperario,
+        'id_valor' => $model->id_valor,
+        'idordenproduccion' => $idordenproduccion,
+        'dia_pago' => date('Y-m-d')
+    ])
+    ->andWhere(['is not', 'hora_inicio_almuerzo', new \yii\db\Expression('null')])
+    ->count();
+
 ?>
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_produccion','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario], ['class' => 'btn btn-primary btn-sm'])?>
-</p> 
+
+    <?php if ($desayunoRegistrado == 0) { ?>
+        <?= Html::a('<span class="glyphicon glyphicon-film"></span> Desayuno', ['cargar_tiempo_desayuno','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-success btn-sm']); ?>
+    <?php } elseif ($desayunoRegistrado > 0 && $almuerzoRegistrado == 0) { ?>
+        <?= Html::a('<span class="glyphicon glyphicon-text-background"></span> Almuerzo', ['cargar_tiempo_almuerzo','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-sm']); ?>
+    <?php } else {
+         // Opcional: Si ambos ya fueron registrados, no se muestra ningún botón.
+    } ?>
+</p>
 
 <?php $form = ActiveForm::begin([
             "method" => "post",                            
@@ -43,7 +72,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="panel panel-success ">
         <div class="panel-heading">
             <?php if(count($detalle_balanceo) > 0){?>
-                Listado de tallas en producción
+                <?= $Fecha?>
             <?php }?>    
         </div>                       
          <table class="table table-responsive-lg">
@@ -52,8 +81,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Operaciones</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Vlr vinculado</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Vlr contrato</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>T. Oper.</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
                     <th scope="col" style='background-color:#B9D5CE;'></th>
                 </tr>
             </thead>
@@ -67,17 +96,15 @@ $this->params['breadcrumbs'][] = $this->title;
                     foreach ($detalle_balanceo as $val):
                         $flujo = \app\models\FlujoOperaciones::find()->where(['=','idproceso', $val->id_proceso])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
                         $total_unidades = $flujo->cantidad_operaciones - $flujo->cantidad_confeccionadas;
-                        $valor_contrato = round($val->minutos * $empresa->vlr_minuto_contrato); 
-                        $valor_vinculado = round($val->minutos * $empresa->vlr_minuto_vinculado);
                         if($total_unidades != 0){ ?>
                             <tr style="font-size: 85%;">
                                 <td><?= $val->id_proceso ?></td>
                                 <td><?= $val->proceso->proceso ?></td>
                                 <td><?= $val->minutos ?></td> 
-                                <td style="text-align: right"><?= $valor_vinculado?></td> 
-                                <td style="text-align: right"><?= $valor_contrato?></td> 
+                                <td style="text-align: center"><?= $flujo->cantidad_operaciones ?></td> 
+                                <td style="text-align: center"><?= $total_unidades?></td>
                                 <td style= 'width: 25px; height: 25px;'>
-                                    <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-sm']); ?>  
+                                    <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  
                                 </td>
                             </tr>  
                         <?php }    
@@ -86,7 +113,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </tbody>  
         </table>
     </div>
-
+   
 </div>
    
  

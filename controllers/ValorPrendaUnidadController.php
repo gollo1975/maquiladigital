@@ -11,6 +11,7 @@ use app\models\Operarios;
 use app\models\FormFiltroValorPrenda;
 use app\models\FormFiltroResumePagoPrenda;
 use app\models\ModelAplicarPorcentaje;
+
 //clases
 use Yii;
 use yii\web\Controller;
@@ -32,6 +33,7 @@ use yii\db\Expression;
 use yii\db\Query;
 use yii\db\Command;
 use yii\db\ActiveQuery;
+use DateTime;
 
 /**
  * ValorPrendaUnidadController implements the CRUD actions for ValorPrendaUnidad model.
@@ -953,7 +955,8 @@ class ValorPrendaUnidadController extends Controller
     }
     
     //PERMITE ENVIAR LA OPERACION AL SISTEMA PARA CALIFICAR LA EFICIENCIA
-    public function actionEnviar_operacion_individual($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle, $id_operacion) {
+    public function actionEnviar_operacion_individual($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle, $id_operacion)
+    {
        
         $flujo = \app\models\FlujoOperaciones::find()->where(['idproceso' => $id_operacion, 'idordenproduccion' => $idordenproduccion])->one();
 
@@ -975,10 +978,39 @@ class ValorPrendaUnidadController extends Controller
         // 2. Preparar el nuevo registro
         $empresa = \app\models\Matriculaempresa::findOne(1);
         $horaCorte = \app\models\HoraCorteEficienciaApp::find()
-            ->where(['id_valor' => $id])
+            ->where(['id_valor' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                    'fecha_dia' => date('Y-m-d')
+            ])    
             ->orderBy(['id_valor' => SORT_DESC])
             ->one();
-
+        
+        // Busca el ultimo registro de ese empleado
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'id_valor' => $id,
+                'idordenproduccion' => $idordenproduccion,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
+            ->one();
+        
+        //Valida si la persona esta en su hora de comida que no se ingresen operaciones
+        if(date('H:i:s') < $ultimoRegistro->hora_corte){
+            Yii::$app->getSession()->setFlash('error', 'Durante el tiempo de alimento no se pueden ingresar operaciones.Favor validar la información. ');
+            return $this->redirect([
+                'entrada_operacion_talla',
+                'id_planta' => $id_planta,
+                'id_detalle' => $id_detalle,
+                'tokenOperario' => $tokenOperario,
+                'id' => $id,
+                'idordenproduccion' => $idordenproduccion,
+            ]); 
+        }
+         
+        //Inicia proceso de inserccion
+        
         $table = new \app\models\ValorPrendaUnidadDetalles();
         $table->id_operario = $tokenOperario;
         $table->idordenproduccion = $idordenproduccion;
@@ -1023,10 +1055,55 @@ class ValorPrendaUnidadController extends Controller
         $table->idproceso = $id_operacion;
         $table->hora_inicio = $horaCorte->hora_inicio;
         $table->hora_corte = date('H:i:s');
+        $dia_numero = date('N', strtotime($table->dia_pago));
+        $table->dia_semana = $dia_numero;
+        
+        if(!$ultimoRegistro){// si es primer registro
+           $hora_inicial = $horaCorte->hora_inicio;
+           $hora_final = $table->hora_corte; 
+        }else{
+           $hora_inicial = $ultimoRegistro->hora_corte;
+           $hora_final = $table->hora_corte; 
+        }
+        ///permite calcular el tiempo de demora
+        
+        $tiempo_inicial = new \DateTimeImmutable($hora_inicial);
+        $tiempo_final = new \DateTimeImmutable($hora_final);
+       // Calcular la diferencia entre los dos objetos DateTime
+        $diferencia = $tiempo_final->diff($tiempo_inicial);
 
+        // Obtener el número total de segundos
+        $segundos = ($diferencia->days * 86400) + ($diferencia->h * 3600) + ($diferencia->i * 60) + $diferencia->s;
+
+        // Convertir los segundos a minutos y redondear
+         $minutos = round($segundos / 60, 2);
+        if($minutos > 0){
+           //formula para la eficiencia
+            $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
+        }else{
+           return $this->redirect([
+            'entrada_operacion_talla',
+            'id_planta' => $id_planta,
+            'id_detalle' => $id_detalle,
+            'tokenOperario' => $tokenOperario,
+            'id' => $id,
+            'idordenproduccion' => $idordenproduccion,
+            ]);
+        }
+        
+        $table->porcentaje_cumplimiento = $EficienciaOperacion;
         // 5. Guardar el registro y manejar errores de validación
-        if ($table->save()) {
-            Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema.');
+       if ($table->save()) {
+           //guarda la unidad en el flujo de operacion
+            $flujo->cantidad_confeccionadas += 1;
+            $flujo->save();
+            //guarda la unidad x talla
+            $detaller_orden = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+            if($detaller_orden){
+                $detaller_orden->cantidad_confeccionada += 1;
+                $detaller_orden->save();
+            }
+            Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema a las : '.$table->hora_corte.'.');
         } else {
             // En caso de error, obtenemos y mostramos los detalles
             $errores = json_encode($table->getErrors());
@@ -1034,7 +1111,7 @@ class ValorPrendaUnidadController extends Controller
         }
 
         // 6. Redirigir siempre después de intentar guardar
-      return $this->redirect([
+         return $this->redirect([
             'entrada_operacion_talla',
             'id_planta' => $id_planta,
             'id_detalle' => $id_detalle,
@@ -1042,6 +1119,100 @@ class ValorPrendaUnidadController extends Controller
             'id' => $id,
             'idordenproduccion' => $idordenproduccion,
         ]);
+    }
+    
+    //PERMITE INGRESAR EL TIEMPO DEL DESAYUNO
+    public function actionCargar_tiempo_desayuno($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle){
+        /// 1. prepara el ultimo registro
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'id_valor' => $id,
+                'idordenproduccion' => $idordenproduccion,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
+            ->one();
+        if($ultimoRegistro){
+            $horario = \app\models\Horario::findOne(1);
+            $ultimaHora = $ultimoRegistro->hora_corte; 
+            $tiempo_ultima_hora = new \DateTimeImmutable($ultimaHora);
+            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+'.$horario->tiempo_desayuno. ' minutes');
+            $ultimoRegistro->hora_inicio_desayuno = date('H:i:s');
+            $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
+            $nueva_hora_entrada = $ultimoRegistro->hora_corte;
+            if($ultimoRegistro->save()){
+                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del desayuno. Cuenta con '.$horario->tiempo_desayuno. ' minutos. Hora de regreso debe de ser a las : ('.$ultimoRegistro->hora_corte.').');
+                return $this->redirect([
+                    'entrada_operacion_talla',
+                    'id_planta' => $id_planta,
+                    'id_detalle' => $id_detalle,
+                    'tokenOperario' => $tokenOperario,
+                    'id' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                    'nueva_hora_entrada' => $nueva_hora_entrada,
+                 ]);
+            }
+            
+        }else{
+           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
+            return $this->redirect([
+                 'entrada_operacion_talla',
+                 'id_planta' => $id_planta,
+                 'id_detalle' => $id_detalle,
+                 'tokenOperario' => $tokenOperario,
+                 'id' => $id,
+                 'idordenproduccion' => $idordenproduccion,
+             ]);
+        }
+        
+    }
+    
+    //PERMITE INGRESAR LA HORA DE ALMUERZO
+     public function actionCargar_tiempo_almuerzo($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle){
+        /// 1. prepara el ultimo registro
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'id_valor' => $id,
+                'idordenproduccion' => $idordenproduccion,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
+            ->one();
+        if($ultimoRegistro){
+            $horario = \app\models\Horario::findOne(1);
+            $ultimaHora = $ultimoRegistro->hora_corte; 
+            $tiempo_ultima_hora = new \DateTimeImmutable($ultimaHora);
+            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+'.$horario->tiempo_almuerzo. ' minutes');
+            $ultimoRegistro->hora_inicio_almuerzo = $ultimoRegistro->hora_corte;
+            $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
+            $nueva_hora_entrada = $ultimoRegistro->hora_corte;
+            if($ultimoRegistro->save()){
+                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del almuerzo. Cuenta con '.$horario->tiempo_desayuno. ' minutos. La Hora de regreso debe de ser a las : ('.$ultimoRegistro->hora_corte.').');
+                return $this->redirect([
+                    'entrada_operacion_talla',
+                    'id_planta' => $id_planta,
+                    'id_detalle' => $id_detalle,
+                    'tokenOperario' => $tokenOperario,
+                    'id' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                    'nueva_hora_entrada' => $nueva_hora_entrada,
+                 ]);
+            }
+            
+        }else{
+           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
+            return $this->redirect([
+                 'entrada_operacion_talla',
+                 'id_planta' => $id_planta,
+                 'id_detalle' => $id_detalle,
+                 'tokenOperario' => $tokenOperario,
+                 'id' => $id,
+                 'idordenproduccion' => $idordenproduccion,
+             ]);
+        }
+        
     }
     
     
@@ -1052,7 +1223,16 @@ class ValorPrendaUnidadController extends Controller
                                                                             ->andWhere(['=','estado_operacion', 0])->all();
         
         $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
-        
+        if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
+            Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones en esta talla. Valide la información.'); 
+            return $this->redirect(['view_produccion',
+                 'id_planta' => $id_planta,
+                 'tokenOperario' => $tokenOperario,
+                 'id' => $id,
+                 'idordenproduccion' => $idordenproduccion,
+             ]);
+        }
+        $nueva_hora_entrada = '';
         return $this->render('entrada_operacion_talla', [
             'model' => $this->findModel($id),
             'id_planta' =>$id_planta,
@@ -1061,6 +1241,7 @@ class ValorPrendaUnidadController extends Controller
             'tokenOperario' => $tokenOperario,
             'idordenproduccion' => $idordenproduccion,
             'tallas' => $tallas,
+            'nueva_hora_entrada' => $nueva_hora_entrada,
         ]); 
     }
     
@@ -1088,8 +1269,6 @@ class ValorPrendaUnidadController extends Controller
     
     }
     
-    
-   
     
     //PROCESO QUE CANCULA LA EFICIENCIA DEL OPERARIO
     protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {

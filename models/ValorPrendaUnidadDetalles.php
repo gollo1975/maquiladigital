@@ -49,10 +49,10 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     {
         return [
             [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria',
-                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar'], 'integer'],
+                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar','dia_semana'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
             [['porcentaje_cumplimiento','minuto_prenda'], 'number'],
-            [['usuariosistema', 'observacion','hora_inicio_modulo'], 'string', 'max' => 20],
+            [['usuariosistema', 'observacion','hora_inicio_modulo','hora_inicio_desayuno','hora_inicio_almuerzo'], 'string', 'max' => 20],
             [['operacion'], 'string', 'max' => 1],
             [['hora_inicio', 'hora_corte'], 'string'],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],

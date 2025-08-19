@@ -1560,7 +1560,7 @@ class ProgramacionNominaController extends Controller {
                 'id_grupo_pago' => $id_grupo_pago,
                 'fecha_desde' => $fecha_desde,
                 'fecha_hasta' => $fecha_hasta,
-            ]);
+           ]);
     }// termina el boton de proceso de regitros 
     
     //CODIGO QUE GENERA LOS DIAS DE LAS CESANTIAS
@@ -2278,7 +2278,7 @@ class ProgramacionNominaController extends Controller {
             endforeach;
 
             //codigo que actualiza los valores a pagar del adicion de pago permanente cuando
-           $adicion_permanente = PagoAdicionalPermanente::find()->where(['=', 'permanente', 1])
+            $adicion_permanente = PagoAdicionalPermanente::find()->where(['=', 'permanente', 1])
                             ->andWhere(['=', 'estado_registro', 1])
                             ->andWhere(['=', 'estado_periodo', 1])
                             ->andWhere(['=', 'id_grupo_pago', $id_grupo_pago])
@@ -2420,8 +2420,6 @@ class ProgramacionNominaController extends Controller {
         }
     }
     
-  
-
     //codigo que actualiza los saldos de deduccion, ingreso no prestacional, incapacidades
     protected function ModuloActualizarCampos($actualizar_campos) {
         $total_no_prestacional = 0;
@@ -2430,6 +2428,9 @@ class ProgramacionNominaController extends Controller {
         $total_incapacidad = 0;
         $total_ajuste_incapacidad = 0;
         $total_auxilio = 0;
+        $total_dias = 0;
+        $empresa= \app\models\Matriculaempresa::findOne(1);
+        $horas_dias = $empresa->horas_mensuales / 30; 
         $detalle_no = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $actualizar_campos->id_programacion])->orderBy('id_programacion DESC')->all();
         foreach ($detalle_no as $campos):
             $total_no_prestacional = $total_no_prestacional + $campos->vlr_devengado_no_prestacional;
@@ -2438,6 +2439,9 @@ class ProgramacionNominaController extends Controller {
             $total_incapacidad = $total_incapacidad + $campos->vlr_incapacidad;
             $total_auxilio = $total_auxilio + $campos->auxilio_transporte;
             $total_ajuste_incapacidad += $campos->vlr_ajuste_incapacidad;
+            if($campos->codigoSalario->inicio_nomina == 1){
+                $total_dias = $campos->dias_reales;
+            }
         endforeach;
         $actualizar_campos->ibc_no_prestacional = $total_no_prestacional;
         $actualizar_campos->total_deduccion = $total_deduccion;
@@ -2445,6 +2449,8 @@ class ProgramacionNominaController extends Controller {
         $actualizar_campos->total_incapacidad = $total_incapacidad;
         $actualizar_campos->total_auxilio_transporte= $total_auxilio;
         $actualizar_campos->ajuste_incapacidad =  $total_ajuste_incapacidad;
+        $actualizar_campos->dia_real_pagado = $total_dias;
+        $actualizar_campos->horas_pago = round($horas_dias * $total_dias);
         $actualizar_campos->save(false);
     }
 
@@ -2612,40 +2618,60 @@ class ProgramacionNominaController extends Controller {
     //controlador que actualiza el valor real a pagar de pago adicional.
     protected function ModuloActualizaSaldosPago($adicionpermanente, $id, $id_grupo_pago)
     {
-       $dias = 0;
-       $nomina= [];
-       $grupo_pago = PeriodoPagoNomina::find()->where(['=','id_grupo_pago', $id_grupo_pago])->andWhere(['=','estado_periodo', 0])->one();
-       $concepto_salario = ConceptoSalarios::find()->where(['=', 'inicio_nomina', 1])->one(); 
-       $concepto_sal = ConceptoSalarios::find()->where(['=', 'codigo_salario', $adicionpermanente->codigo_salario])->one();
-       $nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $adicionpermanente->id_empleado])->one();
-       if($nomina){
-            $detalle_nomina = ProgramacionNominadetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $concepto_salario->codigo_salario])->one();
-            $detalle_nomina_salario = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $nonima->id_programacion])->andwhere(['=','codigo_salario', $adicionpermanente->codigo_salario])->one();
-            $dias = $nonima->dia_real_pagado;
-            if($concepto_sal->prestacional == 1 && $adicionpermanente->aplicar_dia_laborado == 1){
-                $detalle_nomina_salario->vlr_devengado = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;
-                $detalle_nomina_salario->save(false);
-            }else{
-                 if($concepto_sal->prestacional == 1 && $adicionpermanente->aplicar_dia_laborado == 0){
-                    $detalle_nomina_salario->vlr_devengado = $adicionpermanente->vlr_adicion;   
-                    $detalle_nomina_salario->save(false);
-                 }
-            }
-            if($concepto_sal->prestacional == 0 && $adicionpermanente->aplicar_dia_laborado == 0){
-               $detalle_nomina_salario->vlr_devengado_no_prestacional = $adicionpermanente->vlr_adicion; 
-               $detalle_nomina_salario->save(false);
-            }else{
+        $grupo_pago = PeriodoPagoNomina::find()->where(['id_grupo_pago' => $id_grupo_pago, 'estado_periodo' => 0])->one();
+        $concepto_sal = ConceptoSalarios::find()->where(['codigo_salario' => $adicionpermanente->codigo_salario])->one();
+        $nomina = ProgramacionNomina::find()->where(['id_periodo_pago_nomina' => $id, 'id_empleado' => $adicionpermanente->id_empleado])->one();
 
-                  if($concepto_sal->prestacional == 0 && $adicionpermanente->aplicar_dia_laborado == 1){
-                    $detalle_nomina_salario->vlr_devengado_no_prestacional = round($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias;   
-                    $detalle_nomina_salario->vlr_devengado = round(($adicionpermanente->vlr_adicion / $grupo_pago->dias_periodo) * $dias);   
-                    $detalle_nomina_salario->save(false);
-                  }    
-            }
-       }    
-               
+        if (!$nomina) {
+            return;
+        }
+
+        // 2. Buscar el detalle de la nómina a actualizar
+        $detalle_nomina_salario = ProgramacionNominaDetalle::find()
+            ->where(['id_programacion' => $nomina->id_programacion, 'codigo_salario' => $adicionpermanente->codigo_salario])
+            ->one();
+
+        if (!$detalle_nomina_salario) {
+            return;
+        }
+
+        $dias_incapacidad = ProgramacionNominaDetalle::find()
+        ->where(['id_programacion' => $nomina->id_programacion])
+        ->sum('dias_incapacidad_descontar');
+
+        $dias_licencia = ProgramacionNominaDetalle::find()
+            ->where(['id_programacion' => $nomina->id_programacion])
+            ->sum('dias_licencia_descontar');
+
+        $dias_descontar = ($dias_incapacidad ?? 0) + ($dias_licencia ?? 0);
+
+        // 4. Determinar los días reales a pagar
+        $dias_pagados_reales = $nomina->dia_real_pagado - $dias_descontar;
+        $dias_pagados_reales = max(0, $dias_pagados_reales);
+
+        $valor_adicion = $adicionpermanente->vlr_adicion;
+        $dias_periodo = $grupo_pago->dias_periodo;
+
+        // 5. Calcular el valor devengado según los días trabajados reales
+        if ($adicionpermanente->aplicar_dia_laborado == 1) {
+            $valor_proporcional = round(($valor_adicion / $dias_periodo) * $dias_pagados_reales);
+        } else {
+            $valor_proporcional = $valor_adicion;
+        }
+
+        // 6. Asignar el valor calculado al campo correspondiente
+        if ($concepto_sal->prestacional == 1) {
+            $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
+            $detalle_nomina_salario->vlr_devengado_no_prestacional = 0;
+        } else {
+            $detalle_nomina_salario->vlr_devengado_no_prestacional = $valor_proporcional;
+            $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
+        }
+
+        // 7. Guardar los cambios
+        $detalle_nomina_salario->save(false);
     }
-
+        
     //controlador de actualizacion de ibc y ibp
     protected function DescontarDiasIncapacidades($contar, $id_programacion) {
         
@@ -3019,7 +3045,12 @@ class ProgramacionNominaController extends Controller {
                     $dato->auxilio_transporte = $model->devengado;
                 }
                 if($model->devengado > 0){
-                    $dato->vlr_devengado = $model->devengado;
+                    if($table->codigoSalario->prestacional == 1){
+                        $dato->vlr_devengado = $model->devengado;
+                    }else{
+                        $dato->vlr_devengado = $model->devengado;
+                        $dato->vlr_devengado_no_prestacional = $model->devengado;
+                    }    
                 }
                 if($model->deduccion > 0){
                     $dato->vlr_deduccion = $model->deduccion;
@@ -3032,7 +3063,8 @@ class ProgramacionNominaController extends Controller {
             if (isset($_POST["cerrar_ventana"])) {
                 return $this->redirect(["programacion-nomina/view_colilla_pagonomina",'id' => $id, 'id_programacion' => $id_programacion, 'id_grupo_pago' => $id_grupo_pago,
                         'fecha_desde' => $fecha_desde,
-                        'fecha_hasta' => $fecha_hasta,]);
+                        'fecha_hasta' => $fecha_hasta,
+                    ]);
             }
             
         }
@@ -3068,29 +3100,53 @@ class ProgramacionNominaController extends Controller {
     
     //ACTUALIZAR LA COLILLA
     public function actionActualizar_colilla($id, $id_programacion, $id_grupo_pago, $fecha_desde, $fecha_hasta) {
+        // 1. Obtener la nómina y los detalles
         $nomina = ProgramacionNomina::findOne($id_programacion);
-        $detalle_nomina = \app\models\ProgramacionNominaDetalle::find()->where(['=','id_programacion', $id_programacion])->all();
-        $devengados = 0; $deduccion = 0; $prestacional = 0; $no_prestacional = 0; $auxilio_transporte = 0;
-        foreach ($detalle_nomina as $detalle) {
-            if($detalle->codigoSalario->devengado_deduccion == 1){
-                if($detalle->codigoSalario->ingreso_base_prestacional == 1){
-                    $prestacional += $detalle->vlr_devengado + $detalle->vlr_licencia;
-                }else{
-                    $no_prestacional += $detalle->vlr_devengado_no_prestacional;
+        if (!$nomina) {
+            return;
+        }
+
+        $detalles_nomina = \app\models\ProgramacionNominaDetalle::find()->where(['id_programacion' => $id_programacion])->all();
+
+        // 2. Inicializar los totalizadores
+        $total_devengados = 0;
+        $total_deducciones = 0;
+        $total_prestacional = 0;
+        $total_no_prestacional = 0;
+        $total_auxilio_transporte = 0;
+
+        // 3. Recorrer los detalles de la nómina y sumar los valores
+        foreach ($detalles_nomina as $detalle) {
+            // Verificar si el concepto es devengado (devengado_deduccion == 1)
+            if ($detalle->codigoSalario->devengado_deduccion == 1) {
+                // Sumar al total prestacional o no prestacional
+                if ($detalle->codigoSalario->ingreso_base_prestacional == 1) {
+                     $total_devengados += $detalle->vlr_devengado;
+                    $total_prestacional += $detalle->vlr_devengado + $detalle->vlr_licencia;
+                } else {
+                    $total_no_prestacional += $detalle->vlr_devengado_no_prestacional;
                 }
-                $devengados += $detalle->vlr_devengado;
-                $auxilio_transporte = $detalle->auxilio_transporte;
+
+                // Asignar el valor del auxilio de transporte si existe
+                if ($detalle->auxilio_transporte > 0) {
+                    $total_auxilio_transporte = $detalle->auxilio_transporte;
+                }
+
             } else {
-                $deduccion += $detalle->vlr_deduccion;
+                // Si no es devengado, es una deducción
+                $total_deducciones += $detalle->vlr_deduccion;
             }
         }
-        echo $devengados;
-        $nomina->ibc_prestacional = $prestacional;
-        $nomina->ibc_no_prestacional = $no_prestacional;
-        $nomina->total_deduccion = $deduccion;
-        $nomina->total_devengado = $devengados + $auxilio_transporte ;
-        $nomina->total_auxilio_transporte = $auxilio_transporte;
-        $nomina->total_pagar = $devengados - $deduccion;
+ 
+        // 4. Asignar los valores calculados al modelo de nómina
+        $nomina->ibc_prestacional = $total_prestacional;
+        $nomina->ibc_no_prestacional = $total_no_prestacional;
+        $nomina->total_deduccion = $total_deducciones;
+        $nomina->total_devengado = $total_devengados + $total_auxilio_transporte + $total_no_prestacional;
+        $nomina->total_auxilio_transporte = $total_auxilio_transporte;
+        $nomina->total_pagar = $nomina->total_devengado - $total_deducciones;
+
+        // 5. Guardar los cambios en la base de datos
         $nomina->save(false);
         return $this->redirect(['view_colilla_pagonomina', 
             'id' => $id,

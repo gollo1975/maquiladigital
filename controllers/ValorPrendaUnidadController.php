@@ -829,9 +829,9 @@ class ValorPrendaUnidadController extends Controller
                $hora_inicio = $conCorteProceso->hora_inicio;
             }
             //CODIGO QUE BUSCA ENTRADAS REGISTRADAS
-            if (!$operario && !$fecha_entrada && !$id_detalle && !$hora_inicio && !$hora_corte && !$fecha_entrada && !$modulo) {
-                Yii::$app->getSession()->setFlash('error', 'Campos vacios en la consulta. Valide la informacion');
-                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
+            if (is_null($operario) || is_null($fecha_entrada) || is_null($id_detalle) || is_null($hora_inicio) || is_null($hora_corte) || is_null($modulo)) {
+                Yii::$app->getSession()->setFlash('error', 'Campos vacíos en la consulta. Valide la información');
+                return $this->redirect(['view_search_operaciones', 'id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' => $id, 'id_detalle' => $id_detalle, 'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]);
             }
             $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])
                                                                ->andWhere(['=','id_operario', $operario])->orderBy('hora_inicio DESC')->all();

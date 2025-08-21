@@ -829,11 +829,15 @@ class ValorPrendaUnidadController extends Controller
                $hora_inicio = $conCorteProceso->hora_inicio;
             }
             //CODIGO QUE BUSCA ENTRADAS REGISTRADAS
+            if (!$operario && !$fecha_entrada && !$id_detalle && !$hora_inicio && !$hora_corte && !$fecha_entrada && !$modulo) {
+                Yii::$app->getSession()->setFlash('error', 'Campos vacios en la consulta. Valide la informacion');
+                  //  return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
+            }
             $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])
                                                                ->andWhere(['=','id_operario', $operario])->orderBy('hora_inicio DESC')->all();
             $conCrearCorte = \app\models\ValorPrendaCorteConfeccion::find(['=','id_valor', $id])->andWhere(['=','fecha_proceso', $fecha_entrada])->one();
             if($conCrearCorte){ 
-                if ($operario > 0 && $fecha_entrada != '' && $modulo != '' && $id_detalle != '' && $hora_inicio != '' && $hora_corte != '') {
+                if ($operario > 0 && $fecha_entrada != '' && $id_detalle != '' && $hora_inicio != '' && $modulo != null && $hora_corte != '') {
                     $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
                                                                             ->andWhere(['=','idordenproduccion', $idordenproduccion])
                                                                             ->andWhere(['=','estado_operacion', 0])
@@ -843,8 +847,8 @@ class ValorPrendaUnidadController extends Controller
                     return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
                 }
             }else{
-                Yii::$app->getSession()->setFlash('error', 'Debe de crear la HORA DE INICIO y la HORA DE CORTE para ingresar las operaciones de cada empleado. Favor regresar y presionar el boton Crear_hora_corte');
-                return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]); 
+                Yii::$app->getSession()->setFlash('error', 'La FECHA DE CONFECCION no puede estar vacia. Valide la informacion.');
+             //   return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]); 
             }    
         }
         if (isset($_POST["envia_dato_confeccion"])) {
@@ -1169,7 +1173,7 @@ class ValorPrendaUnidadController extends Controller
     }
     
     //PERMITE INGRESAR LA HORA DE ALMUERZO
-     public function actionCargar_tiempo_almuerzo($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle){
+    public function actionCargar_tiempo_almuerzo($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle){
         /// 1. prepara el ultimo registro
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([

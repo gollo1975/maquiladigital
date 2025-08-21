@@ -829,27 +829,33 @@ class ValorPrendaUnidadController extends Controller
                $hora_inicio = $conCorteProceso->hora_inicio;
             }
             //CODIGO QUE BUSCA ENTRADAS REGISTRADAS
-            if (is_null($operario) || is_null($fecha_entrada) || is_null($id_detalle) || is_null($hora_inicio) || is_null($hora_corte) || is_null($modulo)) {
-                Yii::$app->getSession()->setFlash('error', 'Campos vacíos en la consulta. Valide la información');
+            if (empty($operario) || empty($fecha_entrada) || empty($id_detalle) || empty($hora_inicio) || empty($hora_corte) || empty($modulo)) {
+                Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO, HORA INICIO Y HORA CORTE para la búsqueda. Algunos campos están vacíos.');
                 return $this->redirect(['view_search_operaciones', 'id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' => $id, 'id_detalle' => $id_detalle, 'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]);
             }
-            $conOperaciones = ValorPrendaUnidadDetalles::find()->where(['=','id_valor', $id])->andWhere(['=','dia_pago', $fecha_entrada])
-                                                               ->andWhere(['=','id_operario', $operario])->orderBy('hora_inicio DESC')->all();
-            $conCrearCorte = \app\models\ValorPrendaCorteConfeccion::find(['=','id_valor', $id])->andWhere(['=','fecha_proceso', $fecha_entrada])->one();
-            if($conCrearCorte){ 
-                if ($operario > 0 && $fecha_entrada != '' && $id_detalle != '' && $hora_inicio != '' && $modulo != null && $hora_corte != '') {
-                    $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $operario])
-                                                                            ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                            ->andWhere(['=','estado_operacion', 0])
-                                                                            ->andWhere(['=','id_balanceo', $modulo])->all();
-                }else{
-                    Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar el OPERARIO, FECHA, NOMBRE DEL MODULO, TALLA, HORA INICIO Y HORA CORTE para la busqueda.');
-                    return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta,'tipo_pago' => $tipo_pago]);
-                }
-            }else{
-                Yii::$app->getSession()->setFlash('error', 'La FECHA DE CONFECCION no puede estar vacia. Valide la informacion.');
-             //   return $this->redirect(['view_search_operaciones','id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' =>$id, 'id_detalle' =>$id_detalle,'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]); 
-            }    
+            $conOperaciones = ValorPrendaUnidadDetalles::find()
+                ->where(['=', 'id_valor', $id])
+                ->andWhere(['=', 'dia_pago', $fecha_entrada])
+                ->andWhere(['=', 'id_operario', $operario])
+                ->orderBy('hora_inicio DESC')
+                ->all();
+
+            $conCrearCorte = \app\models\ValorPrendaCorteConfeccion::find()
+                ->where(['=', 'id_valor', $id])
+                ->andWhere(['=', 'fecha_proceso', $fecha_entrada])
+                ->one();
+
+            if ($conCrearCorte) {
+                $detalle_balanceo = \app\models\BalanceoDetalle::find()
+                    ->where(['=', 'id_operario', $operario])
+                    ->andWhere(['=', 'idordenproduccion', $idordenproduccion])
+                    ->andWhere(['=', 'estado_operacion', 0])
+                    ->andWhere(['=', 'id_balanceo', $modulo])
+                    ->all();
+            } else {
+                Yii::$app->getSession()->setFlash('error', 'La FECHA DE CONFECCION no puede estar vacía. Valide la información.');
+            }
+            return $this->redirect(['view_search_operaciones', 'id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' => $id, 'id_detalle' => $id_detalle, 'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]);
         }
         if (isset($_POST["envia_dato_confeccion"])) {
             if ($fecha_entrada != null) {

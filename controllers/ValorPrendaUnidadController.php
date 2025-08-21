@@ -855,7 +855,7 @@ class ValorPrendaUnidadController extends Controller
             } else {
                 Yii::$app->getSession()->setFlash('error', 'La FECHA DE CONFECCION no puede estar vacía. Valide la información.');
             }
-            return $this->redirect(['view_search_operaciones', 'id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' => $id, 'id_detalle' => $id_detalle, 'codigo' => $codigo, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]);
+            
         }
         if (isset($_POST["envia_dato_confeccion"])) {
             if ($fecha_entrada != null) {

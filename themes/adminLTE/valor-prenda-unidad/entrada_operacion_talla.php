@@ -32,7 +32,6 @@ $this->params['breadcrumbs'][] = $this->title;
 $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
     ->where([
         'id_operario' => $tokenOperario,
-        'id_valor' => $model->id_valor,
         'idordenproduccion' => $idordenproduccion,
         'dia_pago' => date('Y-m-d')
     ])
@@ -43,7 +42,6 @@ $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
 $almuerzoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
     ->where([
         'id_operario' => $tokenOperario,
-        'id_valor' => $model->id_valor,
         'idordenproduccion' => $idordenproduccion,
         'dia_pago' => date('Y-m-d')
     ])
@@ -113,7 +111,19 @@ $almuerzoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
             </tbody>  
         </table>
     </div>
-   
+   <div class="panel panel-success ">
+        <div class="panel-heading">
+            <?php
+            if(count($vector_eficiencia) > 0){
+                $total = 0; $con = 0;
+                foreach ($vector_eficiencia as $val) {
+                    $con += 1;
+                    $total += $val->porcentaje_cumplimiento;
+                }?>
+            <div style="font-size: 200%; text-align: center">Eficiencia: <?= round($total / $con)?>%</div>
+            <?php }?>    
+        </div> 
+   </div>    
 </div>
    
  

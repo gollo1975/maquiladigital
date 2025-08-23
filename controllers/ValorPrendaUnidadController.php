@@ -999,7 +999,6 @@ class ValorPrendaUnidadController extends Controller
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([
                 'id_operario' => $tokenOperario,
-                'id_valor' => $id,
                 'idordenproduccion' => $idordenproduccion,
                 'dia_pago' => date('Y-m-d')
             ])
@@ -1007,17 +1006,19 @@ class ValorPrendaUnidadController extends Controller
             ->one();
         
         //Valida si la persona esta en su hora de comida que no se ingresen operaciones
-        if(date('H:i:s') < $ultimoRegistro->hora_corte){
-            Yii::$app->getSession()->setFlash('error', 'Durante el tiempo de alimento no se pueden ingresar operaciones.Favor validar la información. ');
-            return $this->redirect([
-                'entrada_operacion_talla',
-                'id_planta' => $id_planta,
-                'id_detalle' => $id_detalle,
-                'tokenOperario' => $tokenOperario,
-                'id' => $id,
-                'idordenproduccion' => $idordenproduccion,
-            ]); 
-        }
+        if($ultimoRegistro){
+            if(date('H:i:s') < $ultimoRegistro->hora_corte){
+                Yii::$app->getSession()->setFlash('error', 'Durante el tiempo de alimento no se pueden ingresar operaciones.Favor validar la información. ');
+                return $this->redirect([
+                    'entrada_operacion_talla',
+                    'id_planta' => $id_planta,
+                    'id_detalle' => $id_detalle,
+                    'tokenOperario' => $tokenOperario,
+                    'id' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                ]); 
+            }
+        }    
          
         //Inicia proceso de inserccion
         
@@ -1043,6 +1044,7 @@ class ValorPrendaUnidadController extends Controller
                 $total_dia = $this->CostoOperarioVinculadoApp($tokenOperario);
                 $table->costo_dia_operaria = $total_dia;
                 $table->control_fecha = 1;
+                $table->hora_descontar = 1;
             }
             $table->observacion = 'Vinculado';
         } else {
@@ -1232,6 +1234,14 @@ class ValorPrendaUnidadController extends Controller
                                                                             ->andWhere(['=','idordenproduccion', $idordenproduccion])
                                                                             ->andWhere(['=','estado_operacion', 0])->all();
         
+       //Permite calcular la eficiencia
+        $vector_eficiencia = ValorPrendaUnidadDetalles::find()
+                ->where([
+                        'id_operario' => $tokenOperario,
+                        'idordenproduccion' => $idordenproduccion,
+                        'dia_pago' => date('Y-m-d')
+                        ])->all();
+        
         $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
             Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones en esta talla. Valide la información.'); 
@@ -1252,6 +1262,7 @@ class ValorPrendaUnidadController extends Controller
             'idordenproduccion' => $idordenproduccion,
             'tallas' => $tallas,
             'nueva_hora_entrada' => $nueva_hora_entrada,
+            'vector_eficiencia' => $vector_eficiencia,
         ]); 
     }
     

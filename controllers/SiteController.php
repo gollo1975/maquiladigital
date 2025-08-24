@@ -363,7 +363,6 @@ class SiteController extends Controller {
             return ActiveForm::validate($model);
         }
         if ($model->load(Yii::$app->request->post())) {
-
             if ($model->validate()) {
                 $table = Users::find()->where(['codusuario' => $id])->one();
                 if ($table) {
@@ -374,9 +373,13 @@ class SiteController extends Controller {
                     $table->authKey = $this->randKey("abcdef0123456789", 200);
                     //Creamos un token de acceso único para el usuario
                     $table->accessToken = $this->randKey("abcdef0123456789", 200);
-                    if ($table->update()) {
+                    if ($table->save()) {
                         $msg = "El registro ha sido actualizado correctamente";
-                        return $this->redirect(["site/users"]);
+                        if($table->role == 2){
+                             return $this->redirect(["site/users"]);
+                        }else{
+                             return $this->redirect(["site/view",'id' => $id]);
+                        }
                     } else {
                         $msg = "El registro no sufrio ningun cambio";
                         return $this->redirect(["site/users"]);

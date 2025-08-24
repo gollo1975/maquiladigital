@@ -204,7 +204,7 @@ class ValorPrendaUnidadController extends Controller
                         $id_operario = Html::encode($form->id_operario);
                         $dia_pago = Html::encode($form->dia_pago);
                         $fecha_corte = Html::encode($form->fecha_corte);
-                        if($dia_pago == null && $fecha_corte == null){
+                        if(empty($dia_pago) || empty($fecha_corte)){
                             Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
                             return $this->redirect(['indexsoporte']);
                         }else{
@@ -213,7 +213,7 @@ class ValorPrendaUnidadController extends Controller
                                 $query = ValorPrendaUnidadDetalles::find();
                                 $query->joinWith('operarioProduccion');
                                 $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario]);
-                                $query->orderBy('operarios.nombrecompleto ASC');
+                                $query->orderBy('consecutivo DESC,operarios.nombrecompleto ASC');
                                 $table = $query;
                             }else{
                                 $sw = 2;
@@ -222,11 +222,11 @@ class ValorPrendaUnidadController extends Controller
                                     $query->joinWith('operarioProduccion');
                                     $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
                                           ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta]);
-                                    $query->orderBy('operarios.nombrecompleto ASC');
+                                    $query->orderBy('consecutivo DESC, operarios.nombrecompleto ASC');
                                     $table = $query;
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
-                                   return $this->redirect(['eficiencia_diaria']);
+                                   return $this->redirect(['indexsoporte']);
                                  }    
                             }    
                         }
@@ -250,6 +250,90 @@ class ValorPrendaUnidadController extends Controller
                     }
                 }             
                 return $this->render('indexsoporte', [
+                            'modelo' => $modelo,
+                            'form' => $form,
+                            'sw' => $sw,
+                            'pagination' => $pages,
+                            'validar_eficiencia' => $validar_eficiencia,
+                            'dia_pago' =>$dia_pago,
+                            'fecha_corte' => $fecha_corte,
+                            'id_operario' => $id_operario,
+                            'id_planta' => $id_planta,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
+    
+    //index de consulta o pago
+    public function actionValor_prenda_app() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 167])->all()) {
+                $form = new FormFiltroResumePagoPrenda();
+                $id_operario = null;
+                $dia_pago = '';
+                $fecha_corte = '';
+                $validar_eficiencia = 0;
+                $modelo = null;
+                $pages = null;
+                $sw = 0;
+                $id_planta = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $validar_eficiencia = Html::encode($form->validar_eficiencia);
+                        $id_planta = Html::encode($form->id_planta);
+                        $id_operario = Html::encode($form->id_operario);
+                        $dia_pago = Html::encode($form->dia_pago);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        if(empty($dia_pago) || empty($fecha_corte)){
+                            Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
+                            return $this->redirect(['valor_prenda_app']);
+                        }else{
+                            if($id_operario <> null ){
+                                $sw = 1;
+                                $query = ValorPrendaUnidadDetalles::find();
+                                $query->joinWith('operarioProduccion');
+                                $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario]);
+                                $query->orderBy('consecutivo DESC,operarios.nombrecompleto ASC');
+                                $table = $query;
+                            }else{
+                                $sw = 2;
+                                if($id_planta <> null ){
+                                    $query = ValorPrendaUnidadDetalles::find();
+                                    $query->joinWith('operarioProduccion');
+                                    $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                          ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta]);
+                                    $query->orderBy('consecutivo DESC, operarios.nombrecompleto ASC');
+                                    $table = $query;
+                                }else{
+                                   Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
+                                   return $this->redirect(['valor_prenda_app']);
+                                 }    
+                            }    
+                        }
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 120,
+                            'totalCount' => $count->count()
+                        ]);
+                        $modelo = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                        if (isset($_POST['excel'])) {
+                            $check = isset($_REQUEST['consecutivo  DESC']);
+                            $this->actionExcelResumeValorPrenda($tableexcel);
+                        }
+                    } else {
+                        $form->getErrors();
+                    }
+                }             
+                return $this->render('valor_prenda_app', [
                             'modelo' => $modelo,
                             'form' => $form,
                             'sw' => $sw,
@@ -999,7 +1083,6 @@ class ValorPrendaUnidadController extends Controller
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([
                 'id_operario' => $tokenOperario,
-                'idordenproduccion' => $idordenproduccion,
                 'dia_pago' => date('Y-m-d')
             ])
             ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
@@ -1104,6 +1187,8 @@ class ValorPrendaUnidadController extends Controller
         }
         
         $table->porcentaje_cumplimiento = $EficienciaOperacion;
+        $table->tiempo_real_confeccion = $minutos;
+        $table->diferencia_tiempo = $flujo->minutos - $minutos;
         // 5. Guardar el registro y manejar errores de validación
        if ($table->save()) {
            //guarda la unidad en el flujo de operacion
@@ -1139,8 +1224,6 @@ class ValorPrendaUnidadController extends Controller
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([
                 'id_operario' => $tokenOperario,
-                'id_valor' => $id,
-                'idordenproduccion' => $idordenproduccion,
                 'dia_pago' => date('Y-m-d')
             ])
             ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
@@ -1186,11 +1269,9 @@ class ValorPrendaUnidadController extends Controller
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([
                 'id_operario' => $tokenOperario,
-                'id_valor' => $id,
-                'idordenproduccion' => $idordenproduccion,
                 'dia_pago' => date('Y-m-d')
             ])
-            ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
+            ->orderBy(['consecutivo' => SORT_DESC]) 
             ->one();
         if($ultimoRegistro){
             $horario = \app\models\Horario::findOne(1);
@@ -1228,17 +1309,61 @@ class ValorPrendaUnidadController extends Controller
     }
     
     
+    //PERMITE INGRESAR LA HORA DE ALMUERZO
+    public function actionValidar_tiempo_desuso($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle){
+        /// 1. prepara el ultimo registro
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) 
+            ->one();
+        if($ultimoRegistro){
+            $horario = \app\models\Horario::findOne(1);
+            $ultimaHora = $ultimoRegistro->hora_corte; 
+            $tiempo_ultima_hora = new \DateTimeImmutable($ultimaHora);
+            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+'.$horario->minutos_desuso. ' minutes');
+            $ultimoRegistro->hora_inicio_desuso = $ultimoRegistro->hora_corte;
+            $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
+            $nueva_hora_entrada = $ultimoRegistro->hora_corte;
+            $ultimoRegistro->tiempo_desuso = 1;
+            if($ultimoRegistro->save()){
+                Yii::$app->getSession()->setFlash('warning', 'Se activo el horario para ir al baño o descanso. Cuenta con '.$horario->minutos_desuso. ' minutos. La Hora de regreso debe de ser a las : ('.$ultimoRegistro->hora_corte.').');
+                return $this->redirect([
+                    'entrada_operacion_talla',
+                    'id_planta' => $id_planta,
+                    'id_detalle' => $id_detalle,
+                    'tokenOperario' => $tokenOperario,
+                    'id' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                    'nueva_hora_entrada' => $nueva_hora_entrada,
+                 ]);
+            }
+            
+        }else{
+           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
+            return $this->redirect([
+                 'entrada_operacion_talla',
+                 'id_planta' => $id_planta,
+                 'id_detalle' => $id_detalle,
+                 'tokenOperario' => $tokenOperario,
+                 'id' => $id,
+                 'idordenproduccion' => $idordenproduccion,
+             ]);
+        }
+        
+    }
+    
     //PERMITE MOSTRAR LAS TALAS DE QUE TIENE CADA ORDEN DE PRODUCCION
     public function actionEntrada_operacion_talla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle) {
         $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $tokenOperario])
                                                                             ->andWhere(['=','idordenproduccion', $idordenproduccion])
                                                                             ->andWhere(['=','estado_operacion', 0])->all();
-        
        //Permite calcular la eficiencia
         $vector_eficiencia = ValorPrendaUnidadDetalles::find()
                 ->where([
                         'id_operario' => $tokenOperario,
-                        'idordenproduccion' => $idordenproduccion,
                         'dia_pago' => date('Y-m-d')
                         ])->all();
         

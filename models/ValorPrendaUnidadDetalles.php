@@ -49,10 +49,10 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     {
         return [
             [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria',
-                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar','dia_semana'], 'integer'],
+                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar','dia_semana','tiempo_desuso'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
-            [['porcentaje_cumplimiento','minuto_prenda'], 'number'],
-            [['usuariosistema', 'observacion','hora_inicio_modulo','hora_inicio_desayuno','hora_inicio_almuerzo'], 'string', 'max' => 20],
+            [['porcentaje_cumplimiento','minuto_prenda','tiempo_real_confeccion','diferencia_tiempo'], 'number'],
+            [['usuariosistema', 'observacion','hora_inicio_modulo','hora_inicio_desayuno','hora_inicio_almuerzo','hora_inicio_desuso'], 'string', 'max' => 20],
             [['operacion'], 'string', 'max' => 1],
             [['hora_inicio', 'hora_corte'], 'string'],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
@@ -96,6 +96,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'alimentacion' => 'alimentacion',
             'hora_descontar' => 'hora_descontar',
             'minuto_prenda' => 'minuto_prenda',
+            'tiempo_real_confeccion' => 'tiempo_real_confeccion',
         ];
     }
 

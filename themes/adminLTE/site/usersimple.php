@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Users */
@@ -15,7 +16,7 @@ $this->params['breadcrumbs'][] = $model->codusuario;
     <!--<?= Html::encode($this->title) ?>-->    
     <div class="panel panel-success">
         <div class="panel-heading">
-            Usuario
+            Registros del usuario
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
@@ -45,5 +46,8 @@ $this->params['breadcrumbs'][] = $model->codusuario;
                 </tr>                                
             </table>
         </div>
+        <div class="panel-footer text-right" > 
+            <a align="right" href="<?= Url::toRoute(["site/changepassword",'id' => $model->codusuario]) ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-refresh'></span> Cambio de clave</a>
+        </div>     
     </div>
 </div>

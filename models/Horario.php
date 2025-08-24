@@ -41,7 +41,8 @@ class Horario extends \yii\db\ActiveRecord
         return [
             [['horario', 'desde', 'hasta', 'total_horas'], 'required'],
             [['desde', 'hasta','abreviatura'], 'string'],
-            [['total_horas','tiempo_desayuno','tiempo_almuerzo'],'number'],
+            [['total_horas','tiempo_desayuno','tiempo_almuerzo','minutos_desuso'],'number'],
+            [['aplica_tiempo_desuso','total_eventos_dia'],'integer'],
             [['horario'], 'string', 'max' => 20],
         ];
     }
@@ -60,6 +61,10 @@ class Horario extends \yii\db\ActiveRecord
             'tiempo_desayuno' => 'Minuto desayuno',
             'tiempo_almuerzo' => 'Minuto almuerzo',
             'abreviatura' => 'Abreviatura',
+            'aplica_tiempo_desuso' => 'Aplica tiempo en desuso',
+            'minutos_desuso' => 'Minutos en desuso',
+            'total_eventos_dia' => 'Total eventos x dia'
+            
         ];
     }
 
@@ -78,5 +83,14 @@ class Horario extends \yii\db\ActiveRecord
     public function getNombreHorario()
     {
         return "{$this->horario} {$this->desde} - {$this->hasta}";
+    }
+    
+    public function getAplicaTiempoDesuso(){
+        if($this->aplica_tiempo_desuso == 0){
+            $aplicatiempodesuso = 'NO';
+        }else{
+            $aplicatiempodesuso = 'SI';
+        }
+        return $aplicatiempodesuso;
     }
 }

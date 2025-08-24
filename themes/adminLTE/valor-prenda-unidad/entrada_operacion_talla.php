@@ -20,6 +20,7 @@ use yii\web\Response;
 use yii\filters\AccessControl;
 use kartik\select2\Select2;
 use kartik\date\DatePicker;
+use app\models\Horario;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
@@ -29,10 +30,10 @@ $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".dat
 $operario = \app\models\Operarios::findOne($tokenOperario);
 $this->title = ''.$operario->nombrecompleto.' - ('. $tallas->listadoTallaIndividual. ') - (Referencia:' . $model->ordenproduccion->codigoproducto.' )';
 $this->params['breadcrumbs'][] = $this->title;
+$horario = Horario::findOne(1);
 $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
     ->where([
         'id_operario' => $tokenOperario,
-        'idordenproduccion' => $idordenproduccion,
         'dia_pago' => date('Y-m-d')
     ])
     ->andWhere(['is not', 'hora_inicio_desayuno', new \yii\db\Expression('null')])
@@ -42,12 +43,19 @@ $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
 $almuerzoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
     ->where([
         'id_operario' => $tokenOperario,
-        'idordenproduccion' => $idordenproduccion,
         'dia_pago' => date('Y-m-d')
     ])
     ->andWhere(['is not', 'hora_inicio_almuerzo', new \yii\db\Expression('null')])
     ->count();
 
+//busca cuantos eventos veces a ido al baño
+$tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
+    ->where([
+        'id_operario' => $tokenOperario,
+        'dia_pago' => date('Y-m-d')
+    ])
+    ->andWhere(['is not', 'tiempo_desuso', new \yii\db\Expression('null')])
+    ->count();
 ?>
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_produccion','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario], ['class' => 'btn btn-primary btn-sm'])?>
@@ -58,7 +66,11 @@ $almuerzoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
         <?= Html::a('<span class="glyphicon glyphicon-text-background"></span> Almuerzo', ['cargar_tiempo_almuerzo','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-sm']); ?>
     <?php } else {
          // Opcional: Si ambos ya fueron registrados, no se muestra ningún botón.
-    } ?>
+    } 
+    if($horario->aplica_tiempo_desuso == 1 && $tiempo_desuso < $horario->total_eventos_dia){?>
+        <?= Html::a('<span class="glyphicon glyphicon-time"></span> Tiempo autorizado', ['validar_tiempo_desuso','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-warning btn-sm']); 
+    }?>
+    
 </p>
 
 <?php $form = ActiveForm::begin([

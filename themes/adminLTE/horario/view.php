@@ -49,7 +49,11 @@ $this->params['breadcrumbs'][] = $model->id_horario;
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Minutos_almuerzo') ?>:</th>
                     <td><?= Html::encode($model->tiempo_almuerzo) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Abreviatura') ?>:</th>
-                    <td colspan="5"><?= Html::encode($model->abreviatura) ?></td>
+                    <td ><?= Html::encode($model->abreviatura) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'aplica_tiempo_desuso') ?>:</th>
+                    <td ><?= Html::encode($model->aplicaTiempoDesuso) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'minutos_desuso') ?>:</th>
+                    <td ><?= Html::encode($model->minutos_desuso) ?></td>
                 </tr>                    
             </table>
         </div>

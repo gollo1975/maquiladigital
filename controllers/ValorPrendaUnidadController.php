@@ -1091,7 +1091,7 @@ class ValorPrendaUnidadController extends Controller
         //Valida si la persona esta en su hora de comida que no se ingresen operaciones
         if($ultimoRegistro){
             if(date('H:i:s') < $ultimoRegistro->hora_corte){
-                Yii::$app->getSession()->setFlash('error', 'Durante el tiempo de alimento no se pueden ingresar operaciones.Favor validar la información. ');
+                Yii::$app->getSession()->setFlash('error', 'Durante el tiempo de alimento y/o tiempo autorizado no se pueden ingresar operaciones.Favor validar la información. ');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,
@@ -1192,14 +1192,7 @@ class ValorPrendaUnidadController extends Controller
         // 5. Guardar el registro y manejar errores de validación
        if ($table->save()) {
            //guarda la unidad en el flujo de operacion
-            $flujo->cantidad_confeccionadas += 1;
-            $flujo->save();
-            //guarda la unidad x talla
-            $detaller_orden = \app\models\Ordenproducciondetalle::findOne($id_detalle);
-            if($detaller_orden){
-                $detaller_orden->cantidad_confeccionada += 1;
-                $detaller_orden->save();
-            }
+            $this->ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion);
             Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema a las : '.$table->hora_corte.'.');
         } else {
             // En caso de error, obtenemos y mostramos los detalles
@@ -1216,6 +1209,24 @@ class ValorPrendaUnidadController extends Controller
             'id' => $id,
             'idordenproduccion' => $idordenproduccion,
         ]);
+    }
+    
+    //PROCESO QUE ACTUALIZA LA LAS TALLAS DE LA ORDEN DE PRODUCCION Y LAS OPERACIONES
+    protected function ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion) {
+        $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
+                                                    'idordenproduccion' => $idordenproduccion,
+                                                    'idproceso' => $id_operacion
+                                               ])->count();
+        $flujo->cantidad_confeccionadas = $buscarOperaciones;
+        $flujo->save();
+        //actualiza la orden produccion
+        $buscarTallas = \app\models\ValorPrendaUnidadDetalles::find()->where([
+                                                    'idordenproduccion' => $idordenproduccion,
+                                                    'iddetalleorden' => $id_detalle
+                                               ])->count();
+        $detalle = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        $detalle->cantidad_confeccionada = $buscarTallas; 
+        $detalle->save();
     }
     
     //PERMITE INGRESAR EL TIEMPO DEL DESAYUNO
@@ -3535,99 +3546,123 @@ class ValorPrendaUnidadController extends Controller
         exit; 
         
     }
+   
+    public function actionExcelResumeValorPrenda($tableexcel) {
+    // Inicialización del objeto PHPExcel y configuración de propiedades del documento
+    $objPHPExcel = new \PHPExcel();
+    $objPHPExcel->getProperties()
+        ->setCreator("EMPRESA")
+        ->setLastModifiedBy("EMPRESA")
+        ->setTitle("Office 2007 XLSX Test Document")
+        ->setSubject("Office 2007 XLSX Test Document")
+        ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+        ->setKeywords("office 2007 openxml php")
+        ->setCategory("Test result file");
+
+    $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+    $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+
+    // Definición de las columnas y sus encabezados en un array asociativo
+    $columnas = [
+        'A' => 'ID',
+        'B' => 'ORD. PRODUCCION',
+        'C' => 'OPERARIO',
+        'D' => 'CODIGO',
+        'E' => 'OPERACION',
+        'F' => 'FECHA PROCESO',
+        'G' => 'CANTIDAD',
+        'H' => 'VR. PRENDA',
+        'I' => 'TOTAL PAGADO',
+        'J' => '% CUMPLIMIENTO',
+        'K' => 'COSTO DIA',
+        'L' => 'PLANTA',
+        'M' => 'TALLA',
+        'N' => 'HORA INICIO',
+        'O' => 'HORA CORTE',
+        'P' => 'DIA SEMANA',
+        'Q' => 'HORA DESAYUNO',
+        'R' => 'HORA ALMUERZO',
+        'S' => 'SAM REAL CONFECCION',
+        'T' => 'DIFERENCIA SAM',
+        'U' => 'HORA EN DESUSO',
+        'V' => 'USUARIO',
+        'W' => 'ESTADO_REGISTRO',
+        'X' => 'OBSERVACION',
+    ];
+
+    // Establecer encabezados de columna y auto-ajustar el tamaño usando el array
+    foreach ($columnas as $columna => $titulo) {
+        $objPHPExcel->getActiveSheet()->getColumnDimension($columna)->setAutoSize(true);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue($columna . '1', $titulo);
+    }
     
-    public function actionExcelResumeValorPrenda($tableexcel) {                
-        $objPHPExcel = new \PHPExcel();
-        // Set document properties
-        $objPHPExcel->getProperties()->setCreator("EMPRESA")
-            ->setLastModifiedBy("EMPRESA")
-            ->setTitle("Office 2007 XLSX Test Document")
-            ->setSubject("Office 2007 XLSX Test Document")
-            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
-            ->setKeywords("office 2007 openxml php")
-            ->setCategory("Test result file");
-        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
-        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
-         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
-  
+    // Mapeo del número del día de la semana a su nombre
+    $diasSemana = [
+        1 => 'LUNES',
+        2 => 'MARTES',
+        3 => 'MIERCOLES',
+        4 => 'JUEVES',
+        5 => 'VIERNES',
+        6 => 'SABADO',
+        7 => 'DOMINGO',
+    ];
+
+    $i = 2; // Fila inicial para los datos
+    foreach ($tableexcel as $val) {
+        // Asignación de valores a cada celda de forma secuencial y legible
         $objPHPExcel->setActiveSheetIndex(0)
-                    ->setCellValue('A1', 'ID')
-                    ->setCellValue('B1', 'ORD. PRODUCCION')
-                    ->setCellValue('C1', 'OPERARIO')
-                    ->setCellValue('D1', 'OPERACION')
-                    ->setCellValue('E1', 'FECHA PROCESO')                    
-                    ->setCellValue('F1', 'CANT.')
-                    ->setCellValue('G1', 'VR. PRENDA')
-                    ->setCellValue('H1', 'TOTAL PAGADO')
-                    ->setCellValue('I1', 'USUARIO')
-                    ->setCellValue('J1', 'ESTADO_REGISTRO')
-                    ->setCellValue('K1', '% CUMPLIMIENTO')
-                     ->setCellValue('L1', 'OBSERVACION');
-                   
-        $i = 2;
-        $confeccion = 'CONFECCION';
-        $operaciones = 'OPERACIONES';
-        $ajuste = 'AJUSTE';
-        foreach ($tableexcel as $val) {
-                                  
-            $objPHPExcel->setActiveSheetIndex(0)
-                    ->setCellValue('A' . $i, $val->consecutivo)
-                    ->setCellValue('B' . $i, $val->idordenproduccion)
-                    ->setCellValue('C' . $i, $val->operarioProduccion->nombrecompleto);
-                        if($val->operacion == 1){
-                             $objPHPExcel->setActiveSheetIndex(0)
-                          ->setCellValue('D' . $i, $confeccion);
-                        }else{
-                            if($val->operacion == 2){
-                                 $objPHPExcel->setActiveSheetIndex(0)
-                                 ->setCellValue('D' . $i, $operaciones);
-                            }else{
-                                 $objPHPExcel->setActiveSheetIndex(0)
-                                 ->setCellValue('D' . $i, $ajuste);
-                            }
-                        } 
-                     $objPHPExcel->setActiveSheetIndex(0)                    
-                    ->setCellValue('E' . $i, $val->dia_pago)
-                    ->setCellValue('F' . $i, $val->cantidad)  
-                    ->setCellValue('G' . $i, $val->vlr_prenda)
-                    ->setCellValue('H' . $i, $val->vlr_pago)
-                    ->setCellValue('I' . $i, $val->usuariosistema)
-                    ->setCellValue('J' . $i, $val->registroPagado)
-                     ->setCellValue('K' . $i, $val->porcentaje_cumplimiento)
-                    ->setCellValue('L' . $i, $val->observacion);
-                  
-            $i++;
-        }
+            ->setCellValue('A' . $i, $val->consecutivo)
+            ->setCellValue('B' . $i, $val->idordenproduccion)
+            ->setCellValue('C' . $i, $val->operarioProduccion->nombrecompleto)
+            ->setCellValue('D' . $i, $val->idproceso)
+            ->setCellValue('E' . $i, $val->operaciones->proceso)
+            ->setCellValue('F' . $i, $val->dia_pago)
+            ->setCellValue('G' . $i, $val->cantidad)
+            ->setCellValue('H' . $i, $val->vlr_prenda)
+            ->setCellValue('I' . $i, $val->vlr_pago)
+            ->setCellValue('J' . $i, $val->porcentaje_cumplimiento)
+            ->setCellValue('K' . $i, $val->costo_dia_operaria)
+            ->setCellValue('L' . $i, $val->planta->nombre_planta)
+            ->setCellValue('M' . $i, $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla)
+            ->setCellValue('N' . $i, $val->hora_inicio)
+            ->setCellValue('O' . $i, $val->hora_corte);
 
-        $objPHPExcel->getActiveSheet()->setTitle('Resumen pago');
-        $objPHPExcel->setActiveSheetIndex(0);
+        // Asignación del día de la semana usando el array de mapeo
+        $dia_semana_nombre = $diasSemana[$val->dia_semana] ?? 'NOT FOUND';
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('P' . $i, $dia_semana_nombre);
 
-        // Redirect output to a client’s web browser (Excel2007)
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="Resumen_pago.xlsx"');
-        header('Cache-Control: max-age=0');
-        // If you're serving to IE 9, then the following may be needed
-        header('Cache-Control: max-age=1');
-        // If you're serving to IE over SSL, then the following may be needed
-        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
-        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-        header ('Pragma: public'); // HTTP/1.0
-        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
-        $objWriter->save('php://output');
-        exit;
-    }        
+        // Continuación de la asignación de valores
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('Q' . $i, $val->hora_inicio_desayuno)
+            ->setCellValue('R' . $i, $val->hora_inicio_almuerzo)
+            ->setCellValue('S' . $i, $val->tiempo_real_confeccion)
+            ->setCellValue('T' . $i, $val->diferencia_tiempo)
+            ->setCellValue('U' . $i, $val->hora_inicio_desuso)
+            ->setCellValue('V' . $i, $val->usuariosistema)
+            ->setCellValue('W' . $i, $val->registroPagado)
+            ->setCellValue('X' . $i, $val->observacion);
+
+        $i++;
+    }
+
+    $objPHPExcel->getActiveSheet()->setTitle('Resumen pago');
+    $objPHPExcel->setActiveSheetIndex(0);
+
+    // Cabeceras para la descarga del archivo Excel
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="Resumen_pago.xlsx"');
+    header('Cache-Control: max-age=0');
+    header('Cache-Control: max-age=1');
+    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+    header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+    header('Cache-Control: cache, must-revalidate');
+    header('Pragma: public');
+
+    $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+    $objWriter->save('php://output');
+    exit;
+}
+
     
     public function actionExcelconsultaValorPrenda($tableexcel) {                
         $objPHPExcel = new \PHPExcel();

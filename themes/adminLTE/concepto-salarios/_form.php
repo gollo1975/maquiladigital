@@ -27,10 +27,17 @@ $form = ActiveForm::begin([
                 Información concepto de salarios
             </div>
             <div class="panel-body">
-                <div class="row">
-                    <?= $form->field($model, 'codigo_salario')->textInput(['maxlength' => true]) ?>    
-                    <?= $form->field($model, 'nombre_concepto')->textInput(['maxlength' => true]) ?>
-                </div>        
+                <?php if($sw == 0){?>
+                    <div class="row">
+                        <?= $form->field($model, 'codigo_salario')->textInput(['maxlength' => true]) ?>    
+                        <?= $form->field($model, 'nombre_concepto')->textInput(['maxlength' => true]) ?>
+                    </div>    
+                <?php }else{?>
+                    <div class="row">
+                        <?= $form->field($model, 'codigo_salario')->textInput(['maxlength' => true, 'readonly' => true]) ?>    
+                        <?= $form->field($model, 'nombre_concepto')->textInput(['maxlength' => true]) ?>
+                    </div>    
+                <?php }?>
                 <div class="row">
                    <?= $form->field($model, 'porcentaje')->textInput(['maxlength' => true]) ?>
                     <?= $form->field($model, 'porcentaje_tiempo_extra')->textInput(['maxlength' => true]) ?>

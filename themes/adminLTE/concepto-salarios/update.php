@@ -16,6 +16,7 @@ $this->params['breadcrumbs'][] = 'Editar conceptos';
 
     <?= $this->render('_form', [
         'model' => $model,
+        'sw' => 1,
     ]) ?>
 
 </div>

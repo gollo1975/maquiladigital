@@ -144,11 +144,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <tr style ='font-size:85%;'>                
                                 <th scope="col" style='background-color:#B9D5CE;'>OP</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
+                                 <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Operación</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>F. pago</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Cant.</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Valor</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>Total</th>
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Porcentaje de cumplimiento">%</span></th>
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Bodega o planta" >Planta</span></th>
@@ -179,12 +179,12 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <tr style='font-size:85%;'>
                                             <td><?= $val->idordenproduccion ?></td>
                                             <td><?= $val->ordenproduccion->codigoproducto ?></td>
+                                            <td><?= $val->operaciones->idproceso ?></td>
                                            
                                             <td><?= $val->operaciones->proceso ?? 'NO FOUND' ?></td>
                                             <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?? 'NO FOUND' ?></td>
                                             <td><?= $val->dia_pago ?></td>
                                             <td align="right"><?= number_format($val->cantidad, 0) ?></td>
-                                            <td align="right"><?= number_format($val->vlr_prenda, 0) ?></td>
                                             <td align="right"><?= number_format($val->vlr_pago, 0) ?></td>
                                             <td><?= $val->porcentaje_cumplimiento ?> %</td>
                                             <td><?= $val->planta->nombre_planta ?></td>

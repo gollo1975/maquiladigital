@@ -28,7 +28,7 @@ $dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".date('Y') ;
 $operario = \app\models\Operarios::findOne($tokenOperario);
-$this->title = ''.$operario->nombrecompleto.' - ('. $tallas->listadoTallaIndividual. ') - (Referencia:' . $model->ordenproduccion->codigoproducto.' )';
+$this->title = ''.$operario->nombrecompleto.' - '. $tallas->listadoTallaIndividual. ' - Referencia:' . $model->ordenproduccion->codigoproducto.' ';
 $this->params['breadcrumbs'][] = $this->title;
 $horario = Horario::findOne(1);
 $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
@@ -132,7 +132,10 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                     $con += 1;
                     $total += $val->porcentaje_cumplimiento;
                 }?>
-            <div style="font-size: 200%; text-align: center">Eficiencia: <?= round($total / $con)?>%</div>
+                    <div style="font-size: 200%; text-align: center; display: flex; justify-content: center; gap: 50px;">
+                            <div>Operaciones: <?= round($con)?></div>
+                            <div>Eficiencia: <?= round($total / $con)?>%</div>
+                        </div>
             <?php }?>    
         </div> 
    </div>    

@@ -294,10 +294,11 @@ class ValorPrendaUnidadController extends Controller
                         }else{
                             if($id_operario <> null ){
                                 $sw = 1;
-                                $query = ValorPrendaUnidadDetalles::find();
-                                $query->joinWith('operarioProduccion');
-                                $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario]);
-                                $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
+                                $query = ValorPrendaUnidadDetalles::find()
+                                ->joinWith('operarioProduccion')
+                                ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                ->andwhere(['=','valor_prenda_unidad_detalles.id_operario' => $id_operario]);
+                                $query->orderBy('operarios.nombrecompleto ASC, valor_prenda_unidad_detalles.consecutivo DESC');
                                 $table = $query;
                             }else{
                                 $sw = 2;
@@ -1840,7 +1841,7 @@ class ValorPrendaUnidadController extends Controller
             $model->cantidad = $ordenproduccion->cantidad;
             $model->tipo_proceso_pago = $model->tipo_proceso_pago;
             $model->update();
-            return $this->redirect(['index', 'id' => $model->id_valor]);
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [
@@ -1868,7 +1869,7 @@ class ValorPrendaUnidadController extends Controller
             $model->cantidad = $ordenproduccion->cantidad;
              $model->tipo_proceso_pago = $model->tipo_proceso_pago;
             $model->update();
-            return $this->redirect(['index', 'id' => $model->id_valor]);
+            return $this->redirect(['index']);
         }
         return $this->render('update', [
             'model' => $model,

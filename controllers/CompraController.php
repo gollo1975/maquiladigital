@@ -187,7 +187,7 @@ class CompraController extends Controller
         $tipocompra = \app\models\TipoCompraProceso::find()->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $this->calculo($id);
-            return $this->redirect(['index']);
+            return $this->redirect(['view','id' => $model->id_compra, 'token' => 0]);
         }
 
         return $this->render('update', [

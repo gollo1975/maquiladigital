@@ -169,7 +169,7 @@ class RecibocajaController extends Controller
             $model->valorletras = "-";
             $model->usuariosistema = Yii::$app->user->identity->username;
             $model->update();
-            return $this->redirect(['index']);
+            return $this->redirect(['view','id' =>$model->idrecibo,'token' => 0]);
         }
 
         return $this->render('create', [
@@ -234,7 +234,7 @@ class RecibocajaController extends Controller
         }
         else             
             if($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index']);
+            return $this->redirect(['view','id' =>$id, 'token' => 0 ]);
         }
 
         return $this->render('update', [

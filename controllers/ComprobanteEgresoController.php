@@ -290,8 +290,12 @@ class ComprobanteEgresoController extends Controller
         $tipos = ComprobanteEgresoTipo::find()->orderBy('concepto ASC')->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {            
             $model->usuariosistema = Yii::$app->user->identity->username;
-            $model->update();
-            return $this->redirect(['index']);
+            if($model->save()){
+                Yii::$app->getSession()->setFlash('success', 'El regisro se guardo exitosamente...');
+                return $this->redirect(['view','id' => $model->id_comprobante_egreso,'token' => 0]);
+            }else{
+                
+            }    
         }
 
         return $this->render('create', [
@@ -306,7 +310,7 @@ class ComprobanteEgresoController extends Controller
     public function actionCreatelibre()
     {
         $model = new FormComprobanteegresolibre();
-         $proveedores = Proveedor::find()->orderBy('nombrecorto ASC')->all();
+        $proveedores = Proveedor::find()->orderBy('nombrecorto ASC')->all();
         $municipios = Municipio::find()->all();
         $bancos = Banco::find()->all();
        $tipos = ComprobanteEgresoTipo::find()->orderBy('concepto ASC')->all();
@@ -355,7 +359,7 @@ class ComprobanteEgresoController extends Controller
         }
         else             
             if($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index']);
+            return $this->redirect(['view','id' => $model->id_comprobante_egreso,'token' => 0]);
         }
 
         return $this->render('update', [
@@ -390,9 +394,9 @@ class ComprobanteEgresoController extends Controller
                         $table->fecha_comprobante = $model->fecha_comprobante;
                         $table->id_comprobante_egreso_tipo = $model->id_comprobante_egreso_tipo;
                         $table->id_municipio = $model->id_municipio;                                            
-                        if ($table->update()) {
+                        if ($table->save()) {
                             $msg = "El registro ha sido actualizado correctamente";
-                            return $this->redirect(["index"]);
+                            return $this->redirect(["view",'id' => $id,'token' => 0]);
                         } else {
                             $msg = "El registro no sufrio ningun cambio";
                             return $this->redirect(["index"]);

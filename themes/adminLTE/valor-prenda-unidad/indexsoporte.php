@@ -165,22 +165,21 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         if ($val->id_operario !== $current_operario_id):
                                             // Si es diferente, mostramos una fila de encabezado para el nuevo operario.
                                             // Esto crea el efecto de "agrupación".
-                                    ?>
-                                        <tr style='font-size:95%; font-weight:bold; background-color:#F5F5F5;'>
-                                            <td colspan="15">
-                                                <?= $val->operarioProduccion->nombrecompleto ?>
-                                            </td>
-                                        </tr>
-                                    <?php
-                                            // Actualizamos la variable con el ID del nuevo operario
-                                            $current_operario_id = $val->id_operario;
+                                            ?>
+                                                <tr style='font-size:95%; font-weight:bold; background-color:#F5F5F5;'>
+                                                    <td colspan="15">
+                                                        <?= $val->operarioProduccion->nombrecompleto ?>
+                                                    </td>
+                                                </tr>
+                                            <?php
+                                                    // Actualizamos la variable con el ID del nuevo operario
+                                                    $current_operario_id = $val->id_operario;
                                         endif;
-                                    ?>
+                                            ?>
                                         <tr style='font-size:85%;'>
                                             <td><?= $val->idordenproduccion ?></td>
                                             <td><?= $val->ordenproduccion->codigoproducto ?></td>
-                                            <td><?= $val->operaciones->idproceso ?></td>
-                                           
+                                            <td><?= $val->operaciones->idproceso ?? 'NO FOUND' ?></td>
                                             <td><?= $val->operaciones->proceso ?? 'NO FOUND' ?></td>
                                             <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?? 'NO FOUND' ?></td>
                                             <td><?= $val->dia_pago ?></td>

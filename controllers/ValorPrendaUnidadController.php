@@ -213,7 +213,7 @@ class ValorPrendaUnidadController extends Controller
                                 $query = ValorPrendaUnidadDetalles::find();
                                 $query->joinWith('operarioProduccion');
                                 $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario]);
-                                $query->orderBy('consecutivo DESC,operarios.nombrecompleto ASC');
+                                $query->orderBy('operarios.nombrecompleto ASC');
                                 $table = $query;
                             }else{
                                 $sw = 2;
@@ -222,7 +222,7 @@ class ValorPrendaUnidadController extends Controller
                                     $query->joinWith('operarioProduccion');
                                     $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
                                           ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta]);
-                                    $query->orderBy('consecutivo DESC, operarios.nombrecompleto ASC');
+                                    $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
                                     $table = $query;
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
@@ -297,7 +297,7 @@ class ValorPrendaUnidadController extends Controller
                                 $query = ValorPrendaUnidadDetalles::find();
                                 $query->joinWith('operarioProduccion');
                                 $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario]);
-                                $query->orderBy('consecutivo DESC,operarios.nombrecompleto ASC');
+                                $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
                                 $table = $query;
                             }else{
                                 $sw = 2;
@@ -306,7 +306,7 @@ class ValorPrendaUnidadController extends Controller
                                     $query->joinWith('operarioProduccion');
                                     $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
                                           ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta]);
-                                    $query->orderBy('consecutivo DESC, operarios.nombrecompleto ASC');
+                                    $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
                                     $table = $query;
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
@@ -3588,6 +3588,7 @@ class ValorPrendaUnidadController extends Controller
         'V' => 'USUARIO',
         'W' => 'ESTADO_REGISTRO',
         'X' => 'OBSERVACION',
+        'Y' => 'LINEA',
     ];
 
     // Establecer encabezados de columna y auto-ajustar el tamaño usando el array
@@ -3640,7 +3641,8 @@ class ValorPrendaUnidadController extends Controller
             ->setCellValue('U' . $i, $val->hora_inicio_desuso)
             ->setCellValue('V' . $i, $val->usuariosistema)
             ->setCellValue('W' . $i, $val->registroPagado)
-            ->setCellValue('X' . $i, $val->observacion);
+            ->setCellValue('X' . $i, $val->observacion)
+           ->setCellValue('Y' . $i, $val->hora_descontar);
 
         $i++;
     }

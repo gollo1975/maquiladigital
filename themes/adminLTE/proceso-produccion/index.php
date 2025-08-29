@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'proceso',
-                'contentOptions' => ['class' => 'col-lg-5'],
+                'contentOptions' => ['class' => 'col-lg-3'],
             ],
             [
                 'attribute' => 'segundos',
@@ -47,6 +47,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
                 'filter' => ArrayHelper::map(ProcesoProduccion::find()->all(), 'estandarizado', 'estandar'),
                 'contentOptions' => ['class' => 'col-lg-1'],
+            ],
+                ['attribute' => 'tipoProductoId', // Atributo virtual para el filtro
+                'value' => function($model) {
+                    return $model->tipoProducto ? $model->tipoProducto->concepto : null;
+                },
+                'filter' => ArrayHelper::map(\app\models\TipoProducto::find()->all(), 'id_tipo_producto', 'concepto'),
+                'contentOptions' => ['class' => 'col-lg-2'],
             ],
 
             ['class' => 'yii\grid\ActionColumn',

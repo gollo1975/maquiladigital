@@ -38,9 +38,10 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
     {
         return [
             [['proceso','estandarizado'], 'required','message'=> 'Campo obligatorio'],
-            [['estado','estandarizado'], 'integer'],
+            [['estado','estandarizado','id_tipo_producto'], 'integer'],
            [['segundos','minutos'], 'number'],
             [['proceso'], 'string', 'max' => 50],
+            [['id_tipo_producto'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoProduccion::className(), 'targetAttribute' => ['id_tipo_producto' => 'id_tipo_producto']],
         ];
     }
 
@@ -56,6 +57,7 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
             'segundos' => 'Sam segundos:',
             'minutos' => 'Sam minutos:',
             'estandarizado' => 'Estandarizado:',
+            'id_tipo_producto' => 'Tipo de producto:'
         ];
     }
 
@@ -66,6 +68,10 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Ordenproducciondetalleproceso::className(), ['idproceso' => 'idproceso']);
     }
+    public function getTipoProducto()
+        {
+            return $this->hasOne(TipoProducto::class, ['id_tipo_producto' => 'id_tipo_producto']);
+        }
     
     public function getEstandar(){
         if ($this->estandarizado == 1){

@@ -12,15 +12,16 @@ use app\models\ProcesoProduccion;
  */
 class ProcesoProduccionSearch extends ProcesoProduccion
 {
+    public $tipoProductoId;
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['estandarizado', 'estado'], 'integer'],
+            [['estandarizado', 'estado','id_tipo_producto'], 'integer'],
             [['segundos', 'minutos'], 'number'],
-            [['proceso'], 'safe'],
+            [['tipoProductoId','proceso'], 'safe'],
         ];
     }
 
@@ -41,31 +42,33 @@ class ProcesoProduccionSearch extends ProcesoProduccion
      * @return ActiveDataProvider
      */
     public function search($params)
-    {
-        $query = ProcesoProduccion::find();
+    {  
+         $query = ProcesoProduccion::find();
 
-        // add conditions that should always apply here
+        // Carga la relación 'tipoProducto'
+        $query->joinWith(['tipoProducto']);
 
         $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'sort'=> ['defaultOrder' => ['idproceso' => SORT_DESC]] // Agregar esta linea para agregar el orden por defecto
+                'query' => $query,
         ]);
+        
+       
+        // add conditions that should always apply here
+
+        $dataProvider->sort->attributes['tipoProductoId'] = [
+            'asc' => ['tipo_producto.concepto' => SORT_ASC],
+            'desc' => ['tipo_producto.concepto' => SORT_DESC],
+        ];
 
         $this->load($params);
 
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+         if (!$this->validate()) {
+            $query->where('0=1');
             return $dataProvider;
         }
 
         // grid filtering conditions
-        $query->andFilterWhere([
-            'estandarizado' => $this->estandarizado,
-            'segundos' => $this->segundos,
-            'minutos' => $this->minutos,
-        ]);
-
+        $query->andFilterWhere(['=', 'tipo_producto.id_tipo_producto', $this->tipoProductoId]);
         $query->andFilterWhere(['like', 'proceso', $this->proceso]);
         $query->andFilterWhere(['=', 'segundos', $this->segundos]);
         $query->andFilterWhere(['=', 'minutos', $this->minutos]);

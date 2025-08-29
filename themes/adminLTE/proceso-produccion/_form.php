@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
 use kartik\select2\Select2;
+use app\models\TipoProducto;
 /* @var $this yii\web\View */
 /* @var $model app\models\ProcesoProduccion */
 /* @var $form yii\widgets\ActiveForm */
@@ -16,7 +17,10 @@ use kartik\select2\Select2;
         'labelOptions' => ['class' => 'col-sm-3 control-label'],
         'options' => []
     ],
-]); ?>
+]);
+//vectores
+$tipoProducto = yii\helpers\ArrayHelper::map(TipoProducto::find()->orderBy(['concepto' => SORT_ASC])->all(), 'id_tipo_producto', 'concepto')
+?>
 
 
 <div class="panel panel-success">
@@ -37,7 +41,14 @@ use kartik\select2\Select2;
         <div class="row">
             <?= $form->field($model, 'estandarizado')->dropDownList(['1'=> 'SI', '0'=>'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>
-
+         <div class="row">
+                <?= $form->field($model, 'id_tipo_producto')->widget(Select2::classname(), [
+                'data' => $tipoProducto,
+                'options' => ['placeholder' => 'Seleccion el producto'],
+                'pluginOptions' => [
+                    'allowClear' => true ],
+                 ]); ?>
+        </div>		
         <div class="panel-footer text-right">            
             <a href="<?= Url::toRoute("proceso-produccion/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>

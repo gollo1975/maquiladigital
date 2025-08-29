@@ -41,7 +41,7 @@ class Despachos extends \yii\db\ActiveRecord
         return [
             [['id_salida', 'idproveedor', 'total_tulas', 'valor_flete','id_entrada_tipo','autorizado','numero_despacho',
                 'proceso_cerrado','tulas_reales'], 'integer'],
-            [['valor_flete','id_entrada_tipo','ciudad_origen','ciudad_destino'], 'required'],
+            [['valor_flete','id_entrada_tipo','ciudad_origen','ciudad_destino','fecha_despacho','idproveedor','id_salida'], 'required'],
             [['fecha_despacho', 'fecha_registro'], 'safe'],
             [['observacion'],'string', 'max' => 150],
             [['municipio_origen','municipio_destino','nombre_proveedor'],'string', 'max' => 40],

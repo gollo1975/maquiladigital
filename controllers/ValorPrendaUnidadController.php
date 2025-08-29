@@ -292,13 +292,15 @@ class ValorPrendaUnidadController extends Controller
                             Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
                             return $this->redirect(['valor_prenda_app']);
                         }else{
-                            if($id_operario <> null ){
+                            if($id_operario != null ){
                                 $sw = 1;
                                 $query = ValorPrendaUnidadDetalles::find()
-                                ->joinWith('operarioProduccion')
-                                ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                ->andwhere(['=','valor_prenda_unidad_detalles.id_operario' => $id_operario]);
+                                    ->joinWith('operarioProduccion')
+                                    ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                    ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario]);
+
                                 $query->orderBy('operarios.nombrecompleto ASC, valor_prenda_unidad_detalles.consecutivo DESC');
+
                                 $table = $query;
                             }else{
                                 $sw = 2;
@@ -306,7 +308,7 @@ class ValorPrendaUnidadController extends Controller
                                     $query = ValorPrendaUnidadDetalles::find();
                                     $query->joinWith('operarioProduccion');
                                     $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                          ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta]);
+                                            ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario]);
                                     $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
                                     $table = $query;
                                 }else{

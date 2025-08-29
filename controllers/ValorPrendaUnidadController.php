@@ -333,7 +333,7 @@ class ValorPrendaUnidadController extends Controller
                             $check = isset($_REQUEST['consecutivo  DESC']);
                             $this->actionExcelResumeValorPrenda($tableexcel);
                         }
-                         echo count($modelo);
+                        
                     } else {
                         $form->getErrors();
                     }

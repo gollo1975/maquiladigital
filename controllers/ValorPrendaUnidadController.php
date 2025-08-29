@@ -304,11 +304,11 @@ class ValorPrendaUnidadController extends Controller
                                 $table = $query;
                             }else{
                                 $sw = 2;
-                                if($id_planta <> null ){
+                                if($id_planta != null ){
                                     $query = ValorPrendaUnidadDetalles::find();
                                     $query->joinWith('operarioProduccion');
                                     $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                            ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario]);
+                                            ->andWhere(['valor_prenda_unidad_detalles.id_planta' => $id_planta]);
                                     $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
                                     $table = $query;
                                 }else{
@@ -317,6 +317,7 @@ class ValorPrendaUnidadController extends Controller
                                  }    
                             }    
                         }
+                        
                         $tableexcel = $table->all();
                         $count = clone $table;
                         $to = $count->count();
@@ -332,11 +333,13 @@ class ValorPrendaUnidadController extends Controller
                             $check = isset($_REQUEST['consecutivo  DESC']);
                             $this->actionExcelResumeValorPrenda($tableexcel);
                         }
+                         echo count($modelo);
                     } else {
                         $form->getErrors();
                     }
-                }             
-                return $this->render('valor_prenda_app', [
+                }    
+               
+               return $this->render('valor_prenda_app', [
                             'modelo' => $modelo,
                             'form' => $form,
                             'sw' => $sw,

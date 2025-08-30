@@ -1085,6 +1085,26 @@ class ValorPrendaUnidadController extends Controller
             ->orderBy(['id_valor' => SORT_DESC])
             ->one();
         
+        ///proceso para a hora de inicio.
+        $horaActual = new \DateTime();
+        // Crea un objeto DateTime a partir de la hora de inicio
+        $horaInicio = \DateTime::createFromFormat('H:i:s', $horaCorte->hora_inicio);
+
+        // Compara si la hora actual es mayor que la hora de inicio
+       echo $horaActual->format('H:i:s');
+        echo $horaInicio->format('H:i:s');
+        if ($horaActual->format('H:i:s') < $horaInicio->format('H:i:s')) {
+            Yii::$app->getSession()->setFlash('error', 'El sistema no esta abierto para ingresar operaciones. Hora de inicio de confeccion : ' . $horaCorte->hora_inicio . '. ');
+            return $this->redirect([
+                'entrada_operacion_talla',
+                'id_planta' => $id_planta,
+                'id_detalle' => $id_detalle,
+                'tokenOperario' => $tokenOperario,
+                'id' => $id,
+                'idordenproduccion' => $idordenproduccion,
+            ]);
+        }
+        
         // Busca el ultimo registro de ese empleado
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([
@@ -1177,10 +1197,15 @@ class ValorPrendaUnidadController extends Controller
         $segundos = ($diferencia->days * 86400) + ($diferencia->h * 3600) + ($diferencia->i * 60) + $diferencia->s;
 
         // Convertir los segundos a minutos y redondear
-         $minutos = round($segundos / 60, 2);
+        $minutos = round($segundos / 60, 2);
         if($minutos > 0){
            //formula para la eficiencia
-            $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
+           $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
+           if($EficienciaOperacion > $empresa->tiempo_maximo_operacion){
+              $table->porcentaje_cumplimiento = $empresa->tiempo_maximo_operacion; 
+           }else{
+               $table->porcentaje_cumplimiento = $EficienciaOperacion;
+           }
         }else{
            return $this->redirect([
             'entrada_operacion_talla',
@@ -1192,11 +1217,11 @@ class ValorPrendaUnidadController extends Controller
             ]);
         }
         
-        $table->porcentaje_cumplimiento = $EficienciaOperacion;
+        
         $table->tiempo_real_confeccion = $minutos;
         $table->diferencia_tiempo = $flujo->minutos - $minutos;
         // 5. Guardar el registro y manejar errores de validación
-       if ($table->save()) {
+      if ($table->save()) {
            //guarda la unidad en el flujo de operacion
             $this->ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion);
             Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema a las : '.$table->hora_corte.'.');
@@ -3576,25 +3601,26 @@ class ValorPrendaUnidadController extends Controller
         'D' => 'CODIGO',
         'E' => 'OPERACION',
         'F' => 'FECHA PROCESO',
-        'G' => 'CANTIDAD',
-        'H' => 'VR. PRENDA',
-        'I' => 'TOTAL PAGADO',
-        'J' => '% CUMPLIMIENTO',
-        'K' => 'COSTO DIA',
-        'L' => 'PLANTA',
-        'M' => 'TALLA',
-        'N' => 'HORA INICIO',
-        'O' => 'HORA CORTE',
-        'P' => 'DIA SEMANA',
-        'Q' => 'HORA DESAYUNO',
-        'R' => 'HORA ALMUERZO',
-        'S' => 'SAM REAL CONFECCION',
-        'T' => 'DIFERENCIA SAM',
-        'U' => 'HORA EN DESUSO',
-        'V' => 'USUARIO',
-        'W' => 'ESTADO_REGISTRO',
-        'X' => 'OBSERVACION',
-        'Y' => 'LINEA',
+        'G' => 'SAM',
+        'H' => 'CANTIDAD',
+        'I' => 'VR. PRENDA',
+        'J' => 'TOTAL PAGADO',
+        'K' => '% CUMPLIMIENTO',
+        'L' => 'COSTO DIA',
+        'M' => 'PLANTA',
+        'N' => 'TALLA',
+        'O' => 'HORA INICIO',
+        'P' => 'HORA CORTE',
+        'Q' => 'DIA SEMANA',
+        'R' => 'HORA DESAYUNO',
+        'S' => 'HORA ALMUERZO',
+        'T' => 'SAM REAL CONFECCION',
+        'U' => 'DIFERENCIA SAM',
+        'V' => 'HORA EN DESUSO',
+        'W' => 'USUARIO',
+        'X' => 'ESTADO_REGISTRO',
+        'Y' => 'OBSERVACION',
+        'Z' => 'LINEA',
     ];
 
     // Establecer encabezados de columna y auto-ajustar el tamaño usando el array
@@ -3624,31 +3650,32 @@ class ValorPrendaUnidadController extends Controller
             ->setCellValue('D' . $i, $val->idproceso)
             ->setCellValue('E' . $i, $val->operaciones->proceso)
             ->setCellValue('F' . $i, $val->dia_pago)
-            ->setCellValue('G' . $i, $val->cantidad)
-            ->setCellValue('H' . $i, $val->vlr_prenda)
-            ->setCellValue('I' . $i, $val->vlr_pago)
-            ->setCellValue('J' . $i, $val->porcentaje_cumplimiento)
-            ->setCellValue('K' . $i, $val->costo_dia_operaria)
-            ->setCellValue('L' . $i, $val->planta->nombre_planta)
-            ->setCellValue('M' . $i, $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla)
-            ->setCellValue('N' . $i, $val->hora_inicio)
-            ->setCellValue('O' . $i, $val->hora_corte);
+            ->setCellValue('G' . $i, $val->minuto_prenda)
+            ->setCellValue('H' . $i, $val->cantidad)
+            ->setCellValue('I' . $i, $val->vlr_prenda)
+            ->setCellValue('J' . $i, $val->vlr_pago)
+            ->setCellValue('K' . $i, $val->porcentaje_cumplimiento)
+            ->setCellValue('L' . $i, $val->costo_dia_operaria)
+            ->setCellValue('M' . $i, $val->planta->nombre_planta)
+            ->setCellValue('N' . $i, $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla)
+            ->setCellValue('O' . $i, $val->hora_inicio)
+            ->setCellValue('P' . $i, $val->hora_corte);
 
         // Asignación del día de la semana usando el array de mapeo
         $dia_semana_nombre = $diasSemana[$val->dia_semana] ?? 'NOT FOUND';
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('P' . $i, $dia_semana_nombre);
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $i, $dia_semana_nombre);
 
         // Continuación de la asignación de valores
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('Q' . $i, $val->hora_inicio_desayuno)
-            ->setCellValue('R' . $i, $val->hora_inicio_almuerzo)
-            ->setCellValue('S' . $i, $val->tiempo_real_confeccion)
-            ->setCellValue('T' . $i, $val->diferencia_tiempo)
-            ->setCellValue('U' . $i, $val->hora_inicio_desuso)
-            ->setCellValue('V' . $i, $val->usuariosistema)
-            ->setCellValue('W' . $i, $val->registroPagado)
-            ->setCellValue('X' . $i, $val->observacion)
-           ->setCellValue('Y' . $i, $val->hora_descontar);
+            ->setCellValue('R' . $i, $val->hora_inicio_desayuno)
+            ->setCellValue('S' . $i, $val->hora_inicio_almuerzo)
+            ->setCellValue('T' . $i, $val->tiempo_real_confeccion)
+            ->setCellValue('U' . $i, $val->diferencia_tiempo)
+            ->setCellValue('V' . $i, $val->hora_inicio_desuso)
+            ->setCellValue('W' . $i, $val->usuariosistema)
+            ->setCellValue('X' . $i, $val->registroPagado)
+            ->setCellValue('Y' . $i, $val->observacion)
+            ->setCellValue('Z' . $i, $val->hora_descontar);
 
         $i++;
     }

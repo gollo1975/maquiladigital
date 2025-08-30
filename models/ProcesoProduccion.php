@@ -41,7 +41,7 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
             [['estado','estandarizado','id_tipo_producto'], 'integer'],
            [['segundos','minutos'], 'number'],
             [['proceso'], 'string', 'max' => 50],
-            [['id_tipo_producto'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoProduccion::className(), 'targetAttribute' => ['id_tipo_producto' => 'id_tipo_producto']],
+            [['id_tipo_producto'], 'exist', 'skipOnError' => true, 'targetClass' => TipoProducto::className(), 'targetAttribute' => ['id_tipo_producto' => 'id_tipo_producto']],
         ];
     }
 

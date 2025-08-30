@@ -114,6 +114,7 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
         </div>
         <div class="row">
              <?= $form->field($model, 'horas_mensuales')->textInput(['maxlength' => true]) ?>  
+             <?= $form->field($model, 'tiempo_maximo_operacion')->textInput(['maxlength' => true]) ?>  
             
         </div>
         <div class="row">

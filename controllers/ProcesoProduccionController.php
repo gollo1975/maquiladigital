@@ -82,7 +82,7 @@ class ProcesoProduccionController extends Controller
             if ($model->validate()) { 
                 $table = new ProcesoProduccion();
                 $table->proceso = $model->proceso;
-                 $table->id_tipo_producto = $model->id_tipo_producto;
+                $table->id_tipo_producto = $model->id_tipo_producto;
                 if ($model->estado == 1){
                      $table->segundos = $model->segundos;
                     if($table->segundos > 0){

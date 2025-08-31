@@ -38,7 +38,7 @@ class Ordenproducciondetalleproceso extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['duracion', 'ponderacion', 'idproceso', 'estado', 'iddetalleorden','cantidad_operada','id_tipo'], 'integer'],
+            [['duracion', 'ponderacion', 'idproceso', 'estado', 'iddetalleorden','cantidad_operada','id_tipo','total_unidades_operacion','unidades_confeccionadas'], 'integer'],
             [['total','totalproceso','porcentajeproceso'], 'number'],
             [['idproceso', 'iddetalleorden'], 'required'],
             [['proceso'], 'string', 'max' => 50],
@@ -54,6 +54,8 @@ class Ordenproducciondetalleproceso extends \yii\db\ActiveRecord
     {
         return [
             'iddetalleproceso' => 'Iddetalleproceso',
+            'total_unidades_operacion' => 'total_unidades_operacion',
+            'unidades_confeccionadas' => 'unidades_confeccionadas',
             'proceso' => 'Proceso',
             'duracion' => 'Duracion',
             'ponderacion' => 'Ponderacion',

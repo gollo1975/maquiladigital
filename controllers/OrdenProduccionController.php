@@ -2395,71 +2395,73 @@ class OrdenProduccionController extends Controller {
         }
         
         if (isset($_POST["guardar"])) {
-        if (isset($_POST["idproceso"])) {
-            $intIndice = 0;
-            foreach ($_POST["idproceso"] as $intCodigo) {
-                if ($_POST["duracion"][$intIndice] > 0) {
-                    $detalles = Ordenproducciondetalleproceso::find()
-                            ->where(['=', 'idproceso', $intCodigo])
-                            ->andWhere(['=', 'iddetalleorden', $iddetalleorden])
-                            ->all();
-                    $reg = count($detalles);
-                    if ($reg == 0) {
-                        if($_POST["id_tipo"][$intIndice] > 0){
-                            $table = new Ordenproducciondetalleproceso();
-                            $table->idproceso = $intCodigo;
-                            $table->proceso = $_POST["proceso"][$intIndice];
-                            $table->duracion = $_POST["duracion"][$intIndice];
-                            $table->ponderacion = $_POST["ponderacion"][$intIndice];
-                            $table->cantidad_operada = 0;
-                            $table->total = $_POST["duracion"][$intIndice] + ($_POST["duracion"][$intIndice] * $_POST["ponderacion"][$intIndice] / 100);
-                            $table->totalproceso = $detalleorden->cantidad * $table->total;
-                            $table->iddetalleorden = $iddetalleorden;
-                            $table->id_tipo = $_POST["id_tipo"][$intIndice];
-                            $table->insert();
-                        }    
-                    }
-                }
-                $intIndice++;
-            }
-            $this->porcentajeproceso($iddetalleorden);
-            $this->progresoproceso($iddetalleorden, $detalleorden->idordenproduccion);
-            $this->progresocantidad($iddetalleorden, $detalleorden->idordenproduccion);
-            //se replica los procesos a detalles que contengan el mismo codigo de producto, para agilizar la insercion de cada uno de las operaciones por detalle            
-            $detallesordenproduccion = Ordenproducciondetalle::find()
-                    ->where(['<>', 'iddetalleorden', $iddetalleorden])
-                    ->andWhere(['idordenproduccion' => $detalleorden->idordenproduccion])
-                    ->all();
-            foreach ($detallesordenproduccion as $dato) {
-                if ($dato->codigoproducto == $detalleorden->codigoproducto) {
-                    $detallesprocesos = Ordenproducciondetalleproceso::find()->where(['iddetalleorden' => $iddetalleorden])->all();
-                    foreach ($detallesprocesos as $val) {
-                        $detallesp = Ordenproducciondetalleproceso::find()
-                                ->where(['=', 'idproceso', $val->idproceso])
-                                ->andWhere(['=', 'iddetalleorden', $dato->iddetalleorden])
+            if (isset($_POST["idproceso"])) {
+                $intIndice = 0;
+                foreach ($_POST["idproceso"] as $intCodigo) {
+                    if ($_POST["duracion"][$intIndice] > 0) {
+                        $detalles = Ordenproducciondetalleproceso::find()
+                                ->where(['=', 'idproceso', $intCodigo])
+                                ->andWhere(['=', 'iddetalleorden', $iddetalleorden])
                                 ->all();
-                        $reg2 = count($detallesp);
-                        if ($reg2 == 0) {
-                            $tableprocesos = new Ordenproducciondetalleproceso();
-                            $tableprocesos->idproceso = $val->idproceso;
-                            $tableprocesos->proceso = $val->proceso;
-                            $tableprocesos->duracion = $val->duracion;
-                            $tableprocesos->ponderacion = $val->ponderacion;
-                            $tableprocesos->total = $val->total;
-                            $tableprocesos->cantidad_operada = 0;
-                            $tableprocesos->totalproceso = $dato->cantidad * $tableprocesos->total;
-                            $tableprocesos->iddetalleorden = $dato->iddetalleorden;
-                            $tableprocesos->id_tipo = $val->id_tipo;
-                            $tableprocesos->insert();
+                        $reg = count($detalles);
+                        if ($reg == 0) {
+                            if($_POST["id_tipo"][$intIndice] > 0){
+                                $detalleOrden = Ordenproducciondetalle::findOne($iddetalleorden);
+                                $table = new Ordenproducciondetalleproceso();
+                                $table->idproceso = $intCodigo;
+                                $table->proceso = $_POST["proceso"][$intIndice];
+                                $table->duracion = $_POST["duracion"][$intIndice];
+                                $table->ponderacion = $_POST["ponderacion"][$intIndice];
+                                $table->cantidad_operada = 0;
+                                $table->total_unidades_operacion = $detalleOrden->cantidad;
+                                $table->total = $_POST["duracion"][$intIndice] + ($_POST["duracion"][$intIndice] * $_POST["ponderacion"][$intIndice] / 100);
+                                $table->totalproceso = $detalleorden->cantidad * $table->total;
+                                $table->iddetalleorden = $iddetalleorden;
+                                $table->id_tipo = $_POST["id_tipo"][$intIndice];
+                                $table->save();
+                            }
                         }
                     }
-                    $this->porcentajeproceso($dato->iddetalleorden);
-                    $this->progresoproceso($dato->iddetalleorden, $dato->idordenproduccion);
-                    $this->progresocantidad($dato->iddetalleorden, $dato->idordenproduccion);
+                    $intIndice++;
                 }
+                $this->porcentajeproceso($iddetalleorden);
+                $this->progresoproceso($iddetalleorden, $detalleorden->idordenproduccion);
+                $this->progresocantidad($iddetalleorden, $detalleorden->idordenproduccion);
+                //se replica los procesos a detalles que contengan el mismo codigo de producto, para agilizar la insercion de cada uno de las operaciones por detalle            
+                $detallesordenproduccion = Ordenproducciondetalle::find()
+                        ->where(['<>', 'iddetalleorden', $iddetalleorden])
+                        ->andWhere(['idordenproduccion' => $detalleorden->idordenproduccion])
+                        ->all();
+                foreach ($detallesordenproduccion as $dato) {
+                    if ($dato->codigoproducto == $detalleorden->codigoproducto) {
+                        $detallesprocesos = Ordenproducciondetalleproceso::find()->where(['iddetalleorden' => $iddetalleorden])->all();
+                        foreach ($detallesprocesos as $val) {
+                            $detallesp = Ordenproducciondetalleproceso::find()
+                                    ->where(['=', 'idproceso', $val->idproceso])
+                                    ->andWhere(['=', 'iddetalleorden', $dato->iddetalleorden])
+                                    ->all();
+                            $reg2 = count($detallesp);
+                            if ($reg2 == 0) {
+                                $tableprocesos = new Ordenproducciondetalleproceso();
+                                $tableprocesos->idproceso = $val->idproceso;
+                                $tableprocesos->proceso = $val->proceso;
+                                $tableprocesos->duracion = $val->duracion;
+                                $tableprocesos->ponderacion = $val->ponderacion;
+                                $tableprocesos->total = $val->total;
+                                $tableprocesos->cantidad_operada = 0;
+                                $tableprocesos->totalproceso = $dato->cantidad * $tableprocesos->total;
+                                $tableprocesos->iddetalleorden = $dato->iddetalleorden;
+                                $tableprocesos->id_tipo = $val->id_tipo;
+                                $tableprocesos->insert();
+                            }
+                        }
+                        $this->porcentajeproceso($dato->iddetalleorden);
+                        $this->progresoproceso($dato->iddetalleorden, $dato->idordenproduccion);
+                        $this->progresocantidad($dato->iddetalleorden, $dato->idordenproduccion);
+                    }
+                }
+                $this->redirect(["orden-produccion/view_detalle", 'id' => $id]);
             }
-            $this->redirect(["orden-produccion/view_detalle", 'id' => $id]);
-        }
         }
         if (isset($_POST["guardarynuevo"])) {
         if (isset($_POST["idproceso"])) {
@@ -2483,6 +2485,7 @@ class OrdenProduccionController extends Controller {
                             $table->totalproceso = $detalleorden->cantidad * $table->total;
                             $table->iddetalleorden = $iddetalleorden;
                             $table->id_tipo = $_POST["id_tipo"][$intIndice];
+                            $table->total_unidades_operacion = $detalleorden->cantidad;
                             $table->insert();
                         }    
                     }
@@ -2559,7 +2562,7 @@ class OrdenProduccionController extends Controller {
                             }else{
                                 $table->cantidad_operada = $_POST["cantidad_operada_todo"];
                             }
-                            
+                            $table->total_unidades_operacion = $detalle->cantidad;
                             $table->total = $_POST["duracion"][$intIndice] + ($_POST["duracion"][$intIndice] * $_POST["ponderacion"][$intIndice] / 100);
                             $table->totalproceso = $detalle->cantidad * $table->total;
                             if ($_POST["cantidad_operada"][$intIndice] <= $detalle->cantidad) {//se valida que la cantidad a operada no sea mayor a la cantidad a operar
@@ -2604,7 +2607,8 @@ class OrdenProduccionController extends Controller {
                 //fin replicacion ediccion    
                     }
                 }
-            }
+            }//termina proceso de editar
+            
             if (isset($_POST["eliminar"])) {
                 if (isset($_POST["iddetalleproceso2"])) {
                     foreach ($_POST["iddetalleproceso2"] as $intCodigo) {

@@ -377,7 +377,8 @@ class FacturaventaController extends Controller
             
                 if($model->load(Yii::$app->request->post())){
                     $model->idordenproduccion = $model->idordenproduccion;
-                    $model->fecha_inicio = date('Y-m-d');
+                    $fecha = date($model->fecha_inicio);
+                    $model->fecha_inicio = $fecha;
                     $clientes = Cliente::findOne($model->idcliente);
                     if($model->idcliente != $table->idcliente){
                         $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
@@ -391,6 +392,7 @@ class FacturaventaController extends Controller
                         $model->plazopago = $clientes->plazopago;
                         $model->save(false);
                     }else{
+                      
                        $nuevafecha = strtotime ( '+'.$clientes->plazopago.' day' , strtotime ($fecha) ) ;
                        $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
                        $model->fecha_vencimiento = $nuevafecha;

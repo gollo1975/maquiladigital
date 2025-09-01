@@ -261,38 +261,34 @@ class FacturaventaController extends Controller
         $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
         $sw = 0;
         $fecha_actual = date('Y-m-d');
-        $fecha_actual = strtotime($fecha_actual);
+        
         if ($model->load(Yii::$app->request->post())){
-            $fecha_inicio = strtotime($model->fecha_inicio); 
-            if($fecha_actual == $fecha_inicio ){
-                $model->save();
-                $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
-                $fecha = date( $model->fecha_inicio);
-                $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
-                $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
-                $model->idresolucion = $resolucion->idresolucion;
-                $model->numero_resolucion = $resolucion->nroresolucion;
-                $model->fecha_vencimiento = $nuevafecha;
-                $model->id_forma_pago = $table->id_forma_pago;
-                $model->plazopago = $table->plazopago;
-                $model->porcentajefuente = 0;
-                $model->porcentajeiva = 0;
-                $model->porcentajereteiva = 0;
-                $model->subtotal = 0;
-                $model->retencionfuente = 0;
-                $model->retencioniva = 0;
-                $model->impuestoiva = 0;
-                $model->saldo = 0;
-                $model->totalpagar = 0;
-                $model->valorletras = "-" ;
-                $model->usuariosistema = Yii::$app->user->identity->username;   
-                $model->consecutivo = $resolucion->consecutivo;
-                $model->save(false);
-                $registro = Facturaventa::find()->orderBy('idfactura DESC')->one();
-                return $this->redirect(['view','id' => $registro->idfactura, 'token' => 0]);
-            }else{
-                     Yii::$app->getSession()->setFlash('error', 'Error en las fechas: La fecha de inicio DEBE de ser igual a la fecha de envio de emision de la factura. Validar la fecha de inicio.');
-            }
+            $model->save();
+            $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
+            $fecha = date('Y-m-d');
+            $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
+            $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+            $model->idresolucion = $resolucion->idresolucion;
+            $model->numero_resolucion = $resolucion->nroresolucion;
+            $model->fecha_vencimiento = $nuevafecha;
+            $model->id_forma_pago = $table->id_forma_pago;
+            $model->plazopago = $table->plazopago;
+            $model->porcentajefuente = 0;
+            $model->porcentajeiva = 0;
+            $model->porcentajereteiva = 0;
+            $model->subtotal = 0;
+            $model->retencionfuente = 0;
+            $model->retencioniva = 0;
+            $model->impuestoiva = 0;
+            $model->saldo = 0;
+            $model->totalpagar = 0;
+            $model->valorletras = "-" ;
+            $model->usuariosistema = Yii::$app->user->identity->username;   
+            $model->consecutivo = $resolucion->consecutivo;
+            $model->fecha_inicio = $fecha;
+            $model->save(false);
+            return $this->redirect(['view','id' => $model->idfactura, 'token' => 0]);
+
         }
         $fecha_actual_dia = date('Y-m-d');
         if($fecha_actual_dia >= $resolucion->fecha_notificacion){
@@ -380,16 +376,25 @@ class FacturaventaController extends Controller
             }else {
             
                 if($model->load(Yii::$app->request->post())){
-                    $fecha_guardada = strtotime($table->fecha_inicio);
-                    $fecha_inicio = strtotime($model->fecha_inicio);
-                   $model->idordenproduccion = $model->idordenproduccion;
-                    if($fecha_guardada == $fecha_inicio ){
-                       $model->save(false);
-                       return $this->redirect(['view','id' => $id, 'token' => 0]);
+                    $model->idordenproduccion = $model->idordenproduccion;
+                    $model->fecha_inicio = date('Y-m-d');
+                    $clientes = Cliente::findOne($model->idcliente);
+                    if($model->idcliente != $table->idcliente){
+                        $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
+                        $fecha = date($model->fecha_inicio);
+                        $nuevafecha = strtotime ( '+'.$clientes->plazopago.' day' , strtotime ($fecha) ) ;
+                        $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                        $model->idresolucion = $resolucion->idresolucion;
+                        $model->numero_resolucion = $resolucion->nroresolucion;
+                        $model->fecha_vencimiento = $nuevafecha;
+                        $model->id_forma_pago = $clientes->id_forma_pago;
+                        $model->plazopago = $clientes->plazopago;
+                        $model->save(false);
                     }else{
-                        Yii::$app->getSession()->setFlash('error', 'Error en las fechas: La fecha de inicio DEBE de ser igual a la fecha de envio de emision de la factura. Validar la fecha de inicio.');
+                       $model->save(false); 
+                    }
+                    return $this->redirect(['view','id' => $id, 'token' => 0]);
 
-                    }  
                 }    
                   
             }

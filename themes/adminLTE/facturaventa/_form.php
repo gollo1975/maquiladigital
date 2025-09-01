@@ -66,16 +66,7 @@ $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".dat
             ],
         ]); ?>
         </div>
-        <div class="row">
-            <?= $form->field($model,'fecha_inicio')->widget(DatePicker::className(),['name' => 'check_issue_date',
-                'value' => date('d-M-Y', strtotime('+2 days')),
-                'options' => ['placeholder' => 'Seleccione una fecha ...'],
-                'pluginOptions' => [
-                    'format' => 'yyyy-m-d',
-                    'todayHighlight' => true,
-                    ]]) ?>
-                    
-        </div>
+        
         <div class="row">
             <?= $form->field($model, 'tipo_facturacion')->dropDownList(['0' => 'Completo', '1' => 'Parcial'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>   

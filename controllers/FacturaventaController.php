@@ -391,6 +391,9 @@ class FacturaventaController extends Controller
                         $model->plazopago = $clientes->plazopago;
                         $model->save(false);
                     }else{
+                       $nuevafecha = strtotime ( '+'.$clientes->plazopago.' day' , strtotime ($fecha) ) ;
+                       $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                       $model->fecha_vencimiento = $nuevafecha;
                        $model->save(false); 
                     }
                     return $this->redirect(['view','id' => $id, 'token' => 0]);

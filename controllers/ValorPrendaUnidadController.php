@@ -1091,8 +1091,7 @@ class ValorPrendaUnidadController extends Controller
         $horaInicio = \DateTime::createFromFormat('H:i:s', $horaCorte->hora_inicio);
 
         // Compara si la hora actual es mayor que la hora de inicio
-       echo $horaActual->format('H:i:s');
-        echo $horaInicio->format('H:i:s');
+      
         if ($horaActual->format('H:i:s') < $horaInicio->format('H:i:s')) {
             Yii::$app->getSession()->setFlash('error', 'El sistema no esta abierto para ingresar operaciones. Hora de inicio de confeccion : ' . $horaCorte->hora_inicio . '. ');
             return $this->redirect([
@@ -1224,6 +1223,7 @@ class ValorPrendaUnidadController extends Controller
       if ($table->save()) {
            //guarda la unidad en el flujo de operacion
             $this->ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion);
+            $this->ActualizaSoloOperaciones($id_detalle, $id_operacion, $idordenproduccion);
             Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema a las : '.$table->hora_corte.'.');
         } else {
             // En caso de error, obtenemos y mostramos los detalles
@@ -1258,6 +1258,22 @@ class ValorPrendaUnidadController extends Controller
         $detalle = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         $detalle->cantidad_confeccionada = $buscarTallas; 
         $detalle->save();
+    }
+    
+    //PROCESO QUE SOLO ACTUALIZA LA OPERACIONES
+    protected function ActualizaSoloOperaciones($id_detalle, $id_operacion, $idordenproduccion) {
+        
+        
+        $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
+                                                    'idordenproduccion' => $idordenproduccion,
+                                                    'idproceso' => $id_operacion
+                                               ])->count();
+        //busca la operacion para actualizarla
+        $flujo = \app\models\Ordenproducciondetalleproceso::find()->where([
+                                                                 'idproceso' => $id_operacion,
+                                                                 'iddetalleorden' => $id_detalle])->one();
+        $flujo->unidades_confeccionadas = $buscarOperaciones;
+        $flujo->save();
     }
     
     //PERMITE INGRESAR EL TIEMPO DEL DESAYUNO

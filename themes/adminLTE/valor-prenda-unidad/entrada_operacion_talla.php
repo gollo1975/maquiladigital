@@ -28,7 +28,7 @@ $dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".date('Y') ;
 $operario = \app\models\Operarios::findOne($tokenOperario);
-$this->title = ''.$operario->nombrecompleto.' - '. $tallas->listadoTallaIndividual. ' - Referencia:' . $model->ordenproduccion->codigoproducto.' ';
+$this->title = strtoupper($tallas->listadoTallaIndividual) . ' - Referencia:' . strtoupper($model->ordenproduccion->codigoproducto);
 $this->params['breadcrumbs'][] = $this->title;
 $horario = Horario::findOne(1);
 $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
@@ -89,9 +89,9 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
             <thead>
                 <tr>
                     <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Operaciones</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>Descripcion</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>T. Oper.</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>T. oper.</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
                     <th scope="col" style='background-color:#B9D5CE;'></th>
                 </tr>
@@ -104,14 +104,14 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                 if ($detalle_balanceo){
                     $empresa = app\models\Matriculaempresa::findOne(1);
                     foreach ($detalle_balanceo as $val):
-                        $flujo = \app\models\FlujoOperaciones::find()->where(['=','idproceso', $val->id_proceso])->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
-                        $total_unidades = $flujo->cantidad_operaciones - $flujo->cantidad_confeccionadas;
+                        $flujo = app\models\Ordenproducciondetalleproceso::find()->where(['=','idproceso', $val->id_proceso])->andWhere(['=','iddetalleorden', $id_detalle])->one();
+                        $total_unidades = $flujo->total_unidades_operacion - $flujo->unidades_confeccionadas;
                         if($total_unidades != 0){ ?>
                             <tr style="font-size: 85%;">
                                 <td><?= $val->id_proceso ?></td>
                                 <td><?= $val->proceso->proceso ?></td>
                                 <td><?= $val->minutos ?></td> 
-                                <td style="text-align: center"><?= $flujo->cantidad_operaciones ?></td> 
+                                <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
                                 <td style="text-align: center"><?= $total_unidades?></td>
                                 <td style= 'width: 25px; height: 25px;'>
                                     <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  

@@ -511,7 +511,7 @@ class ProgramacionNominaController extends Controller {
                                             $dataBody["accrued"]['paid_vacation'] = [];
                                         }
                                         $dataBody["accrued"]['paid_vacation'][] = [
-                                            "quantity" => "$detalle->total_dias",
+                                            "quantity" => "$detalle->dias_vacaciones",
                                             "payment" => "$detalle->devengado"
                                         ];    
                                         
@@ -571,7 +571,7 @@ class ProgramacionNominaController extends Controller {
                                 $dataBody = json_encode($dataBody);
                                
                                 //   //EJECUTA EL DATABODY 
-                                curl_setopt_array($curl, [
+                               curl_setopt_array($curl, [
                                     CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_ENCODING => '',
@@ -590,6 +590,7 @@ class ProgramacionNominaController extends Controller {
                                 }
                                 curl_close($curl);
                                 $data = json_decode($response, true);
+                               
                                 Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
                                 // Verificar errores de conexión o códigos HTTP inesperados
                                 if ($response === false || $httpCode !== 200) {
@@ -631,7 +632,7 @@ class ProgramacionNominaController extends Controller {
                         }//CIERRA EL PROCESO PARA
                         
                         Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
-                        return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
+                        //return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
                     }else{
                         Yii::$app->getSession()->setFlash('error','Debe de seleccionar el registro para enviar a la DIAN. ');
                     }

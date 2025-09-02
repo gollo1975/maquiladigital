@@ -894,16 +894,20 @@ class ProgramacionNominaController extends Controller {
                                                                   ->andWhere(['>=','fecha_desde_disfrute', $fecha_desde])
                                                                   ->orderBy('id_vacacion ASC')->one();
                         if ($vacacion){
+                            if($vacacion->fecha_desde_disfrute != $vacacion->fecha_hasta_disfrute){
                              $table->fecha_inicio_vacacion = $vacacion->fecha_desde_disfrute;
                              $table->fecha_final_vacacion = $vacacion->fecha_hasta_disfrute;
+                            } 
                         }
                         $vacacion = \app\models\Vacaciones::find()->where(['=','documento', $val->identificacion])
                                                                   ->andWhere(['<=','fecha_hasta_disfrute', $fecha_hasta])
                                                                   ->andWhere(['>','fecha_hasta_disfrute', $fecha_desde])
                                                                   ->orderBy('id_vacacion ASC')->one();
                         if ($vacacion){
-                             $table->fecha_inicio_vacacion = $vacacion->fecha_desde_disfrute;
-                             $table->fecha_final_vacacion = $vacacion->fecha_hasta_disfrute;
+                            if($vacacion->fecha_desde_disfrute != $vacacion->fecha_hasta_disfrute){
+                                $table->fecha_inicio_vacacion = $vacacion->fecha_desde_disfrute;
+                                $table->fecha_final_vacacion = $vacacion->fecha_hasta_disfrute;
+                            }    
                         }
                         
                     }
@@ -1201,6 +1205,7 @@ class ProgramacionNominaController extends Controller {
             $auxilio = $configuracion_salarios->auxilio_transporte_actual;
             $salario_transporte = ConceptoSalarios::find()->where(['=', 'auxilio_transporte', 1])->one();
             $_transporte = $salario_transporte->codigo_salario;
+            
             //controladores de salario y auxilio de transporte
             foreach ($registros as $val) {
                 $total_dias = $this->salario($val, $codigo_salario, $id_grupo_pago);
@@ -2704,31 +2709,57 @@ class ProgramacionNominaController extends Controller {
     //codigo que suma los dias de vacaciones
     protected function Sumardiasvacaciones($val) {
         $total_dias_vacacion = 0;
-        if ($val->fecha_inicio_vacacion == ''){
+        if ($val->fecha_inicio_vacacion == $val->fecha_final_vacacion){
             return ($total_dias_vacacion);
         }else{
             $total_dia = 0;
-             if ($val->fecha_final_vacacion >= $val->fecha_hasta ){
+            $matricula = \app\models\Matriculaempresa::findOne(1);
+            $horas_por_dia = $matricula->horas_mensuales / 30;
+            if ($val->fecha_inicio_vacacion >= $val->fecha_desde && $val->fecha_final_vacacion <= $val->fecha_hasta){
+                $total_dias_vacacion = strtotime($val->fecha_final_vacacion) - strtotime($val->fecha_inicio_vacacion);
+                $total_dias_vacacion =  round($total_dias_vacacion / 86400) + 1;
+                $val->dias_vacacion = $total_dias_vacacion;
+                $val->horas_vacacion = round($val->dias_vacacion * $horas_por_dia);
+                $total_dia = $val->salario_contrato / 30;
+                $val->ibc_vacacion = $total_dia * $total_dias_vacacion;
+                $val->fecha_final_vacacion = $val->fecha_final_vacacion;
+                $val->fecha_inicio_vacacion = $val->fecha_inicio_vacacion;
+                $val->save(false);
+                return ($total_dias_vacacion);
+            }elseif ($val->fecha_inicio_vacacion >= $val->fecha_desde && $val->fecha_final_vacacion > $val->fecha_hasta){
                  $total_dias_vacacion = strtotime($val->fecha_hasta) - strtotime($val->fecha_inicio_vacacion);
                  $total_dias_vacacion =  round($total_dias_vacacion / 86400) + 1;
                  $val->dias_vacacion = $total_dias_vacacion;
-                 $val->horas_vacacion = $val->dias_vacacion * 8;
+                 $val->horas_vacacion = round($val->dias_vacacion * $horas_por_dia);
                  $total_dia = $val->salario_contrato / 30;
                  $val->ibc_vacacion = $total_dia * $total_dias_vacacion;
                  $val->fecha_final_vacacion = $val->fecha_hasta;
+                 $val->fecha_inicio_vacacion = $val->fecha_inicio_vacacion;
                  $val->save(false);
                  return ($total_dias_vacacion);
-             }else{
-                 $total_dias_vacacion = strtotime($val->fecha_final_vacacion) - strtotime($val->fecha_desde);
-                 $total_dias_vacacion =  round($total_dias_vacacion / 86400) + 1;
-                 $val->dias_vacacion = $total_dias_vacacion;
-                 $val->horas_vacacion = $val->dias_vacacion * 8;
-                 $total_dia = $val->salario_contrato / 30;
-                 $val->ibc_vacacion = $total_dia * $total_dias_vacacion;
-                 $val->fecha_final_vacacion = $val->fecha_final_vacacion;
-                 $val->fecha_inicio_vacacion = $val->fecha_desde;
-                 $val->save(false);
-                 return ($total_dias_vacacion);
+            }elseif ($val->fecha_inicio_vacacion < $val->fecha_desde && $val->fecha_final_vacacion > $val->fecha_hasta){
+                $total_dias_vacacion = strtotime($val->fecha_hasta) - strtotime($val->fecha_desde);
+                $total_dias_vacacion =  round($total_dias_vacacion / 86400) + 1;
+                $val->dias_vacacion = $total_dias_vacacion;
+                $val->horas_vacacion = round($val->dias_vacacion * $horas_por_dia);
+                $total_dia = $val->salario_contrato / 30;
+                $val->ibc_vacacion = $total_dia * $total_dias_vacacion;
+                $val->fecha_final_vacacion = $val->fecha_hasta;
+                $val->fecha_inicio_vacacion = $val->fecha_desde;
+                $val->save(false);
+                return ($total_dias_vacacion);
+                 
+             }elseif ($val->fecha_inicio_vacacion < $val->fecha_desde && $val->fecha_final_vacacion <= $val->fecha_hasta){
+                $total_dias_vacacion = strtotime($val->fecha_final_vacacion) - strtotime($val->fecha_desde);
+                $total_dias_vacacion =  round($total_dias_vacacion / 86400) + 1;
+                $val->dias_vacacion = $total_dias_vacacion;
+                $val->horas_vacacion = round($val->dias_vacacion * $horas_por_dia);
+                $total_dia = $val->salario_contrato / 30;
+                $val->ibc_vacacion = $total_dia * $total_dias_vacacion;
+                $val->fecha_final_vacacion = $val->fecha_final_vacacion;
+                $val->fecha_inicio_vacacion = $val->fecha_desde;
+                $val->save(false);
+                return ($total_dias_vacacion);
              }
             
         }
@@ -2791,22 +2822,22 @@ class ProgramacionNominaController extends Controller {
                     $generar_consecutivo->estado_cerrado = 1;
                     $generar_consecutivo->save(false);
             }
-             //actualizar el estado del periodo a 1
+               //actualizar el estado del periodo a 1
                 $periodo_pago = PeriodoPagoNomina::findone($id);
                 $periodo_pago->estado_periodo = 1;
                 $periodo_pago->save(false);
                 
-             //inserta concepto de vacacion si tiene vacaciones
-              $concepto_salario = ConceptoSalarios::find()->where(['=','concepto_vacacion', 1])->one();  
-              $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all(); 
+                //inserta concepto de vacacion si tiene vacaciones
+                $concepto_salario = ConceptoSalarios::find()->where(['=','concepto_vacacion', 1])->one();  
+                $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all(); 
              
-              foreach ($nomina as $vacacion):
+                foreach ($nomina as $vacacion):
                     $registro_Vacaciones = \app\models\Vacaciones::find()->where(['=','id_empleado', $vacacion->id_empleado])
                                                                        ->andWhere(['=','total_compensado', 0])
                                                                         ->orderBy('id_vacacion DESC')->one();
                     if($registro_Vacaciones){
                         $saldo = 0;
-                        if($vacacion->fecha_inicio_vacacion !== null){
+                        if($vacacion->fecha_inicio_vacacion != null){
                             $detalle = new ProgramacionNominaDetalle();
                            
                             if($registro_Vacaciones->fecha_desde_disfrute >= $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute > $fecha_hasta){ //las vacacion inician en le mismo periodo pero pasa el corte de nomina
@@ -2858,7 +2889,7 @@ class ProgramacionNominaController extends Controller {
                             $vacacion->save(false);
                       }
                     }  
-              endforeach;
+               endforeach;
             
             
               //ACTUALIZAR LAS HORAS Y LA HORA LABORAL

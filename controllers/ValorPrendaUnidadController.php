@@ -1232,7 +1232,7 @@ class ValorPrendaUnidadController extends Controller
         }
 
         // 6. Redirigir siempre después de intentar guardar
-         return $this->redirect([
+       return $this->redirect([
             'entrada_operacion_talla',
             'id_planta' => $id_planta,
             'id_detalle' => $id_detalle,
@@ -1246,7 +1246,8 @@ class ValorPrendaUnidadController extends Controller
     protected function ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion) {
         $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
                                                     'idordenproduccion' => $idordenproduccion,
-                                                    'idproceso' => $id_operacion
+                                                    'idproceso' => $id_operacion,
+                                                    'iddetalleorden' => $id_detalle
                                                ])->count();
         $flujo->cantidad_confeccionadas = $buscarOperaciones;
         $flujo->save();
@@ -1266,7 +1267,8 @@ class ValorPrendaUnidadController extends Controller
         
         $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
                                                     'idordenproduccion' => $idordenproduccion,
-                                                    'idproceso' => $id_operacion
+                                                    'idproceso' => $id_operacion,
+                                                    'iddetalleorden' => $id_detalle
                                                ])->count();
         //busca la operacion para actualizarla
         $flujo = \app\models\Ordenproducciondetalleproceso::find()->where([

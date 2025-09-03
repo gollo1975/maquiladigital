@@ -39,7 +39,7 @@ class HoraCorteEficienciaApp extends \yii\db\ActiveRecord
         return [
             [['id_valor', 'idordenproduccion', 'aplica_sabado'], 'integer'],
             [['hora_inicio', 'hora_corte', 'fecha_dia'], 'required'],
-            [['hora_inicio', 'hora_corte', 'fecha_dia', 'fecha_registro'], 'safe'],
+            [['hora_inicio', 'hora_corte', 'fecha_dia', 'fecha_registro','hora_cierre'], 'safe'],
             [['codigo_producto'], 'string', 'max' => 20],
             [['user_name'], 'string', 'max' => 15],
             [['id_valor'], 'exist', 'skipOnError' => true, 'targetClass' => ValorPrendaUnidad::className(), 'targetAttribute' => ['id_valor' => 'id_valor']],
@@ -63,6 +63,7 @@ class HoraCorteEficienciaApp extends \yii\db\ActiveRecord
             'fecha_registro' => 'Fecha Registro',
             'aplica_sabado' => 'Aplica Sabado',
             'user_name' => 'User Name',
+            'hora_cierre' => 'Hora de cierre'
         ];
     }
 

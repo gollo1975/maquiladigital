@@ -1417,38 +1417,90 @@ class ValorPrendaUnidadController extends Controller
     
     //PERMITE MOSTRAR LAS TALAS DE QUE TIENE CADA ORDEN DE PRODUCCION
     public function actionEntrada_operacion_talla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle) {
-        $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $tokenOperario])
-                                                                            ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                            ->andWhere(['=','estado_operacion', 0])->all();
-       //Permite calcular la eficiencia
-        $vector_eficiencia = ValorPrendaUnidadDetalles::find()
-                ->where([
-                        'id_operario' => $tokenOperario,
-                        'dia_pago' => date('Y-m-d')
-                        ])->all();
         
-        $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
-        if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
-            Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones en esta talla. Valide la información.'); 
-            return $this->redirect(['view_produccion',
-                 'id_planta' => $id_planta,
-                 'tokenOperario' => $tokenOperario,
-                 'id' => $id,
-                 'idordenproduccion' => $idordenproduccion,
-             ]);
+        $hora_corte_app = \app\models\HoraCorteEficienciaApp::find()->where([
+                                                                    'idordenproduccion' => $idordenproduccion,
+                                                                    'id_valor' => $id,
+                                                                    'fecha_dia' => date('Y-m-d')
+                                                                    ])->one();
+        $horaActual = new \DateTime();
+        $horaCierre = \DateTime::createFromFormat('H:i:s', $hora_corte_app->hora_cierre);
+        if($horaCierre == null){
+            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $tokenOperario])
+                                                                                ->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                                ->andWhere(['=','estado_operacion', 0])->all();
+           //Permite calcular la eficiencia
+            $vector_eficiencia = ValorPrendaUnidadDetalles::find()
+                    ->where([
+                            'id_operario' => $tokenOperario,
+                            'dia_pago' => date('Y-m-d')
+                            ])->all();
+
+            $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+            if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
+                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones en esta talla. Valide la información.'); 
+                return $this->redirect(['view_produccion',
+                     'id_planta' => $id_planta,
+                     'tokenOperario' => $tokenOperario,
+                     'id' => $id,
+                     'idordenproduccion' => $idordenproduccion,
+                 ]);
+            }
+            $nueva_hora_entrada = '';
+            return $this->render('entrada_operacion_talla', [
+                'model' => $this->findModel($id),
+                'id_planta' =>$id_planta,
+                'detalle_balanceo' =>  $detalle_balanceo,
+                'id_detalle' => $id_detalle,
+                'tokenOperario' => $tokenOperario,
+                'idordenproduccion' => $idordenproduccion,
+                'tallas' => $tallas,
+                'nueva_hora_entrada' => $nueva_hora_entrada,
+                'vector_eficiencia' => $vector_eficiencia,
+            ]);
         }
-        $nueva_hora_entrada = '';
-        return $this->render('entrada_operacion_talla', [
-            'model' => $this->findModel($id),
-            'id_planta' =>$id_planta,
-            'detalle_balanceo' =>  $detalle_balanceo,
-            'id_detalle' => $id_detalle,
-            'tokenOperario' => $tokenOperario,
-            'idordenproduccion' => $idordenproduccion,
-            'tallas' => $tallas,
-            'nueva_hora_entrada' => $nueva_hora_entrada,
-            'vector_eficiencia' => $vector_eficiencia,
-        ]); 
+        if($horaActual > $horaCierre){
+            Yii::$app->getSession()->setFlash('error', 'Esta OP se encuentra cerrada por el dia de hoy. Valide la informacion con el administrador.'); 
+                return $this->redirect(['view_produccion',
+                     'id_planta' => $id_planta,
+                     'tokenOperario' => $tokenOperario,
+                     'id' => $id,
+                     'idordenproduccion' => $idordenproduccion,
+                 ]); 
+        }else{
+            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $tokenOperario])
+                                                                                ->andWhere(['=','idordenproduccion', $idordenproduccion])
+                                                                                ->andWhere(['=','estado_operacion', 0])->all();
+           //Permite calcular la eficiencia
+            $vector_eficiencia = ValorPrendaUnidadDetalles::find()
+                    ->where([
+                            'id_operario' => $tokenOperario,
+                            'dia_pago' => date('Y-m-d')
+                            ])->all();
+
+            $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+            if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
+                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones en esta talla. Valide la información.'); 
+                return $this->redirect(['view_produccion',
+                     'id_planta' => $id_planta,
+                     'tokenOperario' => $tokenOperario,
+                     'id' => $id,
+                     'idordenproduccion' => $idordenproduccion,
+                 ]);
+            }
+            $nueva_hora_entrada = '';
+            return $this->render('entrada_operacion_talla', [
+                'model' => $this->findModel($id),
+                'id_planta' =>$id_planta,
+                'detalle_balanceo' =>  $detalle_balanceo,
+                'id_detalle' => $id_detalle,
+                'tokenOperario' => $tokenOperario,
+                'idordenproduccion' => $idordenproduccion,
+                'tallas' => $tallas,
+                'nueva_hora_entrada' => $nueva_hora_entrada,
+                'vector_eficiencia' => $vector_eficiencia,
+            ]);
+        }    
     }
     
     protected function CostoOperarioVinculadoApp($tokenOperario) {

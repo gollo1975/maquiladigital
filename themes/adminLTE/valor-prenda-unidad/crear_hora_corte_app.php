@@ -42,6 +42,9 @@ $form = ActiveForm::begin([
                     <div class="row">
                         <?= $form->field($model, 'hora_corte')->input ('time'); ?>
                     </div>  
+                     <div class="row">
+                        <?= $form->field($model, 'hora_cierre')->input ('time'); ?>
+                    </div>
                     <div class="row">
                          <?= $form->field($model, 'aplica_sabado')->dropDownList(['0' => 'NO', '1' => 'SI']) ?>
                     </div>

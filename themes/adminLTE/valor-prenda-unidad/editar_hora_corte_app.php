@@ -38,13 +38,16 @@ $form = ActiveForm::begin([
                     <div class="row">
                         <?= $form->field($model, 'id_corte')->textInput(['readonly' => true]) ?>  
                     </div>  
-                   <div class="row">
+                    <div class="row">
                          <?= $form->field($model, 'hora_inicio')->input ('time'); ?>
-                
-                    </div>   
+                    </div> 
+                      
                      <div class="row">
                       <?= $form->field($model, 'hora_corte')->input ('time'); ?>
                     </div>  
+                    <div class="row">
+                         <?= $form->field($model, 'hora_cierre')->input ('time'); ?>
+                    </div> 
                      <div class="row">
                          <?= $form->field($model, 'aplica_sabado')->dropDownList(['0' => 'NO', '1' => 'SI']) ?>
                     </div>

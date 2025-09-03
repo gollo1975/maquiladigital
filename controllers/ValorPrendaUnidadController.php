@@ -2607,8 +2607,8 @@ class ValorPrendaUnidadController extends Controller
                 $costo2 += $valor->vlr_pago;
             }
         }
-        $total = round(($costo1 * 40)/100);
-        $model->costo_confeccion = $total + $costo1 + $costo2;
+        
+        $model->costo_confeccion =  $costo1 + $costo2;
         $model->save(false);
     }
     public function actionCerrarpago($id, $idordenproduccion, $id_planta, $tipo_pago, $tokenPlanta) {

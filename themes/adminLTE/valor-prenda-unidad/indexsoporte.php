@@ -73,14 +73,16 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']])
             ?>
                <?= $formulario->field($form, 'fecha_corte')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']])
             ?>
                     
         </div>

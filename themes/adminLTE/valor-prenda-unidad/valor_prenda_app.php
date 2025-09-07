@@ -93,14 +93,16 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']])
             ?>
                <?= $formulario->field($form, 'fecha_corte')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                    'orientation' => 'bottom']])
             ?>
                     
         </div>
@@ -333,7 +335,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             $promedio_total_eficiencia  = round($total_eficiencia_acumulada / $contador_dias);
                                         }
                                         ?>
-                                         <div style="font-size: 110%; text-align: center">Promedio total de operarios: <?= number_format($promedio_total_eficiencia, 0) ?>%</div>
+                                         <div style="font-size: 110%; text-align: center">Eficiencia total: <?= number_format($promedio_total_eficiencia, 0) ?>%</div>
                                     </div>
                                 </div>    
                             <?php }else{?>  <!--TERMINA SI EL SW == 1,-->

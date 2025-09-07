@@ -33,10 +33,11 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
     {
         return [
             [['idproceso'], 'required'],
-            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza','cantidad_operaciones','cantidad_confeccionadas'], 'integer'],
+            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza','cantidad_operaciones','cantidad_confeccionadas','aplica_induccion','tiempo_induccion'], 'integer'],
             [['fecha_creacion'], 'safe'],
             [['segundos','minutos'],'number'],
             [['usuariosistema'], 'string', 'max' => 20],
+            [['observacion'], 'string', 'max' => 30],
             [['idproceso'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoProduccion::className(), 'targetAttribute' => ['idproceso' => 'idproceso']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => TiposMaquinas::className(), 'targetAttribute' => ['id_tipo' => 'id_tipo']],
@@ -60,7 +61,11 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
             'operacion' => 'Proceso',
             'pieza' => 'Pieza',
             'cantidad_operaciones' => 'cantidad_operaciones',
-            'cantidad_confeccionadas' => 'cantidad_confeccionadas'
+            'cantidad_confeccionadas' => 'cantidad_confeccionadas',
+            'tiempo_induccion' => 'Sam inducción:',
+            'aplica_induccion' => 'aplica_induccion',
+            'observacion' => 'Observacion:',
+            
         ];
     }
 
@@ -99,6 +104,15 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
             $pieza = 'PIEZA 2';
         }
         return $pieza;
+    }
+    
+     public function getAplicoTiempo() {
+        if($this->aplica_induccion == 0){
+            $aplicainduccion = 'NO';
+        }else{
+            $aplicainduccion = 'SI';
+        }
+        return $aplicainduccion;
     }
     
     //permite mostra el nombre de la operacion

@@ -7,6 +7,6 @@ use yii\helpers\Html;
 /* @var $message string */
 /* @var $exception Exception */
 
-$this->title = "sin permiso";
+$this->title = "Información importante!";
 ?>
 

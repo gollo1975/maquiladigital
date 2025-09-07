@@ -58,17 +58,17 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
     ->count();
 ?>
 <p>
-    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_produccion','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario], ['class' => 'btn btn-primary btn-sm'])?>
+    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_produccion','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario], ['class' => 'btn btn-primary btn-xs'])?>
 
     <?php if ($desayunoRegistrado == 0) { ?>
-        <?= Html::a('<span class="glyphicon glyphicon-film"></span> Desayuno', ['cargar_tiempo_desayuno','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-success btn-sm']); ?>
+        <?= Html::a('<span class="glyphicon glyphicon-film"></span> Desayuno', ['cargar_tiempo_desayuno','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-success btn-xs']); ?>
     <?php } elseif ($desayunoRegistrado > 0 && $almuerzoRegistrado == 0) { ?>
-        <?= Html::a('<span class="glyphicon glyphicon-text-background"></span> Almuerzo', ['cargar_tiempo_almuerzo','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-sm']); ?>
+        <?= Html::a('<span class="glyphicon glyphicon-text-background"></span> Almuerzo', ['cargar_tiempo_almuerzo','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-xs']); ?>
     <?php } else {
          // Opcional: Si ambos ya fueron registrados, no se muestra ningún botón.
     } 
     if($horario->aplica_tiempo_desuso == 1 && $tiempo_desuso < $horario->total_eventos_dia){?>
-        <?= Html::a('<span class="glyphicon glyphicon-time"></span> Tiempo autorizado', ['validar_tiempo_desuso','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-warning btn-sm']); 
+        <?= Html::a('<span class="glyphicon glyphicon-time"></span> Sam autorizado', ['validar_tiempo_desuso','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-warning btn-xs']); 
     }?>
     
 </p>
@@ -106,18 +106,40 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                     foreach ($detalle_balanceo as $val):
                         $flujo = app\models\Ordenproducciondetalleproceso::find()->where(['=','idproceso', $val->id_proceso])->andWhere(['=','iddetalleorden', $id_detalle])->one();
                         $total_unidades = $flujo->total_unidades_operacion - $flujo->unidades_confeccionadas;
-                        if($total_unidades != 0){ ?>
-                            <tr style="font-size: 85%;">
-                                <td><?= $val->id_proceso ?></td>
-                                <td><?= $val->proceso->proceso ?></td>
-                                <td><?= $val->minutos ?></td> 
-                                <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
-                                <td style="text-align: center"><?= $total_unidades?></td>
-                                <td style= 'width: 25px; height: 25px;'>
-                                    <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  
-                                </td>
-                            </tr>  
-                        <?php }    
+                        if($total_unidades != 0){ 
+                            if(app\models\FlujoOperaciones::find()->where([
+                                                                'idproceso' => $val->id_proceso,
+                                                                'idordenproduccion' => $idordenproduccion,
+                                                                'aplica_induccion' => 0])
+                                                                ->andWhere(['>', 'tiempo_induccion', 0])->one()){ ?>
+                                <tr>
+                                    <td>
+                                        <a href="<?= Url::toRoute(['valor-prenda-unidad/sam_induccion_operacion', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion]);?>"
+                                           class="btn btn-primary">
+                                           <?= $val->id_proceso ?>
+                                        </a>
+                                    </td>
+                                    <td><?= $val->proceso->proceso ?></td>
+                                    <td><?= $val->minutos ?></td> 
+                                    <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
+                                    <td style="text-align: center"><?= $total_unidades?></td>
+                                    <td style= 'width: 25px; height: 25px;'>
+                                        <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  
+                                    </td>
+                                </tr>
+                            <?php }else{?>
+                                <tr >
+                                    <td><?= $val->id_proceso ?></td>
+                                    <td><?= $val->proceso->proceso ?></td>
+                                    <td><?= $val->minutos ?></td> 
+                                    <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
+                                    <td style="text-align: center"><?= $total_unidades?></td>
+                                    <td style= 'width: 25px; height: 25px;'>
+                                        <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  
+                                    </td>
+                                </tr>
+                            <?php }    
+                       }    
                     endforeach;
                 }  ?>
             </tbody>  

@@ -2743,8 +2743,81 @@ class OrdenProduccionController extends Controller {
                      
         ]);
     }        
-    //ELIMINAR UN DETALLE DE LOS COSTOS DE PRODUCCION
     
+    //PERMITE HABLITAR INDUCCION DE OPERACION
+    
+    public function actionHabilitar_capacitacion($id){
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 168])->all()) {
+                $operaciones = FlujoOperaciones::find()->where(['idordenproduccion' => $id])->all();
+                return $this->render('view_induccion', [
+                    'model' => $this->findModel($id),
+                    'operaciones' => $operaciones,
+                    'id' => $id,
+                ]); 
+            }else{
+                return $this->redirect(['site/sinpermiso']); 
+            }  
+        }else{
+           return $this->redirect(['site/login']); 
+        }    
+    }
+    
+    //SUBIR EL TIEMPO D INDUCCCION
+    public function actionSubir_sam_induccion($id, $id_operacion){
+        $model = new FlujoOperaciones();
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["enviar_sam"])) { 
+                $table = FlujoOperaciones::findOne($id_operacion);
+                if($table){
+                    $table->observacion = $model->observacion;
+                    $table->tiempo_induccion = $model->tiempo_induccion;
+                    if($table->save()){
+                        Yii::$app->getSession()->setFlash('success', 'Registro modificado exitosamente.');
+                        return $this->redirect(['habilitar_capacitacion', 'id' => $id]);
+                    }else{
+                        
+                        Yii::$app->getSession()->setFlash('error', 'El Registro no se modifico. Valide la información.');
+                        return $this->redirect(['habilitar_capacitacion', 'id' => $id]);
+                    }
+                }
+            }
+            
+        }    
+        return $this->renderAjax('crear_sam_induccion', [
+            'model' => $model,
+            'id' => $id,
+        ]);
+    }
+    
+    //EDITAR EL SAM DE LA OPERACCION
+    public function actionEditar_sam_operacion($id, $id_operacion){
+        $model = new FlujoOperaciones();
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["editar_sam_operacion"])) { 
+                $table = FlujoOperaciones::findOne($id_operacion);
+                if($table){
+                    $table->segundos = $model->segundos;
+                    $table->minutos = round($model->segundos / 60,2);
+                    if($table->save()){
+                        Yii::$app->getSession()->setFlash('success', 'Registro modificado exitosamente.');
+                        return $this->redirect(['habilitar_capacitacion', 'id' => $id]);
+                    }else{
+                        
+                        Yii::$app->getSession()->setFlash('error', 'El Registro no se modifico. Valide la información.');
+                        return $this->redirect(['habilitar_capacitacion', 'id' => $id]);
+                    }
+                }
+            }
+            
+        }    
+        return $this->renderAjax('editar_sam_operacion', [
+            'model' => $model,
+            'id' => $id,
+        ]);
+    }
+    
+   //ELIMINAR UN DETALLE DE LOS COSTOS DE PRODUCCION
     public function actionEliminar($id,$detalle, $token)
     {                                
         $detalle = \app\models\OtrosCostosProduccion::findOne($detalle);

@@ -617,9 +617,9 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                     'url' => '#',
                                     'items' => [
                                             ['label' => 'Eficiencia diaria', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/ingreso_eficiencia_empleado']],                                                                                                
-                                            ['label' => 'Colillas de pago', 'icon' => 'plus-square-o', 'url' => ['/horario/index']],                                                
-                                            ['label' => 'Prestaciones sociales', 'icon' => 'plus-square-o', 'url' => ['/municipio/index']],
-                                            ['label' => 'Vacaciones', 'icon' => 'plus-square-o', 'url' => ['/tipo-documento/index']],
+                                         //   ['label' => 'Colillas de pago', 'icon' => 'plus-square-o', 'url' => ['/horario/index']],                                                
+                                          //  ['label' => 'Prestaciones sociales', 'icon' => 'plus-square-o', 'url' => ['/municipio/index']],
+                                           // ['label' => 'Vacaciones', 'icon' => 'plus-square-o', 'url' => ['/tipo-documento/index']],
 
                                     ],
                                 ],

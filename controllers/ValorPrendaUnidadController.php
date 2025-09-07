@@ -1423,6 +1423,56 @@ class ValorPrendaUnidadController extends Controller
         
     }
     
+    //PERMITE VALIDAR EL SAM PARA LA INDUCCION DE LA OPERACION
+    //PERMITE INGRESAR LA HORA DE ALMUERZO
+    public function actionSam_induccion_operacion($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle, $id_operacion){
+        /// 1. prepara el ultimo registro
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) 
+            ->one();
+        if($ultimoRegistro){
+            $horario = \app\models\FlujoOperaciones::find()->where([
+                                        'idproceso' => $id_operacion,
+                                        'idordenproduccion' => $idordenproduccion])->one();
+            $ultimaHora = $ultimoRegistro->hora_corte; 
+            $tiempo_ultima_hora = new \DateTimeImmutable($ultimaHora);
+            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+'.$horario->tiempo_induccion. ' minutes');
+            $ultimoRegistro->hora_inicio_induccion = $ultimoRegistro->hora_corte;
+            $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
+            $nueva_hora_entrada = $ultimoRegistro->hora_corte;
+            $ultimoRegistro->tiempo_induccion = $horario->tiempo_induccion ;
+            //actualizamos el registro
+            $horario->aplica_induccion = 1;
+            $horario->save();
+            if($ultimoRegistro->save()){
+                Yii::$app->getSession()->setFlash('warning', 'Se activo el horario para la induccion. Cuenta con '.$horario->tiempo_induccion. ' minutos. La Hora de regreso: ('.$ultimoRegistro->hora_corte.').');
+                return $this->redirect(['entrada_operacion_talla',
+                    'id_planta' => $id_planta,
+                    'id_detalle' => $id_detalle,
+                    'tokenOperario' => $tokenOperario,
+                    'id' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                    'nueva_hora_entrada' => $nueva_hora_entrada,
+                 ]);
+            }
+            
+        }else{
+           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
+            return $this->redirect(['entrada_operacion_talla',
+                 'id_planta' => $id_planta,
+                 'id_detalle' => $id_detalle,
+                 'tokenOperario' => $tokenOperario,
+                 'id' => $id,
+                 'idordenproduccion' => $idordenproduccion,
+             ]);
+        }
+        
+    }
+    
     //PERMITE MOSTRAR LAS TALAS DE QUE TIENE CADA ORDEN DE PRODUCCION
     public function actionEntrada_operacion_talla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle) {
         

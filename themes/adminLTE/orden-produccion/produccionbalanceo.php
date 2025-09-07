@@ -85,7 +85,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="panel-body">
                         <table class="table table-bordered table-hover">
                             <thead>
-                                <tr>
+                                <tr style="font-size: 85%;">
                                     <th scope="col" style='background-color:#B9D5CE;'>Op_Int.</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Op-Cliente</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Código</th>
@@ -97,6 +97,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                     <th scope="col" style='background-color:#B9D5CE;'><span title="Servicio facturado">Fac.</span></th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Estado</th>
                                     <th scope="col" style='background-color:#B9D5CE;'></th>
+                                    <th scope="col" style='background-color:#B9D5CE;'></th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -130,8 +132,17 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <td style="width: 25px;">
                                             <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_balanceo', 'id' => $val->idordenproduccion] ) ?>
                                         </td>
+                                        <?php if($val->idtipo == 1){?>
+                                            <td style="width: 25px;">
+                                                <?= Html::a('<span class="glyphicon glyphicon-user"></span> ', ['habilitar_capacitacion', 'id' => $val->idordenproduccion] );?>
+                                            </td>     
+                                        <?php }else{ ?>
+                                                <td style="width: 20px;">
+                                           <?php }?> 
+                                        </td>
                                     <?php }else{?>
                                         <td style="width: 25px;">
+                                        <td style="width: 25px;">    
                                     <?php }?>        
                                 </tr>
                                 <?php endforeach; ?>

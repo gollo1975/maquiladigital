@@ -53,12 +53,12 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
             }
         ?></button>
     </div>
-    <div class="modal remote fade" id="modalnuevacantidad<?= $model->id_balanceo ?>">
+    <div class="modal remote fade" id="modalnuevacantidad<?= $model->id_balanceo ?>" data-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content"></div>
         </div>
     </div>
-     <div class="modal remote fade" id="modalcerrarmodulo<?= $model->id_balanceo ?>">
+     <div class="modal remote fade" id="modalcerrarmodulo<?= $model->id_balanceo ?>" data-backdrop="static">
         <div class="modal-dialog modal-lg-centered">
            <div class="modal-content"></div>
         </div>
@@ -131,13 +131,14 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
         </div>
     </div>
     <?php $form = ActiveForm::begin([
-    'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
-    'fieldConfig' => [
-        'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
-        'labelOptions' => ['class' => 'col-sm-3 control-label'],
-        'options' => []
-    ],
+        'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
+        'fieldConfig' => [
+            'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
+            'labelOptions' => ['class' => 'col-sm-3 control-label'],
+            'options' => []
+        ],
     ]);?>
+    
     <div>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
@@ -152,14 +153,28 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                 <div class="table-responsive">
                     <div class="panel panel-success">
                         <div class="panel-body">
-                            <div class="panel panel-success">
-                                <table class="table table-bordered table-hover">
-                                                        <div class="panel-heading">
+                            
+                            <div class="panel panel-success" style="width: 50%; margin: 0 auto; float: left">
+                                <div class="panel-heading">
                                     
                                 </div>
-                                   
-                                    <th><?= Html::dropDownList('id_operario', '', $operarios, ['class' => 'col-sm-4', 'prompt' => 'Seleccione el operario']) ?></th>
-                                   
+                                <table class="table table-bordered table-hover">
+                                  
+                                    <td style="padding-left: 1; padding-right: 0;">
+                                        <?= Select2::widget([
+                                            'name' => 'id_operario',
+                                            'data' => $operarios,
+                                            'options' => [
+                                                'placeholder' => 'Seleccione el operario...',
+                                                'required' => true,
+                                                'class' => 'col-sm-18 my-custom-select2', // Mantén tu clase original si la necesitas para estilos
+                                            ],
+                                            'pluginOptions' => [
+                                                'allowClear' => true // Permite limpiar la selección
+                                            ],
+                                        ]); ?>
+                                    </td>
+                                    
                                 </table>  
                             </div>    
                          
@@ -185,46 +200,75 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                     $totalminutos = 0;
                                     $sam_balanceo = 0;
                                     $total = 0;
-                                    foreach ($flujo_operaciones as $val):
-                                        $totalminutos += $val->minutos;
-                                        $totalsegundos += $val->segundos;
-                                        if($val->operacion == 0){
-                                           $sam_balanceo += $val->minutos; 
-                                        }else{
-                                            $sam_balanceo += $val->minutos;
-                                        }?>
-                                        <tr style="font-size: 85%;">
-                                            <td style="width: 30px;"><input type="checkbox"  name="idproceso[]" value="<?= $val->idproceso ?>"></td>  
-                                            <?php $operacionModulo = app\models\BalanceoDetalle::find()->Where(['=','id_balanceo', $model->id_balanceo])->andWhere(['=','id_proceso', $val->idproceso])->one();?>
-                                               <td><?= $val->proceso->idproceso ?></td>
-                                                <?php if($operacionModulo){ ?>
-                                                    <td  style='background-color:#BEF1F0;'><?= $val->proceso->proceso ?></td>
-                                                <?php }else{ ?>
-                                                     <td><?= $val->proceso->proceso ?></td>
-                                                <?php }?>     
-                                            <td><?= $val->segundos ?></td>
-                                            <td><?= $val->minutos ?></td>
-                                            <td><?= $val->orden_aleatorio ?></td>
-                                            <?php if($val->operacion == 0){?>
-                                                    <td style='background-color:#B9D5CE;'><?= 'BALANCEO' ?></td>
-                                            <?php }else{?>
-                                                    <td style='background-color:#A5D3E6;'><?= 'PREPARACION' ?></td>
-                                            <?php }
-                                            if($val->pieza == 0){?>
-                                               <td style='background-color:#ACF1D8;'><?= 'PIEZA 1' ?></td>
-                                            <?php }else{?>
-                                               <td style='background-color:#E3CDFC;'><?= 'PIEZA 2' ?></td>
-                                            <?php }?>  
-                                               <td> <?= $val->tipomaquina->descripcion?></td>   
-                                            <input type="hidden" name="id_balanceo[]" value="<?= $model->id_balanceo ?>">
-                                            <input type="hidden" name="id_tipo[]" value="<?= $val->id_tipo ?>">
-                                            <input type="hidden" name="segundos[]" value="<?= $val->segundos ?>">
-                                            <input type="hidden" name="minutos[]" value="<?= $val->minutos ?>">
-                                            <input type="hidden" name="totalminutos[]" value="<?= $totalminutos ?>">
-                                            <input type="hidden" name="totalsegundos[]" value="<?= $totalsegundos ?>">
-                                             <input type="hidden" name="orden_aleatorio[]" value="<?= $val->orden_aleatorio ?>">
-                                        </tr>     
-                                   <?php endforeach;
+                                    $id_procesos_array = \yii\helpers\ArrayHelper::getColumn($flujo_operaciones, 'idproceso');
+
+                                    // 2. Hacemos UNA sola consulta para obtener todos los detalles de balanceo necesarios
+                                    //    indexBy('id_proceso') crea un array asociativo para una búsqueda rápida en el bucle
+                                    $operaciones_modulos = app\models\BalanceoDetalle::find()
+                                        ->where(['id_balanceo' => $model->id_balanceo])
+                                        ->andWhere(['in', 'id_proceso', $id_procesos_array])
+                                        ->indexBy('id_proceso')
+                                        ->all();
+                                    foreach ($flujo_operaciones as $val): 
+                                    // Tu lógica de cálculo de totales
+                                    $totalminutos += $val->minutos;
+                                    $totalsegundos += $val->segundos;
+                                    if ($val->operacion == 0) {
+                                        $sam_balanceo += $val->minutos;
+                                    } else {
+                                        $sam_balanceo += $val->minutos;
+                                    }
+                                    ?>
+                                    <tr style="font-size: 85%;">
+                                        <td style="width: 30px;">
+                                            <input type="checkbox" name="idproceso[]" value="<?= $val->idproceso ?>">
+                                        </td>
+
+                                        <!-- Ahora verificamos la existencia de la operación en el array pre-cargado -->
+                                        <?php $operacionModulo = isset($operaciones_modulos[$val->idproceso]); ?>
+
+                                        <td><?= $val->proceso->idproceso ?></td>
+
+                                        <?php if ($operacionModulo) { ?>
+                                            <td style='background-color:#BEF1F0;'><?= $val->proceso->proceso ?></td>
+                                        <?php } else { ?>
+                                            <td><?= $val->proceso->proceso ?></td>
+                                        <?php } ?>
+
+                                        <td><?= $val->segundos ?></td>
+                                        <td><?= $val->minutos ?></td>
+                                        <td><?= $val->orden_aleatorio ?></td>
+
+                                        <?php if ($val->operacion == 0) { ?>
+                                            <td style='background-color:#B9D5CE;'><?= 'BALANCEO' ?></td>
+                                        <?php } else { ?>
+                                            <td style='background-color:#A5D3E6;'><?= 'PREPARACION' ?></td>
+                                        <?php } ?>
+
+                                        <?php if ($val->pieza == 0) { ?>
+                                            <td style='background-color:#ACF1D8;'><?= 'PIEZA 1' ?></td>
+                                        <?php } else { ?>
+                                            <td style='background-color:#E3CDFC;'><?= 'PIEZA 2' ?></td>
+                                        <?php } ?>
+
+                                        <td><?= $val->tipomaquina->descripcion?></td>
+
+                                        <!-- Campos hidden (no tienen efecto visual pero se envían en el formulario) -->
+                                        <input type="hidden" name="id_balanceo[]" value="<?= $model->id_balanceo ?>">
+                                        <input type="hidden" name="id_tipo[]" value="<?= $val->id_tipo ?>">
+                                        <input type="hidden" name="segundos[]" value="<?= $val->segundos ?>">
+                                        <input type="hidden" name="minutos[]" value="<?= $val->minutos ?>">
+                                        <input type="hidden" name="totalminutos[]" value="<?= $totalminutos ?>">
+                                        <input type="hidden" name="totalsegundos[]" value="<?= $totalsegundos ?>">
+                                        <!-- CORRECCIÓN: Los siguientes campos DEBEN ser de tipo hidden para que se envíen al controlador -->
+                                        <input type="hidden" name="idordenproduccion" value="<?= $idordenproduccion ?>">
+                                        <input type="hidden" name="id" value="<?= $model->id_balanceo ?>">
+                                        <input type="hidden" name="id_planta" value="<?= $id_planta ?>">
+                                        <input type="hidden" name="id_proceso_confeccion" value="<?= $id_proceso_confeccion ?>">
+                                    </tr>
+                                <?php endforeach;?> 
+                                    
+                                    <?php
                                     $model->tiempo_balanceo = $sam_balanceo;
                                     if($model->cantidad_empleados == 0){
                                     }else{
@@ -264,7 +308,6 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                         <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Operacion</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Orden</th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Minutos x operacion">Min.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Segundos x operacion">Seg.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo asignado">T. Asig.</span></th>
@@ -275,7 +318,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                          <th scope="col" style='background-color:#B9D5CE;'><span title="Estado de la operacion">Est.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
-                                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                                      
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -291,7 +334,6 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                             <td><?= $val->proceso->idproceso?></td>
                                              <td><?= $val->operario->nombrecompleto ?></td>
                                             <td><?= $val->proceso->proceso ?></td>
-                                             <td><?= $val->ordenamiento ?></td>
                                             <td><?= $val->minutos ?></td>
                                             <td><?= $val->segundos ?></td>
                                              <td><?= $val->total_minutos ?></td>
@@ -324,15 +366,14 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                                 <td style= 'width: 25px;'></td>
 
                                             <?php } ?>    
-                                          <input type="hidden" name="listado_operacion[]" value="<?= $val->id_detalle ?>">
-                                          <td style="width: 25px;"><input type="checkbox" name="id_detalle_balanceo[]" value="<?= $val->id_detalle ?>"></td>    
+                                         
                                         </tr>
                                    <?php
                                         $total_mi += $val->minutos;
                                    endforeach; ?>
                                 </tbody>  
                                 <?php if(count($balanceo_detalle)> 0){?>
-                                    <td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 120px;"><b><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?>:</b> <?= $model->tiempo_balanceo?></td><td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 110px;"><b>Total:</b> <?= ''. number_format((60 / $model->tiempo_balanceo) * $model->cantidad_empleados,0) ?></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 110px;"><b>Total:</b> <?= ''. number_format($ochenta,0) ?></td><td colspan="4"></td>
+                                    <td colspan="3"></td><td style="font-size: 80%;background: #194E7B; color: #FFFFFF; width: 130px;"><b><?= Html::encode($model->procesoconfeccion->descripcion_proceso) ?>:</b> <?= $model->tiempo_balanceo?></td><td colspan="4"></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 110px;"><b>Total:</b> <?= ''. number_format((60 / $model->tiempo_balanceo) * $model->cantidad_empleados,0) ?></td><td style="font-size: 85%;background: #194E7B; color: #FFFFFF; width: 110px;"><b>Total:</b> <?= ''. number_format($ochenta,0) ?></td><td colspan="4"></td>
                                     <?php 
                                      if($total_mi > $model->total_minutos){
                                         Yii::$app->getSession()->setFlash('warning', 'Importante: El tiempo asignado en el listado de operaciones ('. $total_mi .'), es mayor que el tiempo inicial asignado ('. $model->total_minutos .') ');
@@ -342,12 +383,7 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                         </div>
                                             
                             <div class="panel-footer text-right">
-                                <?php if($model->estado_modulo == 0){?>
-                                    <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Expotar excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
-                                    <?= Html::submitButton("<span class='glyphicon glyphicon-check'></span> Act./Desact.", ["class" => "btn btn-warning btn-sm", 'name' => 'aplicarestado']) ?>
-                                <?php }else{?>
-                                <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Expotar excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
-                                <?php }?>
+                               <?= Html::a('<span class="glyphicon glyphicon-download-alt"></span> Expotar excel', ['excelbalanceo', 'id_balanceo' => $model->id_balanceo, 'idordenproduccion'=>$model->idordenproduccion], ['class' => 'btn btn-primary btn-sm']);?>
                             </div>
                          
                     </div>
@@ -436,17 +472,5 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
 		}
 	}
         
-        $(document).ready(function() {
-            $('#filtro-operario').change(function() {
-                var operarioSeleccionado = $(this).val();
-                $('#miTabla tbody tr').each(function() {
-                    var nombreOperario = $(this).find('td:eq(1)').text(); // Suponiendo que el nombre del operario está en la segunda columna (índice 1)
-                    if (operarioSeleccionado === '' || nombreOperario === operarioSeleccionado) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-        });
+                                
 </script>

@@ -22,6 +22,26 @@ use app\models\Matriculaempresa;
 $this->title = 'Resume de pago (APP)';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+<div class="panel-footer text-right">
+    
+      <!-- Inicio Nuevo Detalle proceso -->
+        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear pago',
+            ['/valor-prenda-unidad/pagarserviciosoperarios'],
+            [
+                'title' => 'Crear servicios',
+                'data-toggle'=>'modal',
+                'data-target'=>'#modalpagarserviciosoperarios',
+                'class' => 'btn btn-info btn-xs'
+            ])    
+       ?>
+    
+    <div class="modal remote fade" id="modalpagarserviciosoperarios"  data-backdrop="static">
+        <div class="modal-dialog modal-lg" style ="width: 700px;">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+</div>    
+    
 <script language="JavaScript">
     function mostrarfiltro() {
         divC = document.getElementById("filtro");
@@ -101,26 +121,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                 "method" => "post",                            
             ]);
     ?>
-<div class="panel-footer text-right">
-    <div class="panel-footer text-right">
-      <!-- Inicio Nuevo Detalle proceso -->
-        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear pago',
-            ['/valor-prenda-unidad/pagarserviciosoperarios'],
-            [
-                'title' => 'Crear servicios',
-                'data-toggle'=>'modal',
-                'data-target'=>'#modalpagarserviciosoperarios',
-                'class' => 'btn btn-info btn-xs'
-            ])    
-       ?>
-    </div> 
-    <div class="modal remote fade" id="modalpagarserviciosoperarios">
-        <div class="modal-dialog modal-lg" style ="width: 700px;">
-            <div class="modal-content"></div>
-        </div>
-    </div>
-</div>    
-    
+
 <div class="table-responsive">
     <?php if($validar_eficiencia == 1){?>
         <ul class="nav nav-tabs" role="tablist">
@@ -202,8 +203,12 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                            <?php } ?>
                                             <td><?= $val->minuto_prenda ?></td>
                                             <td><?= $val->tiempo_real_confeccion ?></td>
-                                            <td><?= $val->diferencia_tiempo ?></td>
-                                             
+                                            <?php
+                                            if($val->diferencia_tiempo > 0){?>
+                                                <td style="background-color: #ffe6b3; color: green;"><?= $val->diferencia_tiempo ?></td>
+                                            <?php }else{?>
+                                                <td style="background-color: #ffe6b3; color: red;"><?= $val->diferencia_tiempo ?></td>
+                                            <?php }?>    
                                         </tr>
                                     <?php endforeach;
                                 }?>
@@ -233,8 +238,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha operación</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
-                                         <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Total venta</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Margen</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                                     </thead>
                                     <tbody>
@@ -254,6 +261,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 't3.nombre_planta',
                                                 'SUM(t1.porcentaje_cumplimiento) AS total_cumplimiento',
                                                 'SUM(t1.vlr_pago) AS total_generado',
+                                                'SUM(t1.total_valor_venta) AS total_venta',
                                                 'COUNT(*) AS total_operaciones'
                                             ])
                                             ->from(['t1' => 'valor_prenda_unidad_detalles'])
@@ -271,7 +279,17 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 <?php foreach ($resultados as $row):
                                                     $eficiencia = ($row['total_operaciones'] > 0) ? ($row['total_cumplimiento'] / $row['total_operaciones']) : 0;
                                                     $eficiencia_formateada = number_format($eficiencia, 2);
-
+                                                    
+                                                    //calcular el total de venta por dia
+                                                    $total_valor_venta= $row['total_venta'];
+                                                    if($total_valor_venta > 0){
+                                                       $utilidad_bruta = $total_valor_venta - $row['total_generado'];
+                                                       $margen = round(($utilidad_bruta / $total_valor_venta) * 100,2);
+                                                    }else{
+                                                       $margen = 0; 
+                                                    }
+                                                    
+                                                    
                                                     // Acumular los totales para el cálculo global
                                                     $total_eficiencia_acumulada += $eficiencia;
                                                     $contador_dias++; // Incrementar el contador de días
@@ -293,6 +311,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                             <?php }
                                                         }?>
                                                         <td style="text-align: right"><?= Html::encode(number_format($row['total_generado'], 0)) ?></td>
+                                                        <td style="text-align: right"><?= Html::encode(number_format($total_valor_venta,0)) ?></td>
+                                                        <td style="text-align: right"><?= Html::encode(number_format($margen,2)) ?>%</td>
                                                         <td style="text-align: right"><?= Html::encode($row['nombre_planta']) ?></td>
                                                     </tr>
                                                 <?php endforeach;
@@ -327,6 +347,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                          <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
+                                         <th scope="col" style='background-color:#B9D5CE;'>Total venta</th>
+                                         <th scope="col" style='background-color:#B9D5CE;'>Margen</th>
                                      </thead>
                                     <tbody>
                                         <?php
@@ -338,6 +360,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             't3.nombre_planta',
                                             'SUM(t1.porcentaje_cumplimiento) AS total_porcentaje_cumplimiento',
                                             'SUM(t1.vlr_pago) AS total_generado',
+                                            'SUM(t1.total_valor_venta) AS total_venta',
                                             'COUNT(*) AS total_operaciones',
                                         ])
                                         ->from(['t1' => 'valor_prenda_unidad_detalles'])
@@ -355,11 +378,20 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             //termina la consulta
                                             if (!empty($resultados)){  //pregunta si hay datos                                 
                                                 foreach ($resultados as $row):
-                                                    
+                                                   $acumulado_venta = 0;
                                                    $promedio_operario = ($row['total_operaciones'] > 0) ? ($row['total_porcentaje_cumplimiento'] / $row['total_operaciones']) : 0;
                                                    $promedio_formateado = number_format($promedio_operario, 2);
 
-                                                    
+                                                    //calcular el total de venta por dia
+                                                    $total_valor_venta= $row['total_venta'];
+                                                    if($total_valor_venta > 0){
+                                                        $acumulado_venta += $total_valor_venta;
+                                                        $utilidad_bruta = $total_valor_venta - $row['total_generado'];
+                                                        $margen = round(($utilidad_bruta / $total_valor_venta) * 100,2);
+                                                    }else{
+                                                        $margen = 0;
+                                                        $acumulado_venta = 0;
+                                                    }    
 
                                                     // ACUMULAMOS LOS VALORES PARA EL PROMEDIO GLOBAL
                                                     $total_porcentaje_global += $promedio_formateado;
@@ -384,6 +416,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                             <?php }
                                                         }?>
                                                         <td style="text-align: right"><?= Html::encode(number_format($row['total_generado'], 0)) ?></td>
+                                                        <td style="text-align: right"><?= Html::encode(number_format($total_valor_venta,0)) ?></td>
+                                                        <td style="text-align: right"><?= Html::encode(number_format($margen,2)) ?>%</td>
                                                     </tr>
                                                 <?php
                                                 endforeach;
@@ -403,12 +437,14 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <div class="panel-heading">
                                             <h4 class="panel-title"></h4>
                                             <?php 
-
                                                $promedio_total_planta = 0;
                                                 if ($total_operaciones_global  > 0) {
                                                     $promedio_total_planta = ($total_porcentaje_global / $total_operaciones_global);
                                                 } ?>
-                                             <div style="font-size: 110%; text-align: center">Promedio total de la planta: <?= number_format($promedio_total_planta, 0) ?>%</div>
+                                            <div style="font-size: 110%; text-align: center">
+                                                <span>Eficiencia total de la planta: <?= number_format($promedio_total_planta, 0) ?>%</span><br>
+                                                <span>Total ventas: <?= number_format($acumulado_venta, 0) ?></span>
+                                            </div>
                                         </div>
                                     </div>
                                 <?php

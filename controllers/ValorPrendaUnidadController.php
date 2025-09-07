@@ -1164,6 +1164,13 @@ class ValorPrendaUnidadController extends Controller
 
         // 4. Asignar atributos adicionales
         $model = \app\models\ValorPrendaUnidad::findOne($id);
+        $valor_minuto =  $flujo->ordenproduccion->cliente->minuto_confeccion;
+        if($valor_minuto){
+            $table->total_valor_venta = round($valor_minuto * $flujo->minutos); 
+        }else{
+           $table->total_valor_venta = 0;  
+        }
+        
         $table->id_valor = $id;
         $table->usuariosistema = Yii::$app->user->identity->username;
         $table->hora_inicio_modulo = $horaCorte->hora_inicio;
@@ -1219,6 +1226,7 @@ class ValorPrendaUnidadController extends Controller
         
         $table->tiempo_real_confeccion = $minutos;
         $table->diferencia_tiempo = $flujo->minutos - $minutos;
+        
         // 5. Guardar el registro y manejar errores de validación
       if ($table->save()) {
            //guarda la unidad en el flujo de operacion

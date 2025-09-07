@@ -302,12 +302,13 @@ class BalanceoController extends Controller
           $flujo_operaciones = FlujoOperaciones::find()->where(['=', 'idordenproduccion', $idordenproduccion])->andWhere(['=','operacion', 0])->orderBy('pieza, operacion, orden_aleatorio asc')->all();
        }else{
           $flujo_operaciones = FlujoOperaciones::find()->where(['=', 'idordenproduccion', $idordenproduccion])->orderBy('pieza, operacion, orden_aleatorio asc')->all(); 
-       }   
+       }  
         $balanceo_detalle = BalanceoDetalle::find()->where(['=', 'id_balanceo', $id])->orderBy('id_operario asc')->all();
         $operario = \app\models\Operarios::find()->where(['=','estado', 1])->andWhere(['=','id_planta', $id_planta])->orderBy('nombrecompleto ASC')->all();
         $balanceo = Balanceo::findOne($id);
+       
         //Proceso que guarda el balanceo manual
-        if (isset($_POST["guardar"])) {
+       if (isset($_POST["guardar"])) {
             if ($_POST["id_operario"] > 0) {  
                 if (isset($_POST["idproceso"])) {
                      $intIndice = 0;
@@ -364,7 +365,8 @@ class BalanceoController extends Controller
                       'id_proceso_confeccion' => $id_proceso_confeccion,
                     ]); 
             }
-        } //Fin de proceso..
+        } 
+        
         //Proceso que guarda automatico el balanceo
         if (isset($_POST["generar"])){
             if ($_POST["id_operario"] > 0) {
@@ -466,6 +468,7 @@ class BalanceoController extends Controller
         }
         //PROCESO QUE ACTIVA O DESACTIVA EL ESTADO DE LA OPERACION
         if(isset($_POST['aplicarestado'])){
+            echo 'asdasdas';
             if(isset($_REQUEST['id_detalle_balanceo'])){
                 $intIndice = 0;
                 foreach ($_POST['id_detalle_balanceo'] as $intCodigo):
@@ -483,14 +486,14 @@ class BalanceoController extends Controller
                     $intIndice++;
                 endforeach;
             }
-             return $this->redirect(['view',
+          /*   return $this->redirect(['view',
                     'id' => $id,
                     'idordenproduccion' => $idordenproduccion,
                     'id_proceso_confeccion' => $id_proceso_confeccion,
                     'operario'=> $operario,
                     'id_planta' => $id_planta,
                     'balanceo_detalle' => $balanceo_detalle,
-                    'flujo_operaciones' => $flujo_operaciones]);
+                    'flujo_operaciones' => $flujo_operaciones]);*/
                     
         }
         
@@ -628,7 +631,7 @@ class BalanceoController extends Controller
         ]);
     }
     //suproceso para validar la fecha de terminacion
-    protected function actionActualizarfechaterminacion($idordenproduccion, $horarios)
+    protected function                      actionActualizarfechaterminacion($idordenproduccion, $horarios)
     {
         $minutos = 0; $cantidad = 0; $totales = 0; $total_dias = 0;
         $unidades = 0;

@@ -102,7 +102,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
             ]);
     ?>
 <div class="panel-footer text-right">
-    <div class="panel-footer text-right">
+   
       <!-- Inicio Nuevo Detalle proceso -->
         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear pago',
             ['/valor-prenda-unidad/pagarserviciosoperarios'],
@@ -113,8 +113,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                 'class' => 'btn btn-info btn-xs'
             ])    
        ?>
-    </div> 
-    <div class="modal remote fade" id="modalpagarserviciosoperarios">
+    
+    <div class="modal remote fade" id="modalpagarserviciosoperarios"  data-backdrop="static">
         <div class="modal-dialog modal-lg" style ="width: 700px;">
             <div class="modal-content"></div>
         </div>

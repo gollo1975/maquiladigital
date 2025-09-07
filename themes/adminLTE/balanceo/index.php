@@ -139,13 +139,13 @@ $form = ActiveForm::begin([
                 <td><?= ''.number_format($val->total_eficiencia,1) ?></td>
                  <?php 
                     if($val->estado_modulo == 0){?>
-                        <td style= 'width: 25px; height: 25px;'>
+                        <td style= 'width: 15px; height: 15px;'>
                           <a href="<?= Url::toRoute(["balanceo/view", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion, 'id_planta' =>$val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                         </td>
-                        <td style= 'width: 25px; height: 25px;'>
+                        <td style= 'width: 15px; height: 15px;'>
                             <a href="<?= Url::toRoute(["balanceo/update", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
                        </td>
-                        <td style= 'width: 25px; height: 25px;'>
+                        <td style= 'width: 15px; height: 15px;'>
                             <?= Html::a('', ['eliminar', 'id' => $val->id_balanceo], [
                                 'class' => 'glyphicon glyphicon-trash',
                                 'data' => [
@@ -155,7 +155,7 @@ $form = ActiveForm::begin([
                             ]) ?>
                         </td>
                     <?php }else {?>
-                         <td style= 'width: 25px; height: 25px;'>
+                         <td style= 'width: 15px; height: 15px;'>
                             <a href="<?= Url::toRoute(["balanceo/view", "id" => $val->id_balanceo, 'idordenproduccion' => $val->idordenproduccion, 'id_proceso_confeccion' =>$val->id_proceso_confeccion, 'id_planta' =>$val->id_planta]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                          </td>   
                          <td></td>

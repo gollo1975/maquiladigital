@@ -16,7 +16,7 @@ $form = ActiveForm::begin([
             'enableAjaxValidation' => true,
             'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
             'fieldConfig' => [
-            'template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>',
+            'template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>',
             'labelOptions' => ['class' => 'col-sm-3 control-label'],
             'options' => []
         ],
@@ -56,7 +56,7 @@ $form = ActiveForm::begin([
                        <?= $form->field($model, 'id_planta')->dropDownList($planta, ['prompt' => 'Seleccione la planta...']) ?>
                     </div>
                     <div class="row" col>
-                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-6 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+                        <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-8 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
                     </div>
                     
                        

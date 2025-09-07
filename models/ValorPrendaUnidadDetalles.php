@@ -49,7 +49,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
     {
         return [
             [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria',
-                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar','dia_semana','tiempo_desuso'], 'integer'],
+                'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar','dia_semana','tiempo_desuso','total_valor_venta'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
             [['porcentaje_cumplimiento','minuto_prenda','tiempo_real_confeccion','diferencia_tiempo'], 'number'],
             [['usuariosistema', 'observacion','hora_inicio_modulo','hora_inicio_desayuno','hora_inicio_almuerzo','hora_inicio_desuso'], 'string', 'max' => 20],
@@ -97,6 +97,7 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'hora_descontar' => 'hora_descontar',
             'minuto_prenda' => 'minuto_prenda',
             'tiempo_real_confeccion' => 'tiempo_real_confeccion',
+            'total_valor_venta' => 'Total venta'
         ];
     }
 

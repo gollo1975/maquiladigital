@@ -376,7 +376,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         
                                         $total_porcentaje_global = 0;
                                         $total_operaciones_global = 0;
-                                        
+                                        $total_venta_planta = 0;
                                             //termina la consulta
                                             if (!empty($resultados)){  //pregunta si hay datos                                 
                                                 foreach ($resultados as $row):
@@ -422,6 +422,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                         <td style="text-align: right"><?= Html::encode(number_format($margen,2)) ?>%</td>
                                                     </tr>
                                                 <?php
+                                                $total_venta_planta += $acumulado_venta;
                                                 endforeach;
                                             }else{?>
                                                   
@@ -445,7 +446,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 } ?>
                                             <div style="font-size: 110%; text-align: center">
                                                 <span>Eficiencia total de la planta: <?= number_format($promedio_total_planta, 0) ?>%</span><br>
-                                                <span>Total ventas: <?= number_format($acumulado_venta, 0) ?></span>
+                                                <span>Total ventas: <?= number_format($total_venta_planta, 0) ?></span>
                                             </div>
                                         </div>
                                     </div>

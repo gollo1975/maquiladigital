@@ -275,7 +275,7 @@ class CreditoController extends Controller
                         $table->fecha_inicio = $model->fecha_inicio;
                         $table->seguro = $model->seguro;
                         $table->numero_libranza = $model->numero_libranza;
-                        $table->saldo_credito = $model->vlr_credito;
+                        $table->saldo_credito = $model->vlr_credito + $model->numero_libranza;
                         $table->estado_credito = 1;
                         $table->estado_periodo = 1;
                         $table->aplicar_prima = $model->aplicar_prima;
@@ -355,7 +355,7 @@ class CreditoController extends Controller
                         $table->fecha_inicio = $model->fecha_inicio;
                         $table->seguro = $model->seguro;
                         $table->numero_libranza = $model->numero_libranza;
-                        $table->saldo_credito = $model->vlr_credito;
+                        $table->saldo_credito = $model->vlr_credito + $model->vlr_credito;
                         $table->aplicar_prima = $model->aplicar_prima;
                         $table->vlr_aplicar = $model->vlr_aplicar;
                         $table->observacion = $model->observacion;

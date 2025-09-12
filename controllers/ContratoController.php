@@ -85,15 +85,27 @@ class ContratoController extends Controller
                         $id_grupo_pago = Html::encode($form->id_grupo_pago);
                         $id_empleado = Html::encode($form->id_empleado);
                         $tipo_contrato = Html::encode($form->tipo_contrato);
-                        $table = Contrato::find()
-                                ->andFilterWhere(['like', 'identificacion', $identificacion])
-                                ->andFilterWhere(['=', 'contrato_activo', $activo])
-                                ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
-                                ->andFilterWhere(['=', 'id_entidad_pension', $pension])
-                                ->andFilterWhere(['=', 'id_entidad_salud', $eps])
-                                ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
-                                ->andFilterWhere(['=', 'id_empleado', $id_empleado])
-                                ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        if($activo != 0){
+                            $table = Contrato::find()
+                                    ->andFilterWhere(['like', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['=', 'contrato_activo', $activo])
+                                    ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                    ->andFilterWhere(['=', 'id_entidad_pension', $pension])
+                                    ->andFilterWhere(['=', 'id_entidad_salud', $eps])
+                                    ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        }else{
+                            $table = Contrato::find()
+                                    ->andFilterWhere(['like', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['=', 'contrato_activo', $activo])
+                                    ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                    ->andFilterWhere(['=', 'id_entidad_pension', $pension])
+                                    ->andFilterWhere(['=', 'id_entidad_salud', $eps])
+                                    ->andFilterWhere(['between', 'fecha_final', $desde, $hasta])
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        }    
                         $table = $table->orderBy('id_contrato desc');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -165,15 +177,27 @@ class ContratoController extends Controller
                         $id_grupo_pago = Html::encode($form->id_grupo_pago);
                         $id_empleado = Html::encode($form->id_empleado);
                         $tipo_contrato = Html::encode($form->tipo_contrato);
-                        $table = Contrato::find()
-                                ->andFilterWhere(['like', 'identificacion', $identificacion])
-                                ->andFilterWhere(['=', 'contrato_activo', $activo])
-                                ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
-                                ->andFilterWhere(['=', 'id_entidad_pension', $pension])
-                                ->andFilterWhere(['=', 'id_entidad_salud', $eps])
-                                ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
-                                ->andFilterWhere(['=', 'id_empleado', $id_empleado])
-                                ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        if($activo != 0){
+                            $table = Contrato::find()
+                                    ->andFilterWhere(['like', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['=', 'contrato_activo', $activo])
+                                    ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                    ->andFilterWhere(['=', 'id_entidad_pension', $pension])
+                                    ->andFilterWhere(['=', 'id_entidad_salud', $eps])
+                                    ->andFilterWhere(['between', 'fecha_inicio', $desde, $hasta])
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        }else{
+                            $table = Contrato::find()
+                                    ->andFilterWhere(['like', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['=', 'contrato_activo', $activo])
+                                    ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                    ->andFilterWhere(['=', 'id_entidad_pension', $pension])
+                                    ->andFilterWhere(['=', 'id_entidad_salud', $eps])
+                                    ->andFilterWhere(['between', 'fecha_final', $desde, $hasta])
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'id_tipo_contrato', $tipo_contrato]);
+                        }    
                         $table = $table->orderBy('id_contrato desc');
                         $tableexcel = $table->all();
                         $count = clone $table;

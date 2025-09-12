@@ -59,7 +59,7 @@ class LicenciaController extends Controller
      * Lists all Licencia models.
      * @return mixed
      */
-   public function actionIndex() {
+   public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',82])->all()){
                 $form = new FormFiltroLicencia();
@@ -128,6 +128,7 @@ class LicenciaController extends Controller
                         'form' => $form,
                         'pagination' => $pages,
                         'mensaje' => $mensaje,
+                        'token' =>$token,
             ]);
         }else{
              return $this->redirect(['site/sinpermiso']);
@@ -137,16 +138,97 @@ class LicenciaController extends Controller
         }
    }
 
+   
+   //CONSULTA DE LICENCIAS
+   public function actionIndex_search($token = 1) {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',170])->all()){
+                $form = new FormFiltroLicencia();
+                $id_empleado = null;
+                $id_grupo_pago = null;
+                $codigo_incapacidad = null; 
+                $fecha_inicio = null;
+                $fecha_final = null;
+                $mensaje = "";
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {                        
+                        $id_empleado = Html::encode($form->id_empleado);
+                        $id_grupo_pago = Html::encode($form->id_grupo_pago);
+                        $id_licencia = Html::encode($form->codigo_licencia);
+                        $fecha_desde  = Html::encode($form->fecha_desde);
+                        $fecha_hasta = Html::encode($form->fecha_hasta);
+                         $identificacion = Html::encode($form->identificacion);
+                        $table = Licencia::find()
+                                ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                ->andFilterWhere(['=', 'codigo_licencia ', $id_licencia])
+                                ->andFilterWhere(['=', 'id_empleado', $id_empleado])                                                                                              
+                                ->andFilterWhere(['=', 'identificacion', $identificacion])                                                                                              
+                                ->andFilterWhere(['between', 'fecha_desde', $fecha_desde, $fecha_hasta])
+                                ->orderBy('id_licencia_pk desc');
+
+                        $table = $table->orderBy('id_licencia_pk desc');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                            if(isset($_POST['excel'])){                            
+                                $check = isset($_REQUEST['id_licencia_pk desc']);
+                                $this->actionExcelconsulta($tableexcel);
+                            }
+                } else {
+                        $form->getErrors();
+                }                    
+            } else {
+                $table = Licencia::find()
+                        ->orderBy('id_licencia_pk desc');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 15,
+                    'totalCount' => $count->count(),
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                    $this->actionExcelconsulta($tableexcel);
+                }
+            }
+            $to = $count->count();
+            return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'mensaje' => $mensaje,
+                        'token' =>$token,
+            ]);
+        }else{
+             return $this->redirect(['site/sinpermiso']);
+        }     
+        }else{
+           return $this->redirect(['site/login']);
+        }
+   }
     /**
      * Displays a single Licencia model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'token' => $token,
         ]);
     }
 

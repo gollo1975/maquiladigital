@@ -20,8 +20,12 @@ $this->params['breadcrumbs'][] = $model->id_licencia_pk;
       <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
     <p>
-       <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_licencia_pk], ['class' => 'btn btn-success btn-sm']) ?>
+       <?php if($token == 0){?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
+             <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_licencia_pk], ['class' => 'btn btn-success btn-sm']);
+       }else{
+            echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index_search'], ['class' => 'btn btn-primary btn-sm']);
+       }?>       
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">

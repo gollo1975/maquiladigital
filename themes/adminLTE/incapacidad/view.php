@@ -19,8 +19,12 @@ $this->params['breadcrumbs'][] = $model->id_incapacidad;
     <!--<h1><?= Html::encode($this->title) ?></h1>-->
 
     <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_incapacidad], ['class' => 'btn btn-success btn-sm']) ?>
+        <?php if($token == 0){?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> Editar', ['update', 'id' => $model->id_incapacidad], ['class' => 'btn btn-success btn-sm']) ?>
+        <?php }else{
+            echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index_search'], ['class' => 'btn btn-primary btn-sm']);
+        }?>
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -133,10 +137,12 @@ $this->params['breadcrumbs'][] = $model->id_incapacidad;
                     </tbody>
                     <?php endforeach; ?>
                 </table>
-            </div>            
+            </div>     
+            <?php if($token == 0){?>
                 <div class="panel-footer text-right">                    
                      <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nuevo', ['incapacidad/nuevoseguimiento', 'id_incapacidad' => $model->id_incapacidad], ['class' => 'btn btn-success btn-sm']) ?>                    
-                </div>            
+                </div>  
+            <?php }?>
         </div>
     </div>
     <?php ActiveForm::end(); ?>

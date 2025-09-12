@@ -63,11 +63,19 @@ class EmpleadoController extends Controller
                         $fecha_desde = Html::encode($form->fechaingreso);
                         $fecha_hasta = Html::encode($form->fecharetiro);
                         $contrato = Html::encode($form->contrato);
-                        $table = Empleado::find()
-                                ->andFilterWhere(['=', 'id_empleado', $id_empleado])
-                                ->andFilterWhere(['=', 'identificacion', $identificacion])
-                                ->andFilterWhere(['between', 'fechaingreso', $fecha_desde, $fecha_hasta])
-                                ->andFilterWhere(['=', 'contrato', $contrato]);
+                        if($contrato != 0){
+                            $table = Empleado::find()
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['between', 'fechaingreso', $fecha_desde, $fecha_hasta])
+                                    ->andFilterWhere(['=', 'contrato', $contrato]);
+                        }else{
+                            $table = Empleado::find()
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['between', 'fecharetiro', $fecha_desde, $fecha_hasta])
+                                    ->andFilterWhere(['=', 'contrato', $contrato]);
+                        }    
                         $table = $table->orderBy('id_empleado DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -139,12 +147,19 @@ class EmpleadoController extends Controller
                         $fecha_desde = Html::encode($form->fechaingreso);
                         $fecha_hasta = Html::encode($form->fecharetiro);
                         $contrato = Html::encode($form->contrato);
-                        $table = Empleado::find()
-                                ->andFilterWhere(['=', 'id_empleado', $id_empleado])
-                                ->andFilterWhere(['=', 'identificacion', $identificacion])
-                                ->andFilterWhere(['>=', 'fechaingreso', $fecha_desde])
-                                ->andFilterWhere(['<=', 'fecharetiro', $fecha_hasta])
-                               ->andFilterWhere(['=', 'contrato', $contrato]);
+                        if($contrato != 0){
+                            $table = Empleado::find()
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['between', 'fechaingreso', $fecha_desde, $fecha_hasta])
+                                    ->andFilterWhere(['=', 'contrato', $contrato]);
+                        }else{
+                            $table = Empleado::find()
+                                    ->andFilterWhere(['=', 'id_empleado', $id_empleado])
+                                    ->andFilterWhere(['=', 'identificacion', $identificacion])
+                                    ->andFilterWhere(['between', 'fecharetiro', $fecha_desde, $fecha_hasta])
+                                    ->andFilterWhere(['=', 'contrato', $contrato]);
+                        }    
                         $table = $table->orderBy('id_empleado DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;

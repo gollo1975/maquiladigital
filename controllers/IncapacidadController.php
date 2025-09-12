@@ -70,7 +70,7 @@ class IncapacidadController extends Controller
      * Lists all Incapacidad models.
      * @return mixed
      */
-   public function actionIndex() {
+   public function actionIndex($token = 0) {
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',81])->all()){
                 $form = new FormFiltroIncapacidad();
@@ -137,6 +137,85 @@ class IncapacidadController extends Controller
                         'model' => $model,
                         'form' => $form,
                         'pagination' => $pages,
+                        'token' => $token,
+            ]);
+        }else{
+             return $this->redirect(['site/sinpermiso']);
+        }     
+        }else{
+           return $this->redirect(['site/login']);
+        }
+   }
+   
+   //consulta de incapaciadades
+    public function actionIndex_search($token = 1) {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',169])->all()){
+                $form = new FormFiltroIncapacidad();
+                $id_empleado = null;
+                $numero_incapacidad = null;
+                $id_grupo_pago = null;
+                $codigo_incapacidad = null; 
+                $fecha_inicio = null;
+                $fecha_final = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {                        
+                        $id_empleado = Html::encode($form->id_empleado);
+                        $numero_incapacidad = Html::encode($form->numero_incapacidad);
+                        $id_grupo_pago = Html::encode($form->id_grupo_pago);
+                        $codigo_incapacidad = Html::encode($form->codigo_incapacidad);
+                        $fecha_inicio  = Html::encode($form->fecha_inicio);
+                        $fecha_final = Html::encode($form->fecha_final);
+                        $table = Incapacidad::find()
+                                ->andFilterWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                                ->andFilterWhere(['=', 'codigo_incapacidad', $codigo_incapacidad])
+                                ->andFilterWhere(['=', 'id_empleado', $id_empleado])                                                                                              
+                                ->andFilterWhere(['=', 'numero_incapacidad', $numero_incapacidad])
+                                ->andFilterWhere(['between', 'fecha_inicio', $fecha_inicio, $fecha_final]);
+
+                        $table = $table->orderBy('id_incapacidad DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                            if(isset($_POST['excel'])){                            
+                                $check = isset($_REQUEST['id_incapacidad DESC']);
+                                $this->actionExcelconsulta($tableexcel);
+                            }
+                } else {
+                        $form->getErrors();
+                }                    
+            } else {
+                $table = Incapacidad::find()
+                        ->orderBy('id_incapacidad DESC');
+                $tableexcel = $table->all();
+                $count = clone $table;
+                $pages = new Pagination([
+                    'pageSize' => 15,
+                    'totalCount' => $count->count(),
+                ]);
+                $model = $table
+                        ->offset($pages->offset)
+                        ->limit($pages->limit)
+                        ->all();
+                if(isset($_POST['excel'])){
+                    //$table = $table->all();
+                    $this->actionExcelconsulta($tableexcel);
+                }
+            }
+            $to = $count->count();
+            return $this->render('index', [
+                        'model' => $model,
+                        'form' => $form,
+                        'pagination' => $pages,
+                        'token' => $token,
             ]);
         }else{
              return $this->redirect(['site/sinpermiso']);
@@ -555,7 +634,7 @@ class IncapacidadController extends Controller
     }
     
     //PROCESO DE LA VISTA
-    public function actionView($id)
+    public function actionView($id, $token)
     {
        $seguimiento = SeguimientoIncapacidad::find()->where(['=','id_incapacidad',$id])->all();
        $registros = count($seguimiento);
@@ -570,13 +649,14 @@ class IncapacidadController extends Controller
                     {                        
                     } 
                 }
-                 return $this->redirect(['incapacidad/view', 'id' => $id]);
+                 return $this->redirect(['incapacidad/view', 'id' => $id,'token' => $token]);
             }
         }
         return $this->render('view', [
-             'model' => $this->findModel($id),
+            'model' => $this->findModel($id),
             'seguimiento' => $seguimiento, 
-             'registros' => $registros,
+            'registros' => $registros,
+            'token' => $token,
         ]);
     }
     

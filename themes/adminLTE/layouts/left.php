@@ -376,7 +376,10 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'icon' => 'question',
                                                 'url' => '#',
                                                 'items' => [
-                                                    ['label' => 'Control Acceso Covid', 'icon' => 'plus-square-o', 'url' => ['control-acceso/index']],
+                                                     ['label' => 'Incapacidades', 'icon' => 'plus-square-o', 'url' => ['incapacidad/index_search']],
+                                                     ['label' => 'Licencias', 'icon' => 'plus-square-o', 'url' => ['licencia/index_search']],
+                                                    //['label' => 'Control Acceso Covid', 'icon' => 'plus-square-o', 'url' => ['control-acceso/index']],
+                                                    
 
                                                 ],
                                             ],

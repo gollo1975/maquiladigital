@@ -152,31 +152,41 @@ $form = ActiveForm::begin([
                  <?php 
                     if($contrato_activo->contrato_activo == 0){?>
                       <td colspan="4"><p style="color:red;">Closed</p></td>
-                    <?php }else{?>
-                      <td style= 'width: 25px;'>
-                        <a href="<?= Url::toRoute(["incapacidad/view", "id" => $val->id_incapacidad]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                     </td>
-                     <td style= 'width: 25px;'>
-                         <a href="<?= Url::toRoute(["incapacidad/update", "id" => $val->id_incapacidad]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
-                    </td>
-                    <td style= 'width: 25px;'>
-                        <?= Html::a('', ['eliminar', 'id' => $val->id_incapacidad], [
-                            'class' => 'glyphicon glyphicon-trash',
-                            'data' => [
-                                'confirm' => 'Esta seguro de eliminar el registro?',
-                                'method' => 'post',
-                            ],
-                        ]) ?>
-                    </td>
-                    <?php }?>   
+                    <?php }else{
+                        if($token == 0){  ?>
+                            <td style= 'width: 25px;'>
+                              <a href="<?= Url::toRoute(["incapacidad/view", "id" => $val->id_incapacidad,'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            </td>
+                            <td style= 'width: 25px;'>
+                               <a href="<?= Url::toRoute(["incapacidad/update", "id" => $val->id_incapacidad]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
+                            </td>
+                            <td style= 'width: 25px;'>
+                              <?= Html::a('', ['eliminar', 'id' => $val->id_incapacidad], [
+                                  'class' => 'glyphicon glyphicon-trash',
+                                  'data' => [
+                                      'confirm' => 'Esta seguro de eliminar el registro?',
+                                      'method' => 'post',
+                                  ],
+                              ]) ?>
+                            </td>
+                        <?php }else{?>
+                            <td style= 'width: 25px;'>
+                              <a href="<?= Url::toRoute(["incapacidad/view", "id" => $val->id_incapacidad, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            </td>
+                            <td style= 'width: 25px;'></td>
+                            <td style= 'width: 25px;'></td>
+                        <?php }    
+                    }?>   
             </tr>            
             <?php endforeach; ?>
             </tbody>    
         </table> 
         <div class="panel-footer text-right" >            
-           <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>                
-            <a align="right" href="<?= Url::toRoute("incapacidad/nuevo") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
-        <?php $form->end() ?>
+           <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); 
+            if($token == 0){?>          
+                <a align="right" href="<?= Url::toRoute("incapacidad/nuevo") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+            <?php }    
+        $form->end() ?>
         </div>
      </div>
 </div>

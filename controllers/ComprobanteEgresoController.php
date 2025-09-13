@@ -291,7 +291,7 @@ class ComprobanteEgresoController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {            
             $model->usuariosistema = Yii::$app->user->identity->username;
             if($model->save()){
-                Yii::$app->getSession()->setFlash('success', 'El regisro se guardo exitosamente...');
+              
                 return $this->redirect(['view','id' => $model->id_comprobante_egreso,'token' => 0]);
             }else{
                 

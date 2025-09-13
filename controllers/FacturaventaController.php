@@ -1116,6 +1116,7 @@ class FacturaventaController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);                       
         $objPHPExcel->getActiveSheet()->getColumnDimension('U')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('V')->setAutoSize(true);
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'Id')
                     ->setCellValue('B1', 'N° Factura')
@@ -1137,11 +1138,12 @@ class FacturaventaController extends Controller
                     ->setCellValue('R1', 'Saldo')
                     ->setCellValue('S1', 'Autorizado')
                     ->setCellValue('T1', 'Estado')
-                    ->setCellValue('U1', 'Observacion');
+                    ->setCellValue('U1', 'Observacion')
+                    ->setCellValue('v1', 'Servicio');
         $i = 2;
         
         foreach ($tableexcel as $val) {
-                                  
+               $tipoOrdenProduccion = '';                    
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A' . $i, $val->idfactura)
                     ->setCellValue('B' . $i, $val->nrofactura)
@@ -1164,6 +1166,12 @@ class FacturaventaController extends Controller
                     ->setCellValue('S' . $i, $val->autorizar)
                     ->setCellValue('T' . $i, $val->estados)
                     ->setCellValue('U' . $i, $val->observacion);
+                    
+                    if (!is_null($val->ordenproduccion) && !is_null($val->ordenproduccion->tipo)) {
+                        $tipoOrdenProduccion = $val->ordenproduccion->tipo->tipo;
+                    }  
+                    $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('V' . $i, $tipoOrdenProduccion);
             $i++;
         }
 

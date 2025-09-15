@@ -76,7 +76,7 @@ $configuracioncredito = ArrayHelper::map(ConfiguracionCredito::find()->orderBy( 
                                'format' => 'yyyy-m-d',
                                'todayHighlight' => true]])
                        ?>
-                      <?= $form->field($model, 'seguro')->textInput(['maxlength' => true]) ?>
+                      <?= $form->field($model, 'seguro')->textInput(['maxlength' => true, 'required' => true , 'value' => $model->seguro ?? 0]) ?>
                  </div>   
                 
                 <div class="row">

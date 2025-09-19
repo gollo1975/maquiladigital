@@ -212,7 +212,9 @@ class ValorPrendaUnidadController extends Controller
                                 $sw = 1;
                                 $query = ValorPrendaUnidadDetalles::find();
                                 $query->joinWith('operarioProduccion');
-                                $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario]);
+                                $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                     ->andwhere(['=','valor_prenda_unidad_detalles.id_operario', $id_operario])
+                                     ->andWhere(['=','tipo_aplicacion', 0]);
                                 $query->orderBy('operarios.nombrecompleto ASC');
                                 $table = $query;
                             }else{
@@ -221,7 +223,8 @@ class ValorPrendaUnidadController extends Controller
                                     $query = ValorPrendaUnidadDetalles::find();
                                     $query->joinWith('operarioProduccion');
                                     $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                          ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta]);
+                                          ->andWhere(['=', 'valor_prenda_unidad_detalles.id_planta', $id_planta])
+                                          ->andWhere(['=','tipo_aplicacion', 0]);
                                     $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
                                     $table = $query;
                                 }else{
@@ -297,7 +300,8 @@ class ValorPrendaUnidadController extends Controller
                                 $query = ValorPrendaUnidadDetalles::find()
                                     ->joinWith('operarioProduccion')
                                     ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                    ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario]);
+                                    ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario])
+                                    ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1]);
 
                                 $query->orderBy('operarios.nombrecompleto ASC, valor_prenda_unidad_detalles.consecutivo DESC');
 
@@ -308,7 +312,8 @@ class ValorPrendaUnidadController extends Controller
                                     $query = ValorPrendaUnidadDetalles::find();
                                     $query->joinWith('operarioProduccion');
                                     $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                            ->andWhere(['valor_prenda_unidad_detalles.id_planta' => $id_planta]);
+                                            ->andWhere(['valor_prenda_unidad_detalles.id_planta' => $id_planta])
+                                            ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1]);
                                     $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
                                     $table = $query;
                                 }else{
@@ -1184,6 +1189,7 @@ class ValorPrendaUnidadController extends Controller
         $table->hora_corte = date('H:i:s');
         $dia_numero = date('N', strtotime($table->dia_pago));
         $table->dia_semana = $dia_numero;
+        $table->tipo_aplicacion = 1;
         
         if(!$ultimoRegistro){// si es primer registro
            $hora_inicial = $horaCorte->hora_inicio;

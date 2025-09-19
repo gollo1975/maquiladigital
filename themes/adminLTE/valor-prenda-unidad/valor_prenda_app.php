@@ -271,6 +271,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             ->leftJoin(['t3' => 'planta_empresa'], 't1.id_planta = t3.id_planta')
                                             ->where(['between', 't1.dia_pago', $dia_pago, $fecha_corte])
                                             ->andWhere(['t1.id_operario' => $id_operario])
+                                            ->andWhere(['t1.tipo_aplicacion' => 1])        
                                             ->groupBy(['t1.id_operario', 't1.dia_pago', 't2.nombrecompleto', 't2.documento', 't3.nombre_planta'])
                                             ->orderBy(['t1.dia_pago' => SORT_DESC, 't1.id_operario' => SORT_ASC])
                                             ->all();
@@ -370,6 +371,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         ->leftJoin(['t3' => 'planta_empresa'], 't1.id_planta = t3.id_planta')
                                         ->where(['between', 't1.dia_pago', $dia_pago, $fecha_corte])
                                         ->andWhere(['t1.id_planta' => $id_planta])
+                                        ->andWhere(['t1.tipo_aplicacion' => 1])        
                                         ->groupBy(['t1.id_operario', 't2.nombrecompleto', 't2.documento', 't3.nombre_planta'])
                                         ->orderBy(['t1.id_operario' => SORT_ASC])
                                         ->all();

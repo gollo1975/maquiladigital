@@ -238,9 +238,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                                 </thead>
                             <?php }?>    
-                            <body>
+                            <tbody>
                                 <?php
-                               if($modelo){
+                                if($modelo){
                                     $auxiliar = ''; $sumarPorcentaje = 0; $cont = 0; $promedio = 0; $contarDia = 0; $totalPagar = 0;
                                     $empresa = Matriculaempresa::findOne(1);
                                     if($sw == 1){ //buscar la eficiencia por operario en un rago de fechas
@@ -300,66 +300,91 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             }
                                         endforeach;
                                     }else{
-                                     
+                                        $totalPorcentajePlanta = 0;
+                                        $totalOperariosPlanta = 0;
+
                                         $query = ValorPrendaUnidadDetalles::find()
                                             ->joinWith('operarioProduccion')
                                             ->where(['valor_prenda_unidad_detalles.id_planta' => $id_planta])
                                             ->andWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                            ->andWhere(['=', 'tipo_aplicacion', 0])
                                             ->groupBy('id_operario')
                                             ->orderBy('id_operario ASC');
+
                                         $resultados = $query->all();
-                                        $con = 0; $totalPorcentaje = 0; $totalDiaCorte = 0; $totalPagado = 0;
-                                        foreach ($resultados as $resultado):
-                                            $con += 1;
-                                            $buscarEficiencia = ValorPrendaUnidadDetalles::find ()->where (['=','id_operario', $resultado->id_operario])
-                                                                                                   ->andWhere(['between','dia_pago', $dia_pago, $fecha_corte])->all ();
-                                            foreach ($buscarEficiencia as $buscar):
+
+                                        foreach ($resultados as $resultado) {
+                                            // Variables para cada operario
+                                            $sumarPorcentaje = 0;
+                                            $contarDia = 0;
+                                            $totalPagar = 0;
+                                            
+
+                                            $buscarEficiencia = ValorPrendaUnidadDetalles::find()
+                                                ->where(['=', 'id_operario', $resultado->id_operario])
+                                                ->andWhere(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                                ->all();
+
+                                            foreach ($buscarEficiencia as $buscar) {
                                                 $sumarPorcentaje += $buscar->porcentaje_cumplimiento;
                                                 $totalPagar += $buscar->vlr_pago;
-                                                if($buscar->hora_descontar == 1){
+                                                if ($buscar->hora_descontar == 1) {
                                                     $contarDia += 1;
                                                 }
-                                            endforeach;
-                                            //actualiza y descarga variables
-                                            $totalPorcentaje = $sumarPorcentaje;
-                                            $totalDiaCorte = $contarDia;
-                                            $totalPagado = $totalPagar;
-                                            if($totalDiaCorte){
-                                                $promedio = round(($totalPorcentaje / $totalDiaCorte),0);
-                                            }else{
-                                                 $promedio = 0;
-                                            }  ?>  
+                                            }
+
+                                            // Calcula el promedio individual del operario
+                                            $promedioOperario = 0;
+                                            if ($contarDia > 0) {
+                                                $promedioOperario = round(($sumarPorcentaje / $contarDia), 0);
+                                            }
+
+                                            // Acumula los totales para el cálculo del promedio de la planta
+                                            $totalPorcentajePlanta += $promedioOperario;
+                                            $totalOperariosPlanta++;
+
+                                            // Tu código para mostrar la fila de la tabla...
+                                            ?>
                                             <tr style ='font-size:85%;'>
                                                 <td><?= $resultado->operarioProduccion->documento?></td>
                                                 <td><?= $resultado->operarioProduccion->nombrecompleto?></td>
-                                                <td style="text-align: right; "><?= $promedio ?> %</td>
-                                                <?php if($promedio > $empresa->porcentaje_empresa){?>
-                                                    <td style="text-align: right"><?= '$'. number_format($totalPagado,0)?></td>
-                                                    <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION'  ?>   <span class="glyphicon glyphicon-blackboard"></span></td>
-                                                <?php }else{
-                                                    if($promedio > $empresa->porcentaje_minima_eficiencia){?>
-                                                        <td style="text-align: right"><?= '$'. number_format($totalPagado,0)?></td>
+                                                <td style="text-align: right; "><?= $promedioOperario ?> %</td>
+                                                <?php if($promedioOperario > $empresa->porcentaje_empresa) { ?>
+                                                    <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
+                                                    <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION' ?> <span class="glyphicon glyphicon-blackboard"></span></td>
+                                                <?php } else {
+                                                    if($promedioOperario > $empresa->porcentaje_minima_eficiencia) { ?>
+                                                        <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
                                                         <td style='background-color:#83c5be;'><?= 'LE CUMPLE A LA EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-up"></span></td>
-                                                    <?php }else{?>
-                                                        <td style="text-align: right"><?= '$'. number_format($totalPagado,0)?></td>
+                                                    <?php } else { ?>
+                                                        <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
                                                         <td style='background-color:#b5c99a;'><?= 'NO CUMPLE LA EFICIENCIA DE EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-down"></span></td>
                                                     <?php }
-                                                }?> 
-                                                 <td><?= $resultado->planta->nombre_planta?></td>        
+                                                }?>
+                                                <td><?= $resultado->planta->nombre_planta?></td>
                                             </tr>
-                                            <?php
-                                            $sumarPorcentaje = 0;
-                                            $promedio = 0;
-                                            $contarDia = 0; 
-                                            $totalPagar = 0;
-                                        endforeach;
-                                        
-                                    }    
-                               }     
-                                      
-                                ?>  
-                                </body>    
+                                        <?php
+                                        }  // cierra el para
+                                    }?>
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title"></h4>
+                                            <?php 
+                                            $promedioPlanta = 0;
+                                            if ($totalOperariosPlanta > 0) {
+                                                $promedioPlanta = round(($totalPorcentajePlanta / $totalOperariosPlanta), 0);
+                                            }?>
+                                            <div style="font-size: 110%; text-align: center">
+                                                <span>Eficiencia total de la planta: <?= number_format($promedioPlanta, 0) ?>%</span><br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php }
+                                ?>
+                            </tbody>    
                         </table>
+                        
+                                        
                          <?php $form->end() ?>
                     </div>
                 </div>    

@@ -27,6 +27,7 @@ use app\models\Horario;
 $dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".date('Y') ;
+/*termina*/
 $operario = \app\models\Operarios::findOne($tokenOperario);
 $this->title = strtoupper($tallas->listadoTallaIndividual) . ' - Referencia:' . strtoupper($model->ordenproduccion->codigoproducto);
 $this->params['breadcrumbs'][] = $this->title;
@@ -65,7 +66,7 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
     <?php } elseif ($desayunoRegistrado > 0 && $almuerzoRegistrado == 0) { ?>
         <?= Html::a('<span class="glyphicon glyphicon-text-background"></span> Almuerzo', ['cargar_tiempo_almuerzo','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-xs']); ?>
     <?php } else {
-         // Opcional: Si ambos ya fueron registrados, no se muestra ningún botón.
+          // Opcional: Si ambos ya fueron registrados, no se muestra ningún botón.
     } 
     if($horario->aplica_tiempo_desuso == 1 && $tiempo_desuso < $horario->total_eventos_dia){?>
         <?= Html::a('<span class="glyphicon glyphicon-time"></span> Sam autorizado', ['validar_tiempo_desuso','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-warning btn-xs']); 
@@ -74,17 +75,17 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
 </p>
 
 <?php $form = ActiveForm::begin([
-            "method" => "post",                            
-       ]);
+            "method" => "post",                                
+        ]);
 ?>
-<!--INICIA LOS TABS-->
 <div class="table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">
             <?php if(count($detalle_balanceo) > 0){?>
                 <?= $Fecha?>
-            <?php }?>    
-        </div>                       
+                <span id="reloj" style="float: right; font-weight: bold;"></span>
+            <?php }?>   
+        </div>                                     
          <table class="table table-responsive-lg">
             <thead>
                 <tr>
@@ -108,15 +109,15 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                         $total_unidades = $flujo->total_unidades_operacion - $flujo->unidades_confeccionadas;
                         if($total_unidades != 0){ 
                             if(app\models\FlujoOperaciones::find()->where([
-                                                                'idproceso' => $val->id_proceso,
-                                                                'idordenproduccion' => $idordenproduccion,
-                                                                'aplica_induccion' => 0])
-                                                                ->andWhere(['>', 'tiempo_induccion', 0])->one()){ ?>
+                                'idproceso' => $val->id_proceso,
+                                'idordenproduccion' => $idordenproduccion,
+                                'aplica_induccion' => 0])
+                                ->andWhere(['>', 'tiempo_induccion', 0])->one()){ ?>
                                 <tr>
                                     <td>
                                         <a href="<?= Url::toRoute(['valor-prenda-unidad/sam_induccion_operacion', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion]);?>"
-                                           class="btn btn-primary">
-                                           <?= $val->id_proceso ?>
+                                            class="btn btn-primary">
+                                            <?= $val->id_proceso ?>
                                         </a>
                                     </td>
                                     <td><?= $val->proceso->proceso ?></td>
@@ -138,8 +139,8 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                                         <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  
                                     </td>
                                 </tr>
-                            <?php }    
-                       }    
+                            <?php } 
+                        }   
                     endforeach;
                 }  ?>
             </tbody>  
@@ -154,15 +155,30 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                     $con += 1;
                     $total += $val->porcentaje_cumplimiento;
                 }?>
-                    <div style="font-size: 200%; text-align: center; display: flex; justify-content: center; gap: 50px;">
-                            <div>Operaciones: <?= round($con)?></div>
-                            <div>Eficiencia: <?= round($total / $con)?>%</div>
+                     <div style="font-size: 200%; text-align: center; display: flex; justify-content: center; gap: 50px;">
+                                <div>Operaciones: <?= round($con)?></div>
+                                <div>Eficiencia: <?= round($total / $con)?>%</div>
                         </div>
-            <?php }?>    
+            <?php }?>   
         </div> 
-   </div>    
+   </div>   
 </div>
-   
- 
-         
+    
+    
     <?php ActiveForm::end(); ?>
+
+<script>
+    function mostrarReloj() {
+      const ahora = new Date();
+      const horas = ahora.getHours().toString().padStart(2, '0');
+      const minutos = ahora.getMinutes().toString().padStart(2, '0');
+      const segundos = ahora.getSeconds().toString().padStart(2, '0');
+      document.getElementById('reloj').textContent = `${horas}:${minutos}:${segundos}`;
+    }
+
+    // Actualiza el reloj cada segundo
+    setInterval(mostrarReloj, 1000);
+
+    // Llama a la función una vez para que se muestre de inmediato al cargar la página
+    mostrarReloj();
+</script>

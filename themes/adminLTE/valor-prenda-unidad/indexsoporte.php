@@ -241,6 +241,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                             <tbody>
                                 <?php
                                 if($modelo){
+                                    $totalOperariosPlanta = 0;
                                     $auxiliar = ''; $sumarPorcentaje = 0; $cont = 0; $promedio = 0; $contarDia = 0; $totalPagar = 0;
                                     $empresa = Matriculaempresa::findOne(1);
                                     if($sw == 1){ //buscar la eficiencia por operario en un rago de fechas

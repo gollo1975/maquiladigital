@@ -1311,7 +1311,7 @@ class ValorPrendaUnidadController extends Controller
             $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
             $nueva_hora_entrada = $ultimoRegistro->hora_corte;
             if($ultimoRegistro->save()){
-                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del desayuno. Cuenta con '.$horario->tiempo_desayuno. ' minutos. Hora de regreso debe de ser a las : ('.$ultimoRegistro->hora_corte.').');
+                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del desayuno. Cuenta con '.$horario->tiempo_desayuno. ' minutos. Hora de regreso debe de ser a las : ('.$nueva_hora_entrada.').');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,
@@ -1403,7 +1403,7 @@ class ValorPrendaUnidadController extends Controller
             $nueva_hora_entrada = $ultimoRegistro->hora_corte;
             $ultimoRegistro->tiempo_desuso = 1;
             if($ultimoRegistro->save()){
-                Yii::$app->getSession()->setFlash('warning', 'Se activo el horario para ir al baño o descanso. Cuenta con '.$horario->minutos_desuso. ' minutos. La Hora de regreso debe de ser a las : ('.$ultimoRegistro->hora_corte.').');
+                Yii::$app->getSession()->setFlash('warning', 'Se activo el horario para ir al baño o descanso. Cuenta con '.$horario->minutos_desuso. ' minutos. La Hora de regreso debe de ser a las : ('.$nueva_hora_entrada.').');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,

@@ -1356,7 +1356,7 @@ class ValorPrendaUnidadController extends Controller
             $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
             $nueva_hora_entrada = $ultimoRegistro->hora_corte;
             if($ultimoRegistro->save()){
-                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del almuerzo. Cuenta con '.$horario->tiempo_desayuno. ' minutos. La Hora de regreso debe de ser a las : ('.$ultimoRegistro->hora_corte.').');
+                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del almuerzo. Cuenta con '.$horario->tiempo_desayuno. ' minutos. La Hora de regreso debe de ser a las : ('.$nueva_hora_entrada.').');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,

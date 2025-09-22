@@ -48,6 +48,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= Html::encode($model->autorizadoCosto) ?></td>
                 </tr>
                   <tr style="font-size: 85%;">
+                    <?php if($model->id_planta != null){?>  
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_planta')?>:</th>
+                        <td><?= Html::encode($model->planta->nombre_planta) ?></td>
+                    <?php }else{?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_planta')?>:</th>
+                        <td><?= Html::encode('PLANTA GENERAL') ?></td>
+                    <?php }?>    
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Observación')?>:</th>
                     <td colspan="6"><?= Html::encode($model->observacion) ?></td>
                 </tr>
@@ -87,6 +94,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <th scope="col" style='background-color:#B9D5CE;'>Ajuste</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>F. proceso</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'></th>
                                    </tr>
                                </thead>
                                <tbody>
@@ -101,6 +109,19 @@ $this->params['breadcrumbs'][] = $this->title;
                                             <td align="right"><?= ''.number_format($val->ajuste,0) ?></td>
                                              <td><?= $val->fecha_proceso ?></td>
                                             <td><?= $val->usuariosistema ?></td>
+                                            <?php if($model->autorizado == 0){?>
+                                                <td style='width: 25px;'>
+                                                    <?= Html::a('', ['eliminar_registro', 'id' => $model->id_costo_gasto, 'id_detalle' => $val->id_detalle_nomina], [
+                                                      'class' => 'glyphicon glyphicon-trash',
+                                                      'data' => [
+                                                          'confirm' => 'Esta seguro de eliminar el registro?',
+                                                          'method' => 'post',
+                                                      ],
+                                                    ]) ?>
+                                                </td>
+                                            <?php }else{?>
+                                                <td style='width: 25px;'></td>
+                                            <?php }?>    
                                         </tr>
                                    <?php endforeach;?>
                                </tbody>
@@ -138,7 +159,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     <td align="right"><?= ''.number_format($val->valor,0) ?></td>
                                                 </tr>
                                      <?php endforeach;
-                                     $costoGasto->gastos_fijos = $total;
+                                     $costoGasto->gastos_fijos = $total / $costoGasto->periodo;
                                      $costoGasto->save(false);
                                      ?>
                                 </body>
@@ -251,6 +272,9 @@ $this->params['breadcrumbs'][] = $this->title;
                                 </body>
                             </table>
                         </div>
+                        <div class="panel-footer text-right" >  
+                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar todo', ['costos-gastos-empresa/eliminar_todo_seguridad_social', 'id' => $model->id_costo_gasto], ['class' => 'btn btn-danger btn-sm']) ?>
+                        </div>    
                     </div>    
                 </div>
             </div>    

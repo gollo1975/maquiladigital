@@ -42,10 +42,12 @@ class CostosGastosEmpresa extends \yii\db\ActiveRecord
         return [
             [['fecha_inicio', 'fecha_corte'], 'required'],
             [['fecha_inicio', 'fecha_corte', 'fecha_proceso'], 'safe'],
-            [['id', 'total_nomina','autorizado','total_seguridad_social','servicios','gastos_fijos','total_costos','total_ingresos','compras'], 'integer'],
+            [['id', 'total_nomina','autorizado','total_seguridad_social','servicios','gastos_fijos','total_costos','total_ingresos','compras','id_grupo_pago','id_planta','periodo'], 'integer'],
             [['usuariosistema'], 'string', 'max' => 20],
             [['observacion'], 'string', 'max' => 100],
             [['id'], 'exist', 'skipOnError' => true, 'targetClass' => Matriculaempresa::className(), 'targetAttribute' => ['id' => 'id']],
+            [['id_grupo_pago'], 'exist', 'skipOnError' => true, 'targetClass' => GrupoPago::className(), 'targetAttribute' => ['id_grupo_pago' => 'id_grupo_pago']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -56,9 +58,9 @@ class CostosGastosEmpresa extends \yii\db\ActiveRecord
     {
         return [
             'id_costo_gasto' => 'Id Costo Gasto',
-            'fecha_inicio' => 'Fecha Inicio',
+            'fecha_inicio' => 'Fecha Inicio:',
             'id' => 'ID',
-            'fecha_corte' => 'Fecha Corte',
+            'fecha_corte' => 'Fecha Corte:',
             'total_costo_gasto' => 'Total nomina:',
             'total_seguridad_social' => 'Total seguridad:',
             'fecha_proceso' => 'Fecha Proceso',
@@ -68,6 +70,9 @@ class CostosGastosEmpresa extends \yii\db\ActiveRecord
             'servicios' => 'Servicios:',
             'gastos_fijos' => 'Gastos fijos:',
             'compras' => 'Compras:',
+            'id_planta' => 'Planta produccion:',
+            'id_grupo_pago' => 'Grupo de pago:',
+            'periodo' => 'Periodos:'
         ];
     }
 
@@ -77,6 +82,22 @@ class CostosGastosEmpresa extends \yii\db\ActiveRecord
     public function getMaricula()
     {
         return $this->hasOne(Matriculaempresa::className(), ['id' => 'id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPlanta()
+    {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGrupoPago()
+    {
+        return $this->hasOne(GrupoPago::className(), ['id_grupo_pago' => 'id_grupo_pago']);
     }
     
     public function getAutorizadoCosto() {

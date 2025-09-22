@@ -40,11 +40,16 @@ class CostoFijoController extends Controller
             $id = Html::encode($_POST["id_costo_fijo"]);
             $table = new CostoFijoDetalle();
             $table->descripcion = Html::encode($_POST["descripcion"]);
-            $table->valor = Html::encode($_POST["valor"]);                
+            $table->valor = Html::encode($_POST["valor"]);  
+            $table->id_planta = Html::encode($_POST["id_planta"]); 
             $table->id_costo_fijo = $id;
-            $table->insert();
-            $this->Totales($id);
-            $this->redirect(["costo-fijo/costofijodetalle",'id' => $id]);                             
+            $table->aplica_concepto = isset($_POST["aplica_concepto"]) ? 1 : 0;
+            if($table->save()){
+                $this->Totales($id);
+                $this->redirect(["costo-fijo/costofijodetalle",'id' => $id]);   
+            }
+            
+                                      
         }
         
     }
@@ -57,10 +62,13 @@ class CostoFijoController extends Controller
             $iddetalle = Html::encode($_POST["id_detalle_costo_fijo"]);
             $table = CostoFijoDetalle::findOne($iddetalle);
             $table->descripcion = Html::encode($_POST["descripcion"]);
-            $table->valor = Html::encode($_POST["valor"]);                            
-            $table->update();
-            $this->Totales($id);
-            $this->redirect(["costo-fijo/costofijodetalle",'id' => $id]);                             
+            $table->valor = Html::encode($_POST["valor"]);    
+            $table->id_planta = Html::encode($_POST["id_planta"]);
+           $table->aplica_concepto = isset($_POST["aplica_concepto"]) ? 1 : 0;
+            if($table->save()){;
+                $this->Totales($id);
+                $this->redirect(["costo-fijo/costofijodetalle",'id' => $id]);
+            }    
         }
         
     }
@@ -77,7 +85,7 @@ class CostoFijoController extends Controller
         if (Yii::$app->user->identity){
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',19])->all()){        
                 $costofijo = CostoFijo::findOne($id);
-                $costofijodetalle = CostoFijoDetalle::find()->where(['=', 'id_costo_fijo', $id])->all();
+                $costofijodetalle = CostoFijoDetalle::find()->where(['=', 'id_costo_fijo', $id])->orderBy('id_planta ASC')->all();
                 return $this->render('costofijodetalle', [
                             'costofijo' => $costofijo,
                             'costofijodetalle' => $costofijodetalle,

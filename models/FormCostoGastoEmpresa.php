@@ -19,6 +19,9 @@ class FormCostoGastoEmpresa extends Model
     public $tipo_nomina;
     public $fecha_proceso;
     public $codigo;
+    public $id_planta;
+    public $grupo_pago;
+    public $periodo;
 
     public function rules()
     {
@@ -27,7 +30,7 @@ class FormCostoGastoEmpresa extends Model
            [['observacion'],'string' ,'max' => '100'],
            [['fecha_corte','fecha_inicio','fecha_proceso'], 'safe'],
            [['hora_inicio', 'hora_corte'], 'string'],
-           [['tipo_nomina','codigo'], 'integer'],
+           [['tipo_nomina','codigo','id_planta','grupo_pago','periodo'], 'integer'],
         ];
     }
 
@@ -42,6 +45,9 @@ class FormCostoGastoEmpresa extends Model
             'tipo_nomina' => 'Tipo de nomina:',
             'fecha_proceso' => 'Fecha cambio:',
             'codigo' => 'Codigo:',
+            'id_planta' => 'Sucursal:',
+            'grupo_pago' => 'Grupo de pago:',
+            'periodo' => 'Periodos:'
             
         ];
     }

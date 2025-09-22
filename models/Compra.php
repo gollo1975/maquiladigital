@@ -48,8 +48,8 @@ class Compra extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_compra_concepto', 'id_proveedor', 'factura', 'subtotal','fechainicio','fechavencimiento','id_tipo_compra'], 'required'],
-            [['id_compra_concepto', 'id_proveedor', 'estado', 'autorizado','numero','id_tipo_compra','genera_documento_soporte','documento_generado'], 'integer'],
+            [['id_compra_concepto', 'id_proveedor', 'factura', 'subtotal','fechainicio','fechavencimiento','id_tipo_compra','id_planta'], 'required'],
+            [['id_compra_concepto', 'id_proveedor', 'estado', 'autorizado','numero','id_tipo_compra','genera_documento_soporte','documento_generado','id_planta'], 'integer'],
             [['porcentajeiva', 'porcentajefuente', 'porcentajereteiva', 'subtotal', 'retencionfuente', 'impuestoiva', 'retencioniva', 'saldo', 'base_aiu', 'total'], 'number'],
             [['observacion','factura'], 'string'],
             [['fechacreacion','fechainicio','fechavencimiento'], 'safe'],
@@ -57,6 +57,7 @@ class Compra extends \yii\db\ActiveRecord
             [['id_compra_concepto'], 'exist', 'skipOnError' => true, 'targetClass' => CompraConcepto::className(), 'targetAttribute' => ['id_compra_concepto' => 'id_compra_concepto']],
             [['id_proveedor'], 'exist', 'skipOnError' => true, 'targetClass' => Proveedor::className(), 'targetAttribute' => ['id_proveedor' => 'idproveedor']],
             [['id_tipo_compra'], 'exist', 'skipOnError' => true, 'targetClass' => TipoCompraProceso::className(), 'targetAttribute' => ['id_tipo_compra' => 'id_tipo_compra']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -92,6 +93,7 @@ class Compra extends \yii\db\ActiveRecord
             'id_tipo_compra' => 'Tipo compra',
             'genera_documento_soporte' => 'Genera documento soporte:',
             'documento_generado' => 'documento_generado',
+            'id_planta' => 'Planta:'
         ];
     }
 
@@ -109,6 +111,14 @@ class Compra extends \yii\db\ActiveRecord
     public function getProveedor()
     {
         return $this->hasOne(Proveedor::className(), ['idproveedor' => 'id_proveedor']);
+    }
+    
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPlantaEmpresa()
+    {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
     }
     
     public function getTipoCompra() {

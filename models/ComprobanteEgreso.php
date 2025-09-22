@@ -50,7 +50,7 @@ class ComprobanteEgreso extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_municipio', 'fecha_comprobante', 'id_comprobante_egreso_tipo', 'id_proveedor', 'id_banco'], 'required'],
+            [['id_municipio', 'fecha_comprobante', 'id_comprobante_egreso_tipo', 'id_proveedor', 'id_banco','id_planta'], 'required'],
             [['fecha', 'fecha_comprobante'], 'safe'],
             [['numero', 'id_comprobante_egreso_tipo', 'id_proveedor', 'estado', 'autorizado', 'libre', 'id_banco'], 'integer'],
             [['valor','subtotal','iva','retefuente','reteiva','reteica','base_aiu'], 'number'],
@@ -61,6 +61,7 @@ class ComprobanteEgreso extends \yii\db\ActiveRecord
             [['id_comprobante_egreso_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => ComprobanteEgresoTipo::className(), 'targetAttribute' => ['id_comprobante_egreso_tipo' => 'id_comprobante_egreso_tipo']],
             [['id_proveedor'], 'exist', 'skipOnError' => true, 'targetClass' => Proveedor::className(), 'targetAttribute' => ['id_proveedor' => 'idproveedor']],
             [['id_banco'], 'exist', 'skipOnError' => true, 'targetClass' => Banco::className(), 'targetAttribute' => ['id_banco' => 'idbanco']],
+            
         ];
     }
 
@@ -84,6 +85,7 @@ class ComprobanteEgreso extends \yii\db\ActiveRecord
             'autorizado' => 'Autorizado',
             'libre' => 'Libre',
             'id_banco' => 'Banco',
+            
         ];
     }
 
@@ -95,6 +97,8 @@ class ComprobanteEgreso extends \yii\db\ActiveRecord
         return $this->hasOne(Municipio::className(), ['idmunicipio' => 'id_municipio']);
     }
 
+    
+    
     /**
      * @return \yii\db\ActiveQuery
      */

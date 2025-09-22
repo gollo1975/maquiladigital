@@ -62,7 +62,7 @@ class CostosGastosEmpresaController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 25,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -82,7 +82,7 @@ class CostosGastosEmpresaController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 25,
+                        'pageSize' => 15,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -116,11 +116,37 @@ class CostosGastosEmpresaController extends Controller
      */
     public function actionView($id)
     {
+        $empresa = \app\models\Matriculaempresa::findOne(1);
         $costo = CostosGastosEmpresa::findOne($id);
         $costoSeguridad = \app\models\CostoSeguridadsocial::find()->where(['=','id_costo_gasto', $id])->orderBy('empleado ASC')->all();
-        $prestacionServicio = \app\models\PagoNominaServicios::find()->where(['>=','fecha_inicio', $costo->fecha_inicio])
-                                                                     ->andWhere(['<=','fecha_corte', $costo->fecha_corte])->orderBy('operario ASC')->all();
-        $servicios = \app\models\CostoFijoDetalle::find()->orderBy('descripcion ASC')->all();
+        $servicios = [];
+        $prestacionServicio = [];
+        if($empresa->aplica_modulo_compra == 0){
+            if($costo->id_planta != null){
+                 $servicios = \app\models\CostoFijoDetalle::find()->where(['=','id_planta', $costo->id_planta])->orderBy('descripcion ASC')->all();
+                 $prestacionServicio = \app\models\PagoNominaServicios::find()->where(['>=','fecha_inicio', $costo->fecha_inicio])
+                                                                         ->andWhere(['<=','fecha_corte', $costo->fecha_corte])
+                                                                         ->andWhere(['=','id_planta', $costo->id_planta])->orderBy('operario ASC')->all();
+            }else{
+                 $servicios = \app\models\CostoFijoDetalle::find()->orderBy('descripcion ASC')->all();
+                 $prestacionServicio = \app\models\PagoNominaServicios::find()->where(['>=','fecha_inicio', $costo->fecha_inicio])
+                                                                         ->andWhere(['<=','fecha_corte', $costo->fecha_corte])->orderBy('operario ASC')->all();
+            }
+        }else{
+            
+            if($costo->id_planta != null){
+                $servicios = \app\models\CostoFijoDetalle::find()->where(['=','id_planta', $costo->id_planta])
+                                                                 ->andWhere(['=','aplica_concepto', 1])->orderBy('descripcion ASC')->all();
+                $prestacionServicio = \app\models\PagoNominaServicios::find()->where(['>=','fecha_inicio', $costo->fecha_inicio])
+                                                                         ->andWhere(['<=','fecha_corte', $costo->fecha_corte])
+                                                                         ->andWhere(['=','id_planta', $costo->id_planta])->orderBy('operario ASC')->all();
+            }else{
+                $servicios = \app\models\CostoFijoDetalle::find()->andWhere(['=','aplica_concepto', 1])->orderBy('descripcion ASC')->all();
+                $prestacionServicio = \app\models\PagoNominaServicios::find()->where(['>=','fecha_inicio', $costo->fecha_inicio])
+                                                                         ->andWhere(['<=','fecha_corte', $costo->fecha_corte])->orderBy('operario ASC')->all();
+            }
+        }    
+       
         $costo_nomina = \app\models\CostosGastosEmpresaNomina::find()->where(['=','id_costo_gasto', $id])->all();
         //PROCESO QUE ACTUALIZA COSTO DE SEGURIDAD SOCIAL
         if(isset($_POST["actualizar_registro"])){
@@ -174,7 +200,8 @@ class CostosGastosEmpresaController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
+        $planta = \app\models\PlantaEmpresa::find()->all();
+        $grupoPago = \app\models\GrupoPago::find()->where(['estado' => 1])->all();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id_costo_gasto]);
         }
@@ -184,6 +211,8 @@ class CostosGastosEmpresaController extends Controller
         }else{
            return $this->render('update', [
             'model' => $model,
+            'planta' => ArrayHelper::map($planta, 'id_planta', 'nombre_planta'),
+            'grupoPago' => ArrayHelper::map($grupoPago, 'id_grupo_pago', 'grupo_pago'),
            ]);
         }
     }
@@ -192,28 +221,37 @@ class CostosGastosEmpresaController extends Controller
     
     public function actionGenerarcostogastos() {
         $model = new \app\models\FormCostoGastoEmpresa();
+        $planta = \app\models\PlantaEmpresa::find()->all();
+        $grupoPago = \app\models\GrupoPago::find()->where(['estado' => 1])->all();
          if ($model->load(Yii::$app->request->post())) {
                if ($model->validate()){
                     if (isset($_POST["generargastos"])) {
                         $empresa = \app\models\Matriculaempresa::findOne(1);
-                        $conCosto = CostosGastosEmpresa::find()->where(['=','fecha_inicio', $model->fecha_inicio])->andWhere(['=','fecha_corte', $model->fecha_corte])->one(); 
+                        $conCosto = CostosGastosEmpresa::find()->where(['=','fecha_inicio', $model->fecha_inicio])
+                                                               ->andWhere(['=','fecha_corte', $model->fecha_corte])
+                                                               ->andWhere(['=','id_planta', $model->id_planta])->one(); 
                         if($conCosto){
-                            $this->redirect(["index"]); 
+                            return $this->redirect(["index"]); 
                         }else{
                             $table = new CostosGastosEmpresa();
                             $table->fecha_inicio = $model->fecha_inicio;
                             $table->fecha_corte = $model->fecha_corte;
                             $table->usuariosistema = Yii::$app->user->identity->username;
                             $table->observacion = $model->observacion;
+                            $table->id_planta = $model->id_planta;
+                            $table->id_grupo_pago = $model->grupo_pago;
+                            $table->periodo = $model->periodo;
                             $table->id = $empresa->id;
                             $table->save();
-                            $this->redirect(["index"]); 
+                            return $this->redirect(["index"]); 
                         }    
                     }
                } 
          }
         return $this->renderAjax('generarcostogastos', [
-            'model' => $model,       
+            'model' => $model,    
+            'planta' => ArrayHelper::map($planta, 'id_planta', 'nombre_planta'),
+            'grupoPago' => ArrayHelper::map($grupoPago, 'id_grupo_pago', 'grupo_pago'),
         ]);    
     }
     
@@ -223,8 +261,13 @@ class CostosGastosEmpresaController extends Controller
         $costos = CostosGastosEmpresa::findOne($id);
         $salario = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
         $gasto_nomina = \app\models\CostosGastosEmpresaNomina::find()->where(['=','id_costo_gasto', $id])->one();
-        $nomina = \app\models\ProgramacionNomina::find()->where(['=','estado_cerrado', 1])->andWhere(['>=','fecha_desde', $fecha_inicio])
+        if($costos->id_grupo_pago == null){
+            $nomina = \app\models\ProgramacionNomina::find()->where(['=','estado_cerrado', 1])->andWhere(['>=','fecha_desde', $fecha_inicio])
                                                        ->andWhere(['<=','fecha_hasta', $fecha_corte])->all();  
+        }else{
+             $nomina = \app\models\ProgramacionNomina::find()->where(['=','estado_cerrado', 1])->andWhere(['between','fecha_desde', $fecha_inicio, $fecha_corte])
+                                                       ->andWhere(['=','id_grupo_pago', $costos->id_grupo_pago])->all();  
+        }    
        if(count($nomina) > 0){
            $configuracionEmpresa = \app\models\Matriculaempresa::findOne(1);
            $conSalario = 0; $conInteres = 0; $conPrima = 0;
@@ -274,9 +317,17 @@ class CostosGastosEmpresaController extends Controller
     //PROCESO DE GENERA EL COSTO DE SEGURIDAD SOCIAL
     
     public function actionGenerarcostoseguridad($id, $fecha_inicio, $fecha_corte) {
-         
-        $nomina = \app\models\ProgramacionNomina::find()->where(['=','estado_cerrado', 1])->andWhere(['>=','fecha_desde', $fecha_inicio])
-                                                       ->andWhere(['<=','fecha_hasta', $fecha_corte])->all(); 
+        $model = $this->findModel($id);
+        if($model->id_grupo_pago !=null ){
+            $nomina = \app\models\ProgramacionNomina::find()->where(['=','estado_cerrado', 1])->andWhere(['>=','fecha_desde', $fecha_inicio])
+                                                        ->andWhere(['<=','fecha_hasta', $fecha_corte])
+                                                        ->andwhere(['=','id_grupo_pago', $model->id_grupo_pago])->all(); 
+        }else{
+           $nomina = \app\models\ProgramacionNomina::find()->where(['=','estado_cerrado', 1])->andWhere(['>=','fecha_desde', $fecha_inicio])
+                                                       ->andWhere(['<=','fecha_hasta', $fecha_corte])->all();  
+        }
+        
+        
      
         $configuracion_pension = \app\models\ConfiguracionPension::findOne(1);
         $configuracion_eps = \app\models\ConfiguracionEps::findOne(3);
@@ -321,10 +372,17 @@ class CostosGastosEmpresaController extends Controller
     //proceso que busca las compras
     public function actionGenerarcompras($id){
         $costos = CostosGastosEmpresa::findOne($id);
-        $compra = \app\models\Compra::find()->where(['=','id_tipo_compra', 1])
-                                            ->andWhere(['>=','fechainicio', $costos->fecha_inicio])
-                                            ->andWhere(['<=','fechainicio', $costos->fecha_corte])->all();
-       $subtotal = 0;
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        if($empresa->aplica_modulo_compra == 0){
+            $compra = \app\models\Compra::find()->where(['=','id_tipo_compra', 1])
+                                                ->andWhere(['>=','fechainicio', $costos->fecha_inicio])
+                                                ->andWhere(['<=','fechainicio', $costos->fecha_corte])->all();
+        }else{
+          $compra = \app\models\Compra::find()->Where(['>=','fechainicio', $costos->fecha_inicio])
+                                              ->andWhere(['<=','fechainicio', $costos->fecha_corte])
+                                              ->andWhere(['=','id_planta', $costos->id_planta])  ->all();  
+        }    
+        $subtotal = 0;
         if($compra){    
             foreach ($compra as $compras):
                  $subtotal += $compras->subtotal;
@@ -337,8 +395,14 @@ class CostosGastosEmpresaController extends Controller
     //PROCESO QUE SUMA LOS INGRESOS DEL MES
     protected function SumarIngresosEmpresa($id) {
         $costos = CostosGastosEmpresa::findOne($id);
-        $prendas = CantidadPrendaTerminadas::find()->where(['>=','fecha_entrada', $costos->fecha_inicio])
+        if($costos->id_planta != null){
+            $prendas = CantidadPrendaTerminadas::find()->where(['>=','fecha_entrada', $costos->fecha_inicio])
+                                                   ->andWhere(['<=','fecha_entrada', $costos->fecha_corte])
+                                                   ->andWhere(['=','id_planta', $costos->id_planta]) ->all();
+        }else{
+            $prendas = CantidadPrendaTerminadas::find()->where(['>=','fecha_entrada', $costos->fecha_inicio])
                                                    ->andWhere(['<=','fecha_entrada', $costos->fecha_corte])->all();
+        }    
         $suma = 0;
         if(count($prendas) > 0){
             foreach ($prendas as $ingresos):
@@ -356,12 +420,35 @@ class CostosGastosEmpresaController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+    public function actionEliminar_registro($id, $id_detalle)
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        $detalle = \app\models\CostosGastosEmpresaNomina::findOne($id_detalle);
+        $detalle->delete();
+        return $this->redirect(['view',
+            'model' => $this->findModel($id),
+            'id' => $id,
+            ]);
     }
+    //ELIMINA TODO DE LA SEGURIDAD SOCIAL
+    public function actionEliminar_todo_seguridad_social($id)
+    {
+       $detalle = \app\models\CostoSeguridadsocial::find()->where(['=','id_costo_gasto', $id])->all();
+            
+        foreach ($detalle as $val){
+            try {
+                $val->delete();
+                Yii::$app->getSession()->setFlash('success', 'Se eliminaron todos los registros.');
+            } catch (IntegrityException $e) {
+                Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos de la nómina');
+            } catch (\Exception $e) {
+                Yii::$app->getSession()->setFlash('error', 'Error al eliminar la programacion de nomina, tiene registros asociados en otros procesos');
+            }
+        } 
+        return $this->redirect(['costos-gastos-empresa/view',
+            'id' => $id,
+            'model' => $this->findModel($id),
+            ]);
+    }   
 
     /**
      * Finds the CostosGastosEmpresa model based on its primary key value.

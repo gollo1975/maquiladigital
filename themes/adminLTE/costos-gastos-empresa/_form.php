@@ -55,6 +55,15 @@ $form = ActiveForm::begin([
                     'todayHighlight' => true]])
             ?>
         </div>
+        <div class="row" col>
+            <?= $form->field($model, 'id_planta')->dropDownList($planta, ['prompt' => 'Seleccione la planta']) ?>
+        </div>
+        <div class="row" col>
+            <?= $form->field($model, 'id_grupo_pago')->dropDownList($grupoPago, ['prompt' => 'Seleccione el grupo']) ?>
+        </div>
+         <div class="row" col>
+            <?= $form->field($model, 'periodo')->dropDownList(['1' => '1', '2' => '2'],['prompt' => 'Seleccione...']) ?>
+        </div>
         <div class="row">
             <?= $form->field($model, 'observacion')->textArea(['maxlength' => true]) ?>
         </div>

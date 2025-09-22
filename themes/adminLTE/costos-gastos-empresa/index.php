@@ -95,7 +95,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col" style='background-color:#B9D5CE;'>Total ingresos</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Utilidad</th>
                 <th scope="col" style='background-color:#B9D5CE;'>%</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha proceso</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                 <th scope="col" style='background-color:#B9D5CE;'><span title="Autorizado" >Aut.</span></th>
                 <th scope="col" style='background-color:#B9D5CE;'>Observacion</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -131,7 +131,13 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td align="right" style='color:#0A3DB1;'><b><?= ''.number_format($total,0) ?></b></td>
                         <td align="right" style='color:#0A3DB1;'><b><?= ($porcentaje) ?></b></td>
                     <?php }?>    
-                    <td><?= $val->fecha_proceso ?></td>
+                   <td>
+                        <?php if ($val->planta): ?>
+                            <?= $val->planta->nombre_planta ?>
+                        <?php else: ?>
+                            <span class="text-danger">Planta no asignada</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?= $val->autorizadoCosto?></td>
                     <td><?= $val->observacion?></td>
                     <td style= 'width: 25px; height: 25px;'>
@@ -155,7 +161,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'class' => 'btn btn-info btn-xs'
                     ])    
                     ?>
-             <div class="modal remote fade" id="modalgenerarcostogastos">
+             <div class="modal remote fade" id="modalgenerarcostogastos" data-backdrop="static">
                      <div class="modal-dialog modal-lg-centered">
                          <div class="modal-content"></div>
                      </div>

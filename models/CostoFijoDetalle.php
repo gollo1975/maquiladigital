@@ -39,10 +39,11 @@ class CostoFijoDetalle extends \yii\db\ActiveRecord
     {
         return [
             [['id_costo_fijo', 'descripcion', 'valor'], 'required'],
-            [['id_costo_fijo'], 'integer'],
+            [['id_costo_fijo','id_planta','aplica_concepto'], 'integer'],
             [['valor'], 'number'],
             [['descripcion'], 'string', 'max' => 50],
             [['id_costo_fijo'], 'exist', 'skipOnError' => true, 'targetClass' => CostoFijo::className(), 'targetAttribute' => ['id_costo_fijo' => 'id_costo_fijo']],
+            [['id_planta'], 'exist', 'skipOnError' => true, 'targetClass' => PlantaEmpresa::className(), 'targetAttribute' => ['id_planta' => 'id_planta']],
         ];
     }
 
@@ -56,6 +57,8 @@ class CostoFijoDetalle extends \yii\db\ActiveRecord
             'id_costo_fijo' => 'Id Costo Fijo',
             'descripcion' => 'Descripcion',
             'valor' => 'Valor',
+            'id_planta' => 'Centro costo:',
+            'aplica_concepto' => 'aplica_concepto',
         ];
     }
 
@@ -66,4 +69,19 @@ class CostoFijoDetalle extends \yii\db\ActiveRecord
     {
         return $this->hasOne(CostoFijo::className(), ['id_costo_fijo' => 'id_costo_fijo']);
     }
+    
+    public function getPlantaEmpresa()
+    {
+        return $this->hasOne(PlantaEmpresa::className(), ['id_planta' => 'id_planta']);
+    }
+    
+    public function getAplicaConcepto() {
+        if($this->aplica_concepto == 0){
+            $aplicaconcepto = 'NO';
+        }else{  
+            $aplicaconcepto = 'SI';
+        }
+        return  $aplicaconcepto;
+    }
+    
 }

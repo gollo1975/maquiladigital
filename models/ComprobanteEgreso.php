@@ -50,7 +50,7 @@ class ComprobanteEgreso extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_municipio', 'fecha_comprobante', 'id_comprobante_egreso_tipo', 'id_proveedor', 'id_banco','id_planta'], 'required'],
+            [['id_municipio', 'fecha_comprobante', 'id_comprobante_egreso_tipo', 'id_proveedor', 'id_banco'], 'required'],
             [['fecha', 'fecha_comprobante'], 'safe'],
             [['numero', 'id_comprobante_egreso_tipo', 'id_proveedor', 'estado', 'autorizado', 'libre', 'id_banco'], 'integer'],
             [['valor','subtotal','iva','retefuente','reteiva','reteica','base_aiu'], 'number'],

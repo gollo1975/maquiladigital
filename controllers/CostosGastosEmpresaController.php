@@ -6,6 +6,9 @@ use app\models\FormFiltroCostoGastosEmpresa;
 use app\models\UsuarioDetalle;
 use app\models\CostosGastosEmpresa;
 use app\models\CantidadPrendaTerminadas;
+use app\models\ProgramacionNomina;
+use app\models\Matriculaempresa;
+use app\models\CostosGastosEmpresaNomina;
 //clases
 use Yii;
 use yii\web\Controller;
@@ -148,21 +151,33 @@ class CostosGastosEmpresaController extends Controller
         }    
        
         $costo_nomina = \app\models\CostosGastosEmpresaNomina::find()->where(['=','id_costo_gasto', $id])->all();
-        //PROCESO QUE ACTUALIZA COSTO DE SEGURIDAD SOCIAL
-        if(isset($_POST["actualizar_registro"])){
-              $intIndice = 0;
-            foreach ($_POST["actualizar_registro"] as $intCodigo):
-                $table = \app\models\CostoSeguridadsocial::findOne($intCodigo);
-                $table->pension = round($table->salario_prestacional * $_POST["porcentaje_pension"][$intIndice])/100;
-                $table->eps = round($table->salario_prestacional * $_POST["porcentaje_eps"][$intIndice])/100;
-                $table->arl = round($table->salario_prestacional * $_POST["porcentaje_arl"][$intIndice])/100;
-                $table->caja_compensacion = round($table->salario_prestacional * $_POST["porcentaje_caja"][$intIndice])/100;
-                $table->save(false);
-                $intIndice++;
-            endforeach;
-            $this->SumarCostoSeguridad($id);
-             return $this->redirect(['view', 'id' => $id]);
-        }
+        
+        //PROCESO QUE ELIMINA SELECCION
+        if (Yii::$app->request->post()) {
+            if (isset($_POST["eliminar_seleccion"])) {
+                if (isset($_POST["registro_seleccionados"])) {
+                    $con = 0;
+                    foreach ($_POST["registro_seleccionados"] as $intCodigo) {
+                        try {
+                            $eliminar = \app\models\CostoSeguridadsocial::findOne($intCodigo);
+                            $eliminar->delete();
+                            $con++;
+                        } catch (IntegrityException $e) {
+
+                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+                        } catch (\Exception $e) {
+                            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el detalle, tiene registros asociados en otros procesos');
+
+                        }
+                    }
+                    Yii::$app->getSession()->setFlash('success', 'Se eliminaron' .$con. ' registro enviados por el cliente.');
+                    $this->redirect(["costos-gastos-empresa/view", 'id' => $id]);
+                } else {
+                    Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro.');
+                }    
+             }
+        }             
+       
         return $this->render('view', [
             'model' => $this->findModel($id),
             'costo_nomina' => $costo_nomina,
@@ -172,8 +187,32 @@ class CostosGastosEmpresaController extends Controller
         ]);
     }
     
-    //SUBPROCESO QUE TOTALIZA LOS COSTOS DE SEGURIDAD SOCIAL
     
+    
+    //PROCESO QUE ACTUALIZA COSTO DE SEGURIDAD SOCIAL
+    public function actionActualizar_registros($id) {
+        $datosSeguridad = \app\models\CostoSeguridadsocial::find()->where(['=','id_costo_gasto', $id])->all();
+        $pension = 0;
+        $eps = 0;
+        $arl = 0;
+        $caja = 0;
+        foreach ($datosSeguridad as $val):
+            $pension = round($val->salario_prestacional * $val->porcentaje_pension)/100;
+            $eps = round($val->salario_prestacional * $val->porcentaje_eps)/100;
+            $arl = round($val->salario_prestacional * $val->porcentaje_arl)/100;
+            $caja = round($val->salario_prestacional * $val->porcentaje_caja)/100;
+            $val->pension = $pension;
+            $val->eps = $eps;
+            $val->arl = $arl;
+            $val->caja_compensacion = $caja;
+            $val->save(false);
+        endforeach;
+        $this->SumarCostoSeguridad($id);
+        return $this->redirect(['view', 'id' => $id]);
+    }
+        
+        
+    //SUBPROCESO QUE TOTALIZA LOS COSTOS DE SEGURIDAD SOCIAL
     protected function SumarCostoSeguridad($id) {
         $costoGasto = CostosGastosEmpresa::findOne($id);
         $conCosto = \app\models\CostoSeguridadsocial::find()->where(['=','id_costo_gasto', $id])->all();
@@ -255,6 +294,114 @@ class CostosGastosEmpresaController extends Controller
         ]);    
     }
     
+    //permite generar la nomina del personal seleccionado
+    public function actionGenerar_seleccion_empleados($id) {
+         $costo = CostosGastosEmpresa::findOne($id);
+        $modelo = \app\models\ProgramacionNomina::find()->where([
+                                                            'id_grupo_pago' => $costo->id_grupo_pago])
+                                                        ->andWhere(['between','fecha_desde', $costo->fecha_inicio, $costo->fecha_corte])
+                                                        ->andWhere(['=','id_tipo_nomina', 1])->all();
+        
+        if (Yii::$app->request->isPost) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $empleadosSeleccionados = Yii::$app->request->post('empleados_seleccionados');
+
+            if (empty($empleadosSeleccionados) || !is_array($empleadosSeleccionados)) {
+                return ['status' => 'error', 'message' => 'No se ha seleccionado ningún empleado para guardar.'];
+            }
+
+            $registros_guardados = 0;
+            $errores = 0;
+            
+            // Recorre la lista de IDs de empleados
+            foreach ($empleadosSeleccionados as $intCodigo) {
+                
+                // Busca el registro de la programación de nómina
+                $registro = ProgramacionNomina::findOne($intCodigo);
+                
+                if ($registro) {
+                    try {
+                        // Carga la información de la empresa
+                        $empresa = Matriculaempresa::findOne(1);
+                        $cesantias = 0;
+                        $primas = 0;
+                        $intereses = 0;
+                        $vacacion = 0;
+                       
+                        // Lógica para el cálculo de cesantías y primas
+                        if ($registro->contrato->auxilio_transporte == 0) {
+                            $cesantias = (($registro->ibc_prestacional + $registro->total_auxilio_transporte) * $empresa->porcentaje_cesantias) / 100;
+                            $primas = (($registro->ibc_prestacional + $registro->total_auxilio_transporte) * $empresa->porcentaje_prima) / 100;
+                            $intereses = ($cesantias * 1)/100;
+                            $vacacion = ($registro->ibc_prestacional * $empresa->porcentaje_vacacion)/100;
+                        } else {
+                            $cesantias = (($registro->ibc_prestacional * $empresa->porcentaje_cesantias) / 100);
+                            $primas = (($registro->ibc_prestacional * $empresa->porcentaje_prima) / 100);
+                            $intereses = ($cesantias * $empresa->porcentaje_intereses)/100;
+                            $vacacion = ($registro->ibc_prestacional * $empresa->porcentaje_vacacion)/100;
+                        }
+                        
+                        // Crea una nueva instancia del modelo a guardar
+                        $table = new CostosGastosEmpresaNomina();
+                        
+                        // Asigna los valores a las propiedades del modelo
+                        $table->id_costo_gasto = $id;
+                        $table->salarios = $registro->total_devengado;
+                        $table->cesantias = round($cesantias);
+                        $table->primas = round($primas);
+                        $table->intereses = round($intereses);
+                        $table->vacacion = round($vacacion);
+                        $table->ajuste = round(($vacacion * $empresa->ajuste_caja)/100);
+                        $table->usuariosistema = Yii::$app->user->identity->username;
+                        // Intenta guardar el modelo
+                        if ($table->save(false)) { 
+                            $registros_guardados++;
+                           
+                        } else {
+                            $errores++;
+                            Yii::error('Error al guardar: ' . print_r($table->getErrors(), true));
+                        }
+                    } catch (\Exception $ex) {
+                        $errores++;
+                        // Devuelve el mensaje de la excepción inmediatamente
+                        return ['status' => 'error', 'message' => "Error al guardar el empleado con ID: {$intCodigo}. Detalles: " . $ex->getMessage()];
+                    }
+                }
+            }
+         
+            
+            // Devuelve una respuesta JSON con el resultado.
+            if ($errores > 0) {
+                 return ['status' => 'error', 'message' => "No se pudieron guardar {$errores} registros."];
+            } else {
+                 return ['status' => 'success', 'message' => "Se han guardado {$registros_guardados} empleados correctamente."];
+            }
+           
+          return $this->redirect(['view',
+                'id' => $id,
+            ]);
+        }
+        
+        return $this->renderAjax('genera_nomina_seleccion', [
+            'modelo' => $modelo,    
+        ]);    
+    }
+    
+    //proceso que acumula los costos de nomina
+    protected function SumarCostosNominaSucursal($id) {
+        $buscar = CostosGastosEmpresaNomina::find()->where(['=','id_costo_gasto', $id])->all();
+        $costo = CostosGastosEmpresa::findOne($id);
+        $total_valor = 0;
+        
+        foreach ($buscar as $val) {
+            $total_valor += $val->salarios + $val->cesantias + $val->intereses + $val->primas + $val->vacacion + $val->ajuste;
+        }
+      echo  $costo->total_nomina =  $total_valor;
+        $costo->save(false);
+                
+    }
+    
     //PROCESO QUE GENERA EL COSTO DE NOMINA
     public function actionGenerarcostonomina($id, $fecha_inicio, $fecha_corte) {
        
@@ -273,9 +420,10 @@ class CostosGastosEmpresaController extends Controller
            $conSalario = 0; $conInteres = 0; $conPrima = 0;
            $conCesantia =0; $conVacacion = 0; $conPrestacional = 0;
            $total = 0;
+           $conAjuste = 0;
            foreach ($nomina as $valorNomina):
                $conSalario += $valorNomina->total_devengado;
-               $conPrestacional += $valorNomina->ibc_prestacional; $conAjuste = 0;
+               $conPrestacional += $valorNomina->ibc_prestacional; 
            endforeach;
            //calculos
            $conCesantia = round(($conPrestacional + $salario->auxilio_transporte_actual) * $configuracionEmpresa->porcentaje_cesantias)/100;
@@ -357,6 +505,7 @@ class CostosGastosEmpresaController extends Controller
     //ACTUALIZA COSTO SE SEGURIDAD SOCIAL.
     public function actionAutorizarcostos($id) {
        $costos = CostosGastosEmpresa::findOne($id);
+       $this->SumarCostosNominaSucursal($id);
        if($costos->autorizado == 0){
            $costos->autorizado = 1;
            $costos->total_costos = $costos->total_nomina + $costos->total_seguridad_social  + $costos->servicios + $costos->gastos_fijos + $costos->compras;
@@ -378,8 +527,7 @@ class CostosGastosEmpresaController extends Controller
                                                 ->andWhere(['>=','fechainicio', $costos->fecha_inicio])
                                                 ->andWhere(['<=','fechainicio', $costos->fecha_corte])->all();
         }else{
-          $compra = \app\models\Compra::find()->Where(['>=','fechainicio', $costos->fecha_inicio])
-                                              ->andWhere(['<=','fechainicio', $costos->fecha_corte])
+          $compra = \app\models\Compra::find()->Where(['between','fechainicio', $costos->fecha_inicio, $costos->fecha_corte])
                                               ->andWhere(['=','id_planta', $costos->id_planta])  ->all();  
         }    
         $subtotal = 0;
@@ -392,6 +540,8 @@ class CostosGastosEmpresaController extends Controller
         $costos->save(false);
         return $this->redirect(['view', 'id' => $id]);
     }
+    
+    
     //PROCESO QUE SUMA LOS INGRESOS DEL MES
     protected function SumarIngresosEmpresa($id) {
         $costos = CostosGastosEmpresa::findOne($id);

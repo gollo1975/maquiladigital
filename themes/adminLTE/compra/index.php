@@ -44,6 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->all(), 'idproveedor', 'nombreProveedores');
+$plantas = ArrayHelper::map(\app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -75,6 +76,13 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+             <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
+                'data' => $plantas,
+                'options' => ['prompt' => 'Seleccione la planta ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
             <?= $formulario->field($form, 'pendiente')->dropDownList(['1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
         </div>
         <div class="panel-footer text-right">
@@ -136,10 +144,10 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
                         <td style="width: 25px;">				
                            <a href="<?= Url::toRoute(["compra/view", "id" => $val->id_compra, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>                
                         </td>
-                         <td style= 'width: 25px; height: 25px;'>
+                        <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["compra/update", "id" => $val->id_compra, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
-                       </td>
-                         <td style= 'width: 25px; height: 25px;'>
+                        </td>
+                        <td style= 'width: 25px; height: 25px;'>
                             <?= Html::a('', ['delete', 'id' => $val->id_compra, 'token' => $token], [
                                 'class' => 'glyphicon glyphicon-trash',
                                 'data' => [
@@ -155,7 +163,7 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
                 <td colspan="6"></td>
                 <td align="right"><b>Saldo</b></td>
                 <td align="right" ><b><?= '$ '.number_format($saldo,0); ?></b></td>
-                <td colspan="4"></td>
+                <td colspan="6"></td>
             </tr>
         </table>    
         <div class="panel-footer text-right" >            

@@ -15,12 +15,14 @@ class FormFiltroConsultaCompra extends Model
     public $hasta;
     public $numero;
     public $pendiente;
-    
+    public $planta;
+
+
     public function rules()
     {
         return [
 
-            ['idproveedor', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
+            [['idproveedor','planta'], 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             ['desde', 'safe'],
             ['hasta', 'safe'],
             ['numero', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
@@ -36,6 +38,7 @@ class FormFiltroConsultaCompra extends Model
             'desde' => 'Desde:',
             'hasta' => 'Hasta:',
             'pendiente' => 'Saldo Pendiente:',
+            'planta' => 'Planta de producción:'
         ];
     }
 }

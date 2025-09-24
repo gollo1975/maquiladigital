@@ -4172,6 +4172,7 @@ class ProgramacionNominaController extends Controller {
     
     //CONSULA LOS DETALLES DE NOMINA
     public function actionDetalle_nomina($empleado, $fecha_inicio, $fecha_corte, $grupo_pago, $tipo_nomina){
+       $vector = null;
        if($empleado && $fecha_inicio && $fecha_corte && $tipo_nomina){ //busca los detalles del empleado con un rango de fechas
            $vector = ProgramacionNomina::find()->where(['=','id_empleado', $empleado])->andWhere(['between','fecha_desde', $fecha_inicio, $fecha_corte])
                                                ->andWhere(['=','id_tipo_nomina', $tipo_nomina])->orderBy('id_programacion DESC')->all();
@@ -4196,6 +4197,8 @@ class ProgramacionNominaController extends Controller {
             $vector = ProgramacionNomina::find()->where(['=','id_grupo_pago', $grupo_pago])->orderBy('id_programacion DESC')->all();
        }elseif ($tipo_nomina){
            $vector = ProgramacionNomina::find()->where(['=','id_tipo_nomina', $tipo_nomina])->orderBy('id_programacion DESC')->all();
+       }elseif ($fecha_inicio && $fecha_corte){
+           $vector = ProgramacionNomina::find()->where(['between','fecha_desde', $fecha_inicio, $fecha_corte])->orderBy('id_programacion DESC')->all();
        }
        $objPHPExcel = new \PHPExcel();
          $objPHPExcel->getProperties()->setCreator("EMPRESA")
@@ -4244,39 +4247,40 @@ class ProgramacionNominaController extends Controller {
                   
         
         $i = 2;
-        
-        foreach ($vector as $val) {
-            $vector_detalle = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $val->id_programacion])->all();
-            foreach ($vector_detalle as $key => $detalle) {
-                $objPHPExcel->setActiveSheetIndex(0)
-                        ->setCellValue('A' . $i, $val->id_programacion)
-                        ->setCellValue('B' . $i, $val->nro_pago)
-                        ->setCellValue('C' . $i, $val->id_periodo_pago_nomina)
-                        ->setCellValue('D' . $i, $val->tipoNomina->tipo_pago)
-                        ->setCellValue('E' . $i, $val->grupoPago->grupo_pago)
-                        ->setCellValue('F' . $i, $val->id_contrato)                    
-                        ->setCellValue('G' . $i, $val->cedula_empleado)
-                        ->setCellValue('H' . $i, $val->empleado->nombrecorto)
-                        ->setCellValue('I' . $i, $val->fecha_desde)
-                        ->setCellValue('J' . $i, $val->fecha_hasta)
-                        ->setCellValue('K' . $i, $val->salario_contrato)
-                        ->setCellValue('L' . $i, $detalle->codigo_salario)
-                        ->setCellValue('M' . $i, $detalle->codigoSalario->nombre_concepto)
-                        ->setCellValue('N' . $i, $detalle->dias_reales);
-                        if($detalle->codigo_salario == 20){
-                            $objPHPExcel->setActiveSheetIndex(0)
-                            ->setCellValue('O' . $i, $detalle->auxilio_transporte)
-                            ->setCellValue('P' . $i, $detalle->vlr_deduccion);
-                        }else{
-                            $objPHPExcel->setActiveSheetIndex(0)
-                           ->setCellValue('O' . $i, $detalle->vlr_devengado) 
-                             ->setCellValue('P' . $i, $detalle->vlr_deduccion);
-                        }    
-                       
+        if($vector != null){
+            foreach ($vector as $val) {
+                $vector_detalle = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $val->id_programacion])->all();
+                foreach ($vector_detalle as $key => $detalle) {
+                    $objPHPExcel->setActiveSheetIndex(0)
+                            ->setCellValue('A' . $i, $val->id_programacion)
+                            ->setCellValue('B' . $i, $val->nro_pago)
+                            ->setCellValue('C' . $i, $val->id_periodo_pago_nomina)
+                            ->setCellValue('D' . $i, $val->tipoNomina->tipo_pago)
+                            ->setCellValue('E' . $i, $val->grupoPago->grupo_pago)
+                            ->setCellValue('F' . $i, $val->id_contrato)                    
+                            ->setCellValue('G' . $i, $val->cedula_empleado)
+                            ->setCellValue('H' . $i, $val->empleado->nombrecorto)
+                            ->setCellValue('I' . $i, $val->fecha_desde)
+                            ->setCellValue('J' . $i, $val->fecha_hasta)
+                            ->setCellValue('K' . $i, $val->salario_contrato)
+                            ->setCellValue('L' . $i, $detalle->codigo_salario)
+                            ->setCellValue('M' . $i, $detalle->codigoSalario->nombre_concepto)
+                            ->setCellValue('N' . $i, $detalle->dias_reales);
+                            if($detalle->codigo_salario == 20){
+                                $objPHPExcel->setActiveSheetIndex(0)
+                                ->setCellValue('O' . $i, $detalle->auxilio_transporte)
+                                ->setCellValue('P' . $i, $detalle->vlr_deduccion);
+                            }else{
+                                $objPHPExcel->setActiveSheetIndex(0)
+                               ->setCellValue('O' . $i, $detalle->vlr_devengado) 
+                                 ->setCellValue('P' . $i, $detalle->vlr_deduccion);
+                            }    
 
-                $i++;
-            } 
-            $i = $i;
+
+                    $i++;
+                } 
+                $i = $i;
+            }
         }
         
                

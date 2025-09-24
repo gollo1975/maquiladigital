@@ -65,6 +65,7 @@ class CompraController extends Controller
             $hasta = null;
             $numero = null;
             $pendiente = null;
+            $planta = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idproveedor = Html::encode($form->idproveedor);
@@ -72,11 +73,13 @@ class CompraController extends Controller
                     $hasta = Html::encode($form->hasta);
                     $numero = Html::encode($form->numero);
                     $pendiente = Html::encode($form->pendiente);
+                    $planta = Html::encode($form->planta);
                     $table = Compra::find()
                             ->andFilterWhere(['=', 'id_proveedor', $idproveedor])
                             ->andFilterWhere(['>=', 'fechainicio', $desde])
                             ->andFilterWhere(['<=', 'fechainicio', $hasta])
-                            ->andFilterWhere(['=', 'factura', $numero]);
+                            ->andFilterWhere(['=', 'factura', $numero])
+                            ->andFilterWhere(['=', 'id_planta', $planta]);
                     if ($pendiente == 1){
                         $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
                     }        
@@ -85,7 +88,7 @@ class CompraController extends Controller
                     $count = clone $table;
                     $to = $count->count();
                     $pages = new Pagination([
-                        'pageSize' => 20,
+                        'pageSize' => 15,
                         'totalCount' => $count->count()
                     ]);
                     $model = $table
@@ -105,7 +108,7 @@ class CompraController extends Controller
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $pages = new Pagination([
-                    'pageSize' => 20,
+                    'pageSize' => 15,
                     'totalCount' => $count->count(),
                 ]);
                 $model = $table
@@ -391,6 +394,7 @@ class CompraController extends Controller
             $hasta = null;
             $numero = null;
             $pendiente = null;
+            $planta = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idproveedor = Html::encode($form->idproveedor);
@@ -398,11 +402,13 @@ class CompraController extends Controller
                     $hasta = Html::encode($form->hasta);
                     $numero = Html::encode($form->numero);
                     $pendiente = Html::encode($form->pendiente);
+                    $planta = Html::encode($form->planta);
                     $table = Compra::find()
                             ->andFilterWhere(['=', 'id_proveedor', $idproveedor])
                             ->andFilterWhere(['>=', 'fechainicio', $desde])
                             ->andFilterWhere(['<=', 'fechainicio', $hasta])
-                            ->andFilterWhere(['=', 'factura', $numero]);
+                            ->andFilterWhere(['=', 'factura', $numero])
+                            ->andFilterWhere(['=', 'id_planta', $planta]);
                     if ($pendiente == 1){
                         $table = $table->andFilterWhere(['>', 'saldo', $pendiente]);
                     }        
@@ -411,7 +417,7 @@ class CompraController extends Controller
                     $count = clone $table;
                     $to = $count->count();
                     $pages = new Pagination([
-                        'pageSize' => 20,
+                        'pageSize' => 15,
                         'totalCount' => $count->count()
                     ]);
                     $model = $table
@@ -431,7 +437,7 @@ class CompraController extends Controller
                 $tableexcel = $table->all();
                 $count = clone $table;
                 $pages = new Pagination([
-                    'pageSize' => 20,
+                    'pageSize' => 15,
                     'totalCount' => $count->count(),
                 ]);
                 $model = $table
@@ -590,7 +596,8 @@ class CompraController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('S')->setAutoSize(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);                       
+        $objPHPExcel->getActiveSheet()->getColumnDimension('T')->setAutoSize(true);   
+        $objPHPExcel->getActiveSheet()->getColumnDimension('U')->setAutoSize(true);   
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'Id')
                     ->setCellValue('B1', 'N° Factura')
@@ -611,7 +618,8 @@ class CompraController extends Controller
                     ->setCellValue('Q1', 'Saldo')
                     ->setCellValue('R1', 'Autorizado')
                     ->setCellValue('S1', 'Estado')
-                    ->setCellValue('T1', 'Observacion');
+                    ->setCellValue('T1', 'Observacion')
+                    ->setCellValue('U1', 'Planta');
         $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -636,7 +644,8 @@ class CompraController extends Controller
                     ->setCellValue('Q' . $i, round($val->saldo,0))
                     ->setCellValue('R' . $i, $val->autorizar)
                     ->setCellValue('S' . $i, $val->estados)
-                    ->setCellValue('T' . $i, $val->observacion);
+                    ->setCellValue('T' . $i, $val->observacion)
+                    ->setCellValue('U' . $i, $val->plantaEmpresa->nombre_planta);
             $i++;
         }
 

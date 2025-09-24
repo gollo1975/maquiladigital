@@ -44,6 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ]);
 
 $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->all(), 'idproveedor', 'nombreProveedores');
+$plantas = ArrayHelper::map(\app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -75,6 +76,13 @@ $proveedores = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->a
                     'format' => 'yyyy-m-d',
                     'todayHighlight' => true]])
             ?>
+             <?= $formulario->field($form, 'planta')->widget(Select2::classname(), [
+                'data' => $plantas,
+                'options' => ['prompt' => 'Seleccione la planta ...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?>
             <?= $formulario->field($form, 'pendiente')->dropDownList(['1' => 'SI'],['prompt' => 'Seleccione una opcion ...']) ?>
         </div>
         <div class="panel-footer text-right">

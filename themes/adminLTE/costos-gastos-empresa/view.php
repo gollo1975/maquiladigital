@@ -61,14 +61,14 @@ $this->params['breadcrumbs'][] = $this->title;
             </table>
          </div>     
     </div>
-     <?php $form = ActiveForm::begin([
-    'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
-    'fieldConfig' => [
-        'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
-        'labelOptions' => ['class' => 'col-sm-3 control-label'],
-        'options' => []
-    ],
-    ]);?>
+    <?php $form = ActiveForm::begin([
+        'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
+        'fieldConfig' => [
+            'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
+            'labelOptions' => ['class' => 'col-sm-3 control-label'],
+            'options' => []
+        ],
+        ]); ?>
     <div>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
@@ -129,7 +129,22 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>    
                         <?php if($model->autorizado == 0){?>
                             <div class="panel-footer text-right">
-                                <?= Html::a('<span class="glyphicon glyphicon-floppy-disk"></span> Generar', ['generarcostonomina', 'id' => $model->id_costo_gasto,'fecha_inicio' => $model->fecha_inicio,'fecha_corte' => $model->fecha_corte], ['class' => 'btn btn-success btn-sm']) ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-floppy-disk"></span> Generar todo', ['generarcostonomina', 'id' => $model->id_costo_gasto,'fecha_inicio' => $model->fecha_inicio,'fecha_corte' => $model->fecha_corte], ['class' => 'btn btn-success btn-sm']) ?>
+                                <!-- Inicio Nuevo Detalle proceso -->
+                                  <?= Html::a('<span class="glyphicon glyphicon-send"></span> Generar seleccion',
+                                      ['/costos-gastos-empresa/generar_seleccion_empleados','id' => $model->id_costo_gasto],
+                                      [
+                                          'title' => 'Generar las nominas del personal seleccionado',
+                                          'data-toggle'=>'modal',
+                                          'data-target'=>'#modalgenerarseleccionempleados',
+                                          'class' => 'btn btn-info btn-xs'
+                                      ])    
+                                      ?>
+                               <div class="modal remote fade" id="modalgenerarseleccionempleados" data-backdrop="static">
+                                      <div class="modal-dialog modal-lg" style ="width: 750px;">
+                                           <div class="modal-content"></div>
+                                       </div>
+                               </div>
                             </div>
                         <?php }?>
                     </div>
@@ -159,8 +174,12 @@ $this->params['breadcrumbs'][] = $this->title;
                                                     <td align="right"><?= ''.number_format($val->valor,0) ?></td>
                                                 </tr>
                                      <?php endforeach;
-                                     $costoGasto->gastos_fijos = $total / $costoGasto->periodo;
-                                     $costoGasto->save(false);
+                                    if($costoGasto->periodo){
+                                        $costoGasto->gastos_fijos = $total / $costoGasto->periodo;
+                                    }else{
+                                       $costoGasto->gastos_fijos = $total; 
+                                    }    
+                                        $costoGasto->save(false);
                                      ?>
                                 </body>
                             </table>
@@ -216,7 +235,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div role="tabpanel" class="tab-pane" id="seguridadsocial">
                 <?php if(count($costoSeguridad) > 0 and $model->autorizado == 0){?>
                     <div class="panel-footer text-right">
-                            <?= Html::submitButton("<span class='glyphicon glyphicon-saved'></span> Actualizar", ["class" => "btn btn-info btn-sm",]) ?>
+                            <?= Html::a("<span class='glyphicon glyphicon-saved'></span> Actualizar", ['costos-gastos-empresa/actualizar_registros','id' => $model->id_costo_gasto],["class" => "btn btn-info btn-sm",]) ?>
                     </div> 
                 <?php }else{
                     if(count($costoSeguridad)<= 0){?>
@@ -245,6 +264,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <th scope="col" style='background-color:#B9D5CE;width: 12px;'>%</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>F. proceso</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                                         <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+                           
                                     </tr>
                                 </thead>
                                 <body>
@@ -265,7 +286,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                              <td style="padding-right:1;padding-right: 0;"><input type="text" name="porcentaje_caja[]" value="<?= $val->porcentaje_caja ?>" size="2" maxlength="6"> </td>
                                              <td><?= $val->fecha_proceso ?></td>
                                              <td><?= $val->usuariosistema ?></td>
-                                             <input type="hidden" name="actualizar_registro[]" value="<?= $val->id_seguridad_social ?>">
+                                             <td style="width: 30px;"><input type="checkbox"  name="registro_seleccionados[]" value="<?= $val->id_seguridad_social ?>"></td>
+                                              
                                          </tr>
                                      <?php endforeach;
                                      ?>
@@ -273,7 +295,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             </table>
                         </div>
                         <div class="panel-footer text-right" >  
-                            <?= Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar todo', ['costos-gastos-empresa/eliminar_todo_seguridad_social', 'id' => $model->id_costo_gasto], ['class' => 'btn btn-danger btn-sm']) ?>
+                           <?php if($model->autorizado == 0){
+                                echo Html::a('<span class="glyphicon glyphicon-trash"></span> Eliminar todo', ['costos-gastos-empresa/eliminar_todo_seguridad_social', 'id' => $model->id_costo_gasto], ['class' => 'btn btn-danger btn-sm']) ?>
+                                <?= Html::submitButton("<span class='glyphicon glyphicon-trash'></span> Eliminar seleccion", ["class" => "btn btn-danger btn-sm", 'name' => 'eliminar_seleccion']);
+                             } ?>      
                         </div>    
                     </div>    
                 </div>
@@ -281,7 +306,20 @@ $this->params['breadcrumbs'][] = $this->title;
             <!--TERMINA TABS DE SEGURIDAD SOCIAL
         </div>    
         <!-- TERMINA LA CLASE DE TABS-->
+         <?php ActiveForm::end(); ?>
     </div>   
-     <?php ActiveForm::end(); ?>
-</div>
+    
+<script type="text/javascript">
+	function marcar(source) 
+	{
+		checkboxes=document.getElementsByTagName('input'); //obtenemos todos los controles del tipo Input
+		for(i=0;i<checkboxes.length;i++) //recoremos todos los controles
+		{
+			if(checkboxes[i].type == "checkbox") //solo si es un checkbox entramos
+			{
+				checkboxes[i].checked=source.checked; //si es un checkbox le damos el valor del checkbox que lo llamó (Marcar/Desmarcar Todos)
+			}
+		}
+	}
+</script>
   

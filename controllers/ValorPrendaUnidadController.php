@@ -1395,9 +1395,18 @@ class ValorPrendaUnidadController extends Controller
             ->one();
         if($ultimoRegistro){
             $horario = \app\models\Horario::findOne(1);
+            $tiempo_pausa_operario_minutos = $horario->minutos_desuso; // Esto debe ser 1.5
+
+            // 1. Convierte los minutos a segundos
+            // Se usa (float) para asegurar que el valor sea decimal si no lo es.
+            $tiempo_pausa_segundos = floor((float)$tiempo_pausa_operario_minutos * 60);
+
             $ultimaHora = $ultimoRegistro->hora_corte; 
             $tiempo_ultima_hora = new \DateTimeImmutable($ultimaHora);
-            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+'.$horario->minutos_desuso. ' minutes');
+
+            // 2. Suma el tiempo en segundos
+            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+'.$tiempo_pausa_segundos. ' seconds'); 
+
             $ultimoRegistro->hora_inicio_desuso = $ultimoRegistro->hora_corte;
             $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
             $nueva_hora_entrada = $ultimoRegistro->hora_corte;

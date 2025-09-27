@@ -324,8 +324,9 @@ class ComprobanteEgresoController extends Controller
             $table->id_municipio = $model->id_municipio;            
             $table->usuariosistema = Yii::$app->user->identity->username;
             $table->libre = 1;
-            $table->insert();
-            return $this->redirect(['index']);
+            $table->save();
+            $registro = ComprobanteEgreso::find()->orderBy('id_comprobante_egreso DESC')->one();
+            return $this->redirect(['view','id' => $registro->id_comprobante_egreso, 'token' => 0]);
         }
 
         return $this->render('_formlibre', [

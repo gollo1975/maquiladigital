@@ -379,6 +379,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         $total_porcentaje_global = 0;
                                         $total_operaciones_global = 0;
                                         $total_venta_planta = 0;
+                                        $total_pagar_operario = 0;
                                             //termina la consulta
                                             if (!empty($resultados)){  //pregunta si hay datos                                 
                                                 foreach ($resultados as $row):
@@ -425,6 +426,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     </tr>
                                                 <?php
                                                 $total_venta_planta += $acumulado_venta;
+                                                $total_pagar_operario += $row['total_generado'];
                                                 endforeach;
                                             }else{?>
                                                   
@@ -438,20 +440,28 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             <?php }?>
                                         </tbody>
                                     </table>  
-                                    <div class="panel panel-info">
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title"></h4>
-                                            <?php 
-                                               $promedio_total_planta = 0;
-                                                if ($total_operaciones_global  > 0) {
-                                                    $promedio_total_planta = ($total_porcentaje_global / $total_operaciones_global);
-                                                } ?>
-                                            <div style="font-size: 110%; text-align: center">
-                                                <span>Eficiencia total de la planta: <?= number_format($promedio_total_planta, 0) ?>%</span><br>
-                                                <span>Total ventas: <?= number_format($total_venta_planta, 0) ?></span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
+                                        <tr>
+                                         <?php
+                                            $promedio_total_planta = 0;
+                                            if ($total_operaciones_global  > 0) {
+                                                 $promedio_total_planta = ($total_porcentaje_global / $total_operaciones_global);
+                                             } ?>
+                                            
+                                            <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                                <b>Eficiencia total de la planta: <?= number_format($promedio_total_planta, 0) ?>%</b> 
+                                            </td>
+                                            <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                                <b>Total pagar operarios: <?= '$    '.number_format($total_pagar_operario, 0) ?></b> 
+                                            </td>
+                                            <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                                <b>Total ventas: <?= '$'.number_format($total_venta_planta, 0) ?></b> 
+                                            </td>
+                                          
+                                        </tr>    
+                                    </table> 
+                          
+                                    
                                 <?php
                                 }
                            } ?>   

@@ -38,7 +38,7 @@ class ModelSimuladorSalario extends Model
             'arl' => 'Porcentaje arl:',
             'salario_basico' => 'Salario propuesto:',
             'aplica_auxilio' => 'aplica_auxilio',
-            'dias_laborados' => 'Dias laborados:',
+            'dias_laborados' => 'Horas laboradas:',
             'sam' => 'Tiempo prenda:',
             'valor_minuto' => 'Minuto venta:',
             'eficiencia' => '% Eficiencia:',

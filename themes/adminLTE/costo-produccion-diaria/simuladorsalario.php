@@ -156,8 +156,8 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
                                     <th scope="col" style='background-color:#B9D5CE;'>Valor prenda</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Eficiencia</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Dias laborados</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'><span title="unidades por dia" >Unidades x dia</span></th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Horas laboradas</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'><span title="unidades por dia" >Unidades x hora</span></th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Unidades x mes</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Valor venta</th>
                                      <th scope="col" style='background-color:#B9D5CE;'>Rentabilidad</th>
@@ -176,7 +176,7 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
                                         <td style="text-align: right"><?= $val->eficiencia?> %</td>
                                         <td style="text-align: right; background-color:#E7EA8E;" ><?= ''.number_format($porcentaje,2)?> %</td>
                                         <td style="text-align: right"><?= $val->dias_laborados?></td> 
-                                        <td style="text-align: right"><?= ''.number_format($val->unidades_dia,0)?></td> 
+                                        <td style="text-align: right"><?= ''.number_format($val->unidades_dia,2)?></td> 
                                         <td style="text-align: right"><?= ''.number_format($val->unidades_mes,0)?></td> 
                                         <td style="text-align: right"><?= ''.number_format($val->valor_venta,0)?></td> 
                                         <?php if ($calculo > 0){?>

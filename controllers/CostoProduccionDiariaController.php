@@ -231,7 +231,7 @@ class CostoProduccionDiariaController extends Controller {
                         $table->valor_prenda = round($sam * $valor_minuto);
                         $table->eficiencia = $eficiencia;
                         $table->dias_laborados = $dias_laborados;
-                        $table->unidades_dia = round(((60/$sam) * $table->horario->total_horas) * $eficiencia)/100;
+                        $table->unidades_dia = ((60/$sam) * $eficiencia)/100;
                         $table->unidades_mes = $table->unidades_dia * $dias_laborados;
                         $table->valor_venta = round($table->unidades_mes * $table->valor_prenda);
                         $table->usuario = Yii::$app->user->identity->username;

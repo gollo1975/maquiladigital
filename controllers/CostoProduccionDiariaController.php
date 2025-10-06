@@ -185,7 +185,7 @@ class CostoProduccionDiariaController extends Controller {
                 $eficiencia = null;
                 $valor_minuto = null;
                 $sam = null;
-                $dias_laborados =  null;
+                $dias_laborados = null;
                 $id_horario = null;
                 $otros_gastos = 0;
                 $simulador = \app\models\SimuladorSalario::find()->where(['=','id_simulador_salario', 1])->all();

@@ -43,6 +43,19 @@ $this->params['breadcrumbs'][] = $this->title;
 
 ]);
 $arl = ArrayHelper::map(Arl::find()->orderBy('arl ASC')->all(), 'id_arl', 'arl');
+$matriculaObjeto = \app\models\Matriculaempresa::findOne(1);
+
+// Verificar si se encontró el objeto
+if ($matriculaObjeto !== null) {
+    // Encerrar el objeto en un array
+    $datosParaMapa = [$matriculaObjeto];
+    
+    // Aplicar ArrayHelper::map
+    $matricula = ArrayHelper::map($datosParaMapa, 'horas_realmente_trabajadas', 'horas_realmente_trabajadas');
+} else {
+    // Si no se encuentra, inicializar como array vacío
+    $matricula = [];
+}
 $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_horario', 'horario');
 ?>
 <div class="panel panel-success panel-filters">
@@ -70,7 +83,7 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
             <?= $formulario->field($form, "eficiencia")->input("search") ?>
             <?= $formulario->field($form, "valor_minuto")->input("search") ?>
             <?= $formulario->field($form, "sam")->input("search") ?>
-            <?= $formulario->field($form, "dias_laborados")->input("search") ?>
+            <?= $formulario->field($form, 'dias_laborados')->dropdownList($matricula, ['prompt' => 'Seleccione...']) ?>			
             <?= $formulario->field($form, "otros_gastos")->input("search")?>
             
        </div>
@@ -137,10 +150,7 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
                         </table> 
                     </div>
                 </div>    
-                <div class="panel-footer text-right" >    
-                    <?= Html::a('<span class="glyphicon glyphicon-export"></span> Exportar excel', ['excelsimulacion', 'id' => $val->id_simulador_salario], ['class' => 'btn btn-primary btn-sm']);?>
-
-                </div>
+                
             </div>
         </div>
         <!--- TERMINA TABS-->

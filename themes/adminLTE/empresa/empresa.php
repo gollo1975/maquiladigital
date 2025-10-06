@@ -118,6 +118,9 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
             
         </div>
         <div class="row">
+             <?= $form->field($model, 'horas_realmente_trabajadas')->textInput(['maxlength' => true]) ?>  
+        </div>
+        <div class="row">
             <?= $form->field($model, 'declaracion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
         </div>
         <div class="row">

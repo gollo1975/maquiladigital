@@ -986,7 +986,15 @@ class ValorPrendaUnidadController extends Controller
                                 $table->hora_inicio_modulo = $balanceo_entrada->hora_inicio;
                                 $table->dia_pago = $fecha_entrada;
                                 $cantidad = $_POST["cantidad"][$intIndice];
+                                $table->minuto_prenda = $detalle->minutos;
                                 $table->cantidad = $_POST["cantidad"][$intIndice];
+                                $valor_minuto =  $detalle->ordenProduccion->cliente->minuto_confeccion;
+                                if($valor_minuto){
+                                   $table->total_valor_venta = round($valor_minuto * $detalle->minutos) * $cantidad; 
+                                }else{
+                                   $table->total_valor_venta = 0;  
+                                }
+                                //valida si el operario es vinculado o al contrato
                                 if($operarios->vinculado == 0){ // operaria al contrato
                                     $valor_prenda = round($detalle->minutos * $empresa->vlr_minuto_contrato);
                                     $nota = 'Contrato';

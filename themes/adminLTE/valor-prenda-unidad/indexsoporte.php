@@ -233,20 +233,26 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Total x Operario</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>Total ventas</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
                                 </thead>
                             <?php }?>    
                             <tbody>
                                 <?php
+                                 $acumulado_pago_total = 0;
+                                 $total_ventas_planta = 0;
+                                 $ventas_planta = 0;
                                 if($modelo){
                                     $totalOperariosPlanta = 0;
+                                   
                                     $auxiliar = ''; $sumarPorcentaje = 0; $cont = 0; $promedio = 0; $contarDia = 0; $totalPagar = 0;
                                     $empresa = Matriculaempresa::findOne(1);
                                     if($sw == 1){ //buscar la eficiencia por operario en un rago de fechas
                                         foreach ($modelo as $val):
                                             $totalPagar += $val->vlr_pago;
+                                            $ventas_planta += $val->total_valor_venta;
                                             if($val->hora_descontar == 1){
                                                $contarDia += 1;  
                                             }
@@ -263,7 +269,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         }else{
                                                  $promedio = 0;
                                         }    
-                                       
+                                        //acumulado
+                                        $total_ventas_planta += $ventas_planta;
+                                        
                                         foreach ($modelo as $validar):
                                             if($auxiliar <> $validar->id_operario){
                                                $auxiliar = $validar->id_operario;?>
@@ -299,11 +307,13 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             }else{
                                                $auxiliar = $validar->id_operario; 
                                             }
+                                            $acumulado_pago_total = $totalPagar;
                                         endforeach;
                                     }else{
                                         $totalPorcentajePlanta = 0;
                                         $totalOperariosPlanta = 0;
-
+                                        $acumulado_pago_total = 0;
+                                        $total_ventas_planta = 0;
                                         $query = ValorPrendaUnidadDetalles::find()
                                             ->joinWith('operarioProduccion')
                                             ->where(['valor_prenda_unidad_detalles.id_planta' => $id_planta])
@@ -319,7 +329,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             $sumarPorcentaje = 0;
                                             $contarDia = 0;
                                             $totalPagar = 0;
-                                            
+                                            $acumulado_ventas_planta = 0;
+                                          
 
                                             $buscarEficiencia = ValorPrendaUnidadDetalles::find()
                                                 ->where(['=', 'id_operario', $resultado->id_operario])
@@ -329,11 +340,15 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             foreach ($buscarEficiencia as $buscar) {
                                                 $sumarPorcentaje += $buscar->porcentaje_cumplimiento;
                                                 $totalPagar += $buscar->vlr_pago;
+                                                $acumulado_ventas_planta += $buscar->total_valor_venta;
                                                 if ($buscar->hora_descontar == 1) {
                                                     $contarDia += 1;
                                                 }
                                             }
-
+                                            //acumula promedios
+                                            $acumulado_pago_total += $totalPagar;
+                                            $total_ventas_planta += $acumulado_ventas_planta;
+                                            
                                             // Calcula el promedio individual del operario
                                             $promedioOperario = 0;
                                             if ($contarDia > 0) {
@@ -351,17 +366,18 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 <td><?= $resultado->operarioProduccion->nombrecompleto?></td>
                                                 <td style="text-align: right; "><?= $promedioOperario ?> %</td>
                                                 <?php if($promedioOperario > $empresa->porcentaje_empresa) { ?>
-                                                    <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
                                                     <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION' ?> <span class="glyphicon glyphicon-blackboard"></span></td>
+                                                    <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
                                                 <?php } else {
                                                     if($promedioOperario > $empresa->porcentaje_minima_eficiencia) { ?>
-                                                        <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
                                                         <td style='background-color:#83c5be;'><?= 'LE CUMPLE A LA EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-up"></span></td>
-                                                    <?php } else { ?>
                                                         <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
+                                                    <?php } else { ?>
                                                         <td style='background-color:#b5c99a;'><?= 'NO CUMPLE LA EFICIENCIA DE EMPRESA' ?> <span class="glyphicon glyphicon-thumbs-down"></span></td>
+                                                        <td style="text-align: right"><?= '$'. number_format($totalPagar, 0)?></td>
                                                     <?php }
                                                 }?>
+                                                        <td style="text-align: right"><?= '$'.number_format($acumulado_ventas_planta,0)?></td>        
                                                 <td><?= $resultado->planta->nombre_planta?></td>
                                             </tr>
                                         <?php
@@ -384,9 +400,18 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 ?>
                             </tbody>    
                         </table>
-                        
-                                        
-                         <?php $form->end() ?>
+                        <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
+                        <tr>
+                            <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                <b>Total pagar a operarios: <?= '$    '.number_format($acumulado_pago_total, 2) ?></b> 
+                            </td>
+                            <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                <b>Total venta empresa: <?= '$'.number_format($total_ventas_planta,2) ?></b> 
+                            </td>
+
+                        </tr>    
+                    </table> 
+                      
                     </div>
                 </div>    
             </div>    
@@ -394,7 +419,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         <!-- TERMINA TABS-->
        
     </div>
+    
  </div>
+ <?php $form->end() ?>
 <?php if($modelo){?>
     <?= LinkPager::widget(['pagination' => $pagination]) ?>
 <?php }?>

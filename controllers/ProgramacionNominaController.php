@@ -3335,7 +3335,7 @@ class ProgramacionNominaController extends Controller {
         ]);
     }
     
-        public function actionEditarcolillapagosabatino($id_programacion, $id, $id_grupo_pago, $fecha_desde, $fecha_hasta){
+     public function actionEditarcolillapagosabatino($id_programacion, $id, $id_grupo_pago, $fecha_desde, $fecha_hasta){
         
         $model= ProgramacionNomina::findone($id_programacion);
         if (Yii::$app->request->post()) { 
@@ -3432,6 +3432,29 @@ class ProgramacionNominaController extends Controller {
             'model' => $model,       
         ]);    
     }
+    
+    //CREAR PROYECCIONES PRESTACIONES
+    public function actionCrear_proyeccion_prestaciones() {
+        $model = new \app\models\FormCostoGastoEmpresa();
+         if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()){
+                if (isset($_POST["crear_proyeccion"])) {
+                   
+                        $table = new PeriodoNominaElectronica();
+                        $table->fecha_inicio_periodo = $model->fecha_inicio;
+                        $table->fecha_corte_periodo = $model->fecha_corte;
+                        $table->user_name = Yii::$app->user->identity->username;
+                        $table->nota = 'Proyeccion de prestaciones';
+                        $table->save();
+                        return $this->redirect(["documento_electronico"]); 
+                }
+            } 
+         }
+        return $this->renderAjax('crear_proyeccion_prestaciones', [
+            'model' => $model,       
+        ]);    
+    }
+    
     
     //CARGAR EMPLEADOS PARA NOMINA
     public function actionCargar_empleados_nomina($id_periodo, $fecha_inicio, $fecha_corte)
@@ -3813,6 +3836,62 @@ class ProgramacionNominaController extends Controller {
             'pagination' => $pages,
             'token' => $token,
         ]);    
+    }
+    
+    //PROYECCIONES DE PRESTACIONES SOCIALES
+    public function actionProyeccion_prestaciones_sociales() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 171])->all()) {
+                $form = new \app\models\FormFiltroBuscarNomina();
+                $grupo_pago = null;
+                $empleado = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $grupo_pago = Html::encode($form->grupo_pago);
+                        $empleado = Html::encode($form->empleado);
+                        $table = Contrato::find()->andFilterWhere(['=', 'id_empleado', $empleado])
+                                                 ->andFilterWhere(['=','id_grupo_pago', $grupo_pago])
+                                                 ->andWhere(['=','contrato_activo', 1]);
+                        $table = $table->orderBy('id_contrato DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 40,
+                            'totalCount' => $count->count()
+                        ]);
+                        $model = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = Contrato::find()->Where(['=','contrato_activo', 1])->orderBy('id_contrato DESC');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 40,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $model = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                }
+                //$to = $count->count();
+                return $this->render('proyeccion_prestaciones_sociales', [
+                            'model' => $model,
+                            'form' => $form,
+                            'pagination' => $pages,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
     }
     
     //CERRAR PERIODO DE NOMINA ELECTRONICA

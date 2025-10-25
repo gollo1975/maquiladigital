@@ -155,9 +155,9 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                     $con += 1;
                     $total += $val->porcentaje_cumplimiento;
                 }?>
-                     <div style="font-size: 200%; text-align: center; display: flex; justify-content: center; gap: 50px;">
+                     <div style="font-size: 180%; text-align: center; display: flex; justify-content: center; gap: 45px;">
                                 <div>Operaciones: <?= round($con)?></div>
-                                <div>Eficiencia: <?= round($total / $con)?>%</div>
+                                <div>Eficiencia: <?= round($total / $con,2)?>%</div>
                         </div>
             <?php }?>   
         </div> 

@@ -30,7 +30,22 @@ $view = 'contrato';
              ]
          );
          ?>
-        <div class="modal remote fade" id="modalacumuladodevengado<?= $model->id_contrato ?>">
+         <?= Html::a('<span class="glyphicon glyphicon-user"></span> Cambio cargo',            
+             ['/contrato/cambio_cargo_empleado','id' => $model->id_contrato],
+             [
+                 'title' => 'Cambia el cargo del empleado',
+                 'data-toggle'=>'modal',
+                 'data-target'=>'#modalcambiocargoempleado'.$model->id_contrato,
+                 'class' => 'btn btn-success btn-sm'
+             ]
+         );
+         ?>
+        <div class="modal remote fade" id="modalcambiocargoempleado<?= $model->id_contrato ?>" data-backdrop="static">
+           <div class="modal-dialog modal-lg" style ="width: 600px;">
+                <div class="modal-content"></div>
+            </div>
+        </div>
+        <div class="modal remote fade" id="modalacumuladodevengado<?= $model->id_contrato ?>" data-backdrop="static">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content"></div>
             </div>

@@ -81,7 +81,7 @@ class EmpleadoController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 20,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -101,7 +101,7 @@ class EmpleadoController extends Controller
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
-                        'pageSize' => 20,
+                        'pageSize' => 15,
                         'totalCount' => $count->count(),
                     ]);
                     $modelo = $table
@@ -165,7 +165,7 @@ class EmpleadoController extends Controller
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 20,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $modelo = $table
@@ -182,7 +182,7 @@ class EmpleadoController extends Controller
                 } else {
                    $table = 0;
                     $pages = new Pagination([
-                        'pageSize' => 20,
+                        'pageSize' => 15,
                         'totalCount' => 0,
                     ]);
                 }
@@ -642,12 +642,13 @@ class EmpleadoController extends Controller
                     ->setCellValue('X' . $i, $val->fecharetiro)
                     ->setCellValue('Y' . $i, $val->padreFamilia)
                     ->setCellValue('Z' . $i, $val->cabezaHogar);
-                    if($val->id_nivel_estudio == '(NULL)'){
+                    if($val->id_nivel_estudio != null){
                          $objPHPExcel->setActiveSheetIndex(0)
-                         ->setCellValue('AA' . $i, 'NO HAY INFORMACION');
+                        ->setCellValue('AA' . $i, $val->nivelEstudioempleado->nive_estudio);
+                        
                     }else{
                         $objPHPExcel->setActiveSheetIndex(0)
-                        ->setCellValue('AA' . $i, $val->nivelEstudioempleado->nive_estudio);
+                         ->setCellValue('AA' . $i, 'NO HAY INFORMACION');
                     }
                     $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('AB' . $i, $val->discapacitado)

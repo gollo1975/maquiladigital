@@ -14,10 +14,12 @@ use kartik\date\DatePicker;
 use kartik\select2\Select2;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
+use app\models\TipoProducto;
 
 
 $this->title = 'Importar operaciones';
 $this->params['breadcrumbs'][] = $this->title;
+$conProducto = ArrayHelper::map(TipoProducto::find()->orderBy('concepto DESC')->all(), 'id_tipo_producto', 'concepto');
 
 ?>
 <!--<h1>Lista Facturas</h1>-->
@@ -28,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
                     'template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>',
-                    'labelOptions' => ['class' => 'col-sm-4 control-label'],
+                    'labelOptions' => ['class' => 'col-sm-2 control-label'],
                     'options' => []
                 ],
 
@@ -46,10 +48,14 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="panel-body" id="importaroperacionesprenda">
         <div  class="row">
           <?= $formulario->field($form, "orden_produccion")->input("search") ?>  
+           <?= $formulario->field($form, 'producto')->widget(Select2::classname(), [
+                'data' => $conProducto,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?> 
         </div>  
-        <div class="row checkbox checkbox-success" align ="center">
-              <?= $formulario->field($form, 'buscar')->checkbox(['label' => 'Buscar desde inventario', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'buscar']) ?>
-        </div>
      </div>    
     <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar operaciones", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -72,49 +78,55 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr style ='font-size:85%;'>                
-                    <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Nombre de operacion</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Tipo de maquina</th>
-                    <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
-                    
-                </tr>
+                <?php if ($orden_produccion){?>
+                    <tr style ='font-size:85%;'>                
+                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Nombre de operacion</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Tipo de maquina</th>
+                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+
+                    </tr>
+                <?php  }else{?>
+                    <tr style ='font-size:85%;'>                
+                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Nombre de operacion</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Minutos</th>
+                        <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
+
+                    </tr>
+                <?php }?>    
             </thead>
             <tbody>
                 <?php 
                 if($model <> 0){
-                    foreach ($model as $val):?>
+                    foreach ($model as $val):
+                        if($orden_produccion){ 
+                            ?>
                             <tr style='font-size:85%;'>             
                                 <td><?= $val->idproceso ?></td>    
-                                <?php if($buscar == 0){?>
-                                    <td><?= $val->proceso ?></td>
-                                    <td style="text-align: right"><?= ''.number_format($val->total,0)?></td>
-                                    <?php if($val->id_tipo <> null){?>
-                                        <td><?= $val->tipomaquina->descripcion ?></td>
-                                    <?php }else{?>
-                                        <td><?= 'NO FOUND' ?></td>
-                                    <?php }    
-                                }else{?>
-                                    <td><?= $val->proceso->proceso ?></td>
-                                    <td style="text-align: right"><?= ''.number_format($val->segundos,0)?></td>
-                                    <td><?= $val->tipoMaquinas->descripcion ?></td>
-                                <?php }
-                                if($val->id_tipo <> null){
-                                    if($buscar == 0){?>
-                                        <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->iddetalleproceso ?>"></td> 
-                                        <input type="hidden" name="id_detalle[]" value="<?= $val->iddetalleproceso ?>">
-                                    <?php }else{?>
-                                        <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->id_operacion ?>"></td> 
-                                        <input type="hidden" name="id_detalle[]" value="<?= $val->id_operacion ?>">
-                                    <?php }
-                                }else{?>
-                                        <td style="width: 20px; height: 20px"></td>   
-                               <?php }?>
-                               
-
-                            </tr>  
-                    <?php endforeach;
+                                <td><?= $val->proceso ?></td>
+                                <td style="text-align: right"><?= ''.number_format($val->total,0)?></td>
+                                <?php if($val->id_tipo <> null){?>
+                                      <td><?= $val->tipomaquina->descripcion ?></td>
+                                <?php }else{?>
+                                      <td><?= 'NO FOUND' ?></td>
+                                <?php } ?>   
+                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->iddetalleproceso ?>"></td> 
+                                <input type="hidden" name="id_detalle[]" value="<?= $val->iddetalleproceso ?>">
+                            </tr>
+                        <?php }else{?> 
+                            <tr style='font-size:85%;'> 
+                                <td><?= $val->idproceso ?></td>    
+                                <td><?= $val->proceso ?></td>
+                                <td style="text-align: right"><?= ''.number_format($val->segundos,0)?></td>
+                                <td style="text-align: right"><?= ''.number_format($val->minutos,2)?></td>
+                                <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="operaciones[]" value="<?= $val->idproceso ?>"></td> 
+                                <input type="hidden" name="id_detalle[]" value="<?= $val->idproceso ?>">
+                            </tr>    
+                        <?php }    
+                    endforeach;
                 }?>
             </tbody> 
         </table>   

@@ -128,8 +128,13 @@ $view = 'contrato';
                     
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_cotizante') ?>:</th>
                     <td><?= Html::encode($model->tipoCotizante->tipo) ?></td>
-                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_subtipo_cotizante') ?>:</th>
-                    <td><?= Html::encode($model->subtipoCotizante->subtipo) ?></td>
+                    <?php if($model->id_subtipo_cotizante != 0){?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_subtipo_cotizante') ?>:</th>
+                        <td><?= Html::encode($model->subtipoCotizante->subtipo) ?></td>
+                    <?php }else{?>
+                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_subtipo_cotizante') ?>:</th>
+                        <td><?= Html::encode('NO FOUND') ?></td>
+                    <?php }?>    
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_tipo_contrato') ?>:</th>
                     <td><?= Html::encode($model->tipoContrato->contrato) ?></td>
                       <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'dias_contrato') ?>:</th>
@@ -176,7 +181,7 @@ $view = 'contrato';
                  <div class="panel-heading" role="tab" id="headingOne">
                        <h4 class="panel-title">
                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                               Cambio de salario: <span class="badge"><?= $registros?></span>
+                               Cambio de salario <span class="badge"><?= $registros?></span>
                            </a>
                        </h4>
                  </div>
@@ -230,7 +235,7 @@ $view = 'contrato';
                 <div class="panel-heading" role="tab" id="headingTwo">
                     <h4 class="panel-title">
                       <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                          Adicion al contrato: <span class="badge"><?= $contador_adicion?></span>
+                          Adicion al contrato  <span class="badge"><?= $contador_adicion?></span>
                       </a>
                     </h4>
                 </div>
@@ -304,7 +309,7 @@ $view = 'contrato';
                         <div class="panel-heading" role="tab" id="headingThree">
                             <h4 class="panel-title">
                               <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                  Prorroga al contrato: <span class="badge"><?= $cont?></span>
+                                  Prorroga al contrato <span class="badge"><?= $cont?></span>
                               </a>
                             </h4>
                         </div>

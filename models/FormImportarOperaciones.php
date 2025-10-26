@@ -12,12 +12,12 @@ class FormImportarOperaciones extends Model
 {
     public $orden_produccion;  
     public $buscar;
+    public $producto;
 
     public function rules()
     {
         return [
-            [['orden_produccion'],'required'],     //, 'messaje' => 'Campo requerido para la consulta'    
-            [['orden_produccion','buscar'],'integer'],            
+            [['orden_produccion','buscar','producto'],'integer'],            
            
         ];
     }
@@ -25,7 +25,8 @@ class FormImportarOperaciones extends Model
     public function attributeLabels()
     {
         return [
-            'orden_produccion' => 'Digite la orden de producción/Salida de bodega:',
+            'orden_produccion' => 'Digite la orden de producción:',
+            'producto' => 'Linea de producto:',
             'buscar' => 'buscar',                
           
         ];

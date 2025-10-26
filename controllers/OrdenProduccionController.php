@@ -3823,31 +3823,32 @@ class OrdenProduccionController extends Controller {
             $form = new \app\models\FormImportarOperaciones();
             $orden_produccion = null;
             $model = null;
-            $buscar = 0;
+            $producto = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $orden_produccion = Html::encode($form->orden_produccion);
-                    $buscar = Html::encode($form->buscar);
-                    if($buscar == 0){
+                    $producto = Html::encode($form->producto);
+                    if($orden_produccion){
                         $orden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->one();
                     }else{
-                       $orden = \app\models\SalidaBodegaOperaciones::find()->where(['=','id_salida_bodega', $orden_produccion])->one(); 
-                    }    
+                       $orden = ProcesoProduccion::find()->where(['=','id_tipo_producto', $producto])->all();
+                    }
                     if ($orden){
-                        if($buscar == 0){
+                        if($orden_produccion){
                             $detalle = Ordenproducciondetalleproceso::find()->where(['=','iddetalleorden', $orden->iddetalleorden])->orderBy('proceso ASC')->all(); 
                         }else{
-                           $detalle = \app\models\SalidaBodegaOperaciones::find()->where(['=','id_salida_bodega', $orden->id_salida_bodega])->orderBy('idproceso ASC')->all(); 
+                            $detalle = ProcesoProduccion::find()->where(['=','id_tipo_producto', $producto])->all();
                         }    
-                         $model = $detalle;
+                        $model = $detalle;
                     }else{
-                        Yii::$app->getSession()->setFlash('warning', 'La orden de produccion / Salida de bodega que digito NO existe en la base de datos. ');
+                        Yii::$app->getSession()->setFlash('warning', 'La orden de produccion que digito NO existe en la base de datos o no hay operaciones para este linea de producto. ');
                         return $this->render('importaroperacionesprenda', [
                                         'form' => $form,
                                         'model' => $model,
                                         'id' => $id,
                                         'iddetalleorden' => $iddetalleorden,
-                                        'buscar' => $buscar,
+                                        'producto' => $producto,
+                                        'orden_produccion' => $orden_produccion,
                                         ]);
                     }
                 }else{
@@ -3858,8 +3859,8 @@ class OrdenProduccionController extends Controller {
                 if (isset($_POST["operaciones"])) {
                     $intIndice = 0;
                     $cont = 0;
-                    foreach ($_POST["operaciones"] as $intCodigo) {
-                        if($buscar == 0){
+                    if($orden_produccion){
+                        foreach ($_POST["operaciones"] as $intCodigo) {
                             $proceso = Ordenproducciondetalleproceso::findOne($intCodigo);
                             if($proceso){
                                 $detalleorden = Ordenproducciondetalle::findOne($iddetalleorden);
@@ -3874,7 +3875,7 @@ class OrdenProduccionController extends Controller {
                                 $table->total_unidades_operacion = $detalleorden->cantidad;
                                 $cont += 1;
                                 $table->save();
-                                
+
                                 //se replica los procesos a detalles que contengan el mismo codigo de producto, para agilizar la insercion de cada uno de las operaciones por detalle            
                                 $detallesordenproduccion = Ordenproducciondetalle::find()
                                         ->where(['<>', 'iddetalleorden', $iddetalleorden])
@@ -3904,44 +3905,90 @@ class OrdenProduccionController extends Controller {
                                                 $tableprocesos->save();
                                             }
                                         }
-                                       
+
                                     }
                                 }
                             }
                             $intIndice++; 
-                        }else{ /// PROCESO CUANDO VIENE DE INVENTARIOS
-                            $proceso = \app\models\SalidaBodegaOperaciones::findOne($intCodigo);
+                        }//termina el para
+                    }else{ //ciclo que importa desde operaciones
+                        $intIndice = 0;
+                        $cont = 0;
+                        foreach ($_POST["operaciones"] as $intCodigo) {
+                            $proceso = ProcesoProduccion::findOne($intCodigo);
                             if($proceso){
+                                $detalleorden = Ordenproducciondetalle::findOne($iddetalleorden);
                                 $table = new Ordenproducciondetalleproceso();
-                                $table->proceso = $proceso->proceso->proceso;
+                                $table->proceso = $proceso->proceso;
                                 $table->duracion = $proceso->segundos;
                                 $table->total = $proceso->segundos;
-                                $table->idproceso = $proceso->idproceso;
+                                $table->idproceso = $intCodigo;
                                 $table->iddetalleorden = $iddetalleorden;
-                                $table->id_tipo = $proceso->id_tipo;
+                                if($proceso->id_tipo != null){
+                                     $table->id_tipo = $proceso->id_tipo;
+                                }else{
+                                     $table->id_tipo = 1;
+                                }
                                 $table->cantidad_operada = 0;
+                                $table->total_unidades_operacion = $detalleorden->cantidad;
                                 $cont += 1;
-                                $table->insert();
+                                $table->save();
+                                
+                                //se replica los procesos a detalles que contengan el mismo codigo de producto, para agilizar la insercion de cada uno de las operaciones por detalle            
+                                $detallesordenproduccion = Ordenproducciondetalle::find()
+                                        ->where(['<>', 'iddetalleorden', $iddetalleorden])
+                                        ->andWhere(['idordenproduccion' => $id])
+                                        ->all();
+                                foreach ($detallesordenproduccion as $dato) {
+                                    if ($dato->codigoproducto == $detalleorden->codigoproducto) {
+                                        $detallesprocesos = Ordenproducciondetalleproceso::find()->where(['iddetalleorden' => $iddetalleorden])->all();
+                                        foreach ($detallesprocesos as $val) {
+                                            $detallesp = Ordenproducciondetalleproceso::find()
+                                                    ->where(['=', 'idproceso', $val->idproceso])
+                                                    ->andWhere(['=', 'iddetalleorden', $dato->iddetalleorden])
+                                                    ->all();
+                                            $reg2 = count($detallesp);
+                                            if ($reg2 == 0) {
+                                                $tableprocesos = new Ordenproducciondetalleproceso();
+                                                $tableprocesos->idproceso = $val->idproceso;
+                                                $tableprocesos->proceso = $val->proceso;
+                                                $tableprocesos->duracion = $val->duracion;
+                                                $tableprocesos->ponderacion = $val->ponderacion;
+                                                $tableprocesos->total = $val->total;
+                                                $tableprocesos->cantidad_operada = 0;
+                                                $tableprocesos->totalproceso = $dato->cantidad * $tableprocesos->total;
+                                                $tableprocesos->iddetalleorden = $dato->iddetalleorden;
+                                                $tableprocesos->id_tipo = $val->id_tipo;
+                                                $tableprocesos->total_unidades_operacion = $dato->cantidad;
+                                                $tableprocesos->save();
+                                            }
+                                        }
+
+                                    }
+                                }
                             }
-                            $intIndice++;  
-                        }    
-                    }
+                            $intIndice++;
+                        }
+                        
+                    }    
                     Yii::$app->getSession()->setFlash('info', 'Se importaron '.  $cont. ' registros de forma exitosa. Debe de modificar las operaciones para que carguen los porcentajes.');
-                   return $this->render('importaroperacionesprenda', [
+                    return $this->render('importaroperacionesprenda', [
                                         'form' => $form,
                                         'model' => $model,
                                         'id' => $id,
                                         'iddetalleorden' => $iddetalleorden,
-                                        'buscar' => $buscar,
+                                        'producto' => $producto,  
+                                        'orden_produccion' => $orden_produccion,
                                         ]);
-                }
+                    }
             }            
             return $this->render('importaroperacionesprenda', [
                            'form' => $form,
                            'model' => $model,
                            'id' => $id,
                            'iddetalleorden' => $iddetalleorden,
-                           'buscar' => $buscar,
+                           'producto' => $producto,  
+                           'orden_produccion' => $orden_produccion,
                            ]);
         }else{
              $this->redirect(["orden-produccion/view_detalle", 'id' => $id]);

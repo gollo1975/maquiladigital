@@ -73,7 +73,7 @@ class Ordenproducciondetalleproceso extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProceso0()
+    public function getProceso()
     {
         return $this->hasOne(ProcesoProduccion::className(), ['idproceso' => 'idproceso']);
     }

@@ -38,10 +38,11 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
     {
         return [
             [['proceso','estandarizado'], 'required','message'=> 'Campo obligatorio'],
-            [['estado','estandarizado','id_tipo_producto'], 'integer'],
-           [['segundos','minutos'], 'number'],
+            [['estado','estandarizado','id_tipo_producto','id_tipo'], 'integer'],
+            [['segundos','minutos'], 'number'],
             [['proceso'], 'string', 'max' => 50],
             [['id_tipo_producto'], 'exist', 'skipOnError' => true, 'targetClass' => TipoProducto::className(), 'targetAttribute' => ['id_tipo_producto' => 'id_tipo_producto']],
+            [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => TiposMaquinas::className(), 'targetAttribute' => ['id_tipo' => 'id_tipo']],
         ];
     }
 
@@ -57,7 +58,9 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
             'segundos' => 'Sam segundos:',
             'minutos' => 'Sam minutos:',
             'estandarizado' => 'Estandarizado:',
-            'id_tipo_producto' => 'Tipo de producto:'
+            'id_tipo_producto' => 'Tipo de producto:',
+            'id_tipo' => 'Tipo de maquina:',
+            
         ];
     }
 
@@ -68,6 +71,15 @@ class ProcesoProduccion extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Ordenproducciondetalleproceso::className(), ['idproceso' => 'idproceso']);
     }
+    
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTipoMaquina()
+    {
+        return $this->hasOne(TiposMaquinas::className(), ['id_tipo' => 'id_tipo']);
+    }
+    
     public function getTipoProducto()
         {
             return $this->hasOne(TipoProducto::class, ['id_tipo_producto' => 'id_tipo_producto']);

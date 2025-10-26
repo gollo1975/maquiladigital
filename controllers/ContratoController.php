@@ -585,6 +585,33 @@ class ContratoController extends Controller
         }
         return $this->render("update", ["model" => $model, "msg" => $msg, "tipomsg" => $tipomsg]);
     }
+    
+    //CAMBIO DE CARGO EMPELADO
+    public function actionCambio_cargo_empleado($id){
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 171])->all()) {
+                $cargos = \app\models\Cargo::find()->orderBy('cargo ASC')->all();
+                $model = $this->findModel($id);
+                if ($model->load(Yii::$app->request->post())) {
+                    if (isset($_POST["actualizar_cago"])) { 
+                        $table = Contrato::findOne($id);
+                        $table->id_cargo = $model->id_cargo;
+                        $table->save();
+                        return $this->redirect(['viewparameters','id' => $id]);
+                    }
+                }    
+                return $this->renderAjax('cambio_cargo_empleado', [
+                    'cargos' => \yii\helpers\ArrayHelper::map($cargos, 'id_cargo', 'cargo'),
+                    'model' =>  $model,
+                    'id' => $id,
+                ]); 
+            }else{
+                return $this->redirect(['site/sinpermiso']); 
+            }  
+        }else{
+           return $this->redirect(['site/login']); 
+        }    
+    }
 
     /**
      * Deletes an existing Empleado model.

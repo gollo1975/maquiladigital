@@ -158,7 +158,7 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                     $total_pagar += $val->vlr_pago;
                 }
                 if($operario->vinculado == 0){?>
-                    <div style="font-size: 160%; text-align: center; display: flex; justify-content: center; gap: 10px;">
+                    <div style="font-size: 170%; text-align: center; display: flex; justify-content: center; gap: 10px;">
                                 <div>Operaciones: <?= round($con)?></div>
                                 <div>Eficiencia: <?= round($total / $con,2)?>%</div>
                                  <div>Pagar: <?= number_format($total_pagar,0)?></div>

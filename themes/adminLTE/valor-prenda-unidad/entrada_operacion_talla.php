@@ -150,16 +150,28 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
         <div class="panel-heading">
             <?php
             if(count($vector_eficiencia) > 0){
-                $total = 0; $con = 0;
+                $operario = app\models\Operarios::findOne($tokenOperario);
+                $total = 0; $con = 0; $total_pagar = 0;
                 foreach ($vector_eficiencia as $val) {
                     $con += 1;
                     $total += $val->porcentaje_cumplimiento;
-                }?>
-                     <div style="font-size: 180%; text-align: center; display: flex; justify-content: center; gap: 45px;">
+                    $total_pagar += $val->vlr_pago;
+                }
+                if($operario->vinculado == 0){?>
+                    <div style="font-size: 140%; text-align: center; display: flex; justify-content: center; gap: 10px;">
                                 <div>Operaciones: <?= round($con)?></div>
                                 <div>Eficiencia: <?= round($total / $con,2)?>%</div>
-                        </div>
-            <?php }?>   
+                                 <div>Pagar: <?= number_format($total_pagar,0)?></div>
+                    </div>
+               <?php }else{?>
+                   <div style="font-size: 180%; text-align: center; display: flex; justify-content: center; gap: 35px;">
+                        <div>Operaciones: <?= round($con)?></div>
+                        <div>Eficiencia: <?= round($total / $con,2)?>%</div>
+                       
+                    </div>
+               <?php }
+                
+            }?>   
         </div> 
    </div>   
 </div>

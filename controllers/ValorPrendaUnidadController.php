@@ -1540,9 +1540,10 @@ class ValorPrendaUnidadController extends Controller
                 'vector_eficiencia' => $vector_eficiencia,
             ]);
         }
+       
         if($horaActual > $horaCierre){
             Yii::$app->getSession()->setFlash('error', 'Esta OP se encuentra cerrada por el dia de hoy. Valide la informacion con el administrador.'); 
-                return $this->redirect(['view_produccion',
+               return $this->redirect(['view_produccion',
                      'id_planta' => $id_planta,
                      'tokenOperario' => $tokenOperario,
                      'id' => $id,

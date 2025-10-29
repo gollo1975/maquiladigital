@@ -368,7 +368,8 @@ class BalanceoController extends Controller
         } 
         
         //Proceso que guarda automatico el balanceo
-        if (isset($_POST["generar"])){
+        if (Yii::$app->request->post('generar_balanceo')) {
+            echo 'dadasdasdasdas';
             if ($_POST["id_operario"] > 0) {
                 $total = $balanceo->tiempo_operario + 0.5;
                 if(count($_POST["id_operario"]) == $balanceo->cantidad_empleados){
@@ -398,7 +399,7 @@ class BalanceoController extends Controller
                             foreach ($detalle as $detalles):
                                $detalles->id_operario = (NULL);
                                $detalles->save(false);
-                               if($detalles->id_operario == (NULL)){
+                               if($detalles->id_operario == null){
                                     $suma += $detalles->minutos;
                                     if($suma <= $total){
                                         $detalles->id_operario = $variable;
@@ -455,7 +456,7 @@ class BalanceoController extends Controller
            
             }else{
                  Yii::$app->getSession()->setFlash('error', 'Debe de seleccionar los ('.$balanceo->cantidad_empleados.') operarios para el balanceo.');
-                 return $this->redirect(["balanceo/view",
+              /*   return $this->redirect(["balanceo/view",
                       'id'=> $id,
                       'flujo_operaciones' => $flujo_operaciones,
                       'idordenproduccion' => $idordenproduccion,
@@ -463,7 +464,7 @@ class BalanceoController extends Controller
                       'operario'=> $operario,
                       'id_planta' => $id_planta,
                       'id_proceso_confeccion' => $id_proceso_confeccion,
-                    ]); 
+                    ]); */
             }
         }
         //PROCESO QUE ACTIVA O DESACTIVA EL ESTADO DE LA OPERACION

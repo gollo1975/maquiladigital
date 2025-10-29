@@ -237,18 +237,19 @@ class PDF extends FPDF {
         $pdf->SetXY(20, 125);
         $this->SetFont('Arial', '', 8);
         $pdf->MultiCell(170, 3, utf8_decode($model->cuds),0,'J');
-        
-        //creacion de la representacion grafica
-        $this->SetFont('Arial', '', 8);
-        $qrstr = utf8_decode($model->qrstr);
-        $pdf->SetXY(120, 70); // Establece la posición donde aparecerá el QR
-        QRcode::png($qrstr,"test.png");
-        $pdf->Image("test.png", 88, 90, 38, 35, "png");
-        $pdf->SetXY(74, 85);
-        $this->SetFont('Arial', 'B', 6);
-        $pdf->Cell(64, 8, utf8_decode($config->razonsocialmatricula.'-'.$config->nitmatricula.'-'.$config->dv. ' Software Propio '),0,'J',1);
-        // Insertar la imagen base64 directamente en el PDF
-        $pdf->SetXY(10, 88); // Establecer la posición
+        if($model->cuds != null){
+            //creacion de la representacion grafica
+            $this->SetFont('Arial', '', 8);
+            $qrstr = utf8_decode($model->qrstr);
+            $pdf->SetXY(120, 70); // Establece la posición donde aparecerá el QR
+            QRcode::png($qrstr,"test.png");
+            $pdf->Image("test.png", 88, 90, 38, 35, "png");
+            $pdf->SetXY(74, 85);
+            $this->SetFont('Arial', 'B', 6);
+            $pdf->Cell(64, 8, utf8_decode($config->razonsocialmatricula.'-'.$config->nitmatricula.'-'.$config->dv. ' Software Propio '),0,'J',1);
+            // Insertar la imagen base64 directamente en el PDF
+            $pdf->SetXY(10, 88); // Establecer la posición
+        }    
     }
     
 }

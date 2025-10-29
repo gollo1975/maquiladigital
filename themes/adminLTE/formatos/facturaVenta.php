@@ -275,17 +275,22 @@ class PDF extends FPDF {
         $pdf->Cell(64, 8, 'RECIBIDO POR',1,'J',1);        
         $pdf->SetXY(74, 210);//recibido,aceptado 
         $pdf->Cell(64, 8, 'ACEPTADO POR',1,'J',1);
-        $pdf->SetXY(138, 210);//recibido,aceptado 
-        $this->SetFont('Arial', '', 8);
-        $qrstr = utf8_decode($model->qrstr);
-        $pdf->SetXY(120, 70); // Establece la posición donde aparecerá el QR
-        QRcode::png($qrstr,"test.png");
-        $pdf->Image("test.png", 150, 210.5, 38, 35, "png");
+        $pdf->SetXY(138, 210);//recibido,aceptado
+         
+        //codigo para generar la representacuion
+        if($model->cufe != null){
+            $this->SetFont('Arial', '', 8);
+            $qrstr = utf8_decode($model->qrstr);
+            $pdf->SetXY(120, 70); // Establece la posición donde aparecerá el QR
+            QRcode::png($qrstr,"test.png");
+            $pdf->Image("test.png", 150, 210.5, 38, 35, "png");
+        }   
         $pdf->SetXY(74, 239);
         $this->SetFont('Arial', 'B', 6);
         $pdf->Cell(64, 8, utf8_decode($config->razonsocialmatricula.'-'.$config->nitmatricula.'-'.$config->dv. ' Software Propio '),0,'J',1);
         // Insertar la imagen base64 directamente en el PDF
         $pdf->SetXY(10, 245); // Establecer la posición
+         
        
         $pdf->MultiCell(191, 4, utf8_decode($config->declaracion),1,'J');
         $pdf->SetXY(10, 266);//tipo cuenta

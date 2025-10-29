@@ -141,9 +141,11 @@ if($buscarOrden){
                                         <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Minutos</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Orden</th>
-                                         <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
-                                         <th scope="col" style='background-color:#B9D5CE;'>Pieza</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Fecha creación</th>
+                                        <th scope="col" style='background-color:#277da1; color: #FFFFFF'>T. Operaciones</th>
+                                        <th scope="col" style='background-color:#277da1; color: #FFFFFF'>T. confección</th>
+                                        <th scope="col" style='background-color:#277da1; color: #FFFFFF'>U. faltantes</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Proceso</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Pieza</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Maquina</th>
                                         <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                                     </tr>
@@ -175,9 +177,12 @@ if($buscarOrden){
                                             <tr style="font-size: 85%;">
                                                 <td><?= $registro->idproceso ?></td>
                                                 <td><?= $registro->proceso->proceso ?></td>
-                                                <td><?= ''.number_format($registro->segundos,0) ?></td>
-                                                <td><?= ''.number_format($registro->minutos ,2) ?></td>
-                                                <td><?= $registro->orden_aleatorio ?></td>
+                                                <td style="text-align:right"><?= ''.number_format($registro->segundos,0) ?></td>
+                                                <td style="text-align:right"><?= ''.number_format($registro->minutos ,2) ?></td>
+                                                <td style="text-align:right"><?= $registro->orden_aleatorio ?></td>
+                                                <td style="text-align:right"><?= ''.number_format($registro->cantidad_operaciones,0) ?></td>
+                                                <td style="text-align:right"><?= ''.number_format($registro->cantidad_confeccionadas,0) ?></td>
+                                                <td style="text-align:right"><?= ''.number_format($registro->cantidad_operaciones - $registro->cantidad_confeccionadas,0) ?></td>
                                                 <?php if($registro->operacion == 0){?>
                                                    <td style='background-color:#B9D5CE;'><?= 'BALANCEO' ?></td>
                                                 <?php }else{?>
@@ -188,7 +193,7 @@ if($buscarOrden){
                                                 <?php }else{?>
                                                    <td style='background-color:#E3CDFC;'><?= 'PIEZA 2' ?></td>
                                                 <?php }?>     
-                                                 <td><?= $registro->fecha_creacion ?></td>
+                                                 
                                                 <?php 
                                                 if($registro->id_tipo == ''){?>
                                                        <td><?= 'Not found' ?></td>
@@ -203,8 +208,23 @@ if($buscarOrden){
                                     endforeach;
                                     ?>  
                                 </tbody> 
-                                <td colspan="3"></td><td style="font-size: 85%;"><b>Tot. Seg.:</b> <?= $consegundo ?> <td style="font-size: 85%;"><b>Sam_Balanceo:</b> <?= $model->sam_balanceo ?></td><td style="font-size: 85%; color: "><b>Sam_Preparacion:</b> <?= $model->sam_preparacion ?><td style="font-size: 85%; color: "></td><td colspan="4"></td>
+                                
                             </table>
+                            <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
+                                <tr>
+                                    <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                        <b>Total segundos: <?= number_format($consegundo, 0) ?></b> 
+                                    </td>
+                                    <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                        <b>Sam balanceo: <?= '$    '.number_format($model->sam_balanceo, 2) ?></b> 
+                                    </td>
+                                    <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                        <b>Sam_Preparacion: <?= '$'.number_format($model->sam_preparacion, 2) ?></b> 
+                                    </td>
+                                     
+                                </tr>     
+                            </table>
+                            
                         </div>    
                     </div>
                 </div>

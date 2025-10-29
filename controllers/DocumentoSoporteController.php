@@ -284,21 +284,26 @@ class DocumentoSoporteController extends Controller
     
     //PROCESO QUE AUTORIZA
     public function actionAutorizado($id) {
-         $model = $this->findModel($id);
-        if(\app\models\DocumentoSoporteDetalle::find()->where(['=','id_documento_soporte', $id])->one()){
-            if($model->autorizado == 0){
-                $model->autorizado = 1;
-                $model->save();
-                return $this->redirect(['view', 'id' => $id]);
+        $model = $this->findModel($id);
+        if($model->valor_pagar != null){
+            if(\app\models\DocumentoSoporteDetalle::find()->where(['=','id_documento_soporte', $id])->one()){
+                if($model->autorizado == 0){
+                    $model->autorizado = 1;
+                    $model->save();
+                    return $this->redirect(['view', 'id' => $id]);
+                }else{
+                    $model->autorizado = 0;
+                    $model->save();
+                    return $this->redirect(['view', 'id' => $id]);
+                }
             }else{
-                $model->autorizado = 0;
-                $model->save();
+                Yii::$app->getSession()->setFlash('error', 'Debe de creaun una nueva linea para subir el registro completo'); 
                 return $this->redirect(['view', 'id' => $id]);
             }
         }else{
-            Yii::$app->getSession()->setFlash('error', 'Debe de creaun una nueva linea para subir el registro completo'); 
-            return $this->redirect(['view', 'id' => $id]);
-        }
+             Yii::$app->getSession()->setFlash('error', 'El campo Total documento no puede ser vacio, debe de actualizar el detalle del documento soporte!'); 
+                return $this->redirect(['view', 'id' => $id]);
+        }    
     }
     
     //proceso que genera el consecutivo

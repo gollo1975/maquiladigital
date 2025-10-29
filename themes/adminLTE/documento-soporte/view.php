@@ -28,8 +28,8 @@ $ConRetenciones = \yii\helpers\ArrayHelper::map(app\models\RetencionFuente::find
             <?php if ($model->autorizado == 1 && $model->numero_soporte == 0){ 
                 echo Html::a('<span class="glyphicon glyphicon-refresh"></span> Desautorizar', ['autorizado', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-success btn-xs']);?>
                  <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Generar consecutivo', ['generar_documento', 'id' => $model->id_documento_soporte],['class' => 'btn btn-default btn-xs' ,
-                    'data' => ['confirm' => 'Esta seguro de Generar del consecutivo al documento soporte.', 'method' => 'post']]);?>
-                <?= Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar PDF', ['imprimir_documento_soporte', 'id' => $model->id_documento_soporte], ['class' => 'btn btn-default btn-xs']); 
+                    'data' => ['confirm' => 'Esta seguro de Generar del consecutivo al documento soporte.', 'method' => 'post']]);
+                
             }else{  
                 if($model->cuds == ''){?>
                     <?= Html::a('<span class="glyphicon glyphicon-send"></span>  Enviar Documento a la Dian', ['enviar_documento_soporte_dian', 'id' => $model->id_documento_soporte],['class' => 'btn btn-success btn-xs',  'id' => 'my_button', 'onclick' => '$("#my_button").attr("disabled", "disabled")' ,
@@ -142,7 +142,7 @@ $ConRetenciones = \yii\helpers\ArrayHelper::map(app\models\RetencionFuente::find
                                                 <?php if($detalle->porcentaje_retencion > 0){?>
                                                     <td style="text-align: center"><?= $detalle->retencion->porcentaje ?></td>
                                                 <?php }else{?>
-                                                  <td style="text-align: center"><?= $detalle->porcentaje_retencion  ?></td>    
+                                                  <td style="text-align: center"><?= $detalle->porcentaje_retencion ?></td>    
                                                 <?php }?>  
                                                 <td style="text-align: right"><?= ''. number_format($detalle->valor_retencion,0)?></td>
                                                 <td style="text-align: right"><?= ''. number_format($detalle->total_pagar,0)?></td> 

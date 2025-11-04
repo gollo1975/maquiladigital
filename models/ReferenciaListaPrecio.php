@@ -69,4 +69,9 @@ class ReferenciaListaPrecio extends \yii\db\ActiveRecord
     {
         return $this->hasOne(ReferenciaProducto::className(), ['codigo' => 'codigo']);
     }
+    
+     public function getListaPrecio()
+    {
+        return "{$this->lista->nombre_lista}";
+    }
 }

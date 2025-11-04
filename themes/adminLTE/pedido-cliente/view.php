@@ -118,7 +118,7 @@ $view = 'pedido-cliente';
                                 <tbody>
                                     <?php foreach ($referencias as $val): 
                                         $conLista = app\models\ReferenciaListaPrecio::find()->where(['=','codigo', $val->codigo])->all();
-                                        $conLista = ArrayHelper::map($conLista, 'id_detalle', 'id_lista');
+                                        $conLista = ArrayHelper::map($conLista, 'id_detalle', 'listaPrecio');
                                         ?>
                                        <tr style="font-size: 90%;">
                                             <td><?= $val->codigo ?></td>

@@ -407,7 +407,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
 
                                     //ACA COMIENZA EN MODULO DE COSTOS E INVENTARIO
                                     [
-                                        'label' => 'Inventarios',
+                                        'label' => 'Insumos',
                                         'icon' => 'film',
                                         'url' => '#',
                                         'items' => [
@@ -463,6 +463,101 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                             ],
                                         ],
                                     ],
+                                    
+                                    //INICIA MODULO DE INVETARIOS
+                                    [
+                                        'label' => 'Inventarios',
+                                        'icon' => 'shopping-cart',
+                                        'url' => '#',
+                                        'items' => [
+                                            [
+                                                'label' => 'Administración',
+                                                'icon' => 'database',
+                                                'url' => '#',
+                                                'items' => [
+                                                    ['label' => 'Bodegas', 'icon' => 'plus-square-o', 'url' => ['/punto-venta/index']],
+                                                ],
+                                            ],
+                                            [
+                                                'label' => 'Utilidades',
+                                                'icon' => 'cube',
+                                                'url' => '#',
+                                                'items' => [
+                                                   // ['label' => 'Pedidos', 'icon' => 'plus-square-o', 'url' => ['/pedidos/index']],
+                                                   [
+                                                    'label' => 'Parametros',
+                                                    'icon' => 'connectdevelop',
+                                                    'url' => '#',
+                                                    'items' => [
+                                                        ['label' => 'Precio de venta', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/crear_precio_venta']],
+                                                        ['label' => 'Cargar imagenes', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/validador_imagen']],
+                                                        ['label' => 'Enviar masivo', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/send_masivo_producto']],
+
+                                                    ]],
+                                                    ['label' => 'Traslados pto venta', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/traslado_producto']],
+                                                   // ['label' => 'Indicador comercial', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/index']],
+                                                   // ['label' => 'Regla comercial', 'icon' => 'plus-square-o', 'url' => ['/inventario-productos/regla_comercial']],
+                                                    //['label' => 'Citas prospectos', 'icon' => 'plus-square-o', 'url' => ['/cliente-prospecto/listado_cita_prospecto']],
+                                                ],
+                                            ],
+                                            [
+                                                'label' => 'Consultas',
+                                                'icon' => 'question',
+                                                'url' => '#',
+                                                'items' => [
+                                                   ['label' => 'Inventario', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_inventario']],
+                                                   ['label' => 'Rerefencias', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_referencias']],
+                                                  [
+                                                    'label' => 'Costo y rentabilidad',
+                                                    'icon' => 'connectdevelop',
+                                                    'url' => '#',
+                                                    'items' => [
+                                                        ['label' => 'Factura de venta', 'icon' => 'plus-square-o', 'url' => ['/factura-venta-punto/search_producto_vendido']],
+                                                        ['label' => 'Remision', 'icon' => 'plus-square-o', 'url' => ['/remisiones/search_producto_vendido']],
+                                                        ['label' => 'Producto + vendido', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/producto_masvendido']],
+                                                         // ['label' => 'Cargar imagenes', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/validador_imagen']],
+
+                                                    ]],
+                                                   [
+                                                    'label' => 'Indicadores',
+                                                    'icon' => 'connectdevelop',
+                                                    'url' => '#',
+                                                    'items' => [
+                                                    //    ['label' => 'General', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/search_indicador_comercial']],
+                                                     //   ['label' => 'Graficas', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/search_indicador_vendedor']],
+
+                                                    ]],
+                                                    //['label' => 'Pedidos', 'icon' => 'plus-square-o', 'url' => ['/pedidos/search_pedidos']], 
+                                                    //['label' => 'Citas prospecto', 'icon' => 'plus-square-o', 'url' => ['/cliente-prospecto/search_cita_prospecto']], 
+                                                    [
+                                                    'label' => 'Maestros IA',
+                                                    'icon' => 'connectdevelop',
+                                                    'url' => '#',
+                                                    'items' => [
+                                                       // ['label' => 'Ventas clientes', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_maestro_referencia']],
+                                                        //['label' => 'Graficas', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/search_indicador_vendedor']],
+
+                                                    ]],
+                                                ],
+                                            ],
+                                            [
+                                                'label' => 'Movimientos',
+                                                'icon' => 'book',
+                                                'url' => '#',
+                                                'items' => [
+                                                    ['label' => 'Inventarios', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/index']],
+                                                    ['label' => 'Entradas', 'icon' => 'plus-square-o', 'url' => ['/entrada-productos-inventario/index']],
+                                                   // ['label' => 'Gestion comercial', 'icon' => 'plus-square-o', 'url' => ['/programacion-citas/gestion_comercial']],
+                                                   // ['label' => 'Crear pedidos', 'icon' => 'plus-square-o', 'url' => ['/pedidos/listado_clientes']],
+
+
+                                                ],
+                                            ],
+
+                                        ],
+                                    ],
+                                    //TERMINA INVENTARIO
+                                    //TERMINA MODULO DE INVETARIO
                                     //INICIO DEL MENU CONTABILIDAD
                                      [
                                         'label' => 'Contabilidad',

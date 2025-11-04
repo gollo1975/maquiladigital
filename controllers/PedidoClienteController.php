@@ -354,6 +354,7 @@ class PedidoClienteController extends Controller
                 if($contar > 0){
                     $table = \app\models\PedidoClienteTalla::findOne($intCodigo);
                     $table->cantidad = $_POST["cantidad"][$intIndice];
+                    $table->nota = $_POST["nota"][$intIndice];
                     $table->save();
                     $this->ContarCantidadTalla($id_referencia);
                     $intIndice++;

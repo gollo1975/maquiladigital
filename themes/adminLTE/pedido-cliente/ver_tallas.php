@@ -68,7 +68,7 @@ $view = 'pedido-cliente';
                                         <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Numero pedido</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>User name</th>
+                                        <th scope="col" style='background-color:#B9D5CE; width: 25%'>Nota</th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                     </tr>
                                 </thead>
@@ -79,7 +79,9 @@ $view = 'pedido-cliente';
                                             <td><?= $model->referencia ?></td>
                                             <td><?= $model->pedido->numero_pedido ?></td>
                                             <td style="text-align: right;"><input type="text" name="cantidad[]" style="text-align: right" value="<?= $val->cantidad ?>" required></td>
-                                            <td><?= $model->user_name ?></td>
+                                            <td style="text-align: right;">
+                                                <input type="text" name="nota[]" style="text-align: left" value="<?= $val->nota ?>" size="100" maxlength="100"  >
+                                            </td>
                                             <input type="hidden" name="listado_tallas[]" value="<?= $val->codigo_talla ?>">
                                            <td style= 'width: 25px; height: 25px;'>
                                                <?php 

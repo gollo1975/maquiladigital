@@ -38,6 +38,7 @@ class PedidoClienteTalla extends \yii\db\ActiveRecord
             [['idtalla', 'id_referencia', 'id_pedido', 'cantidad'], 'integer'],
             [['fecha_registro'], 'safe'],
             [['user_name'], 'string', 'max' => 15],
+             [['nota'], 'string', 'max' => 120],
             [['idtalla'], 'exist', 'skipOnError' => true, 'targetClass' => Talla::className(), 'targetAttribute' => ['idtalla' => 'idtalla']],
             [['id_referencia'], 'exist', 'skipOnError' => true, 'targetClass' => PedidoClienteReferencias::className(), 'targetAttribute' => ['id_referencia' => 'id_referencia']],
             [['id_pedido'], 'exist', 'skipOnError' => true, 'targetClass' => PedidoCliente::className(), 'targetAttribute' => ['id_pedido' => 'id_pedido']],
@@ -57,6 +58,7 @@ class PedidoClienteTalla extends \yii\db\ActiveRecord
             'cantidad' => 'Cantidad',
             'fecha_registro' => 'Fecha Registro',
             'user_name' => 'User Name',
+            'nota' => 'Nota'
         ];
     }
 

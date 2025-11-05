@@ -335,19 +335,28 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                             
                                             foreach ($registro as $variable){
                                                 $contador += 1;
-                                               $sam += $variable->minutos;
+                                                $sam += $variable->minutos;
                                             }
-                                            if($contador == 1){ 
-                                                $porcentaje = (100 * $val->minutos)/ $sam;
-                                                $unidades_cien = round(60/$val->minutos);
-                                                $unidades_ochenta = (((60/$val->minutos)*80)/100);
-                                                $ochenta = (((60 / $model->tiempo_balanceo) * ($model->cantidad_empleados)*80)/100);
+                                            if($sam > 0){
+                                                if($contador == 1){ 
+                                                    $porcentaje = (100 * $val->minutos)/ $sam;
+                                                    $unidades_cien = round(60/$val->minutos);
+                                                    $unidades_ochenta = (((60/$val->minutos)*80)/100);
+                                                    $ochenta = (((60 / $model->tiempo_balanceo) * ($model->cantidad_empleados)*80)/100);
+                                                }else{
+                                                    $unidades_hora = round(60/$sam,0);
+                                                    $porcentaje = (100 * $val->minutos)/ $sam;
+                                                    $unidades_cien = round(($unidades_hora* $porcentaje)/100);
+                                                    $unidades_ochenta = round(($unidades_cien * 80)/100);
+                                                    $ochenta = (((60 / $model->tiempo_balanceo) * ($model->cantidad_empleados)*80)/100);
+                                                }    
                                             }else{
-                                                $unidades_hora = round(60/$sam,0);
-                                                $porcentaje = (100 * $val->minutos)/ $sam;
-                                                $unidades_cien = round(($unidades_hora* $porcentaje)/100);
-                                                $unidades_ochenta = round(($unidades_cien * 80)/100);
-                                                $ochenta = (((60 / $model->tiempo_balanceo) * ($model->cantidad_empleados)*80)/100);
+                                                $unidades_hora = 0;
+                                                $porcentaje = 0;
+                                                $unidades_cien = 0;
+                                                $unidades_ochenta = 0;
+                                                $ochenta = 0;
+                                                
                                             }    
                                                 ?>
                                                     

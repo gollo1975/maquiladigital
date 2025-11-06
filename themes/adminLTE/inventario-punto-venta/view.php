@@ -73,7 +73,7 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'user_name') ?></th>
                     <td><?= Html::encode($model->user_name) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_marca') ?></th>
-                    <td><?= Html::encode($model->marca->marca) ?></td>
+                    <td><?= Html::encode($model->marca->marca ?? 'NOT FOUND') ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo_barra') ?></th>
@@ -85,7 +85,7 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'inventario_inicial') ?></th>
                     <td><?= Html::encode($model->inventarioInicial) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_categoria') ?></th>
-                    <td><?= Html::encode($model->categoria->categoria) ?></td>
+                    <td><?= Html::encode($model->categoria->categoria ?? 'NOT FOUND') ?></td>
                 </tr>
                 <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'inventario_inicial') ?></th>

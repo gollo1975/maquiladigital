@@ -176,15 +176,15 @@ $form = ActiveForm::begin([
                     <td><?= $val->nombre_producto?></td>
                     <td><?= $val->punto->nombre_punto?></td>
                     <td><?= $val->proveedor->nombrecorto?></td>
-                    <td><?= $val->marca->marca?></td>
-                    <td><?= $val->categoria->categoria?></td>
+                    <td><?= $val->marca->marca ?? 'NO FOUNT'?></td>
+                    <td><?= $val->categoria->categoria ?? 'NO FOUNT'?></td>
                     <td><?= $val->fecha_proceso?></td>
                     <td style="text-align: right;"><?= ''.number_format($val->stock_unidades,0)?></td>
                     <td style="text-align: right; background-color:#CBDDE3; color: black"><?= ''.number_format($val->stock_inventario,0)?></td>
                     <td style= 'width: 25px; height: 10px;'>
                          <a href="<?= Url::toRoute(["inventario-punto-venta/view", "id" => $val->id_inventario, 'token' => $token,'codigo' => $val->codigo_enlace_bodega]) ?>" ><span class="glyphicon glyphicon-eye-open" title="Permite crear las cantidades del producto, lote y codigos"></span></a>
                     </td> 
-                    <?php if($val->stock_unidades == $val->stock_inventario && $val->aplica_talla_color == 0){?>
+                    <?php if($val->stock_unidades ==  $val->stock_inventario){?>
                         <td style= 'width: 25px; height: 10px;'>
                                <a href="<?= Url::toRoute(["inventario-punto-venta/update", "id" => $val->id_inventario]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
                         </td>
@@ -197,7 +197,8 @@ $form = ActiveForm::begin([
         </table> 
         <div class="panel-footer text-right" >            
            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>                
-            <a align="right" href="<?= Url::toRoute("inventario-punto-venta/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo sin OP</a>
+            <a align="right" href="<?= Url::toRoute("inventario-punto-venta/importar_ordenes_inventario") ?>" class="btn btn-warning btn-sm"><span class='glyphicon glyphicon-import'></span> Importar ordenes</a>
+           <a align="right" href="<?= Url::toRoute("inventario-punto-venta/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo sin OP</a>
         <?php $form->end() ?>
         </div>
      </div>

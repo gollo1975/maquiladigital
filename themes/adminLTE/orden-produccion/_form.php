@@ -120,6 +120,7 @@ $form = ActiveForm::begin([
             ]); ?>
         </div>
         <div class="row">
+            <?= $form->field($model, 'aplica_inventario')->dropDownList(['0'=> 'NO', '1'=> 'SI']) ?>
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
          <div class="checkbox checkbox-success" align ="center">

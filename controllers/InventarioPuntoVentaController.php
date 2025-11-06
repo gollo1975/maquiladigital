@@ -22,6 +22,8 @@ use yii\db\Expression;
 use yii\db\Query;
 use yii\db\Command;
 use yii\db\ActiveQuery;
+use yii\db\Exception; // Necesario para manejar excepciones de la base de datos
+
 //models
 //models
 
@@ -651,6 +653,98 @@ class InventarioPuntoVentaController extends Controller
         ]); 
     }
     
+   //importar ordenes de produccion
+   public function actionImportar_ordenes_inventario() {
+        $operacion = \app\models\Ordenproduccion::find()->where([
+                                              'aplica_inventario' => 1,
+                                              'cerrar_orden' => 1,
+                                              'inventario_exportado' => 0])->orderBy('idordenproduccion DESC')->all();
+        $form = new \app\models\FormModeloBuscar();
+        $q = null;
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $q = Html::encode($form->q);                                
+                    $operacion = \app\models\Ordenproduccion::find()
+                            ->where(['like','codigoproducto',$q])
+                            ->orwhere(['=','idordenproduccion',$q])
+                            ->andWhere(['=','cerrar_orden', 1])
+                            ->andWhere(['=','aplica_inventario', 1])
+                            ->andWhere(['=','inventario_exportado', 0]);
+                    $operacion = $operacion->orderBy('idordenproduccion DESC');                    
+                    $count = clone $operacion;
+                    $to = $count->count();
+                    $pages = new Pagination([
+                        'pageSize' => 10,
+                        'totalCount' => $count->count()
+                    ]);
+                    $operacion = $operacion
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();         
+            } else {
+                $form->getErrors();
+            }                    
+        }else{
+            $table = $operacion = \app\models\Ordenproduccion::find()->where([
+                                              'aplica_inventario' => 1,
+                                              'cerrar_orden' => 1,
+                                              'inventario_exportado' => 0])->orderBy('idordenproduccion DESC');
+            $tableexcel = $table->all();
+            $count = clone $table;
+            $pages = new Pagination([
+                        'pageSize' => 10,
+                        'totalCount' => $count->count(),
+            ]);
+             $operacion = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+        }
+        //PROCESO DE GUARDAR
+         if (isset($_POST["enviar_datos"])) {
+            if(isset($_POST["nueva_orden"])){
+                $intIndice = 0;
+                
+                foreach ($_POST["nueva_orden"] as $intCodigo) {
+                    $registro = InventarioPuntoVenta::find()->where(['=','idordenproduccion', $intCodigo])->one();
+                    $iva = \app\models\ConfiguracionIva::find()->where(['predeterminado' => 1])->one();
+                    if(!$registro){
+                        $orden = \app\models\Ordenproduccion::findOne($intCodigo);
+                        $detalle = \app\models\Ordenproducciondetalle::find()->where(['idordenproduccion' => $orden->idordenproduccion])->one();
+                        if($orden){
+                            $table = new InventarioPuntoVenta();
+                            $table->codigo_producto = $orden->codigoproducto;
+                            $table->codigo_barra = $orden->codigoproducto;
+                            $table->nombre_producto = $detalle->productodetalle->prendatipo->prenda;
+                            $table->descripcion_producto= $detalle->productodetalle->prendatipo->prenda;
+                            $table->costo_unitario = $detalle->vlrprecio;
+                            $table->idproveedor = 1;
+                            $table->id_punto = 1;
+                            $table->iva_incluido = 1;
+                            $table->aplica_talla_color = 1;
+                            $table->aplica_inventario = 1;
+                            $table->porcentaje_iva = $iva->valor_iva;
+                            $table->fecha_creacion = date('Y-m-d H:i:s');
+                            $table->fecha_proceso = date('Y-m-d');
+                            $table->venta_publico = 1;
+                            $table->idordenproduccion = $intCodigo;
+                            $table->user_name = Yii::$app->user->identity->username;
+                            $table->save(false);
+                            $intIndice++;
+                        }    
+                    }    
+                }
+                Yii::$app->getSession()->setFlash('success', 'Se guardaron: '.$intIndice.' registros con exito en el sistema');
+                return $this->redirect(['index']);
+            }
+        }
+        return $this->render('importar_orden_inventario', [
+            'operacion' => $operacion,            
+            'pagination' => $pages,
+            'form' => $form,
+        ]);
+    }
+      
     //EXCELES
     public function actionExcelInventarioPuntoVenta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();

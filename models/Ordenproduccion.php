@@ -54,7 +54,7 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             [['idcliente', 'fechallegada', 'fechaprocesada', 'fechaentrega', 'observacion', 'idtipo','ponderacion','ordenproduccion','ordenproduccionext',
                 'codigoproducto','exportacion','id_tipo_producto'], 'required', 'message' => 'Campo requerido'],            
             [['idcliente', 'estado', 'idtipo','autorizado','facturado','proceso_control','cantidad','aplicar_balanceo','faltante','cerrar_orden','pagada',
-                'proceso_sin_lavanderia','proceso_lavanderia','exportacion','lavanderia','id_tipo_producto'], 'integer'],
+                'proceso_sin_lavanderia','proceso_lavanderia','exportacion','lavanderia','id_tipo_producto','aplica_inventario','inventario_exportado'], 'integer'],
             [['fechallegada', 'fechaprocesada', 'fechaentrega'], 'safe'],            
             [['totalorden','ponderacion','porcentaje_proceso','porcentaje_cantidad','segundosficha','duracion','sam_balanceo','sam_preparacion','sam_operativo','porcentaje_exportacion'], 'number'],
             [['valorletras', 'observacion','codigoproducto'], 'string'],
@@ -105,6 +105,7 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             'proceso_lavanderia' => 'proceso_lavanderia',
             'proceso_sin_lavanderia' => 'proceso_sin_lavanderia',
             'id_tipo_producto' => 'Tipo referencia:',
+            'aplica_inventario' => 'Aplica inventario:'
           
         ];
     }
@@ -195,6 +196,16 @@ class Ordenproduccion extends \yii\db\ActiveRecord
             $lavanderiaprenda = "SI";
         }
         return $lavanderiaprenda;
+    }
+    
+     public function getAplicaInventario()
+    {
+        if($this->aplica_inventario == 0){
+            $aplicainventario = "NO";
+        }else{
+            $aplicainventario = "SI";
+        }
+        return $aplicainventario;
     }
         
 }

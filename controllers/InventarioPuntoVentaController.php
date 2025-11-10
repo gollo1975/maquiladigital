@@ -62,25 +62,31 @@ class InventarioPuntoVentaController extends Controller
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',173])->all()){
                 $form = new \app\models\FiltroBusquedaInventarioPunto();
                 $codigo = null;
-                $inventario_inicial = null;
+                $categoria = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
                 $punto_venta = null;
+                $stock = null;
                 $producto = null;
+                $marca = null;
                 $conPunto = \app\models\PuntoVenta::find()->orderBy('predeterminado DESC')->all();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $codigo = Html::encode($form->codigo);
-                        $inventario_inicial = Html::encode($form->inventario_inicial);
+                        $stock = Html::encode($form->stock);
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $producto = Html::encode($form->producto);
                         $punto_venta = Html::encode($form->punto_venta);
+                        $marca = Html::encode($form->marca);
+                        $categoria = Html::encode($form->categoria);
                         $table = InventarioPuntoVenta::find()
                                     ->andFilterWhere(['=', 'codigo_producto', $codigo])
+                                    ->andFilterWhere(['=', 'id_marca', $marca])
+                                    ->andFilterWhere(['=', 'id_categoria', $categoria])
                                     ->andFilterWhere(['between', 'fecha_proceso', $fecha_inicio, $fecha_corte])
                                     ->andFilterWhere(['like', 'nombre_producto', $producto])
-                                    ->andFilterWhere(['=', 'inventario_inicial', $inventario_inicial])
+                                    ->andFilterWhere(['>', 'stock_inventario', $stock])
                                     ->andFilterWhere(['=', 'id_punto', $punto_venta]);
                         $table = $table->orderBy('id_inventario DESC');
                         $tableexcel = $table->all();
@@ -236,7 +242,7 @@ class InventarioPuntoVentaController extends Controller
     public function actionView($id, $token, $codigo)
     {
         
-        $talla_color = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->all();
+        $talla_color = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->orderBy('idtalla DESC')->all();
         $talla_color_cerrado= \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->andWhere(['=','cerrado', 1])->all();
         if($codigo == 0){
             $traslado = \app\models\TrasladoReferenciaPunto::find()->where(['=','id_inventario_saliente', $id])->all();
@@ -288,6 +294,31 @@ class InventarioPuntoVentaController extends Controller
             'talla_color_cerrado' => $talla_color_cerrado,
             'codigo' => $codigo, 
             'traslado' => $traslado,            
+        ]);
+    }
+    
+    //LISTAS DE PRECIOS
+    public function actionLista_precios($id) {
+       $model = $this->findModel($id);
+       $lista_precio = \app\models\PrecioVentaInventario::find()->where(['=','id_inventario', $id])->all();
+       if (Yii::$app->request->post()) {
+            if (isset($_POST["actualizar_precio_venta"])) {
+                if (isset($_POST["listado_precios"])) {
+                     $intIndice = 0;
+                    foreach ($_POST["listado_precios"] as $intCodigo) {
+                        $table = \app\models\PrecioVentaInventario::findOne($intCodigo);
+                        $table->valor_venta = $_POST["precio_venta_publico"][$intIndice];
+                        $table->id_lista  = $_POST["lista_precio"][$intIndice];
+                        $table->save();
+                       $intIndice++;
+                    }
+                    return $this->redirect(['lista_precios','id' => $id]);
+                }
+            } 
+       }    
+       return $this->render('vista_lista_precio', [
+            'model' => $model,
+            'lista_precio' => $lista_precio   
         ]);
     }
     
@@ -440,19 +471,7 @@ class InventarioPuntoVentaController extends Controller
         ]);
     }
 
-    /**
-     * Deletes an existing InventarioPuntoVenta model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
-    }
+    
 
     /**
      * Finds the InventarioPuntoVenta model based on its primary key value.
@@ -523,11 +542,11 @@ class InventarioPuntoVentaController extends Controller
         $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->andWhere(['=','cerrado', 0])->all();
         if($detalle){
             foreach ($detalle as $detalles):
-                if($detalles->cantidad > 0){
+                if($detalles->cantidad > 0 && $detalles->id != null){
                    $detalles->cerrado = 1;
                    $detalles->save ();
                 }else{
-                    Yii::$app->getSession()->setFlash('error', 'Debe de ingresar las cantidades de cada talla y color. Valide de nuevo la información.');
+                    Yii::$app->getSession()->setFlash('error', 'Debe de ingresar las cantidades de cada talla y el color. Valide de nuevo la información.');
                 }
                 
             endforeach;
@@ -704,7 +723,6 @@ class InventarioPuntoVentaController extends Controller
          if (isset($_POST["enviar_datos"])) {
             if(isset($_POST["nueva_orden"])){
                 $intIndice = 0;
-                
                 foreach ($_POST["nueva_orden"] as $intCodigo) {
                     $registro = InventarioPuntoVenta::find()->where(['=','idordenproduccion', $intCodigo])->one();
                     $iva = \app\models\ConfiguracionIva::find()->where(['predeterminado' => 1])->one();
@@ -712,25 +730,30 @@ class InventarioPuntoVentaController extends Controller
                         $orden = \app\models\Ordenproduccion::findOne($intCodigo);
                         $detalle = \app\models\Ordenproducciondetalle::find()->where(['idordenproduccion' => $orden->idordenproduccion])->one();
                         if($orden){
-                            $table = new InventarioPuntoVenta();
-                            $table->codigo_producto = $orden->codigoproducto;
-                            $table->codigo_barra = $orden->codigoproducto;
-                            $table->nombre_producto = $detalle->productodetalle->prendatipo->prenda;
-                            $table->descripcion_producto= $detalle->productodetalle->prendatipo->prenda;
-                            $table->costo_unitario = $detalle->vlrprecio;
-                            $table->idproveedor = 1;
-                            $table->id_punto = 1;
-                            $table->iva_incluido = 1;
-                            $table->aplica_talla_color = 1;
-                            $table->aplica_inventario = 1;
-                            $table->porcentaje_iva = $iva->valor_iva;
-                            $table->fecha_creacion = date('Y-m-d H:i:s');
-                            $table->fecha_proceso = date('Y-m-d');
-                            $table->venta_publico = 1;
-                            $table->idordenproduccion = $intCodigo;
-                            $table->user_name = Yii::$app->user->identity->username;
-                            $table->save(false);
-                            $intIndice++;
+                            $inventario = InventarioPuntoVenta::find()->where(['=','codigo_producto', $orden->codigoproducto])->one();
+                            if(!$inventario){
+                                $table = new InventarioPuntoVenta();
+                                $table->codigo_producto = $orden->codigoproducto;
+                                $table->codigo_barra = $orden->codigoproducto;
+                                $table->nombre_producto = $detalle->productodetalle->prendatipo->prenda;
+                                $table->descripcion_producto= $detalle->productodetalle->prendatipo->prenda;
+                                $table->costo_unitario = $detalle->vlrprecio;
+                                $table->idproveedor = 1;
+                                $table->id_punto = 1;
+                                $table->iva_incluido = 1;
+                                $table->aplica_talla_color = 1;
+                                $table->aplica_inventario = 1;
+                                $table->porcentaje_iva = $iva->valor_iva;
+                                $table->fecha_creacion = date('Y-m-d H:i:s');
+                                $table->fecha_proceso = date('Y-m-d');
+                                $table->venta_publico = 1;
+                                $table->idordenproduccion = $intCodigo;
+                                $table->user_name = Yii::$app->user->identity->username;
+                                $table->save(false);
+                                $intIndice++;
+                            }else{
+                               Yii::$app->getSession()->setFlash('error', 'El codigo del producto: '.$orden->codigoproducto.' Ya esta esta registrado en el sistema. Debe de cargarlo por el detalle.'); 
+                            }   
                         }    
                     }    
                 }
@@ -744,7 +767,160 @@ class InventarioPuntoVentaController extends Controller
             'form' => $form,
         ]);
     }
+    
+    ///DESCARAGAR TALLAS
+    public function actionDescargar_tallas_op($id, $token, $codigo, $idordeproduccion){
+        $orden = \app\models\Ordenproduccion::find()->where([
+                                                    'idordenproduccion' => $idordeproduccion,
+                                                    'inventario_exportado' => 0])->one();
+        if($orden){
+            $detalle_orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordeproduccion])->all();
+            $intIndice = 0;
+            foreach ($detalle_orden as $detalle){
+               $talla_color = \app\models\DetalleColorTalla::find()->where([
+                                                                'id_inventario' => $id,
+                                                                'codigo_producto' => $orden->codigoproducto,
+                                                                'idtalla' => $detalle->productodetalle->prendatipo->talla->idtalla])->one(); 
+                if(!$talla_color){
+                    $table = new \app\models\DetalleColorTalla();
+                    $table->id_inventario = $id;
+                    $table->codigo_producto = $orden->codigoproducto;
+                    $table->idtalla = $detalle->productodetalle->prendatipo->talla->idtalla;
+                    $table->id_punto = 1;
+                    $table->cantidad = $detalle->cantidad;
+                    $table->user_name = Yii::$app->user->identity->username;
+                    $table->fecha_registro = date('Y-m-d H:i:s');
+                    $table->save();
+                    $intIndice++;
+                }    
+            }
+            Yii::$app->getSession()->setFlash('success', 'Se guardaron: '.$intIndice.' registros exitosamente.');
+            return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+            
+        }else{
+          Yii::$app->getSession()->setFlash('error', 'Las tallas de esta referencias ya se exportaron al inventario. Valide la informacion.');
+          return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+        } 
+        
+    }
+    
+    //ELIMNIAR DETALLES
+    public function actionEliminar_linea($id, $token, $codigo, $id_detalle){
+        if (Yii::$app->request->post()) {
+            $talla = \app\models\DetalleColorTalla::findOne($id_detalle);
+            if ((int) $id_detalle) {
+                try {
+                    \app\models\DetalleColorTalla::deleteAll("id_detalle=:id_detalle", [":id_detalle" => $id_detalle]);
+                    Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
+                    return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+                } catch (IntegrityException $e) {
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro');
+                     return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+
+                } catch (\Exception $e) {
+
+                    Yii::$app->getSession()->setFlash('error', 'Error al eliminar este registro');
+                     return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+                }
+            } else {
+                // echo "Ha ocurrido un error al eliminar el registros, redireccionando ...";
+                echo "<meta http-equiv='refresh' content='3; " . Url::toRoute("inventario-punto-venta/index") . "'>";
+            }
+        } else {
+                   
+            return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+        }
+    }
+    
+    //SELECIONAR EL COLOR
+     public function actionSeleccionar_color($id, $token, $codigo, $id_detalle) {
+        $model = new \app\models\ModeloCambiarIva();
+        $colores = \app\models\Color::find()->all();
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()){
+                $table = \app\models\DetalleColorTalla::findOne($id_detalle);
+                $table->id = $model->color;
+                $table->save();
+                return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+               } 
+         }
+        return $this->renderAjax('cambio_color', [
+            'model' => $model,    
+            'colores' => ArrayHelper::map($colores, 'id', 'color'),
+        ]);    
+    }
+    
+    ///CREAR LINEA PARA AGREGAR UN NUEVO COLOR
+    public function actionCrear_linea_color($id, $token, $codigo, $id_detalle) {
+        $linea = \app\models\DetalleColorTalla::findOne($id_detalle);
+        if($linea){
+            $table = new \app\models\DetalleColorTalla();
+            $table->id_inventario = $id;
+            $table->codigo_producto = $linea->codigo_producto;
+            $table->idtalla = $linea->idtalla;
+            $table->id_punto = $linea->id_punto;
+            $table->user_name = Yii::$app->user->identity->username;
+            $table->fecha_registro = date('Y-m-d H:i:s');
+            $table->save();
+        }
+        return $this->redirect(['view','id' => $id, 'token' => $token, 'codigo' => $codigo]);
+        
+    }
+    
+    ////PERMITE CREAR EL COSTO DEL PRODUCTO
+     public function actionNuevo_costo_producto($id) {
+        $model = new \app\models\FormModeloAsignarPrecioVenta();
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+                if (isset($_POST["crear_precio"])) {
+                    if($model->nuevo_precio > 0){
+                        $table = InventarioPuntoVenta::findOne($id);
+                        $table->costo_unitario = $model->nuevo_precio;
+                        $table->save(false);
+                        return $this->redirect(["index"]);
+                    }else{
+                        Yii::$app->getSession()->setFlash('warning', 'No se asignó ningun valor de costo. Ingrese nuevamente.'); 
+                        return $this->redirect(["index"]);
+                    }    
+                }    
+            }else{
+                $model->getErrors();
+            }    
+        }
+        return $this->renderAjax('new_costo_producto', [
+            'model' => $model,
+            'id' => $id,
+        ]);
+    }    
       
+    //PROCESO QUE CREA EL NUEVO PRECIO
+    public function actionNuevo_precio_venta($id) {
+        $model = new \app\models\FormModeloAsignarPrecioVenta();
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+                if (isset($_POST["crear_precio"])) {
+                    if($model->nuevo_precio > 0){
+                        $table = new \app\models\PrecioVentaInventario();
+                        $table->id_inventario = $id;
+                        $table->valor_venta = $model->nuevo_precio;
+                        $table->user_name = Yii::$app->user->identity->username;
+                        $table->save(false);
+                        $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id]);
+                    }else{
+                        Yii::$app->getSession()->setFlash('warning', 'No se asignó ningun precio de venta a público. Ingrese nuevamente.'); 
+                        $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id]);
+                    }    
+                }    
+            }else{
+                $model->getErrors();
+            }    
+        }
+        return $this->renderAjax('new_precio_venta', [
+            'model' => $model,
+            'id' => $id,
+        ]);
+    }    
+    
     //EXCELES
     public function actionExcelInventarioPuntoVenta($tableexcel) {                
         $objPHPExcel = new \PHPExcel();

@@ -15,8 +15,10 @@ use kartik\select2\Select2;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
 //Modelos...
-$this->title = 'INVENTARIO (GENERAL)';
+$this->title = 'INVENTARIO GENERAL';
 $this->params['breadcrumbs'][] = $this->title;
+$marca = ArrayHelper::map(\app\models\Marca::find()->orderBy('marca ASC')->all(), 'id_marca', 'marca');
+$categoria = ArrayHelper::map(\app\models\Categoria::find()->orderBy('categoria ASC')->all(), 'id_categoria', 'categoria');
 
 ?>
 <script language="JavaScript">
@@ -73,7 +75,21 @@ $this->params['breadcrumbs'][] = $this->title;
                     'allowClear' => true
                 ],
             ]); ?> 
-            <?= $formulario->field($form, 'inventario_inicial')->dropdownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione...']) ?>
+            <?= $formulario->field($form, 'marca')->widget(Select2::classname(), [
+                'data' => $marca,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?> 
+            <?= $formulario->field($form, 'categoria')->widget(Select2::classname(), [
+                'data' => $categoria,
+                'options' => ['prompt' => 'Seleccione...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]); ?> 
+            <?= $formulario->field($form, 'stock')->dropdownList(['1' => 'STOCK'], ['prompt' => 'Seleccione...']) ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -103,10 +119,11 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Proveedor</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Marca</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Categoria</th>
-                <th scope="col" style='background-color:#B9D5CE;'>F. proceso</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Entradas</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Stock</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th score="col" style='background-color:#B9D5CE;'></th>  
+                <th score="col" style='background-color:#B9D5CE;'></th>  
                 <th score="col" style='background-color:#B9D5CE;'></th>  
                          
             </tr>
@@ -178,7 +195,6 @@ $form = ActiveForm::begin([
                     <td><?= $val->proveedor->nombrecorto?></td>
                     <td><?= $val->marca->marca ?? 'NO FOUNT'?></td>
                     <td><?= $val->categoria->categoria ?? 'NO FOUNT'?></td>
-                    <td><?= $val->fecha_proceso?></td>
                     <td style="text-align: right;"><?= ''.number_format($val->stock_unidades,0)?></td>
                     <td style="text-align: right; background-color:#CBDDE3; color: black"><?= ''.number_format($val->stock_inventario,0)?></td>
                     <td style= 'width: 25px; height: 10px;'>
@@ -187,6 +203,25 @@ $form = ActiveForm::begin([
                     <?php if($val->stock_unidades ==  $val->stock_inventario){?>
                         <td style= 'width: 25px; height: 10px;'>
                                <a href="<?= Url::toRoute(["inventario-punto-venta/update", "id" => $val->id_inventario]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
+                               <td style= 'width: 25px;'>	
+                        <?= Html::a('<span class="glyphicon glyphicon-list"></span>',
+                            ['/inventario-punto-venta/nuevo_costo_producto','id' => $val->id_inventario],
+                            [
+                                'title' => 'Crear nuevo precio de costo',
+                                'data-toggle'=>'modal',
+                                'data-target'=>'#modalnuevocostoproducto'.$val->id_inventario,
+                               
+                            ])    
+                        ?>
+                        <div class="modal remote fade" id="modalnuevocostoproducto<?= $val->id_inventario ?>" data-backdrop="static">
+                          <div class="modal-dialog modal-lg" style ="width: 500px;" >
+                               <div class="modal-content"></div>
+                          </div>
+                        </div>
+                        <td style= 'width: 25px; height: 10px;'>
+                             <a href="<?= Url::toRoute(["inventario-punto-venta/lista_precios", "id" => $val->id_inventario,]) ?>" ><span class="glyphicon glyphicon-usd" title="Permite crear las listas de precios."></span></a>
+                        </td> 
+                    </td>    
                         </td>
                     <?php }else{?>
                         <td style= 'width: 25px; height: 10px;'></td>

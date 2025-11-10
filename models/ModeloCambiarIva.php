@@ -13,6 +13,7 @@ class ModeloCambiarIva extends Model
    
     public $nuevo_iva;
     public $tipocomprobante;
+    public $color;
 
 
 
@@ -20,6 +21,7 @@ class ModeloCambiarIva extends Model
     {
         return [            
             [['nuevo_iva','tipocomprobante'], 'number'],
+            [['color'], 'integer'],
           
         ];
     }
@@ -29,7 +31,7 @@ class ModeloCambiarIva extends Model
         return [   
             'nuevo_iva' => 'Nuevo impuesto:',
             'tipocomprobante' => 'Tipo documento soporte:',
-            
+            'color' => 'Nuevo color:'
         ];
     }
     

@@ -39,6 +39,7 @@ $porcentaje = ArrayHelper::map(ConfiguracionIva::find()->orderBy ('valor_iva DES
 $provedor = ArrayHelper::map(Proveedor::find()->orderBy('nombrecorto ASC')->all(), 'idproveedor', 'nombrecorto');
 $marca = ArrayHelper::map(Marca::find()->orderBy('marca ASC')->all(), 'id_marca', 'marca');
 $categoria = ArrayHelper::map(Categoria::find()->orderBy('categoria ASC')->all(), 'id_categoria', 'categoria');
+$conInventario = \app\models\ConfiguracionInventario::findOne(1);
 ?>
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -75,24 +76,12 @@ $categoria = ArrayHelper::map(Categoria::find()->orderBy('categoria ASC')->all()
             <?= $form->field($model, 'costo_unitario')->textInput(['maxlength' => true]) ?>
             <?= $form->field($model, 'venta_publico')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>  
-        <div class="row">
-            <?php if($sw == 1){?>
-                <?= $form->field($model, 'aplica_talla_color')->dropDownList(['0' => 'NO', '1' => 'SI'],['onchange' => 'validartalla()', 'id' => 'aplica_talla_color'])?>
-                <div id="stock_unidades" style="display:block"><?= $form->field($model, 'stock_unidades')->textInput(['maxlength' => true]) ?></div>
-            <?php }else{?> 
-                <?= $form->field($model, 'aplica_talla_color')->dropDownList(['0' => 'NO', '1' => 'SI'],['onchange' => 'validartallacolor()', 'id' => 'aplica_talla_color'])?>
-                <div id="stock_unidades" style="display:block"><?= $form->field($model, 'stock_unidades')->textInput(['maxlength' => true]) ?></div>
-            <?php }?>
-        </div>
-        <div class="row">
-            <?php if($sw == 1){?>
-                 <?= $form->field($model, 'iva_incluido')->dropDownList(['0' => 'NO', '1' => 'SI'],['onchange' => 'validar()', 'id' => 'iva_incluido'])?>
-                 <div id="porcentaje_iva" style="display:block"> <?= $form->field($model, 'porcentaje_iva')->dropDownList($porcentaje, ['prompt' => 'Seleccione...']) ?></div>
-            <?php }else{?>
-                <?= $form->field($model, 'iva_incluido')->dropDownList(['0' => 'NO', '1' => 'SI'],['onchange' => 'mostrarcampo()', 'id' => 'iva_incluido'])?>
-                <div id="porcentaje_iva" style="display:none"> <?= $form->field($model, 'porcentaje_iva')->dropDownList($porcentaje, ['prompt' => 'Seleccione...']) ?></div>
-             <?php }?>
-        </div>        
+        <?php if($conInventario->aplica_solo_inventario == 1){?>
+            <div class="row">
+                <div><?= $form->field($model, 'stock_unidades')->textInput(['maxlength' => true]) ?></div>
+            </div>
+        <?php }?>
+           
         <div class="row">
 
             <?= $form->field($model, 'inventario_inicial')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>

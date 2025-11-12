@@ -111,4 +111,9 @@ class DetalleColorTalla extends \yii\db\ActiveRecord
         
         return $cerradodetalle;
     }
+    
+     public function getTallas()
+    {
+        return " Talla: {$this->talla->talla}";
+    }
 }

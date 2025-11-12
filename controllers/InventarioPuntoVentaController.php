@@ -301,6 +301,7 @@ class InventarioPuntoVentaController extends Controller
     public function actionLista_precios($id) {
        $model = $this->findModel($id);
        $lista_precio = \app\models\PrecioVentaInventario::find()->where(['=','id_inventario', $id])->all();
+       $descuentos = \app\models\ReglaDescuentoComercial::find()->where(['=','id_inventario', $id])->all();
        if (Yii::$app->request->post()) {
             if (isset($_POST["actualizar_precio_venta"])) {
                 if (isset($_POST["listado_precios"])) {
@@ -309,6 +310,7 @@ class InventarioPuntoVentaController extends Controller
                         $table = \app\models\PrecioVentaInventario::findOne($intCodigo);
                         $table->valor_venta = $_POST["precio_venta_publico"][$intIndice];
                         $table->id_lista  = $_POST["lista_precio"][$intIndice];
+                         $table->predeterminado  = $_POST["predeterminado"][$intIndice];
                         $table->save();
                        $intIndice++;
                     }
@@ -318,7 +320,8 @@ class InventarioPuntoVentaController extends Controller
        }    
        return $this->render('vista_lista_precio', [
             'model' => $model,
-            'lista_precio' => $lista_precio   
+            'lista_precio' => $lista_precio,   
+            'descuentos' => $descuentos
         ]);
     }
     
@@ -372,22 +375,31 @@ class InventarioPuntoVentaController extends Controller
             if($conDato){
                  Yii::$app->getSession()->setFlash('info', 'El codigo ('. $model->codigo_producto. ') ya esta codificado en el sistema. Valide la informacion.');
             }else{
-                if($model->aplica_talla_color == 0 ){
-                    if ($model->stock_unidades > 0){
-                        $model->save() ;
-                        $model->user_name = Yii::$app->user->identity->username;
-                        $model->codigo_barra = $model->codigo_producto;
-                        $model->id_punto = 1;
-                        $model->stock_unidades = $model->stock_unidades;
-                        $model->stock_inventario = $model->stock_unidades;
-                        $model->fecha_creacion = date('Y-m-d H:i:s');
-                        $model->save();
-                        $id = $model->id_inventario;
-                        return $this->redirect(['index']);
+                $conInventario = \app\models\ConfiguracionInventario::findOne(1);
+                $conIva = \app\models\ConfiguracionIva::find()->where(['=','predeterminado', 1])->one();
+                if($conInventario->aplica_solo_inventario == 1 ){
+                    $model->save() ;
+                    $model->user_name = Yii::$app->user->identity->username;
+                    $model->codigo_barra = $model->codigo_producto;
+                    $model->id_punto = 1;
+                    $model->stock_unidades = $model->stock_unidades;
+                    $model->stock_inventario = $model->stock_unidades;
+                    $model->fecha_creacion = date('Y-m-d H:i:s');
+                   
+                    if($conInventario->aplica_iva_incluido == 0){
+                        $model->iva_incluido = 0;
+                        $model->porcentaje_iva = $conIva->valor_iva;
                     }else{
-                        Yii::$app->getSession()->setFlash('error', 'Debe de ingresar las unidades al inventario.');
-                    } 
-               }else{
+                        $model->iva_incluido = 1;
+                        $model->porcentaje_iva = $conIva->valor_iva;
+                    }
+                    $model->fecha_creacion = date('Y-m-d H:i:s');
+                    $model->save();
+                    $id = $model->id_inventario;
+                    return $this->redirect(['index']);
+                   
+                } 
+                if($conInventario->aplica_inventario_talla_color == 1 ||  $conInventario->aplica_inventario_tallas == 1){
                     $model->save();
                     $id = $model->id_inventario;
                     $model->user_name = Yii::$app->user->identity->username;
@@ -395,9 +407,19 @@ class InventarioPuntoVentaController extends Controller
                     $model->id_punto = 1;
                     $model->stock_unidades = 0;
                     $model->stock_inventario = 0;
+                    $model->aplica_talla_color = 1;
+                    if($conInventario->aplica_iva_incluido == 0){
+                        $model->iva_incluido = 0;
+                        $model->porcentaje_iva = $conIva->valor_iva;
+                    }else{
+                        $model->iva_incluido = 1;
+                        $model->porcentaje_iva = $conIva->valor_iva;
+                    }
+                    $model->fecha_creacion = date('Y-m-d H:i:s');
                     $model->save();
                     return $this->redirect(['index']);
-               }    
+                }    
+                   
             }
         }   
 
@@ -422,7 +444,8 @@ class InventarioPuntoVentaController extends Controller
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            if($model->aplica_talla_color == 0 ){
+             $conInventario = \app\models\ConfiguracionInventario::findOne(1);
+            if($conInventario->aplica_solo_inventario == 1 ){
                 if ($model->stock_unidades > 0){
                     if($model->codigo_enlace_bodega > 0){
                         $table = InventarioPuntoVenta::findOne($model->codigo_enlace_bodega);
@@ -432,6 +455,7 @@ class InventarioPuntoVentaController extends Controller
                             $model->codigo_barra = $model->codigo_producto;
                             $model->stock_unidades = $model->stock_unidades;
                             $model->stock_inventario = $model->stock_unidades;
+                            $model->aplica_talla_color = 0;
                             $model->save();
                             $table->stock_inventario -= $model->stock_unidades;
                             $table->save();
@@ -442,19 +466,19 @@ class InventarioPuntoVentaController extends Controller
                         }
                     }else{
                         $model->save() ;
-                        $model->user_name = Yii::$app->user->identity->username;
                         $model->stock_unidades = $model->stock_unidades;
                         $model->stock_inventario = $model->stock_unidades;
+                         $model->aplica_talla_color = 0;
                         $model->save();
-                         return $this->redirect(['index']); 
+                        return $this->redirect(['index']); 
                     }
                     
                 }else{
                     Yii::$app->getSession()->setFlash('error', 'Debe de ingresar las unidades al inventario.');
                 } 
-            }else{
+            }
+            if($conInventario->aplica_inventario_talla_color == 1 ||  $conInventario->aplica_inventario_tallas == 1){
                     $model->save();
-                    $model->user_name = Yii::$app->user->identity->username;
                     $model->codigo_barra = $model->codigo_producto;
                     $model->id_punto = 1;
                     $model->stock_unidades = 0;
@@ -470,7 +494,78 @@ class InventarioPuntoVentaController extends Controller
             
         ]);
     }
-
+    
+    //CREAR DESCUENTO COMERCIAL
+    public function actionCrear_regla_comercial($id, $sw = 0) {
+        $model = new \app\models\ModeloEditarReglaDescuento();
+        $inventario = InventarioPuntoVenta::findOne($id);
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+                if (isset($_POST["regla_distribuidor"])) {
+                    $table = new \app\models\ReglaDescuentoComercial();
+                    $table->id_inventario = $id;
+                    $table->fecha_inicio =  $model->fecha_inicio;
+                    $table->fecha_final = $model->fecha_final;
+                    $table->nuevo_valor = $model->nuevo_valor;
+                    $table->tipo_descuento = $model->tipo_descuento;
+                    $table->user_name = Yii::$app->user->identity->username;
+                    $table->fecha_registro = date('Y-m-d H:i:s');
+                    $table->save(false);
+                    $inventario->aplica_descuento_distribuidor = 1;
+                    $inventario->save();
+                    $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id]);
+                }
+            }else{
+                $model->getErrors();
+            }    
+        }
+        return $this->renderAjax('_form_editar_descuento', [
+            'model' => $model,
+            'id' => $id,
+            'sw' => $sw,
+        ]);
+    }
+    
+    //EDITAR LA REGLA COMERCIAL DE DESCUENTO PARA DISTRIBUIDORES
+    public function actionEditar_regla_comercial($id, $sw = 1) {
+        $model = new \app\models\ModeloEditarReglaDescuento();
+        $table = InventarioPuntoVenta::findOne($id);
+        $regla = \app\models\ReglaDescuentoComercial::find()->where(['=','id_inventario', $id])->one();
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+                if (isset($_POST["regla_distribuidor"])) {
+                   $regla->fecha_inicio =  $model->fecha_inicio;
+                   $regla->fecha_final = $model->fecha_final;
+                   $regla->nuevo_valor = $model->nuevo_valor;
+                   $regla->tipo_descuento = $model->tipo_descuento;
+                   $regla->estado_regla = $model->estado;
+                   $regla->save(false);
+                   if($model->estado == 1){
+                        $table->aplica_descuento_distribuidor = 0;
+                        $table->save();
+                    }else{
+                        $table->aplica_descuento_distribuidor = 1;
+                        $table->save();
+                    }     
+                   $this->redirect(["inventario-punto-venta/lista_precios",'id' => $id]);
+                }
+            }else{
+                $model->getErrors();
+            }    
+        }
+        if (Yii::$app->request->get()) {
+            $model->fecha_inicio = $regla->fecha_inicio;
+            $model->fecha_final = $regla->fecha_final;
+            $model->nuevo_valor = $regla->nuevo_valor;
+            $model->tipo_descuento = $regla->tipo_descuento;
+            $model->estado = $regla->estado_regla;
+        }
+        return $this->renderAjax('_form_editar_descuento', [
+            'model' => $model,
+            'id' => $id,
+            'sw' => $sw,
+        ]);
+    }
     
 
     /**
@@ -547,13 +642,14 @@ class InventarioPuntoVentaController extends Controller
                    $detalles->save ();
                 }else{
                     Yii::$app->getSession()->setFlash('error', 'Debe de ingresar las cantidades de cada talla y el color. Valide de nuevo la información.');
+                    return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
                 }
                 
             endforeach;
-           return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
+            return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
         }else{
             Yii::$app->getSession()->setFlash('warning', 'Este proceso ya esta cerrado para las tallas y colores.');
-            $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
+            return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
         }    
         
     }
@@ -726,6 +822,7 @@ class InventarioPuntoVentaController extends Controller
                 foreach ($_POST["nueva_orden"] as $intCodigo) {
                     $registro = InventarioPuntoVenta::find()->where(['=','idordenproduccion', $intCodigo])->one();
                     $iva = \app\models\ConfiguracionIva::find()->where(['predeterminado' => 1])->one();
+                    $conInventario = \app\models\ConfiguracionInventario::findOne(1);
                     if(!$registro){
                         $orden = \app\models\Ordenproduccion::findOne($intCodigo);
                         $detalle = \app\models\Ordenproducciondetalle::find()->where(['idordenproduccion' => $orden->idordenproduccion])->one();
@@ -740,8 +837,18 @@ class InventarioPuntoVentaController extends Controller
                                 $table->costo_unitario = $detalle->vlrprecio;
                                 $table->idproveedor = 1;
                                 $table->id_punto = 1;
-                                $table->iva_incluido = 1;
-                                $table->aplica_talla_color = 1;
+                                if($conInventario->aplica_iva_incluido == 1){
+                                    $table->iva_incluido = 1;
+                                }else{
+                                    $table->iva_incluido = 0;
+                                }
+                                if($conInventario->aplica_inventario_talla_color == 1 || $conInventario->aplica_inventario_tallas == 1){
+                                    $table->aplica_talla_color = 1;
+                                }else{
+                                    $table->aplica_talla_color = 0;
+                                    $table->stock_inventario = $orden->cantidad;
+                                    $table->stock_unidades = $orden->cantidad;
+                                }
                                 $table->aplica_inventario = 1;
                                 $table->porcentaje_iva = $iva->valor_iva;
                                 $table->fecha_creacion = date('Y-m-d H:i:s');

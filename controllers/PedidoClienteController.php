@@ -635,7 +635,6 @@ class PedidoClienteController extends Controller
     }
     
     //PERMITE EXPORTAR LAS TALLAS
-      //PERMITE EXPORTAR A EXCEL EL PRESUPUESTO DE CADA PEDIDO 
     public function actionExcel_tallas_pedido($id, $token, $id_referencia) {   
         $objPHPExcel = new \PHPExcel();
         $detalle_tallas = \app\models\PedidoClienteTalla::find()->where(['=','id_referencia', $id_referencia])->all();

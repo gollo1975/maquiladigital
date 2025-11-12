@@ -32,7 +32,7 @@ class PrecioVentaInventario extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_lista', 'id_inventario', 'valor_venta'], 'integer'],
+            [['id_lista', 'id_inventario', 'valor_venta','predeterminado'], 'integer'],
             [['valor_venta'], 'required'],
             [['user_name'], 'string', 'max' => 15],
             [['id_lista'], 'exist', 'skipOnError' => true, 'targetClass' => ListaPrecios::className(), 'targetAttribute' => ['id_lista' => 'id_lista']],
@@ -51,6 +51,7 @@ class PrecioVentaInventario extends \yii\db\ActiveRecord
             'id_inventario' => 'Id Inventario',
             'valor_venta' => 'Valor Venta',
             'user_name' => 'User Name',
+            'predeterminado' => 'predeterminado'
         ];
     }
 

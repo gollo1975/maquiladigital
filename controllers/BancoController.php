@@ -80,7 +80,7 @@ class BancoController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $empresa = Matriculaempresa::find(1)->one();
             $model->nitmatricula = $empresa->nitmatricula;
-            $model->update();
+            $model->save();
             return $this->redirect(['index']);
         }
 

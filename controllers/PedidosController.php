@@ -53,16 +53,29 @@ class PedidosController extends Controller
                 $cliente = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
+                $vendedor = null;
+                $TokenAcceso = Yii::$app->user->identity->id_agente;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $numero = Html::encode($form->numero);
                         $cliente = Html::encode($form->cliente);
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
-                        $table = Pedidos::find()
+                        $vendedor = Html::encode($form->vendedor);
+                         if($TokenAcceso){
+                            $table = Pedidos::find()
                                 ->andFilterWhere(['=', 'numero_pedido', $numero])
                                 ->andFilterWhere(['=', 'idcliente', $cliente])
+                                ->andFilterWhere(['between', 'fecha_pedido', $fecha_inicio, $fecha_corte])
+                                ->andWhere(['=', 'id_agente', $TokenAcceso]); 
+                         }else{
+                             $table = Pedidos::find()
+                                ->andFilterWhere(['=', 'numero_pedido', $numero])
+                                ->andFilterWhere(['=', 'idcliente', $cliente])
+                                 ->andFilterWhere(['=', 'id_agente', $vendedor])     
                                 ->andFilterWhere(['between', 'fecha_pedido', $fecha_inicio, $fecha_corte]);
+                         }
+                        
                         $table = $table->orderBy('id_pedido DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -83,8 +96,14 @@ class PedidosController extends Controller
                         $form->getErrors();
                     }
                 } else {
-                    $table = Pedidos::find()
-                             ->orderBy('id_pedido DESC');
+                   
+                    if($TokenAcceso){
+                        $table = Pedidos::find()->where(['id_agente' => $TokenAcceso])
+                                 ->orderBy('id_pedido DESC');
+                    }else{
+                        $table = Pedidos::find()->orderBy('id_pedido DESC');
+                    }    
+                        
                     $tableexcel = $table->all();
                     $count = clone $table;
                     $pages = new Pagination([
@@ -105,6 +124,7 @@ class PedidosController extends Controller
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'TokenAcceso' => $TokenAcceso,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -228,17 +248,21 @@ class PedidosController extends Controller
     public function actionCreate()
     {
         $model = new Pedidos();
-
+        $TokenAcceso = Yii::$app->user->identity->id_agente;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->user_name = Yii::$app->user->identity->username;
             $model->fecha_pedido = date('Y-m-d');
             $model->fecha_proceso = date('Y-m-d H:i:s');
+            if($TokenAcceso){
+                $model->id_agente = $TokenAcceso;
+            }
             $model->save();
             return $this->redirect(['view', 'id' => $model->id_pedido]);
         }
-
+        
         return $this->render('create', [
             'model' => $model,
+            'TokenAcceso' => $TokenAcceso,
         ]);
     }
 

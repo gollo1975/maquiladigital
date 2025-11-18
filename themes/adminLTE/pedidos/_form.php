@@ -9,7 +9,12 @@ use kartik\select2\Select2;
 use kartik\date\DatePicker;
 ?>
 <?php
-$conCliente = ArrayHelper::map(Cliente::find()->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombrecorto');
+if($TokenAcceso){
+    $conCliente = ArrayHelper::map(Cliente::find()->where(['id_agente' => $TokenAcceso])->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombrecorto');
+} else {
+   $conCliente = ArrayHelper::map(Cliente::find()->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombrecorto'); 
+}
+
 $form = ActiveForm::begin([
             "method" => "post",
             'id' => 'formulario',

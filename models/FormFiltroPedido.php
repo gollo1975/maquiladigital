@@ -18,6 +18,7 @@ class FormFiltroPedido extends Model
     public $fecha_corte;
     public $pedido;
     public $codigo;
+    public $vendedor;
 
     /**
      * {@inheritdoc}
@@ -25,7 +26,7 @@ class FormFiltroPedido extends Model
     public function rules()
     {
         return [
-            [['numero', 'cliente','pedido','codigo'], 'integer'],
+            [['numero', 'cliente','pedido','codigo','vendedor'], 'integer'],
             [['fecha_inicio', 'fecha_corte'],'safe'],
             [['referencia'],'string'],
         ];
@@ -43,7 +44,8 @@ class FormFiltroPedido extends Model
             'fecha_corte' => 'Fecha corte:',
             'pedido' => 'Numero pedido:',
             'codigo' => 'Codigo de referencia:',
-            'referencia' => 'Referencia del producto:'
+            'referencia' => 'Referencia del producto:',
+            'vendedor' => 'Agente comercial:'
            
         ];
     }

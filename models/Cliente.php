@@ -79,6 +79,13 @@ class Cliente extends \yii\db\ActiveRecord
     {
         return $this->hasOne(TipoDocumento::className(), ['id_tipo_documento' => 'id_tipo_documento']);
     }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAgente()
+    {
+        return $this->hasOne(AgentesComerciales::className(), ['id_agente' => 'id_agente']);
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -111,6 +118,8 @@ class Cliente extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Ordenproduccion::className(), ['idcliente' => 'idcliente']);
     }
+    
+    
 
     /**
      * @return \yii\db\ActiveQuery

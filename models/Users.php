@@ -31,6 +31,7 @@ class Users extends \yii\db\ActiveRecord{
             'activo' => 'Estado',
             'fechaproceso' => 'Fecha Creación',   
             'id_planta' => 'Nombre planta:',
+            'id_agente' => ' Vendedor:'
         ];
     }
     

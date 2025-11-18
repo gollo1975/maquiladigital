@@ -19,12 +19,13 @@ class FormRegister extends model{
     public $activo;
     public $password_repeat;
     public $id_planta;
+    public $id_agente;
 
     public function rules()
     {
         return [
             [['username', 'emailusuario', 'password', 'password_repeat','nombrecompleto','role','documentousuario'], 'required', 'message' => 'Campo requerido'],
-            [['id_planta'], 'integer'],
+            [['id_planta','id_agente'], 'integer'],
             ['username', 'match', 'pattern' => "/^.{3,50}$/", 'message' => 'Mínimo 3 y máximo 30 caracteres'],
             ['username', 'match', 'pattern' => "/^[0-9a-z]+$/i", 'message' => 'Sólo se aceptan letras y números'],
             ['username', 'usuario_existe'],
@@ -51,6 +52,7 @@ class FormRegister extends model{
             'password' => 'Clave:',
             'password_repeat' => 'Confirmar Clave:',
             'id_planta' => 'Nombre planta:',
+            'id_agente' => 'Vendedores:'
         ];
     }
 

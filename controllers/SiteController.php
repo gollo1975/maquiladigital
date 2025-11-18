@@ -284,9 +284,10 @@ class SiteController extends Controller {
                 $table->accessToken = $this->randKey("abcdef0123456789", 200);
                 $table->activo = 1;
                 $table->id_planta = $model->id_planta;
+                 $table->id_agente = $model->id_agente;
 
                 //Si el registro es guardado correctamente
-                if ($table->insert()) {
+                if ($table->save()) {
                     $msg = "Registro realizado correctamente";
                     return $this->redirect(['users']);
                 } else {
@@ -319,7 +320,8 @@ class SiteController extends Controller {
                     $table->emailusuario = $model->emailusuario;
                     $table->activo = $model->activo;
                     $table->id_planta = $model->id_planta;
-                    if ($table->update()) {
+                    $table->id_agente = $model->id_agente;
+                    if ($table->save()) {
                         $msg = "El registro ha sido actualizado correctamente";
                         return $this->redirect(["site/users"]);
                     } else {
@@ -345,6 +347,7 @@ class SiteController extends Controller {
                 $model->emailusuario = $table->emailusuario;
                 $model->activo = $table->activo;
                 $model->id_planta = $table->id_planta;
+                 $model->id_agente = $table->id_agente;
             } else {
                 return $this->redirect(["site/users"]);
             }

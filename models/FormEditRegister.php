@@ -15,12 +15,13 @@ class FormEditRegister extends model{
     public $emailusuario;    
     public $activo;    
     public $id_planta;
+    public $id_agente;
 
     public function rules()
     {
         return [
             [['username', 'emailusuario', 'nombrecompleto','role','documentousuario','activo'], 'required', 'message' => 'Campo requerido'],
-            ['id_planta', 'integer'],
+            [['id_planta','id_agente'], 'integer'],
             ['username', 'match', 'pattern' => "/^.{3,50}$/", 'message' => 'Mínimo 3 y máximo 30 caracteres'],
             ['username', 'match', 'pattern' => "/^[0-9a-z]+$/i", 'message' => 'Sólo se aceptan letras y números'],
             ['username', 'usuario_existe'],
@@ -44,6 +45,7 @@ class FormEditRegister extends model{
             'emailusuario' => 'Email:',
             'activo' => 'Estado:',
             'id_planta' => 'Nombre planta:',
+            'id_agente' => 'Vendedores:'
         ];
     }
 

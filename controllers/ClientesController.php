@@ -132,6 +132,7 @@ class ClientesController extends Controller {
                 $table->minuto_terminacion = $model->minuto_terminacion;
                 $table->proceso = $model->proceso;
                 $table->dv = $dv;
+                $table->id_agente = $model->id_agente;
                 if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9 || $model->id_tipo_documento == 4) {
                     $table->nombrecorto = $model->nombrecliente . " " . $model->apellidocliente;
                     $model->razonsocial = null;
@@ -193,6 +194,7 @@ class ClientesController extends Controller {
                     $table->minuto_confeccion = $model->minuto_confeccion;
                     $table->minuto_terminacion = $model->minuto_terminacion;
                     $table->proceso = $model->proceso;
+                    $table->id_agente = $model->id_agente;
                     $table->dv = $dv;
                     if ($model->id_tipo_documento == 1 || $model->id_tipo_documento == 2 || $model->id_tipo_documento == 9 || $model->id_tipo_documento == 4) {
                         $table->nombrecorto = strtoupper($model->nombrecliente . " " . $model->apellidocliente);
@@ -250,6 +252,7 @@ class ClientesController extends Controller {
                 $model->minuto_confeccion = $table->minuto_confeccion;
                 $model->minuto_terminacion = $table->minuto_terminacion;
                 $model->proceso = $table->proceso;
+                $model->id_agente = $table->id_agente;
             } else {
                 return $this->redirect(["clientes/index"]);
             }

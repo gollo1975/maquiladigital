@@ -37,8 +37,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
 
 ]);
+$ConVendedor = ArrayHelper::map(app\models\AgentesComerciales::find()->orderBy('nombre_completo ASC')->all(), 'id_agente', 'nombre_completo');
+if($TokenAcceso){
+    $ConCliente = ArrayHelper::map(app\models\Cliente::find()->where(['id_agente' => $TokenAcceso])->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombrecorto');
+}else{
+    $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombrecorto');
+}
 
-$ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto ASC')->all(), 'idcliente', 'nombrecorto');
 ?>
 
 <div class="panel panel-success panel-filters">
@@ -48,14 +53,32 @@ $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
 	
     <div class="panel-body" id="filtro" style="display:none">
         <div class="row" >
-            <?= $formulario->field($form, "numero")->input("search") ?>
-             <?= $formulario->field($form, 'cliente')->widget(Select2::classname(), [
-                'data' => $ConCliente,
-                'options' => ['prompt' => 'Seleccione...'],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
+           <?php if($TokenAcceso){?>
+                <?= $formulario->field($form, 'cliente')->widget(Select2::classname(), [
+                     'data' => $ConCliente,
+                     'options' => ['prompt' => 'Seleccione...'],
+                     'pluginOptions' => [
+                         'allowClear' => true
+                     ],
+                 ]); ?>
+           <?php }else{?>
+                <?= $formulario->field($form, 'cliente')->widget(Select2::classname(), [
+                     'data' => $ConCliente,
+                     'options' => ['prompt' => 'Seleccione...'],
+                     'pluginOptions' => [
+                         'allowClear' => true
+                     ],
+                 ]); ?>
+                <?= $formulario->field($form, 'vendedor')->widget(Select2::classname(), [
+                    'data' => $ConVendedor,
+                    'options' => ['prompt' => 'Seleccione...'],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                  ]);
+                ?>
+           <?php }?> 
+            
             <?=  $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                            'value' => date('Y-m-d', strtotime('+2 days')),
                            'options' => ['placeholder' => 'Seleccione una fecha ...'],
@@ -72,6 +95,7 @@ $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
                            'todayHighlight' => true,
                            'orientation' => 'bottom']])
             ?>
+             <?= $formulario->field($form, "numero")->input("search") ?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
@@ -97,6 +121,9 @@ $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
                 <th scope="col" style='background-color:#B9D5CE;'>Numero</th>
                  <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
+                <?php if(!$TokenAcceso){ ?>
+                    <th scope="col" style='background-color:#B9D5CE;'>Vendedor</th> 
+                <?php }?>    
                 <th scope="col" style='background-color:#B9D5CE;'>F. pedido</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. entrega</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -112,13 +139,16 @@ $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
                     <td><?= $val->numero_pedido ?></td>
                      <td><?= $val->cliente->cedulanit ?></td>
                     <td><?= $val->cliente->nombrecorto ?></td>
+                    <?php if(!$TokenAcceso){ ?>
+                        <td><?= $val->cliente->agente->nombre_completo ?? 'NOT FOUND'?></td>
+                    <?php }?>
                     <td><?= $val->fecha_pedido ?></td>
                      <td><?= $val->fecha_entrega ?></td>
                    
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["pedidos/view", "id" => $val->id_pedido]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <?php if(!\app\models\PedidoClienteReferencias::find()->where(['=','id_pedido', $val->id_pedido])->one()){?>
+                    <?php if(!\app\models\PedidosDetalle::find()->where(['=','id_pedido', $val->id_pedido])->one()){?>
                         <td style= 'width: 25px; height: 25px;'>
                                 <a href="<?= Url::toRoute(["pedidos/update", "id" => $val->id_pedido ]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
                         </td>
@@ -130,8 +160,8 @@ $ConCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
             <?php endforeach; ?>
         </table>    
         <div class="panel-footer text-right" >            
-            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar a excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
-            <a align="right" href="<?= Url::toRoute("pedidos/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-xs ']); ?>                
+            <a align="right" href="<?= Url::toRoute("pedidos/create") ?>" class="btn btn-success btn-xs"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
         </div>
       <?php $form->end() ?>
     </div>

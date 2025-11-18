@@ -476,6 +476,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'url' => '#',
                                                 'items' => [
                                                     ['label' => 'Bodegas', 'icon' => 'plus-square-o', 'url' => ['/punto-venta/index']],
+                                                    ['label' => 'Vendedores', 'icon' => 'plus-square-o', 'url' => ['/agentes-comerciales/index']],
                                                 ],
                                             ],
                                             [
@@ -557,7 +558,6 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                         ],
                                     ],
                                     //TERMINA INVENTARIO
-                                    //TERMINA MODULO DE INVETARIO
                                     //INICIO DEL MENU CONTABILIDAD
                                      [
                                         'label' => 'Contabilidad',

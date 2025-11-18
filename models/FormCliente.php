@@ -42,6 +42,7 @@ class FormCliente extends Model
     public $minuto_confeccion;
     public $minuto_terminacion;
     public $proceso;
+    public $id_agente;
     public $email_envio_factura_dian;
 
     public function rules()
@@ -49,7 +50,8 @@ class FormCliente extends Model
         return [
 			
             ['id_tipo_documento', 'required', 'message' => 'Campo requerido'],
-             [['proceso'], 'integer'],
+            [['proceso'], 'integer'],
+            [['id_agente'], 'integer'],
             ['cedulanit', 'required', 'message' => 'Campo requerido'],
             ['cedulanit', 'match', 'pattern' => '/^[0-9\s]+$/i', 'message' => 'Sólo se aceptan números'],
             ['cedulanit', 'cedulanit_existe'],            
@@ -114,6 +116,7 @@ class FormCliente extends Model
             'minuto_confeccion' => 'Minuto Confección:',
             'minuto_terminacion' => 'Minuto Terminación:',
             'proceso' => 'Proceso:',
+            'id_agente' => 'Vendedor:'
 
         ];
     }

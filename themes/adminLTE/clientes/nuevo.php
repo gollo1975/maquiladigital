@@ -9,6 +9,7 @@ use app\models\Departamento;
 use app\models\TipoDocumento;
 use yii\widgets\LinkPager;
 use kartik\select2\Select2;
+use app\models\AgentesComerciales;
 
 $this->title = 'Nuevo Cliente';
 $this->params['breadcrumbs'][] = ['label' => 'Clientes', 'url' => ['index']];
@@ -42,6 +43,8 @@ $departamento = ArrayHelper::map(Departamento::find()->all(), 'iddepartamento', 
 $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipio');
 $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documento', 'descripcion');
 $formapago = ArrayHelper::map(\app\models\FormaPago::find()->all(), 'id_forma_pago', 'concepto');
+$modulo = \app\models\ConfiguracionInventario::findOne(1);
+$ConAgentes = ArrayHelper::map(AgentesComerciales::find()->where(['=','estado', 0])->all(), 'id_agente','nombre_completo');
 ?>
 <div class="panel panel-success">
     <div class="panel-heading">
@@ -109,13 +112,38 @@ $formapago = ArrayHelper::map(\app\models\FormaPago::find()->all(), 'id_forma_pa
         <?= $form->field($model, 'minuto_confeccion')->input("text") ?>
         <?= $form->field($model, 'minuto_terminacion')->input("text") ?>			
     </div>
-    <div class="row">
-        <div class="field-tblclientes-observaciones_cliente has-success">
-              <?= $form->field($model, 'email_envio_factura_dian')->input("text") ?>
-            <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
-        </div>
-    </div> 	
-    </div>    
+    <?php if($modulo->aplica_modulo_inventario == 0){?>    
+        <div class="row">
+            <div class="field-tblclientes-observaciones_cliente has-success">
+                <?= $form->field($model, 'email_envio_factura_dian')->input("text") ?>
+                 <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+                <?= $form->field($model, 'id_agente')->widget(Select2::classname(), [
+                        'data' => $ConAgentes,
+                        'options' => ['placeholder' => 'Seleccione...'],
+                        'pluginOptions' => [
+                            'allowClear' => true ]]);
+                ?>
+            </div>
+        </div> 
+    <?php }else{?>
+        <div class="row">
+            <?= $form->field($model, 'email_envio_factura_dian')->input("text") ?>
+            <?= $form->field($model, 'id_agente')->widget(Select2::classname(), [
+                        'data' => $ConAgentes,
+                        'options' => ['placeholder' => 'Seleccione...'],
+                        'pluginOptions' => [
+                            'allowClear' => true ]]);
+            ?>
+               
+        </div> 
+        <div class="row">
+            <div class="field-tblclientes-observaciones_cliente has-success">
+                 <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+               
+            </div>
+        </div> 
+    <?php }?>    
+       
     <div class="panel-footer text-right">
         <a href="<?= Url::toRoute("clientes/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
         <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>        

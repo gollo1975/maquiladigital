@@ -17,6 +17,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
     public $activo;
     public $fechaproceso;
     public $id_planta;
+    public $id_agente;
 
     public static function isUserAdmin($codusuario)
     {

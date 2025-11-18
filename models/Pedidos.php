@@ -43,7 +43,7 @@ class Pedidos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['numero_pedido', 'idcliente', 'total_unidades', 'valor_total', 'impuesto', 'total_pedido', 'autorizado', 'pedido_cerrado', 'generar_orden', 'pedido_anulado'], 'integer'],
+            [['numero_pedido', 'idcliente', 'total_unidades', 'valor_total', 'impuesto', 'total_pedido', 'autorizado', 'pedido_cerrado', 'generar_orden', 'pedido_anulado','id_agente'], 'integer'],
             [['idcliente', 'fecha_entrega'], 'required'],
             [['fecha_pedido', 'fecha_entrega', 'fecha_proceso'], 'safe'],
             [['user_name'], 'string', 'max' => 15],
@@ -75,6 +75,7 @@ class Pedidos extends \yii\db\ActiveRecord
             'observacion' => 'Nota',
             'pedido_anulado' => 'Pedido Anulado',
             'valor_total' => 'valor_total',
+            'id_agente' => 'Agente comercial'
         ];
     }
 

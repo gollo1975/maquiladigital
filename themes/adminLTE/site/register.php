@@ -14,6 +14,7 @@ $this->title = 'Nuevo Usuario';
 $this->params['breadcrumbs'][] = ['label' => 'Usuarios', 'url' => ['users']];
 $this->params['breadcrumbs'][] = $this->title;
 $planta = ArrayHelper::map(\app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
+$conAgente = ArrayHelper::map(\app\models\AgentesComerciales::find()->where(['estado' => 0])->all(), 'id_agente', 'nombre_completo');
 ?>
 
 <?php
@@ -56,6 +57,14 @@ $form = ActiveForm::begin([
         <div class="row">            
             <?= $form->field($model, 'id_planta')->widget(Select2::classname(), [
              'data' => $planta,
+             'options' => ['placeholder' => 'Seleccione.... '],
+             'pluginOptions' => [
+             'allowClear' => true ]]);
+            ?>
+        </div>
+        <div class="row">            
+            <?= $form->field($model, 'id_agente')->widget(Select2::classname(), [
+             'data' => $conAgente,
              'options' => ['placeholder' => 'Seleccione.... '],
              'pluginOptions' => [
              'allowClear' => true ]]);

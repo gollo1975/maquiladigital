@@ -30,7 +30,7 @@ class ConfiguracionInventario extends \yii\db\ActiveRecord
     {
         return [
             [['id_configuracion'], 'required'],
-            [['id_configuracion', 'aplica_inventario_talla_color', 'aplica_inventario_tallas', 'aplica_solo_inventario', 'aplica_iva_incluido'], 'integer'],
+            [['id_configuracion', 'aplica_inventario_talla_color', 'aplica_inventario_tallas', 'aplica_solo_inventario', 'aplica_iva_incluido','aplica_modulo_inventario'], 'integer'],
             [['id_configuracion'], 'unique'],
         ];
     }
@@ -46,6 +46,7 @@ class ConfiguracionInventario extends \yii\db\ActiveRecord
             'aplica_inventario_tallas' => 'Aplica Inventario Tallas',
             'aplica_solo_inventario' => 'Aplica Solo Inventario',
             'aplica_iva_incluido' => 'Aplica Iva Incluido',
+            'aplica_modulo_inventario' => 'aplica_modulo_inventario',
         ];
     }
 }

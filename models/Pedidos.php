@@ -43,12 +43,14 @@ class Pedidos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['numero_pedido', 'idcliente', 'total_unidades', 'valor_total', 'impuesto', 'total_pedido', 'autorizado', 'pedido_cerrado', 'generar_orden', 'pedido_anulado','id_agente'], 'integer'],
+            [['numero_pedido', 'idcliente', 'total_unidades', 'valor_total', 'impuesto', 'total_pedido', 'autorizado', 'pedido_cerrado', 'generar_orden', 'pedido_anulado',
+                'id_agente','pedido_facturado','unidades_faltantes','unidades_despachadas','pedido_despachado'], 'integer'],
             [['idcliente', 'fecha_entrega'], 'required'],
             [['fecha_pedido', 'fecha_entrega', 'fecha_proceso'], 'safe'],
             [['user_name'], 'string', 'max' => 15],
             [['observacion'], 'string', 'max' => 120],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
+            [['id_agente'], 'exist', 'skipOnError' => true, 'targetClass' => AgentesComerciales::className(), 'targetAttribute' => ['id_agente' => 'id_agente']],
         ];
     }
 
@@ -75,7 +77,10 @@ class Pedidos extends \yii\db\ActiveRecord
             'observacion' => 'Nota',
             'pedido_anulado' => 'Pedido Anulado',
             'valor_total' => 'valor_total',
-            'id_agente' => 'Agente comercial'
+            'id_agente' => 'Agente comercial',
+            'pedido_facturado' => 'pedido_facturado',
+            'unidades_despachadas' => 'unidades_despachadas',
+            'unidades_faltantes' => 'unidades_faltantes',
         ];
     }
 
@@ -86,6 +91,14 @@ class Pedidos extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Cliente::className(), ['idcliente' => 'idcliente']);
     }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAgente()
+    {
+        return $this->hasOne(AgentesComerciales::className(), ['id_agente' => 'id_agente']);
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -93,5 +106,34 @@ class Pedidos extends \yii\db\ActiveRecord
     public function getPedidosDetalles()
     {
         return $this->hasMany(PedidosDetalle::className(), ['id_pedido' => 'id_pedido']);
+    }
+    
+    //subprocesos
+    
+    public function getAutorizadoPedido() {
+        if($this->autorizado == 0){
+            $autorizadopedido = 'NO';
+        }else{
+            $autorizadopedido = 'SI';
+        }
+        return $autorizadopedido;
+    }
+    
+    public function getPedidoCerrado() {
+        if($this->pedido_cerrado == 0){
+            $pedidocerrado = 'NO';
+        }else{
+            $pedidocerrado = 'SI';
+        }
+        return $pedidocerrado;
+    }
+    
+     public function getPedidoFacturado() {
+        if($this->pedido_facturado == 0){
+            $pedidofacturado = 'NO';
+        }else{
+            $pedidofacturado = 'SI';
+        }
+        return $pedidofacturado;
     }
 }

@@ -31,7 +31,7 @@ $categoria = ArrayHelper::map(\app\models\Categoria::find()->orderBy('categoria 
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute("inventario-punto-venta/index"),
+    "action" => Url::toRoute("inventario-punto-venta/search_inventario"),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -93,7 +93,7 @@ $categoria = ArrayHelper::map(\app\models\Categoria::find()->orderBy('categoria 
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-            <a align="right" href="<?= Url::toRoute("inventario-punto-venta/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute("inventario-punto-venta/search_inventario") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -123,8 +123,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Stock</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th score="col" style='background-color:#B9D5CE;'></th>  
-                <th score="col" style='background-color:#B9D5CE;'></th>  
-                <th score="col" style='background-color:#B9D5CE;'></th>  
+                
                          
             </tr>
             </thead>
@@ -155,7 +154,7 @@ $form = ActiveForm::begin([
                                     <td style="width: 20px; height: 20px; background-color: #fae1dd"></td>
                                 <?php }
                             }else{
-                                if($val->stock_inventario > 0){?>
+                                if($val->stock_inventario > 0 && $token == 0){?>
                                     <td style="width: 20px; height: 20px">
                                          <a href="<?= Url::toRoute(["inventario-punto-venta/enviar_referencia_punto", "id" => $val->id_inventario, 'id_punto' => $val->id_punto]) ?>"><span class="glyphicon glyphicon-home" title ="Permite enviar desde BODEGA la referencia por primera vez al puntol.."></span></a>                   
                                     </td>
@@ -201,28 +200,12 @@ $form = ActiveForm::begin([
                          <a href="<?= Url::toRoute(["inventario-punto-venta/view", "id" => $val->id_inventario, 'token' => $token,'codigo' => $val->codigo_enlace_bodega]) ?>" ><span class="glyphicon glyphicon-eye-open" title="Permite crear las cantidades del producto, lote y codigos"></span></a>
                     </td> 
                     <?php if($val->stock_unidades ==  $val->stock_inventario){?>
+                       
                         <td style= 'width: 25px; height: 10px;'>
-                               <a href="<?= Url::toRoute(["inventario-punto-venta/update", "id" => $val->id_inventario]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>                   
-                               <td style= 'width: 25px;'>	
-                        <?= Html::a('<span class="glyphicon glyphicon-list"></span>',
-                            ['/inventario-punto-venta/nuevo_costo_producto','id' => $val->id_inventario],
-                            [
-                                'title' => 'Crear nuevo precio de costo',
-                                'data-toggle'=>'modal',
-                                'data-target'=>'#modalnuevocostoproducto'.$val->id_inventario,
-                               
-                            ])    
-                        ?>
-                        <div class="modal remote fade" id="modalnuevocostoproducto<?= $val->id_inventario ?>" data-backdrop="static">
-                          <div class="modal-dialog modal-lg" style ="width: 500px;" >
-                               <div class="modal-content"></div>
-                          </div>
-                        </div>
-                        <td style= 'width: 25px; height: 10px;'>
-                             <a href="<?= Url::toRoute(["inventario-punto-venta/lista_precios", "id" => $val->id_inventario, 'token' =>$token]) ?>" ><span class="glyphicon glyphicon-usd" title="Permite crear las listas de precios."></span></a>
+                             <a href="<?= Url::toRoute(["inventario-punto-venta/lista_precios", "id" => $val->id_inventario, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-usd" title="Permite crear las listas de precios."></span></a>
                         </td> 
-                    </td>    
-                        </td>
+                        
+                       
                     <?php }else{?>
                         <td style= 'width: 25px; height: 10px;'></td>
                     <?php }?>    
@@ -232,8 +215,6 @@ $form = ActiveForm::begin([
         </table> 
         <div class="panel-footer text-right" >            
            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>                
-            <a align="right" href="<?= Url::toRoute("inventario-punto-venta/importar_ordenes_inventario") ?>" class="btn btn-warning btn-sm"><span class='glyphicon glyphicon-import'></span> Importar ordenes</a>
-           <a align="right" href="<?= Url::toRoute("inventario-punto-venta/create") ?>" class="btn btn-success btn-sm"><span class='glyphicon glyphicon-plus'></span> Nuevo sin OP</a>
         <?php $form->end() ?>
         </div>
      </div>

@@ -31,6 +31,7 @@ use app\models\InventarioPuntoVenta;
 use app\models\UsuarioDetalle;
 use app\models\FacturaVentaPunto;
 use app\models\FacturaVentaPuntoDetalle;
+use app\models\Pedidos;
 
 
 /**
@@ -146,35 +147,32 @@ class InventarioPuntoVentaController extends Controller
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',174])->all()){
                 $form = new \app\models\FiltroBusquedaInventarioPunto();
                 $codigo = null;
-                $proveedor = null;
+                $categoria = null;
                 $fecha_inicio = null;
                 $fecha_corte = null;
                 $punto_venta = null;
+                $stock = null;
                 $producto = null;
-                $tokenAcceso = Yii::$app->user->identity->id_punto;
-                $conPunto = \app\models\PuntoVenta::find()->orderBy('id_punto ASC')->all();
-                $local = \app\models\PuntoVenta::findOne($tokenAcceso);
+                $marca = null;
+                $conPunto = \app\models\PuntoVenta::find()->orderBy('predeterminado DESC')->all();
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $codigo = Html::encode($form->codigo);
-                        $proveedor = Html::encode($form->proveedor);
+                        $stock = Html::encode($form->stock);
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $producto = Html::encode($form->producto);
                         $punto_venta = Html::encode($form->punto_venta);
-                        if($tokenAcceso == 1){
-                            $table = InventarioPuntoVenta::find()
+                        $marca = Html::encode($form->marca);
+                        $categoria = Html::encode($form->categoria);
+                        $table = InventarioPuntoVenta::find()
                                     ->andFilterWhere(['=', 'codigo_producto', $codigo])
+                                    ->andFilterWhere(['=', 'id_marca', $marca])
+                                    ->andFilterWhere(['=', 'id_categoria', $categoria])
                                     ->andFilterWhere(['between', 'fecha_proceso', $fecha_inicio, $fecha_corte])
                                     ->andFilterWhere(['like', 'nombre_producto', $producto])
-                                    ->andFilterWhere(['=', 'id_proveedor', $proveedor])
+                                    ->andFilterWhere(['>', 'stock_inventario', $stock])
                                     ->andFilterWhere(['=', 'id_punto', $punto_venta]);
-                        }else{
-                            $table = InventarioPuntoVenta::find()
-                                    ->andFilterWhere(['=', 'codigo_producto', $codigo])
-                                    ->andFilterWhere(['like', 'nombre_producto', $producto])
-                                    ->andWhere(['=', 'id_punto', $tokenAcceso]);
-                        }
                         $table = $table->orderBy('id_inventario DESC');
                         $tableexcel = $table->all();
                         $count = clone $table;
@@ -189,17 +187,13 @@ class InventarioPuntoVentaController extends Controller
                                 ->all();
                         if (isset($_POST['excel'])) {
                             $check = isset($_REQUEST['id_inventario  DESC']);
-                            $this->actionExcelInventarioPuntoVenta($tableexcel);
+                             $this->actionExcelInventarioPuntoVenta($tableexcel);
                         }
                     } else {
                         $form->getErrors();
                     }
                 } else {
-                    if($tokenAcceso == 1){
-                        $table = InventarioPuntoVenta::find()->orderBy('id_inventario DESC');
-                    }else{
-                        $table = InventarioPuntoVenta::find()->andWhere(['=','id_punto', $tokenAcceso])->orderBy('id_inventario DESC');
-                    }
+                    $table = InventarioPuntoVenta::find() ->orderBy('id_inventario DESC');
                     
                     $tableexcel = $table->all();
                     $count = clone $table;
@@ -220,10 +214,8 @@ class InventarioPuntoVentaController extends Controller
                             'model' => $model,
                             'form' => $form,
                             'pagination' => $pages,
-                            'tokenAcceso' => $tokenAcceso,
                             'token' => $token,
                             'conPunto' => ArrayHelper::map($conPunto, 'id_punto', 'nombre_punto'),
-                            'local' => $local,
                 ]);
             }else{
                 return $this->redirect(['site/sinpermiso']);
@@ -298,7 +290,7 @@ class InventarioPuntoVentaController extends Controller
     }
     
     //LISTAS DE PRECIOS
-    public function actionLista_precios($id) {
+    public function actionLista_precios($id, $token) {
        $model = $this->findModel($id);
        $lista_precio = \app\models\PrecioVentaInventario::find()->where(['=','id_inventario', $id])->all();
        $descuentos = \app\models\ReglaDescuentoComercial::find()->where(['=','id_inventario', $id])->all();
@@ -314,14 +306,15 @@ class InventarioPuntoVentaController extends Controller
                         $table->save();
                        $intIndice++;
                     }
-                    return $this->redirect(['lista_precios','id' => $id]);
+                    return $this->redirect(['lista_precios','id' => $id, 'token' => $token]);
                 }
             } 
        }    
        return $this->render('vista_lista_precio', [
             'model' => $model,
             'lista_precio' => $lista_precio,   
-            'descuentos' => $descuentos
+            'descuentos' => $descuentos,
+           'token' => $token,
         ]);
     }
     
@@ -527,10 +520,10 @@ class InventarioPuntoVentaController extends Controller
     }
     
     //EDITAR LA REGLA COMERCIAL DE DESCUENTO PARA DISTRIBUIDORES
-    public function actionEditar_regla_comercial($id, $sw = 1) {
+    public function actionEditar_regla_comercial($id, $sw = 1, $token, $id_detalle) {
         $model = new \app\models\ModeloEditarReglaDescuento();
         $table = InventarioPuntoVenta::findOne($id);
-        $regla = \app\models\ReglaDescuentoComercial::find()->where(['=','id_inventario', $id])->one();
+        $regla = \app\models\ReglaDescuentoComercial::find()->where(['=','id_regla', $id_detalle])->one();
         if ($model->load(Yii::$app->request->post())) {
             if($model->validate()){
                 if (isset($_POST["regla_distribuidor"])) {
@@ -547,7 +540,7 @@ class InventarioPuntoVentaController extends Controller
                         $table->aplica_descuento_distribuidor = 1;
                         $table->save();
                     }     
-                   $this->redirect(["inventario-punto-venta/lista_precios",'id' => $id]);
+                   $this->redirect(["inventario-punto-venta/lista_precios",'id' => $id,'token' => $token]);
                 }
             }else{
                 $model->getErrors();
@@ -564,8 +557,57 @@ class InventarioPuntoVentaController extends Controller
             'model' => $model,
             'id' => $id,
             'sw' => $sw,
+            'token' => $token,
         ]);
     }
+    
+    //PRODUCTO MAS VENDID
+      public function actionProducto_masvendido() {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',178])->all()){
+                $form = new \app\models\FiltroBusquedaInventarioPunto();
+                $cantidad_mostrar = null;
+                $listado = null;
+                $conPunto = \app\models\PuntoVenta::find()->orderBy('predeterminado DESC')->all();
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $cantidad_mostrar = Html::encode($form->cantidad_mostrar);
+                        if($cantidad_mostrar <> null){
+                            $query = (new Query())
+                                       ->select('inventario_punto_venta.id_inventario, inventario_punto_venta.codigo_producto, inventario_punto_venta.nombre_producto,
+                                                SUM(pedidos_detalle.cantidad) AS cantidad, punto_venta.nombre_punto AS punto,
+                                                proveedor.nombrecorto AS proveedor')
+                                       ->from(' pedidos_detalle, punto_venta, proveedor')
+                                       ->innerJoin('inventario_punto_venta')
+                                       ->where('pedidos_detalle.id_inventario = inventario_punto_venta.id_inventario')
+                                       ->andWhere('inventario_punto_venta.idproveedor = proveedor.idproveedor')
+                                       ->andWhere('inventario_punto_venta.id_punto = punto_venta.id_punto')
+                                       ->groupBy('inventario_punto_venta.id_inventario')
+                                       ->orderBy('SUM(pedidos_detalle.cantidad) DESC')
+                                       ->limit($cantidad_mostrar); 
+                                       $command = $query->createCommand();
+                                       $rows = $command->queryAll();   
+                                       $listado = $rows;
+                        }else{
+                            Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar la cantidad de registro a mostrar.');
+                           
+                        }               
+                    } else {
+                        $form->getErrors();
+                    }
+                } 
+                return $this->render('producto_masvendido', [
+                            'listado' => $listado,
+                            'form' => $form,
+                            'conPunto' => ArrayHelper::map($conPunto, 'id_punto', 'nombre_punto'),
+                ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
+    }  
     
 
     /**

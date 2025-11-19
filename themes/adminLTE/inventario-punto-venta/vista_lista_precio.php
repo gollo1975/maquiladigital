@@ -17,7 +17,11 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
 <div class="referencia-producto-view">
 
    <p>
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary']) ?>
+        <?php if($token == 0){?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary']) ?>
+        <?php } else { ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_inventario'], ['class' => 'btn btn-primary']) ?>
+        <?php }?>
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -27,7 +31,7 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
             <table class="table table-bordered table-striped table-hover">
                 <tr style="font-size: 90%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_inventario') ?></th>
-                    <td>R-<?= Html::encode($model->id_inventario) ?></td>                    
+                    <td><?= Html::encode($model->id_inventario) ?></td>                    
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo_producto') ?></th>
                     <td><?= Html::encode($model->codigo_producto) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'nombre_producto') ?></th>
@@ -90,26 +94,28 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="panel-footer text-right" >  
-                                <!-- Inicio Nuevo Detalle proceso -->
-                                  <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear precio',
-                                      ['/inventario-punto-venta/nuevo_precio_venta','id' => $model->id_inventario],
-                                      [
-                                          'title' => 'Crear nuevo precio de venta',
-                                          'data-toggle'=>'modal',
-                                          'data-target'=>'#modalnuevoprecioventa'.$model->id_inventario,
-                                          'class' => 'btn btn-info btn-sm'
-                                      ])    
-                                 ?>
-                                <div class="modal remote fade" id="modalnuevoprecioventa<?= $model->id_inventario ?>" data-backdrop="static">
-                                    <div class="modal-dialog modal-lg" style ="width: 500px;">
-                                         <div class="modal-content"></div>
-                                    </div>
-                                </div> 
-                                <?php if(count($lista_precio)> 0){?>
-                                     <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizar_precio_venta']);?>    
-                                <?php }?> 
-                            </div>
+                            <?php if($token == 0){?>
+                                <div class="panel-footer text-right" >  
+                                    <!-- Inicio Nuevo Detalle proceso -->
+                                      <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear precio',
+                                          ['/inventario-punto-venta/nuevo_precio_venta','id' => $model->id_inventario],
+                                          [
+                                              'title' => 'Crear nuevo precio de venta',
+                                              'data-toggle'=>'modal',
+                                              'data-target'=>'#modalnuevoprecioventa'.$model->id_inventario,
+                                              'class' => 'btn btn-info btn-sm'
+                                          ])    
+                                     ?>
+                                    <div class="modal remote fade" id="modalnuevoprecioventa<?= $model->id_inventario ?>" data-backdrop="static">
+                                        <div class="modal-dialog modal-lg" style ="width: 500px;">
+                                             <div class="modal-content"></div>
+                                        </div>
+                                    </div> 
+                                    <?php if(count($lista_precio)> 0){?>
+                                         <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizar_precio_venta']);?>    
+                                    <?php }?> 
+                                </div>
+                            <?php }?>
                         </div>   
                     </div>
                 </div>
@@ -147,21 +153,25 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
                                                 <td><?= $val->estadoRegla?></td>
                                                 <td><?= $val->user_name?></td>
                                                 <td><?= $val->fecha_registro?></td>
-                                                <td style= 'width: 25px; height: 25px;'>
-                                                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> ',
-                                                        ['/inventario-punto-venta/editar_regla_comercial','id' => $model->id_inventario],
-                                                        [
-                                                            'title' => 'Editar regla comercial',
-                                                            'data-toggle'=>'modal',
-                                                            'data-target'=>'#modaleditarreglacomercial'.$model->id_inventario,
-                                                        ])    
-                                                    ?>
-                                                    <div class="modal remote fade" id="modaleditarreglacomercial<?= $model->id_inventario ?>" data-backdrop="static">
-                                                        <div class="modal-dialog modal-lg" style ="width: 500px;">
-                                                             <div class="modal-content"></div>
-                                                        </div>
-                                                    </div> 
-                                                </td>     
+                                                <?php if($token == 0){?>
+                                                    <td style= 'width: 25px; height: 25px;'>
+                                                        <?= Html::a('<span class="glyphicon glyphicon-pencil"></span> ',
+                                                            ['/inventario-punto-venta/editar_regla_comercial','id' => $model->id_inventario,'id_detalle' => $val->id_regla, 'token' => $token],
+                                                            [
+                                                                'title' => 'Editar regla comercial',
+                                                                'data-toggle'=>'modal',
+                                                                'data-target'=>'#modaleditarreglacomercial'.$model->id_inventario,
+                                                            ])    
+                                                        ?>
+                                                        <div class="modal remote fade" id="modaleditarreglacomercial<?= $model->id_inventario ?>" data-backdrop="static">
+                                                            <div class="modal-dialog modal-lg" style ="width: 500px;">
+                                                                 <div class="modal-content"></div>
+                                                            </div>
+                                                        </div> 
+                                                    </td>  
+                                                <?php }else{?>    
+                                                    <td style= 'width: 25px; height: 25px;'></td>
+                                                 <?php }?>   
                                             </tr>
                                         <?php
                                         endforeach;?>

@@ -485,7 +485,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'url' => '#',
                                                 'items' => [
                                                    // ['label' => 'Pedidos', 'icon' => 'plus-square-o', 'url' => ['/pedidos/index']],
-                                                   [
+                                                 /*  [
                                                     'label' => 'Parametros',
                                                     'icon' => 'connectdevelop',
                                                     'url' => '#',
@@ -494,8 +494,9 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                         ['label' => 'Cargar imagenes', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/validador_imagen']],
                                                         ['label' => 'Enviar masivo', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/send_masivo_producto']],
 
-                                                    ]],
-                                                    ['label' => 'Traslados pto venta', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/traslado_producto']],
+                                                    ]],*/
+                                                    ['label' => 'Despachos', 'icon' => 'plus-square-o', 'url' => ['/despacho-pedidos/index']],
+                                                    //['label' => 'Traslados pto venta', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/traslado_producto']],
                                                    // ['label' => 'Indicador comercial', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/index']],
                                                    // ['label' => 'Regla comercial', 'icon' => 'plus-square-o', 'url' => ['/inventario-productos/regla_comercial']],
                                                     //['label' => 'Citas prospectos', 'icon' => 'plus-square-o', 'url' => ['/cliente-prospecto/listado_cita_prospecto']],
@@ -507,19 +508,19 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'url' => '#',
                                                 'items' => [
                                                    ['label' => 'Inventario', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_inventario']],
-                                                   ['label' => 'Rerefencias', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_referencias']],
+                                                   //['label' => 'Rerefencias', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_referencias']],
                                                   [
                                                     'label' => 'Costo y rentabilidad',
                                                     'icon' => 'connectdevelop',
                                                     'url' => '#',
                                                     'items' => [
-                                                        ['label' => 'Factura de venta', 'icon' => 'plus-square-o', 'url' => ['/factura-venta-punto/search_producto_vendido']],
-                                                        ['label' => 'Remision', 'icon' => 'plus-square-o', 'url' => ['/remisiones/search_producto_vendido']],
+                                                       // ['label' => 'Factura de venta', 'icon' => 'plus-square-o', 'url' => ['/factura-venta-punto/search_producto_vendido']],
+                                                      //  ['label' => 'Remision', 'icon' => 'plus-square-o', 'url' => ['/remisiones/search_producto_vendido']],
                                                         ['label' => 'Producto + vendido', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/producto_masvendido']],
                                                          // ['label' => 'Cargar imagenes', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/validador_imagen']],
 
                                                     ]],
-                                                   [
+                                                  /* [
                                                     'label' => 'Indicadores',
                                                     'icon' => 'connectdevelop',
                                                     'url' => '#',
@@ -527,7 +528,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                     //    ['label' => 'General', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/search_indicador_comercial']],
                                                      //   ['label' => 'Graficas', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/search_indicador_vendedor']],
 
-                                                    ]],
+                                                    ]],*/
                                                     //['label' => 'Pedidos', 'icon' => 'plus-square-o', 'url' => ['/pedidos/search_pedidos']], 
                                                     //['label' => 'Citas prospecto', 'icon' => 'plus-square-o', 'url' => ['/cliente-prospecto/search_cita_prospecto']], 
                                                     [

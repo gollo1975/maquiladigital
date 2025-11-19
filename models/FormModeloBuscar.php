@@ -17,6 +17,8 @@ class FormModeloBuscar extends Model
     public $etapa;
     public $punto;
     public $clasificacion;
+    public $cliente;
+    public $numero;
 
 
 
@@ -26,7 +28,7 @@ class FormModeloBuscar extends Model
 
             [['q','nombre'], 'string'],  
             [['observacion'], 'string'],
-            [['etapa','punto','clasificacion'], 'integer'],
+            [['etapa','punto','clasificacion','cliente','numero'], 'integer'],
             [['fecha_entrega'], 'safe'],
         ];
     }
@@ -41,6 +43,8 @@ class FormModeloBuscar extends Model
             'etapa' => 'Etapa proceso:',
             'punto' => 'Punto de venta:',
             'clasificacion' => 'Clasificación:',
+            'cliente' => 'Nombre del cliente:',
+            'numero' => 'Numero del pedido',
 
         ];
     }

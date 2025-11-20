@@ -12,7 +12,7 @@ use kartik\select2\Select2;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
 
-$this->title = 'Pedidos';
+$this->title = 'PEDIDOS';
 $this->params['breadcrumbs'][] = $this->title;
 
 

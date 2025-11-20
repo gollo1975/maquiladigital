@@ -190,7 +190,7 @@ class PedidosController extends Controller
                     $table->cantidad = $contar;
                     $table->save();
                     // Totalizaciones
-                     $this->TotalizarCantidadesTallas($id_detalle);
+                    $this->TotalizarCantidadesTallas($id_detalle);
                     $this->TotalizarCantidades($id_detalle);
                     $this->TotalizarCantidadesPedidos($id);
                     // --- Lógica para guardar los colores ---
@@ -457,6 +457,7 @@ class PedidosController extends Controller
             $total += $val->cantidad;
         }
         $table->cantidad = $total;
+        $table->unidades_faltantes = $total;
         $table->save();
     }
     
@@ -632,6 +633,7 @@ class PedidosController extends Controller
         $conPedido->total_pedido =  $total; // Total con IVA
         $conPedido->save();
     }
+    
     //pedidos
     public function actionImprimir_pedido($id)
     {

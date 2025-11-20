@@ -39,7 +39,7 @@ class PedidosDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_pedido', 'id_inventario', 'cantidad', 'valor_unitario', 'valor_descuento', 'total_linea','porcentaje_descuento','tipo_descuento'], 'integer'],
+            [['id_pedido', 'id_inventario', 'cantidad', 'valor_unitario', 'valor_descuento', 'total_linea','porcentaje_descuento','tipo_descuento','unidades_despachadas','unidades_faltantes'], 'integer'],
             [['user_name'], 'string','max' => 15],
             [['id_pedido'], 'exist', 'skipOnError' => true, 'targetClass' => Pedidos::className(), 'targetAttribute' => ['id_pedido' => 'id_pedido']],
             [['id_inventario'], 'exist', 'skipOnError' => true, 'targetClass' => InventarioPuntoVenta::className(), 'targetAttribute' => ['id_inventario' => 'id_inventario']],
@@ -62,6 +62,8 @@ class PedidosDetalle extends \yii\db\ActiveRecord
             'valor_descuento' => 'Valor Descuento',
             'total_linea' => 'Total Linea',
             'tipo_descuento' => 'tipo_descuento',
+            'unidades_despachadas' => 'unidades_despachadas',
+            'unidades_faltantes' => 'unidades_faltantes',
         ];
     }
 

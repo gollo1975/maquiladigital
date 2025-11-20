@@ -73,7 +73,7 @@ class InventarioPuntoVenta extends \yii\db\ActiveRecord
         return [
             [['codigo_producto','nombre_producto','idproveedor','id_marca','id_categoria'], 'required'],
             [['codigo_producto', 'costo_unitario', 'stock_unidades', 'stock_inventario', 'idproveedor', 'id_punto', 'id_marca', 'id_categoria', 'iva_incluido', 'inventario_inicial', 'aplica_talla_color', 'aplica_inventario', 'subtotal', 'valor_iva', 'total_inventario', 'precio_deptal', 'precio_mayorista', 'codigo_barra', 'venta_publico', 'aplica_descuento_punto',
-                'aplica_descuento_distribuidor', 'codigo_enlace_bodega', 'inventario_aprobado', 'stock_minimo','idordenproduccion'], 'integer'],
+                'aplica_descuento_distribuidor', 'codigo_enlace_bodega', 'inventario_aprobado', 'stock_minimo','idordenproduccion','stock_salida'], 'integer'],
             [['porcentaje_iva'], 'number'],
             [['fecha_creacion', 'fecha_proceso'], 'safe'],
             [['nombre_producto'], 'string', 'max' => 40],
@@ -125,6 +125,7 @@ class InventarioPuntoVenta extends \yii\db\ActiveRecord
             'inventario_aprobado' => 'Inventario Aprobado',
             'stock_minimo' => 'Stock Minimo',
             'idordenproduccion' => 'idordenproduccion',
+            'stock_salida' => 'stock_salida',
         ];
     }
 

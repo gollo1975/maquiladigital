@@ -44,7 +44,7 @@ class Pedidos extends \yii\db\ActiveRecord
     {
         return [
             [['numero_pedido', 'idcliente', 'total_unidades', 'valor_total', 'impuesto', 'total_pedido', 'autorizado', 'pedido_cerrado', 'generar_orden', 'pedido_anulado',
-                'id_agente','pedido_facturado','unidades_faltantes','unidades_despachadas','pedido_despachado'], 'integer'],
+                'id_agente','pedido_facturado','pedido_despachado'], 'integer'],
             [['idcliente', 'fecha_entrega'], 'required'],
             [['fecha_pedido', 'fecha_entrega', 'fecha_proceso'], 'safe'],
             [['user_name'], 'string', 'max' => 15],
@@ -79,8 +79,7 @@ class Pedidos extends \yii\db\ActiveRecord
             'valor_total' => 'valor_total',
             'id_agente' => 'Agente comercial',
             'pedido_facturado' => 'pedido_facturado',
-            'unidades_despachadas' => 'unidades_despachadas',
-            'unidades_faltantes' => 'unidades_faltantes',
+           
         ];
     }
 

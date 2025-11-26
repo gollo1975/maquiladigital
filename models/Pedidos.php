@@ -135,4 +135,13 @@ class Pedidos extends \yii\db\ActiveRecord
         }
         return $pedidofacturado;
     }
+    
+     public function getPedidoEntregado() {
+        if($this->pedido_despachado == 0){
+            $pedidoentregado = 'NO';
+        }else{
+            $pedidoentregado = 'SI';
+        }
+        return $pedidoentregado;
+    }
 }

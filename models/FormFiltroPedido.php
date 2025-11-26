@@ -19,6 +19,7 @@ class FormFiltroPedido extends Model
     public $pedido;
     public $codigo;
     public $vendedor;
+    public $entregado;
 
     /**
      * {@inheritdoc}
@@ -26,7 +27,7 @@ class FormFiltroPedido extends Model
     public function rules()
     {
         return [
-            [['numero', 'cliente','pedido','codigo','vendedor'], 'integer'],
+            [['numero', 'cliente','pedido','codigo','vendedor','entregado'], 'integer'],
             [['fecha_inicio', 'fecha_corte'],'safe'],
             [['referencia'],'string'],
         ];
@@ -38,14 +39,15 @@ class FormFiltroPedido extends Model
     public function attributeLabels()
     {
         return [
-            'numero' => 'Numero orden:',
+            'numero' => 'Numero pedido:',
             'cliente' => 'Clientes::',
             'fecha_inicio' => 'Fecha inicio:',
             'fecha_corte' => 'Fecha corte:',
             'pedido' => 'Numero pedido:',
             'codigo' => 'Codigo de referencia:',
             'referencia' => 'Referencia del producto:',
-            'vendedor' => 'Agente comercial:'
+            'vendedor' => 'Agente comercial:',
+            'entregado' =>'Pedido entregado:'
            
         ];
     }

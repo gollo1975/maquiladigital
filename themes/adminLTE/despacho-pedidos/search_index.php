@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute("despacho-pedidos/index"),
+    "action" => Url::toRoute("despacho-pedidos/search_index"),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -77,7 +77,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-            <a align="right" href="<?= Url::toRoute("despacho-pedidos/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute("despacho-pedidos/search_index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -103,7 +103,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th scope="col" style='background-color:#B9D5CE;'>F. despacho</th>
                  <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
-                <th scope="col" style='background-color:#B9D5CE;'></th>
               
             </tr>
             </thead>
@@ -119,26 +118,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= $val->fecha_despacho ?></td>
                     <td style="text-align: right"><?= $val->cantidad_despachada ?></td>
                     <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["despacho-pedidos/view", "id" => $val->id_despacho, 'token' => 0]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["despacho-pedidos/view", "id" => $val->id_despacho,'token' => 1]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <td style= 'width: 25px; height: 25px;'>
-                         <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar_registro', 'id' => $val->id_despacho, 'token' => 0], [
-                                    'class' => '',
-                                    'data' => [
-                                        'confirm' => 'Esta seguro de eliminar el registro?',
-                                        'method' => 'post',
-                                    ],
-                                ])
-                         ?>
-                    </td>
+                    
                    
              
             </tbody>            
             <?php endforeach; ?>
         </table>    
         <div class="panel-footer text-right" >            
-            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-xs ']); ?>                
-            <a align="right" href="<?= Url::toRoute(["despacho-pedidos/importar_pedidos",'token' => 0]) ?>" class="btn btn-success btn-xs"><span class='glyphicon glyphicon-plus'></span> Cargar pedidos</a>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-xs ']); ?>                
+           
         </div>
       <?php $form->end() ?>
     </div>

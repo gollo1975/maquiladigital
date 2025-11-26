@@ -41,7 +41,12 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                  echo Html::a('<span class="glyphicon glyphicon-import"></span> Descargar inventario de bodega', ['descargar_inventario_bodega', 'id' => $model->id_inventario, 'token'=> $token, 'codigo' =>$codigo],['class' => 'btn btn-success btn-sm',
                                'data' => ['confirm' => 'Esta seguro de enviar el proceso a BODEGA para descargar en inventario que se traslado al punto de venta.', 'method' => 'post']]);
             }
+        }
+        if($model->idordenproduccion !== null && $token == 0){
+            echo Html::a('<span class="glyphicon glyphicon-eye-close"></span> Cerrar OP', ['cerrar_orden_produccion', 'id' => $model->id_inventario, 'token'=> $token, 'codigo' =>$codigo],['class' => 'btn btn-success btn-sm',
+                               'data' => ['confirm' => '¿Esta seguro de CERRAR la orden de produccion.?', 'method' => 'post']]);
         }?>
+        
     </p>
     <div class="panel panel-success">
         <div class="panel-heading">
@@ -206,7 +211,7 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                             </table>
                             <div class="panel-footer text-right">
                                 <?php
-                                if($model->aplica_talla_color == 1){
+                                if($model->aplica_talla_color == 1 && $token == 0){
                                     if($model->idordenproduccion == null){
                                         if(count($talla_color) <> count($talla_color_cerrado)){?>
                                            <?= Html::a('<span class="glyphicon glyphicon-search"></span> Crear combinacion', ['inventario-punto-venta/generar_combinacion_talla_color', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);?>

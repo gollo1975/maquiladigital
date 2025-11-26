@@ -45,7 +45,7 @@ class PedidosController extends Controller
      * Lists all Pedidos models.
      * @return mixed
      */
-     public function actionIndex() {
+     public function actionIndex($token = 0) {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 176])->all()) {
                 $form = new \app\models\FormFiltroPedido();
@@ -54,6 +54,7 @@ class PedidosController extends Controller
                 $fecha_inicio = null;
                 $fecha_corte = null;
                 $vendedor = null;
+                $entregado = null;
                 $TokenAcceso = Yii::$app->user->identity->id_agente;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
@@ -62,17 +63,20 @@ class PedidosController extends Controller
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $vendedor = Html::encode($form->vendedor);
+                        $entregado = Html::encode($form->entregado);
                          if($TokenAcceso){
                             $table = Pedidos::find()
                                 ->andFilterWhere(['=', 'numero_pedido', $numero])
                                 ->andFilterWhere(['=', 'idcliente', $cliente])
+                                ->andFilterWhere(['=', 'pedido_despachado', $entregado])    
                                 ->andFilterWhere(['between', 'fecha_pedido', $fecha_inicio, $fecha_corte])
                                 ->andWhere(['=', 'id_agente', $TokenAcceso]); 
                          }else{
                              $table = Pedidos::find()
                                 ->andFilterWhere(['=', 'numero_pedido', $numero])
                                 ->andFilterWhere(['=', 'idcliente', $cliente])
-                                 ->andFilterWhere(['=', 'id_agente', $vendedor])     
+                                ->andFilterWhere(['=', 'id_agente', $vendedor])   
+                                ->andFilterWhere(['=', 'pedido_despachado', $entregado])     
                                 ->andFilterWhere(['between', 'fecha_pedido', $fecha_inicio, $fecha_corte]);
                          }
                         
@@ -125,6 +129,102 @@ class PedidosController extends Controller
                             'form' => $form,
                             'pagination' => $pages,
                             'TokenAcceso' => $TokenAcceso,
+                            'token' => $token,  
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
+    
+    //CONSULTA DE PEDIDOS
+     public function actionSearch_pedidos($token = 1) {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 180])->all()) {
+                $form = new \app\models\FormFiltroPedido();
+                $numero = null;
+                $cliente = null;
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $vendedor = null;
+                $entregado = null;
+                $TokenAcceso = Yii::$app->user->identity->id_agente;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $numero = Html::encode($form->numero);
+                        $cliente = Html::encode($form->cliente);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $vendedor = Html::encode($form->vendedor);
+                        $entregado = Html::encode($form->entregado);
+                         if($TokenAcceso){
+                            $table = Pedidos::find()
+                                ->andFilterWhere(['=', 'numero_pedido', $numero])
+                                ->andFilterWhere(['=', 'idcliente', $cliente])
+                                ->andFilterWhere(['=', 'pedido_despachado', $entregado])     
+                                ->andFilterWhere(['between', 'fecha_pedido', $fecha_inicio, $fecha_corte])
+                                ->andWhere(['=', 'id_agente', $TokenAcceso]); 
+                         }else{
+                             $table = Pedidos::find()
+                                ->andFilterWhere(['=', 'numero_pedido', $numero])
+                                ->andFilterWhere(['=', 'idcliente', $cliente])
+                                 ->andFilterWhere(['=', 'pedido_despachado', $entregado])     
+                                 ->andFilterWhere(['=', 'id_agente', $vendedor])     
+                                ->andFilterWhere(['between', 'fecha_pedido', $fecha_inicio, $fecha_corte]);
+                         }
+                        
+                        $table = $table->orderBy('id_pedido DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $modelo = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                        if (isset($_POST['excel'])) {
+                            $check = isset($_REQUEST['id_pedido DESC']);
+                            $this->actionExcelConsultaPedidos($tableexcel);
+                        }
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                   
+                    if($TokenAcceso){
+                        $table = Pedidos::find()->where(['id_agente' => $TokenAcceso])
+                                 ->orderBy('id_pedido DESC');
+                    }else{
+                        $table = Pedidos::find()->where(['autorizado' => 1])->orderBy('id_pedido DESC');
+                    }    
+                        
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 15,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $modelo = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if (isset($_POST['excel'])) {
+                        //$table = $table->all();
+                        $this->actionExcelConsultaPedidos($tableexcel);
+                    }
+                }
+                $to = $count->count();
+                return $this->render('index_search', [
+                            'modelo' => $modelo,
+                            'form' => $form,
+                            'pagination' => $pages,
+                            'TokenAcceso' => $TokenAcceso,
+                            'token' => $token,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -140,17 +240,18 @@ class PedidosController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id, $token,)
     {
         $referencias = \app\models\PedidosDetalle::find()->where(['=','id_pedido', $id])->orderBy('id_detalle DESC')->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
             'referencias' => $referencias,
+            'token' => $token,
         ]);
     }
     
     //PERMITE VER LAS TALLAS DE LA REFERENCIA
-    public function actionVer_tallas_colores($id, $id_detalle) {
+    public function actionVer_tallas_colores($id, $id_detalle, $token) {
         
         $tallas = \app\models\PedidoTallas::find()->where(['=','id_detalle', $id_detalle])->all();
         $ConColores = \app\models\PedidoColores::find()->where(['=','id_detalle', $id_detalle])->orderBy('idtalla ASC')->all();
@@ -227,7 +328,7 @@ class PedidosController extends Controller
                 }
             $intIndice++;
         }
-        return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle]);
+        return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
     }
          return $this->render('ver_talla_color', [
             'id' => $id,
@@ -236,6 +337,7 @@ class PedidosController extends Controller
             'id_detalle' => $id_detalle,
             'coloresTallas' => $coloresTallas,
             'ConColores' => $ConColores,
+             'token' => $token,
         ]);
     }
             
@@ -257,7 +359,7 @@ class PedidosController extends Controller
                 $model->id_agente = $TokenAcceso;
             }
             $model->save();
-            return $this->redirect(['view', 'id' => $model->id_pedido]);
+            return $this->redirect(['view', 'id' => $model->id_pedido,'token' => 0]);
         }
         
         return $this->render('create', [
@@ -278,7 +380,7 @@ class PedidosController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_pedido]);
+            return $this->redirect(['view', 'id' => $model->id_pedido, 'token' => 1]);
         }
 
         return $this->render('update', [
@@ -289,7 +391,7 @@ class PedidosController extends Controller
    
     
     //AGREGAR REFERENCIAS AL PEDIDO
-     public function actionNueva_referencia_pedido($id)
+     public function actionNueva_referencia_pedido($id,$token,)
     {
         $referencia = \app\models\InventarioPuntoVenta::find()->orderBy('nombre_producto ASC')->all();
         $form = new \app\models\FormMaquinaBuscar();
@@ -372,10 +474,10 @@ class PedidosController extends Controller
                     }    
                     $intIndice++;
                 }
-                return $this->redirect(["pedidos/view", 'id' => $id]);
+                return $this->redirect(["pedidos/view", 'id' => $id, 'token' => $token]);
             }else{
                  Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un registro de las referencias.');
-                return $this->redirect(["nueva_referencia_pedido", 'id' => $id]);
+                return $this->redirect(["nueva_referencia_pedido", 'id' => $id, 'token' => $token]);
             }
         }
         return $this->render('_form_nueva_referencia_producto', [
@@ -383,11 +485,12 @@ class PedidosController extends Controller
             'pagination' => $pages,
             'id' => $id,
             'form' => $form,
+            'token' => $token,
         ]);
     }
     
     //ADICIONAR LAS TALLAS Y LOS COLORES
-    public function actionCrear_tallas_referencia($id, $id_detalle) {
+    public function actionCrear_tallas_referencia($id, $id_detalle, $token,) {
         
         $detalle_pedido = \app\models\PedidosDetalle::findOne($id_detalle);
         $tallas = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $detalle_pedido->id_inventario])->orderBy('idtalla ASC')->all();
@@ -407,10 +510,10 @@ class PedidosController extends Controller
                     }    
                 }
                 Yii::$app->getSession()->setFlash('success', 'Se guardaron: ' . $intIndice .' registros exitosamente.');
-                return $this->redirect(["pedidos/view", 'id' => $id]);
+                return $this->redirect(["pedidos/view", 'id' => $id, 'token' => $token]);
             }else{
                  Yii::$app->getSession()->setFlash('warning', 'Debe seleccionar al menos un registro de las referencias.');
-                return $this->redirect(["nueva_referencia_pedido", 'id' => $id]);
+                return $this->redirect(["nueva_referencia_pedido", 'id' => $id, 'token' => $token]);
             }
         }
         
@@ -419,6 +522,7 @@ class PedidosController extends Controller
                 'id' => $id,
               
                 'id_detalle' => $id_detalle,
+                'token' => $token,
               
             ]);
     }
@@ -504,72 +608,72 @@ class PedidosController extends Controller
     }
     
     //ELIMINAR COLORES
-    public function actionEliminar_colores($id, $id_detalle, $dato_eliminar)
+    public function actionEliminar_colores($id, $id_detalle, $dato_eliminar, $token)
     {
         $dato = \app\models\PedidoColores::findOne($dato_eliminar);
         $dato->delete();
-       return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle]);
+       return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
     }
     
     //ELIMIAR LAS TALLAS DEL PEDIDO
-    public function actionEliminar_tallas($id, $id_detalle, $dato_eliminar) {
+    public function actionEliminar_tallas($id, $id_detalle, $dato_eliminar, $token) {
         try {
            $dato = \app\models\PedidoTallas::findOne($dato_eliminar);
            $dato->delete();
            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
-           return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle]);
+           return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
         } catch (IntegrityException $e) {
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene colores asociados al proceso'); 
-            return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle]);
+            return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
             
         } catch (\Exception $e) {
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene colores asociados al proceso'); 
-            return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle]);
+            return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
         }
        
-       return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle]);
+       return $this->redirect(['pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
     }
     
     //ELIMIAR LAS TALLAS DEL PEDIDO
-    public function actionEliminar_referencias($id, $id_detalle) {
+    public function actionEliminar_referencias($id, $id_detalle, $token) {
         try {
            $dato = \app\models\PedidosDetalle::findOne($id_detalle);
            $dato->delete();
            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado exitosamente.');
-           return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle]);
+           return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle,'token' => $token]);
         } catch (IntegrityException $e) {
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene tallas y colores asociados'); 
-            return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle]);
+            return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
             
         } catch (\Exception $e) {
             Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene tallas y colores asociados'); 
-            return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle]);
+            return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
         }
        
-       return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle]);
+       return $this->redirect(['pedidos/view', 'id' => $id, 'id_detalle' => $id_detalle, 'token' => $token]);
     }
     
     //PROCESO QYE SE AUTORIZA
-    public function actionAutorizado($id) {
+    public function actionAutorizado($id, $token,) {
         $detalle_pedido = \app\models\PedidosDetalle::find()->where(['=','id_pedido', $id])->andWhere(['>','cantidad', 0])->one();
         if(!$detalle_pedido){
             Yii::$app->getSession()->setFlash('error','Debe de ingresar las referencias y las cantidades por talla para poder autorizar el pedido. ');
-            return $this->redirect(['pedidos/view', 'id' => $id]);
+            return $this->redirect(['pedidos/view', 'id' => $id, 'token' => $token]);
         }
         $model = Pedidos::findOne($id);
         if($model->autorizado == 0){
             $model->autorizado = 1;
             $model->save();
-            return $this->redirect(['pedidos/view', 'id' => $id]);
+            return $this->redirect(['pedidos/view', 'id' => $id, 'token' => $token]);
         }else{
             $model->autorizado = 0;
             $model->save();
-            return $this->redirect(['pedidos/view', 'id' => $id]);
+            return $this->redirect(['pedidos/view', 'id' => $id, 'token' => $token]);
         }
     }
     
     //PROCESO QUE CIERRA EL PEDIDO
-    public function actionCerrar_pedido($id) {
+    public function actionCerrar_pedido($id, $token) {
         $model = Pedidos::findOne($id);
          //generar consecutivo
         $registro = \app\models\Consecutivo::findOne(26);
@@ -581,7 +685,7 @@ class PedidosController extends Controller
         $registro->consecutivo = $valor;
         $registro->save();
         $this->CalcularImpuestoTotalPedido($id);
-        return $this->redirect(['pedidos/view', 'id' => $id]); 
+        return $this->redirect(['pedidos/view', 'id' => $id, 'token' => $token]); 
     }
     
     protected function CalcularImpuestoTotalPedido($id) {

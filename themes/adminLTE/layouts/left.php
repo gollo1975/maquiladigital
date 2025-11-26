@@ -508,7 +508,8 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'url' => '#',
                                                 'items' => [
                                                    ['label' => 'Inventario', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_inventario']],
-                                                   //['label' => 'Rerefencias', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/search_referencias']],
+                                                   ['label' => 'Pedidos', 'icon' => 'plus-square-o', 'url' => ['/pedidos/search_pedidos']],
+                                                   ['label' => 'Despachos', 'icon' => 'plus-square-o', 'url' => ['/despacho-pedidos/search_index']],
                                                   [
                                                     'label' => 'Costo y rentabilidad',
                                                     'icon' => 'connectdevelop',

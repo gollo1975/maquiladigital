@@ -120,6 +120,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'>Marca</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Categoria</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Entradas</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Salidas</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Stock</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th score="col" style='background-color:#B9D5CE;'></th>  
@@ -196,6 +197,7 @@ $form = ActiveForm::begin([
                     <td><?= $val->marca->marca ?? 'NO FOUNT'?></td>
                     <td><?= $val->categoria->categoria ?? 'NO FOUNT'?></td>
                     <td style="text-align: right;"><?= ''.number_format($val->stock_unidades,0)?></td>
+                    <td style="text-align: right; background-color:#d0f4de; color: black"><?= ''.number_format($val->stock_unidades - $val->stock_inventario,0)?></td>
                     <td style="text-align: right; background-color:#CBDDE3; color: black"><?= ''.number_format($val->stock_inventario,0)?></td>
                     <td style= 'width: 25px; height: 10px;'>
                          <a href="<?= Url::toRoute(["inventario-punto-venta/view", "id" => $val->id_inventario, 'token' => $token,'codigo' => $val->codigo_enlace_bodega]) ?>" ><span class="glyphicon glyphicon-eye-open" title="Permite crear las cantidades del producto, lote y codigos"></span></a>
@@ -225,6 +227,20 @@ $form = ActiveForm::begin([
                         </td>
                     <?php }else{?>
                         <td style= 'width: 25px; height: 10px;'></td>
+                         <td style= 'width: 25px; height: 10px;'>	
+                            <?= Html::a('<span class="glyphicon glyphicon-list"></span>',
+                               ['/inventario-punto-venta/nuevo_costo_producto','id' => $val->id_inventario],
+                               [
+                                   'title' => 'Crear nuevo precio de costo',
+                                   'data-toggle'=>'modal',
+                                   'data-target'=>'#modalnuevocostoproducto'.$val->id_inventario,
+
+                               ])    
+                            ?>
+                         </td>
+                          <td style= 'width: 25px; height: 10px;'>
+                             <a href="<?= Url::toRoute(["inventario-punto-venta/lista_precios", "id" => $val->id_inventario, 'token' =>$token]) ?>" ><span class="glyphicon glyphicon-usd" title="Permite crear las listas de precios."></span></a>
+                        </td>
                     <?php }?>    
                 </tr>            
             <?php endforeach; ?>

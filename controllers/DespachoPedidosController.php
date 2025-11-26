@@ -118,18 +118,94 @@ class DespachoPedidosController extends Controller
         }
     }
 
+    //CONSULTA DE DESPACHOS
+     public function actionSearch_index() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 181])->all()) {
+                $form = new \app\models\FormFiltroDespacho();
+                $pedido = null;
+                $cliente = null;
+                $fecha_inicio = null;
+                $fecha_corte = null;
+                $numero_despacho = null;
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $pedido = Html::encode($form->pedido);
+                        $cliente = Html::encode($form->cliente);
+                        $fecha_inicio = Html::encode($form->fecha_inicio);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $numero_despacho = Html::encode($form->numero_despacho);
+                         
+                        $table = DespachoPedidos::find()
+                            ->andFilterWhere(['=', 'numero_pedido', $pedido])
+                            ->andFilterWhere(['=', 'idcliente', $cliente])
+                            ->andFilterWhere(['=', 'numero_despacho', $numero_despacho])
+                            ->andFilterWhere(['between', 'fecha_pedido', $fecha_inicio, $fecha_corte]);
+                               
+                        
+                        $table = $table->orderBy('id_despacho DESC');
+                        $tableexcel = $table->all();
+                        $count = clone $table;
+                        $to = $count->count();
+                        $pages = new Pagination([
+                            'pageSize' => 15,
+                            'totalCount' => $count->count()
+                        ]);
+                        $modelo = $table
+                                ->offset($pages->offset)
+                                ->limit($pages->limit)
+                                ->all();
+                        if (isset($_POST['excel'])) {
+                            $check = isset($_REQUEST['id_pedido DESC']);
+                            $this->actionExcelConsultaPedidos($tableexcel);
+                        }
+                    } else {
+                        $form->getErrors();
+                    }
+                } else {
+                    $table = DespachoPedidos::find()->orderBy('id_despacho DESC');
+                    $tableexcel = $table->all();
+                    $count = clone $table;
+                    $pages = new Pagination([
+                        'pageSize' => 15,
+                        'totalCount' => $count->count(),
+                    ]);
+                    $modelo = $table
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                    if (isset($_POST['excel'])) {
+                        //$table = $table->all();
+                        $this->actionExcelConsultaPedidos($tableexcel);
+                    }
+                }
+                $to = $count->count();
+                return $this->render('search_index', [
+                            'modelo' => $modelo,
+                            'form' => $form,
+                            'pagination' => $pages,
+                           
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
     /**
      * Displays a single DespachoPedidos model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView($id,$token)
     {
         $conDetalle = \app\models\DespachoPedidoDetalles::find()->where(['id_despacho' => $id])->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
             'conDetalle' => $conDetalle,
+            'token' => $token,
         ]);
     }
 
@@ -143,7 +219,7 @@ class DespachoPedidosController extends Controller
         $model = new DespachoPedidos();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_despacho]);
+            return $this->redirect(['view', 'id' => $model->id_despacho, 'token' => 0]);
         }
 
         return $this->render('create', [
@@ -152,7 +228,7 @@ class DespachoPedidosController extends Controller
     }
 
     //importar ordenes de produccion
-   public function actionImportar_pedidos() {
+   public function actionImportar_pedidos($token) {
         $operacion = \app\models\Pedidos::find()->where([
                                               'pedido_cerrado' => 1,
                                               'pedido_despachado' => 0])->orderBy('id_pedido ASC')->all();
@@ -225,11 +301,12 @@ class DespachoPedidosController extends Controller
             'operacion' => $operacion,            
             'pagination' => $pages,
             'form' => $form,
+            'token' => $token,
         ]);
     }
     
    //DESCARGA REFERENCIAS
-    public function actionDescargar_referencias($id, $id_pedido) {
+    public function actionDescargar_referencias($id, $id_pedido, $token) {
         $detallePedido = \app\models\PedidosDetalle::find()->where(['=','id_pedido',  $id_pedido])->andWhere(['>','unidades_faltantes', 0])->all();
         if($detallePedido){
             $contador = 0;
@@ -248,45 +325,60 @@ class DespachoPedidosController extends Controller
                 }    
             }
             Yii::$app->getSession()->setFlash('success', 'Se grabaron: ' .$contador . ' registros exitosamente.');
-            return $this->redirect(['view','id' => $id ]);
+            return $this->redirect(['view','id' => $id,'token' => $token]);
             
         }else{
              Yii::$app->getSession()->setFlash('warning', 'NO hay referencias para este despacho.'); 
-             return $this->redirect(['view','id' => $id ]);
+             return $this->redirect(['view','id' => $id, 'token' => $token ]);
         }
     }
     
     //vista que muestra tallas y colores
     
-    public function actionVer_tallas_colores($id, $id_detalle, $codigo) {
+    public function actionVer_tallas_colores($id, $id_detalle, $codigo, $id_inventario, $token) {
+        
         $despacho_detalle = \app\models\DespachoPedidoDetalles::find()->where($id_detalle)->one();
         $model = \app\models\DespachoPedidoDetalles::findOne($codigo);
         $tallas = \app\models\PedidoTallas::find()->where(['=','id_detalle', $id_detalle])->all();
         
         $ConColores = \app\models\PedidoColores::find()->where(['=','id_detalle', $id_detalle])->orderBy('idtalla ASC')->all();
-        $tallas_inventario = \app\models\PedidoTallas::find()->where(['id_detalle' => $id_detalle,
-                                                           'id_detalle' => $id_detalle])->one();
+        
+        
+        
+        //PROCESO QUE ACTUALIZA LAS TALLAS
         if (isset($_POST["actualizar_cantidades"])) {
              $intIndice = 0;
             foreach ($_POST["listado_tallas"] as $intCodigo) {
-               $unidades = $_POST["cantidad_despachar"][$intIndice];
+                
+                //CONSULTA QUE BUSCA LA TALLA DEL PEDIDO
+                $tallas_inventario = \app\models\PedidoTallas::find()->where(['id_detalle' => $id_detalle,
+                                                             'codigo' => $intCodigo])->one();
+                $unidades = $_POST["cantidad_despachar"][$intIndice];
                 $table = \app\models\PedidoTallas::findOne($intCodigo);
                 if($unidades <= $table->cantidad){
+                                      
                     $talla_color = \app\models\DetalleColorTalla::find()->where(['idtalla' => $tallas_inventario->idtalla,
-                                                                                'id_inventario' => $despacho_detalle->id_inventario])->one();
-                    if($talla_color->stock_punto >= $unidades){
-                        $table->unidades_despachadas = $unidades;
-                        $table->save();
-                        $this->TotalizarLineaDespacho($id_detalle, $codigo);
-                        $this->TotalizarCantidades($id_detalle, $codigo);
-                        $this->TotalizarCantidadesDespacho($id);
-                    }    
+                                                                                'id_inventario' => $id_inventario])->one();
+                    if ($talla_color !== null) {
+                        if($talla_color->stock_punto >= $unidades){
+                            $table->unidades_despachadas = $unidades;
+                            $table->save();
+                            $this->TotalizarLineaDespacho($id_detalle, $codigo);
+                            $this->TotalizarCantidades($id_detalle, $codigo);
+                            $this->TotalizarCantidadesDespacho($id);
+                        }else{
+                            Yii::$app->getSession()->setFlash('warning', 'Stock en punto de venta insuficiente para la talla seleccionada.');
+                        }    
+                    }else{
+                       Yii::$app->getSession()->setFlash('error', 'No se encontró la combinación de Talla/Color/Inventario para actualizar.'); 
+                    }
+                    
                 }else{
                     Yii::$app->getSession()->setFlash('warning', 'La cantidad a despachar es mayor que las unidades vendidas.');
                 }  
                 $intIndice++;
             }  
-            return $this->redirect(['despacho-pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle,'codigo' => $codigo]);
+            return $this->redirect(['despacho-pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle,'codigo' => $codigo, 'id_inventario' => $id_inventario, 'token' => $token]);
         }
         //PROCESO QUE ACTUALIZA LOS COLORES
         if (isset($_POST["actualizar_colores"])) {
@@ -303,14 +395,16 @@ class DespachoPedidosController extends Controller
                 }  
                 $intIndice++;
             }  
-            return $this->redirect(['despacho-pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle,'codigo' => $codigo]);
+            return $this->redirect(['despacho-pedidos/ver_tallas_colores', 'id' => $id, 'id_detalle' => $id_detalle,'codigo' => $codigo, 'token' => $token, 'id_inventario' => $id_inventario]);
         }
         return $this->render('ver_talla', [
             'model' => $model,
             'id_detalle' => $id_detalle,
             'tallas' => $tallas,
+            'id_inventario' => $id_inventario,
             'id' => $id,
-            'ConColores' => $ConColores
+            'ConColores' => $ConColores,
+            'token' => $token,
         ]);
         
     }
@@ -383,7 +477,7 @@ class DespachoPedidosController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_despacho]);
+            return $this->redirect(['view', 'id' => $model->id_despacho, 'token' => 0]);
         }
 
         return $this->render('update', [
@@ -406,7 +500,7 @@ class DespachoPedidosController extends Controller
     }
     
     //ELIMIAR LAS TALLAS DEL PEDIDO
-    public function actionEliminar_lineas($id, $id_detalle) {
+    public function actionEliminar_lineas($id, $id_detalle, $token) {
         try {
            $dato = \app\models\DespachoPedidoDetalles::findOne($id_detalle);
            $dato->delete();
@@ -425,7 +519,7 @@ class DespachoPedidosController extends Controller
     }
     
      //PROCESO QUE SE AUTORIZA
-    public function actionAutorizado($id) {
+    public function actionAutorizado($id, $token) {
         $detalle_pedido = \app\models\DespachoPedidos::find()->where(['=','id_despacho', $id])->andWhere(['>','cantidad_despachada', 0])->one();
         if(!$detalle_pedido){
             Yii::$app->getSession()->setFlash('error','Debe de ingresar las referencias y las cantidades por talla para poder autorizar el pedido. ');
@@ -435,16 +529,16 @@ class DespachoPedidosController extends Controller
         if($model->autorizado == 0){
             $model->autorizado = 1;
             $model->save();
-            return $this->redirect(['despacho-pedidos/view', 'id' => $id]);
+            return $this->redirect(['despacho-pedidos/view', 'id' => $id, 'token' => $token]);
         }else{
             $model->autorizado = 0;
             $model->save();
-            return $this->redirect(['despacho-pedidos/view', 'id' => $id]);
+            return $this->redirect(['despacho-pedidos/view', 'id' => $id, 'token' => $token]);
         }
     }
     
     //PROCESO QUE CIERRA EL PEDIDO
-    public function actionCerrar_despacho($id) {
+    public function actionCerrar_despacho($id, $token) {
         $model = DespachoPedidos::findOne($id);
          //generar consecutivo
         $registro = \app\models\Consecutivo::findOne(28);
@@ -457,7 +551,15 @@ class DespachoPedidosController extends Controller
         $registro->save();
         $this->CalcularImpuestoTotalPedido($id);
         $this->ActualizarInventario($id);
-        return $this->redirect(['despacho-pedidos/view', 'id' => $id]); 
+        return $this->redirect(['despacho-pedidos/view', 'id' => $id, 'token' => $token]); 
+    }
+    
+    //CERRAR EL PEDIDO
+    public function actionCerrar_pedido($id, $id_pedido, $token) {
+        $pedido = \app\models\Pedidos::findOne($id_pedido);
+        $pedido->pedido_despachado = 1;
+        $pedido->save();
+        return $this->redirect(['despacho-pedidos/view', 'id' => $id, 'token' => $token]); 
     }
     
     protected function CalcularImpuestoTotalPedido($id) {
@@ -529,6 +631,15 @@ class DespachoPedidosController extends Controller
             $inventario->save();
             
         }
+    }
+    
+    //IMPRESIONES
+    public function actionImprimir_despachos($id)
+    {
+        return $this->render('../formatos/reporte_despacho_pedido', [
+            'model' => $this->findModel($id),
+            
+        ]);
     }
 
     /**

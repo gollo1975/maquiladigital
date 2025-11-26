@@ -22,7 +22,7 @@ $conCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
         
         <?php $formulario = ActiveForm::begin([
             "method" => "get",
-            "action" => Url::toRoute(["despacho-pedidos/importar_pedidos"]),
+            "action" => Url::toRoute(["despacho-pedidos/importar_pedidos",'token' => $token]),
             "enableClientValidation" => true,
             'options' => ['class' => 'form-horizontal'],
             'fieldConfig' => [
@@ -51,7 +51,7 @@ $conCliente = ArrayHelper::map(app\models\Cliente::find()->orderBy('nombrecorto 
                 </div>
                 <div class="panel-footer text-right">
                     <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-                     <a align="right" href="<?= Url::toRoute(["despacho-pedidos/importar_pedidos"]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+                     <a align="right" href="<?= Url::toRoute(["despacho-pedidos/importar_pedidos", 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
                 </div>
             </div>
         </div>

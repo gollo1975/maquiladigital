@@ -18,7 +18,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->orderBy('color ASC')->all(
 
     <p>
         <div class="btn-group btn-sm" role="group">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id], ['class' => 'btn btn-primary btn-sm']);?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id, 'token' => $token], ['class' => 'btn btn-primary btn-sm']);?>
         </div>    
     </p>
      <div class="panel panel-success">
@@ -104,7 +104,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->orderBy('color ASC')->all(
                                             </td>
                                             <?php if($model->pedido->autorizado == 0) {?>
                                                 <td style="width: 10px; height: 10px">	
-                                                        <?= Html::a('', ['eliminar_tallas', 'id' => $id, 'id_detalle' => $id_detalle, 'dato_eliminar' => $val->codigo], [
+                                                        <?= Html::a('', ['eliminar_tallas', 'id' => $id, 'id_detalle' => $id_detalle, 'dato_eliminar' => $val->codigo, 'token' => $token], [
                                                           'class' => 'glyphicon glyphicon-trash',
                                                           'data' => [
                                                               'confirm' => 'Esta seguro de eliminar el registro?',
@@ -154,7 +154,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->orderBy('color ASC')->all(
                                             <td> <?= $color->tallas->talla ?></td>
                                             <?php if($model->pedido->autorizado == 0) {?>
                                                 <td style="width: 20px; height: 20px">	
-                                                        <?= Html::a('', ['eliminar_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'dato_eliminar' => $color->id_entrada], [
+                                                        <?= Html::a('', ['eliminar_colores', 'id' => $id, 'id_detalle' => $id_detalle, 'dato_eliminar' => $color->id_entrada,'token' => $token], [
                                                           'class' => 'glyphicon glyphicon-trash',
                                                           'data' => [
                                                               'confirm' => 'Esta seguro de eliminar el registro?',

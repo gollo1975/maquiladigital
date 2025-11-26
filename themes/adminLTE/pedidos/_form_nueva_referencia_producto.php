@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute(["pedidos/nueva_referencia_pedido", 'id' => $id]),
+    "action" => Url::toRoute(["pedidos/nueva_referencia_pedido", 'id' => $id,'token' => $token]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     
@@ -54,7 +54,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-xs"]) ?>
-            <a align="right" href="<?= Url::toRoute(["pedidos/nueva_referencia_pedido", 'id' => $id]) ?>" class="btn btn-primary btn-xs"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute(["pedidos/nueva_referencia_pedido", 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-xs"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -107,7 +107,7 @@ $form = ActiveForm::begin([
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pedidos/view', 'id' => $id], ['class' => 'btn btn-primary btn-xs']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pedidos/view', 'id' => $id, 'token' => $token], ['class' => 'btn btn-primary btn-xs']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-send'></span> Enviar", ["class" => "btn btn-success btn-xs", 'name' => 'enviar_referencias']) ?>
         </div>
 

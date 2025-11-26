@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute("pedidos/index"),
+    "action" => Url::toRoute("pedidos/search_pedidos"),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -100,7 +100,7 @@ if($TokenAcceso){
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary btn-sm",]) ?>
-            <a align="right" href="<?= Url::toRoute("pedidos/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute("pedidos/search_pedidos") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -129,7 +129,6 @@ if($TokenAcceso){
                 <th scope="col" style='background-color:#B9D5CE;'>F. pedido</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. entrega</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
-                <th scope="col" style='background-color:#B9D5CE;'></th>
               
             </tr>
             </thead>
@@ -154,22 +153,16 @@ if($TokenAcceso){
                      <td><?= $val->fecha_entrega ?></td>
                    
                     <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["pedidos/view", "id" => $val->id_pedido, 'token' => $token,]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["pedidos/view", "id" => $val->id_pedido,'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <?php if(!\app\models\PedidosDetalle::find()->where(['=','id_pedido', $val->id_pedido])->one()){?>
-                        <td style= 'width: 25px; height: 25px;'>
-                                <a href="<?= Url::toRoute(["pedidos/update", "id" => $val->id_pedido ,'token' => $token,]) ?>" ><span class="glyphicon glyphicon-pencil"></span></a>
-                        </td>
-                    <?php }else{?>
-                        <td style= 'width: 25px; height: 25px;'></td>
-                    <?php }?>    
+                   
              
             </tbody>            
             <?php endforeach; ?>
         </table>    
         <div class="panel-footer text-right" >            
-            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-xs ']); ?>                
-            <a align="right" href="<?= Url::toRoute("pedidos/create") ?>" class="btn btn-success btn-xs"><span class='glyphicon glyphicon-plus'></span> Nuevo</a>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar excel", ['name' => 'excel','class' => 'btn btn-primary btn-xs ']); ?>                
+            
         </div>
       <?php $form->end() ?>
     </div>

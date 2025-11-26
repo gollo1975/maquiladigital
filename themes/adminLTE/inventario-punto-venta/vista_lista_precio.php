@@ -98,7 +98,7 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
                                 <div class="panel-footer text-right" >  
                                     <!-- Inicio Nuevo Detalle proceso -->
                                       <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear precio',
-                                          ['/inventario-punto-venta/nuevo_precio_venta','id' => $model->id_inventario],
+                                          ['/inventario-punto-venta/nuevo_precio_venta','id' => $model->id_inventario,'token' => $token],
                                           [
                                               'title' => 'Crear nuevo precio de venta',
                                               'data-toggle'=>'modal',

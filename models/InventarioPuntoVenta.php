@@ -124,7 +124,7 @@ class InventarioPuntoVenta extends \yii\db\ActiveRecord
             'codigo_enlace_bodega' => 'Codigo Enlace Bodega',
             'inventario_aprobado' => 'Inventario Aprobado',
             'stock_minimo' => 'Stock Minimo',
-            'idordenproduccion' => 'idordenproduccion',
+                'idordenproduccion' => 'idordenproduccion',
             'stock_salida' => 'stock_salida',
         ];
     }

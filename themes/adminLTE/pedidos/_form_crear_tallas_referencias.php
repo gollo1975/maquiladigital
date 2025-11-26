@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute(["pedidos/crear_tallas_referencias", 'id' => $id,'id_detalle' => $id_detalle]),
+    "action" => Url::toRoute(["pedidos/crear_tallas_referencias", 'id' => $id,'id_detalle' => $id_detalle, 'token' => $token]),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     
@@ -100,7 +100,7 @@ $form = ActiveForm::begin([
             </table>
         </div>
         <div class="panel-footer text-right">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pedidos/view', 'id' => $id], ['class' => 'btn btn-primary btn-xs']) ?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['pedidos/view', 'id' => $id,'token' => $token], ['class' => 'btn btn-primary btn-xs']) ?>
             <?= Html::submitButton("<span class='glyphicon glyphicon-send'></span> Enviar", ["class" => "btn btn-success btn-xs", 'name' => 'enviar_referencias']) ?>
         </div>
 

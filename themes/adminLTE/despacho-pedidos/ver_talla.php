@@ -10,7 +10,7 @@ use kartik\select2\Select2;
 /* @var $model app\models\ComprobanteEgreso */
 
 $this->title = 'TALLAS';
-$this->params['breadcrumbs'][] = ['label' => 'despachos-pedidos', 'url' => ['view','id' => $id]];
+$this->params['breadcrumbs'][] = ['label' => 'despachos-pedidos', 'url' => ['view','id' => $id, 'token' => $token]];
 $this->params['breadcrumbs'][] = $model->id_despacho;
 $colores = ArrayHelper::map(app\models\Color::find()->orderBy('color ASC')->all(), 'id', 'color')
 ?>
@@ -18,7 +18,7 @@ $colores = ArrayHelper::map(app\models\Color::find()->orderBy('color ASC')->all(
 
     <p>
         <div class="btn-group btn-sm" role="group">
-            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id], ['class' => 'btn btn-primary btn-sm']);?>
+            <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view', 'id' => $id, 'token' => $token], ['class' => 'btn btn-primary btn-sm']);?>
         </div>    
     </p>
      <div class="panel panel-success">

@@ -15,17 +15,26 @@ $this->params['breadcrumbs'][] = $model->id_despacho;
 ?>
 <div class="pedido-cliente-view">
     <div class="btn-group btn-sm" role="group">
-        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);
+        <?php if($token == 0){
+            echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);
+        }else{
+            echo Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_index'], ['class' => 'btn btn-primary btn-sm']);
+        }
+        
         if ($model->autorizado == 0 && $model->numero_despacho == 0) { ?>
-            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_despacho], ['class' => 'btn btn-default btn-sm']);
+            <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_despacho ,'token' => $token], ['class' => 'btn btn-default btn-sm']);
         } else {
             if ($model->autorizado == 1 && $model->numero_despacho == 0) {
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_despacho], ['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar despacho', ['cerrar_despacho', 'id' => $model->id_despacho],['class' => 'btn btn-info btn-sm',
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->id_despacho, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar despacho', ['cerrar_despacho', 'id' => $model->id_despacho, 'token' => $token],['class' => 'btn btn-info btn-sm',
                      'data' => ['confirm' => 'Esta seguro que desea cerrar el despacho al cliente ('.$model->cliente->nombrecorto.'). Tener presente que se actualiza el inventario.', 'method' => 'post']]);
             }else{    
-                echo Html::a('<span class="glyphicon glyphicon-print"></span> Pedido', ['/despacho-pedidos/imprimir_pedido', 'id' => $model->id_despacho],['class' => 'btn btn-default btn-sm']);
-                echo Html::a('<span class="glyphicon glyphicon-print"></span> Tallas', ['/pedidos/imprimir_tallas', 'id' => $model->id_despacho],['class' => 'btn btn-default btn-sm']);
+                echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar despacho', ['/despacho-pedidos/imprimir_despachos', 'id' => $model->id_despacho],['class' => 'btn btn-default btn-sm']);
+                if($token == 0){
+                     echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pedido', ['cerrar_pedido', 'id' => $model->id_despacho, 'id_pedido' => $model->id_pedido, 'token' => $token],['class' => 'btn btn-info btn-sm',
+                     'data' => ['confirm' => 'Esta seguro que desea CERARR el PEDIDO al cliente ('.$model->cliente->nombrecorto.'). Tener presente que al cerrado NO pùede hacer mas despachos.', 'method' => 'post']]);
+                }
+               
             }    
         }?>
     </div>    
@@ -109,10 +118,10 @@ $this->params['breadcrumbs'][] = $model->id_despacho;
                                             <td style="text-align: right"><?=  number_format($val->total_pagar,0) ?></td>
                                             <?php if ($model->autorizado == 0){?>
                                                     <td style= 'width: 25px; height: 25px;'>
-                                                             <a href="<?= Url::toRoute(["despacho-pedidos/ver_tallas_colores", "id" => $model->id_despacho, 'id_detalle' => $val->id_detalle, 'codigo' => $val->codigo]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                                             <a href="<?= Url::toRoute(["despacho-pedidos/ver_tallas_colores", "id" => $model->id_despacho, 'id_detalle' => $val->id_detalle, 'codigo' => $val->codigo, 'id_inventario' => $val->id_inventario, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                                                     </td>
                                                     <td style="width: 10px; height: 10px">	
-                                                        <?= Html::a('', ['eliminar_lineas', 'id' => $model->id_pedido, 'id_detalle' => $val->codigo], [
+                                                        <?= Html::a('', ['eliminar_lineas', 'id' => $model->id_pedido, 'id_detalle' => $val->codigo, 'token' => $token], [
                                                           'class' => 'glyphicon glyphicon-trash',
                                                           'data' => [
                                                               'confirm' => 'Esta seguro de eliminar el registro?',
@@ -123,7 +132,7 @@ $this->params['breadcrumbs'][] = $model->id_despacho;
                                             <?php     
                                             }else{?>
                                                     <td style= 'width: 25px; height: 25px;'>
-                                                        <a href="<?= Url::toRoute(["despacho-pedidos/ver_tallas_colores", "id" => $model->id_despacho, 'id_detalle' => $val->id_detalle,'codigo' => $val->codigo]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                                        <a href="<?= Url::toRoute(["despacho-pedidos/ver_tallas_colores", "id" => $model->id_despacho, 'id_detalle' => $val->id_detalle,'codigo' => $val->codigo, 'id_inventario' => $val->id_inventario, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                                                     </td>
                                                     <td style= 'width: 25px; height: 25px;'></td>
                                                     
@@ -138,7 +147,7 @@ $this->params['breadcrumbs'][] = $model->id_despacho;
                         <?php 
                         if($model->autorizado == 0){
                         
-                                    echo Html::a('<span class="glyphicon glyphicon-import"></span> Descargar referencias', ['despacho-pedidos/descargar_referencias', 'id' => $model->id_despacho, 'id_pedido' =>$model->id_pedido], ['class' => 'btn btn-success btn-xs']);
+                                    echo Html::a('<span class="glyphicon glyphicon-import"></span> Descargar referencias', ['despacho-pedidos/descargar_referencias', 'id' => $model->id_despacho, 'id_pedido' =>$model->id_pedido, 'token' => $token], ['class' => 'btn btn-success btn-xs']);
                             
                         }?>
                    </div>     

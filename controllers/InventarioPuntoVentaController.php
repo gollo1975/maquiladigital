@@ -676,7 +676,13 @@ class InventarioPuntoVentaController extends Controller
     
      //CERRAR COMBINACIONES
     public function actionCerrar_combinaciones($id, $token, $codigo){
+        
         $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->andWhere(['=','cerrado', 0])->all();
+        $model = InventarioPuntoVenta::findOne($id);
+        if($model->stock_unidades <= 0){
+             Yii::$app->getSession()->setFlash('error', 'Debe de actualizar las unidade al inventario. Ingrese nuevamente.'); 
+            return $this->redirect(["inventario-punto-venta/view", 'id' => $id, 'token' => $token, 'codigo' => $codigo]);  
+         }
         if($detalle){
             foreach ($detalle as $detalles):
                 if($detalles->cantidad > 0 && $detalles->id != null){
@@ -1043,7 +1049,7 @@ class InventarioPuntoVentaController extends Controller
     }    
       
     //PROCESO QUE CREA EL NUEVO PRECIO
-    public function actionNuevo_precio_venta($id) {
+    public function actionNuevo_precio_venta($id, $token) {
         $model = new \app\models\FormModeloAsignarPrecioVenta();
         if ($model->load(Yii::$app->request->post())) {
             if($model->validate()){
@@ -1054,10 +1060,10 @@ class InventarioPuntoVentaController extends Controller
                         $table->valor_venta = $model->nuevo_precio;
                         $table->user_name = Yii::$app->user->identity->username;
                         $table->save(false);
-                        $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id]);
+                        return $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id, 'token' => $token]);
                     }else{
                         Yii::$app->getSession()->setFlash('warning', 'No se asignó ningun precio de venta a público. Ingrese nuevamente.'); 
-                        $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id]);
+                        return $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id,'token' => $token]);
                     }    
                 }    
             }else{
@@ -1068,7 +1074,27 @@ class InventarioPuntoVentaController extends Controller
             'model' => $model,
             'id' => $id,
         ]);
-    }    
+    }   
+    
+    //cerrar orden
+    public function actionCerrar_orden_produccion($id,$token, $codigo) {
+         $detalle = \app\models\DetalleColorTalla::find()->where(['id_inventario' => $id])->one(); 
+         $model = InventarioPuntoVenta::findOne($id);
+         $orden = \app\models\Ordenproduccion::findOne($model->idordenproduccion);
+         if(!$detalle){
+             Yii::$app->getSession()->setFlash('warning', 'Debe de cargar las tallas y colores a la referencia. Ingrese nuevamente.'); 
+            return $this->redirect(["inventario-punto-venta/view", 'id' => $id, 'token' => $token, 'codigo' => $codigo]); 
+         }
+         //preguntamos si hizo la actualizacion de unidades
+         if($model->stock_unidades <= 0){
+             Yii::$app->getSession()->setFlash('error', 'Debe de actualizar las unidade al inventario. Ingrese nuevamente.'); 
+            return $this->redirect(["inventario-punto-venta/view", 'id' => $id, 'token' => $token, 'codigo' => $codigo]);  
+         }
+         $orden->inventario_exportado = 1;
+         $orden->save();
+         return $this->redirect(["inventario-punto-venta/view", 'id' => $id, 'token' => $token, 'codigo' => $codigo]); 
+         
+    }
     
     //EXCELES
     public function actionExcelInventarioPuntoVenta($tableexcel) {                

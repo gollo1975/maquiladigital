@@ -146,32 +146,25 @@ class AgentesComercialesController extends Controller
     public function actionCreate()
     {
         $model = new AgentesComerciales();
-
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
         }
 
-        if ($model->load(Yii::$app->request->post())) {
-            $table = new AgentesComerciales();
+       if ($model->load(Yii::$app->request->post())) {
+            
             $dv = Html::encode($_POST["dv"]);
-            $table->id_tipo_documento = $model->id_tipo_documento;
-            $table->nit_cedula = $model->nit_cedula;
-            $table->dv = $dv;
-            $table->primer_nombre = $model->primer_nombre;
-            $table->segundo_nombre = $model->segundo_nombre;
-            $table->primer_apellido = $model->primer_apellido;
-            $table->segundo_apellido = $model->segundo_apellido;
-            $table->nombre_completo = strtoupper($model->primer_nombre .' '. $model->segundo_nombre . ' '. $model->primer_apellido .' '. $model->segundo_apellido);
-            $table->direccion = $model->direccion;
-            $table->email_agente = $model->email_agente;
-            $table->celular_agente = $model->celular_agente;
-            $table->iddepartamento = $model->iddepartamento;
-            $table->idmunicipio = $model->idmunicipio;
-            $table->fecha_registro = date('Y-m-d H:i:s');
-            $table->user_name = Yii::$app->user->identity->username;
-            $table->save(false);
-            return $this->redirect(['index']);
+            $model->dv = $dv;
+            
+            $model->nombre_completo = strtoupper($model->primer_nombre .' '. $model->segundo_nombre . ' '. $model->primer_apellido .' '. $model->segundo_apellido);
+            $model->fecha_registro = date('Y-m-d H:i:s');
+            $model->user_name = Yii::$app->user->identity->username;
+            if($model->save()){
+                return $this->redirect(['index']);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al grabar los datos del agente comercial'); 
+            }
+            
         }
 
         return $this->render('create', [

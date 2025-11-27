@@ -61,7 +61,7 @@ class AgentesComerciales extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nit_cedula', 'dv', 'primer_nombre', 'primer_apellido', 'iddepartamento', 'idmunicipio'], 'required'],
+            [['nit_cedula', 'primer_nombre', 'primer_apellido', 'iddepartamento', 'idmunicipio'], 'required'],
             [['id_tipo_documento'], 'required'],
             [['id_tipo_documento'], 'integer'],
             [['dv', 'estado', 'hacer_pedido', 'hacer_recibo_caja'], 'integer'],

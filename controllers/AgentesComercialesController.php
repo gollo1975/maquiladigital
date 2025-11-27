@@ -18,8 +18,6 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\widgets\ActiveForm;
 use Codeception\Lib\HelperModule;
-use kartik\date\DatePicker;
-use kartik\time\TimePicker;
 use kartik\select2\Select2;
 use kartik\depdrop\DepDrop;
 
@@ -152,10 +150,8 @@ class AgentesComercialesController extends Controller
         }
 
        if ($model->load(Yii::$app->request->post())) {
-            
             $dv = Html::encode($_POST["dv"]);
             $model->dv = $dv;
-            
             $model->nombre_completo = strtoupper($model->primer_nombre .' '. $model->segundo_nombre . ' '. $model->primer_apellido .' '. $model->segundo_apellido);
             $model->fecha_registro = date('Y-m-d H:i:s');
             $model->user_name = Yii::$app->user->identity->username;

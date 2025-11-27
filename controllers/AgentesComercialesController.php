@@ -146,7 +146,10 @@ class AgentesComercialesController extends Controller
     public function actionCreate()
     {
         $model = new AgentesComerciales();
-       
+        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
 
        if ($model->load(Yii::$app->request->post())) {
             

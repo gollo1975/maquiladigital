@@ -2381,15 +2381,7 @@ class ValorPrendaUnidadController extends Controller
         foreach ($pago as $autorizar):
             $autorizar->autorizado = 1;
             $autorizar->save(false);
-            //codigo que actualiza el estado de exportado
-            $detalle = ValorPrendaUnidadDetalles::find()->where(['>=','dia_pago', $fecha_inicio])->andWhere(['<=','dia_pago', $fecha_corte])
-                                                    ->andWhere(['=','id_operario', $autorizar->id_operario])->all();
-            if(count($detalle)> 0){
-                foreach ($detalle as $valor):
-                    $valor->exportado = 1;
-                   $valor->save(false);
-                endforeach;
-            }
+            
             // codigo que busca si tiene credito todos
             $detallePago = \app\models\PagoNominaServicioDetalle::find()->where(['=','id_pago', $autorizar->id_pago])->all();  
             foreach ($detallePago as $detalle):

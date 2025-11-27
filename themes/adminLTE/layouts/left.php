@@ -477,6 +477,8 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'items' => [
                                                     ['label' => 'Bodegas', 'icon' => 'plus-square-o', 'url' => ['/punto-venta/index']],
                                                     ['label' => 'Vendedores', 'icon' => 'plus-square-o', 'url' => ['/agentes-comerciales/index']],
+                                                    ['label' => 'Marca', 'icon' => 'plus-square-o', 'url' => ['/marca/index']],
+                                                    ['label' => 'Categorias', 'icon' => 'plus-square-o', 'url' => ['/categoria/index']],
                                                 ],
                                             ],
                                             [

@@ -17,7 +17,7 @@ class MarcaSearch extends Marca
     public function rules()
     {
         return [
-            [['id_macar', 'estado'], 'integer'],
+            [['id_marca', 'estado'], 'integer'],
             [['marca'], 'safe'],
         ];
     }
@@ -58,7 +58,7 @@ class MarcaSearch extends Marca
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id_macar' => $this->id_macar,
+            'id_marca' => $this->id_marca,
             'estado' => $this->estado,
         ]);
 

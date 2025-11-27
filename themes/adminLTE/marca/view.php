@@ -4,35 +4,39 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Marca */
+/* @var $model app\models\Horario */
 
-$this->title = $model->id_macar;
-$this->params['breadcrumbs'][] = ['label' => 'Marcas', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
-\yii\web\YiiAsset::register($this);
+$this->title = 'MARCAS';
+$this->params['breadcrumbs'][] = ['label' => 'marca', 'url' => ['index']];
+$this->params['breadcrumbs'][] = $model->id_marca;
 ?>
-<div class="marca-view">
+<div class="horario-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <!--<?= Html::encode($this->title) ?>-->
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id_macar], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id_macar], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
+        <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
+       
     </p>
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            Horario
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-striped table-hover">
+                <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_marca') ?>:</th>
+                    <td><?= Html::encode($model->id_marca) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'marca') ?>:</th>
+                    <td><?= Html::encode($model->marca) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'estado') ?>:</th>
+                    <td><?= Html::encode($model->estadoMarca) ?></td>
+                </tr>           
+                
+            </table>
+        </div>
+    </div>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id_macar',
-            'marca',
-            'estado',
-        ],
-    ]) ?>
+    
 
 </div>

@@ -12,11 +12,12 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="categoria-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+   <!-- <h1><?= Html::encode($this->title) ?></h1>-->
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Categoria', ['create'], ['class' => 'btn btn-success']) ?>
+         <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva categoria', ['create'], ['class' => 'btn btn-success btn-sm']) ?>
+         
     </p>
 
     <?= GridView::widget([

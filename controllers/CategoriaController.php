@@ -8,6 +8,7 @@ use app\models\CategoriaSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\models\UsuarioDetalle;
 
 /**
  * CategoriaController implements the CRUD actions for Categoria model.
@@ -35,13 +36,21 @@ class CategoriaController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new CategoriaSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',183])->all()){
+                $searchModel = new CategoriaSearch();
+                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+                return $this->render('index', [
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dataProvider,
+                ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }          
     }
 
     /**
@@ -67,7 +76,7 @@ class CategoriaController extends Controller
         $model = new Categoria();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_categoria]);
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [
@@ -87,7 +96,7 @@ class CategoriaController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_categoria]);
+            return $this->redirect(['index']);
         }
 
         return $this->render('update', [
@@ -104,9 +113,18 @@ class CategoriaController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        try {
+            $this->findModel($id)->delete();
+            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+            $this->redirect(["categoria/index"]);
+        } catch (IntegrityException $e) {
+            
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene registros asociados en otros procesos');
+            $this->redirect(["categoria/index"]);
+        } catch (\Exception $e) {            
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene registros asociados en otros procesos');
+            $this->redirect(["categoria/index"]);
+        }
     }
 
     /**

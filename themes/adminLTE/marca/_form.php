@@ -2,24 +2,41 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Marca */
+/* @var $model app\models\Arl */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="marca-form">
+<?php
+$form = ActiveForm::begin([
+            'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
+            'fieldConfig' => [
+                'template' => '{label}<div class="col-sm-5 form-group">{input}{error}</div>',
+                'labelOptions' => ['class' => 'col-sm-3 control-label'],
+                'options' => []
+            ],
+        ]);
+?>
 
-    <?php $form = ActiveForm::begin(); ?>
-
-    <?= $form->field($model, 'marca')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'estado')->textInput() ?>
-
-    <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+<div class="panel panel-success">
+    <div class="panel-heading">
+        Información de la marca
     </div>
-
-    <?php ActiveForm::end(); ?>
-
+    <div class="panel-body">        														   		
+        <div class="row">
+            <?= $form->field($model, 'marca')->textInput(['maxlength' => true]) ?>    
+        </div>       
+        <?php if($sw == 1){?>
+            <div class="row">
+                <?= $form->field($model, 'estado')->dropDownList(['0'=> 'SI', '1'=> 'NO'], ['prompt' => 'Seleccione una opcion...']) ?>
+            </div>    
+        <?php } ?>
+        <div class="panel-footer text-right">			
+            <a href="<?= Url::toRoute("marca/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
+            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>
+        </div>
+    </div>
 </div>
+<?php ActiveForm::end(); ?>

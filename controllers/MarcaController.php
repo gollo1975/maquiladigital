@@ -8,6 +8,7 @@ use app\models\MarcaSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\models\UsuarioDetalle;
 
 /**
  * MarcaController implements the CRUD actions for Marca model.
@@ -35,13 +36,21 @@ class MarcaController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new MarcaSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',182])->all()){
+                $searchModel = new MarcaSearch();
+                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+                return $this->render('index', [
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dataProvider,
+                ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }              
     }
 
     /**
@@ -67,7 +76,7 @@ class MarcaController extends Controller
         $model = new Marca();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_macar]);
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [
@@ -87,7 +96,7 @@ class MarcaController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_macar]);
+            return $this->redirect(['index']);
         }
 
         return $this->render('update', [
@@ -102,11 +111,20 @@ class MarcaController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id)
+   public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        try {
+            $this->findModel($id)->delete();
+            Yii::$app->getSession()->setFlash('success', 'Registro Eliminado.');
+            $this->redirect(["marca/index"]);
+        } catch (IntegrityException $e) {
+            
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene registros asociados en otros procesos');
+            $this->redirect(["marca/index"]);
+        } catch (\Exception $e) {            
+            Yii::$app->getSession()->setFlash('error', 'Error al eliminar el registro, tiene registros asociados en otros procesos');
+            $this->redirect(["marca/index"]);
+        }
     }
 
     /**

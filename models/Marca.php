@@ -22,6 +22,15 @@ class Marca extends \yii\db\ActiveRecord
     {
         return 'marca';
     }
+    public function beforeSave($insert) {
+	if(!parent::beforeSave($insert)){
+            return false;
+        }
+	# ToDo: Cambiar a cliente cargada de configuración.    
+	$this->marca = strtoupper($this->marca);
+	
+        return true;
+    }
 
     /**
      * {@inheritdoc}
@@ -41,9 +50,9 @@ class Marca extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id_marca' => 'Id',
-            'marca' => 'Marca',
-            'estado' => 'Estado',
+            'id_marca' => 'Codigo',
+            'marca' => 'Nombre de la Marca',
+            'estado' => 'Activo',
         ];
     }
 
@@ -53,5 +62,14 @@ class Marca extends \yii\db\ActiveRecord
     public function getInventarioPuntoVentas()
     {
         return $this->hasMany(InventarioPuntoVenta::className(), ['id_marca' => 'id_marca']);
+    }
+    
+    public function getEstadoMarca() {
+        if($this->estado == 0){
+            $estadomarca = 'SI';
+        }else {
+            $estadomarca = 'NO';
+        }
+        return $estadomarca;
     }
 }

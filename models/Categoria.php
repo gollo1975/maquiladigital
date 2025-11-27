@@ -22,6 +22,15 @@ class Categoria extends \yii\db\ActiveRecord
         return 'categoria';
     }
 
+    public function beforeSave($insert) {
+	if(!parent::beforeSave($insert)){
+            return false;
+        }
+	# ToDo: Cambiar a cliente cargada de configuración.    
+	$this->categoria = strtoupper($this->categoria);
+	
+        return true;
+    }
     /**
      * {@inheritdoc}
      */
@@ -39,8 +48,8 @@ class Categoria extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id_categoria' => 'Id Categoria',
-            'categoria' => 'Categoria',
+            'id_categoria' => 'Codigo',
+            'categoria' => 'Nombre de la categoria',
         ];
     }
 

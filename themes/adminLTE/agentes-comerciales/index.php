@@ -86,7 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <tr style="font-size: 90%;">
                 <?php if($val->estado == 0){?>
                     <td><?= $val->id_agente ?></td>
-                    <td><?= $val->tipoDocumento->tipo ?></td>
+                    <td><?= $val->tipoDocumento->tipo?></td>
                     <td><?= $val->nit_cedula ?></td>
                     <td><?= $val->nombre_completo ?></td>
                     <td><?= $val->celular_agente ?></td>
@@ -94,7 +94,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= $val->email_agente ?></td>
                 <?php }else{?>
                     <td style='background-color:#CEECD4;'><?= $val->id_agente ?></td>
-                    <td style='background-color:#CEECD4;'><?= $val->tipoDocumento->tipo ?></td>
+                    <td style='background-color:#CEECD4;'><?= $val->tipoDocumento->tipo?></td>
                     <td style='background-color:#CEECD4;'><?= $val->nit_cedula ?></td>
                     <td style='background-color:#CEECD4;'><?= $val->nombre_completo ?></td>
                     <td style='background-color:#CEECD4;'><?= $val->celular_agente ?></td>

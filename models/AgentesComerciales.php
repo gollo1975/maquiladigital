@@ -103,10 +103,10 @@ class AgentesComerciales extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTipoDocumento()
-    {
-        return $this->hasOne(Tipodocumento::className(), ['id_tipo_documento' => 'id_tipo_documento']);
+    public function getTipoDocumento() {
+        return $this->hasOne(TipoDocumento::className(), ['id_tipo_documento' => 'id_tipo_documento']);
     }
+   
     
      /**
      * @return \yii\db\ActiveQuery

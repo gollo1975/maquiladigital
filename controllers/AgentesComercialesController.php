@@ -170,12 +170,13 @@ class AgentesComercialesController extends Controller
             $table->idmunicipio = $model->idmunicipio;
             $table->fecha_registro = date('Y-m-d H:i:s');
             $table->user_name = Yii::$app->user->identity->username;
-            $table->save();
+            $table->save(false);
             return $this->redirect(['index']);
         }
 
         return $this->render('create', [
             'model' => $model,
+            'sw' => 0,
         ]);
     }
 
@@ -200,6 +201,7 @@ class AgentesComercialesController extends Controller
 
         return $this->render('update', [
             'model' => $model,
+            'sw' => 1,
         ]);
     }
 

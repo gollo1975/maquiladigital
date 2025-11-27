@@ -28,7 +28,7 @@ use Yii;
  * @property int $hacer_pedido
  * @property int $hacer_recibo_caja
  *
- * @property Tipodocumento $tipoDocumento
+ * @property TipoDocumento $tipoDocumento
  */
 class AgentesComerciales extends \yii\db\ActiveRecord
 {
@@ -70,7 +70,7 @@ class AgentesComerciales extends \yii\db\ActiveRecord
             [['nombre_completo', 'email_agente'], 'string', 'max' => 50],
             [['celular_agente'], 'string', 'max' => 12],
             [['direccion'], 'string', 'max' => 40],
-            [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => Tipodocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
+            [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
         ];
     }
 

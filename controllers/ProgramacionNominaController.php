@@ -2358,13 +2358,13 @@ class ProgramacionNominaController extends Controller {
                 
                 $nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
                 foreach ($nomina as $validar):
-                  //  $validar->estado_liquidado = 1;
-                     $validar->save(false);
+                    $validar->estado_liquidado = 1;
+                    $validar->save(false);
                 endforeach;
             }
         }    
 
-        $this->redirect(["programacion-nomina/view", 'id' => $id,
+        return $this->redirect(["programacion-nomina/view", 'id' => $id,
               'id_grupo_pago' => $id_grupo_pago,
               'fecha_desde' => $fecha_desde,
               'fecha_hasta' => $fecha_hasta,
@@ -2640,23 +2640,29 @@ class ProgramacionNominaController extends Controller {
         if (!$detalle_nomina_salario) {
             return;
         }
+        
+        $id_programacion = $nomina->id_programacion;
 
+        //Buscas todas las incapacidades para sumar los dias
         $dias_incapacidad = ProgramacionNominaDetalle::find()
-        ->where(['id_programacion' => $nomina->id_programacion])
+        ->where(['id_programacion' => $id_programacion])
         ->sum('dias_incapacidad_descontar');
 
+        //Buscas todas las licencias para sumar los dias
         $dias_licencia = ProgramacionNominaDetalle::find()
-            ->where(['id_programacion' => $nomina->id_programacion])
+            ->where(['id_programacion' => $id_programacion])
             ->sum('dias_licencia_descontar');
-
+       
+        
+        $dias_descontar = 0;
         $dias_descontar = ($dias_incapacidad ?? 0) + ($dias_licencia ?? 0);
-
+        
+       
         // 4. Determinar los días reales a pagar
         $dias_pagados_reales = $nomina->dia_real_pagado - $dias_descontar;
         $dias_pagados_reales = max(0, $dias_pagados_reales);
 
         $valor_adicion = $adicionpermanente->vlr_adicion;
-        $dias_periodo = $grupo_pago->dias_periodo;
 
         // 5. Calcular el valor devengado según los días trabajados reales
         if ($adicionpermanente->aplicar_dia_laborado == 1) {
@@ -2670,12 +2676,12 @@ class ProgramacionNominaController extends Controller {
             $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
             $detalle_nomina_salario->vlr_devengado_no_prestacional = 0;
         } else {
-            $detalle_nomina_salario->vlr_devengado_no_prestacional = $valor_proporcional;
-            $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
+           $detalle_nomina_salario->vlr_devengado_no_prestacional = $valor_proporcional;
+           $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
         }
 
         // 7. Guardar los cambios
-        $detalle_nomina_salario->save(false);
+       $detalle_nomina_salario->save(false);
     }
         
     //controlador de actualizacion de ibc y ibp

@@ -14,6 +14,8 @@ class ModeloCambiarIva extends Model
     public $nuevo_iva;
     public $tipocomprobante;
     public $color;
+    public $cantidad_cajas;
+    public $cantidad_despachada;
 
 
 
@@ -21,7 +23,7 @@ class ModeloCambiarIva extends Model
     {
         return [            
             [['nuevo_iva','tipocomprobante'], 'number'],
-            [['color'], 'integer'],
+            [['color','cantidad_despachada','cantidad_cajas'], 'integer'],
           
         ];
     }
@@ -31,7 +33,10 @@ class ModeloCambiarIva extends Model
         return [   
             'nuevo_iva' => 'Nuevo impuesto:',
             'tipocomprobante' => 'Tipo documento soporte:',
-            'color' => 'Nuevo color:'
+            'color' => 'Nuevo color:',
+            'cantidad_cajas' => 'Numero de cajas:',
+            'cantidad_despachada' => 'Unidades a despachar:'
+            
         ];
     }
     

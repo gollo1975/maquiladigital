@@ -1031,33 +1031,41 @@ class ProgramacionNominaController extends Controller {
     }
     
     public function actionNuevo() {
-        $model = new FormPeriodoPagoNomina();
-        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->validate()) {
-                   $table = new PeriodoPagoNomina();
-                    $table->id_grupo_pago = $model->id_grupo_pago;
-                    $table->id_periodo_pago = $model->id_periodo_pago;
-                    $table->id_tipo_nomina = $model->id_tipo_nomina;
-                    $table->fecha_desde = $model->fecha_desde;
-                    $table->fecha_hasta = $model->fecha_hasta;
-                    $table->fecha_real_corte = $table->fecha_hasta;
-                    $table->estado_periodo = 0;
-                    $table->dias_periodo = $model->dias_periodo;
-                    $table->usuariosistema = Yii::$app->user->identity->username;
-                    if ($table->save(false)) {
-                        $this->redirect(["programacion-nomina/index"]);
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 184])->all()) {
+                $model = new FormPeriodoPagoNomina();
+                if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
+                    Yii::$app->response->format = Response::FORMAT_JSON;
+                    return ActiveForm::validate($model);
+                }
+                if ($model->load(Yii::$app->request->post())) {
+                    if ($model->validate()) {
+                           $table = new PeriodoPagoNomina();
+                            $table->id_grupo_pago = $model->id_grupo_pago;
+                            $table->id_periodo_pago = $model->id_periodo_pago;
+                            $table->id_tipo_nomina = $model->id_tipo_nomina;
+                            $table->fecha_desde = $model->fecha_desde;
+                            $table->fecha_hasta = $model->fecha_hasta;
+                            $table->fecha_real_corte = $table->fecha_hasta;
+                            $table->estado_periodo = 0;
+                            $table->dias_periodo = $model->dias_periodo;
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+                            if ($table->save(false)) {
+                                $this->redirect(["programacion-nomina/index"]);
+                            } else {
+                                $msg = "error";
+                            }
                     } else {
-                        $msg = "error";
+                        $model->getErrors();
                     }
-            } else {
-                $model->getErrors();
+                }
+                return $this->render('form', ['model' => $model]);
+          } else {
+                return $this->redirect(['site/sinpermiso']);
             }
+        } else {
+            return $this->redirect(['site/login']);
         }
-        return $this->render('form', ['model' => $model]);
     }
 
     public function actionEditar($id) {

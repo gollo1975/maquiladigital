@@ -87,4 +87,10 @@ class PedidoColores extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Talla::className(), ['idtalla' => 'idtalla']);
     }
+    
+     // muestra e nombre del color
+    public function getNombreColor()
+    {
+        return " Color: {$this->colores->color}";
+    }
 }

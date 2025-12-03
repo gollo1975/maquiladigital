@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $model->id_despacho;
                      'data' => ['confirm' => 'Esta seguro que desea cerrar el despacho al cliente ('.$model->cliente->nombrecorto.'). Tener presente que se actualiza el inventario.', 'method' => 'post']]);
             }else{    
                 echo Html::a('<span class="glyphicon glyphicon-print"></span> Visualizar despacho', ['/despacho-pedidos/imprimir_despachos', 'id' => $model->id_despacho],['class' => 'btn btn-default btn-sm']);
-                if($token == 0){
+                if($token == 0 && $model->pedido->pedido_despachado == 0){
                      echo Html::a('<span class="glyphicon glyphicon-remove"></span> Cerrar pedido', ['cerrar_pedido', 'id' => $model->id_despacho, 'id_pedido' => $model->id_pedido, 'token' => $token],['class' => 'btn btn-info btn-sm',
                      'data' => ['confirm' => 'Esta seguro que desea CERARR el PEDIDO al cliente ('.$model->cliente->nombrecorto.'). Tener presente que al cerrado NO pùede hacer mas despachos.', 'method' => 'post']]);
                 }

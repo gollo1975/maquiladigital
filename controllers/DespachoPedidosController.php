@@ -208,6 +208,18 @@ class DespachoPedidosController extends Controller
             'token' => $token,
         ]);
     }
+    
+    ///vista para crear el packin
+    public function actionView_vista($id,$token)
+    {
+        $conDetalleVista = \app\models\DespachoPedidoDetalles::find()->where(['id_despacho' => $id])->all();
+        
+        return $this->render('view_vista', [
+            'model' => $this->findModel($id),
+            'conDetalleVista' => $conDetalleVista,
+            'token' => $token,
+        ]);
+    }
 
     /**
      * Creates a new DespachoPedidos model.
@@ -407,6 +419,56 @@ class DespachoPedidosController extends Controller
             'token' => $token,
         ]);
         
+    }
+    
+    //VER TALLAS COLORES VISTA
+    public function actionVer_tallas_colores_vista($id, $id_detalle, $codigo, $id_inventario, $token){
+        $despacho_detalle = \app\models\DespachoPedidoDetalles::find()->where($id_detalle)->one();
+        $model = \app\models\DespachoPedidoDetalles::findOne($codigo);
+        $tallas = \app\models\PedidoTallas::find()->where(['=','id_detalle', $id_detalle])->all();
+        
+        $ConColores = \app\models\PedidoColores::find()->where(['=','id_detalle', $id_detalle])->orderBy('idtalla ASC')->all();
+         return $this->render('ver_talla_vista', [
+            'model' => $model,
+            'id_detalle' => $id_detalle,
+            'tallas' => $tallas,
+            'id_inventario' => $id_inventario,
+            'id' => $id,
+            'ConColores' => $ConColores,
+            'token' => $token,
+        ]);
+    }
+    
+    //CREAR DESCUENTO COMERCIAL
+    public function actionCantidad_cajas($id, $id_pedido, $token) {
+        
+        $model = new \app\models\ModeloCambiarIva();
+        $pedido = \app\models\PedidoColores::find()->where(['id_pedido' => $id_pedido])->all();
+        $despachos = \app\models\PackingPedido::find()->where(['id_despacho' => $id])->one();
+      //  $packing = \app\models\PackingPedido::find()->where(['id_despacho' => $])
+                
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+                if (isset($_POST["cantidad_cajas"])) {
+                    for ($i = 1; $i <= $model->cantidad_cajas; $i++) {
+                                $table = new \app\models\PackingPedidoDetalle();
+                                $table->id_packing = $despachos->id_packing;
+                                $table->numero_caja = $i;
+                                $table->save();
+                                if (!$table->save()) {
+                                    throw new \Exception('Error al guardar el detalle');
+                                }
+                            }
+                    $this->redirect(["despacho-pedidos/view_vista", 'id' => $id, 'token' => $token]);
+                }
+            }else{
+                $model->getErrors();
+            }    
+        }
+        return $this->renderAjax('_form_crear_cajas', [
+            'model' => $model,
+            'id' => $id,
+        ]);
     }
     
     //PROCESO QUE TOTALIZA CANTIDADES DE LAS TALLAS DEL PEDIDO
@@ -633,11 +695,153 @@ class DespachoPedidosController extends Controller
         }
     }
     
+    //GENERAR PACKING
+    public function actionGenerar_packing($id) {
+       $model = DespachoPedidos::findOne($id);
+        if($model){
+            if(!\app\models\PackingPedido::find()->where(['id_despacho' => $id])->one()){
+                $table = new \app\models\PackingPedido();
+                $table->id_pedido = $model->id_pedido;
+                $table->id_despacho = $model->id_despacho;
+                $table->fecha_proceso = date('Y-m-d');
+                $table->idcliente = $model->idcliente;
+                $table->fecha_hora_registro = date('Y-m-d H:i:s');
+                $table->user_name = Yii::$app->user->identity->username;
+                if($table->save()){
+                    Yii::$app->getSession()->setFlash('success','Registro procesado existosamente. ');
+                    $model->proceso_packing = 1;
+                    $model->save();
+                    return $this->redirect(['despacho-pedidos/index']); 
+                }else{
+                   Yii::$app->getSession()->setFlash('error','No se guardo el registro, vuelva a intenatarlo nuevamente. '); 
+                   return $this->redirect(Yii::$app->request->referrer);
+                }
+            }else{
+               Yii::$app->getSession()->setFlash('warning','No se puede generar el packing porque hay un proceso en sistema de este despacho. '); 
+                   return $this->redirect(Yii::$app->request->referrer); 
+            }    
+              
+        }else {
+           return;
+        }
+     
+    }
+    
+    //ASIGNAR INVENTARIOS A LAS CAJAS PARA EL PACKING
+    public function actionIngresar_cantidad_cajas($id, $id_detalle, $codigo, $id_inventario, $token) {
+        $model = \app\models\DespachoPedidoDetalles::findOne($codigo);
+        $packin = \app\models\PackingPedido::find()->where(['id_despacho' => $id])->one();
+        //proceso que actualiza
+       
+        if(isset($_POST["actualizar_unidades"])){
+             
+            if(isset($_POST["listado_unidades"])){
+                $intIndice = 0;
+                
+                foreach ($_POST["listado_unidades"] as $intCodigo):
+                    if (isset($_POST["cantidad"][$intIndice]) && isset($_POST["talla"][$intIndice]) && isset($_POST["color"][$intIndice])) {
+                         // Asignación de variables, ya sabes que existen
+                        $cantidad = $_POST["cantidad"][$intIndice];
+                        $talla = $_POST["talla"][$intIndice];
+                        $color = $_POST["color"][$intIndice];
+                        if($cantidad && $talla && $color){
+                           $caja = \app\models\PackingPedidoDetalle::find()->where(['id_detalle' => $intCodigo,
+                                                                                  'cerrar_linea' => 0 ])->one();
+                           if($caja){
+                                $caja->id_inventario = $id_inventario;
+                                $caja->idtalla = $talla;
+                                $caja->id = $color;
+                                $caja->cantidad_despachada = $cantidad;
+                                $caja->id_despacho = $id;
+                                $caja->codigo = $codigo;
+                                $caja->save();
+                                $this->ValidarCantidadesPacking($codigo, $id_inventario);
+                            }    
+                        } 
+                    }    
+                    $intIndice++;
+                endforeach;
+               
+                return $this->redirect(['despacho-pedidos/ingresar_cantidad_cajas',
+                    'id' => $id,
+                    'token' => $token,
+                    'id_detalle' => $id_detalle,
+                    'codigo' =>  $codigo,
+                    'id_inventario' => $id_inventario,
+                     ]);
+            }
+        }    
+        return $this->render('_ver_cantidad_cajas', [
+            'model' => $model,
+            'id' => $id,
+            'token' => $token,
+            'packin' => $packin,
+            'id_detalle' => $id_detalle,
+            'codigo' =>  $codigo,
+            'id_inventario' => $id_inventario,
+        ]);
+    }
+    
+    //CERRAR LINEA DEL PACKING
+    public function actionCerrar_linea($id, $id_detalle, $codigo, $id_inventario, $token, $id_caja) {
+        $detalle = \app\models\PackingPedidoDetalle::findOne($id_caja);
+        if($detalle->idtalla == null && $detalle->id  == null && $detalle->cantidad_despachada == 0){
+            Yii::$app->getSession()->setFlash('error', 'Debe de seleccionar la TALLA, COLOR Y CANTIDADES.');
+             return $this->redirect(['ingresar_cantidad_cajas', 
+                'id' => $id,
+                'token' => $token,
+                'id_detalle' => $id_detalle,
+                'codigo' =>  $codigo,
+                'id_inventario' => $id_inventario,
+            ]);
+        }
+        $detalle->cerrar_linea = 1;
+        $detalle->save();        
+        return $this->redirect(['ingresar_cantidad_cajas', 
+            'id' => $id,
+            'token' => $token,
+            'id_detalle' => $id_detalle,
+            'codigo' =>  $codigo,
+            'id_inventario' => $id_inventario,
+        ]);
+    }
+    
+    //DUPLICAR CAJA PARA PACKING
+    public function actionDuplicar_caja_packing($id, $id_detalle, $codigo, $id_inventario, $token, $id_caja) {
+        $detalle = \app\models\PackingPedidoDetalle::findOne($id_caja);
+        $table = new \app\models\PackingPedidoDetalle();
+        $table->id_packing = $detalle->id_packing;
+        $table->linea_duplicada = 1;
+        $table->numero_caja = $detalle->numero_caja;
+        $table->save();
+        return $this->redirect(['despacho-pedidos/ingresar_cantidad_cajas',
+                'id' => $id,
+                'token' => $token,
+                'id_detalle' => $id_detalle,
+                'codigo' =>  $codigo,
+                'id_inventario' => $id_inventario,
+            ]);
+    }
+    
+    //VALIDA QUE NO SE DESPACHO MAYO VALOR
+    protected function ValidarCantidadesPacking($codigo, $id_inventario) {
+        $buscarCantidades = \app\models\PackingPedidoDetalle::find()->where(['codigo' => $codigo,
+                                                                    'id_inventario' => $id_inventario])->sum('cantidad_despachada');
+        $detalleDespacho = \app\models\DespachoPedidoDetalles::findOne($codigo);
+        if($buscarCantidades > $detalleDespacho->cantidad_despachada){
+            Yii::$app->getSession()->setFlash('error', 'La cantidad a despachar en el PACKING de la referencia: '. $detalleDespacho->inventario->nombre_producto .' es mayor que las unidades despachadas. Valide la informacion.');
+            return;
+        }
+        
+    }
+    
+
     //IMPRESIONES
     public function actionImprimir_despachos($id)
     {
         return $this->render('../formatos/reporte_despacho_pedido', [
             'model' => $this->findModel($id),
+            
             
         ]);
     }

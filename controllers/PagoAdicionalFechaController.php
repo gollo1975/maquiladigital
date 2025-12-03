@@ -856,30 +856,39 @@ class PagoAdicionalFechaController extends Controller
         }
         if ($model->load(Yii::$app->request->post())) {            
             if ($model->validate()) {
-                $table = new PagoAdicionalPermanente();
-                $table->id_empleado = $model->id_empleado;
-                $table->codigo_salario = $model->codigo_salario;
-                $table->tipo_adicion = 1;
-                $table->vlr_adicion = $model->vlr_adicion;
-                $table->permanente = 2;
-                $table->aplicar_dia_laborado = $model->aplicar_dia_laborado;
-                $table->aplicar_prima = $model->aplicar_prima;
-                $table->aplicar_cesantias = $model->aplicar_cesantias;
-                $table->estado_registro = 1; // estado activo
-                $table->estado_periodo = 1; /// estado activo para el periodo
-                $table->detalle = $model->detalle;
-                $table->usuariosistema = Yii::$app->user->identity->username;
-                $contrato = Contrato::find()->where(['=','id_empleado',$model->id_empleado])->andWhere(['=','contrato_activo',1])->one();
-                $table->id_contrato = $contrato->id_contrato;
-                $table->id_grupo_pago = $contrato->id_grupo_pago;
                 $pagofecha = PagoAdicionalFecha::find()->where(['=','id_pago_fecha', $id])->one();
-                $table->id_pago_fecha = $pagofecha->id_pago_fecha;
-                $table->fecha_corte = $pagofecha->fecha_corte;
-                if ($table->save(false)) {
-                    $this->redirect(["pago-adicional-fecha/view", 'id' =>$id, 'fecha_corte' => $fecha_corte]);
-                } else {
-                    $msg = "error";
-                }
+                $contrato = Contrato::find()->where(['=','id_empleado',$model->id_empleado])->andWhere(['=','contrato_activo',1])->one();
+                $codigoSalario = ConceptoSalarios::findOne($model->codigo_salario);
+                $concepto = PagoAdicionalPermanente::find()->where(['id_empleado' => $model->id_empleado,
+                                                  'codigo_salario' =>$model->codigo_salario,
+                                                  'fecha_corte' => $pagofecha->fecha_corte])->one();
+                if($concepto){
+                    Yii::$app->getSession()->setFlash('error', 'El empleado: ' . $contrato->empleado->nombrecorto . ' ya tiene asignado el concepto: ' .$codigoSalario->nombre_concepto.'.');
+                }else{
+                    $table = new PagoAdicionalPermanente();
+                    $table->id_empleado = $model->id_empleado;
+                    $table->codigo_salario = $model->codigo_salario;
+                    $table->tipo_adicion = 1;
+                    $table->vlr_adicion = $model->vlr_adicion;
+                    $table->permanente = 2;
+                    $table->aplicar_dia_laborado = $model->aplicar_dia_laborado;
+                    $table->aplicar_prima = $model->aplicar_prima;
+                    $table->aplicar_cesantias = $model->aplicar_cesantias;
+                    $table->estado_registro = 1; // estado activo
+                    $table->estado_periodo = 1; /// estado activo para el periodo
+                    $table->detalle = $model->detalle;
+                    $table->usuariosistema = Yii::$app->user->identity->username;
+                   
+                    $table->id_contrato = $contrato->id_contrato;
+                    $table->id_grupo_pago = $contrato->id_grupo_pago;
+                    $table->id_pago_fecha = $pagofecha->id_pago_fecha;
+                    $table->fecha_corte = $pagofecha->fecha_corte;
+                    if ($table->save(false)) {
+                        $this->redirect(["pago-adicional-fecha/view", 'id' =>$id, 'fecha_corte' => $fecha_corte]);
+                    } else {
+                        $msg = "error";
+                    }
+                }    
             } else {
                 $model->getErrors();
             }
@@ -895,30 +904,38 @@ class PagoAdicionalFechaController extends Controller
         }
         if ($model->load(Yii::$app->request->post())) {            
             if ($model->validate()) {
-                $table = new PagoAdicionalPermanente();
-                $table->id_empleado = $model->id_empleado;
-                $table->codigo_salario = $model->codigo_salario;
-                $table->tipo_adicion = 2;
-                $table->vlr_adicion = $model->vlr_adicion;
-                $table->permanente = 2;
-                $table->aplicar_dia_laborado = $model->aplicar_dia_laborado;
-                $table->aplicar_prima = $model->aplicar_prima;
-                $table->aplicar_cesantias = $model->aplicar_cesantias;
-                $table->estado_registro = 1; // estado activo
-                $table->estado_periodo = 1; /// estado activo para el periodo
-                $table->detalle = $model->detalle;
-                $table->usuariosistema = Yii::$app->user->identity->username;
-                $contrato = Contrato::find()->where(['=','id_empleado',$model->id_empleado])->andWhere(['=','contrato_activo',1])->one();
-                $table->id_contrato = $contrato->id_contrato;
-                $table->id_grupo_pago = $contrato->id_grupo_pago;
-                $pagofecha = PagoAdicionalFecha::find()->where(['=','id_pago_fecha', $id])->one();
-                $table->id_pago_fecha = $pagofecha->id_pago_fecha;
-                $table->fecha_corte = $pagofecha->fecha_corte;
-                if ($table->save(false)) {
-                    $this->redirect(["pago-adicional-fecha/view", 'id'=> $id, 'fecha_corte' => $fecha_corte]);
-                } else {
-                    $msg = "error";
-                }
+                $codigoSalario = ConceptoSalarios::findOne($model->codigo_salario);
+                 $pagofecha = PagoAdicionalFecha::find()->where(['=','id_pago_fecha', $id])->one();
+                 $contrato = Contrato::find()->where(['=','id_empleado',$model->id_empleado])->andWhere(['=','contrato_activo',1])->one();
+                 $concepto = PagoAdicionalPermanente::find()->where(['id_empleado' => $model->id_empleado,
+                                                  'codigo_salario' =>$model->codigo_salario,
+                                                  'fecha_corte' => $pagofecha->fecha_corte])->one();
+                if($concepto){
+                    Yii::$app->getSession()->setFlash('error', 'El empleado: ' . $contrato->empleado->nombrecorto . ' ya tiene asignado este concepto: ' .$codigoSalario->nombre_concepto.'.');
+                }else{    
+                    $table = new PagoAdicionalPermanente();
+                    $table->id_empleado = $model->id_empleado;
+                    $table->codigo_salario = $model->codigo_salario;
+                    $table->tipo_adicion = 2;
+                    $table->vlr_adicion = $model->vlr_adicion;
+                    $table->permanente = 2;
+                    $table->aplicar_dia_laborado = $model->aplicar_dia_laborado;
+                    $table->aplicar_prima = $model->aplicar_prima;
+                    $table->aplicar_cesantias = $model->aplicar_cesantias;
+                    $table->estado_registro = 1; // estado activo
+                    $table->estado_periodo = 1; /// estado activo para el periodo
+                    $table->detalle = $model->detalle;
+                    $table->usuariosistema = Yii::$app->user->identity->username;
+                    $table->id_contrato = $contrato->id_contrato;
+                    $table->id_grupo_pago = $contrato->id_grupo_pago;
+                    $table->id_pago_fecha = $pagofecha->id_pago_fecha;
+                    $table->fecha_corte = $pagofecha->fecha_corte;
+                    if ($table->save(false)) {
+                        $this->redirect(["pago-adicional-fecha/view", 'id'=> $id, 'fecha_corte' => $fecha_corte]);
+                    } else {
+                        $msg = "error";
+                    }
+                }    
             } else {
                 $model->getErrors();
             }

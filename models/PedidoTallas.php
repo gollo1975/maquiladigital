@@ -78,4 +78,10 @@ class PedidoTallas extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Pedidos::className(), ['id_pedido' => 'id_pedido']);
     }
+    
+    // muestra e nombre de la talla
+    public function getNombreTalla()
+    {
+        return " Talla: {$this->talla->talla}";
+    }
 }

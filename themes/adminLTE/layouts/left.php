@@ -405,7 +405,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
 
                                     //termina el menu de salud ocupacional
 
-                                    //ACA COMIENZA EN MODULO DE COSTOS E INVENTARIO
+                                    //ACA COMIENZA EL MODULO DE INSUMOS
                                     [
                                         'label' => 'Insumos',
                                         'icon' => 'film',
@@ -479,6 +479,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                     ['label' => 'Vendedores', 'icon' => 'plus-square-o', 'url' => ['/agentes-comerciales/index']],
                                                     ['label' => 'Marca', 'icon' => 'plus-square-o', 'url' => ['/marca/index']],
                                                     ['label' => 'Categorias', 'icon' => 'plus-square-o', 'url' => ['/categoria/index']],
+                                                    ['label' => 'Transportadoras', 'icon' => 'plus-square-o', 'url' => ['/transportadora/index']],
                                                 ],
                                             ],
                                             [
@@ -498,6 +499,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
 
                                                     ]],*/
                                                     ['label' => 'Despachos', 'icon' => 'plus-square-o', 'url' => ['/despacho-pedidos/index']],
+                                                    ['label' => 'Packing', 'icon' => 'plus-square-o', 'url' => ['/packing-pedido/index']],
                                                     //['label' => 'Traslados pto venta', 'icon' => 'plus-square-o', 'url' => ['/inventario-punto-venta/traslado_producto']],
                                                    // ['label' => 'Indicador comercial', 'icon' => 'plus-square-o', 'url' => ['/indicador-comercial/index']],
                                                    // ['label' => 'Regla comercial', 'icon' => 'plus-square-o', 'url' => ['/inventario-productos/regla_comercial']],

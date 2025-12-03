@@ -104,6 +104,7 @@ $this->params['breadcrumbs'][] = $this->title;
                  <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
+                 <th scope="col" style='background-color:#B9D5CE;'></th>
               
             </tr>
             </thead>
@@ -121,18 +122,34 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td style= 'width: 25px; height: 25px;'>
                             <a href="<?= Url::toRoute(["despacho-pedidos/view", "id" => $val->id_despacho, 'token' => 0]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                     </td>
-                    <td style= 'width: 25px; height: 25px;'>
-                         <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar_registro', 'id' => $val->id_despacho, 'token' => 0], [
-                                    'class' => '',
-                                    'data' => [
-                                        'confirm' => 'Esta seguro de eliminar el registro?',
-                                        'method' => 'post',
-                                    ],
-                                ])
-                         ?>
-                    </td>
-                   
-             
+                    <?php if(!app\models\DespachoPedidoDetalles::find()->where(['id_despacho' => $val->id_despacho])->one()){?>
+                        <td style= 'width: 25px; height: 25px;'>
+                             <?= Html::a('<span class="glyphicon glyphicon-trash"></span> ', ['eliminar_registro', 'id' => $val->id_despacho, 'token' => 0], [
+                                        'class' => '',
+                                        'data' => [
+                                            'confirm' => 'Esta seguro de eliminar el registro?',
+                                            'method' => 'post',
+                                        ],
+                                    ])
+                             ?>
+                        </td>
+                    <?php }else{?>
+                        <td style= 'width: 25px; height: 25px;'></td>
+                    <?php }
+                    if($val->despacho_cerrado == 1 && $val->proceso_packing == 0){?>
+                        <td style= 'width: 25px; height: 25px;'>
+                            <a href="<?= Url::toRoute(['despacho-pedidos/generar_packing', 'id' => $val->id_despacho])?>"
+                                   class="btn btn-info btn-sm"
+                                   onclick="return confirm('¿Estás seguro generar el PACKING al despacho No:  <?= $val->numero_despacho ?> ?');">
+                                    <?= 'Generar packing'?></a>
+                        </td>    
+                                 
+                    <?php }else{?>
+                       <td style= 'width: 25px; height: 25px;'>
+                            <a href="<?= Url::toRoute(["despacho-pedidos/view_vista", "id" => $val->id_despacho, 'token' => 0]) ?>" ><span class="glyphicon glyphicon-list"></span></a>
+                        </td>
+                    <?php }      ?>
+            
             </tbody>            
             <?php endforeach; ?>
         </table>    

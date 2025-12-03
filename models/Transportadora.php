@@ -23,7 +23,7 @@ use Yii;
  * @property string $user_name
  * @property string $fecha_registro
  *
- * @property Tipodocumento $tipoDocumento
+ * @property TipoDocumento $tipoDocumento
  */
 class Transportadora extends \yii\db\ActiveRecord
 {

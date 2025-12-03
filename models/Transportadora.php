@@ -59,7 +59,7 @@ class Transportadora extends \yii\db\ActiveRecord
             [['cedulanit', 'telefono', 'celular', 'iddepartamento', 'idmunicipio', 'celular_contacto', 'user_name'], 'string', 'max' => 15],
             [['razon_social', 'direccion', 'email_transportadora'], 'string', 'max' => 50],
             [['contacto'], 'string', 'max' => 40],
-            [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => Tipodocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
+            [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],
         ];
     }
 

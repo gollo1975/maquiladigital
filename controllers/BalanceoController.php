@@ -641,7 +641,13 @@ class BalanceoController extends Controller
         $orden = Ordenproduccion::findOne($idordenproduccion);
         $balaceo = Balanceo::find()->where(['=','idordenproduccion', $idordenproduccion])->all();
         $minutos = $orden->segundosficha / 60;
-        $unidades = (60/$minutos);
+        if($minutos != 0){
+          $unidades = (60/$minutos);  
+        }else{
+            $unidades = 0;
+            Yii::$app->getSession()->setFlash('error', 'Debe de crear las operaciones a la OP / Asignarle tiempo a la orden de producción.');
+        }
+        
         foreach ($balaceo as $val):
             $cantidad += $val->cantidad_empleados;
         endforeach;

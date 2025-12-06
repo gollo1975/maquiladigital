@@ -522,9 +522,9 @@ class CostosGastosEmpresaController extends Controller
     public function actionGenerarcompras($id){
         $costos = CostosGastosEmpresa::findOne($id);
         $empresa = \app\models\Matriculaempresa::findOne(1);
-        if($empresa->aplica_modulo_compra == 0){
-            $compra = \app\models\Compra::find()->where(['=','id_tipo_compra', 1])
-                                                ->andWhere(['>=','fechainicio', $costos->fecha_inicio])
+        if($empresa->aplica_modulo_compra == 1 && $costos->id_planta == null){
+            
+            $compra = \app\models\Compra::find()->where(['>=','fechainicio', $costos->fecha_inicio])
                                                 ->andWhere(['<=','fechainicio', $costos->fecha_corte])->all();
         }else{
           $compra = \app\models\Compra::find()->Where(['between','fechainicio', $costos->fecha_inicio, $costos->fecha_corte])
@@ -536,9 +536,9 @@ class CostosGastosEmpresaController extends Controller
                  $subtotal += $compras->subtotal;
             endforeach;
         }    
-        $costos->compras = $subtotal;
+       $costos->compras = $subtotal;
         $costos->save(false);
-        return $this->redirect(['view', 'id' => $id]);
+       return $this->redirect(['view', 'id' => $id]);
     }
     
     

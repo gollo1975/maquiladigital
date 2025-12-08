@@ -454,7 +454,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                         }?>
                                                         <td style="text-align: right"><?= Html::encode(number_format($row['total_generado'], 0)) ?></td>
                                                         <td style="text-align: right"><?= Html::encode(number_format($total_valor_venta,0)) ?></td>
-                                                        <td style="text-align: right"><?= Html::encode(number_format($margen,2)) ?>%</td>
+                                                        <?php if($margen < 0){?>
+                                                            <td style="text-align: right; color: red"><?= Html::encode(number_format($margen,2)) ?>%</td>
+                                                        <?php }else{?>
+                                                             <td style="text-align: right"><?= Html::encode(number_format($margen,2)) ?>%</td>
+                                                        <?php }?>    
                                                     </tr>
                                                 <?php
                                                 $total_venta_planta += $acumulado_venta;

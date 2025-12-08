@@ -475,6 +475,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'icon' => 'database',
                                                 'url' => '#',
                                                 'items' => [
+                                                    ['label' => 'Configuracion', 'icon' => 'plus-square-o', 'url' => ['/empresa/configuracion_inventarios','id' => 1]],
                                                     ['label' => 'Bodegas', 'icon' => 'plus-square-o', 'url' => ['/punto-venta/index']],
                                                     ['label' => 'Vendedores', 'icon' => 'plus-square-o', 'url' => ['/agentes-comerciales/index']],
                                                     ['label' => 'Marca', 'icon' => 'plus-square-o', 'url' => ['/marca/index']],
@@ -684,6 +685,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                         'icon' => 'wrench',
                                         'url' => '#',
                                         'items' => [
+                                            ['label' => 'Cartera', 'icon' => 'cog', 'url' => ['empresa/estado_cartera', 'id' => 1]],
                                             ['label' => 'Configuración', 'icon' => 'cog', 'url' => ['parametros/parametros', 'id' => 1]],
                                             ['label' => 'Empresa', 'icon' => 'nav-icon fas fa-file', 'url' => ['empresa/empresa', 'id' => 1]],
                                              [

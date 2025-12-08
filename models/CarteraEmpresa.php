@@ -42,12 +42,12 @@ class CarteraEmpresa extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id_cartera' => 'Id Cartera',
-            'fecha_vencimiento' => 'Fecha Vencimiento',
-            'numero_factura' => 'Numero Factura',
-            'dias_adicionales' => 'Dias Adicionales',
-            'estado_registro' => 'Estado Registro',
-            'fecha_suspension' => 'fecha_suspension',
+            'id_cartera' => 'Codigo',
+            'fecha_vencimiento' => 'Fecha de vencimiento:',
+            'numero_factura' => 'Numero de factura:',
+            'dias_adicionales' => 'Dias adicionales:',
+            'estado_registro' => 'Suspendido:',
+            'fecha_suspension' => 'Fecha de suspensión:',
         ];
     }
 }

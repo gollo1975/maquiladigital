@@ -59,6 +59,62 @@ class EmpresaController extends Controller
         }
     }
     
+    public function actionConfiguracion_inventarios($id) {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',187])->all()){
+               $modelo = \app\models\ConfiguracionInventario::findOne($id);
+               if ($modelo->load(Yii::$app->request->post())){
+                   $table = \app\models\ConfiguracionInventario::findOne($id);
+                   $table->aplica_iva_incluido =  $modelo->aplica_iva_incluido;
+                   $table->aplica_modulo_inventario = $modelo->aplica_modulo_inventario;
+                   $table->aplica_solo_inventario = $modelo->aplica_solo_inventario;
+                   $table->aplica_inventario_tallas = $modelo->aplica_inventario_tallas;
+                   $table->aplica_inventario_talla_color = $modelo->aplica_inventario_talla_color;
+                   $table->save();
+                   return $this->redirect(['empresa/configuracion_inventarios','id' => $id]);
+               }
+               return $this->render('configuracion-inventarios', [
+                    'modelo' => $modelo,
+                    'id' => $id,
+                ]);
+               
+            }else{
+                 return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
+        
+    }
+    
+    //estado de cartera
+    public function actionEstado_cartera($id) {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',188])->all()){
+               $modelo = \app\models\CarteraEmpresa::findOne($id);
+               if ($modelo->load(Yii::$app->request->post())){
+                   $table = \app\models\CarteraEmpresa::findOne($id);
+                   $table->fecha_vencimiento =  $modelo->fecha_vencimiento;
+                   $table->fecha_suspension = $modelo->fecha_suspension;
+                   $table->numero_factura = $modelo->numero_factura;
+                   $table->dias_adicionales = $modelo->dias_adicionales;
+                   $table->estado_registro = $modelo->estado_registro;
+                   $table->save();
+                   return $this->redirect(['empresa/estado_cartera','id' => $id]);
+               }
+               return $this->render('estado_cartera', [
+                    'modelo' => $modelo,
+                    'id' => $id,
+                ]);
+               
+            }else{
+                 return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
+    }
+    
 
     /**
      * Finds the Arl model based on its primary key value.

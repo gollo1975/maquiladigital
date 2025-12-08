@@ -38,7 +38,7 @@ $form = ActiveForm::begin([
             <?= $form->field($model, "username")->input("text") ?>                
         </div>        
         <div class="row">            
-            <?= $form->field($model, 'role')->dropdownList(['1' => 'USUARIO', '2' => 'ADMINISTRADOR'], ['prompt' => 'Seleccione el tipo de usuario para el sistema']) ?>
+            <?= $form->field($model, 'role')->dropdownList(['1' => 'USUARIO', '2' => 'ADMINISTRADOR','3' => 'EMPLEADO'], ['prompt' => 'Seleccione el tipo de usuario para el sistema']) ?>
         </div>
         <div class="row">
             <?= $form->field($model, "emailusuario")->input("email") ?>           

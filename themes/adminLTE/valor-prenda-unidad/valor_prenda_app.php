@@ -253,13 +253,17 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 // Variables para el cálculo del promedio total
                                             $total_eficiencia_acumulada = 0;
                                             $contador_dias = 0;
+                                            $total_pagar_operario = 0;
+                                            $total_venta_planta = 0;
                                              //CONSULTA PARA BUSCAR LAS OPERACIONES
+                                             $parametros = app\models\Parametros::findOne(1);
                                             $query = new Query();
                                             $resultados = $query->select([
                                                 't1.id_operario',
                                                 't2.documento',
                                                 't2.nombrecompleto',
                                                 't1.dia_pago',
+                                                't2.vinculado',
                                                 't3.nombre_planta',
                                                 'SUM(t1.porcentaje_cumplimiento) AS total_cumplimiento',
                                                 'SUM(t1.vlr_pago) AS total_generado',
@@ -280,13 +284,22 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             if (!empty($resultados)){ ?>
 
                                                 <?php foreach ($resultados as $row):
+                                                    $acumulado_venta = 0;
                                                     $eficiencia = ($row['total_operaciones'] > 0) ? ($row['total_cumplimiento'] / $row['total_operaciones']) : 0;
                                                     $eficiencia_formateada = number_format($eficiencia, 2);
                                                     
                                                     //calcular el total de venta por dia
                                                     $total_valor_venta= $row['total_venta'];
                                                     if($total_valor_venta > 0){
-                                                       $utilidad_bruta = $total_valor_venta - $row['total_generado'];
+                                                        $acumulado_venta += $total_valor_venta;
+                                                        $empleado = $row['vinculado'];
+                                                        if($empleado == 0){
+                                                            $utilidad_bruta = $total_valor_venta - $row['total_generado'];
+                                                            $margen = round(($utilidad_bruta  / $total_valor_venta)* 100,2);
+                                                        }else{
+                                                            $utilidad_bruta = $total_valor_venta - $parametros->valor_dia_empleado;
+                                                            $margen = round(($utilidad_bruta  / $total_valor_venta)* 100,2);
+                                                        }
                                                        $margen = round(($utilidad_bruta / $total_valor_venta) * 100,2);
                                                     }else{
                                                        $margen = 0; 
@@ -296,6 +309,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     // Acumular los totales para el cálculo global
                                                     $total_eficiencia_acumulada += $eficiencia;
                                                     $contador_dias++; // Incrementar el contador de días
+                                                    $total_pagar_operario += $row['total_generado'];
+                                                    $total_venta_planta += $acumulado_venta;
                                                 ?>
                                                     <tr style='font-size:85%;'>
                                                         <td><?= Html::encode($row['documento']) ?></td>
@@ -326,19 +341,26 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             <?php }?>
                                         </tbody>
                                 </table>    
-                                <div class="panel panel-info">
-                                    <div class="panel-heading">
-                                        <h4 class="panel-title"></h4>
+                                <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
+                                    
                                         <?php 
-
                                         $promedio_total_eficiencia = 0;
                                         if ($contador_dias  > 0) {
                                             $promedio_total_eficiencia  = round($total_eficiencia_acumulada / $contador_dias);
                                         }
                                         ?>
-                                         <div style="font-size: 110%; text-align: center">Eficiencia total: <?= number_format($promedio_total_eficiencia, 0) ?>%</div>
-                                    </div>
-                                </div>    
+
+                                        
+                                         <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                               <b>Eficiencia total: <?= ''.number_format($promedio_total_eficiencia, 0) ?> %</b> 
+                                        </td>
+                                        <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                               <b>Total pagar operario: <?= '$ '.number_format($total_pagar_operario, 2) ?></b> 
+                                        </td>
+                                         <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                                <b>Total ventas: <?= '$ '.number_format($total_venta_planta, 2) ?></b> 
+                                            </td>
+                                </table>
                             <?php }else{?>  <!--TERMINA SI EL SW == 1,-->
                                 <table class="table table-bordered table-hover">
                                     <thead>
@@ -355,12 +377,15 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                      </thead>
                                     <tbody>
                                         <?php
+                                        //valor dia
+                                        $parametros = app\models\Parametros::findOne(1);
                                        $query = new Query();
                                         $resultados = $query->select([
                                             't1.id_operario',
                                             't2.documento',
                                             't2.nombrecompleto',
                                             't3.nombre_planta',
+                                            't2.vinculado',
                                             'SUM(t1.porcentaje_cumplimiento) AS total_porcentaje_cumplimiento',
                                             'SUM(t1.vlr_pago) AS total_generado',
                                             'SUM(t1.total_valor_venta) AS total_venta',
@@ -391,8 +416,15 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     $total_valor_venta= $row['total_venta'];
                                                     if($total_valor_venta > 0){
                                                         $acumulado_venta += $total_valor_venta;
-                                                        $utilidad_bruta = $total_valor_venta - $row['total_generado'];
-                                                        $margen = round(($utilidad_bruta / $total_valor_venta) * 100,2);
+                                                        $empleado = $row['vinculado'];
+                                                        if($empleado == 0){
+                                                            $utilidad_bruta = $total_valor_venta - $row['total_generado'];
+                                                            $margen = round(($utilidad_bruta  / $total_valor_venta)* 100,2);
+                                                        }else{
+                                                            $utilidad_bruta = $total_valor_venta - $parametros->valor_dia_empleado;
+                                                            $margen = round(($utilidad_bruta  / $total_valor_venta)* 100,2);
+                                                        }
+                                                        
                                                     }else{
                                                         $margen = 0;
                                                         $acumulado_venta = 0;

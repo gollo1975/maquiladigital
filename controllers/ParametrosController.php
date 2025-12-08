@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Parametros;
-use app\models\ParametrosSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -44,7 +43,8 @@ class ParametrosController extends Controller
             if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',29])->all()){
                 $model = $this->findModel($id);
                 if ($model->load(Yii::$app->request->post()) && $model->save()) {
-                    //return $this->redirect(['view', 'id' => $model->id_parametros]);
+                    $this->ValorDiaEmpleado($id);
+                    return $this->redirect(['parametros','id' => $id]);
                 }
 
                 return $this->render('parametros', [
@@ -57,6 +57,30 @@ class ParametrosController extends Controller
             return $this->redirect(['site/login']);
         }
         
+    }
+    
+    protected function ValorDiaEmpleado($id) {
+        $model = $this->findModel($id);
+        $empresa = \app\models\Matriculaempresa::findOne(1);
+        $total_salario = 0;
+        // 1. seguridad social
+        
+        $pension = round(($model->salario_minimo * $model->pension)/100);
+        $arl =    round(($model->salario_minimo * $model->arl->arl)/100);      
+        $caja =  round(($model->salario_minimo * $model->caja)/100);
+        
+        // 2. prestaciones
+        $cesantia_prima_interes = round((($model->salario_minimo +  $model->auxilio_transporte) * $model->prestaciones)/100);
+        $vacacion =  round(($model->salario_minimo * $model->vacaciones)/100);
+        $ajuste =  round(($vacacion *  $model->ajuste)/100);
+        
+        // 3. totales 
+        $total_seguridad =  $pension + $arl + $caja;
+        $total_prestaciones = $cesantia_prima_interes + $vacacion +  $ajuste;
+        $total_salario =  $total_seguridad +  $total_prestaciones + $model->salario_minimo + $model->auxilio_transporte;     
+        $valor_dia = round($total_salario / $empresa->dias_trabajados);
+        $model->valor_dia_empleado = $valor_dia;
+        $model->save(false);
     }
     
 

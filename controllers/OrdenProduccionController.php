@@ -954,13 +954,14 @@ class OrdenProduccionController extends Controller {
                                        return $this->redirect(['orden-produccion/index']);  
                                     }
                                 }
+                                $fecha_dia = date('Y-m-d');
                                 $detalleOrden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $id])->all();
                                 $table = new Ordenproduccion();
                                 $table->idcliente = $buscar->idcliente;
                                 $table->codigoproducto = $buscar->codigoproducto;
-                                $table->fechallegada = $buscar->fechallegada;
-                                $table->fechaprocesada = $buscar->fechaprocesada;
-                                $table->fechaentrega = $buscar->fechaentrega;
+                                $table->fechallegada = $fecha_dia;
+                                $table->fechaprocesada = $fecha_dia;
+                                $table->fechaentrega = $fecha_dia;
                                 $table->observacion = $model->observacion;
                                 $table->ordenproduccion = $buscar->ordenproduccion;
                                 $table->idtipo = $model->tipo_servicio;

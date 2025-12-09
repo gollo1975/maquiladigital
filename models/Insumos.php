@@ -41,7 +41,7 @@ class Insumos extends \yii\db\ActiveRecord
                 'aplica_inventario','inventario_inicial','idproveedor','id_grupo'], 'required'],
             [['fecha_entrada','fecha_registro','fecha_vencimiento'], 'safe'],
             [['estado_insumo','stock_inicial','aplica_inventario','inventario_inicial','subtotal','total_iva','total_materia_prima','aplica_iva','id_impuesto','stock_real',
-                'id_tipo_medida','idproveedor','id_grupo'], 'integer'],
+                'id_tipo_medida','idproveedor','id_grupo','validar_item'], 'integer'],
              [['precio_unitario','porcentaje_iva'], 'number'],
             [['codigo_insumo','codigo_ean'], 'string', 'max' => 15],
             [['descripcion'], 'string', 'max' => 60],
@@ -62,7 +62,7 @@ class Insumos extends \yii\db\ActiveRecord
         return [
             'id_insumos' => 'Id',
             'codigo_insumo' => 'Código:',
-            'descripcion' => 'Materia prima:',
+            'descripcion' => 'Nombre de insumo:',
             'id_tipo_medida' => 'Tipo medida',
             'precio_unitario' => 'Precio unitario:',
             'fecha_entrada' => 'Fecha Entrada',
@@ -78,6 +78,7 @@ class Insumos extends \yii\db\ActiveRecord
             'observacion' => 'Observacion:',
             'idproveedor' => 'Proveedor:',
             'id_grupo' => 'Grupo:',
+            'validar_item' => 'Validar insumo:'
             
         ];
     }
@@ -122,6 +123,17 @@ class Insumos extends \yii\db\ActiveRecord
             $aplicaiva = "SI";
         }
         return $aplicaiva;
+    }
+    
+     //aplica iva
+    public function getValidarItem()
+    {
+        if($this->validar_item == 0){
+            $validaritem = "NO";
+        }else{
+            $validaritem = "SI";
+        }
+        return $validaritem;
     }
     
     public function getTipomedida()

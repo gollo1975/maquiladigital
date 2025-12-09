@@ -1218,13 +1218,29 @@ class ValorPrendaUnidadController extends Controller
 
         // Convertir los segundos a minutos y redondear
         $minutos = round($segundos / 60, 2);
+        //acumula los tres eventos
+        $total_acumulado_minutos = 0;
+        $tiempo_minimo = 0;
+        if($empresa->total_eventos > 0){
+            $total_acumulado_minutos = $flujo->minutos * $empresa->total_eventos;
+        }
+        $tiempo_minimo = round($flujo->minutos / 2, 2);
         if($minutos > 0){
            //formula para la eficiencia
-           $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
+          $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
            if($EficienciaOperacion > $empresa->tiempo_maximo_operacion){
-              $table->porcentaje_cumplimiento = $empresa->tiempo_maximo_operacion; 
+               if($minutos < $tiempo_minimo){
+                   $table->porcentaje_cumplimiento = $empresa->sam_minimo; 
+               }else{
+                   $table->porcentaje_cumplimiento = $empresa->tiempo_maximo_operacion; 
+               }    
            }else{
-               $table->porcentaje_cumplimiento = $EficienciaOperacion;
+               if($minutos > $total_acumulado_minutos){
+                    $table->porcentaje_cumplimiento = $empresa->sam_castigo;
+               }else{
+                    $table->porcentaje_cumplimiento = $EficienciaOperacion;
+               }
+             
            }
         }else{
            return $this->redirect([
@@ -1242,7 +1258,7 @@ class ValorPrendaUnidadController extends Controller
         $table->diferencia_tiempo = $flujo->minutos - $minutos;
         
         // 5. Guardar el registro y manejar errores de validación
-      if ($table->save()) {
+       if ($table->save()) {
            //guarda la unidad en el flujo de operacion
             $this->ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion);
             $this->ActualizaSoloOperaciones($id_detalle, $id_operacion, $idordenproduccion);
@@ -1254,7 +1270,7 @@ class ValorPrendaUnidadController extends Controller
         }
 
         // 6. Redirigir siempre después de intentar guardar
-       return $this->redirect([
+      return $this->redirect([
             'entrada_operacion_talla',
             'id_planta' => $id_planta,
             'id_detalle' => $id_detalle,

@@ -70,7 +70,7 @@ class Matriculaempresa extends \yii\db\ActiveRecord
         return [
             [['nitmatricula', 'dv', 'razonsocialmatricula', 'nombrematricula', 'apellidomatricula', 'direccionmatricula', 'telefonomatricula', 'celularmatricula', 'emailmatricula', 'iddepartamento', 'idmunicipio', 'paginaweb', 'id_tipo_regimen', 'declaracion', 'gran_contribuyente','agente_retenedor', 'porcentaje_cesantias', 'porcentaje_intereses', 'porcentaje_prima', 'porcentaje_vacacion'], 'required'],
             [['dv', 'id_tipo_regimen', 'id_banco_factura', 'gran_contribuyente','agente_retenedor','vlr_minuto_vinculado','vlr_minuto_contrato','codigo_salario','aplica_auxilio','base_auxilio','codigo_salario_auxilio','codigo_salario_pago_produccion','ajuste_caja','codigo_concepto_compra',
-                'aplica_regla','porcentaje_minima_eficiencia','dias_trabajados','horas_mensuales','tiempo_maximo_operacion','aplica_modulo_compra','horas_realmente_trabajadas'], 'integer'],
+                'aplica_regla','porcentaje_minima_eficiencia','dias_trabajados','horas_mensuales','tiempo_maximo_operacion','aplica_modulo_compra','horas_realmente_trabajadas','sam_castigo','total_eventos','sam_minimo'], 'integer'],
             [['porcentajeiva', 'porcentajeretefuente', 'retefuente', 'porcentajereteiva', 'porcentaje_cesantias', 'porcentaje_intereses', 'porcentaje_prima', 'porcentaje_vacacion','porcentaje_empresa','valor_minuto_confeccion','valor_minuto_terminacion'], 'number'],
             [['declaracion','nombresistema', 'representante_legal','historia','mision','vision'], 'string'],
             [['nitmatricula', 'telefonomatricula', 'celularmatricula', 'iddepartamento', 'idmunicipio'], 'string', 'max' => 15],
@@ -133,7 +133,8 @@ class Matriculaempresa extends \yii\db\ActiveRecord
             'dias_trabajados' => 'Dias de trabajo:',
             'horas_mensuales' => 'Horas mensuales:',
             'tiempo_maximo_operacion' => 'Maximo porcentaje:',
-            'horas_realmente_trabajadas' => 'Horas realmente trabajadas:'
+            'horas_realmente_trabajadas' => 'Horas realmente trabajadas:',
+            'sam_minimo' => 'sam_minimo',
             
         ];
     }

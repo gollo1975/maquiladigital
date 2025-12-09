@@ -117,7 +117,13 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
              <?= $form->field($model, 'tiempo_maximo_operacion')->textInput(['maxlength' => true]) ?>  
             
         </div>
+         <div class="row">
+             <?= $form->field($model, 'sam_castigo')->textInput(['maxlength' => true]) ?>  
+             <?= $form->field($model, 'total_eventos')->textInput(['maxlength' => true]) ?>  
+            
+        </div>
         <div class="row">
+            <?= $form->field($model, 'sam_minimo')->textInput(['maxlength' => true]) ?>  
              <?= $form->field($model, 'horas_realmente_trabajadas')->textInput(['maxlength' => true]) ?>  
         </div>
         <div class="row">

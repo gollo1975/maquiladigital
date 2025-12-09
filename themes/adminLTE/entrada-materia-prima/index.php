@@ -17,7 +17,7 @@ use kartik\depdrop\DepDrop;
 //Modelos...
 use app\models\Proveedor;
 
-$this->title = 'Entrada (Materia prima)';
+$this->title = 'Entrada (insumos)';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -96,7 +96,7 @@ $form = ActiveForm::begin([
     </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr style ='font-size: 90%;'>         
+                <tr style ='font-size: 85%;'>         
                 
                 <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Proveedor</th>
@@ -115,7 +115,7 @@ $form = ActiveForm::begin([
             <?php foreach ($model as $val): 
                 $detalle = app\models\EntradaMateriaPrimaDetalle::find()->where(['=','id_entrada', $val->id_entrada])->one();
                 ?>
-                <tr style ='font-size: 90%;'>                
+                <tr style ='font-size: 85%;'>                
                     <td><?= $val->id_entrada?></td>
                     <td><?= $val->proveedor->nombrecorto?></td>
                     <td><?= $val->numero_soporte?></td>

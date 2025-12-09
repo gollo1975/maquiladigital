@@ -33,8 +33,8 @@ class OrdenProduccionInsumoDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_entrega', 'id_detalle', 'id_insumos', 'cantidad','iddetalleorden','faltan_insumos','cantidad_faltante'], 'integer'],
-            [['cantidad','metros','unidades'], 'number'],
+            [['id_entrega', 'id_detalle', 'id_insumos', 'cantidad','iddetalleorden','faltan_insumos','cantidad_faltante','total_insumo'], 'integer'],
+            [['cantidad','metros','unidades','valor_unidad','cantidad_despachada'], 'number'],
             [['id_entrega'], 'exist', 'skipOnError' => true, 'targetClass' => OrdenProduccionInsumos::className(), 'targetAttribute' => ['id_entrega' => 'id_entrega']],
             [['id_detalle'], 'exist', 'skipOnError' => true, 'targetClass' => ReferenciaInsumos::className(), 'targetAttribute' => ['id_detalle' => 'id_detalle']],
             [['id_insumos'], 'exist', 'skipOnError' => true, 'targetClass' => Insumos::className(), 'targetAttribute' => ['id_insumos' => 'id_insumos']],
@@ -56,8 +56,12 @@ class OrdenProduccionInsumoDetalle extends \yii\db\ActiveRecord
             'iddetalleorden' => 'iddetalleorden',
             'metros' => 'metros',
             'unidades' => 'unidades',
-            'cantidad_faltante' => 'cantidad_faltanete',
+            'cantidad_faltante' => 'cantidad_faltante',
             'faltan_insumos' => 'faltan_insumos',
+            'total_insumo' => 'total_insumo',
+            'valor_unidad' => 'valor_unidad',
+            'cantidad_despachada' => 'cantidad_despachada',
+            
         ];
     }
 

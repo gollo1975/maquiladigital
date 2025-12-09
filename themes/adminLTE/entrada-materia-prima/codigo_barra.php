@@ -16,7 +16,7 @@ use kartik\select2\Select2;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
 
-$this->title = 'Detalle (Materia prima)';
+$this->title = 'Entrada de insumos';
 $this->params['breadcrumbs'][] = $this->title;
 $entrada = \app\models\EntradaMateriaPrima::findOne($id);
 ?>
@@ -81,9 +81,9 @@ $entrada = \app\models\EntradaMateriaPrima::findOne($id);
     </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr style ='font-size:90%;'>                
+                <tr style ='font-size:85%;'>                
                     <th scope="col" align="center" style='background-color:#B9D5CE;'>Codigo</th>                        
-                    <th scope="col" align="center" style='background-color:#B9D5CE;'>Producto</th>                        
+                    <th scope="col" align="center" style='background-color:#B9D5CE;'>Nombre de insumo</th>                        
                     <th scope="col" align="center" style='background-color:#B9D5CE;'>Editar precio Unit.</th>  
                     <th scope="col" align="center" style='background-color:#B9D5CE;'>F. vcto</th>  
                     <th scope="col" align="center" style='background-color:#B9D5CE;'>Cant.</th>  
@@ -99,7 +99,7 @@ $entrada = \app\models\EntradaMateriaPrima::findOne($id);
             <tbody>
                 <?php 
                 foreach ($model as $val):?>
-                    <tr style ='font-size:90%;'>
+                    <tr style ='font-size:85%;'>
                         <td> <?= $val->insumos->codigo_insumo?></td>
                         <td> <?= $val->insumos->descripcion?></td>
                         <td align="center"><select name="actualizar_precio[]"  style="width: 60px; ">

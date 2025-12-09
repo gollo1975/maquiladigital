@@ -66,7 +66,7 @@ class PDF extends FPDF {
        $this->SetFillColor(220, 220, 220);
         $this->SetXY(10, 34);
         $this->SetFont('Arial', 'B', 12);
-        $this->Cell(162, 7, utf8_decode("ORDEN DE PRODUCCION DE INSUMOS"), 0, 0, 'l', 0);
+        $this->Cell(162, 7, utf8_decode("ORDEN DE INSUMOS"), 0, 0, 'l', 0);
         $this->Cell(30, 7, utf8_decode('N°. '.str_pad($orden->numero_orden, 4, "0", STR_PAD_LEFT)), 0, 0, 'l', 0);
         //FIN
         $this->SetXY(10, 45); //FILA 1
@@ -93,7 +93,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(24, 5, utf8_decode("Op cliente:"), 0, 0, 'c');
         $this->SetFont('Arial', '', 8);
-        $this->Cell(100, 5, utf8_decode($orden->orden_produccion_cliente.' - Unidades: '.$orden->ordenproduccion->cantidad), 0, 0, 'J');
+        $this->Cell(100, 5, utf8_decode($orden->orden_produccion_cliente), 0, 0, 'J');
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(33, 5, utf8_decode("Tipo orden:"), 0, 0, 'c');
         $this->SetFont('Arial', '', 8);
@@ -159,17 +159,22 @@ class PDF extends FPDF {
             $pdf->Cell(190, 5, utf8_decode("Talla: " . $talla), 1, 1, 'C', 1); // Encabezado de la talla
             $pdf->SetFont('Arial', '', 8);
             $total = 0;
+            $configuracion_insumo = app\models\ConfiguracionInsumos::findOne(1);
             foreach ($detalles as $detalle) {
                 $pdf->Cell(20, 4, $detalle->insumos->codigo_insumo, 1, 0, 'L');
                 $pdf->Cell(115, 4, $detalle->insumos->descripcion, 1, 0, 'L');
                 $pdf->Cell(20, 4, $talla, 1, 0, 'C');
-                if($detalle->metros > 0){
-                    $total = $detalle->metros;
-                     $pdf->Cell(36, 4, number_format($total, 2, '.', ','), 1, 1, 'R');
+                if($configuracion_insumo->aplica_insumos_referencia == 1){
+                    if($detalle->metros > 0){
+                        $total = $detalle->metros;
+                         $pdf->Cell(36, 4, number_format($total, 2, '.', ','), 1, 1, 'R');
+                    }else{
+                        $total = $detalle->cantidad;
+                         $pdf->Cell(36, 4, number_format($total, 2, '.', ','), 1, 1, 'R');
+                    }
                 }else{
-                    $total = $detalle->cantidad;
-                     $pdf->Cell(36, 4, number_format($total, 2, '.', ','), 1, 1, 'R');
-                }
+                     $pdf->Cell(36, 4, number_format($detalle->cantidad_despachada, 2, '.', ','), 1, 1, 'R');
+                }     
                
             }
 

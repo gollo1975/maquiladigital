@@ -100,8 +100,12 @@ $Grupo = ArrayHelper::map(app\models\GrupoInsumos::find()->all(), 'id_grupo', 'n
                     'allowClear' => true
                 ],
             ]); ?> 
-            <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
-        </div>    
+            <?= $form->field($model, 'validar_item')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
+           
+        </div> 
+        <div class="row">
+             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
+        </div>
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("insumos/index") ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>

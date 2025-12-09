@@ -38,7 +38,7 @@ class OrdenProduccionInsumos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['idordenproduccion', 'idtipo', 'total_insumos', 'total_costo','autorizado', 'numero_orden'], 'integer'],
+            [['idordenproduccion', 'idtipo', 'total_insumos', 'total_costo','autorizado', 'numero_orden','exportar_insumos'], 'integer'],
             [['fecha_hora_generada', 'fecha_creada'], 'safe'],
             [['codigo_producto', 'orden_produccion_cliente', 'user_name'], 'string', 'max' => 15],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
@@ -64,6 +64,7 @@ class OrdenProduccionInsumos extends \yii\db\ActiveRecord
             'fecha_creada' => 'Fecha creada',
             'autorizado' => 'Autorizado',
             'numero_orden' => 'Numero de orden',
+            'exportar_insumos' => 'exportar_insumos',
         ];
     }
 

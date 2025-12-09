@@ -18,7 +18,7 @@ use kartik\depdrop\DepDrop;
 use app\models\TipoMedida;
 use app\models\Proveedor;
 
-$this->title = 'Materia Prima';
+$this->title = 'INSUMOS';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -117,10 +117,10 @@ $form = ActiveForm::begin([
     </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr style ='font-size: 90%;'>         
+                <tr style ='font-size: 85%;'>         
                 
                 <th scope="col" style='background-color:#B9D5CE;'>Código</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Materia prima</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Nombre del insumo</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Medida</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha entrada</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Fecha_vcto</th>
@@ -135,7 +135,7 @@ $form = ActiveForm::begin([
             </thead>
             <tbody>
             <?php foreach ($model as $val): ?>
-            <tr style ='font-size: 90%;'>                
+            <tr style ='font-size: 85%;'>                
               
                 <td><?= $val->codigo_insumo?></td>
                 <td><?= $val->descripcion?></td>

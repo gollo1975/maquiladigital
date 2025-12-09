@@ -38,6 +38,7 @@ $view = 'orden-produccion';
 
 <?php
     $remision = Remision::find()->where(['=', 'idordenproduccion', $model->idordenproduccion])->one();
+    
 ?>
 
 <div class="ordenproduccion-view">
@@ -53,7 +54,7 @@ $view = 'orden-produccion';
                 else {
                     echo Html::a('<span class="glyphicon glyphicon-remove"></span> Desautorizar', ['autorizado', 'id' => $model->idordenproduccion, 'token' => $token], ['class' => 'btn btn-default btn-sm']);
                     echo Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir', 'id' => $model->idordenproduccion], ['class' => 'btn btn-default btn-sm']);   
-                    if($model->tipo->permite_insumos == 1){
+                    if($model->tipo->permite_insumos == 1 ){
                         echo Html::a('<span class="glyphicon glyphicon-list-alt"></span>  Cargar insumos', ['cagar_insumos_orden', 'id' => $model->idordenproduccion, 'token' => $token],['class' => 'btn btn-warning btn-xs',
                             'data' => ['confirm' => 'Esta seguro de GENERAR los insumos a la orden de '.$model->tipo->tipo.'', 'method' => 'post']]);
                     }    

@@ -212,6 +212,7 @@ class InsumosController extends Controller
                 $table->codigo_ean = $model->codigo_insumo;
                 $table->inventario_inicial = $model->inventario_inicial;
                 $table->id_grupo = $model->id_grupo;
+                $table->validar_item = $model->validar_item;
                 $table->save(false);
                 return $this->redirect(['index']);
             }    
@@ -272,6 +273,7 @@ class InsumosController extends Controller
             $table->codigo_ean = $model->codigo_insumo;
             $table->inventario_inicial = $model->inventario_inicial;
             $table->id_grupo = $model->id_grupo;
+            $table->validar_item = $model->validar_item;
             $table->save(false);
             return $this->redirect(['index']);
         }
@@ -291,6 +293,7 @@ class InsumosController extends Controller
             $model->inventario_inicial = $table->inventario_inicial;
             $model->idproveedor = $table->idproveedor;
             $model->id_grupo = $table->id_grupo;
+            $model->validar_item = $table->validar_item;
         }
         return $this->render('update', [
             'model' => $model,

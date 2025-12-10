@@ -145,10 +145,13 @@ $this->params['breadcrumbs'][] = $this->title;
                         </td>    
                                  
                     <?php }else{?>
-                       <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["despacho-pedidos/view_vista", "id" => $val->id_despacho, 'token' => 0]) ?>" ><span class="glyphicon glyphicon-list"></span></a>
-                        </td>
-                    <?php }      ?>
+                        
+                            <td style= 'width: 25px; height: 25px;'>
+                                 <a href="<?= Url::toRoute(["despacho-pedidos/view_vista", "id" => $val->id_despacho, 'token' => 0]) ?>" ><span class="glyphicon glyphicon-list"></span></a>
+                             </td>
+                      
+                        <?php }?>     
+                  
             
             </tbody>            
             <?php endforeach; ?>

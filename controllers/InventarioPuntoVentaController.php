@@ -489,7 +489,7 @@ class InventarioPuntoVentaController extends Controller
     }
     
     //CREAR DESCUENTO COMERCIAL
-    public function actionCrear_regla_comercial($id, $sw = 0) {
+    public function actionCrear_regla_comercial($id, $sw = 0, $token) {
         $model = new \app\models\ModeloEditarReglaDescuento();
         $inventario = InventarioPuntoVenta::findOne($id);
         if ($model->load(Yii::$app->request->post())) {
@@ -506,7 +506,7 @@ class InventarioPuntoVentaController extends Controller
                     $table->save(false);
                     $inventario->aplica_descuento_distribuidor = 1;
                     $inventario->save();
-                    $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id]);
+                    $this->redirect(["inventario-punto-venta/lista_precios", 'id' => $id, 'token' => $token]);
                 }
             }else{
                 $model->getErrors();
@@ -516,6 +516,7 @@ class InventarioPuntoVentaController extends Controller
             'model' => $model,
             'id' => $id,
             'sw' => $sw,
+            'token' => $token,
         ]);
     }
     

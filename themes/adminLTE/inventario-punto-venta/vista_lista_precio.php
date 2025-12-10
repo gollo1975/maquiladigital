@@ -183,7 +183,7 @@ $listaPrecio = ArrayHelper::map(\app\models\ListaPrecios::find()->all(), 'id_lis
                             <div class="panel-footer text-right">
                                 <!-- Inicio Nuevo Detalle proceso -->
                                 <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear descuento',
-                                        ['/inventario-punto-venta/crear_regla_comercial','id' => $model->id_inventario],
+                                        ['/inventario-punto-venta/crear_regla_comercial','id' => $model->id_inventario,'token' => $token],
                                         [
                                             'title' => 'Crear la nueva regla comercial de descuento',
                                             'data-toggle'=>'modal',

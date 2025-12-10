@@ -378,13 +378,15 @@ class PedidosController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $TokenAcceso = Yii::$app->user->identity->id_agente;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id_pedido, 'token' => 1]);
+            return $this->redirect(['view', 'id' => $model->id_pedido, 'token' => 0]);
         }
 
         return $this->render('update', [
             'model' => $model,
+            'TokenAcceso' => $TokenAcceso,
         ]);
     }
 

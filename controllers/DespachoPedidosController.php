@@ -367,10 +367,12 @@ class DespachoPedidosController extends Controller
                                                              'codigo' => $intCodigo])->one();
                 $unidades = $_POST["cantidad_despachar"][$intIndice];
                 $table = \app\models\PedidoTallas::findOne($intCodigo);
+                $pedidoColores = \app\models\PedidoColores::find()->where(['codigo' => $intCodigo])->one();
                 if($unidades <= $table->cantidad){
                                       
                     $talla_color = \app\models\DetalleColorTalla::find()->where(['idtalla' => $tallas_inventario->idtalla,
-                                                                                'id_inventario' => $id_inventario])->one();
+                                                                                'id_inventario' => $id_inventario,
+                                                                                'id' => $pedidoColores->id])->one();
                     if ($talla_color !== null) {
                         if($talla_color->stock_punto >= $unidades){
                             $table->unidades_despachadas = $unidades;

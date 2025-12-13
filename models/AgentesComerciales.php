@@ -68,6 +68,7 @@ class AgentesComerciales extends \yii\db\ActiveRecord
             [['fecha_registro'], 'safe'],
             [['nit_cedula', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'iddepartamento', 'idmunicipio', 'user_name'], 'string', 'max' => 15],
             [['nombre_completo', 'email_agente'], 'string', 'max' => 50],
+            ['email_agente' ,'email'],
             [['celular_agente'], 'string', 'max' => 12],
             [['direccion'], 'string', 'max' => 40],
             [['id_tipo_documento'], 'exist', 'skipOnError' => true, 'targetClass' => TipoDocumento::className(), 'targetAttribute' => ['id_tipo_documento' => 'id_tipo_documento']],

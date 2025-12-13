@@ -20,6 +20,13 @@ $this->params['breadcrumbs'][] = $model->id_pedido;
         <?php }else{?>
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_pedidos'], ['class' => 'btn btn-primary btn-sm']);
         } 
+        if ($model->numero_pedido > 0) {
+            echo Html::a('<span class="glyphicon glyphicon-envelope"></span> Enviar email', 
+                        ['/pedidos/enviar_email', 'id' => $model->id_pedido, 'token' => $token],
+                        ['class' => 'btn btn-success btn-sm', 
+                         'data' => ['confirm' => '¿Está seguro que desea enviar el pedido al correo del cliente ('.$model->cliente->nombrecorto.')?', 'method' => 'post']
+                        ]);
+        }
         if ($model->autorizado == 0 && $model->numero_pedido == 0) { ?>
             <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Autorizar', ['autorizado', 'id' => $model->id_pedido,'token' => $token,], ['class' => 'btn btn-default btn-sm']);
         } else {

@@ -1,4 +1,5 @@
 <?php
+use yii\swiftmailer\Mailer;
 
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
@@ -38,13 +39,21 @@ $config = [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
+        
+        ///proceso para emails
         'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
-            'useFileTransport' => true,
-        ],
+            'class' => \yii\swiftmailer\Mailer::class,
+            'useFileTransport' => false, // IMPORTANTE: Debe ser FALSE para enviar correos reales
+            'transport' => [
+                'class' => 'Swift_SmtpTransport', // Si usas yii\symfonymailer
+                'host' => 'smtp.gmail.com',
+                'username' => 'jgp19751@gmail.com',
+                'password' => 'anncbmynelqhfjcb',
+                'port' => 587, 
+                'encryption' => 'tls',
+            ],
+        ], 
+        
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -54,6 +63,8 @@ $config = [
                 ],
             ],
         ],
+        
+        
         'db' => $db,
         /*
         'urlManager' => [

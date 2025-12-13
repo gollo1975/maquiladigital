@@ -11,7 +11,7 @@ use app\models\Departamento;
 class PDF extends FPDF {
 
     function Header() {
-        global $id_pedido;
+        $id_pedido = $GLOBALS['id_pedido'];
         $pedido = Pedidos::findOne($id_pedido);
         $config = Matriculaempresa::findOne(1);
         $municipio = Municipio::findOne($config->idmunicipio);
@@ -224,10 +224,7 @@ class PDF extends FPDF {
     }
 
 }
-
-        
-global $id_pedido, $output_filename, $output_mode;
-
+global $id_pedido;
 $id_pedido = $model->id_pedido;
 $pdf = new PDF();
 $pdf->AliasNbPages();
@@ -239,7 +236,9 @@ if($model->pedido_anulado == 1){
 $pdf->Body($pdf,$model);
 $pdf->AliasNbPages();
 $pdf->SetFont('Times', '', 10);
-$pdf->Output($output_filename, $output_mode);
+$pdf->Output("PedidoCliente_$model->numero_pedido.pdf", 'D');
+
+exit;
 
 function zero_fill ($valor, $long = 0)
 {

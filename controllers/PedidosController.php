@@ -17,6 +17,7 @@ use yii\data\Pagination;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 
+
 //models
 use app\models\Pedidos;
 use app\models\UsuarioDetalle;
@@ -743,7 +744,7 @@ class PedidosController extends Controller
     //pedidos
     public function actionImprimir_pedido($id)
     {
-        return $this->render('../formatos/reporte_pedido_cliente_inventario', [
+        return $this->render('../formatos/reporte_pedido_cliente_inventario_email', [
             'model' => $this->findModel($id),
             
         ]);
@@ -755,6 +756,114 @@ class PedidosController extends Controller
             'model' => $this->findModel($id),
             
         ]);
+    }
+    
+    //ENVIAR PEIDDO VIA EMAIL
+    public function actionEnviar_email($id, $token)
+    {
+        
+    $model = $this->findModel($id);
+    $cliente = $model->cliente->nombrecorto;
+    $matricula = \app\models\Matriculaempresa::findOne(1);
+    $nombreEmpresa = $matricula->razonsocialmatricula;
+
+    // ... (variables de vendedor y cuerpo HTML) ...
+    
+    $nombreVendedor = $model->agente->nombre_completo; 
+    $emailVendedor = $model->agente->email_agente; 
+    $telefonoVendedor = $model->agente->celular_agente;
+    
+    //valide el email
+    if($model->cliente->emailcliente == null){
+         Yii::$app->session->setFlash('error', 'El pedido no se puede enviar porque el cliente no tiene el email configurado. Valide la información.');
+          return $this->redirect(['view', 'id' => $id, 'token' => $token]);
+    }
+    
+    //valide la configuracion del email si la empresa esta autorizada
+    if (Yii::$app->params['senderEmail'] === null || empty(Yii::$app->params['senderEmail'])) {
+        Yii::$app->session->setFlash('error', '⚠️ Error de configuración: La dirección de correo del remitente (senderEmail) no está definida para este empresa.');
+        return $this->redirect(['view', 'id' => $id, 'token' => $token]);
+    }
+
+
+    // --- Preparación del PDF ---
+    $rutaTemporal = Yii::getAlias('@app/web/temp/');
+    if (!is_dir($rutaTemporal)) {
+        mkdir($rutaTemporal, 0777, true);
+    }
+
+    $nombreArchivo = 'Pedido_Nro_' . $model->numero_pedido . '.pdf';
+    $rutaCompletaArchivo = $rutaTemporal . $nombreArchivo;
+
+    $asunto = 'Pedido Nro. ' . $model->numero_pedido . ' - ' . $cliente;
+    $direccion_email_cliente = $model->cliente->emailcliente;
+    
+    // Crear el cuerpo del mensaje en formato HTML
+        $cuerpo_html = '
+            <p style="font-size: 14px; font-family: Arial, sans-serif;">
+                Estimado cliente: <b>' . $cliente . '</b>, en el archivo adjunto encontrará los detalles de su pedido No: <b>' . $model->numero_pedido .'</b>.
+            </p>
+
+            <p style="font-size: 14px; font-family: Arial, sans-serif;">
+                Agradecemos su preferencia y quedamos atentos a cualquier consulta.
+            </p>
+
+            <br>
+
+            <div style="font-family: Arial, sans-serif; font-size: 12px; color: #333;">
+                <hr style="border: none; border-top: 1px solid #eee; width: 250px; margin: 5px 0 10px 0;" align="left">
+                <b>' . $nombreVendedor . '</b><br>
+                Vendedor de ' . $nombreEmpresa . '<br>
+                Teléfono: ' . $telefonoVendedor . '<br>
+                Email: <a href="mailto:' . $emailVendedor . '">' . $emailVendedor . '</a>
+            </div>
+        ';
+
+       
+    try {
+        // 1. Definir las variables globales que tu archivo FPDF necesita
+        $GLOBALS['id_pedido'] = $model->id_pedido;
+        $GLOBALS['output_mode'] = 'F'; // 'F' = File (Guardar en servidor)
+        $GLOBALS['output_filename'] = $rutaCompletaArchivo;
+        
+        // 2. Usar output buffering para capturar y descartar cualquier salida accidental
+        ob_start();
+
+        $rutaFormato = Yii::getAlias('@app/themes/adminLTE/formatos/reporte_pedido_cliente_inventario.php'); // O _email.php, según el que exista
+        
+        include $rutaFormato;
+        
+        ob_end_clean(); // Limpiar el buffer sin enviar nada al navegador
+      
+        
+        // 4. Verificar si el archivo fue creado
+        if (!file_exists($rutaCompletaArchivo)) {
+             throw new \Exception('El archivo PDF no se guardó correctamente.');
+        }
+
+        // 5. ENVÍO DEL CORREO
+        Yii::$app->mailer->compose()
+            ->setFrom([Yii::$app->params['senderEmail'] => $nombreEmpresa])
+            ->setTo($direccion_email_cliente)
+            ->setSubject($asunto)
+            ->setHtmlBody($cuerpo_html)
+            ->attach($rutaCompletaArchivo, ['fileName' => $nombreArchivo])
+            ->send();
+
+        // 6. LIMPIEZA
+        unlink($rutaCompletaArchivo);
+
+        Yii::$app->session->setFlash('success', 'El pedido ha sido enviado exitosamente al correo: ' . $direccion_email_cliente);
+        
+    } catch (\Exception $e) {
+        // Asegurar la limpieza incluso si falla el envío
+        if (file_exists($rutaCompletaArchivo)) {
+            unlink($rutaCompletaArchivo);
+        }
+        Yii::$app->session->setFlash('error', 'Error en el proceso: ' . $e->getMessage());
+    }
+
+        return $this->redirect(['view', 'id' => $id, 'token' => $token]);
     }
 
     /**

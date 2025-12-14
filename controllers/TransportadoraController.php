@@ -137,8 +137,13 @@ class TransportadoraController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
         }
+       
         if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+            $dv = Html::encode($_POST["dv"]);
             $model->user_name = Yii::$app->user->identity->username;
+            $model->dv =$dv;
+            $model->user_name =Yii::$app->user->identity->username;
+            $model->fecha_registro = date('Y-m-d');
             $model->save();
             return $this->redirect(['index']);
         }
@@ -164,6 +169,9 @@ class TransportadoraController extends Controller
                 return ActiveForm::validate($model);
             }
             if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+               $dv = Html::encode($_POST["dv"]);
+               $model->dv = $dv;
+               $model->save();
                 return $this->redirect(['index']);
             }
 

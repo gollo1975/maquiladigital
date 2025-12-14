@@ -45,8 +45,8 @@ $this->params['breadcrumbs'][] = $model->id_transportadora;
                     <td><?= $model->tipoDocumento->tipo ?></td>
                     <th style='background-color:#F0F3EF;'>Nit/Cedula</th>
                     <td><?= $model->cedulanit ?></td>
-                    <th style='background-color:#F0F3EF;' >Dv</th>
-                    <td><?= $model->dv ?></td>
+                    <th style='background-color:#F0F3EF;' ></th>
+                    <td></td>
                       <th style='background-color:#F0F3EF;' >Empresa:</th>
                     <td><?= $model->razon_social ?></td>
                 </tr>

@@ -53,8 +53,8 @@ class Transportadora extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_tipo_documento', 'cedulanit', 'dv', 'razon_social', 'direccion', 'email_transportadora', 'celular', 'iddepartamento', 'idmunicipio'], 'required'],
-            [['id_tipo_documento', 'dv'], 'integer'],
+            [['id_tipo_documento', 'cedulanit', 'razon_social', 'direccion', 'email_transportadora', 'celular', 'iddepartamento', 'idmunicipio'], 'required'],
+            [['id_tipo_documento',], 'integer'],
             [['fecha_registro'], 'safe'],
             [['cedulanit', 'telefono', 'celular', 'iddepartamento', 'idmunicipio', 'celular_contacto', 'user_name'], 'string', 'max' => 15],
             [['razon_social', 'direccion', 'email_transportadora'], 'string', 'max' => 50],
@@ -72,7 +72,6 @@ class Transportadora extends \yii\db\ActiveRecord
             'id_transportadora' => 'Codigo',
             'id_tipo_documento' => 'Tipo de documento:',
             'cedulanit' => 'Documento:',
-            'dv' => 'Dv',
             'razon_social' => 'Razon social:',
             'direccion' => 'Direccion:',
             'email_transportadora' => 'Email:',

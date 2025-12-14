@@ -49,8 +49,7 @@ $tipodocumento = ArrayHelper::map(TipoDocumento::find()->all(), 'id_tipo_documen
                 <?= $form->field($model, 'id_tipo_documento')->dropDownList($tipodocumento, ['prompt' => 'Seleccione...']) ?>
             </div>
             <div class="row">
-                <?= $form->field($model, 'cedulanit')->input('text', ['id' => 'cedulanit', 'onchange' => 'calcularDigitoVerificacion()']) ?>
-                <?= Html::textInput('dv', $model->dv, ['id' => 'dv', 'aria-required' => true, 'aria-invalid' => 'false', 'maxlength' => 1, 'class' => 'form-control', 'placeholder' => 'dv', 'style' => 'width:50px', 'readonly' => true]) ?>       
+                <?= $form->field($model, 'cedulanit')->input("text", ["maxlength" => 15]) ?>
             </div>
             
             <div class="row">

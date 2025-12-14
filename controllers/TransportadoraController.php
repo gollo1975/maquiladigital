@@ -138,7 +138,7 @@ class TransportadoraController extends Controller
             return ActiveForm::validate($model);
         }
        
-        if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $dv = Html::encode($_POST["dv"]);
             $model->user_name = Yii::$app->user->identity->username;
             $model->dv =$dv;

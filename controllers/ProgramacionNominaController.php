@@ -2674,7 +2674,7 @@ class ProgramacionNominaController extends Controller {
 
         // 5. Calcular el valor devengado según los días trabajados reales
         if ($adicionpermanente->aplicar_dia_laborado == 1) {
-            $valor_proporcional = round(($valor_adicion / $dias_periodo) * $dias_pagados_reales);
+            $valor_proporcional = round(($valor_adicion / $nomina->dias_pago) * $dias_pagados_reales);
         } else {
             $valor_proporcional = $valor_adicion;
         }

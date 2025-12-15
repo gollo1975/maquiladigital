@@ -247,7 +247,7 @@ class InventarioPuntoVentaController extends Controller
                 foreach ($_POST["entrada_cantidad"] as $intCodigo):
                     $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_detalle', $intCodigo])->andWhere(['=','cerrado', 0])->one();
                     if($detalle){
-                        if($_POST["cantidad"]["$intIndice"] > 0){
+                        if($_POST["cantidad"][$intIndice] > 0){
                             $table = \app\models\DetalleColorTalla::findOne($intCodigo);
                             if($codigo <> 0){
                                 $unidad_entrada = $_POST["cantidad"][$intIndice]; //asigno variable
@@ -255,15 +255,15 @@ class InventarioPuntoVentaController extends Controller
                                 if($unidad_entrada <= $inventario->stock_inventario){ //si hay stoxk
                                     $detalle->cantidad = $unidad_entrada;
                                     $detalle->stock_punto = $unidad_entrada;
-                                    $detalle->save(false);
+                                    $detalle->save();
                                     $intIndice++;
                                 }else{
                                     $intIndice++;
                                 }
-                            }else{    
+                            }else{  
                                 $detalle->cantidad = $_POST["cantidad"][$intIndice];
                                 $detalle->stock_punto = $_POST["cantidad"][$intIndice];
-                                $detalle->save(false);
+                                $detalle->save();
                                 $intIndice++;
                             } 
                         }else{    
@@ -324,7 +324,7 @@ class InventarioPuntoVentaController extends Controller
         $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->all();
         $suma = 0;
         foreach ($detalle as $detalles):
-            $suma += $detalles->cantidad; 
+           $suma += $detalles->cantidad; 
         endforeach;
         $inventario->stock_unidades =  $suma;
         $inventario->stock_inventario =  $suma;
@@ -874,6 +874,11 @@ class InventarioPuntoVentaController extends Controller
                     $conInventario = \app\models\ConfiguracionInventario::findOne(1);
                     if(!$registro){
                         $orden = \app\models\Ordenproduccion::findOne($intCodigo);
+                        $proveedor = \app\models\Proveedor::findOne(1);
+                        if(!$proveedor){
+                            Yii::$app->getSession()->setFlash('error', 'Para poder descargar el inventario que esta la orden de producción, se debe crear el proveedor de esta produccion en el proceso de PROVEEDORES .');
+                            return $this->redirect(['index']); 
+                        }
                         $detalle = \app\models\Ordenproducciondetalle::find()->where(['idordenproduccion' => $orden->idordenproduccion])->one();
                         if($orden){
                             $inventario = InventarioPuntoVenta::find()->where(['=','codigo_producto', $orden->codigoproducto])->one();

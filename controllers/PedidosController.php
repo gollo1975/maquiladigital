@@ -781,7 +781,7 @@ class PedidosController extends Controller
     
     //valide la configuracion del email si la empresa esta autorizada
     if (Yii::$app->params['senderEmail'] === null || empty(Yii::$app->params['senderEmail'])) {
-        Yii::$app->session->setFlash('error', '⚠️ Error de configuración: La dirección de correo del remitente (senderEmail) no está definida para este empresa.');
+        Yii::$app->session->setFlash('error', 'Error de configuración: La dirección de correo del remitente (senderEmail) no está definida para este empresa.');
         return $this->redirect(['view', 'id' => $id, 'token' => $token]);
     }
 
@@ -854,6 +854,8 @@ class PedidosController extends Controller
         unlink($rutaCompletaArchivo);
 
         Yii::$app->session->setFlash('success', 'El pedido ha sido enviado exitosamente al correo: ' . $direccion_email_cliente);
+        $model->fecha_envio_email = date('Y-m-d H:i:s');
+        $model->save();
         
     } catch (\Exception $e) {
         // Asegurar la limpieza incluso si falla el envío

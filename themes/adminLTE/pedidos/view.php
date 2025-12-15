@@ -20,7 +20,7 @@ $this->params['breadcrumbs'][] = $model->id_pedido;
         <?php }else{?>
             <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['search_pedidos'], ['class' => 'btn btn-primary btn-sm']);
         } 
-        if ($model->numero_pedido > 0) {
+        if ($model->numero_pedido > 0 && $token == 0) {
             echo Html::a('<span class="glyphicon glyphicon-envelope"></span> Enviar email', 
                         ['/pedidos/enviar_email', 'id' => $model->id_pedido, 'token' => $token],
                         ['class' => 'btn btn-success btn-sm', 

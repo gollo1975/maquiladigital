@@ -125,6 +125,7 @@ if($TokenAcceso){
                 <?php if(!$TokenAcceso){ ?>
                     <th scope="col" style='background-color:#B9D5CE;'>Vendedor</th> 
                     <th scope="col" style='background-color:#B9D5CE;'><span class="badge" title="Pedido despachado">PE</span></th>
+                    <th scope="col" style='background-color:#B9D5CE;'>F. Envio email</th>
                 <?php }?>    
                 <th scope="col" style='background-color:#B9D5CE;'>F. pedido</th>
                 <th scope="col" style='background-color:#B9D5CE;'>F. entrega</th>
@@ -147,8 +148,9 @@ if($TokenAcceso){
                          <?php }else { ?>
                              
                              <td style="background-color: #B9D5AA"> <?= $val->pedidoEntregado?></td>
-                        <?php }    
-                    }?>
+                        <?php }  ?>
+                             <td><?= $val->fecha_envio_email ?></td>
+                    <?php }?>
                     <td><?= $val->fecha_pedido ?></td>
                      <td><?= $val->fecha_entrega ?></td>
                    

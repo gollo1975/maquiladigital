@@ -146,7 +146,7 @@ $view = 'pago-banco';
                                                 <td><?= $listados->fecha_aplicacion ?></td>
                                                 <td style="text-align: right"><?=''.number_format($listados->valor_transacion,0) ?></td>
                                             <?php }
-                                            if($listados->tipo_pago == 1 || $listados->tipo_pago == 2 || $listados->tipo_pago == 3){
+                                            if($listados->tipo_pago == 1 || $listados->tipo_pago == 2 || $listados->tipo_pago == 3 || $listados->tipo_pago == 4){
                                                 $empleado = \app\models\Empleado::find()->where(['=','identificacion', $listados->documento])
                                                                                         ->orWhere(['=','documento_pago_banco', $listados->documento])->one();
                                                 ?>

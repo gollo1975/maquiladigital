@@ -12,6 +12,7 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
 use kartik\select2\Select2;
+use kartik\date\DatePicker;
 use yii\web\Session;
 use yii\data\Pagination;
 use yii\db\ActiveQuery;
@@ -20,7 +21,7 @@ use yii\db\ActiveQuery;
 /* @var $model app\models\Facturaventadetalle */
 /* @var $form yii\widgets\ActiveForm */
 
-$this->title = 'Nómina x pagar';
+$this->title = 'Listado de documentos';
 $this->params['breadcrumbs'][] = $this->title;
 $empleado = ArrayHelper::map(\app\models\Empleado::find()->where(['=','contrato', 1])->orderBy('nombrecorto ASC')->all(), 'id_empleado', 'nombrecorto');
 ?>
@@ -48,13 +49,33 @@ $empleado = ArrayHelper::map(\app\models\Empleado::find()->where(['=','contrato'
 	
     <div class="panel-body" id="buscarmaquina">
         <div class="row" >
-            <?= $formulario->field($form, 'nombres')->widget(Select2::classname(), [
-                'data' => $empleado,
-                'options' => ['prompt' => 'Seleccione el banco...'],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>           
+            <?php if($tipo_proceso != 4){ ?>
+                <?= $formulario->field($form, 'nombres')->widget(Select2::classname(), [
+                    'data' => $empleado,
+                    'options' => ['prompt' => 'Seleccione el banco...'],
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ]); 
+            }else{?>
+                <?= $formulario->field($form, 'fecha_inicio')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                    'value' => date('d-M-Y', strtotime('+2 days')),
+                    'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                    'pluginOptions' => [
+                        'format' => 'yyyy-m-d',
+                        'todayHighlight' => true,
+                        'orientation' => 'bottom']
+                    ])
+                ?>
+                <?= $formulario->field($form, 'fecha_corte')->widget(DatePicker::className(), ['name' => 'check_issue_date',
+                    'value' => date('d-M-Y', strtotime('+2 days')),
+                    'options' => ['placeholder' => 'Seleccione una fecha ...'],
+                    'pluginOptions' => [
+                        'format' => 'yyyy-m-d',
+                        'todayHighlight' => true,
+                        'orientation' => 'bottom']])
+                ?>
+            <?php }?>
         </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
@@ -81,9 +102,7 @@ $form = ActiveForm::begin([
 ?>
 
 <?php
-if ($mensaje != ""){
-    ?> <div class="alert alert-danger"><?= $mensaje ?></div> <?php
-}
+
 ?>
 
 <div class="table table-responsive">
@@ -108,8 +127,7 @@ if ($mensaje != ""){
                 </thead>
                 <tbody>
                     <?php foreach ($listadoPago as $val):
-                        if($tipo_proceso == 7){
-                        ?>
+                        if($tipo_proceso == 7){ //pago de prestacion de servicio. ?>
                             <tr style="font-size: 85%;">
                                 <td><?= $val->id_pago ?></td>
                                 <td><?= $val->documento ?></td>
@@ -127,7 +145,8 @@ if ($mensaje != ""){
                                 <input type="hidden" name="tipo_proceso" value="<?= $tipo_proceso ?>">
                             </tr>
                         <?php }
-                        if($tipo_proceso == 1 || $tipo_proceso == 2){?>
+                        
+                        if($tipo_proceso == 1 || $tipo_proceso == 2 || $tipo_proceso == 3){  //pago de nominas, primas y cesantias ?>
                             <tr style="font-size: 85%;">
                                 <td><?= $val->id_programacion?></td>
                                 <td><?= $val->cedula_empleado?></td>
@@ -142,6 +161,25 @@ if ($mensaje != ""){
                                 <td><?= $val->contrato->grupoPago->grupo_pago ?></td>
                                 <td style="text-align: right"><?= '$'.number_format($val->total_pagar,0) ?></td>
                                 <td style="width: 30px;"><input type="checkbox" name="aplicar_pago[]" value="<?= $val->id_programacion ?>"></td>
+                                <input type="hidden" name="tipo_proceso" value="<?= $tipo_proceso ?>">
+                            </tr>   
+                        <?php }  
+                        
+                        if($tipo_proceso == 4){ // pago de prestaciones?>
+                            <tr style="font-size: 85%;">
+                                <td><?= $val->id_prestacion?></td>
+                                <td><?= $val->documento?></td>
+                                <td><?= $val->empleado->nombrecorto ?></td>
+                                 <?php if ($val->empleado->cuenta_bancaria == 0){?> 
+                                     <td style='background-color:#AAE3C6;'><?= $val->empleado->cuenta_bancaria ?></td> 
+                                 <?php }else{?>
+                                     <td><?= $val->empleado->cuenta_bancaria ?></td> 
+                                 <?php }?>
+                                <td><?= $val->fecha_inicio_contrato ?></td>
+                                <td><?= $val->fecha_termino_contrato ?></td>
+                                <td><?= $val->contrato->grupoPago->grupo_pago ?></td>
+                                <td style="text-align: right"><?= '$'.number_format($val->total_pagar,0) ?></td>
+                                <td style="width: 30px;"><input type="checkbox" name="aplicar_pago[]" value="<?= $val->id_prestacion ?>"></td>
                                 <input type="hidden" name="tipo_proceso" value="<?= $tipo_proceso ?>">
                             </tr>   
                         <?php }   

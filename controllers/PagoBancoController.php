@@ -198,12 +198,11 @@ class PagoBancoController extends Controller
   // proceso que busca los operarios para pago
       public function actionNuevopagoperario($id, $tipo_proceso, $token)
     {
-        if($tipo_proceso == 1 || $tipo_proceso == 2 ||  $tipo_proceso == 3){ //nominas, primas y cesantias
+        if($tipo_proceso == 1 || $tipo_proceso == 2 ||  $tipo_proceso == 3){ //nominas, primas y cesantias personal vinculado
             $listadoPago = \app\models\ProgramacionNomina::find()->where(['=','pago_aplicado', 0])
                                                                  ->andWhere(['=','id_tipo_nomina', $tipo_proceso])->orderBy('id_programacion ASC')->all();
             $form = new \app\models\FormMaquinaBuscar();
             $nombres = null;
-            $mensaje = '';
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $nombres = Html::encode($form->nombres);
@@ -222,19 +221,21 @@ class PagoBancoController extends Controller
                  $listadoPago = \app\models\ProgramacionNomina::find()->where(['=','pago_aplicado', 0])
                                                                  ->andWhere(['=','id_tipo_nomina', $tipo_proceso])->orderBy('id_programacion ASC')->all();
             }
+           
+            
         }
-        if($tipo_proceso == 7){
+        
+        if($tipo_proceso == 7){ //personal de prestacion del servicio
             $listadoPago = \app\models\PagoNominaServicios::find()->where(['=','pago_aplicado', 0])->orderBy('id_planta ASC')->all();
             $form = new \app\models\FormMaquinaBuscar();
-            $q = null;
-            $mensaje = '';
+            $nombres = null;
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
-                    $q = Html::encode($form->q);                                
-                    if ($q){
+                    $nombres = Html::encode($form->$nombres);                                
+                    if ($nombres){
                         $listadoPago = \app\models\PagoNominaServicios::find()
-                                ->where(['like','documento',$q])
-                                ->orwhere(['like','operario',$q])
+                                ->where(['like','documento',$nombres])
+                                ->orwhere(['like','operario',$nombres])
                                 ->andWhere(['=','pago_aplicado', 0])
                                 ->orderBy('id_pago DESC')
                                 ->all();
@@ -246,7 +247,38 @@ class PagoBancoController extends Controller
             } else {
                 $listadoPago = \app\models\PagoNominaServicios::find()->where(['=','pago_aplicado', 0])->orderBy('id_planta ASC')->all();
             }
-        }    
+        } 
+        
+        if($tipo_proceso == 4){ // pago de prestaciones sociales masivas
+            $listadoPago = \app\models\PrestacionesSociales::find()->where(['=','pago_aplicado', 0])->orderBy('id_prestacion DESC')->all();
+            $form = new \app\models\FormMaquinaBuscar();
+            $fecha_inicio = null;
+            $fecha_corte = null;
+            if ($form->load(Yii::$app->request->get())) {
+                if ($form->validate()) {
+                    $fecha_inicio = Html::encode($form->fecha_inicio);                                
+                    $fecha_corte = Html::encode($form->fecha_corte); 
+                    if(empty($fecha_inicio) && empty($fecha_corte)){
+                       Yii::$app->getSession()->setFlash('warning', 'Campos FECHA DE INICIO Y FECHA DE CORTE no se puede ser vacios.');
+                       return $this->redirect(["pago-banco/nuevopagoperario", 'id' => $id, 'token' => $token,'tipo_proceso' => $tipo_proceso]);
+                    }
+                    $listadoPago = \app\models\PrestacionesSociales::find()
+                                ->where(['between','fecha_termino_contrato',$fecha_inicio, $fecha_corte])
+                                ->andWhere(['=','pago_aplicado', 0])
+                                ->orderBy('id_prestacion DESC')
+                                ->all();
+                } else {
+                    $form->getErrors();
+                }                    
+
+            } else {
+                $listadoPago = \app\models\PrestacionesSociales::find()->where(['=','pago_aplicado', 0])->orderBy('id_prestacion DESC')->all();
+            }
+        } 
+        if($tipo_proceso == 5){
+            Yii::$app->getSession()->setFlash('error', 'El tipo de servicio que selecciono no esta disponible para esta empresa. Valide la informacion.');
+            return $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token]);
+        }
         if (isset($_POST["aplicar_pago"])) {
             $intIndice = 0;
             foreach ($_POST["aplicar_pago"] as $intCodigo) {
@@ -269,6 +301,39 @@ class PagoBancoController extends Controller
                         $table->concepto_documento = $empleado->tipoDocumento->tipo;
                         if($empleado->homologar_document == 0){
                             $table->documento = $nomina->cedula_empleado;
+                        }else{
+                           $table->documento = $empleado->documento_pago_banco;
+                        }    
+                        $table->nombres = utf8_decode(mb_substr($nomina->empleado->nombrecorto, 0, 20));
+                        $table->tipo_transacion = $empleado->tipo_transacion;
+                        $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                        $table->banco = $empleado->bancoEmpleado->banco;
+                        $table->numero_cuenta = $empleado->cuenta_bancaria;
+                        $table->valor_transacion = $nomina->total_pagar;
+                        $table->fecha_aplicacion = $pago_banco->fecha_aplicacion;
+                        $table->tipo_pago = $tipo_proceso;
+                        $table->id_colilla = $intCodigo;
+                        $table->save(false); 
+                        $this->ActualizarOperarioTotales($id);
+                    }
+                }
+                
+                if($tipo_proceso == 4){ //pago de prestaciones sociales
+                    $nomina = \app\models\PrestacionesSociales::find()->where(['id_prestacion' => $intCodigo])->one();
+                    $empleado = \app\models\Empleado::findOne($nomina->id_empleado);
+                   
+                    $table = new PagoBancoDetalle();
+                    $detalle = PagoBancoDetalle::find()
+                        ->where(['=', 'id_pago_banco', $id])
+                        ->andWhere(['=', 'documento', $nomina->documento])
+                        ->all();
+                    $reg = count($detalle);
+                    if ($reg == 0) {
+                        $table->id_pago_banco = $id;
+                        $table->tipo_documento = $empleado->tipoDocumento->codigo_interfaz;
+                        $table->concepto_documento = $empleado->tipoDocumento->tipo;
+                        if($empleado->homologar_document == 0){
+                            $table->documento = $nomina->documento;
                         }else{
                            $table->documento = $empleado->documento_pago_banco;
                         }    
@@ -316,13 +381,12 @@ class PagoBancoController extends Controller
                 }
              $intIndice++;   
             }
-           $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token]);
+           return $this->redirect(["pago-banco/view", 'id' => $id, 'token' => $token]);
         }else{
 
         }
         return $this->render('_listado_operario', [
             'listadoPago' => $listadoPago,            
-            'mensaje' => $mensaje,
             'id' => $id,
             'form' => $form,
             'tipo_proceso' => $tipo_proceso,
@@ -439,6 +503,13 @@ class PagoBancoController extends Controller
             if($nomina){
                 $nomina->pago_aplicado = 1;             
                 $nomina->save(false); 
+             }
+        }  
+        if($tipo_proceso == 4){ 
+            $nomina = \app\models\PrestacionesSociales::find()->where(['=','id_prestacion', $detalles->id_colilla])->andWhere(['=','pago_aplicado', 0])->one();
+            if($nomina){
+                $nomina->pago_aplicado = 1;             
+                $nomina->save(); 
              }
         }   
      endforeach;

@@ -227,7 +227,8 @@ $form = ActiveForm::begin([
         </div>
       <?php }else{?>
        <div class="panel-footer text-right" >  
-            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
+            <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar a excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
+            <?= Html::a('<span class="glyphicon glyphicon-import"></span> Importar desde excel', ['pago-adicional-fecha/importar_conceptos_excel', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-default btn-sm'])?>
             <a align="right" href="<?= Url::toRoute(["pago-adicional-fecha/createadicion", 'id'=>$id, 'fecha_corte' => $fecha_corte])?>" class="btn btn-success btn-sm "><span class='glyphicon glyphicon-plus'></span></a>
             <a align="right" href="<?= Url::toRoute(["pago-adicional-fecha/createdescuento", 'id'=> $id, 'fecha_corte' => $fecha_corte])?>" class="btn btn-info btn-sm"><span class='glyphicon glyphicon-minus-sign'></span></a>
               <div class="btn-group">

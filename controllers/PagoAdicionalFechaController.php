@@ -34,6 +34,7 @@ use yii\web\UploadedFile;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 use Codeception\Lib\HelperModule;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 /**
  * PagoAdicionalFechaController implements the CRUD actions for PagoAdicionalFecha model.
  */
@@ -1121,7 +1122,120 @@ class PagoAdicionalFechaController extends Controller
         }
          
     }
+    
+    //PERMITE IMPORTAR ARCHIVO DESDE EXCEL
+     
+    public function actionImportar_conceptos_excel($id, $fecha_corte)
+{
+    $model = new \yii\base\DynamicModel(['fileImport']);
+    $model->addRule(['fileImport'], 'required')
+          ->addRule(['fileImport'], 'file', [
+              'extensions' => ['csv', 'txt'],
+              'checkExtensionByMimeType' => false,
+          ]);
 
+    if (Yii::$app->request->isPost) {
+        $model->fileImport = \yii\web\UploadedFile::getInstance($model, 'fileImport');
+
+        if ($model->validate()) {
+            $path = $model->fileImport->tempName;
+            $transaction = Yii::$app->db->beginTransaction();
+            $filaActual = 0;
+            $registrosGuardados = 0;
+
+            try {
+                // 1. LEER EL ARCHIVO CSV DE FORMA NATIVA (Sin librerías pesadas)
+                $handle = fopen($path, "r");
+                if ($handle === false) {
+                    throw new \Exception("No se pudo abrir el archivo.");
+                }
+
+                // Saltar la primera fila (encabezados)
+                fgetcsv($handle, 1000, ";");
+                $filaActual = 1;
+
+                // 2. PROCESAR FILA POR FILA
+                while (($datos = fgetcsv($handle, 1000, ";")) !== false) {
+                    $filaActual++;
+                    
+                    // Según tu archivo: 0:id_empleado, 2:codigo_salario, 4:valor_pago
+                    if (!isset($datos[0]) || empty($datos[0])) continue;
+
+                    $id_emp_excel  = (int)preg_replace('/[^0-9]/', '', $datos[0]);
+                    $cod_sal_excel = (int)preg_replace('/[^0-9]/', '', $datos[2] ?? '0');
+                    $vlr_excel     = (float)str_replace(',', '.', $datos[4] ?? '0');
+
+                    if ($id_emp_excel <= 0) continue;
+
+                    // 3. BUSCAR CONTRATO Y CONCEPTO
+                    $contrato = \app\models\Contrato::find()
+                        ->where(['id_empleado' => $id_emp_excel])
+                        ->orderBy(['id_contrato' => SORT_DESC])
+                        ->one();
+
+                    if (!$contrato) continue;
+
+                    $conceptoSalario = \app\models\ConceptoSalarios::find()
+                        ->where(['codigo_salario' => $cod_sal_excel])
+                        ->one();
+
+                    if (!$conceptoSalario) continue;
+                    
+                    //consulta si existe
+                    $resultado = PagoAdicionalPermanente::find()->where([
+                                                        'codigo_salario' => $cod_sal_excel,
+                                                        'id_empleado' => $id_emp_excel, 'fecha_corte' => $fecha_corte])->one();
+                    
+                    if($resultado){
+                        Yii::$app->session->setFlash('error', "Este archivo ya se importo al sistema o los conceptos estan repetidos. Valide el archivo nuevamente.");
+                        return $this->redirect(['view', 'id' => $id, 'fecha_corte' => $fecha_corte]);                                               
+
+                    }    
+                        // 4. GUARDAR REGISTRO
+                        $pago = new \app\models\PagoAdicionalPermanente();
+                        $pago->id_empleado    = $id_emp_excel;
+                        $pago->codigo_salario = $cod_sal_excel;
+                        $pago->vlr_adicion    = $vlr_excel;
+                        $pago->id_contrato    = $contrato->id_contrato;
+                        $pago->id_grupo_pago  = $contrato->id_grupo_pago;
+                        $pago->id_pago_fecha  = $id;
+                        $pago->fecha_corte    = $fecha_corte;
+                        $pago->tipo_adicion   = ($conceptoSalario->debito_credito == 1) ? 1 : 2;
+                        $pago->permanente      = 2;
+                        $pago->estado_registro = 1;
+                        $pago->estado_periodo  = 1;
+                        $pago->aplicar_cesantias  = 0;
+                        $pago->aplicar_prima  = 0;
+                        $pago->aplicar_dia_laborado  = 0;
+                        $pago->usuariosistema  = Yii::$app->user->identity->username;
+                        $pago->fecha_creacion  = date('Y-m-d H:i:s');
+                        $pago->detalle         = 'Importado CSV: ' . $conceptoSalario->nombre_concepto;
+
+                        if ($pago->save()) {
+                            $registrosGuardados++;
+                        }
+                }
+                fclose($handle);
+
+                if ($registrosGuardados > 0) {
+                    $transaction->commit();
+                    Yii::$app->session->setFlash('success', "Éxito: Se importaron $registrosGuardados registros desde el archivo enviado en CSV.");
+                } else {
+                    $transaction->rollBack();
+                    Yii::$app->session->setFlash('warning', "No se encontraron datos válidos para procesar.");
+                }
+
+                return $this->redirect(['view', 'id' => $id, 'fecha_corte' => $fecha_corte]);
+
+            } catch (\Exception $e) {
+                if ($transaction->isActive) $transaction->rollBack();
+                Yii::$app->session->setFlash('error', "Error en Fila $filaActual: " . $e->getMessage());
+            }
+        }
+    }
+    return $this->render('subir_archivo_excel', ['model' => $model, 'id' => $id, 'fecha_corte' => $fecha_corte]);
+}
+   
     /**
      * Finds the PagoAdicionalFecha model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

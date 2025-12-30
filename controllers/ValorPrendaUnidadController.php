@@ -1227,21 +1227,21 @@ class ValorPrendaUnidadController extends Controller
         $tiempo_minimo = round($flujo->minutos / 2, 2);
         if($minutos > 0){
            //formula para la eficiencia
-          $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
-           if($EficienciaOperacion > $empresa->tiempo_maximo_operacion){
+            $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
+            if($EficienciaOperacion > $empresa->tiempo_maximo_operacion){
                if($minutos < $tiempo_minimo){
                    $table->porcentaje_cumplimiento = $empresa->sam_minimo; 
                }else{
                    $table->porcentaje_cumplimiento = $empresa->tiempo_maximo_operacion; 
                }    
-           }else{
+            }else{
                if($minutos > $total_acumulado_minutos){
                     $table->porcentaje_cumplimiento = $empresa->sam_castigo;
                }else{
                     $table->porcentaje_cumplimiento = $EficienciaOperacion;
                }
              
-           }
+            } //fin si
         }else{
            return $this->redirect([
             'entrada_operacion_talla',
@@ -1258,10 +1258,15 @@ class ValorPrendaUnidadController extends Controller
         $table->diferencia_tiempo = $flujo->minutos - $minutos;
         
         // 5. Guardar el registro y manejar errores de validación
-       if ($table->save()) {
+        if ($table->save()) {
            //guarda la unidad en el flujo de operacion
             $this->ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion);
             $this->ActualizaSoloOperaciones($id_detalle, $id_operacion, $idordenproduccion);
+            //PREGUNA SI LA OPERACION DESCARGAR LAS UNIDADES
+            if($flujo->aplica_modulo == 1){
+               $operacion = $flujo->idproceso;
+               $this->DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta);
+            }
             Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema a las : '.$table->hora_corte.'.');
         } else {
             // En caso de error, obtenemos y mostramos los detalles
@@ -1278,6 +1283,50 @@ class ValorPrendaUnidadController extends Controller
             'id' => $id,
             'idordenproduccion' => $idordenproduccion,
         ]);
+    }
+    
+    ////PROCESO QUE DESCARGA LAS UNIDADES DE LA OP
+    protected function DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta) {
+        $total = 0; $dato = 0;
+        //deacarga las unidades por tallas
+        $detalleOrden = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        $detalleOrden->faltante += 1;
+        $detalleOrden->cantidad_operada += 1;
+        $total = ($detalleOrden->cantidad_operada / $detalleOrden->cantidad)* 100;
+        $detalleOrden->porcentaje_cantidad = $total;
+        $detalleOrden->save();
+        
+        //buscar todas las tallas
+        $detalleOrdenTotal = \app\models\Ordenproducciondetalle::find()->where(['idordenproduccion' => $idordenproduccion])->all();
+        foreach ($detalleOrdenTotal as $totales) {
+            $dato += $totales->cantidad_operada;
+        }
+        $orden = Ordenproduccion::findOne($idordenproduccion);
+        $orden->faltante = $orden->cantidad - $dato;
+        $orden->porcentaje_cantidad = ($dato / $orden->cantidad ) * 100;
+        $orden->save();
+        
+        //busca el balanceo
+        $balanceoDetalle = \app\models\BalanceoDetalle::find()->where([
+                                                'idordenproduccion' => $idordenproduccion,
+                                                'id_proceso' => $operacion,
+                                                'id_operario' => $tokenOperario])->one();
+        
+        $balanceo = \app\models\Balanceo::findOne($balanceoDetalle->id_balanceo);
+        // graba las unidades en la tabla cantidad prendas terminadas
+        $table = new \app\models\CantidadPrendaTerminadas();
+        $table->id_balanceo = $balanceo->id_balanceo; // ojo;
+        $table->idordenproduccion = $idordenproduccion;
+        $table->iddetalleorden = $id_detalle;
+        $table->id_proceso_confeccion = $balanceo->id_proceso_confeccion; 
+        $table->id_planta = $id_planta;
+        $table->cantidad_terminada = 1;
+        $table->nro_operarios = $balanceo->cantidad_empleados;
+        $table->fecha_entrada = date('Y-m-d');
+        $table->fecha_procesada = date('Y-m-d H:i:s');
+        $table->hora_corte_entrada = date('H:i:s');
+        $table->usuariosistema = Yii::$app->user->identity->username;
+        $table->save();                         
     }
     
     //PROCESO QUE ACTUALIZA LA LAS TALLAS DE LA ORDEN DE PRODUCCION Y LAS OPERACIONES

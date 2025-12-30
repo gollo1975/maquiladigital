@@ -344,6 +344,7 @@ class OrdenProduccionController extends Controller {
                 $planta = null;
                 $pages = null;
                 $modelo = null;
+                $tableexcel = null;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $id_balanceo = Html::encode($form->id_balanceo);
@@ -351,6 +352,10 @@ class OrdenProduccionController extends Controller {
                         $fecha_inicio = Html::encode($form->fecha_inicio);
                         $fecha_corte = Html::encode($form->fecha_corte);
                         $planta = Html::encode($form->planta);
+                        if(empty($fecha_inicio) || empty($fecha_corte)){
+                         Yii::$app->getSession()->setFlash('error', 'Campos vacios. Los campos fechas son obligatorios.');
+                         return $this->redirect(['consultaunidadconfeccionada']);
+                        }
                         $table = CantidadPrendaTerminadas::find()
                                 ->andFilterWhere(['=', 'id_balanceo', $id_balanceo])
                                 ->andFilterWhere(['=', 'idordenproduccion', $idordenproduccion])
@@ -381,6 +386,7 @@ class OrdenProduccionController extends Controller {
                             'modelo' => $modelo,
                             'form' => $form,
                             'pagination' => $pages,
+                            'tableexcel' => $tableexcel,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -2762,6 +2768,22 @@ class OrdenProduccionController extends Controller {
         }else{
            return $this->redirect(['site/login']); 
         }    
+    }
+    
+    //aplicar operacion para descontar unidades
+    public function actionAplica_modulo($id, $id_operacion) {
+        
+        $flujoOperacion = FlujoOperaciones::findOne($id_operacion);
+        if($flujoOperacion){
+            if($flujoOperacion->aplica_modulo == 0){
+               $flujoOperacion->aplica_modulo = 1; 
+            }else{
+                $flujoOperacion->aplica_modulo = 0;
+            }
+            $flujoOperacion->save();
+        }
+        return $this->redirect(['orden-produccion/habilitar_capacitacion', 'id' => $id]);
+        
     }
     
     //SUBIR EL TIEMPO D INDUCCCION

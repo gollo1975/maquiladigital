@@ -83,8 +83,9 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                         <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Minutos</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Sam induccion</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Aplico</th>
-                                        <th scope="col" style='background-color:#B9D5CE;'>Sam Observacion</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Aplica modulo</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'>Observaciones</th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                      
@@ -103,7 +104,20 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                             <?php }else{?>
                                                   <td><?= ''.number_format($registro->tiempo_induccion ,2)?></td>
                                             <?php }?>     
-                                            <td><?= $registro->aplicoTiempo ?></td>      
+                                            <td><?= $registro->aplicoTiempo ?></td>   
+                                            <td>
+                                                <?php if ($registro->aplica_modulo === 0){ ?>
+                                                    <a href="<?= Url::toRoute(['orden-produccion/aplica_modulo', 'id' => $model->idordenproduccion,'id_operacion' => $registro->id])?>"
+                                                       class="btn btn-success btn-sm"
+                                                       onclick="return confirm('¿Estás seguro de configurar esta operacion para que descuente las unidades confecciondas de la orden de produccion?');">
+                                                        <?= $registro->aplicaModulo?></a>
+                                                <?php }else{?>
+                                                    <a href="<?= Url::toRoute(['orden-produccion/aplica_modulo', 'id' => $model->idordenproduccion,'id_operacion' => $registro->id])?>"
+                                                       class="btn btn-info btn-sm"
+                                                       onclick="return confirm('¿Estás seguro de modificar este proceso. Valide la informacion primero.');">
+                                                        <?= $registro->aplicaModulo?></a>
+                                               <?php }      ?>
+                                            </td>
                                             <td><?= $registro->observacion ?></td>
                                             <?php if($registro->aplica_induccion == 0){?> 
                                                 <td style= 'width: 20px; height: 20px;'>

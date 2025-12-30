@@ -93,16 +93,16 @@ $conPlantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->orderBy('nombre
         <table class="table table-bordered table-hover">
             <thead>
                 <tr style ='font-size:85%;'>                
-                <th scope="col" style='background-color:#B9D5CE;'>Nro balanceo</th>
-                <th scope="col" style='background-color:#B9D5CE;'>No_Operarios</th>
-                <th scope="col" style='background-color:#B9D5CE;'>OP</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Ref.</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Cantidad</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Facturado</th>
-                <th scope="col" style='background-color:#B9D5CE;'>F. confeccion</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Planta</th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
+                <th scope="col" style='background-color:#B9D5CE;'></th>
               
             </tr>
             </thead>
@@ -111,36 +111,29 @@ $conPlantas = ArrayHelper::map(app\models\PlantaEmpresa::find()->orderBy('nombre
                 if($modelo){
                     $unidades = 0;
                     $facturado = 0;
-                    foreach ($modelo as $val):?>
-                        <tr style='font-size:85%;'>  
-                            <td><?= $val->id_balanceo ?></td>
-                            <td><?= $val->nro_operarios ?></td>
-                            <td><?= $val->idordenproduccion ?></td>
-                            <td><?= $val->ordenproduccion->codigoproducto ?></td>
-                            <td><?= $val->detalleorden->productodetalle->prendatipo->talla->talla?></td>
-                            <td><?= $val->ordenproduccion->cliente->nombrecorto ?></td>
-                            <td align="right"><?= ''.number_format($val->cantidad_terminada,0)?></td>
-                            <td align="right"><?= ''. number_format($val->detalleorden->vlrprecio * $val->cantidad_terminada,0) ?></td>
-                            <td><?= $val->fecha_entrada ?></td>
-                            <td><?= $val->detalleorden->plantaProduccion->nombre_planta ?></td>
-
-                    <?php
-                    $unidades +=  $val->cantidad_terminada;
-                    $facturado += $val->detalleorden->vlrprecio * $val->cantidad_terminada;
+                    foreach ($tableexcel as $val):
+                        $facturado += $val->detalleorden->vlrprecio * $val->cantidad_terminada;
                     endforeach;
                 }?>
             </tbody>     
-            <?php if($modelo){?>
-                <td colspan="4"><td></td><td ></td> <td style="font-size: 85%; width: 110px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Total:</b> <?= ''.number_format($unidades,0) ?></td><td style="font-size: 85%; width: 160px; text-align: left; background: #4B6C67; color: #FFFFFF;"><b>Facturado:</b> <?= ''.number_format($facturado,0) ?></td> <td colspan="1">
-            <?php }?>        
-        </table>    
+                
+        </table>
+            <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
+                <?php if($modelo){?>
+                    <tr>
+
+                        <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                            <b>Valor facturado: <?= '$'.number_format($facturado, 0) ?></b> 
+                        </td>
+
+                    </tr> 
+                <?php }?>    
+            </table>    
         <div class="panel-footer text-right" >            
-                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
+                <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar a excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm ']); ?>                
             <?php $form->end() ?>
         </div>
     </div>
 </div>
-<?php if($modelo){?>
-    <?= LinkPager::widget(['pagination' => $pagination]) ?>
-<?php }?>
+
 

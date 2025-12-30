@@ -33,7 +33,7 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
     {
         return [
             [['idproceso'], 'required'],
-            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza','cantidad_operaciones','cantidad_confeccionadas','aplica_induccion','tiempo_induccion'], 'integer'],
+            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza','cantidad_operaciones','cantidad_confeccionadas','aplica_induccion','tiempo_induccion','aplica_modulo'], 'integer'],
             [['fecha_creacion'], 'safe'],
             [['segundos','minutos'],'number'],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -65,6 +65,7 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
             'tiempo_induccion' => 'Sam inducción:',
             'aplica_induccion' => 'aplica_induccion',
             'observacion' => 'Observacion:',
+            'aplica_modulo' => 'aplica_modulo',
             
         ];
     }
@@ -113,6 +114,15 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
             $aplicainduccion = 'SI';
         }
         return $aplicainduccion;
+    }
+    
+    public function getAplicaModulo() {
+        if($this->aplica_modulo == 0){
+            $aplicamodulo = 'NO';
+        }else{
+            $aplicamodulo = 'SI';
+        }
+        return $aplicamodulo;
     }
     
     //permite mostra el nombre de la operacion

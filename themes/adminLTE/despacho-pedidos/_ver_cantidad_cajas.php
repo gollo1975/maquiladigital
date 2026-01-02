@@ -94,10 +94,14 @@ if(!$cantidad_caja) {
                                         ['class' => 'col-sm-8', 'prompt' => 'Seleccione el color']) ?>
                                 </td>
                             <?php }else{?>
-                                 <td><?= $caja->inventario->nombre_producto?></td>
+                                <td><?= $caja->inventario->nombre_producto?></td>
                                 <td><?= $caja->talla->talla?></td>
-                                <td><?= $caja->colores->color?></td>
-                            <?php }?>    
+                                <?php if($caja->id != null){?>
+                                    <td><?= $caja->colores->color?></td>
+                                <?php }else{?>
+                                    <td> <?= 'NOT FOUND' ?></td>
+                                <?php }    
+                             }?>    
                                 <td style="text-align: right; padding-right: 1px;">
                                 <input type="text" name="cantidad[]" value="<?= $caja->cantidad_despachada ?>" size="9" style="text-align: right;">
                             </td> 

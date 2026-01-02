@@ -204,6 +204,7 @@ class CostoProduccionDiariaController extends Controller {
                         $salario = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
                         $conPension = \app\models\ConfiguracionPension::findOne(1);
                         $caja = \app\models\CajaCompensacion::findOne(1);
+                        $salud = \app\models\ConfiguracionEps::findOne(3);
                         $matricula = \app\models\Matriculaempresa::findOne(1);
                         $table = \app\models\SimuladorSalario::findOne(1);
                         $table->salario = $salario_basico;
@@ -215,15 +216,16 @@ class CostoProduccionDiariaController extends Controller {
                         }
                         //seguridad social
                         $table->valor_pension = round(($salario_basico * $conPension->porcentaje_empleador)/100);
+                        $table->valor_eps = round(($salario_basico * $salud->porcentaje_empleador_eps)/100);
                         $table->valor_caja = round(($salario_basico * $caja->porcentaje_caja)/100);
                         $table->valor_arl = round(($salario_basico * $table->arl->arl)/100);
                         //prestaciones
                         $table->valor_prima = round((($salario_basico + $salario->auxilio_transporte_actual) * 30)/360);
                         $table->valor_cesantia = round((($salario_basico + $salario->auxilio_transporte_actual) * 30)/360);
-                        $table->valor_interes = round(($table->valor_cesantia * 12)/100);
+                        $table->valor_interes = round(($table->valor_cesantia * 1)/100);
                         $table->valor_vacacion = round(($salario_basico * 30)/ 720);
                         $table->ajuste_vacacion = round(($table->valor_vacacion * $matricula->ajuste_caja)/ 100);
-                        $table->total_salarios = $salario_basico + $otros_gastos + $table->auxilio_transporte + $table->valor_pension + $table->valor_caja + $table->valor_arl + $table->valor_prima + $table->valor_cesantia + $table->valor_interes + $table->valor_vacacion + $table->ajuste_vacacion;
+                        $table->total_salarios = $salario_basico + $otros_gastos + $table->auxilio_transporte + $table->valor_pension + $table->valor_caja + $table->valor_eps + $table->valor_arl + $table->valor_prima + $table->valor_cesantia + $table->valor_interes + $table->valor_vacacion + $table->ajuste_vacacion;
                         //datos de eficiencia
                         $table->id_horario = $id_horario;
                         $table->valor_minuto = $valor_minuto;
@@ -263,9 +265,11 @@ class CostoProduccionDiariaController extends Controller {
         if($table->vinculado == 1){
             $cesantia = 0; $prima = 0; $interes = 0; $vacacion = 0; $basico = 0; 
             $pension = 0; $arl = 0; $caja = 0; $ajuste = 0; $valor_dia = 0; 
+            $salud = 0;
             $total_seguridad = 0; $total_prestacion = 0; $total_salario = 0; $total_auxilio = 0;
             $transporte = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
             $entidad_pension = \app\models\ConfiguracionPension::findOne(1);
+            $entidad_eps = \app\models\ConfiguracionEps::findOne(3);
             $entidad_caja = \app\models\CajaCompensacion::findOne(1);
             $entidad_arl = \app\models\Arl::findOne(2);
             $empresa = \app\models\Matriculaempresa::findOne(1);
@@ -274,7 +278,8 @@ class CostoProduccionDiariaController extends Controller {
             //seguridad social
             $pension = round(($basico * $entidad_pension->porcentaje_empleador)/100);    
             $arl = round(($basico * $entidad_arl->arl)/100);    
-            $caja = round(($basico * $entidad_caja->porcentaje_caja)/100);    
+            $caja = round(($basico * $entidad_caja->porcentaje_caja)/100); 
+            $salud = round(($basico * $entidad_eps->porcentaje_empleador_eps)/100);
             //prestaciones sociales
             $cesantia = round((($simulador->salario + $transporte->auxilio_transporte_actual)* $simulador->dias_reales)/360) ;
             $prima = round((($simulador->salario + $transporte->auxilio_transporte_actual)* $simulador->dias_reales)/360) ;
@@ -282,7 +287,7 @@ class CostoProduccionDiariaController extends Controller {
             $vacacion = round(($simulador->salario * $simulador->dias_reales)/720);
             $ajuste = round(($vacacion * $empresa->ajuste_caja)/100) ;
             //totales
-            $total_seguridad = ($pension + $arl + $caja) * $simulador->cantidad_operarios;
+            $total_seguridad = ($pension + $arl + $caja + $salud) * $simulador->cantidad_operarios;
             $total_prestacion = ($cesantia + $prima + $interes + $vacacion + $ajuste ) * $simulador->cantidad_operarios;
             $total_salario = $basico * $simulador->cantidad_operarios;
             $total_auxilio = round($transporte->auxilio_transporte_actual /30 * $simulador->dias_reales)* $simulador->cantidad_operarios;

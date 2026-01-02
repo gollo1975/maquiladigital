@@ -73,7 +73,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', '', 7);
         $this->Cell(75, 5, utf8_decode($packing->cliente->cedulanit.'-'.$packing->cliente->dv), 0, 0, 'L',1);
         $this->SetFont('Arial', 'B', 8);
-        $this->Cell(20, 5, utf8_decode("Cliente:"), 0, 0, 'c', 1);
+        $this->Cell(24, 5, utf8_decode("Cliente:"), 0, 0, 'c', 1);
         $this->SetFont('Arial', '', 7);
         $this->Cell(71, 5, utf8_decode($packing->cliente->nombrecorto), 0, 0, 'c', 1);
         
@@ -83,7 +83,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', '', 7);
         $this->Cell(75, 5, utf8_decode($packing->cliente->departamento->departamento), 0, 0, 'L',1);
         $this->SetFont('Arial', 'B', 8);
-        $this->Cell(20, 5, utf8_decode("Municipio:"), 0, 0, 'l', 1);
+        $this->Cell(24, 5, utf8_decode("Municipio:"), 0, 0, 'l', 1);
         $this->SetFont('Arial', '', 7);
         $this->Cell(71, 5, utf8_decode($packing->cliente->municipio->municipio), 0, 0, 'L', 1);
         
@@ -93,29 +93,40 @@ class PDF extends FPDF {
         $this->SetFont('Arial', '', 7);
         $this->Cell(75, 5, utf8_decode($packing->fecha_proceso), 0, 0, 'L',1);
         $this->SetFont('Arial', 'B', 8);
-        $this->Cell(20, 5, utf8_decode("Fecha hora:"), 0, 0, 'l', 1);
+        $this->Cell(24, 5, utf8_decode("Fecha hora:"), 0, 0, 'l', 1);
         $this->SetFont('Arial', '', 7);
         $this->Cell(71, 5, utf8_decode($packing->fecha_hora_registro), 0, 0, 'L', 1);
-        
+        //FIN
         $this->SetXY(10, 61);
         $this->SetFont('Arial', 'B', 8);
         $this->Cell(26, 5, utf8_decode("Fecha registro:"), 0, 0, 'L', 1);
         $this->SetFont('Arial', '', 7);
         $this->Cell(75, 5, utf8_decode($packing->fecha_proceso), 0, 0, 'l', 1);
         $this->SetFont('Arial', 'B', 8);
-        $this->Cell(20, 5, utf8_decode("No pedido:"), 0, 0, 'J', 1);
+        $this->Cell(24, 5, utf8_decode("No pedido:"), 0, 0, 'J', 1);
         $this->SetFont('Arial', '', 7);
         $this->Cell(71, 5, utf8_decode($packing->despacho->pedido->numero_pedido), 0, 0, 'L', 1);
         
+        //FIN
+        $this->SetXY(10, 65);
+        $this->SetFont('Arial', 'B', 8);
+        $this->Cell(26, 5, utf8_decode("Nit transportadora:"), 0, 0, 'L', 1);
+        $this->SetFont('Arial', '', 7);
+        $this->Cell(75, 5, utf8_decode($packing->transportadora->cedulanit), 0, 0, 'l', 1);
+        $this->SetFont('Arial', 'B', 8);
+        $this->Cell(24, 5, utf8_decode("Transportadora:"), 0, 0, 'J', 1);
+        $this->SetFont('Arial', '', 7);
+        $this->Cell(71, 5, utf8_decode($packing->transportadora->razon_social), 0, 0, 'L', 1);
+        
         // Lineas del encabezado (Divisores)
-        $this->Line(10,68,10,240);
-        $this->Line(30,68,30,240);
-        $this->Line(90,68,90,240);
-        $this->Line(110,68,110,240);
-        $this->Line(130,68,130,240);
-        $this->Line(150,68,150,240);
-        $this->Line(170,68,170,240);
-        $this->Line(202,68,202,240);
+        $this->Line(10,72,10,240);
+        $this->Line(30,72,30,240);
+        $this->Line(90,72,90,240);
+        $this->Line(110,72,110,240);
+        $this->Line(130,72,130,240);
+        $this->Line(150,72,150,240);
+        $this->Line(170,72,170,240);
+        $this->Line(202,72,202,240);
         $this->Line(202,240,10,240);
         
         // Encabezado de la tabla de detalles (se llama en cada nueva página si es necesario)
@@ -174,7 +185,11 @@ class PDF extends FPDF {
             $pdf->Cell(60, 4, utf8_decode($detalle->inventario->nombre_producto), 0, 0, 'L');
             $pdf->Cell(20, 4, utf8_decode($detalle->numero_caja), 0, 0, 'C');
             $pdf->Cell(20, 4, utf8_decode($detalle->talla->talla), 0, 0, 'C');
-            $pdf->Cell(20, 4, utf8_decode($detalle->colores->color), 0, 0, 'C');
+            if($detalle->id != null){
+                $pdf->Cell(20, 4, utf8_decode($detalle->colores->color), 0, 0, 'C');
+            }else{
+                $pdf->Cell(20, 4, utf8_decode('NOT FOUND'), 0, 0, 'C');
+            }    
             $pdf->Cell(20, 4, number_format($detalle->cantidad_despachada, 0, ',', '.'), 0, 0, 'R');
             $pdf->Cell(32, 4, utf8_decode($detalle->numero_guia), 0, 0, 'L');
             $pdf->Ln();

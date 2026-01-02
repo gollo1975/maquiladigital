@@ -352,15 +352,21 @@ class PedidosController extends Controller
     {
         $model = new Pedidos();
         $TokenAcceso = Yii::$app->user->identity->id_agente;
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $model->user_name = Yii::$app->user->identity->username;
-            $model->fecha_pedido = date('Y-m-d');
-            $model->fecha_proceso = date('Y-m-d H:i:s');
-            if($TokenAcceso){
-                $model->id_agente = $TokenAcceso;
-            }
-            $model->save();
-            return $this->redirect(['view', 'id' => $model->id_pedido,'token' => 0]);
+        if ($model->load(Yii::$app->request->post())){
+            $cliente = \app\models\Cliente::findOne($model->idcliente);
+            if($cliente->id_agente != null){
+                $model->save();
+                $model->user_name = Yii::$app->user->identity->username;
+                $model->fecha_pedido = date('Y-m-d');
+                $model->fecha_proceso = date('Y-m-d H:i:s');
+                if($TokenAcceso){
+                    $model->id_agente = $TokenAcceso;
+                }
+                $model->save();
+                return $this->redirect(['view', 'id' => $model->id_pedido,'token' => 0]);
+            }else{
+                 Yii::$app->getSession()->setFlash('error', 'Este cliente no esta codificado a ningun agente comercial. Valide la información.');
+            }    
         }
         
         return $this->render('create', [

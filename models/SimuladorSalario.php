@@ -41,8 +41,8 @@ class SimuladorSalario extends \yii\db\ActiveRecord
         return [
             [['id_arl'], 'required'],
             [['id_arl', 'salario', 'auxilio_transporte', 'valor_caja', 'valor_arl', 'valor_prima', 'valor_cesantia', 'valor_interes', 'valor_vacacion', 'ajuste_vacacion',
-                'total_salarios','valor_prenda','dias_laborados', 'valor_venta','unidades_mes','valor_minuto'], 'integer'],
-            [['valor_pension','sam_prenda','eficiencia'], 'number'],
+                'total_salarios','valor_prenda','dias_laborados', 'valor_venta','unidades_mes','valor_minuto','valor_eps','valor_pension'], 'integer'],
+            [['sam_prenda','eficiencia'], 'number'],
             [['fecha_proceso'], 'safe'],
             ['unidades_dia', 'number'],
             [['usuario'], 'string', 'max' => 15],

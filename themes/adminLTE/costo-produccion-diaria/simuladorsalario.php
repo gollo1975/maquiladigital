@@ -119,6 +119,7 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
                                     <th scope="col" style='background-color:#B9D5CE;'>Salario</th>
                                     <th scope="col" style='background-color:#B9D5CE;'><span title="Auxilio de transporte" >Transporte</span></th>
                                     <th scope="col" style='background-color:#B9D5CE;'>V. pensión</th>
+                                    <th scope="col" style='background-color:#B9D5CE;'>V. Eps</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>V. caja</th>
                                     <th scope="col" style='background-color:#B9D5CE;'>V. arl</th>
                                     <th scope="col" style='background-color:#B9D5CE;'><span title="Valor de cesanias" >Cesantias</span></th>
@@ -136,6 +137,7 @@ $horario = ArrayHelper::map(Horario::find()->orderBy('horario ASC')->all(), 'id_
                                         <td style="text-align: right"><?= ''.number_format($val->salario,0) ?></td>    
                                         <td style="text-align: right"><?= ''.number_format($val->auxilio_transporte,0) ?></td>
                                         <td style="text-align: right"><?= ''.number_format($val->valor_pension,0) ?></td>
+                                         <td style="text-align: right"><?= ''.number_format($val->valor_eps,0) ?></td>
                                         <td style="text-align: right"><?= ''.number_format($val->valor_caja,0)?></td>
                                         <td style="text-align: right"><?= ''.number_format($val->valor_arl,0)?></td> 
                                         <td style="text-align: right"><?= ''.number_format($val->valor_cesantia,0)?></td> 

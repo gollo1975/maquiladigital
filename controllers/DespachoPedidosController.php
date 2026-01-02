@@ -320,11 +320,14 @@ class DespachoPedidosController extends Controller
    //DESCARGA REFERENCIAS
     public function actionDescargar_referencias($id, $id_pedido, $token) {
         $detallePedido = \app\models\PedidosDetalle::find()->where(['=','id_pedido',  $id_pedido])->andWhere(['>','unidades_faltantes', 0])->all();
+        $modelo = \app\models\Pedidos::findOne($id_pedido);
         if($detallePedido){
             $contador = 0;
             foreach ($detallePedido as $detalle) {
+                echo $detalle->id_detalle;
                 $buscarDato = \app\models\DespachoPedidoDetalles::find()->where(['id_detalle' => $detalle->id_detalle])->one();
-                if(!$buscarDato){
+                
+                if(!$buscarDato || $modelo->pedido_despachado == 0){
                     $table = new \app\models\DespachoPedidoDetalles();
                     $table->id_inventario = $detalle->id_inventario;
                     $table->id_detalle = $detalle->id_detalle;
@@ -336,7 +339,12 @@ class DespachoPedidosController extends Controller
                     $contador++;
                 }    
             }
-            Yii::$app->getSession()->setFlash('success', 'Se grabaron: ' .$contador . ' registros exitosamente.');
+            if($contador > 0){
+                Yii::$app->getSession()->setFlash('success', 'Se grabaron: ' .$contador . ' registros exitosamente.');
+            }else{
+                  Yii::$app->getSession()->setFlash('warning', 'No hay registros para importar.');           
+
+            }
             return $this->redirect(['view','id' => $id,'token' => $token]);
             
         }else{
@@ -368,24 +376,51 @@ class DespachoPedidosController extends Controller
                 $unidades = $_POST["cantidad_despachar"][$intIndice];
                 $table = \app\models\PedidoTallas::findOne($intCodigo);
                 $pedidoColores = \app\models\PedidoColores::find()->where(['codigo' => $intCodigo])->one();
+                $confInventario = \app\models\ConfiguracionInventario::findOne(1);
                 if($unidades <= $table->cantidad){
-                                      
-                    $talla_color = \app\models\DetalleColorTalla::find()->where(['idtalla' => $tallas_inventario->idtalla,
-                                                                                'id_inventario' => $id_inventario,
-                                                                                'id' => $pedidoColores->id])->one();
-                    if ($talla_color !== null) {
-                        if($talla_color->stock_punto >= $unidades){
-                            $table->unidades_despachadas = $unidades;
-                            $table->save();
-                            $this->TotalizarLineaDespacho($id_detalle, $codigo);
-                            $this->TotalizarCantidades($id_detalle, $codigo);
-                            $this->TotalizarCantidadesDespacho($id);
-                        }else{
-                            Yii::$app->getSession()->setFlash('warning', 'Stock en punto de venta insuficiente para la talla seleccionada.');
-                        }    
+                    if($confInventario->aplica_inventario_talla_color == 1){                  
+                        $talla_color = \app\models\DetalleColorTalla::find()->where(['idtalla' => $tallas_inventario->idtalla,
+                                                                                    'id_inventario' => $id_inventario,
+                                                                                    'id' => $pedidoColores->id])->one();
                     }else{
-                       Yii::$app->getSession()->setFlash('error', 'No se encontró la combinación de Talla/Color/Inventario para actualizar.'); 
+                        $talla_color = \app\models\DetalleColorTalla::find()
+                                                                    ->where([
+                                                                        'idtalla' => $tallas_inventario->idtalla,
+                                                                        'id_inventario' => $id_inventario
+                                                                    ])
+                                                                    ->andWhere(['>', 'stock_punto', 0])
+                                                                    ->orderBy('id_detalle DESC')
+                                                                    ->one();
                     }
+                    if($confInventario->aplica_inventario_talla_color == 1){     
+                        if ($talla_color !== null) {
+                            if($talla_color->stock_punto >= $unidades){
+                                $table->unidades_despachadas = $unidades;
+                                $table->save();
+                                $this->TotalizarLineaDespacho($id_detalle, $codigo);
+                                $this->TotalizarCantidades($id_detalle, $codigo);
+                                $this->TotalizarCantidadesDespacho($id);
+                            }else{
+                                Yii::$app->getSession()->setFlash('warning', 'Stock en punto de venta insuficiente para la talla seleccionada.');
+                            }    
+                        }else{
+                           Yii::$app->getSession()->setFlash('error', 'No se encontró la combinación de Talla/Color/Inventario para actualizar.'); 
+                        }
+                    }  
+                    if($confInventario->aplica_inventario_tallas == 1){
+                        if ($talla_color !== null) {
+                            if($talla_color->stock_punto >= $unidades){
+                                $table->unidades_despachadas = $unidades;
+                                $table->save();
+                                $this->TotalizarLineaDespacho($id_detalle, $codigo);
+                                $this->TotalizarCantidades($id_detalle, $codigo);
+                                $this->TotalizarCantidadesDespacho($id);
+                            }else{
+                                Yii::$app->getSession()->setFlash('warning', 'Stock en punto de venta insuficiente para la talla seleccionada.');
+                            } 
+                        }    
+                        
+                    }    
                     
                 }else{
                     Yii::$app->getSession()->setFlash('warning', 'La cantidad a despachar es mayor que las unidades vendidas.');
@@ -676,19 +711,35 @@ class DespachoPedidosController extends Controller
         
         $despacho = DespachoPedidos::findOne($id);
         $detalleDespacho = \app\models\DespachoPedidoDetalles::find()->where(['id_despacho' => $id])->all();
+        $confInventario = \app\models\ConfiguracionInventario::findOne(1);
+        
         //recorremos el vector
         foreach ($detalleDespacho as $detalle) {
-           $inventario = \app\models\InventarioPuntoVenta::findOne($detalle->id_inventario);
-           $pedido_colores = \app\models\PedidoColores::find()->where(['id_detalle' => $detalle->id_detalle,
-                                                              'id_pedido' => $despacho->id_pedido])->all();
-            foreach ($pedido_colores as $colores) {
-               $registro = \app\models\DetalleColorTalla::find()->where(['id_inventario' =>$inventario->id_inventario,
-                                                                'id' => $colores->id,
-                                                                'idtalla' => $colores->idtalla])->one();
-                if($registro){
-                    $registro->stock_punto -= $colores->cantidad;
-                    $registro->save();
-                }                                                
+            $inventario = \app\models\InventarioPuntoVenta::findOne($detalle->id_inventario);
+            if($confInventario->aplica_inventario_talla_color == 1){
+                $pedido_colores = \app\models\PedidoColores::find()->where(['id_detalle' => $detalle->id_detalle,
+                                                                   'id_pedido' => $despacho->id_pedido])->all();
+                 foreach ($pedido_colores as $colores) {
+                    $registro = \app\models\DetalleColorTalla::find()->where(['id_inventario' =>$inventario->id_inventario,
+                                                                     'id' => $colores->id,
+                                                                     'idtalla' => $colores->idtalla])->one();
+                     if($registro){
+                         $registro->stock_punto -= $colores->cantidad;
+                         $registro->save();
+                     }                                                
+                 }
+            }
+            if($confInventario->aplica_inventario_tallas== 1){
+                $pedido_tallas = \app\models\PedidoTallas::find()->where(['id_detalle' => $detalle->id_detalle,
+                                                                   'id_pedido' => $despacho->id_pedido])->all();
+                 foreach ($pedido_tallas as $tallas) {
+                    $registro = \app\models\DetalleColorTalla::find()->where(['id_inventario' =>$inventario->id_inventario,
+                                                                     'idtalla' => $tallas->idtalla])->andWhere(['>','stock_punto', 0])->one();
+                     if($registro){
+                         $registro->stock_punto -= $tallas->cantidad;
+                         $registro->save();
+                     }                                                
+                 }
             }
             $inventario->stock_inventario -= $detalle->cantidad_despachada;
             $inventario->stock_salida += $detalle->cantidad_despachada;
@@ -741,26 +792,50 @@ class DespachoPedidosController extends Controller
                 $intIndice = 0;
                 
                 foreach ($_POST["listado_unidades"] as $intCodigo):
-                    if (isset($_POST["cantidad"][$intIndice]) && isset($_POST["talla"][$intIndice]) && isset($_POST["color"][$intIndice])) {
-                         // Asignación de variables, ya sabes que existen
-                        $cantidad = $_POST["cantidad"][$intIndice];
-                        $talla = $_POST["talla"][$intIndice];
-                        $color = $_POST["color"][$intIndice];
-                        if($cantidad && $talla && $color){
-                           $caja = \app\models\PackingPedidoDetalle::find()->where(['id_detalle' => $intCodigo,
-                                                                                  'cerrar_linea' => 0 ])->one();
-                           if($caja){
-                                $caja->id_inventario = $id_inventario;
-                                $caja->idtalla = $talla;
-                                $caja->id = $color;
-                                $caja->cantidad_despachada = $cantidad;
-                                $caja->id_despacho = $id;
-                                $caja->codigo = $codigo;
-                                $caja->save();
-                                $this->ValidarCantidadesPacking($codigo, $id_inventario);
-                            }    
+                    $confInventario = \app\models\ConfiguracionInventario::findOne(1);
+                    if($confInventario->aplica_inventario_talla_color == 1){
+                        if (isset($_POST["cantidad"][$intIndice]) && isset($_POST["talla"][$intIndice]) && isset($_POST["color"][$intIndice])) {
+                             // Asignación de variables, ya sabes que existen
+                            $cantidad = $_POST["cantidad"][$intIndice];
+                            $talla = $_POST["talla"][$intIndice];
+                            $color = $_POST["color"][$intIndice];
+                            if($cantidad && $talla && $color){
+                               $caja = \app\models\PackingPedidoDetalle::find()->where(['id_detalle' => $intCodigo,
+                                                                                      'cerrar_linea' => 0 ])->one();
+                               if($caja){
+                                    $caja->id_inventario = $id_inventario;
+                                    $caja->idtalla = $talla;
+                                    $caja->id = $color;
+                                    $caja->cantidad_despachada = $cantidad;
+                                    $caja->id_despacho = $id;
+                                    $caja->codigo = $codigo;
+                                    $caja->save();
+                                    $this->ValidarCantidadesPacking($codigo, $id_inventario);
+                                }    
+                            } 
                         } 
-                    }    
+                    }
+                    if($confInventario->aplica_inventario_tallas == 1){
+                        if (isset($_POST["cantidad"][$intIndice]) && isset($_POST["talla"][$intIndice])) {
+                             // Asignación de variables, ya sabes que existen
+                            $cantidad = $_POST["cantidad"][$intIndice];
+                            $talla = $_POST["talla"][$intIndice];
+                            if($cantidad && $talla){
+                               $caja = \app\models\PackingPedidoDetalle::find()->where(['id_detalle' => $intCodigo,
+                                                                                      'cerrar_linea' => 0 ])->one();
+                               if($caja){
+                                    $caja->id_inventario = $id_inventario;
+                                    $caja->idtalla = $talla;
+                                    $caja->cantidad_despachada = $cantidad;
+                                    $caja->id_despacho = $id;
+                                    $caja->codigo = $codigo;
+                                    $caja->save();
+                                    $this->ValidarCantidadesPacking($codigo, $id_inventario);
+                                }    
+                            } 
+                        } 
+                    }
+                    
                     $intIndice++;
                 endforeach;
                

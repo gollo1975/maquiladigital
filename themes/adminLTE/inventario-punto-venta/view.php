@@ -150,33 +150,40 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($talla_color as $val):?>
+                                    <?php 
+                                     $confInventario = app\models\ConfiguracionInventario::findOne(1);
+                                    foreach ($talla_color as $val):?>
                                         <tr style='font-size:85%;'>
                                             <td><?= $val->id_detalle?></td>
                                             <td style="text-align: right"><?= $val->talla->talla?></td>
-                                            <?php if($val->id == null){?>
-                                            <td>
-                                                
-                                                    <!-- Inicio Nuevo Detalle proceso -->
-                                                      <?= Html::a('</span> Seleccione el color',
-                                                          ['/inventario-punto-venta/seleccionar_color','id' => $model->id_inventario, 'codigo' => $codigo, 'token' => $token, 'id_detalle' => $val->id_detalle],
-                                                          [
-                                                              'title' => 'Generar los costos y gastos',
-                                                              'data-toggle'=>'modal',
-                                                              'data-target'=>'#modalgenerarcostogastos',
-                                                              'class' => 'btn btn-info btn-xs'
-                                                          ])    
-                                                          ?>
-                                                   <div class="modal remote fade" id="modalgenerarcostogastos" data-backdrop="static">
-                                                           <div class="modal-dialog modal-lg-centered">
-                                                               <div class="modal-content"></div>
-                                                           </div>
-                                                   </div>
-                                                    
-                                            </td>
-                                            <?php }else{?>
-                                               <td><?= $val->color->color?></td>
-                                            <?php } ?>
+                                            <?php
+                                            if($confInventario->aplica_inventario_talla_color == 1){
+                                                if($val->id == null){?>
+                                                <td>
+
+                                                        <!-- Inicio Nuevo Detalle proceso -->
+                                                          <?= Html::a('</span> Seleccione el color',
+                                                              ['/inventario-punto-venta/seleccionar_color','id' => $model->id_inventario, 'codigo' => $codigo, 'token' => $token, 'id_detalle' => $val->id_detalle],
+                                                              [
+                                                                  'title' => 'Generar los costos y gastos',
+                                                                  'data-toggle'=>'modal',
+                                                                  'data-target'=>'#modalgenerarcostogastos',
+                                                                  'class' => 'btn btn-info btn-xs'
+                                                              ])    
+                                                              ?>
+                                                       <div class="modal remote fade" id="modalgenerarcostogastos" data-backdrop="static">
+                                                               <div class="modal-dialog modal-lg-centered">
+                                                                   <div class="modal-content"></div>
+                                                               </div>
+                                                       </div>
+
+                                                </td>
+                                                <?php }else{?>
+                                                   <td><?= $val->color->color?></td>
+                                                <?php } 
+                                            }else{ ?> 
+                                                   <td><?= 'NOT FOUND'?></td>
+                                            <?php } ?>        
                                             <td><?= $val->user_name?></td>
                                             <td><?= $val->fecha_registro?></td>
                                             <td><?= $val->cerradoDetalle?></td>
@@ -211,14 +218,20 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                             </table>
                             <div class="panel-footer text-right">
                                 <?php
+                               
                                 if($model->aplica_talla_color == 1 && $token == 0){
                                     if($model->idordenproduccion == null){
-                                        if(count($talla_color) <> count($talla_color_cerrado)){?>
-                                           <?= Html::a('<span class="glyphicon glyphicon-search"></span> Crear combinacion', ['inventario-punto-venta/generar_combinacion_talla_color', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);?>
-                                           <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizarlineas']);?>
-                                       <?php }else{?>
-                                            <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear combinacion', ['inventario-punto-venta/generar_combinacion_talla_color', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']) ?>
-                                       <?php }
+                                        if($confInventario->aplica_inventario_talla_color == 1){
+                                            if(count($talla_color) <> count($talla_color_cerrado)){?>
+                                               <?= Html::a('<span class="glyphicon glyphicon-search"></span> Crear combinacion', ['inventario-punto-venta/generar_combinacion_talla_color', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);?>
+                                               <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizarlineas']);?>
+                                           <?php }else{?>
+                                                <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear combinacion', ['inventario-punto-venta/generar_combinacion_talla_color', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']) ?>
+                                           <?php }
+                                        }else{
+                                            echo Html::a('<span class="glyphicon glyphicon-search"></span> Buscar tallas', ['inventario-punto-venta/crear_tallas_producto', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);
+                                            echo Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizarlineas']);
+                                        }   
                                     }else{
                                          if(count($talla_color) <> count($talla_color_cerrado)){
                                             echo Html::a('<span class="glyphicon glyphicon-save"></span> Descargar tallas', ['inventario-punto-venta/descargar_tallas_op', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo, 'idordeproduccion' => $model->idordenproduccion],[ 'class' => 'btn btn-success btn-sm']);?>

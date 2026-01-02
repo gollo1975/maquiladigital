@@ -37,8 +37,9 @@ class Parametros extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['auxilio_transporte', 'pension', 'caja', 'prestaciones', 'vacaciones', 'ajuste', 'salario_minimo', 'id_arl','admon','valor_dia_empleado'], 'required'],
-            [['auxilio_transporte', 'pension', 'caja', 'prestaciones', 'vacaciones', 'ajuste', 'salario_minimo','admon'], 'number'],
+            [['auxilio_transporte', 'pension', 'caja', 'prestaciones', 'vacaciones', 'ajuste', 'salario_minimo', 'id_arl','admon','valor_dia_empleado','eps'], 'required'],
+            [['pension', 'caja', 'prestaciones', 'vacaciones', 'ajuste', 'admon'], 'number'],
+            [['salario_minimo','auxilio_transporte'],'integer'],
             [['valor_dia_empleado'],'integer'],
             [['id_arl'], 'integer'],
             [['id_arl'], 'exist', 'skipOnError' => true, 'targetClass' => Arl::className(), 'targetAttribute' => ['id_arl' => 'id_arl']],
@@ -62,6 +63,7 @@ class Parametros extends \yii\db\ActiveRecord
             'id_arl' => 'Arl:',
             'admon' => 'Administración:',
             'valor_dia_empleado' => 'Valor dia empleado:',
+            'eps' => 'Salud:'
         ];
     }
 

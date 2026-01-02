@@ -234,7 +234,7 @@ class InventarioPuntoVentaController extends Controller
     public function actionView($id, $token, $codigo)
     {
         
-        $talla_color = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->orderBy('idtalla DESC')->all();
+        $talla_color = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->orderBy('cerrado ASC')->all();
         $talla_color_cerrado= \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->andWhere(['=','cerrado', 1])->all();
         if($codigo == 0){
             $traslado = \app\models\TrasladoReferenciaPunto::find()->where(['=','id_inventario_saliente', $id])->all();
@@ -247,7 +247,7 @@ class InventarioPuntoVentaController extends Controller
                 foreach ($_POST["entrada_cantidad"] as $intCodigo):
                     $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_detalle', $intCodigo])->andWhere(['=','cerrado', 0])->one();
                     if($detalle){
-                        if($_POST["cantidad"][$intIndice] > 0){
+                       
                             $table = \app\models\DetalleColorTalla::findOne($intCodigo);
                             if($codigo <> 0){
                                 $unidad_entrada = $_POST["cantidad"][$intIndice]; //asigno variable
@@ -255,7 +255,7 @@ class InventarioPuntoVentaController extends Controller
                                 if($unidad_entrada <= $inventario->stock_inventario){ //si hay stoxk
                                     $detalle->cantidad = $unidad_entrada;
                                     $detalle->stock_punto = $unidad_entrada;
-                                    $detalle->save();
+                                    $detalle->save(false);
                                     $intIndice++;
                                 }else{
                                     $intIndice++;
@@ -263,18 +263,17 @@ class InventarioPuntoVentaController extends Controller
                             }else{  
                                 $detalle->cantidad = $_POST["cantidad"][$intIndice];
                                 $detalle->stock_punto = $_POST["cantidad"][$intIndice];
-                                $detalle->save();
+                                $detalle->save(false);
                                 $intIndice++;
                             } 
-                        }else{    
-                           $intIndice++; 
-                        }    
+                            
+                        
                     }else{
                         $intIndice++;
                     }   
                 endforeach;
-                    $this->ActualizarLineas($id);
-                    $this->ActualizarTotalesProducto($id);
+                $this->ActualizarLineas($id);
+                $this->ActualizarTotalesProducto($id);   
                 return $this->redirect(['view','id' =>$id, 'token' => $token, 'codigo' => $codigo]);
             }
             
@@ -321,13 +320,13 @@ class InventarioPuntoVentaController extends Controller
     //PROCESO QUE SUMA TODAAS LAS CANTIDAD
     protected function ActualizarLineas($id) {
         $inventario = InventarioPuntoVenta::findOne($id);
-        $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->all();
+        $detalle = \app\models\DetalleColorTalla::find()->where(['id_inventario' => $id, 'cerrado' => 0])->all();
         $suma = 0;
         foreach ($detalle as $detalles):
            $suma += $detalles->cantidad; 
         endforeach;
-        $inventario->stock_unidades =  $suma;
-        $inventario->stock_inventario =  $suma;
+        $inventario->stock_unidades +=  $suma;
+        $inventario->stock_inventario +=  $suma;
         $inventario->save();
     }
     
@@ -675,24 +674,63 @@ class InventarioPuntoVentaController extends Controller
         ]);
     }
     
+    //PERMITE AGREGAR LAS TALLLAS
+    public function actionCrear_tallas_producto($id, $token, $codigo) {
+        $tallas = \app\models\Talla::find()->orderBy('talla ASC')->all();
+        if (isset($_POST["adicionar_talla"])) {
+            if(isset($_POST["nuevo_talla"])){
+                $registros = 0;
+                foreach ($_POST["nuevo_talla"] as $intCodigo) {
+                    $ConInventario = InventarioPuntoVenta::findOne($id);
+                    $table = new \app\models\DetalleColorTalla();
+                    $table->id_inventario = $id;
+                    $table->codigo_producto = $ConInventario->codigo_producto;
+                    $table->idtalla = $intCodigo;
+                    $table->id_punto = $ConInventario->id_punto;
+                    $table->fecha_registro = date('Y-m-d H:i:s');
+                    $table->user_name = Yii::$app->user->identity->username;
+                    $table->save();
+                    $registros++;
+                        
+                }
+                Yii::$app->getSession()->setFlash('success', 'Se grabaron: '.$registros .' exitosamente.');
+              //  return $this->redirect(['crear_tallas_producto','id' => $id, 'token' => $token,  'codigo'=> $codigo]);
+            }
+          
+        }
+        return $this->render('cargar_tallas', [
+            'id' => $id,
+            'token' => $token,
+            'tallas' => $tallas, 
+            'codigo' => $codigo,
+        ]);
+        
+    }
+    
      //CERRAR COMBINACIONES
     public function actionCerrar_combinaciones($id, $token, $codigo){
         
         $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->andWhere(['=','cerrado', 0])->all();
         $model = InventarioPuntoVenta::findOne($id);
+        $confInventario = \app\models\ConfiguracionInventario::findOne(1);
         if($model->stock_unidades <= 0){
              Yii::$app->getSession()->setFlash('error', 'Debe de actualizar las unidade al inventario. Ingrese nuevamente.'); 
             return $this->redirect(["inventario-punto-venta/view", 'id' => $id, 'token' => $token, 'codigo' => $codigo]);  
          }
         if($detalle){
             foreach ($detalle as $detalles):
-                if($detalles->cantidad > 0 && $detalles->id != null){
-                   $detalles->cerrado = 1;
-                   $detalles->save ();
+                if($confInventario->aplica_inventario_talla_color == 1){
+                    if($detalles->cantidad > 0 && $detalles->id != null){
+                       $detalles->cerrado = 1;
+                       $detalles->save ();
+                    }else{
+                        Yii::$app->getSession()->setFlash('error', 'Debe de ingresar las cantidades de cada talla y el color. Valide de nuevo la información.');
+                        return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
+                    }
                 }else{
-                    Yii::$app->getSession()->setFlash('error', 'Debe de ingresar las cantidades de cada talla y el color. Valide de nuevo la información.');
-                    return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
-                }
+                    $detalles->cerrado = 1;
+                    $detalles->save();
+                }    
                 
             endforeach;
             return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);

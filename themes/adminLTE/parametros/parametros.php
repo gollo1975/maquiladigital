@@ -45,6 +45,9 @@ $arl = ArrayHelper::map(Arl::find()->all(), 'id_arl', 'arl');
         <div class="row">
             <?= $form->field($model, 'pension')->textInput(['maxlength' => true]) ?>    
         </div>
+         <div class="row">
+            <?= $form->field($model, 'eps')->textInput(['maxlength' => true]) ?>    
+        </div>
         <div class="row">
             <?= $form->field($model, 'caja')->textInput(['maxlength' => true]) ?>    
         </div>

@@ -1660,16 +1660,29 @@ class ValorPrendaUnidadController extends Controller
         $valorVacacion = 0; 
         $valorArl = 0;
         $auxilioT = 0;
+        $valor_eps = 0;
+        $valor_pension = 0;
+        $valor_ajuste = 0;
+        $valor_caja = 0;
+        //modelos
+        $parametros = \app\models\Parametros::findOne(1);
         $operario = Operarios::findOne($tokenOperario);
         $vlrDia = round($operario->salario_base / $empresa->dias_trabajados);
         $auxilio = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
         $auxilioT = round($auxilio->auxilio_transporte_actual / $empresa->dias_trabajados);
+        //prestaciones
         $valorPrima = round($vlrDia * $empresa->porcentaje_prima)/100;
         $valorCesantia = round($vlrDia * $empresa->porcentaje_cesantias)/100;
         $valorInteres = round($vlrDia * $empresa->porcentaje_intereses)/100;
         $valorVacacion = round($vlrDia * $empresa->porcentaje_vacacion)/100;
+        $valor_ajuste = round($valorVacacion * $empresa->ajuste_caja)/100;
+        //seguridad social
+        $valor_caja = round($vlrDia * $parametros->caja)/100;
+        $valor_eps = round($vlrDia * $parametros->eps)/100;
+        $valor_pension = round($vlrDia * $parametros->pension)/100;
         $valorArl = round($vlrDia * $operario->arl->arl)/100;
-        $total_dia = round($valorPrima + $valorCesantia + $valorInteres + $valorVacacion + $valorArl + $vlrDia + $auxilioT);
+        //totales
+        $total_dia = round($valorPrima + $valorCesantia + $valorInteres + $valorVacacion + $valor_ajuste + $valorArl + $valor_eps + $valor_pension + $valor_caja + $vlrDia + $auxilioT);
         return ($total_dia);
     
     }
@@ -2053,17 +2066,31 @@ class ValorPrendaUnidadController extends Controller
             $empresa = \app\models\Matriculaempresa::findOne(1);
             $valorCesantia = 0; $valorPrima = 0; $vlrDia = 0; $valorInteres = 0;
             $totalDia = 0; $valorVacacion = 0; $valorArl = 0; $auxilioT = 0;
-            $operario = Operarios::findOne($table->id_operario);
+            $ajuste_caja = 0;
+            $valor_eps = 0;
+            $valor_pension = 0;
+            $caja = 0;
+            //modelos
+            $parametros = \app\models\Parametros::findOne(1);
+            $operario =  Operarios::findOne($table->id_operario);
             $vlrDia = round($operario->salario_base / $empresa->dias_trabajados);
             $porcentaje = \app\models\Matriculaempresa::findOne(1);
             $auxilio = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
             $auxilioT = round($auxilio->auxilio_transporte_actual / $empresa->dias_trabajados);
+            //prestaciones
             $valorPrima = round($vlrDia * $porcentaje->porcentaje_prima)/100;
             $valorCesantia = round($vlrDia * $porcentaje->porcentaje_cesantias)/100;
             $valorInteres = round($vlrDia * $porcentaje->porcentaje_intereses)/100;
             $valorVacacion = round($vlrDia * $porcentaje->porcentaje_vacacion)/100;
+            $ajuste_caja = round($valorVacacion * $porcentaje->ajuste_caja)/100;
+            
+            //seguridad social
+            $caja = round($vlrDia * $parametros->caja)/100;
+            $valor_eps = round($vlrDia * $parametros->eps)/100;
+            $valor_pension = round($vlrDia * $parametros->pension)/100;
             $valorArl = round($vlrDia * $operario->arl->arl)/100;
-            $totalDia = $valorPrima + $valorCesantia + $valorInteres + $valorVacacion + $valorArl + $vlrDia + $auxilioT;
+            //totales
+            $totalDia = $valorPrima + $valorCesantia + $valorInteres + $valorVacacion + $ajuste_caja + $valorArl + $valor_eps + $valor_pension + $caja + $vlrDia + $auxilioT;
             if ($auxiliar == 1){
                 $table->costo_dia_operaria = 0;
             }else{

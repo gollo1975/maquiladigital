@@ -42,7 +42,7 @@ class ModelSimuladorTiempo extends Model
     {
         return [
             'cantidad_operarios' => 'Nro Operarias:',
-            'horario_trabajo' => 'Horas Laboradas:',
+            'horario_trabajo' => 'Horario de trabajo:',
             'unidades' => 'Unidades:',
             'tiempo_confeccion' => 'Sam:',
             'vinculado' => 'Vinculado:',

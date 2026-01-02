@@ -66,8 +66,9 @@ class ParametrosController extends Controller
         // 1. seguridad social
         
         $pension = round(($model->salario_minimo * $model->pension)/100);
-        $arl =    round(($model->salario_minimo * $model->arl->arl)/100);      
-        $caja =  round(($model->salario_minimo * $model->caja)/100);
+        $arl =     round(($model->salario_minimo * $model->arl->arl)/100);      
+        $caja =    round(($model->salario_minimo * $model->caja)/100);
+        $eps =     round(($model->salario_minimo * $model->eps)/100);
         
         // 2. prestaciones
         $cesantia_prima_interes = round((($model->salario_minimo +  $model->auxilio_transporte) * $model->prestaciones)/100);
@@ -75,12 +76,13 @@ class ParametrosController extends Controller
         $ajuste =  round(($vacacion *  $model->ajuste)/100);
         
         // 3. totales 
-        $total_seguridad =  $pension + $arl + $caja;
+        $total_seguridad =  $pension + $arl + $caja + $eps;
         $total_prestaciones = $cesantia_prima_interes + $vacacion +  $ajuste;
         $total_salario =  $total_seguridad +  $total_prestaciones + $model->salario_minimo + $model->auxilio_transporte;     
         $valor_dia = round($total_salario / $empresa->dias_trabajados);
         $model->valor_dia_empleado = $valor_dia;
-        $model->save(false);
+        $model->save();
+         Yii::$app->getSession()->setFlash('success', 'Registro actualizado con exito.');
     }
     
 

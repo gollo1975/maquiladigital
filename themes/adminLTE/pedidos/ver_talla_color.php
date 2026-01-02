@@ -76,33 +76,40 @@ $colores = ArrayHelper::map(app\models\Color::find()->orderBy('color ASC')->all(
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($tallas as $val):?>
+                                    <?php
+                                    $confInventario = app\models\ConfiguracionInventario::findOne(1);
+                                    foreach ($tallas as $val):?>
                                        <tr style="font-size: 85%;">
                                            <td><?= $val->idtalla ?></td>
                                             <td><?= $val->talla->talla ?></td>
                                             <td style="text-align: right;"><input type="text" name="cantidad[]" style="text-align: right" size = "5" value="<?= $val->cantidad ?>" required></td>
                                             <input type="hidden" name="listado_tallas[]" value="<?= $val->codigo ?>">
-                                            <td style= 'width: 25px; height: 25px;'>
-                                               <?php
-                                                $coloresSeleccionados = isset($coloresTallas[$val->idtalla]) ? $coloresTallas[$val->idtalla] : [];
-                                                $fieldName = 'colores_por_talla[' . $val->idtalla . ']'; 
+                                            <?php 
+                                            if($confInventario->aplica_inventario_talla_color == 1){?>
+                                                <td style= 'width: 25px; height: 25px;'>
+                                                   <?php
+                                                    $coloresSeleccionados = isset($coloresTallas[$val->idtalla]) ? $coloresTallas[$val->idtalla] : [];
+                                                    $fieldName = 'colores_por_talla[' . $val->idtalla . ']'; 
 
-                                                echo Select2::widget([
-                                                    'name' => $fieldName,
-                                                    'data' => $colores, 
-                                                    'value' => $coloresSeleccionados,
-                                                    'options' => [
-                                                        'placeholder' => 'Selecciona colores...',
-                                                        'multiple' => true, 
-                                                        'id' => 'select-color-' . $val->idtalla,
-                                                    ],
-                                                    'pluginOptions' => [
-                                                        'allowClear' => true,
-                                                    ],
-                                                ]);
-                                            ?>
-                                            </td>
-                                            <?php if($model->pedido->autorizado == 0) {?>
+                                                    echo Select2::widget([
+                                                        'name' => $fieldName,
+                                                        'data' => $colores, 
+                                                        'value' => $coloresSeleccionados,
+                                                        'options' => [
+                                                            'placeholder' => 'Selecciona colores...',
+                                                            'multiple' => true, 
+                                                            'id' => 'select-color-' . $val->idtalla,
+                                                        ],
+                                                        'pluginOptions' => [
+                                                            'allowClear' => true,
+                                                        ],
+                                                    ]);
+                                                ?>
+                                                </td>
+                                            <?php }else {?>
+                                                <td style= 'width: 25px; height: 25px;'></td>
+                                           <?php }    
+                                            if($model->pedido->autorizado == 0) {?>
                                                 <td style="width: 10px; height: 10px">	
                                                         <?= Html::a('', ['eliminar_tallas', 'id' => $id, 'id_detalle' => $id_detalle, 'dato_eliminar' => $val->codigo, 'token' => $token], [
                                                           'class' => 'glyphicon glyphicon-trash',

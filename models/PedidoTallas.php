@@ -33,7 +33,7 @@ class PedidoTallas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_detalle', 'idtalla', 'id_pedido', 'cantidad','unidades_despachadas'], 'integer'],
+            [['id_detalle', 'idtalla', 'id_pedido', 'cantidad','unidades_despachadas','segundo_despacho'], 'integer'],
             [['id_detalle'], 'exist', 'skipOnError' => true, 'targetClass' => PedidosDetalle::className(), 'targetAttribute' => ['id_detalle' => 'id_detalle']],
             [['idtalla'], 'exist', 'skipOnError' => true, 'targetClass' => Talla::className(), 'targetAttribute' => ['idtalla' => 'idtalla']],
             [['id_pedido'], 'exist', 'skipOnError' => true, 'targetClass' => Pedidos::className(), 'targetAttribute' => ['id_pedido' => 'id_pedido']],

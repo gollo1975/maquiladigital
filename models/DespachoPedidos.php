@@ -40,7 +40,7 @@ class DespachoPedidos extends \yii\db\ActiveRecord
         return [
             [['id_pedido', 'fecha_despacho'], 'required'],
             [['id_pedido', 'idcliente', 'cantidad_despachada',  'subtotal', 'impuesto', 'total_despacho','numero_pedido','autorizado','despacho_cerrado',
-                'numero_despacho','proceso_packing'], 'integer'],
+                'numero_despacho','proceso_packing','segundo_despacho'], 'integer'],
             [['fecha_despacho', 'fecha_hora_registro'], 'safe'],
             [['user_name'], 'string', 'max' => 15],
             [['id_pedido'], 'exist', 'skipOnError' => true, 'targetClass' => Pedidos::className(), 'targetAttribute' => ['id_pedido' => 'id_pedido']],
@@ -67,8 +67,9 @@ class DespachoPedidos extends \yii\db\ActiveRecord
             'numero_pedido' => 'Numero pedido:',
             'despacho_cerrado' => 'despacho_cerrado',
             'autorizado' => 'autorizado',
-            'numero_despacho' => 'Numero despacho:'
-            
+            'numero_despacho' => 'Numero despacho:',
+            'segundo_despacho' => 'segundo_despacho', 
+             
         ];
     }
 

@@ -325,8 +325,8 @@ class InventarioPuntoVentaController extends Controller
         foreach ($detalle as $detalles):
            $suma += $detalles->cantidad; 
         endforeach;
-        $inventario->stock_unidades +=  $suma;
-        $inventario->stock_inventario +=  $suma;
+        $inventario->stock_unidades =  $suma;
+        $inventario->stock_inventario =  $suma;
         $inventario->save();
     }
     

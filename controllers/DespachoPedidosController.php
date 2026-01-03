@@ -299,6 +299,10 @@ class DespachoPedidosController extends Controller
                         $table->fecha_despacho = date('Y-m-d');
                         $table->fecha_hora_registro = date('Y-m-d H:i:s');
                         $table->user_name = Yii::$app->user->identity->username;
+                        $Buscar = DespachoPedidos::find()->where(['id_pedido' => $intCodigo])->one();
+                        if($Buscar){
+                            $table->segundo_despacho = 1;
+                        }
                         $table->save(false);
                         $intIndice++;
                     }else{
@@ -359,11 +363,13 @@ class DespachoPedidosController extends Controller
         
         $despacho_detalle = \app\models\DespachoPedidoDetalles::find()->where($id_detalle)->one();
         $model = \app\models\DespachoPedidoDetalles::findOne($codigo);
-        $tallas = \app\models\PedidoTallas::find()->where(['=','id_detalle', $id_detalle])->all();
+        $tallas = \app\models\PedidoTallas::find()->where(['=','id_detalle', $id_detalle])->orderBy('unidades_despachadas ASC')->all();
         
         $ConColores = \app\models\PedidoColores::find()->where(['=','id_detalle', $id_detalle])->orderBy('idtalla ASC')->all();
-        
-        
+        $despachoDetalle = \app\models\DespachoPedidoDetalles::find()->where([
+                                                                            'id_detalle' => $id_detalle,
+                                                                            'id_inventario' => $id_inventario])->all(); //permit contar las referencias
+
         
         //PROCESO QUE ACTUALIZA LAS TALLAS
         if (isset($_POST["actualizar_cantidades"])) {
@@ -410,9 +416,13 @@ class DespachoPedidosController extends Controller
                     if($confInventario->aplica_inventario_tallas == 1){
                         if ($talla_color !== null) {
                             if($talla_color->stock_punto >= $unidades){
-                                $table->unidades_despachadas = $unidades;
+                                if(count($despachoDetalle) == 1){
+                                    $table->unidades_despachadas = $unidades;
+                                }else{
+                                    $table->segundo_despacho = $unidades;
+                                }   
                                 $table->save();
-                                $this->TotalizarLineaDespacho($id_detalle, $codigo);
+                                $this->TotalizarLineaDespacho($id_detalle, $codigo, $id_inventario);
                                 $this->TotalizarCantidades($id_detalle, $codigo);
                                 $this->TotalizarCantidadesDespacho($id);
                             }else{
@@ -454,6 +464,7 @@ class DespachoPedidosController extends Controller
             'id' => $id,
             'ConColores' => $ConColores,
             'token' => $token,
+            'despachoDetalle' => $despachoDetalle,
         ]);
         
     }
@@ -509,14 +520,26 @@ class DespachoPedidosController extends Controller
     }
     
     //PROCESO QUE TOTALIZA CANTIDADES DE LAS TALLAS DEL PEDIDO
-    protected function TotalizarLineaDespacho($id_detalle, $codigo) {
+    protected function TotalizarLineaDespacho($id_detalle, $codigo, $id_inventario) {
         $tallas = \app\models\PedidoTallas::find()->where(['=','id_detalle', $id_detalle])->all();
         $buscar = \app\models\DespachoPedidoDetalles::find()->where(['=','codigo', $codigo])->one();
+        $despachoDetalle = \app\models\DespachoPedidoDetalles::find()->where([
+                                                                            'id_detalle' => $id_detalle,
+                                                                            'id_inventario' => $id_inventario])->all(); //permit contar las referencias
+        
         $total = 0;
-        foreach ($tallas as $val) {
-            $total += $val->unidades_despachadas;
-                    
-        }
+        $segundo = 0;
+        if(count($despachoDetalle) == 1){
+            foreach ($tallas as $val) {
+                $total += $val->unidades_despachadas;
+
+            }
+        }else{
+            foreach ($tallas as $val) {
+                $total += $val->segundo_despacho;
+
+            }
+        }    
         $buscar->cantidad_despachada = $total;
         $buscar->save();
     }
@@ -716,6 +739,8 @@ class DespachoPedidosController extends Controller
         //recorremos el vector
         foreach ($detalleDespacho as $detalle) {
             $inventario = \app\models\InventarioPuntoVenta::findOne($detalle->id_inventario);
+            
+            //PROCESO PARA TALA Y COLOR
             if($confInventario->aplica_inventario_talla_color == 1){
                 $pedido_colores = \app\models\PedidoColores::find()->where(['id_detalle' => $detalle->id_detalle,
                                                                    'id_pedido' => $despacho->id_pedido])->all();
@@ -729,15 +754,21 @@ class DespachoPedidosController extends Controller
                      }                                                
                  }
             }
-            if($confInventario->aplica_inventario_tallas== 1){
+            
+            //PROCESO PARA SOLO TALLA
+            if($confInventario->aplica_inventario_tallas == 1){
                 $pedido_tallas = \app\models\PedidoTallas::find()->where(['id_detalle' => $detalle->id_detalle,
                                                                    'id_pedido' => $despacho->id_pedido])->all();
                  foreach ($pedido_tallas as $tallas) {
                     $registro = \app\models\DetalleColorTalla::find()->where(['id_inventario' =>$inventario->id_inventario,
                                                                      'idtalla' => $tallas->idtalla])->andWhere(['>','stock_punto', 0])->one();
-                     if($registro){
-                         $registro->stock_punto -= $tallas->cantidad;
-                         $registro->save();
+                    if($registro){
+                        if($despacho->segundo_despacho == 0  || $despacho->segundo_despacho == 1 && $tallas->segundo_despacho == 0  ){
+                          $registro->stock_punto -= $tallas->unidades_despachadas;
+                        }else{
+                            $registro->stock_punto -= $tallas->segundo_despacho;
+                        }
+                        $registro->save();
                      }                                                
                  }
             }
@@ -916,11 +947,21 @@ class DespachoPedidosController extends Controller
     //IMPRESIONES
     public function actionImprimir_despachos($id)
     {
-        return $this->render('../formatos/reporte_despacho_pedido', [
-            'model' => $this->findModel($id),
-            
-            
-        ]);
+       
+        $pedido = DespachoPedidos::find()->where(['=','segundo_despacho', 1])->andWhere(['=','id_despacho', $id])->one();
+      
+        if($pedido){
+            return $this->render('../formatos/reporte_despacho_pedido_segundo', [
+                'model' => $this->findModel($id),            
+            ]); 
+           
+        }else{
+            return $this->render('../formatos/reporte_despacho_pedido', [
+                'model' => $this->findModel($id),            
+            ]); 
+       
+        }
+       
     }
 
     /**

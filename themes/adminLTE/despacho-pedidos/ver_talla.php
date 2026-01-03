@@ -66,17 +66,29 @@ $colores = ArrayHelper::map(app\models\Color::find()->orderBy('color ASC')->all(
                                         <th scope="col" style='background-color:#B9D5CE;width: 5%'>Codigo</th>
                                         <th scope="col" style='background-color:#B9D5CE; width: 5%'>Talla</th>
                                         <th scope="col" style='background-color:#B9D5CE; width: 5%'>U. Vendidas</th>
-                                        <th scope="col" style='background-color:#B9D5CE; width: 5%'>U. Despachadas</th>
+                                        <?php if(count($despachoDetalle) == 1){?>
+                                            <th scope="col" style='background-color:#B9D5CE; width: 5%'>Primer despacho</th>
+                                        <?php }else{ ?>
+                                                <th scope="col" style='background-color:#B9D5CE; width: 5%'>Primer despacho</th>
+                                                <th scope="col" style='background-color:#B9D5CE; width: 5%'>Segundo despacho</th>
+                                            
+                                        <?php }?>        
                                         
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($tallas as $val):?>
+                                    <?php
+                                    foreach ($tallas as $val): ?>
                                        <tr style="font-size: 85%;">
                                            <td><?= $val->idtalla ?></td>
                                             <td><?= $val->talla->talla ?></td>
                                             <td style="text-align: right"><?= $val->cantidad ?></td>
-                                            <td style="text-align: right;"><input type="text" name="cantidad_despachar[]" style="text-align: right" size = "5" value= "<?= $val->unidades_despachadas?>" required></td>
+                                            <?php if(count($despachoDetalle) == 1){?>
+                                                <td style="text-align: right;"><input type="text" name="cantidad_despachar[]" style="text-align: right" size = "5" value= "<?= $val->unidades_despachadas?>" required></td>
+                                            <?php }else{ ?> 
+                                                    <td style="text-align: right"><?= $val->unidades_despachadas ?></td>
+                                                    <td style="text-align: right;"><input type="text" name="cantidad_despachar[]" style="text-align: right" size = "5" value= "<?= $val->segundo_despacho?>" required></td>
+                                            <?php } ?>
                                             <input type="hidden" name="listado_tallas[]" value="<?= $val->codigo ?>">
                                               
                                        </tr>  

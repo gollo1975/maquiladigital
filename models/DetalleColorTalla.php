@@ -40,7 +40,7 @@ class DetalleColorTalla extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_inventario', 'codigo_producto', 'id', 'idtalla', 'id_punto', 'cantidad', 'stock_punto', 'cerrado'], 'integer'],
+            [['id_inventario', 'codigo_producto', 'id', 'idtalla', 'id_punto', 'cantidad', 'stock_punto', 'cerrado','nueva_linea'], 'integer'],
             [['fecha_registro'], 'safe'],
             [['user_name'], 'string', 'max' => 15],
             [['id_inventario'], 'exist', 'skipOnError' => true, 'targetClass' => InventarioPuntoVenta::className(), 'targetAttribute' => ['id_inventario' => 'id_inventario']],
@@ -67,6 +67,7 @@ class DetalleColorTalla extends \yii\db\ActiveRecord
             'cerrado' => 'Cerrado',
             'user_name' => 'User Name',
             'fecha_registro' => 'Fecha Registro',
+            'nueva_linea' => 'nueva_linea',
         ];
     }
 

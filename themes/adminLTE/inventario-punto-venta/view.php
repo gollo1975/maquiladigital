@@ -83,7 +83,7 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                 <tr style="font-size: 85%;">
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'codigo_barra') ?></th>
                     <td><?= Html::encode($model->codigo_barra) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'stock_unidades') ?></th>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Entradas') ?></th>
                     <td style="text-align: right;"><?= Html::encode(''.number_format($model->stock_unidades,0)) ?></td>
                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'stock_inventario') ?></th>
                     <td style="text-align: right; background-color:#F5EEF8;"><?= Html::encode(''.number_format($model->stock_inventario,0)) ?></td>
@@ -144,7 +144,7 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                                         <th scope="col" style='background-color:#B9D5CE;'>Fecha registro</th> 
                                          <th scope="col" style='background-color:#B9D5CE;'>Cerrado</th> 
                                         <th scope="col" style='background-color:#B9D5CE;'>Stock</th> 
-                                        <th scope="col" style='background-color:#B9D5CE;'>Cantidad </th> 
+                                        <th scope="col" style='background-color:#B9D5CE;'>U. Entradas </th> 
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                          <th scope="col" style='background-color:#B9D5CE;'></th>
                                     </tr>
@@ -234,12 +234,24 @@ $this->params['breadcrumbs'][] = $model->id_inventario;
                                         }   
                                     }else{
                                          if(count($talla_color) <> count($talla_color_cerrado)){
-                                            echo Html::a('<span class="glyphicon glyphicon-save"></span> Descargar tallas', ['inventario-punto-venta/descargar_tallas_op', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo, 'idordeproduccion' => $model->idordenproduccion],[ 'class' => 'btn btn-success btn-sm']);?>
-                                            <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizarlineas']);
+                                            if($confInventario->aplica_inventario_talla_color == 1){  
+                                                echo Html::a('<span class="glyphicon glyphicon-save"></span> Descargar tallas', ['inventario-punto-venta/descargar_tallas_op', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo, 'idordeproduccion' => $model->idordenproduccion],[ 'class' => 'btn btn-success btn-sm']);?>
+                                                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizarlineas']);
+                                            }else{
+                                               
+                                                echo Html::a('<span class="glyphicon glyphicon-search"></span> Buscar tallas', ['inventario-punto-venta/crear_tallas_producto', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);
+                                                 echo Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar nueva linea", ["class" => "btn btn-warning btn-sm", 'name' => 'actualizar_nueva_entrada']); 
+                                            }    
                                         }else{
-                                           if(count($talla_color_cerrado)> 0){?>
-                                               <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear combinacion', ['inventario-punto-venta/generar_combinacion_talla_color', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);
+                                           if(count($talla_color_cerrado)> 0){ 
+                                                if($confInventario->aplica_inventario_talla_color == 1){ ?>
+                                                    <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear combinacion', ['inventario-punto-venta/generar_combinacion_talla_color', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);
+                                                }else{
+                                                     echo Html::a('<span class="glyphicon glyphicon-search"></span> Buscar tallas', ['inventario-punto-venta/crear_tallas_producto', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo],[ 'class' => 'btn btn-primary btn-sm']);
+                                                     
+                                                }
                                            } else{
+                                              
                                                echo Html::a('<span class="glyphicon glyphicon-save"></span> Descargar tallas', ['inventario-punto-venta/descargar_tallas_op', 'id' => $model->id_inventario, 'token' => $token, 'codigo' => $codigo, 'idordeproduccion' => $model->idordenproduccion],[ 'class' => 'btn btn-success btn-sm']);
                                            } 
                                             

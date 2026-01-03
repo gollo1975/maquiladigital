@@ -240,7 +240,9 @@ class InventarioPuntoVentaController extends Controller
             $traslado = \app\models\TrasladoReferenciaPunto::find()->where(['=','id_inventario_saliente', $id])->all();
         }else{
            $traslado = \app\models\TrasladoReferenciaPunto::find()->where(['=','id_inventario_entrante', $id])->all(); 
-        }    
+        }  
+        
+        //ACTUALIZAR LINES INICIAALES
         if(isset($_POST["actualizarlineas"])){
             if(isset($_POST["entrada_cantidad"])){
                 $intIndice = 0;
@@ -278,6 +280,32 @@ class InventarioPuntoVentaController extends Controller
             }
             
         }
+        
+        //ACTULIZA NUEVA LINEA Y ACUMULA ENTRADAS
+        if(isset($_POST["actualizar_nueva_entrada"])){
+            if(isset($_POST["entrada_cantidad"])){
+                $intIndice = 0;
+                foreach ($_POST["entrada_cantidad"] as $intCodigo):
+                    $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_detalle', $intCodigo])->andWhere(['=','cerrado', 0])->one();
+                    if($detalle){
+                       
+                            $table = \app\models\DetalleColorTalla::findOne($intCodigo);
+                            if($codigo == 0){
+                                $unidad_entrada = $_POST["cantidad"][$intIndice]; //asigno variable
+                                $detalle->cantidad = $unidad_entrada;
+                                 $detalle->stock_punto = $unidad_entrada;
+                                $detalle->save(false);
+                                $intIndice++;
+                            } 
+                    }else{
+                        $intIndice++;
+                    }   
+                endforeach;
+                return $this->redirect(['view','id' =>$id, 'token' => $token, 'codigo' => $codigo]);
+            }
+            
+        }
+        //FIN
         return $this->render('view', [
             'model' => $this->findModel($id),
             'token' => $token,
@@ -327,6 +355,14 @@ class InventarioPuntoVentaController extends Controller
         endforeach;
         $inventario->stock_unidades =  $suma;
         $inventario->stock_inventario =  $suma;
+        $inventario->save();
+    }
+    
+    //PROCESO QUE ACTUALIZA EL INVENTARIO
+    protected function ActualizarNuevaLineas($id, $contar) {
+        $inventario = InventarioPuntoVenta::findOne($id);
+        $inventario->stock_unidades +=  $contar;
+        $inventario->stock_inventario +=  $contar;
         $inventario->save();
     }
     
@@ -689,12 +725,15 @@ class InventarioPuntoVentaController extends Controller
                     $table->id_punto = $ConInventario->id_punto;
                     $table->fecha_registro = date('Y-m-d H:i:s');
                     $table->user_name = Yii::$app->user->identity->username;
+                    $buscarTalla = \app\models\DetalleColorTalla::find()->where(['id_inventario' => $id])->andWhere(['=','cerrado', 1])->all();
+                    if(count($buscarTalla) > 0){
+                        $table->nueva_linea = 1;
+                    }
                     $table->save();
                     $registros++;
-                        
                 }
                 Yii::$app->getSession()->setFlash('success', 'Se grabaron: '.$registros .' exitosamente.');
-              //  return $this->redirect(['crear_tallas_producto','id' => $id, 'token' => $token,  'codigo'=> $codigo]);
+                return $this->redirect(['view','id' => $id, 'token' => $token,  'codigo'=> $codigo]);
             }
           
         }
@@ -711,6 +750,15 @@ class InventarioPuntoVentaController extends Controller
     public function actionCerrar_combinaciones($id, $token, $codigo){
         
         $detalle = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->andWhere(['=','cerrado', 0])->all();
+        $detalleLinea = \app\models\DetalleColorTalla::find()->where(['=','id_inventario', $id])->andWhere(['=','nueva_linea', 1])->andWhere(['=','cerrado', 0])->all();
+        if(count($detalleLinea) > 0){
+            $contar = 0;
+            foreach ($detalleLinea as $lineas) {
+                $contar += $lineas->cantidad;
+            }  
+            $this->ActualizarNuevaLineas($id, $contar);
+            $this->ActualizarTotalesProducto($id);
+        }
         $model = InventarioPuntoVenta::findOne($id);
         $confInventario = \app\models\ConfiguracionInventario::findOne(1);
         if($model->stock_unidades <= 0){
@@ -728,8 +776,8 @@ class InventarioPuntoVentaController extends Controller
                         return $this->redirect(["view",'id' => $id, 'token' => $token, 'codigo' => $codigo]);
                     }
                 }else{
-                    $detalles->cerrado = 1;
-                    $detalles->save();
+                       $detalles->cerrado = 1;
+                       $detalles->save(); 
                 }    
                 
             endforeach;
@@ -1187,23 +1235,24 @@ class InventarioPuntoVentaController extends Controller
                     ->setCellValue('G1', 'INVENTARIO INICIAL')
                     ->setCellValue('H1', 'UNIDADES ENTRADAS')
                     ->setCellValue('I1', 'STOCK')
-                    ->setCellValue('J1', 'MINIMO STOCK')
-                    ->setCellValue('K1', 'VALOR UNITARIO')
-                    ->setCellValue('L1', 'SUBTOTAL')
-                    ->setCellValue('M1', 'IMPUESTO')
-                    ->setCellValue('N1', 'VALOR TOTAL')
-                    ->setCellValue('O1', 'USER NAME')
-                    ->setCellValue('P1', 'CODIGO EAN')
-                    ->setCellValue('Q1', 'MARCA')
-                    ->setCellValue('R1', 'CATEGORIA')
-                    ->setCellValue('S1', 'PRECIO DEPTAL')
-                    ->setCellValue('T1', 'PRECIO MAYORISTA')
-                    ->setCellValue('U1', 'APLICA DESCTO PUNTO')
-                    ->setCellValue('V1', 'APLICA DESCTO MAYORISTA')
-                    ->setCellValue('W1', 'COLOR')
-                    ->setCellValue('X1', 'TALLA')
-                    ->setCellValue('Y1', 'STOCK X TALLA')
-                    ->setCellValue('Z1', 'BODEGA/PUNTO');
+                    ->setCellValue('J1', 'SALIDAS')
+                    ->setCellValue('K1', 'MINIMO STOCK')
+                    ->setCellValue('L1', 'VALOR UNITARIO')
+                    ->setCellValue('M1', 'SUBTOTAL')
+                    ->setCellValue('N1', 'IMPUESTO')
+                    ->setCellValue('O1', 'VALOR TOTAL')
+                    ->setCellValue('P1', 'USER NAME')
+                    ->setCellValue('Q1', 'CODIGO EAN')
+                    ->setCellValue('R1', 'MARCA')
+                    ->setCellValue('S1', 'CATEGORIA')
+                    ->setCellValue('T1', 'PRECIO DEPTAL')
+                    ->setCellValue('U1', 'PRECIO MAYORISTA')
+                    ->setCellValue('V1', 'APLICA DESCTO PUNTO')
+                    ->setCellValue('W1', 'APLICA DESCTO MAYORISTA')
+                    ->setCellValue('X1', 'COLOR')
+                    ->setCellValue('Y1', 'TALLA')
+                    ->setCellValue('Z1', 'STOCK X TALLA')
+                    ->setCellValue('AA1', 'BODEGA/PUNTO');
             $i = 2;
         
         foreach ($tableexcel as $val) {
@@ -1221,23 +1270,31 @@ class InventarioPuntoVentaController extends Controller
                         ->setCellValue('G' . $i, $val->inventarioInicial)
                         ->setCellValue('H' . $i, $val->stock_unidades)
                         ->setCellValue('I' . $i, $val->stock_inventario)
-                        ->setCellValue('J' . $i, $val->stock_minimo)
-                        ->setCellValue('K' . $i, $val->costo_unitario)
-                        ->setCellValue('L' . $i, $val->subtotal)
-                        ->setCellValue('M' . $i, $val->valor_iva)
-                        ->setCellValue('N' . $i, $val->total_inventario)
-                        ->setCellValue('O' . $i, $val->user_name)
-                        ->setCellValue('P' . $i, $val->codigo_barra)
-                        ->setCellValue('Q' . $i, $val->marca->marca)
-                        ->setCellValue('R' . $i, $val->categoria->categoria)
-                        ->setCellValue('S' . $i, $val->precio_deptal)
-                        ->setCellValue('T' . $i, $val->precio_mayorista)
-                        ->setCellValue('U' . $i, $val->aplicaDescuentoPunto)
-                        ->setCellValue('V' . $i, $val->aplicaDescuentoDistribuidor)
-                        ->setCellValue('W' . $i, $detalles->color->color)
-                        ->setCellValue('X' . $i, $detalles->talla->talla)
-                        ->setCellValue('Y' . $i, $detalles->stock_punto)
-                        ->setCellValue('Z' . $i, $detalles->punto->nombre_punto);
+                        ->setCellValue('J' . $i, $val->stock_salida)
+                        ->setCellValue('K' . $i, $val->stock_minimo)
+                        ->setCellValue('L' . $i, $val->costo_unitario)
+                        ->setCellValue('M' . $i, $val->subtotal)
+                        ->setCellValue('N' . $i, $val->valor_iva)
+                        ->setCellValue('O' . $i, $val->total_inventario)
+                        ->setCellValue('P' . $i, $val->user_name)
+                        ->setCellValue('Q' . $i, $val->codigo_barra)
+                        ->setCellValue('R' . $i, $val->marca->marca)
+                        ->setCellValue('S' . $i, $val->categoria->categoria)
+                        ->setCellValue('T' . $i, $val->precio_deptal)
+                        ->setCellValue('U' . $i, $val->precio_mayorista)
+                        ->setCellValue('V' . $i, $val->aplicaDescuentoPunto)
+                        ->setCellValue('W' . $i, $val->aplicaDescuentoDistribuidor);
+                        if($detalles->id != null){
+                            $objPHPExcel->setActiveSheetIndex(0)
+                            ->setCellValue('X' . $i, $detalles->color->color);
+                        }else{
+                            $objPHPExcel->setActiveSheetIndex(0)
+                            ->setCellValue('X' . $i, 'NOT FOUND') ;
+                        }
+                        $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('Y' . $i, $detalles->talla->talla)
+                        ->setCellValue('Z' . $i, $detalles->stock_punto)
+                        ->setCellValue('AA' . $i, $detalles->punto->nombre_punto);
                        
                         
                         ;

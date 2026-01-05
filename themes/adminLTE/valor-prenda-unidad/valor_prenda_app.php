@@ -255,6 +255,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             $contador_dias = 0;
                                             $total_pagar_operario = 0;
                                             $total_venta_planta = 0;
+                                            $total_margen = 0;
                                              //CONSULTA PARA BUSCAR LAS OPERACIONES
                                              $parametros = app\models\Parametros::findOne(1);
                                             $query = new Query();
@@ -308,6 +309,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     
                                                     // Acumular los totales para el cálculo global
                                                     $total_eficiencia_acumulada += $eficiencia;
+                                                    $total_margen += $margen;
                                                     $contador_dias++; // Incrementar el contador de días
                                                     $total_pagar_operario += $row['total_generado'];
                                                     $total_venta_planta += $acumulado_venta;
@@ -347,6 +349,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         $promedio_total_eficiencia = 0;
                                         if ($contador_dias  > 0) {
                                             $promedio_total_eficiencia  = round($total_eficiencia_acumulada / $contador_dias);
+                                            $promedio_total_planta = $total_margen / $contador_dias;
                                         }
                                         ?>
 
@@ -357,9 +360,12 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
                                                <b>Total pagar operario: <?= '$ '.number_format($total_pagar_operario, 2) ?></b> 
                                         </td>
-                                         <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                        <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
                                                 <b>Total ventas: <?= '$ '.number_format($total_venta_planta, 2) ?></b> 
-                                            </td>
+                                        </td>
+                                        <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                                <b>Total margen: <?= ''.number_format($promedio_total_planta, 2) ?> %</b> 
+                                        </td>
                                 </table>
                             <?php }else{?>  <!--TERMINA SI EL SW == 1,-->
                                 <table class="table table-bordered table-hover">
@@ -405,6 +411,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         $total_operaciones_global = 0;
                                         $total_venta_planta = 0;
                                         $total_pagar_operario = 0;
+                                        $total_margen = 0;
                                             //termina la consulta
                                             if (!empty($resultados)){  //pregunta si hay datos                                 
                                                 foreach ($resultados as $row):
@@ -461,6 +468,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                         <?php }?>    
                                                     </tr>
                                                 <?php
+                                                $total_margen += $margen;
                                                 $total_venta_planta += $acumulado_venta;
                                                 $total_pagar_operario += $row['total_generado'];
                                                 endforeach;
@@ -479,9 +487,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
                                         <tr>
                                          <?php
-                                            $promedio_total_planta = 0;
+                                            $promedio_total_planta = 0; $promedio_total_margen = 0;
                                             if ($total_operaciones_global  > 0) {
                                                  $promedio_total_planta = ($total_porcentaje_global / $total_operaciones_global);
+                                                 $promedio_total_planta = $total_margen / $total_operaciones_global;
                                              } ?>
                                             
                                             <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
@@ -492,6 +501,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             </td>
                                             <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
                                                 <b>Total ventas: <?= '$'.number_format($total_venta_planta, 0) ?></b> 
+                                            </td>
+                                            <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                                <b>Total margen: <?= ''.number_format($promedio_total_planta, 2) ?> %</b> 
                                             </td>
                                           
                                         </tr>    

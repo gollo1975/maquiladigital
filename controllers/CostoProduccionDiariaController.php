@@ -205,6 +205,10 @@ class CostoProduccionDiariaController extends Controller {
                         $conPension = \app\models\ConfiguracionPension::findOne(1);
                         $caja = \app\models\CajaCompensacion::findOne(1);
                         $salud = \app\models\ConfiguracionEps::findOne(3);
+                         if(!$salud){
+                                Yii::$app->getSession()->setFlash('error', 'Error en la configuracion en el codigo del porcentaje de la EPS. Valide la tabla configuracionEPS.  ');
+                                return $this->redirect(['simuladorsalario']);
+                            }
                         $matricula = \app\models\Matriculaempresa::findOne(1);
                         $table = \app\models\SimuladorSalario::findOne(1);
                         $table->salario = $salario_basico;
@@ -270,6 +274,10 @@ class CostoProduccionDiariaController extends Controller {
             $transporte = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
             $entidad_pension = \app\models\ConfiguracionPension::findOne(1);
             $entidad_eps = \app\models\ConfiguracionEps::findOne(3);
+            if(!$entidad_eps){
+                Yii::$app->getSession()->setFlash('error', 'Error en la configuracion en el codigo del porcentaje de la EPS. Valide la tabla configuracionEPS.  ');
+                return $this->redirect(['simuladortiempo']);
+            }
             $entidad_caja = \app\models\CajaCompensacion::findOne(1);
             $entidad_arl = \app\models\Arl::findOne(2);
             $empresa = \app\models\Matriculaempresa::findOne(1);

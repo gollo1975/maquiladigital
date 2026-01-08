@@ -1140,6 +1140,8 @@ class ContratoController extends Controller
      public function actionNuevaadicioncontrato($id, $token)
      { 
         $modeloadicion = new FormNuevaAdicion();
+        $modeloadicion->aplica_dia = 1;
+        $modeloadicion->enviar_registro_adicion = 1;
         $contrato = Contrato::find()->where(['=','id_contrato',$id])->one();
 
         if ($modeloadicion->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
@@ -1149,32 +1151,36 @@ class ContratoController extends Controller
         if ($modeloadicion->load(Yii::$app->request->post())) {           
             if ($modeloadicion->validate()) {
                if ($contrato){
-                       $tipo_adicion = PagoAdicionSalario::find()->where(['=','id_contrato', $id])->all();
-                        if (!$tipo_adicion){
-                            $table = new PagoAdicionSalario();
-                            $table->id_contrato = $id;
-                            $table->id_formato_contenido = $modeloadicion->id_formato_contenido; 
-                            $table->vlr_adicion = $modeloadicion->vlr_adicion; 
-                            $table->fecha_aplicacion = $modeloadicion->fecha_aplicacion; 
-                            $table->usuariosistema = Yii::$app->user->identity->username; 
-                            $table->codigo_salario = $modeloadicion->codigo_salario; 
-                            $table->estado_adicion = 1; 
-                            $table->insert(false);
-                        }else{
-                            $tipo_adicion = PagoAdicionSalario::find()->where(['=','id_contrato', $id])->andWhere(['=','estado_adicion', 1])->one();
-                            $table = new PagoAdicionSalario();
-                            $table->id_contrato = $id;
-                            $table->id_formato_contenido = $modeloadicion->id_formato_contenido; 
-                            $table->vlr_adicion = $modeloadicion->vlr_adicion; 
-                            $table->fecha_aplicacion = $modeloadicion->fecha_aplicacion; 
-                            $table->usuariosistema = Yii::$app->user->identity->username; 
-                            $table->codigo_salario = $modeloadicion->codigo_salario; 
-                            $table->estado_adicion = 1; 
-                            $table->insert(false);
-                            $tipo_adicion->estado_adicion = 0 ;
-                            $tipo_adicion->update(FALSE);
-                        }   
-                        $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);  
+                   
+                    ///variables que se pasan al proceso   
+                    $codigo_salario = $modeloadicion->codigo_salario;
+                    $aplica_dia = $modeloadicion->aplica_dia;
+                    $valor_adicion = $modeloadicion->vlr_adicion;
+                    $BuscarConcepto = PagoAdicionSalario::find()->where(['codigo_salario' => $modeloadicion->codigo_salario,
+                                                               'id_contrato' => $id])->andWhere(['=','estado_adicion', 1])->one();
+                    if($BuscarConcepto){
+                        Yii::$app->getSession()->setFlash('warning', 'El concepto salarial seleccionado ya se encuentra activo en este contrato. Valide la informacion');
+                        return $this->redirect(["contrato/nuevaadicioncontrato", 'id' => $id, 'token' => $token]); 
+                    }
+                    if($modeloadicion->enviar_registro_adicion == 1){
+                        $this->CrearConceptoModuloPermante($codigo_salario, $id, $token, $aplica_dia, $valor_adicion); //procceso que valide la inserccion
+                    }
+
+                    $table = new PagoAdicionSalario();
+                    $table->id_contrato = $id;
+                    $table->id_formato_contenido = $modeloadicion->id_formato_contenido; 
+                    $table->vlr_adicion = $modeloadicion->vlr_adicion; 
+                    $table->fecha_aplicacion = $modeloadicion->fecha_aplicacion; 
+                    $table->usuariosistema = Yii::$app->user->identity->username; 
+                    $table->codigo_salario = $modeloadicion->codigo_salario; 
+                    $table->estado_adicion = 1; 
+                    $table->aplica_dia = $modeloadicion->aplica_dia;
+                    $table->enviar_registro_adicion = $modeloadicion->enviar_registro_adicion;
+                    if($table->save()){
+                        Yii::$app->getSession()->setFlash('success', 'Registros creado exitosamente en la base de datos.');
+                        return $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);
+                    }
+                          
                 }else{                
                     Yii::$app->getSession()->setFlash('error', 'El Número del contrato no existe!');
                 }
@@ -1187,9 +1193,44 @@ class ContratoController extends Controller
                 'contrato' => $contrato,
                 'id' => $id,
                 'token' => $token,
+                'sw' => 0,
             ]);
         
     }
+    
+    //PROCESO DE ADICION AL MODULO PERMANENTE.
+    public function CrearConceptoModuloPermante($codigo_salario, $id, $token, $aplica_dia, $valor_adicion) {
+        $contrato = Contrato::findOne($id);
+        $buscarCodigo = \app\models\PagoAdicionalPermanente::find()->where(['id_contrato' => $id, 'codigo_salario' => $codigo_salario])->one();
+        if(!$buscarCodigo){
+            $table = new \app\models\PagoAdicionalPermanente();
+            $table->id_empleado = $contrato->id_empleado;
+            $table->codigo_salario = $codigo_salario;
+            $table->id_contrato = $id;
+            $table->id_grupo_pago = $contrato->id_grupo_pago;
+            $table->tipo_adicion = 1;
+            $table->permanente = 1;
+            $table->aplicar_dia_laborado = $aplica_dia;
+            $table->aplicar_prima = 0;
+            $table->aplicar_cesantias = 0;
+            $table->estado_periodo = 1;
+            $table->estado_registro = 1;
+            $table->detalle = 'Importado desde contrato';
+            $table->usuariosistema = Yii::$app->user->identity->username;
+            $variable = $contrato->grupoPago->periodoPago->periodo_mes;
+            if($variable){
+                $table->vlr_adicion = $valor_adicion / $variable;
+                $table->save();
+            }else{
+               Yii::$app->getSession()->setFlash('error', 'El periodo de pago le falta llenar el campo (Periodo_mes). Valide la informacion'); 
+               return $this->redirect(['nuevaadicioncontrato','token' => $token, 'id' => $id]);
+            }            
+        }else{
+            Yii::$app->getSession()->setFlash('error', 'Este concepto salarial ya se encuentra creado en el modulo de adicion a este empleado. Valide la informacion');
+            return $this->redirect(['nuevaadicioncontrato','token' => $token, 'id' => $id]);
+        }
+    }
+    
     
     public function actionEditarpagoadicion($id_pago_adicion, $id, $token)
     {
@@ -1206,18 +1247,22 @@ class ContratoController extends Controller
                     $table->vlr_adicion = $modeloadicion->vlr_adicion; 
                     $table->fecha_aplicacion = $modeloadicion->fecha_aplicacion; 
                     $table->codigo_salario = $modeloadicion->codigo_salario; 
-                    $table->save(false);
+                    $table->estado_adicion = $modeloadicion->estado_adicion;
+                    $table->save();
                      return $this->redirect(["contrato/view",'id' => $id, 'token' => $token]);  
                 }
         }
        
         if (Yii::$app->request->get('id_pago_adicion')) {
-           $table = PagoAdicionSalario::find()->where(['id_pago_adicion'=>$id_pago_adicion])->one();           
+           $table = PagoAdicionSalario::find()->where(['id_pago_adicion' => $id_pago_adicion])->one();           
             if ($table) {                                
                 $modeloadicion->id_formato_contenido = $table->id_formato_contenido;
                 $modeloadicion->vlr_adicion = $table->vlr_adicion;
                 $modeloadicion->fecha_aplicacion = $table->fecha_aplicacion;
-                 $modeloadicion->codigo_salario = $table->codigo_salario;
+                $modeloadicion->codigo_salario = $table->codigo_salario;
+                $modeloadicion->aplica_dia = $table->aplica_dia;
+                $modeloadicion->enviar_registro_adicion = $table->enviar_registro_adicion;
+                $modeloadicion->estado_adicion = $table->estado_adicion;
             } 
         }
     
@@ -1226,6 +1271,7 @@ class ContratoController extends Controller
                 'id_pago_adicion' => $id_pago_adicion,
                 'id' => $id,
                 'token' => $token,
+                'sw' => 1,
             ]);
     }
     

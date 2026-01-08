@@ -1215,7 +1215,7 @@ class ContratoController extends Controller
             $table->aplicar_cesantias = 0;
             $table->estado_periodo = 1;
             $table->estado_registro = 1;
-            $table->detalle = 'Importado desde contrato';
+            $table->detalle = 'Importado desde contrato.';
             $table->usuariosistema = Yii::$app->user->identity->username;
             $variable = $contrato->grupoPago->periodoPago->periodo_mes;
             if($variable){

@@ -204,7 +204,7 @@ class CostoProduccionDiariaController extends Controller {
                         $salario = \app\models\ConfiguracionSalario::find()->where(['=','estado', 1])->one();
                         $conPension = \app\models\ConfiguracionPension::findOne(1);
                         $caja = \app\models\CajaCompensacion::findOne(1);
-                        $salud = \app\models\ConfiguracionEps::findOne(3);
+                        $salud = \app\models\ConfiguracionEps::find()->where(['=','codigo_api_nomina', 1 ])->one();
                          if(!$salud){
                                 Yii::$app->getSession()->setFlash('error', 'Error en la configuracion en el codigo del porcentaje de la EPS. Valide la tabla configuracionEPS.  ');
                                 return $this->redirect(['simuladorsalario']);

@@ -57,18 +57,33 @@ $form = ActiveForm::begin([
                             'options' => ['placeholder' => 'Seleccione una fecha ...'],
                             'pluginOptions' => [
                                 'format' => 'yyyy-mm-dd',
-                                'todayHighlight' => true]])
+                                'todayHighlight' => true,
+                                'orientation' => 'bottom']])
                         ?>  
                          <?= $form->field($modeloadicion, 'vlr_adicion')->textInput(['maxlength' => true]) ?>
-                    </div>  
-                <div class="row">
-                       
-                    </div>
-                
-                <div class="panel-footer text-right">			
-                    <a href="<?= Url::toRoute(['contrato/view', 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
-                    <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
                 </div>
+                <?php if($sw == 1){ ?>
+                    <div class="row">
+                         <?= $form->field($modeloadicion, 'estado_adicion')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>  
+                    </div> 
+                <?php }?>
+                <div class="panel panel-success">
+                    <div class="panel-heading">
+                        Favor chequea
+                    </div>
+                    <div class="panel-body">
+                         <div class="checkbox checkbox-success" align ="left">     
+                            <?= $form->field($modeloadicion, 'aplica_dia')->checkBox(['label' => 'Aplica a dia laborado',''=>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'aplica_dia']) ?> 
+                            <?= $form->field($modeloadicion, 'enviar_registro_adicion')->checkBox(['label' => 'Enviar registro al modulo de adicion',''=>'small', 'class'=>'bs_switch','style'=>'margin-bottom:5px;', 'id'=>'enviar_registro_adicion']) ?> 
+                        </div>     
+                    </div>
+                </div>
+            </div>   
+
+            <div class="panel-footer text-right">			
+                <a href="<?= Url::toRoute(['contrato/view', 'id' => $id, 'token' => $token]) ?>" class="btn btn-primary btn-sm"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
+                <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success btn-sm",]) ?>
             </div>
         </div>
+       
 <?php $form->end() ?>     

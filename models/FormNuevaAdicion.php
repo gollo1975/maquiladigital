@@ -16,7 +16,10 @@ class FormNuevaAdicion extends Model
     public $fecha_aplicacion;
     public $fecha_proceso;
     public $codigo_salario;
-    
+    public $aplica_dia;
+    public $enviar_registro_adicion;
+    public $estado_adicion;
+
 
 
 
@@ -27,7 +30,7 @@ class FormNuevaAdicion extends Model
         return [  
             [['id_formato_contenido','vlr_adicion','fecha_aplicacion','codigo_salario'], 'required'],
             [['fecha_aplicacion'], 'safe'],
-            [['codigo_salario'], 'integer'],
+            [['codigo_salario','enviar_registro_adicion','aplica_dia','estado_adicion'], 'integer'],
         ];
     }
 
@@ -38,7 +41,11 @@ class FormNuevaAdicion extends Model
             'vlr_adicion' => 'Valor adición:',
             'fecha_aplicacion' => 'Fecha aplicación:',
             'fecha_proceso' => 'Fecha proceso:',
-            'codigo_salario' => 'Concepto salario:'
+            'codigo_salario' => 'Concepto salario:',
+            'aplica_dia' => 'Aplica_dia',
+            'enviar_registro_adicion' => 'enviar_registro_adicion',
+            'estado_adicion' => 'Activo:',
+            
       
         ];
     }

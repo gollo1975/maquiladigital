@@ -86,4 +86,15 @@ class PagoAdicionSalario extends \yii\db\ActiveRecord
     {
         return $this->hasOne(ConceptoSalarios::className(), ['codigo_salario' => 'codigo_salario']);
     }
+    
+    public function getEstadoActivo() {
+        if($this->estado_adicion == 0){
+            $estadoactivo = 'NO';
+        }else {
+            $estadoactivo = 'SI';
+        }
+        return $estadoactivo;
+                
+        
+    }
 }

@@ -251,6 +251,7 @@ $view = 'contrato';
                                      <th scope="col" align="center">Fecha_Aplicación</th>   
                                      <th scope="col" align="center">Fecha proceso</th>  
                                      <th scope="col" align="center">Tipo formato</th>  
+                                      <th scope="col" align="center">Activo</th>   
                                      <th scope="col" align="center">Usuario</th>                        
                                      <th scope="col"></th>
                                       <th scope="col"></th>
@@ -266,6 +267,7 @@ $view = 'contrato';
                                         <td><?= $val->fecha_aplicacion ?></td>
                                         <td><?= $val->fecha_proceso ?></td>
                                         <td><?= $val->formatoContenido->nombre_formato ?></td>
+                                        <td><?= $val->estadoActivo ?></td>
                                         <td><?= $val->usuariosistema ?></td>
                                         <?php
                                            if($val->estado_adicion == 1){?>

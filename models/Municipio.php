@@ -34,7 +34,7 @@ class Municipio extends \yii\db\ActiveRecord
     {
         return [
             [['idmunicipio', 'codigomunicipio', 'municipio','iddepartamento'], 'required', 'message' => 'Campo requerido'],
-            [['activo','codigo_api_nomina'], 'integer'],
+            [['activo','codigo_api_nomina','codefacturador'], 'integer'],
             [['idmunicipio', 'codigomunicipio', 'iddepartamento'], 'string', 'max' => 15],
             [['municipio'], 'string', 'max' => 100],
             [['idmunicipio'], 'unique'],          
@@ -54,6 +54,7 @@ class Municipio extends \yii\db\ActiveRecord
             'iddepartamento' => 'Departamento',
             'activo' => 'Activo',
             'codigo_api_nomina' => 'Codigo api nomina',
+            'codefacturador' => 'codefacturador',
         ];
     }
 

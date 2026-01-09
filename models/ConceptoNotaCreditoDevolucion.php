@@ -27,7 +27,7 @@ class ConceptoNotaCreditoDevolucion extends \yii\db\ActiveRecord
     {
         return [
             [['concepto'], 'required'],
-             [['codigo_interno'], 'integer'],
+             [['codigo_interno','codeconceptoapi'], 'integer'],
             [['concepto'], 'string', 'max' => 40],
         ];
     }
@@ -41,6 +41,7 @@ class ConceptoNotaCreditoDevolucion extends \yii\db\ActiveRecord
             'id_concepto' => 'Id Concepto',
             'concepto' => 'Concepto',
             'codigo_interno' => 'codigo_interno',
+            'codeconceptoapi' => 'codeconceptoapi',
         ];
     }
 }

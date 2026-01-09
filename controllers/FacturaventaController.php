@@ -812,6 +812,10 @@ class FacturaventaController extends Controller
 
         //CONFIGURACION DE DOCUMENTOS
         $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+        if ($confi->aplica_factura_electronica == 0) {
+            Yii::$app->session->setFlash('error', 'No esta autorizado para enviar facturas electronicas.');
+            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+        }
         
         $cliente = Cliente::findOne($factura->idcliente);
         if (!$cliente) {

@@ -836,7 +836,7 @@ class FacturaventaController extends Controller
             $autoretendor = 117;
         }
 
-        $formapago = $factura->formaPago->codigo_medio_pago_dian;
+        $formapago = $factura->formapago ? $factura->formapago->codigo_medio_pago_dian : null;
         
 
         // ENDPOINT

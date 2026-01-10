@@ -836,8 +836,11 @@ class FacturaventaController extends Controller
             $autoretendor = 117;
         }
 
-        $formapago = $factura->formaPago ? $factura->formaPago->codigo_medio_pago_dian : null;
-        
+        if($factura->id_forma_pago == 1){ // efectivo
+            $formapago = 1;
+        } else {
+            $formapago = 2;
+        }
 
         // ENDPOINT
         $API_URL = Yii::$app->params['API_ENDPOINT_URL'];

@@ -1017,7 +1017,9 @@ class FacturaventaController extends Controller
                 'Accept: application/json',
                 'Authorization: Bearer ' . $apiBearerToken,
             ],
-            CURLOPT_TIMEOUT => 60,
+            CURLOPT_TIMEOUT => 120,
+            CURLOPT_SSL_VERIFYPEER => false, 
+            CURLOPT_SSL_VERIFYHOST => false, 
         ]);
 
         try {

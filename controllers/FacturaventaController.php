@@ -1122,8 +1122,8 @@ class FacturaventaController extends Controller
             throw new \Exception("Número de factura inválido para reenvío: {$number} (Factura id={$id_factura})");
         }
 
-        Yii::info("STATE_CHECK REQUEST URL={$url} factura_id={$id_factura} prefix={$prefix} number={$number}", 'invoice.debug.state_check_request');
-        Yii::$app->session->setFlash('info', "Consultando: {$url} (prefix={$prefix}, number={$number})");
+       // Yii::info("STATE_CHECK REQUEST URL={$url} factura_id={$id_factura} prefix={$prefix} number={$number}", 'invoice.debug.state_check_request');
+        //Yii::$app->session->setFlash('info', "Consultando: {$url} (prefix={$prefix}, number={$number})");
 
 
         // Hacer la petición al endpoint
@@ -1170,7 +1170,7 @@ class FacturaventaController extends Controller
             $stateForResend = $data['state_document'] ?? $data['state'] ?? null;
             // Asegurarnos de comparar como entero (la API puede devolver "0" como string)
             if ((int)$stateForResend !== 0) {
-                Yii::$app->session->setFlash('error', 'La factura no está lista para reenviar (state_document != 0).');
+                Yii::$app->session->setFlash('error', 'la factura ya se encuentra en la DIAN.');
                 return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
             }
 

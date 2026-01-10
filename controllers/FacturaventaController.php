@@ -977,6 +977,7 @@ class FacturaventaController extends Controller
             "number"                 => $number,
             "type_document_id"       => $type_document_id,
             "prefix"                 => $prefix,
+            "sendmail"               => true,
             "resolution_number"      => $resolution_number,
             "customer"               => $customer,
             "tax_totals"             => $tax_totals,

@@ -254,6 +254,13 @@ class FacturaventaController extends Controller
      */
     public function actionCreate()
     {
+        //configuracion de factura electronica
+        $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+        if($confi->aplica_factura_electronica == 0){
+            Yii::$app->getSession()->setFlash('error', 'No esta autorizado para generar facturas electronicas. Favor contactar un asesor.');
+            return $this->redirect(['index']);
+        }
+        //****
         $model = new Facturaventa();
         $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $facturastipo = Facturaventatipo::find()->all();
@@ -312,6 +319,14 @@ class FacturaventaController extends Controller
     
     public function actionCreatelibre()
     {
+                
+        //configuracion de factura electronica
+        $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+        if($confi->aplica_factura_electronica == 0){
+            Yii::$app->getSession()->setFlash('error', 'No esta autorizado para generar facturas electronicas. Favor contactar un asesor.');
+            return $this->redirect(['index']);
+        }
+        //****
         $model = new FormFacturaventalibre();
         $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $facturastipo = Facturaventatipo::find()->all();
@@ -812,10 +827,6 @@ class FacturaventaController extends Controller
 
         //CONFIGURACION DE DOCUMENTOS
         $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
-        if ($confi->aplica_factura_electronica == 0) {
-            Yii::$app->session->setFlash('error', 'No esta autorizado para enviar facturas electronicas.');
-            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
-        }
         
         $cliente = Cliente::findOne($factura->idcliente);
         if (!$cliente) {
@@ -1082,7 +1093,7 @@ class FacturaventaController extends Controller
 
             $factura->save(false);
 
-            Yii::$app->session->setFlash('success', "Factura enviada OK. No ({$number}).");
+            Yii::$app->session->setFlash('success', "Factura No ({$number}) fue enviada exitosamente a la Dian.");
             return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
 
 
@@ -1124,11 +1135,7 @@ class FacturaventaController extends Controller
             throw new \Exception("Número de factura inválido para reenvío: {$number} (Factura id={$id_factura})");
         }
 
-       // Yii::info("STATE_CHECK REQUEST URL={$url} factura_id={$id_factura} prefix={$prefix} number={$number}", 'invoice.debug.state_check_request');
-        //Yii::$app->session->setFlash('info', "Consultando: {$url} (prefix={$prefix}, number={$number})");
-
-
-        // Hacer la petición al endpoint
+       // Hacer la petición al endpoint
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,

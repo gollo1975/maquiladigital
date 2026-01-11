@@ -774,7 +774,10 @@ class PedidosController extends Controller
     $nombreEmpresa = $matricula->razonsocialmatricula;
 
     // ... (variables de vendedor y cuerpo HTML) ...
-    
+    if($model->id_agente == null){
+         Yii::$app->session->setFlash('error', 'Debe de crear el agente comercial y asocialo al pedido. Valide la información.');
+          return $this->redirect(['view', 'id' => $id, 'token' => $token]);
+    }
     $nombreVendedor = $model->agente->nombre_completo; 
     $emailVendedor = $model->agente->email_agente; 
     $telefonoVendedor = $model->agente->celular_agente;

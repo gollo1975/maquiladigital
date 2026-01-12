@@ -3422,6 +3422,12 @@ class ProgramacionNominaController extends Controller {
     
     //PERMITE CREAR EL PERIODO DE PAGO
     public function actionCrear_nuevo_documento() {
+        
+        $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+        if($confi->aplica_nomina_electronica == 0){
+            Yii::$app->getSession()->setFlash('error','No esta autorizado para generar nomina electronica. Solicite un asesor para solicitar el servicio.');
+            return $this->redirect(['documento_electronico']);
+        }
         $model = new \app\models\FormCostoGastoEmpresa();
          if ($model->load(Yii::$app->request->post())) {
             if ($model->validate()){

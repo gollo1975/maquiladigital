@@ -11,6 +11,7 @@ $this->title = 'Detalle Comprobante';
 $this->params['breadcrumbs'][] = ['label' => 'Comprobante Egresos', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->id_comprobante_egreso;
 $view = 'comprobante-egreso';
+$confi = app\models\ConfiguracionDocumentoElectronico::findOne(1);
 
 ?>
 <div class="comprobante-egreso-view">
@@ -32,7 +33,7 @@ $view = 'comprobante-egreso';
                     echo Html::a('<span class="glyphicon glyphicon-trash"></span> Anular', ['anular_documento', 'id' => $model->id_comprobante_egreso, 'token' => $token], ['class' => 'btn btn-danger btn-sm',
                      'data' => ['confirm' => 'Esta seguro de ANULAR el documento contable No '. $model->numero. '', 'method' => 'post']]); 
                 }  
-                if($model->proveedor->tiporegimen == 2 ){?>
+                if($model->proveedor->tiporegimen == 2 && $confi->aplica_documento_soporte == 1 ){?>
                     <td style="width: 25px; height: 25px;">
                             <!-- Inicio Nuevo Detalle proceso -->
                               <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear documento soporte ',

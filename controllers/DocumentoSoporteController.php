@@ -174,6 +174,11 @@ class DocumentoSoporteController extends Controller
      */
     public function actionCreate($sw, $Token)
     {
+        $config = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+        if($config->aplica_documento_soporte == 0){
+            Yii::$app->getSession()->setFlash('error', 'No esta autorizado para generar documentos soportes. Comunicate con un asesor.'); 
+            return $this->redirect(['index']);
+        }
         $model = new DocumentoSoporte();
         $Acceso = 0;
         $conCompra = Compra::find()->orderBy('id_compra DESC')->all();

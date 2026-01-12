@@ -87,6 +87,34 @@ class EmpresaController extends Controller
         
     }
     
+    //CONFIGURACION DE DOCUMENTOS ELECTRONICOS
+     public function actionConfiguracion_documentos_electronicos($id) {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',189])->all()){
+               $modelo = \app\models\ConfiguracionDocumentoElectronico::findOne($id);
+               if ($modelo->load(Yii::$app->request->post())){
+                   $table = \app\models\ConfiguracionDocumentoElectronico::findOne($id);
+                   $table->aplica_factura_electronica =  $modelo->aplica_factura_electronica;
+                   $table->aplica_documento_soporte = $modelo->aplica_documento_soporte;
+                   $table->aplica_nomina_electronica = $modelo->aplica_nomina_electronica;
+                   $table->llave_api_token = $modelo->llave_api_token;
+                   $table->save();
+                   return $this->redirect(['empresa/configuracion_documentos_electronicos','id' => $id]);
+               }
+               return $this->render('configuracion_documento_electronico', [
+                    'modelo' => $modelo,
+                    'id' => $id,
+                ]);
+               
+            }else{
+                 return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }    
+        
+    }
+    
     //estado de cartera
     public function actionEstado_cartera($id) {
         if (Yii::$app->user->identity){

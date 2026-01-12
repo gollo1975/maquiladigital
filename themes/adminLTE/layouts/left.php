@@ -638,6 +638,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'icon' => 'database',
                                                 'url' => '#',
                                                 'items' => [
+                                                    ['label' => 'Documentos electronicos', 'icon' => 'plus-square-o', 'url' => ['/empresa/configuracion_documentos_electronicos', 'id' => 1]], 
                                                     ['label' => 'Resolución', 'icon' => 'plus-square-o', 'url' => ['/resolucion/index']], 
                                                     ['label' => 'Conceptos Notas', 'icon' => 'plus-square-o', 'url' => ['conceptonota/index']],
                                                     ['label' => 'Factura de Venta Tipo', 'icon' => 'plus-square-o', 'url' => ['facturaventatipo/index']],

@@ -852,6 +852,13 @@ class FacturaventaController extends Controller
         } else {
             $formapago = 2;
         }
+        $emailempresa = $nombre_empresa->emailmatricula;
+        
+        $email_cc_list = [
+                [
+                    "email" => $emailempresa
+                ]
+            ];
 
         // ENDPOINT
         $API_URL = Yii::$app->params['API_ENDPOINT_URL'];
@@ -981,6 +988,7 @@ class FacturaventaController extends Controller
             "duration_measure"  => $factura->plazopago,
         ];
 
+
         /* =========================
            PAYLOAD FINAL
            ========================= */
@@ -990,6 +998,7 @@ class FacturaventaController extends Controller
             "prefix"                 => $prefix,
             "sendmail"               => true,
             "sendmailtome"           => true,
+            "email_cc_list"          => $email_cc_list,            
             "resolution_number"      => $resolution_number,
             "customer"               => $customer,
             "tax_totals"             => $tax_totals,

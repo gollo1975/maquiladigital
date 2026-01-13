@@ -422,6 +422,14 @@ class NotacreditoController extends Controller
     }
 
     $fmt = fn($n) => number_format((float)$n, 2, '.', '');
+    
+    $emailempresa = $empresa->emailmatricula;
+        
+        $email_cc_list = [
+                [
+                    "email" => $emailempresa
+                ]
+            ];
 
     // ========================
     // DATOS BÁSICOS
@@ -548,6 +556,9 @@ class NotacreditoController extends Controller
         "discrepancyresponsedescription" => $observacion,
         "notes"                          => $observacion,
         "prefix"                         => $prefix,
+        "sendmail"                       => true,
+        "sendmailtome"                   => true,
+        "email_cc_list"                  => $email_cc_list,
         "resolution_number"              => $resolucion,
         "number"                         => $numero_nc,
         "type_document_id"               => $type_document_id,

@@ -425,7 +425,7 @@ class NotacreditoController extends Controller
     
     $emailempresa = $empresa->emailmatricula;
         
-        $email_cc_list = [
+    $email_cc_list = [
                 [
                     "email" => $emailempresa
                 ]
@@ -573,8 +573,6 @@ class NotacreditoController extends Controller
         "legal_monetary_totals"          => $legal_monetary_totals,
         "credit_note_lines"              => $credit_note_lines,
         "with_holding_tax_total"         => $with_holding_tax_total,
-        "sendmail"                       => false,
-        "sendmailtome"                   => false,
     ];
 
     // ========================

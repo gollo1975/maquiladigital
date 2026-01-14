@@ -127,16 +127,10 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
              <?= $form->field($model, 'horas_realmente_trabajadas')->textInput(['maxlength' => true]) ?>  
         </div>
         <div class="row">
+            <?= $form->field($model, 'maneja_tablet_aplicacion')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
+        </div>  
+        <div class="row">
             <?= $form->field($model, 'declaracion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
-        </div>
-        <div class="row">
-            <?= $form->field($model, 'historia', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
-        </div>
-        <div class="row">
-            <?= $form->field($model, 'vision', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
-        </div>
-        <div class="row">
-            <?= $form->field($model, 'mision', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
         <div class="panel-footer text-right">			                        
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-success",]) ?>

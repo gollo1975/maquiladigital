@@ -1267,7 +1267,7 @@ class ValorPrendaUnidadController extends Controller
                $operacion = $flujo->idproceso;
                $this->DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta);
             }
-            Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente en el sistema a las : '.$table->hora_corte.'.');
+            Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente a las : '.$table->hora_corte.'.');
         } else {
             // En caso de error, obtenemos y mostramos los detalles
             $errores = json_encode($table->getErrors());

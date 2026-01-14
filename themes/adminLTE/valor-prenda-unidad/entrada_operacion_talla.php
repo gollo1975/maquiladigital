@@ -24,6 +24,8 @@ use app\models\Horario;
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
 
+$empresa = app\models\Matriculaempresa::findOne(1);
+
 $dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 $Fecha =  $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]. " del ".date('Y') ;
@@ -88,14 +90,23 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
         </div>                                     
          <table class="table table-responsive-lg">
             <thead>
-                <tr>
-                    <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Descripcion</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>T. oper.</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
-                    <th scope="col" style='background-color:#B9D5CE;'></th>
-                </tr>
+                <?php if($empresa->maneja_tablet_aplicacion == 0){?>
+                    <tr>
+                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Descripcion</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
+                        <th scope="col" style='background-color:#B9D5CE;'></th>
+                    </tr>
+                <?php }else{?>
+                    <tr>
+                        <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Descripcion</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>T. oper.</th>
+                        <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
+                        <th scope="col" style='background-color:#B9D5CE;'></th>
+                    </tr>
+                <?php }?>    
             </thead>
             <tbody>
                 <?php
@@ -103,16 +114,18 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                 $total_unidades = 0;
                 $valor_vinculado = 0;
                 if ($detalle_balanceo){
-                    $empresa = app\models\Matriculaempresa::findOne(1);
+                   
                     foreach ($detalle_balanceo as $val):
                         $flujo = app\models\Ordenproducciondetalleproceso::find()->where(['=','idproceso', $val->id_proceso])->andWhere(['=','iddetalleorden', $id_detalle])->one();
                         $total_unidades = $flujo->total_unidades_operacion - $flujo->unidades_confeccionadas;
                         if($total_unidades != 0){ 
-                            if(app\models\FlujoOperaciones::find()->where([
-                                'idproceso' => $val->id_proceso,
-                                'idordenproduccion' => $idordenproduccion,
-                                'aplica_induccion' => 0])
-                                ->andWhere(['>', 'tiempo_induccion', 0])->one()){ ?>
+                            $induccion = app\models\FlujoOperaciones::find()->where([
+                                                        'idproceso' => $val->id_proceso,
+                                                        'idordenproduccion' => $idordenproduccion,
+                                                        'aplica_induccion' => 0])
+                                                        ->andWhere(['>', 'tiempo_induccion', 0])->one();
+                                            
+                            if($induccion){?>  
                                 <tr>
                                     <td>
                                         <a href="<?= Url::toRoute(['valor-prenda-unidad/sam_induccion_operacion', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion]);?>"
@@ -121,9 +134,13 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                                         </a>
                                     </td>
                                     <td><?= $val->proceso->proceso ?></td>
-                                    <td><?= $val->minutos ?></td> 
-                                    <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
-                                    <td style="text-align: center"><?= $total_unidades?></td>
+                                    <?php if($empresa->maneja_tablet_aplicacion == 0){?>
+                                        <td style="text-align: center"><?= $total_unidades?></td>
+                                    <?php }else{?>
+                                        <td><?= $val->minutos ?></td> 
+                                        <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
+                                        <td style="text-align: center"><?= $total_unidades?></td>
+                                    <?php }?>
                                     <td style= 'width: 25px; height: 25px;'>
                                         <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  
                                     </td>
@@ -132,9 +149,13 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                                 <tr >
                                     <td><?= $val->id_proceso ?></td>
                                     <td><?= $val->proceso->proceso ?></td>
-                                    <td><?= $val->minutos ?></td> 
-                                    <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
-                                    <td style="text-align: center"><?= $total_unidades?></td>
+                                    <?php if($empresa->maneja_tablet_aplicacion == 0){?>
+                                     <td style="text-align: center"><?= $total_unidades?></td>
+                                     <?php }else{?>
+                                        <td><?= $val->minutos ?></td> 
+                                        <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
+                                        <td style="text-align: center"><?= $total_unidades?></td>
+                                    <?php }?>
                                     <td style= 'width: 25px; height: 25px;'>
                                         <?= Html::a('<span class="glyphicon glyphicon-send"></span> Enviar', ['valor-prenda-unidad/enviar_operacion_individual', 'id' => $model->id_valor,'tokenOperario' => $tokenOperario ,'id_detalle' => $id_detalle, 'id_planta' => $id_planta,'id_operacion' => $val->id_proceso,'idordenproduccion' => $idordenproduccion],['class' => 'btn btn-success btn-xs']); ?>  
                                     </td>

@@ -40,7 +40,6 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col" style='background-color:#B9D5CE;'>Descripcion</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Talla</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Unidades</th>
-                    <th scope="col" style='background-color:#B9D5CE;'>Operaciones</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
                     <th scope="col" style='background-color:#B9D5CE;'></th>
                 </tr>
@@ -54,7 +53,6 @@ $this->params['breadcrumbs'][] = $this->title;
                             <td><?= $val->productodetalle->prendatipo->prenda ?></td>
                             <td><?= $val->productodetalle->prendatipo->talla->talla ?></td>
                             <td style="text-align: center"><?= ''.number_format($val->cantidad,0) ?></td> 
-                            <td style="text-align: center"><?= ''.number_format($val->cantidad_operaciones,0) ?></td>
                             <?php if($total_Faltante > 0){?>
                                 <td style="text-align: center"><?= ''.number_format($total_Faltante,0) ?></td>
                             <?php }else{?>

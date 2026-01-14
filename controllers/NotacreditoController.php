@@ -557,7 +557,7 @@ class NotacreditoController extends Controller
         "notes"                          => $observacion,
         "prefix"                         => $prefix,
         "sendmail"                       => true,
-        "sendmailtome"                   => true,
+        "sendmailtome"                   => false,
         "email_cc_list"                  => $email_cc_list,
         "resolution_number"              => $resolucion,
         "number"                         => $numero_nc,

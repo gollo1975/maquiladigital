@@ -1790,42 +1790,37 @@ class ValorPrendaUnidadController extends Controller
     public function actionCrear_hora_corte_app($id, $tokenPlanta, $tipo_pago, $id_planta, $idordenproduccion) {
 
         $model = new \app\models\HoraCorteEficienciaApp();
+      
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return \yii\bootstrap\ActiveForm::validate($model);
+        }
 
         if ($model->load(Yii::$app->request->post())) {
-            // Valida los datos del modelo antes de cualquier operación.
-            if ($model->validate()) {
-                // Busca si ya existe una hora de corte para evitar duplicados.
-                $buscar = \app\models\HoraCorteEficienciaApp::find()
-                    ->where([
-                        'id_valor' => $id,
-                        'hora_inicio' => $model->hora_inicio,
-                        'hora_corte' => $model->hora_corte,
-                        'idordenproduccion' => $idordenproduccion,
-                        'fecha_dia' => date('Y-m-d')])->one();
+             // Busca si ya existe una hora de corte para evitar duplicados.
+               $fechaBusqueda = date('Y-m-d', strtotime($model->fecha_dia));
+                $existeCorte = \app\models\HoraCorteEficienciaApp::find()
+                        ->where([
+                            'id_valor'          => $id,
+                            'idordenproduccion' => $idordenproduccion,
+                            'fecha_dia'         => $fechaBusqueda,
+                        ])->one();
 
-                if ($buscar) {
+                if ($existeCorte) {
                     // Si la hora de corte ya existe, muestra un mensaje de error y redirige.
                     Yii::$app->getSession()->setFlash('error', 'La hora de corte para el ingreso de operaciones ya existe para esta OP. Validar la información.');
-                    return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes',
-                            'id_planta' => $id_planta,
-                            'idordenproduccion' => $idordenproduccion,
-                            'id' => $id,
-                            'tokenPlanta' => $tokenPlanta,
-                            'tipo_pago' => $tipo_pago
-                        ]);
+                   
                 } else {
                     // Si no existe, crea un nuevo registro.
                     $orden = \app\models\Ordenproduccion::findOne($idordenproduccion);
-                    $table = new \app\models\HoraCorteEficienciaApp();
-                    $table->attributes = $model->attributes; // Copia los atributos del modelo
                     // Asigna los valores adicionales
-                    $table->id_valor = $id;
-                    $table->idordenproduccion = $idordenproduccion;
-                    $table->codigo_producto = $orden->codigoproducto;
-                    $table->fecha_registro = date('Y-m-d H:i:s');
-                    $table->user_name = Yii::$app->user->identity->username;
-                    $table->aplica_sabado = $model->aplica_sabado;
-                    if ($table->save(false)) { // Guarda el nuevo registro
+                    $model->id_valor = $id;
+                    $model->idordenproduccion = $idordenproduccion;
+                    $model->codigo_producto = $orden ? $orden->codigoproducto : null;
+                    $model->fecha_registro = date('Y-m-d H:i:s');
+                    $model->user_name = Yii::$app->user->identity->username;
+                    $model->aplica_sabado = $model->aplica_sabado;
+                    if ($model->save()) { // Guarda el nuevo registro
                         return $this->redirect([
                             'valor-prenda-unidad/search_tallas_ordenes',
                             'id_planta' => $id_planta,
@@ -1835,11 +1830,20 @@ class ValorPrendaUnidadController extends Controller
                             'tipo_pago' => $tipo_pago
                         ]);
                     } else {
-                        // Maneja el error de guardado si ocurre
-                        Yii::$app->getSession()->setFlash('error', 'Ocurrió un error al guardar la información. Por favor, inténtelo de nuevo.');
+                        // Capturamos los errores de validación del modelo si el save falla
+                        $errores = implode('<br>', \yii\helpers\ArrayHelper::getColumn($model->getErrors(), 0));
+                        Yii::$app->getSession()->setFlash('error', 'Error al guardar: ' . $errores);
                     }
                 }
-            }
+                return $this->redirect([
+                    'valor-prenda-unidad/search_tallas_ordenes',
+                    'id_planta' => $id_planta,
+                    'idordenproduccion' => $idordenproduccion,
+                    'id' => $id,
+                    'tokenPlanta' => $tokenPlanta,
+                    'tipo_pago' => $tipo_pago
+                ]);
+            
         }
         return $this->renderAjax('crear_hora_corte_app', [
             'model' => $model,       
@@ -1919,14 +1923,17 @@ class ValorPrendaUnidadController extends Controller
         if (!Yii::$app->user->identity || !UsuarioDetalle::find()->where(['codusuario' => Yii::$app->user->identity->codusuario, 'id_permiso' => 166])->exists()) {
             return $this->redirect(['site/sinpermiso']);
         }
-      
+        
         $model = \app\models\HoraCorteEficienciaApp::find()->where(['id_valor' => $id])->orderBy('id_corte DESC')->one();
-
+        
         if (!$model) {
             Yii::$app->getSession()->setFlash('error', 'El registro que intenta editar no existe.');
             return $this->redirect(['valor-prenda-unidad/search_tallas_ordenes', 'id_planta' => $id_planta, 'idordenproduccion' => $idordenproduccion, 'id' => $id, 'tokenPlanta' => $tokenPlanta, 'tipo_pago' => $tipo_pago]);
         }
-
+         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return \yii\bootstrap\ActiveForm::validate($model);
+        }
         if ($model->load(Yii::$app->request->post())) {
             // Validación y guardado
             if ($model->save()) {

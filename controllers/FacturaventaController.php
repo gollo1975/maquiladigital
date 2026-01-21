@@ -935,7 +935,7 @@ class FacturaventaController extends Controller
         $tax_totals = [[
             "tax_id"         => $tax_id,
             "tax_amount"     => $factura->impuestoiva,
-            "percent"        => $nombre_empresa->porcentajereteivat,
+            "percent"        => $nombre_empresa->porcentajereteiva,
             "taxable_amount" => $factura->subtotal,
         ]];
 

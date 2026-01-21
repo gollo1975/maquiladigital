@@ -826,7 +826,7 @@ class FacturaventaController extends Controller
         }
         //VALIDA LA FECHA DE FACTURA QUE SEA IGUAL A LA FECHA DE ENVIO
         $fecha_actual = date('Y-m-d');
-        $fecha_factura = date('Y-m-d', strtotime($factura->fechainicio));
+        $fecha_factura = date('Y-m-d', strtotime($factura->fecha_inicio));
         if($fecha_actual !== $fecha_factura){
             Yii::$app->session->setFlash('error', 'La fecha de envio debe de ser igual a la fecha de inicio de la factura.');
             return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]); 

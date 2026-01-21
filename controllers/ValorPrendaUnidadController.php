@@ -1231,12 +1231,21 @@ class ValorPrendaUnidadController extends Controller
             if($EficienciaOperacion > $empresa->tiempo_maximo_operacion){
                if($minutos < $tiempo_minimo){
                    $table->porcentaje_cumplimiento = $empresa->sam_minimo; 
+                   //PROCESO QUE GUARDA LA BITACORA
+                   $sam = $table->porcentaje_cumplimiento;
+                   $variable = 'El operario envia una operacion en un tiempo minimo, desborda la eficiencia';
+                   $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam);
                }else{
                    $table->porcentaje_cumplimiento = $empresa->tiempo_maximo_operacion; 
                }    
             }else{
                if($minutos > $total_acumulado_minutos){
                     $table->porcentaje_cumplimiento = $empresa->sam_castigo;
+                     $sam = $table->porcentaje_cumplimiento;
+                    //PROCESO QUE GUARDA LA BITACORA
+                    $variable = 'El operario acumula unidades sin eniviarlas a la APP.';
+                    $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam);
+                    
                }else{
                     $table->porcentaje_cumplimiento = $EficienciaOperacion;
                }
@@ -1285,6 +1294,22 @@ class ValorPrendaUnidadController extends Controller
         ]);
     }
     
+    //PROCESO QUE GUARDA LA BITAGORA
+    protected function GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam ) {
+        if($tokenOperario && $idordenproduccion && $id_operacion){
+            $table = new \app\models\BitacoraEficienciaOperario();
+            $table->id_operario = $tokenOperario;
+            $table->idordenproduccion = $idordenproduccion;
+            $table->idproceso = $id_operacion;
+            $table->iddetalleorden = $id_detalle;
+            $table->hora_corte = date('H:i:s');
+            $table->concepto = $variable;
+            $table->fecha_confeccion = date('Y-m-d');
+            $table->tiempo_real_confeccion = $minutos;
+            $table->sam = $sam;
+            $table->save();
+        }
+    }
     ////PROCESO QUE DESCARGA LAS UNIDADES DE LA OP
     protected function DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta) {
         $total = 0; $dato = 0;
@@ -1605,7 +1630,7 @@ class ValorPrendaUnidadController extends Controller
                 'vector_eficiencia' => $vector_eficiencia,
             ]);
         }
-       
+        
         if($horaActual > $horaCierre){
             Yii::$app->getSession()->setFlash('error', 'Esta OP se encuentra cerrada por el dia de hoy. Valide la informacion con el administrador.'); 
                return $this->redirect(['view_produccion',

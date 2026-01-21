@@ -824,7 +824,13 @@ class FacturaventaController extends Controller
             Yii::$app->session->setFlash('error', 'Factura no encontrada.');
             return $this->redirect(['facturaventa/index']);
         }
-
+        //VALIDA LA FECHA DE FACTURA QUE SEA IGUAL A LA FECHA DE ENVIO
+        $fecha_actual = date('Y-m-d');
+        $fecha_factura = date('Y-m-d', strtotime($factura->fechainicio));
+        if($fecha_actual !== $fecha_factura){
+            Yii::$app->session->setFlash('error', 'La fecha de envio debe de ser igual a la fecha de inicio de la factura.');
+            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]); 
+        }
         //CONFIGURACION DE DOCUMENTOS
         $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
         
@@ -929,7 +935,7 @@ class FacturaventaController extends Controller
         $tax_totals = [[
             "tax_id"         => $tax_id,
             "tax_amount"     => $factura->impuestoiva,
-            "percent"        => $factura->porcentajeiva,
+            "percent"        => $nombre_empresa->porcentajereteivat,
             "taxable_amount" => $factura->subtotal,
         ]];
 

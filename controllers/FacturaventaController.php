@@ -935,7 +935,7 @@ class FacturaventaController extends Controller
         $tax_totals = [[
             "tax_id"         => $tax_id,
             "tax_amount"     => $factura->impuestoiva,
-            "percent"        => $nombre_empresa->porcentajereteiva,
+            "percent"        => $factura->porcentajeiva,
             "taxable_amount" => $factura->subtotal,
         ]];
 
@@ -954,7 +954,7 @@ class FacturaventaController extends Controller
             $with_holding_tax_total[] = [
                 "tax_id"         => 5, 
                 "taxable_amount" => $fmt($factura->subtotal),
-                "percent"        => $factura->porcentajereteiva,
+                "percent"        => $nombre_empresa->porcentajereteiva,
                 "tax_amount"     => $fmt($factura->retencioniva),
             ];
         }

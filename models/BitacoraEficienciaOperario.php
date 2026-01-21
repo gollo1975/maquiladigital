@@ -40,7 +40,7 @@ class BitacoraEficienciaOperario extends \yii\db\ActiveRecord
             [['id_operario', 'idordenproduccion', 'idproceso', 'iddetalleorden'], 'integer'],
             [['fecha_confeccion'], 'safe'],
             [['hora_corte'], 'string'],
-            [['tiempo_real_confeccion','sam'], 'number'],
+            [['tiempo_real_confeccion','porcentaje_eficiencia'], 'number'],
             [['concepto'], 'string', 'max' => 120],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
@@ -64,7 +64,7 @@ class BitacoraEficienciaOperario extends \yii\db\ActiveRecord
             'hora_corte' => 'Hora Corte',
             'concepto' => 'Concepto',
             'tiempo_real_confeccion' => 'tiempo_real_confeccion',
-            'sam' => 'sam',
+            'porcentaje_eficiencia' => 'porcentaje_eficiencia',
         ];
     }
 

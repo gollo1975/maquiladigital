@@ -1306,7 +1306,7 @@ class ValorPrendaUnidadController extends Controller
             $table->concepto = $variable;
             $table->fecha_confeccion = date('Y-m-d');
             $table->tiempo_real_confeccion = $minutos;
-            $table->sam = $sam;
+            $table->porcentaje_eficiencia = $sam;
             $table->save();
         }
     }

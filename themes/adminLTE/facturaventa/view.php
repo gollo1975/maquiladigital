@@ -17,6 +17,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Facturas de ventas', 'url' => ['in
 $this->params['breadcrumbs'][] = $model->idfactura;
 $view = 'facturaventa';
  $detalle = app\models\Notacreditodetalle::find()->where(['=','idfactura', $model->idfactura])->one();
+ $empresa = app\models\Matriculaempresa::findOne(1);
 ?>
 <div class="facturaventa-view">
 
@@ -106,9 +107,15 @@ $view = 'facturaventa';
                     <?php } else { ?>
                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipoFactura') ?>:</th>
                         <td><?= Html::encode($model->facturaventatipo->concepto) ?></td>
-                    <?php } ?>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencioniva') ?> (<?= $model->porcentajereteiva?>%): </th>
-                    <td style="text-align: right"><?= Html::encode('$ '.number_format($model->retencioniva,0)) ?></td>
+                    <?php } 
+                    if($model->retencioniva> 0){ ?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencioniva')?> (<?= $empresa->porcentajereteiva ?>%): </th>
+                        <td style="text-align: right"><?= Html::encode('$ '.number_format($model->retencioniva,0)) ?></td>
+                    <?php } else { ?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencioniva') ?>: </th>
+                        <td style="text-align: right"><?= Html::encode('$ '.number_format($model->retencioniva,0)) ?></td>
+                    <?php } ?>    
+                    
                 </tr>
                 <tr style='font-size: 85%;'>
                      <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>

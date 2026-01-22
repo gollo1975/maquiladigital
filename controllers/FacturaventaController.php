@@ -817,6 +817,7 @@ class FacturaventaController extends Controller
     
     
     // INICIO NUEVA FUNCION FACTURACION ELECTRONICA
+    
     public function actionEnviar_documento_dian($id_factura, $token)
 {
     $factura = Facturaventa::findOne($id_factura);
@@ -860,13 +861,13 @@ class FacturaventaController extends Controller
     }
     $nombre_empresa = Matriculaempresa::findOne(1);
 
-    if($factura->cliente->autoretenedor == 1){ // si es autoretenedor
+    if($factura->cliente->autoretenedor == 1){
         $autoretendor = 9;
     } else {
         $autoretendor = 117;
     }
 
-    if($factura->id_forma_pago == 1){ // efectivo
+    if($factura->id_forma_pago == 1){
         $formapago = 1;
     } else {
         $formapago = 2;
@@ -874,21 +875,16 @@ class FacturaventaController extends Controller
     $emailempresa = $nombre_empresa->emailmatricula;
     
     $email_cc_list = [
-            [
-                "email" => $emailempresa
-            ]
-        ];
+        [
+            "email" => $emailempresa
+        ]
+    ];
 
     // ENDPOINT
     $API_URL = Yii::$app->params['API_ENDPOINT_URL'];
-
     $apiBearerToken = $confi->llave_api_token;
 
-    /* =========================
-       number (DEBE IR EN RANGO)
-       ========================= */
     $number = (int)($factura->nrofactura ?? 0);
-
     $type_document_id  = 1;
     $prefix            = $factura->consecutivo;
     $resolution_number = $factura->numero_resolucion;
@@ -896,14 +892,8 @@ class FacturaventaController extends Controller
     $date = $factura->fecha_inicio ? date('Y-m-d', strtotime($factura->fecha_inicio)) : date('Y-m-d');
     $time = $factura->fecha_inicio ? date('H:i:s', strtotime($factura->fecha_inicio)) : date('H:i:s');
 
-    /* =========================
-       municipality_id_fact
-       ========================= */
     $municipality_id_fact = $factura->cliente->municipio->codefacturador;
 
-    /* =========================
-       CUSTOMER (con fallbacks)
-       ========================= */
     $customer = [
         "identification_number"           => (string)($cliente->cedulanit),
         "name"                            => (string)($cliente->nombrecorto),
@@ -918,23 +908,16 @@ class FacturaventaController extends Controller
         "dv"                              => (int)($cliente->dv),
     ];
 
-    /* =========================
-       CÁLCULOS DESDE LA LÍNEA
-       ========================= */
     $qty = $round2((float)($detalle->cantidad));
     $unit_price = $round2((float)($detalle->preciounitario));
     
-    // PASO 1: Calcular el subtotal de la línea
     $line_subtotal = $round2($qty * $unit_price);
     
-    // PASO 2: Calcular el IVA de la línea basado en ese subtotal
     $porcentaje_iva = (float)$factura->porcentajeiva;
     $line_iva = $round2($line_subtotal * ($porcentaje_iva / 100));
     
-    // PASO 3: Usar estos valores calculados para la línea
-    $tax_id = 1; // IVA
+    $tax_id = 1;
 
-    // Tax totals para la LÍNEA
     $line_tax_totals = [[
         "tax_id"         => $tax_id,
         "tax_amount"     => $line_iva,
@@ -942,35 +925,34 @@ class FacturaventaController extends Controller
         "taxable_amount" => $line_subtotal,
     ]];
 
-    /* =========================
-       RETENCIONES DE LA LÍNEA
-       ========================= */
     $line_with_holding_tax_total = [];
 
-    if ($factura->retencionfuente > 0) {
-        $retefuente_amount = $round2($line_subtotal * ((float)$factura->porcentajefuente / 100));
+    if ($factura->retencionfuente > 0 || $factura->porcentajefuente > 0) {
+        $porcentaje_fuente = (float)$factura->porcentajefuente;
+        $retefuente_amount = $round2($line_subtotal * ($porcentaje_fuente / 100));
+        
         $line_with_holding_tax_total[] = [
             "tax_id"         => 6, 
             "taxable_amount" => $line_subtotal,
-            "percent"        => (float)$factura->porcentajefuente,
+            "percent"        => $porcentaje_fuente,
             "tax_amount"     => $retefuente_amount,
         ];
     }
 
-    if ($factura->retencioniva > 0) {
+    if ($factura->retencioniva > 0 || $nombre_empresa->porcentajereteiva > 0) {
         $reteiva_percent = (float)$nombre_empresa->porcentajereteiva;
-        $reteiva_amount = $round2($line_subtotal * ($reteiva_percent / 100));
-        $line_with_holding_tax_total[] = [
-            "tax_id"         => 5, 
-            "taxable_amount" => $line_subtotal,
-            "percent"        => $reteiva_percent,
-            "tax_amount"     => $reteiva_amount,
-        ];
+        $reteiva_amount = $round2($line_iva * ($reteiva_percent / 100));
+        
+        if ($reteiva_amount > 0) {
+            $line_with_holding_tax_total[] = [
+                "tax_id"         => 5, 
+                "taxable_amount" => $line_iva,
+                "percent"        => $reteiva_percent,
+                "tax_amount"     => $reteiva_amount,
+            ];
+        }
     }
 
-    /* =========================
-       LÍNEAS DE FACTURA
-       ========================= */
     $invoice_lines = [[
         "unit_measure_id"             => "70",
         "invoiced_quantity"           => $qty,
@@ -986,12 +968,6 @@ class FacturaventaController extends Controller
         "base_quantity"               => 1,
     ]];
 
-    /* =========================
-       PASO 4: TOTALES GENERALES
-       (deben coincidir exactamente con la suma de las líneas)
-       ========================= */
-    
-    // Tax totals GENERALES (mismo valor que la línea en este caso de 1 sola línea)
     $tax_totals = [[
         "tax_id"         => $tax_id,
         "tax_amount"     => $line_iva,
@@ -999,10 +975,8 @@ class FacturaventaController extends Controller
         "taxable_amount" => $line_subtotal,
     ]];
     
-    // Retenciones GENERALES (mismo valor que la línea)
     $with_holding_tax_total = $line_with_holding_tax_total;
     
-    // Totales monetarios
     $total_con_iva = $round2($line_subtotal + $line_iva);
     
     $legal_monetary_totals = [
@@ -1014,9 +988,6 @@ class FacturaventaController extends Controller
         "payable_amount"          => $total_con_iva, 
     ];
 
-    /* =========================
-       FORMA DE PAGO
-       ========================= */
     $payment_form = [
         "payment_form_id"   => $formapago,
         "payment_method_id" => $factura->formaPago->codigo_medio_pago_dian,
@@ -1024,9 +995,6 @@ class FacturaventaController extends Controller
         "duration_measure"  => $factura->plazopago,
     ];
 
-    /* =========================
-       PAYLOAD FINAL
-       ========================= */
     $payload = [
         "number"                 => $number,
         "type_document_id"       => $type_document_id,
@@ -1050,27 +1018,133 @@ class FacturaventaController extends Controller
         "payment_form"           => $payment_form
     ];
 
-    // LOG JSON ENVIADO COMPLETO
     Yii::info(
         "JSON ENVIADO A DIAN:\n" . json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
         'invoice.debug.json'
     );
-    
-    // LOG de validación
-    Yii::info(
-        "VALIDACIÓN CÁLCULOS:\n" .
-        "Cantidad: {$qty}\n" .
-        "Precio Unitario: {$unit_price}\n" .
-        "Subtotal Línea: {$line_subtotal}\n" .
-        "IVA Línea ({$porcentaje_iva}%): {$line_iva}\n" .
-        "Total con IVA: {$total_con_iva}\n" .
-        "Verificación: {$line_subtotal} * {$porcentaje_iva}% = " . ($line_subtotal * ($porcentaje_iva / 100)),
-        'invoice.debug.calculation'
-    );
 
-    /* =========================
-       CURL
-       ========================= */
+    $DEBUG_MODE = true;
+    
+    if ($DEBUG_MODE) {
+        $subtotal_bd = $round2($factura->subtotal);
+        $iva_bd = $round2($factura->impuestoiva);
+        $retefuente_bd = $round2($factura->retencionfuente ?? 0);
+        $reteiva_bd = $round2($factura->retencioniva ?? 0);
+        
+        $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Verificación Factura</title></head><body>';
+        $html .= '<div style="font-family: Arial, sans-serif; max-width: 1400px; margin: 20px auto; padding: 20px;">';
+        $html .= '<h2 style="color: #d9534f;">🔍 MODO DEBUG - VERIFICACIÓN DE FACTURA</h2>';
+        $html .= '<p style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107;"><strong>⚠️ Advertencia:</strong> El documento NO fue enviado a la DIAN. Esta es solo una verificación.</p>';
+        
+        $html .= '<div style="background: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 2px solid #007bff;">';
+        $html .= '<h3 style="margin-top: 0; color: #007bff;">📋 Información de la Factura</h3>';
+        $html .= '<p><strong>Número:</strong> ' . $prefix . '-' . $number . '</p>';
+        $html .= '<p><strong>Cliente:</strong> ' . $cliente->nombrecorto . ' (NIT: ' . $cliente->cedulanit . ')</p>';
+        $html .= '<p><strong>Fecha:</strong> ' . $date . ' ' . $time . '</p>';
+        $html .= '</div>';
+        
+        $html .= '<div style="background: #f0f0f0; padding: 20px; margin-bottom: 20px; border-radius: 5px;">';
+        $html .= '<h3 style="color: #333; margin-top: 0;">📊 Comparación: Base de Datos vs Calculado</h3>';
+        $html .= '<table style="width: 100%; border-collapse: collapse; background: white;">';
+        $html .= '<thead><tr style="background: #007bff; color: white;">';
+        $html .= '<th style="padding: 10px; text-align: left;">Concepto</th>';
+        $html .= '<th style="padding: 10px; text-align: right;">Valor en BD</th>';
+        $html .= '<th style="padding: 10px; text-align: right;">Valor Calculado</th>';
+        $html .= '<th style="padding: 10px; text-align: center;">Estado</th>';
+        $html .= '</tr></thead><tbody>';
+        
+        $dif_subtotal = abs($subtotal_bd - $line_subtotal);
+        $ok_subtotal = $dif_subtotal < 0.02;
+        $html .= '<tr style="background: ' . ($ok_subtotal ? '#d4edda' : '#fff3cd') . ';">';
+        $html .= '<td style="padding: 8px;"><strong>Subtotal</strong></td>';
+        $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($subtotal_bd, 2) . '</td>';
+        $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($line_subtotal, 2) . '</td>';
+        $html .= '<td style="padding: 8px; text-align: center;">' . ($ok_subtotal ? '✅' : '⚠️') . '</td>';
+        $html .= '</tr>';
+        
+        $dif_iva = abs($iva_bd - $line_iva);
+        $ok_iva = $dif_iva < 0.02;
+        $html .= '<tr style="background: ' . ($ok_iva ? '#d4edda' : '#fff3cd') . ';">';
+        $html .= '<td style="padding: 8px;"><strong>IVA (' . $porcentaje_iva . '%)</strong></td>';
+        $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($iva_bd, 2) . '</td>';
+        $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($line_iva, 2) . '</td>';
+        $html .= '<td style="padding: 8px; text-align: center;">' . ($ok_iva ? '✅' : '⚠️') . '</td>';
+        $html .= '</tr>';
+        
+        if ($factura->retencionfuente > 0 || $factura->porcentajefuente > 0) {
+            $retefuente_calc = $round2($line_subtotal * ((float)$factura->porcentajefuente / 100));
+            $dif_rf = abs($retefuente_bd - $retefuente_calc);
+            $ok_rf = $dif_rf < 0.02;
+            $html .= '<tr style="background: ' . ($ok_rf ? '#d4edda' : '#fff3cd') . ';">';
+            $html .= '<td style="padding: 8px;"><strong>ReteFuente (' . $factura->porcentajefuente . '%)</strong></td>';
+            $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($retefuente_bd, 2) . '</td>';
+            $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($retefuente_calc, 2) . '</td>';
+            $html .= '<td style="padding: 8px; text-align: center;">' . ($ok_rf ? '✅' : '⚠️') . '</td>';
+            $html .= '</tr>';
+        }
+        
+        if ($factura->retencioniva > 0 || $nombre_empresa->porcentajereteiva > 0) {
+            $reteiva_calc = $round2($line_iva * ((float)$nombre_empresa->porcentajereteiva / 100));
+            $dif_ri = abs($reteiva_bd - $reteiva_calc);
+            $ok_ri = $dif_ri < 0.02;
+            $html .= '<tr style="background: ' . ($ok_ri ? '#d4edda' : '#fff3cd') . ';">';
+            $html .= '<td style="padding: 8px;"><strong>ReteIVA (' . $nombre_empresa->porcentajereteiva . '%)</strong></td>';
+            $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($reteiva_bd, 2) . '</td>';
+            $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($reteiva_calc, 2) . '</td>';
+            $html .= '<td style="padding: 8px; text-align: center;">' . ($ok_ri ? '✅' : '⚠️') . '</td>';
+            $html .= '</tr>';
+            
+            if (!$ok_ri) {
+                $html .= '<tr style="background: #f8d7da;">';
+                $html .= '<td colspan="4" style="padding: 5px 8px; font-size: 0.9em; color: #721c24;">';
+                $html .= '⚠️ DIFERENCIA: $' . number_format($dif_ri, 2) . ' - Se usará el valor CALCULADO ($' . number_format($reteiva_calc, 2) . ') en el JSON';
+                $html .= '</td></tr>';
+            }
+            
+            $html .= '<tr style="background: #cfe2ff;">';
+            $html .= '<td colspan="4" style="padding: 8px; font-size: 0.9em;">';
+            $html .= 'ℹ️ <strong>ReteIVA debe calcularse sobre el IVA causado ($' . number_format($line_iva, 2) . '), NO sobre el subtotal ($' . number_format($line_subtotal, 2) . ')</strong>';
+            $html .= '</td></tr>';
+        }
+        
+        $html .= '</tbody></table></div>';
+        
+        $html .= '<div style="background: #e7f3ff; padding: 20px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #007bff;">';
+        $html .= '<h3 style="color: #004085; margin-top: 0;">🧮 Cálculos Detallados</h3>';
+        $html .= '<table style="width: 100%; border-collapse: collapse;">';
+        $html .= '<tr><td style="padding: 5px;">Cantidad:</td><td style="text-align: right; font-family: monospace;">' . number_format($qty, 2) . ' unidades</td></tr>';
+        $html .= '<tr><td style="padding: 5px;">Precio Unitario:</td><td style="text-align: right; font-family: monospace;">$' . number_format($unit_price, 2) . '</td></tr>';
+        $html .= '<tr style="border-top: 2px solid #007bff;"><td style="padding: 5px; padding-top: 10px;"><strong>Subtotal:</strong></td><td style="text-align: right; font-family: monospace; padding-top: 10px;"><strong>$' . number_format($line_subtotal, 2) . '</strong></td></tr>';
+        $html .= '<tr><td style="padding: 5px; padding-left: 20px; font-size: 0.9em; color: #666;">(' . $qty . ' × ' . $unit_price . ')</td><td></td></tr>';
+        $html .= '<tr style="background: #d4edda;"><td style="padding: 5px;"><strong>+ IVA (' . $porcentaje_iva . '%):</strong></td><td style="text-align: right; font-family: monospace;"><strong>$' . number_format($line_iva, 2) . '</strong></td></tr>';
+        $html .= '<tr><td style="padding: 5px; padding-left: 20px; font-size: 0.9em; color: #666;">(' . $line_subtotal . ' × ' . $porcentaje_iva . '%)</td><td></td></tr>';
+        
+        foreach ($line_with_holding_tax_total as $ret) {
+            $tax_name = ($ret['tax_id'] == 6) ? 'ReteFuente' : 'ReteIVA';
+            $base_name = ($ret['tax_id'] == 6) ? 'Subtotal' : 'IVA';
+            $html .= '<tr style="background: #fff3cd;"><td style="padding: 5px;"><strong>- ' . $tax_name . ' (' . $ret['percent'] . '%):</strong></td><td style="text-align: right; font-family: monospace;"><strong>$' . number_format($ret['tax_amount'], 2) . '</strong></td></tr>';
+            $html .= '<tr><td style="padding: 5px; padding-left: 20px; font-size: 0.9em; color: #666;">Base: ' . $base_name . ' = $' . number_format($ret['taxable_amount'], 2) . '</td><td></td></tr>';
+        }
+        
+        $html .= '<tr style="border-top: 2px solid #007bff; background: #d1ecf1;"><td style="padding: 10px;"><strong>Total con IVA:</strong></td><td style="text-align: right; font-family: monospace; font-size: 1.2em;"><strong>$' . number_format($total_con_iva, 2) . '</strong></td></tr>';
+        $html .= '</table></div>';
+        
+        $html .= '<h3 style="color: #333;">📄 JSON que se enviaría a la DIAN:</h3>';
+        $json_pretty = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $html .= '<div style="background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 5px; overflow-x: auto;">';
+        $html .= '<pre style="margin: 0; font-family: Consolas, Monaco, monospace; font-size: 11px;">' . htmlspecialchars($json_pretty) . '</pre>';
+        $html .= '</div>';
+        
+        $html .= '<div style="margin-top: 20px; text-align: center;">';
+        $html .= '<a href="' . \yii\helpers\Url::to(['facturaventa/view', 'id' => $id_factura, 'token' => $token]) . '" style="display: inline-block; padding: 12px 30px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px;">← Volver a la factura</a>';
+        $html .= '</div>';
+        
+        $html .= '</div></body></html>';
+        
+        echo $html;
+        Yii::$app->end();
+    }
+
     $jsonPayload = json_encode($payload, JSON_UNESCAPED_UNICODE);
 
     $curl = curl_init();
@@ -1101,8 +1175,8 @@ class FacturaventaController extends Controller
         }
 
         $headerSize = $info['header_size'] ?? 0;
-        $rawBody    = $headerSize ? substr($response, $headerSize) : $response;
-        $httpCode   = (int)($info['http_code'] ?? 0);
+        $rawBody = $headerSize ? substr($response, $headerSize) : $response;
+        $httpCode = (int)($info['http_code'] ?? 0);
         curl_close($curl);
 
         Yii::info("HTTP_CODE={$httpCode}\nBODY:\n{$rawBody}", 'invoice.debug.response');
@@ -1119,8 +1193,8 @@ class FacturaventaController extends Controller
             if (!empty($errors)) {
                 Yii::error([
                     'http_code' => $httpCode,
-                    'message'   => $msg,
-                    'errors'    => $errors,
+                    'message' => $msg,
+                    'errors' => $errors,
                 ], 'invoice.debug.validation_errors');
 
                 $flat = [];
@@ -1134,7 +1208,7 @@ class FacturaventaController extends Controller
         }
 
         $cufe = $data['cufe'] ?? $data['data']['cufe'] ?? null;
-        $qr   = $data['qrstr'] ?? $data['data']['qrstr'] ?? ($data['QRStr'] ?? null);
+        $qr = $data['qrstr'] ?? $data['data']['qrstr'] ?? ($data['QRStr'] ?? null);
 
         $factura->fecha_envio_begranda = date("Y-m-d H:i:s");
 

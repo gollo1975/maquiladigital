@@ -16,6 +16,7 @@ $this->title = 'Factura de venta';
 $this->params['breadcrumbs'][] = ['label' => 'Consulta Facturas', 'url' => ['indexconsulta']];
 $this->params['breadcrumbs'][] = $model->idfactura;
 $view = 'facturaventa';
+$empresa = app\models\Matriculaempresa::findOne(1);
 ?>
 <div class="facturaventa-view">
 
@@ -32,68 +33,61 @@ $view = 'facturaventa';
         </div>
         <div class="panel-body">
             <table class="table table-bordered table-striped table-hover">
-                <tr style="font-size: 85%;">
+                <tr style='font-size: 85%;'>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'idfactura') ?>:</th>
                     <td><?= Html::encode($model->idfactura) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'Cliente') ?>:</th>
                     <td><?= Html::encode($model->cliente->nombrecorto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'idordenproduccion') ?>:</th>
-                    <td><?= Html::encode($model->idordenproduccion) ?></td>
-                </tr>
-                <tr style="font-size: 85%;">
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'nrofactura') ?>:</th>
-                    <td><?= Html::encode($model->nrofactura) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentajeiva') ?>:</th>
-                    <td><?= Html::encode($model->porcentajeiva) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'subtotal') ?>:</th>
-                    <td><?= Html::encode('$ '.number_format($model->subtotal,0)) ?></td>
+                     <td style="text-align:right"><?= Html::encode($model->nrofactura) ?></td>
                 </tr>
-                <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_inicio') ?>:</th>
+                <tr style='font-size: 85%;'>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_inicio') ?>:</th>
                     <td><?= Html::encode($model->fecha_inicio) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentajefuente') ?>:</th>
-                    <td><?= Html::encode($model->porcentajefuente) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'impuestoiva') ?>: +</th>
-                    <td><?= Html::encode('$ '.number_format($model->impuestoiva,0)) ?></td>
-                </tr>
-                <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_vencimiento') ?>:</th>
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'fecha_vencimiento') ?>:</th>
                     <td><?= Html::encode($model->fecha_vencimiento) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'porcentajereteiva') ?>:</th>
-                    <td><?= Html::encode($model->porcentajereteiva) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencioniva') ?>: -</th>
-                    <td><?= Html::encode('$ '.number_format($model->retencioniva,0)) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'subtotal') ?>:</th>
+                    <td style="text-align: right"><?= Html::encode('$ '.number_format($model->subtotal,0)) ?></td>
                 </tr>
-                <tr style="font-size: 85%;">
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'plazopago') ?>:</th>
+                <tr style='font-size: 85%;'>
+                  <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'plazopago') ?>:</th>
                     <td><?= Html::encode($model->plazopago) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'usuariosistema') ?>:</th>
+                   <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'usuariosistema') ?>:</th>
                     <td><?= Html::encode($model->usuariosistema) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencionfuente') ?>: -</th>
-                    <td><?= Html::encode('$ '.number_format($model->retencionfuente,0)) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'impuestoiva') ?> (<?=$model->porcentajeiva?>%): </th>
+                    <td style="text-align: right"><?= Html::encode('$ '.number_format($model->impuestoiva,0)) ?></td>
                 </tr>
-                <tr style="font-size: 85%;">
+                <tr style='font-size: 85%;'>
+                    
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'id_forma_pago') ?>:</th>
                     <td><?= Html::encode($model->formaPago->concepto) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'saldo') ?>:</th>
-                    <td><?= Html::encode('$ '.number_format($model->saldo,0)) ?></td>
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalpagar') ?>:</th>
-                    <td><?= Html::encode('$ '.number_format($model->totalpagar,0)) ?></td>
-                </tr>
-                <tr style="font-size: 85%;">
                     <?php if ($model->libre == 0){ ?>
-                        <th style='background-color:#F0F3EF;' ><?= Html::activeLabel($model, 'tipoServicio') ?>:</th>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipoServicio') ?>:</th>
                         <td><?= Html::encode($model->ordenproduccion->tipo->tipo) ?></td>
                     <?php } else { ?>
                         <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'tipoFactura') ?>:</th>
                         <td><?= Html::encode($model->facturaventatipo->concepto) ?></td>
-                    <?php } ?>                        
-                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>
-                    <td colspan="5"><?= Html::encode($model->observacion) ?></td>
+                    <?php } 
+                    if($model->retencioniva> 0){ ?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencioniva')?> (<?= $empresa->porcentajereteiva ?>%): </th>
+                        <td style="text-align: right"><?= Html::encode('$ '.number_format($model->retencioniva,0)) ?></td>
+                    <?php } else { ?>
+                        <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencioniva') ?>: </th>
+                        <td style="text-align: right"><?= Html::encode('$ '.number_format($model->retencioniva,0)) ?></td>
+                    <?php } ?>    
+                    
                 </tr>
-                 <tr style="font-size: 85%;">
+                <tr style='font-size: 85%;'>
+                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'observacion') ?>:</th>
+                      <td colspan="3"><?= Html::encode($model->observacion) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'retencionfuente') ?> (<?= $model->porcentajefuente?>%): </th>
+                    <td style="text-align: right"><?= Html::encode('$ '.number_format($model->retencionfuente,0)) ?></td>
+                </tr>
+                <tr style='font-size: 85%;'>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'cufe') ?>:</th>
-                    <td colspan="6"><?= Html::encode($model->cufe) ?></td>
+                    <td colspan="3"><?= Html::encode($model->cufe) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'totalpagar') ?>:</th>
+                    <td style="text-align: right"><?= Html::encode('$ '.number_format($model->totalpagar,0)) ?></td>
                 </tr>
             </table>
         </div>

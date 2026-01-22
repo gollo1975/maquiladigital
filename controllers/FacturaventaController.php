@@ -1023,7 +1023,7 @@ class FacturaventaController extends Controller
         'invoice.debug.json'
     );
 
-    $DEBUG_MODE = true;
+    $DEBUG_MODE = false;
     
     if ($DEBUG_MODE) {
         $subtotal_bd = $round2($factura->subtotal);

@@ -879,7 +879,7 @@ class FacturaventaController extends Controller
         $apiBearerToken = $confi->llave_api_token;
         // TODO: mover a env/params en producción
 
-        $fmt = fn($n) => number_format((float)$n, 2, '.', '');
+      //  $fmt = fn($n) => number_format((float)$n, 2, '.', '');
 
         /* =========================
            number (DEBE IR EN RANGO)
@@ -950,18 +950,18 @@ class FacturaventaController extends Controller
         if ($factura->retencionfuente > 0) {
             $with_holding_tax_total[] = [
                 "tax_id"         => 6, 
-                "taxable_amount" => $fmt($factura->subtotal),
+                "taxable_amount" => $factura->subtotal,
                 "percent"        => $factura->porcentajefuente,
-                "tax_amount"     => $fmt($factura->retencionfuente),
+                "tax_amount"     => $factura->retencionfuente,
             ];
         }
 
         if ($factura->retencioniva > 0) {
             $with_holding_tax_total[] = [
                 "tax_id"         => 5, 
-                "taxable_amount" => $fmt($factura->subtotal),
+                "taxable_amount" => $factura->subtotal,
                 "percent"        => $nombre_empresa->porcentajereteiva,
-                "tax_amount"     => $fmt($factura->retencioniva),
+                "tax_amount"     => $factura->retencioniva,
             ];
         }
 

@@ -234,7 +234,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                     ['label' => 'Eficiencia diaria', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/eficiencia_diaria']],
                                                     ['label' => 'Ingresos operativos', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/costo_gasto_operario']],
                                                     ['label' => 'Abono a credito', 'icon' => 'plus-square-o', 'url' => ['/credito-operarios/search_abono_credito']],
-
+                                                    ['label' => 'Bitacora', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/bitacora_eficiencia']], 
                                                 ],
                                             ],
                                             [
@@ -247,7 +247,6 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 ['label' => 'Eficiencia diaria', 'icon' => 'plus-square-o', 'url' => ['/eficiencia-modulo-diario/index']],
                                                 ['label' => 'Pago de prenda', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/indexsoporte']], 
                                                 ['label' => 'Pago de prenda APP', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/valor_prenda_app']],
-                                                ['label' => 'Bitagora', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/bitagora_eficiencia']], 
                                                 ['label' => 'Prestamo operarios', 'icon' => 'plus-square-o', 'url' => ['/credito-operarios/index']],
                                                 ['label' => 'Reprocesos', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indexreprocesoproduccion']],      
                                                 ['label' => 'Costos y gastos', 'icon' => 'plus-square-o', 'url' => ['/costos-gastos-empresa/index']],      

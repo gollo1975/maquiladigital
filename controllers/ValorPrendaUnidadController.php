@@ -521,6 +521,77 @@ class ValorPrendaUnidadController extends Controller
         }
     } 
     
+    //PROCESO QUE MUESTRAS LA BITACORA
+    public function actionBitacora_eficiencia()
+    {
+        if (!Yii::$app->user->identity) {
+            return $this->redirect(['site/login']);
+        }
+
+        // Verificación de permisos
+        $permiso = UsuarioDetalle::find()
+            ->where(['codusuario' => Yii::$app->user->identity->codusuario, 'id_permiso' => 190])
+            ->exists();
+
+        if (!$permiso) {
+            return $this->redirect(['site/sinpermiso']);
+        }
+
+        $form = new \app\models\FormFiltroBitacora();
+        $conOperaciones = [];
+        $model = [];
+
+        // Capturar datos del GET
+        $form->load(Yii::$app->request->get());
+
+        // 1. Preparar la consulta base
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                
+                // 2. Aplicar filtros dinámicos
+                $table = \app\models\BitacoraEficienciaOperario::find()
+                      ->andFilterWhere(['=', 'id_operario', $form->operario])
+                      ->andFilterWhere(['between', 'fecha_confeccion', $form->desde, $form->hasta])
+                      ->andFilterWhere(['between', 'hora_corte', $form->inicio_hora_corte, $form->final_hora_corte])
+                      ->andFilterWhere(['=', 'idordenproduccion', $form->orden_produccion])
+                      ->andFilterWhere(['=', 'idproceso', $form->operacion]); // Filtro por operación si existe
+               
+                $table->orderBy([
+                            'id' => SORT_DESC,
+                            'id_operario' => SORT_ASC
+                        ]);
+                
+                $model = $table->all();
+                $tableexcel = $model;
+                if (isset($_POST['excel'])) {
+                    $check = isset($_REQUEST['id  DESC']);
+                    $this->actionExcelconsultaBitacora($tableexcel);
+                }
+
+                // Cargar operaciones si hay una orden seleccionada para que el dropdown no se vacíe
+                if (!empty($form->orden_produccion)) {
+                    $conOperaciones = ArrayHelper::map(
+                        \app\models\FlujoOperaciones::find()
+                            ->where(['idordenproduccion' => $form->orden_produccion])
+                            ->all(), 
+                        'idproceso', 
+                        'mostrarOperacion'
+                    );
+                }
+            }
+
+            // 3. Implementar Paginación (necesaria para tu vista)
+            
+        } 
+        // 4. SIEMPRE retornar el render al final para que la vista se mantenga
+        return $this->render('bitacora_eficiencia', [
+            'model' => $model,
+            'form' => $form,
+            'conOperaciones' => $conOperaciones,
+            
+        ]);
+    }
+    
     public function actionControl_linea_confeccion() {
         if (Yii::$app->user->identity) {
             if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 159])->all()) {
@@ -4184,4 +4255,86 @@ class ValorPrendaUnidadController extends Controller
         $objWriter->save('php://output');
         exit;
     }  
+    
+    //EXCEL QUE ENVIA LA BITACORA
+     public function actionExcelconsultaBitacora($tableexcel) {                
+        $objPHPExcel = new \PHPExcel();
+        // Set document properties
+        $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
+      
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'OP')
+                    ->setCellValue('B1', 'REFERENCIA')
+                    ->setCellValue('C1', 'TALLA')
+                    ->setCellValue('D1', 'OPERARIO')
+                    ->setCellValue('E1', 'OPERACION')                    
+                    ->setCellValue('F1', 'FECHA CONFECCION')
+                    ->setCellValue('G1', 'HORA DE CORTE')
+                    ->setCellValue('H1', 'SAM')
+                    ->setCellValue('I1', 'SAM FINAL')
+                    ->setCellValue('J1', 'EFICIENCIA')
+                    ->setCellValue('K1', 'NOTA')
+                    ->setCellValue('L1', 'CLIENTE');
+                    
+        $i = 2;
+        
+        foreach ($tableexcel as $val) {
+                $ComSam = \app\models\FlujoOperaciones::find()->where([
+                                'idproceso' => $val->idproceso,
+                                'idordenproduccion' => $val->idordenproduccion])->one();                  
+            $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A' . $i, $val->idordenproduccion)
+                    ->setCellValue('B' . $i, $val->ordenproduccion->codigoproducto)
+                    ->setCellValue('C' . $i, $val->detalleorden->productodetalle->prendatipo->talla->talla)
+                    ->setCellValue('D' . $i, $val->operario->nombrecompleto)                    
+                    ->setCellValue('E' . $i, $val->proceso->proceso)
+                    ->setCellValue('F' . $i, $val->fecha_confeccion)  
+                    ->setCellValue('G' . $i, $val->hora_corte)
+                    ->setCellValue('H' . $i, $ComSam->minutos)
+                    ->setCellValue('I' . $i, $val->tiempo_real_confeccion)
+                    ->setCellValue('J' . $i, $val->porcentaje_eficiencia)
+                    ->setCellValue('K' . $i, $val->concepto)
+                    ->setCellValue('L' . $i, $val->ordenproduccion->cliente->nombrecorto);
+                   
+            $i++;
+        }
+
+        $objPHPExcel->getActiveSheet()->setTitle('Listado');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="bitacora_eficiencia.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
 }

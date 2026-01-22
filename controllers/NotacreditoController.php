@@ -421,7 +421,7 @@ class NotacreditoController extends Controller
         return $this->redirect(['notacredito/view', 'id' => $id]);
     }
 
-    $fmt = fn($n) => number_format((float)$n, 2, '.', '');
+   // $fmt = fn($n) => number_format((float)$n, 2, '.', '');
     
     $emailempresa = $empresa->emailmatricula;
         
@@ -493,22 +493,22 @@ class NotacreditoController extends Controller
 
     $tax_totals = [[
         "tax_id" => 1,
-        "tax_amount" => $fmt($iva),
+        "tax_amount" => $iva,
         "percent" => $porcIva,
-        "taxable_amount" => $fmt($subtotal),
+        "taxable_amount" => $subtotal,
     ]];
 
     $credit_note_lines = [[
         "unit_measure_id"             => 70,
-        "invoiced_quantity"           => $fmt($qty),
-        "line_extension_amount"       => $fmt($subtotal),
+        "invoiced_quantity"           => $qty,
+        "line_extension_amount"       => $subtotal,
         "free_of_charge_indicator"    => false,
         "tax_totals"                  => $tax_totals,
         "description"                 => $observacion,
         "notes"                       => $observacion,
         "code"                        => "NC-" . $detalle_nota->idfactura,
         "type_item_identification_id" => 1,
-        "price_amount"                => $fmt($unit_price),
+        "price_amount"                => $unit_price,
         "base_quantity"               => 1,
     ]];
 
@@ -520,18 +520,18 @@ class NotacreditoController extends Controller
     if ((float)$factura->retencionfuente > 0) {
         $with_holding_tax_total[] = [
             "tax_id" => 6,
-            "taxable_amount" => $fmt($subtotal),
+            "taxable_amount" => $subtotal,
             "percent" => (float)$factura->porcentajefuente,
-            "tax_amount" => $fmt($factura->retencionfuente),
+            "tax_amount" => $factura->retencionfuente,
         ];
     }
 
     if ((float)$factura->retencioniva > 0) {
         $with_holding_tax_total[] = [
             "tax_id" => 5,
-            "taxable_amount" => $fmt($subtotal),
+            "taxable_amount" => $subtotal,
             "percent" => (float)$factura->porcentajereteiva,
-            "tax_amount" => $fmt($factura->retencioniva),
+            "tax_amount" => $factura->retencioniva,
         ];
     }
 
@@ -539,11 +539,11 @@ class NotacreditoController extends Controller
     // TOTALES
     // ========================
         $legal_monetary_totals = [
-        "line_extension_amount"   => $fmt($subtotal),
-        "tax_exclusive_amount"    => $fmt($subtotal),
-        "tax_inclusive_amount"    => $fmt($subtotal + $iva),
-        "allowance_total_amount"  => $fmt(0),
-        "charge_total_amount"     => $fmt(0),
+        "line_extension_amount"   => $subtotal,
+        "tax_exclusive_amount"    => $subtotal,
+        "tax_inclusive_amount"    => $subtotal + $iva,
+        "allowance_total_amount"  => 0,
+        "charge_total_amount"     => 0,
         "payable_amount"          => $nota->total, 
     ];
 

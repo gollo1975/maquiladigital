@@ -839,6 +839,12 @@ class FacturaventaController extends Controller
             Yii::$app->session->setFlash('error', 'Cliente no encontrado.');
             return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
         }
+        
+        //VALIDA EL CODIGO DE ENLACE DEL MUNICIPIO
+        if (!$factura->cliente->municipio->codefacturador) {
+            Yii::$app->session->setFlash('error', 'El municipio no esta codificado.');
+            return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+        }
 
         $detalle = Facturaventadetalle::find()->where(['idfactura' => $id_factura])->one();
         if (!$detalle) {
@@ -964,17 +970,17 @@ class FacturaventaController extends Controller
         $iva = $factura->impuestoiva;
 
         $legal_monetary_totals = [
-        "line_extension_amount"   => $fmt($subtotal),
-        "tax_exclusive_amount"    => $fmt($subtotal),
-        "tax_inclusive_amount"    => $fmt($subtotal + $iva),
-        "allowance_total_amount"  => $fmt(0),
-        "charge_total_amount"     => $fmt(0),
-        "payable_amount"          => $fmt($subtotal + $iva), 
+        "line_extension_amount"   => $subtotal,
+        "tax_exclusive_amount"    => $subtotal,
+        "tax_inclusive_amount"    => $subtotal + $iva,
+        "allowance_total_amount"  => 0,
+        "charge_total_amount"     => 0,
+        "payable_amount"          => $subtotal + $iva, 
     ];
 
         $invoice_lines = [[
             "unit_measure_id"             => "70", // TODO: unidad real
-            "invoiced_quantity"           => $fmt($qty),
+            "invoiced_quantity"           => $qty,
             "line_extension_amount"       => $factura->subtotal,
             "free_of_charge_indicator"    => false,
             "allowance_charges"           => [],

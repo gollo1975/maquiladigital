@@ -87,7 +87,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ?>
                 <?= $formulario->field($form, 'inicio_hora_corte')->input ('time'); ?>
                 <?= $formulario->field($form, 'final_hora_corte')->input ('time'); ?>
-
+                <?= $formulario->field($form, 'valores')->dropDownList(['' => 'TODOS', '0' => 'POSITIVO', '-1' => 'NEGATIVO'],['prompt' => 'Seleccione...']) ?>
                 <?php if(!empty($conOperaciones)){ ?>
                     <?= $formulario->field($form, 'operacion')->widget(Select2::classname(), [
                         'data' => $conOperaciones,

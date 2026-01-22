@@ -18,6 +18,7 @@ class FormFiltroBitacora extends Model
     public $orden_produccion;
     public $inicio_hora_corte;
     public $final_hora_corte;
+    public $valores;
 
 
     /**
@@ -27,7 +28,7 @@ class FormFiltroBitacora extends Model
     {
         return [
             [['operario','operacion','orden_produccion'], 'integer'],
-            [['inicio_hora_corte','final_hora_corte'], 'string'],
+            [['inicio_hora_corte','final_hora_corte','valores'], 'string'],
            [['desde', 'hasta'], 'required', 'message' => 'Este campo es obligatorio'],
         ];
     }
@@ -45,6 +46,7 @@ class FormFiltroBitacora extends Model
             'orden_produccion' => 'Orden de produccion:',
             'inicio_hora_corte' => 'Inicio hora de corte:',
             'final_hora_corte' => 'Final hora de corte:',
+            'valores' => 'Tipo de valores:',
         ];
     }
      

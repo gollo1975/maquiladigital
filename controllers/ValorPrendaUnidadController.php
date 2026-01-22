@@ -555,7 +555,11 @@ class ValorPrendaUnidadController extends Controller
                       ->andFilterWhere(['between', 'hora_corte', $form->inicio_hora_corte, $form->final_hora_corte])
                       ->andFilterWhere(['=', 'idordenproduccion', $form->orden_produccion])
                       ->andFilterWhere(['=', 'idproceso', $form->operacion]); // Filtro por operación si existe
-               
+                    if ($form->valores == 0){ //positivos
+                        $table = $table->andFilterWhere(['>', 'porcentaje_eficiencia', $form->valores]);
+                    }else{
+                       $table = $table->andFilterWhere(['<', 'porcentaje_eficiencia', $form->valores]); 
+                    }  
                 $table->orderBy([
                             'id' => SORT_DESC,
                             'id_operario' => SORT_ASC

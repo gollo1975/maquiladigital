@@ -818,258 +818,329 @@ class FacturaventaController extends Controller
     
     // INICIO NUEVA FUNCION FACTURACION ELECTRONICA
     public function actionEnviar_documento_dian($id_factura, $token)
-{
-    $factura = Facturaventa::findOne($id_factura);
-    if (!$factura) {
-        Yii::$app->session->setFlash('error', 'Factura no encontrada.');
-        return $this->redirect(['facturaventa/index']);
-    }
-
-    // VALIDACIÓN DE LA FECHA DE FACTURA QUE SEA IGUAL A LA FECHA DE ENVÍO
-    $fecha_actual = date('Y-m-d');
-    $fecha_factura = date('Y-m-d', strtotime($factura->fecha_inicio));
-    if($fecha_actual !== $fecha_factura){
-        Yii::$app->session->setFlash('error', 'La fecha de envio debe de ser igual a la fecha de inicio de la factura.');
-        return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]); 
-    }
-
-    // CONFIGURACIÓN DE DOCUMENTOS
-    $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
-    $cliente = Cliente::findOne($factura->idcliente);
-    if (!$cliente) {
-        Yii::$app->session->setFlash('error', 'Cliente no encontrado.');
-        return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
-    }
-
-    // VALIDACIÓN DEL CÓDIGO DE ENLACE DEL MUNICIPIO
-    if (!$factura->cliente->municipio->codefacturador) {
-        Yii::$app->session->setFlash('error', 'El municipio no esta codificado.');
-        return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
-    }
-
-    $detalle = Facturaventadetalle::find()->where(['idfactura' => $id_factura])->one();
-    if (!$detalle) {
-        Yii::$app->session->setFlash('error', 'No hay detalle de factura.');
-        return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
-    }
-
-    $nombre_empresa = Matriculaempresa::findOne(1);
-    $autoretendor = ($factura->cliente->autoretenedor == 1) ? 9 : 117;
-    $formapago = ($factura->id_forma_pago == 1) ? 1 : 2;
-    $emailempresa = $nombre_empresa->emailmatricula;
-
-    $email_cc_list = [
-        ["email" => $emailempresa]
-    ];
-
-    // ENDPOINT
-    $API_URL = Yii::$app->params['API_ENDPOINT_URL'];
-    $apiBearerToken = $confi->llave_api_token;
-
-    // Obtención de los valores de la factura
-    $number = (int)($factura->nrofactura ?? 0);
-    $type_document_id = 1;  // Tipo de documento
-    $prefix = $factura->consecutivo;
-    $resolution_number = $factura->numero_resolucion;
-    $date = $factura->fecha_inicio ? date('Y-m-d', strtotime($factura->fecha_inicio)) : date('Y-m-d');
-    $time = $factura->fecha_inicio ? date('H:i:s', strtotime($factura->fecha_inicio)) : date('H:i:s');
-
-    // Obtener el código del municipio
-    $municipality_id_fact = $factura->cliente->municipio->codefacturador;
-
-    // Datos del cliente
-    $customer = [
-        "identification_number" => (string)($cliente->cedulanit),
-        "name" => (string)($cliente->nombrecorto),
-        "phone" => (string)($cliente->telefonocliente),
-        "address" => (string)($cliente->direccioncliente),
-        "email" => (string)($cliente->email_envio_factura_dian),
-        "type_document_identification_id" => (int)($cliente->tipo->codigo_api),
-        "type_organization_id" => (int)($cliente->tiporegimen),
-        "municipality_id_fact" => $municipality_id_fact,
-        "type_regime_id" => (int)($cliente->tiporegimen),
-        "type_liability_id" => (int)($autoretendor),
-        "dv" => (int)($cliente->dv),
-    ];
-
-    // Datos del detalle de la factura
-    $qty = (float)($detalle->cantidad);
-    $unit_price = (float)($detalle->preciounitario); // Precio unitario con decimales
-    $line_total = $unit_price * $qty; // Total por línea (sin redondeo)
-    
-    // Calculamos el impuesto
-    $tax_amount = $line_total * ($factura->porcentajeiva / 100);
-
-    // Imposición de impuestos
-    $tax_totals = [[
-        "tax_id" => 1,  // IVA
-        "tax_amount" => $tax_amount,  // Usamos el valor calculado directamente
-        "percent" => $factura->porcentajeiva,
-        "taxable_amount" => $line_total,  // Base imponible de esta línea
-    ]];
-
-    // Cálculo de retenciones
-    $with_holding_tax_total = [];
-    if ($factura->retencionfuente > 0) {
-        $with_holding_tax_total[] = [
-            "tax_id" => 6,
-            "taxable_amount" => $line_total,
-            "percent" => $factura->porcentajefuente,
-            "tax_amount" => $factura->retencionfuente,  // Usamos el valor original sin redondeo
-        ];
-    }
-
-    if ($factura->retencioniva > 0) {
-        $with_holding_tax_total[] = [
-            "tax_id" => 5,
-            "taxable_amount" => $line_total,
-            "percent" => $nombre_empresa->porcentajereteiva,
-            "tax_amount" => $factura->retencioniva,  // Usamos el valor original sin redondeo
-        ];
-    }
-
-    // Cálculo de los montos legales
-    $legal_monetary_totals = [
-        "line_extension_amount" => $line_total,  // Total sin IVA
-        "tax_exclusive_amount" => $line_total,   // Total sin IVA
-        "tax_inclusive_amount" => $line_total + $tax_amount,  // Total con IVA
-        "allowance_total_amount" => 0,
-        "charge_total_amount" => 0,
-        "payable_amount" => $line_total + $tax_amount, // Total con IVA
-    ];
-
-    // Línea de factura
-    $invoice_lines = [[
-        "unit_measure_id" => "70",  // Unidad real
-        "invoiced_quantity" => $qty,
-        "line_extension_amount" => $line_total,
-        "free_of_charge_indicator" => false,
-        "allowance_charges" => [],
-        "tax_totals" => $tax_totals,
-        "with_holding_tax_total" => $with_holding_tax_total,
-        "description" => (string)($detalle->conceptoFactura->concepto),
-        "code" => (string)($detalle->codigoproducto),
-        "type_item_identification_id" => 1,
-        "price_amount" => $unit_price, // Mantener precio unitario exacto
-        "base_quantity" => 1,
-    ]];
-
-    // Forma de pago
-    $payment_form = [
-        "payment_form_id" => $formapago,
-        "payment_method_id" => $factura->formaPago->codigo_medio_pago_dian,
-        "payment_due_date" => $factura->fecha_vencimiento,
-        "duration_measure" => $factura->plazopago,
-    ];
-
-    // Payload final
-    $payload = [
-        "number" => $number,
-        "type_document_id" => $type_document_id,
-        "prefix" => $prefix,
-        "sendmail" => true,
-        "sendmailtome" => false,
-        "email_cc_list" => $email_cc_list,
-        "resolution_number" => $resolution_number,
-        "customer" => $customer,
-        "tax_totals" => $tax_totals,
-        "legal_monetary_totals" => $legal_monetary_totals,
-        "invoice_lines" => $invoice_lines,
-        "with_holding_tax_total" => $with_holding_tax_total,
-        "establishment_name" => $nombre_empresa->razonsocialmatricula,
-        "establishment_address" => $nombre_empresa->direccionmatricula,
-        "establishment_phone" => $nombre_empresa->celularmatricula,
-        "establishment_email" => $nombre_empresa->emailmatricula,
-        "notes" => $factura->observacion,
-        "date" => $date,
-        "time" => $time,
-        "payment_form" => $payment_form,
-    ];
-
-    // LOG JSON ENVIADO COMPLETO
-    Yii::info("JSON ENVIADO A DIAN:\n" . json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), 'invoice.debug.json');
-
-    // Enviar la solicitud mediante CURL
-    $jsonPayload = json_encode($payload, JSON_UNESCAPED_UNICODE);
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_URL => $API_URL,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => true,
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => $jsonPayload,
-        CURLOPT_HTTPHEADER => [
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'Authorization: Bearer ' . $apiBearerToken,
-        ],
-        CURLOPT_TIMEOUT => 120,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
-    ]);
-
-    try {
-        $response = curl_exec($curl);
-        $info = curl_getinfo($curl);
-        if (curl_errno($curl)) {
-            $err = curl_error($curl);
-            curl_close($curl);
-            throw new \Exception("cURL: " . $err);
-        }
-
-        $headerSize = $info['header_size'] ?? 0;
-        $rawBody = $headerSize ? substr($response, $headerSize) : $response;
-        $httpCode = (int)($info['http_code'] ?? 0);
-        curl_close($curl);
-
-        Yii::info("HTTP_CODE={$httpCode}\nBODY:\n{$rawBody}", 'invoice.debug.response');
-
-        $data = json_decode($rawBody, true);
-        if (!is_array($data)) {
-            throw new \Exception("API devolvió no-JSON. HTTP {$httpCode}. Body: {$rawBody}");
-        }
-
-        if ($httpCode < 200 || $httpCode >= 300) {
-            $msg = $data['message'] ?? 'Error API';
-            $errors = $data['errors'] ?? [];
-            if (!empty($errors)) {
-                Yii::error([
-                    'http_code' => $httpCode,
-                    'message' => $msg,
-                    'errors' => $errors,
-                ], 'invoice.debug.validation_errors');
-                $flat = [];
-                foreach ($errors as $field => $arr) {
-                    $flat[] = $field . ': ' . (is_array($arr) ? implode(' | ', $arr) : $arr);
-                }
-                $msg .= " | " . implode(' || ', $flat);
+        {
+            $factura = Facturaventa::findOne($id_factura);
+            if (!$factura) {
+                Yii::$app->session->setFlash('error', 'Factura no encontrada.');
+                return $this->redirect(['facturaventa/index']);
             }
-            throw new \Exception($msg);
+
+            // Función de redondeo a 2 decimales
+            $round2 = function($value) {
+                return round((float)$value, 2);
+            };
+
+            //VALIDA LA FECHA DE FACTURA QUE SEA IGUAL A LA FECHA DE ENVIO
+            $fecha_actual = date('Y-m-d');
+            $fecha_factura = date('Y-m-d', strtotime($factura->fecha_inicio));
+            if($fecha_actual !== $fecha_factura){
+                Yii::$app->session->setFlash('error', 'La fecha de envio debe de ser igual a la fecha de inicio de la factura.');
+                return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]); 
+            }
+
+            //CONFIGURACION DE DOCUMENTOS
+            $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+
+            $cliente = Cliente::findOne($factura->idcliente);
+            if (!$cliente) {
+                Yii::$app->session->setFlash('error', 'Cliente no encontrado.');
+                return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+            }
+
+            //VALIDA EL CODIGO DE ENLACE DEL MUNICIPIO
+            if (!$factura->cliente->municipio->codefacturador) {
+                Yii::$app->session->setFlash('error', 'El municipio no esta codificado.');
+                return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+            }
+
+            $detalle = Facturaventadetalle::find()->where(['idfactura' => $id_factura])->one();
+            if (!$detalle) {
+                Yii::$app->session->setFlash('error', 'No hay detalle de factura.');
+                return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+            }
+            $nombre_empresa = Matriculaempresa::findOne(1);
+
+            if($factura->cliente->autoretenedor == 1){ // si es autoretenedor
+                $autoretendor = 9;
+            } else {
+                $autoretendor = 117;
+            }
+
+            if($factura->id_forma_pago == 1){ // efectivo
+                $formapago = 1;
+            } else {
+                $formapago = 2;
+            }
+            $emailempresa = $nombre_empresa->emailmatricula;
+
+            $email_cc_list = [
+                    [
+                        "email" => $emailempresa
+                    ]
+                ];
+
+            // ENDPOINT
+            $API_URL = Yii::$app->params['API_ENDPOINT_URL'];
+
+            $apiBearerToken = $confi->llave_api_token;
+
+            /* =========================
+               number (DEBE IR EN RANGO)
+               ========================= */
+            $number = (int)($factura->nrofactura ?? 0);
+
+            $type_document_id  = 1;
+            $prefix            = $factura->consecutivo;
+            $resolution_number = $factura->numero_resolucion;
+
+            $date = $factura->fecha_inicio ? date('Y-m-d', strtotime($factura->fecha_inicio)) : date('Y-m-d');
+            $time = $factura->fecha_inicio ? date('H:i:s', strtotime($factura->fecha_inicio)) : date('H:i:s');
+
+            /* =========================
+               municipality_id_fact
+               ========================= */
+            $municipality_id_fact = $factura->cliente->municipio->codefacturador;
+
+            /* =========================
+               CUSTOMER (con fallbacks)
+               ========================= */
+            $customer = [
+                "identification_number"           => (string)($cliente->cedulanit),
+                "name"                            => (string)($cliente->nombrecorto),
+                "phone"                           => (string)($cliente->telefonocliente),
+                "address"                         => (string)($cliente->direccioncliente),
+                "email"                           => (string)($cliente->email_envio_factura_dian),
+                "type_document_identification_id" => (int)($cliente->tipo->codigo_api),
+                "type_organization_id"            => (int)($cliente->tiporegimen),
+                "municipality_id_fact"            => $municipality_id_fact,
+                "type_regime_id"                  => (int)($cliente->tiporegimen),
+                "type_liability_id"               => $autoretendor,
+                "dv"                              => (int)($cliente->dv),
+            ];
+
+            /* =========================
+               CÁLCULOS CON REDONDEO
+               ========================= */
+            $qty = $round2((float)($detalle->cantidad));
+            $unit_price = $round2((float)($detalle->preciounitario));
+
+            // Calcular subtotal e IVA con redondeo
+            $subtotal = $round2($factura->subtotal);
+            $porcentaje_iva = (float)$factura->porcentajeiva;
+
+            // Calcular el IVA basado en el subtotal redondeado
+            $iva_calculado = $round2($subtotal * ($porcentaje_iva / 100));
+            $iva_factura = $round2($factura->impuestoiva);
+
+            // Validar que el IVA sea correcto
+            if (abs($iva_calculado - $iva_factura) > 0.02) {
+                Yii::warning(
+                    "IVA ajustado. Calculado: {$iva_calculado}, En factura: {$iva_factura}. Se usará el calculado.",
+                    'invoice.debug.iva_adjustment'
+                );
+                $iva = $iva_calculado;
+            } else {
+                $iva = $iva_factura;
+            }
+
+            $tax_id = 1; // IVA
+
+            $tax_totals = [[
+                "tax_id"         => $tax_id,
+                "tax_amount"     => $iva,
+                "percent"        => $porcentaje_iva,
+                "taxable_amount" => $subtotal,
+            ]];
+
+            /* =========================
+               RETENCIONES
+               ========================= */
+            $with_holding_tax_total = [];
+
+            if ($factura->retencionfuente > 0) {
+                $retefuente_amount = $round2($factura->retencionfuente);
+                $with_holding_tax_total[] = [
+                    "tax_id"         => 6, 
+                    "taxable_amount" => $subtotal,
+                    "percent"        => (float)$factura->porcentajefuente,
+                    "tax_amount"     => $retefuente_amount,
+                ];
+            }
+
+            if ($factura->retencioniva > 0) {
+                $reteiva_amount = $round2($factura->retencioniva);
+                $with_holding_tax_total[] = [
+                    "tax_id"         => 5, 
+                    "taxable_amount" => $subtotal,
+                    "percent"        => (float)$nombre_empresa->porcentajereteiva,
+                    "tax_amount"     => $reteiva_amount,
+                ];
+            }
+
+            /* =========================
+               TOTALES MONETARIOS
+               ========================= */
+            $total_con_iva = $round2($subtotal + $iva);
+
+            $legal_monetary_totals = [
+                "line_extension_amount"   => $subtotal,
+                "tax_exclusive_amount"    => $subtotal,
+                "tax_inclusive_amount"    => $total_con_iva,
+                "allowance_total_amount"  => $round2(0),
+                "charge_total_amount"     => $round2(0),
+                "payable_amount"          => $total_con_iva, 
+            ];
+
+            /* =========================
+               LÍNEAS DE FACTURA
+               ========================= */
+            $invoice_lines = [[
+                "unit_measure_id"             => "70",
+                "invoiced_quantity"           => $qty,
+                "line_extension_amount"       => $subtotal,
+                "free_of_charge_indicator"    => false,
+                "allowance_charges"           => [],
+                "tax_totals"                  => $tax_totals,
+                "with_holding_tax_total"      => $with_holding_tax_total,
+                "description"                 => (string)($detalle->conceptoFactura->concepto),
+                "code"                        => (string)($detalle->codigoproducto),
+                "type_item_identification_id" => 1,
+                "price_amount"                => $unit_price,
+                "base_quantity"               => 1,
+            ]];
+
+            /* =========================
+               FORMA DE PAGO
+               ========================= */
+            $payment_form = [
+                "payment_form_id"   => $formapago,
+                "payment_method_id" => $factura->formaPago->codigo_medio_pago_dian,
+                "payment_due_date"  => $factura->fecha_vencimiento,
+                "duration_measure"  => $factura->plazopago,
+            ];
+
+            /* =========================
+               PAYLOAD FINAL
+               ========================= */
+            $payload = [
+                "number"                 => $number,
+                "type_document_id"       => $type_document_id,
+                "prefix"                 => $prefix,
+                "sendmail"               => true,
+                "sendmailtome"           => false,
+                "email_cc_list"          => $email_cc_list,            
+                "resolution_number"      => $resolution_number,
+                "customer"               => $customer,
+                "tax_totals"             => $tax_totals,
+                "legal_monetary_totals"  => $legal_monetary_totals,
+                "invoice_lines"          => $invoice_lines,
+                "with_holding_tax_total" => $with_holding_tax_total,
+                "establishment_name"     => $nombre_empresa->razonsocialmatricula,
+                "establishment_address"  => $nombre_empresa->direccionmatricula,
+                "establishment_phone"    => $nombre_empresa->celularmatricula,
+                "establishment_email"    => $nombre_empresa->emailmatricula,
+                "notes"                  => $factura->observacion,
+                "date"                   => $date,
+                "time"                   => $time,
+                "payment_form"           => $payment_form
+            ];
+
+            // LOG JSON ENVIADO COMPLETO
+            Yii::info(
+                "JSON ENVIADO A DIAN:\n" . json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                'invoice.debug.json'
+            );
+
+            /* =========================
+               CURL
+               ========================= */
+            $jsonPayload = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $API_URL,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $jsonPayload,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'Authorization: Bearer ' . $apiBearerToken,
+                ],
+                CURLOPT_TIMEOUT => 120,
+                CURLOPT_SSL_VERIFYPEER => false, 
+                CURLOPT_SSL_VERIFYHOST => false, 
+            ]);
+
+            try {
+                $response = curl_exec($curl);
+                $info = curl_getinfo($curl);
+
+                if (curl_errno($curl)) {
+                    $err = curl_error($curl);
+                    curl_close($curl);
+                    throw new \Exception("cURL: " . $err);
+                }
+
+                $headerSize = $info['header_size'] ?? 0;
+                $rawBody    = $headerSize ? substr($response, $headerSize) : $response;
+                $httpCode   = (int)($info['http_code'] ?? 0);
+                curl_close($curl);
+
+                Yii::info("HTTP_CODE={$httpCode}\nBODY:\n{$rawBody}", 'invoice.debug.response');
+
+                $data = json_decode($rawBody, true);
+                if (!is_array($data)) {
+                    throw new \Exception("API devolvió no-JSON. HTTP {$httpCode}. Body: {$rawBody}");
+                }
+
+                if ($httpCode < 200 || $httpCode >= 300) {
+                    $msg = $data['message'] ?? 'Error API';
+                    $errors = $data['errors'] ?? [];
+
+                    if (!empty($errors)) {
+                        Yii::error([
+                            'http_code' => $httpCode,
+                            'message'   => $msg,
+                            'errors'    => $errors,
+                        ], 'invoice.debug.validation_errors');
+
+                        $flat = [];
+                        foreach ($errors as $field => $arr) {
+                            $flat[] = $field . ': ' . (is_array($arr) ? implode(' | ', $arr) : $arr);
+                        }
+                        $msg .= " | " . implode(' || ', $flat);
+                    }
+
+                    throw new \Exception($msg);
+                }
+
+                $cufe = $data['cufe'] ?? $data['data']['cufe'] ?? null;
+                $qr   = $data['qrstr'] ?? $data['data']['qrstr'] ?? ($data['QRStr'] ?? null);
+
+                $factura->fecha_envio_begranda = date("Y-m-d H:i:s");
+
+                if ($cufe) {
+                    $factura->cufe = $cufe;
+                    $factura->fecha_recepcion_dian = date("Y-m-d H:i:s");
+                }
+
+                if ($qr) {
+                    $factura->qrstr = $qr;
+                }
+
+                $factura->save(false);
+
+                Yii::$app->session->setFlash('success', "Factura No ({$number}) fue enviada exitosamente a la Dian.");
+                return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+
+            } catch (\Exception $e) {
+                Yii::error("ERROR ENVÍO DIAN: " . $e->getMessage(), 'invoice.debug.error');
+                Yii::$app->session->setFlash('error', 'Error al enviar factura: ' . $e->getMessage());
+                return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
+            }
         }
-
-        // Guardamos los datos recibidos de la DIAN
-        $cufe = $data['cufe'] ?? $data['data']['cufe'] ?? null;
-        $qr = $data['qrstr'] ?? $data['data']['qrstr'] ?? ($data['QRStr'] ?? null);
-
-        $factura->fecha_envio_begranda = date("Y-m-d H:i:s");
-        if ($cufe) {
-            $factura->cufe = $cufe;
-            $factura->fecha_recepcion_dian = date("Y-m-d H:i:s");
-        }
-
-        if ($qr) {
-            $factura->qrstr = $qr;
-        }
-
-        $factura->save(false);
-        Yii::$app->session->setFlash('success', "Factura No ({$number}) fue enviada exitosamente a la Dian.");
-        return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
-    } catch (\Exception $e) {
-        Yii::error("ERROR ENVÍO DIAN: " . $e->getMessage(), 'invoice.debug.error');
-        Yii::$app->session->setFlash('error', 'Error al enviar factura: ' . $e->getMessage());
-        return $this->redirect(['facturaventa/view', 'id' => $id_factura, 'token' => $token]);
-    }
-}
 
 
 // FIN NUEVA FUNCION FACTURACION ELECTRONICA

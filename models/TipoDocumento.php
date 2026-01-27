@@ -56,7 +56,8 @@ class TipoDocumento extends \yii\db\ActiveRecord
             'descripcion' => 'Descripcion',
             'codigo_interfaz' => 'Código Interfaz',
             'codigo_api' => 'Codigo api',
-            'codigo_interface_nomina' => 'Codigo api nomina'
+            'codigo_interface_nomina' => 'Codigo api nomina',
+            
         ];
     }
 

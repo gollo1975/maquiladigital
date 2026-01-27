@@ -50,7 +50,7 @@ class FormProveedor extends Model
     {
         return [
 			
-            ['id_tipo_documento', 'required', 'message' => 'Campo requerido'],
+            [['id_tipo_documento','telefonoproveedor','direccionproveedor'], 'required', 'message' => 'Campo requerido'],
             ['cedulanit', 'required', 'message' => 'Campo requerido'],
             ['genera_moda', 'required', 'message' => 'Campo requerido'],
             [['genera_moda','homologar_document','nuevo_documento'], 'integer'],

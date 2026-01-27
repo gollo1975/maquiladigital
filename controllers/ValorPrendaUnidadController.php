@@ -1315,8 +1315,13 @@ class ValorPrendaUnidadController extends Controller
                }    
             }else{
                if($minutos > $total_acumulado_minutos){
-                    $table->porcentaje_cumplimiento = $empresa->sam_castigo;
-                     $sam = $table->porcentaje_cumplimiento;
+                    if($empresa->aplica_regla_castigo == 0){
+                        $table->porcentaje_cumplimiento = $EficienciaOperacion;
+                        
+                    }else{
+                        $table->porcentaje_cumplimiento = $empresa->sam_castigo;
+                    }
+                    $sam = $table->porcentaje_cumplimiento;
                     //PROCESO QUE GUARDA LA BITACORA
                     $variable = 'El operario acumula unidades sin eniviarlas a la APP.';
                     $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam);

@@ -128,6 +128,7 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
         </div>
         <div class="row">
             <?= $form->field($model, 'maneja_tablet_aplicacion')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
+             <?= $form->field($model, 'aplica_regla_castigo')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>  
         <div class="row">
             <?= $form->field($model, 'declaracion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>

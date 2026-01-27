@@ -183,6 +183,10 @@ class DocumentoSoporteController extends Controller
         $Acceso = 0;
         $conCompra = Compra::find()->orderBy('id_compra DESC')->all();
         $resolucion = \app\models\Resolucion::find()->where(['=','activo', 0])->andWhere(['=','id_documento', 2])->one();
+        if(!$resolucion){
+            Yii::$app->getSession()->setFlash('error', 'Debe de configurar la resolucion de documentos soporte o se encuentra INACTIVA.'); 
+            return $this->redirect(['index']);
+        }
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             if($sw == 1){
                 $compra = Compra::findOne($model->id_compra);
@@ -330,127 +334,369 @@ class DocumentoSoporteController extends Controller
     }
     
     //ENVIAR DOCUMENTO A LA DIAN
-    public function actionEnviar_documento_soporte_dian($id) {
-        //VECTORES
-       $documento = DocumentoSoporte::findOne($id);
-       $documento_detalle = \app\models\DocumentoSoporteDetalle::find()->where(['=','id_documento_soporte', $id])->one();
-       $proveedor = Proveedor::findOne($documento->idproveedor);
-       $resolucion = \app\models\Resolucion::find()->where(['=','idresolucion', $documento->idresolucion])->andWhere(['=','activo', 0])->one();
-       //ASIGNACIONES
-       $documento_proveedor = $proveedor->cedulanit;
-       $tipo_documento = $proveedor->tipo->codigo_api;
-       $nombres = $proveedor->nombrecorto;
-       $direccion_proveedor = $proveedor->direccionproveedor;
-       $telefono = $proveedor->telefonoproveedor;
-       $email_proveedor = $proveedor->emailproveedor;
-       $ciudad = $proveedor->municipio->municipio;
-       $documento_compra = $documento->documento_compra;
-       $forma_pago = $documento->formaPago->codigo_api_ds;
-       $observacion = $documento->observacion;
-       $resolucion = $resolucion->codigo_interfaz;
-       $consecutivo = $documento->numero_soporte;
-       
-       //valida la informacion
-       if($email_proveedor === '' || $direccion_proveedor === ''){
-            Yii::$app->getSession()->setFlash('error', 'Los campos DIRECCION  Y EMAIL no pueden ser vacios.'); 
-            return $this->redirect(['view', 'id' => $id]);
-       }else{
-       
-            //datos de retencion
-            if($documento_detalle->porcentaje_retencion == 6){
-               $codigo_cuenta =  '6068315';
-            }else{
-                if($documento_detalle->porcentaje_retencion == 4){
-                     $codigo_cuenta =  '6068314';
-                }else{
-                    $codigo_cuenta =  '';
-                }     
+    public function actionEnviar_documento_soporte_dian($id) 
+        {
+            $documento = DocumentoSoporte::findOne($id);
+            if (!$documento) {
+                Yii::$app->session->setFlash('error', 'Documento de soporte no encontrado.');
+                return $this->redirect(['index']);
             }
-            //DATOS DEL DETALLE 
-            $cantidad = $documento_detalle->cantidad;
-            $valor_unitario = $documento_detalle->valor_unitario;
-            $codigo_concepto = $documento_detalle->concepto->codigo_interface;                
 
-            // Configurar cURL
-             $curl = curl_init();
-           //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //ley de desarrollo
-             $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //Key de produccion
-             $dataHead = json_encode([
-                 "client" => [
-                     "document" => "$documento_proveedor",
-                     "document_type" => "$tipo_documento",
-                     "first_name" => "$nombres",
-                     "last_name_one" => ".",
-                     "last_name_two" => ".", 
-                     "address" => "$direccion_proveedor",
-                     "phone" => "$telefono",
-                     "email" => "$email_proveedor",
-                     "city" => "$ciudad",
-                     "cuenta_compra" => "$codigo_cuenta"
-                 ],
-                 "billProvider" => "$documento_compra",
-                  "warehouse" => 1,
-                 "conceptId" => "$resolucion",
-                 "formaPago" => "$forma_pago",
-                 "observacion" => "$observacion",
-             ]);
+            // Función de redondeo que SIEMPRE retorna float con 2 decimales
+            $round2 = function($value) {
+                return (float)number_format((float)$value, 2, '.', '');
+            };
 
-           $dataBody = json_encode([
-                 [
-                     "product" => "$codigo_concepto",
-                     "qty" => "$cantidad",
-                     "discount" => "0",
-                     "cost" => "$valor_unitario",
-                 ]
-             ]);
+            // VALIDAR FECHA (debe ser hoy)
+            $fecha_actual = date('Y-m-d');
+            $fecha_documento = date('Y-m-d', strtotime($documento->fecha_elaboracion));
+            if ($fecha_actual !== $fecha_documento) {
+                Yii::$app->session->setFlash('error', 'La fecha de envío debe ser igual a la fecha del documento.');
+                return $this->redirect(['view', 'id' => $id]); 
+            }
 
-             //ENVIA LA INFORMACION
-             curl_setopt_array($curl, [
-                 CURLOPT_URL => "http://begranda.com/equilibrium2/public/api/load-inventory?key=$API_KEY",
-                 CURLOPT_RETURNTRANSFER => true,
-                 CURLOPT_CUSTOMREQUEST => 'POST',
-                 CURLOPT_POSTFIELDS => [
-                     "head" => $dataHead,
-                     "body" => $dataBody
-                 ],
-             ]);
+            // CONFIGURACIÓN DE DOCUMENTOS
+            $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
 
-             // RECUPERA EL RESPONSE
+            $proveedor = Proveedor::findOne($documento->idproveedor);
+            if (!$proveedor) {
+                Yii::$app->session->setFlash('error', 'Proveedor no encontrado.');
+                return $this->redirect(['view', 'id' => $id]);
+            }
+
+            // VALIDACIONES
+            if (empty($proveedor->emailproveedor) || empty($proveedor->direccionproveedor)) {
+                Yii::$app->session->setFlash('error', 'Los campos DIRECCIÓN y EMAIL del proveedor no pueden estar vacíos.'); 
+                return $this->redirect(['view', 'id' => $id]);
+            }
+
+            if (!$proveedor->municipio || !$proveedor->municipio->codefacturador) {
+                Yii::$app->session->setFlash('error', 'El municipio del proveedor no está codificado.');
+                return $this->redirect(['view', 'id' => $id]);
+            }
+
+            $documento_detalle = \app\models\DocumentoSoporteDetalle::find()
+                ->where(['id_documento_soporte' => $id])
+                ->one();
+
+            if (!$documento_detalle) {
+                Yii::$app->session->setFlash('error', 'No hay detalle del documento.');
+                return $this->redirect(['view', 'id' => $id]);
+            }
+
+            $nombre_empresa = \app\models\Matriculaempresa::findOne(1);
+            $resolucion = \app\models\Resolucion::find()
+                ->where(['idresolucion' => $documento->idresolucion])
+                ->andWhere(['activo' => 0])
+                ->one();
+
+            if (!$resolucion) {
+                Yii::$app->session->setFlash('error', 'Resolución no encontrada.');
+                return $this->redirect(['view', 'id' => $id]);
+            }
+
+            // ENDPOINT
+            $API_URL = Yii::$app->params['API_DOCUMENTO_SOPORTE'];
+            $apiBearerToken = $confi->llave_api_token;
+
+            // DATOS BÁSICOS
+            $number = (int)($documento->numero_soporte ?? 0);
+            $type_document_id = 11; // Documento Soporte
+            $prefix = $resolucion->consecutivo ?? 'ds';
+            $resolution_number = $resolucion->nroresolucion;
+
+            $date = $documento->fecha_elaboracion ? date('Y-m-d', strtotime($documento->fecha_elaboracion)) : date('Y-m-d');
+            $time = $documento->fecha_elaboracion ? date('H:i:s', strtotime($documento->fecha_elaboracion)) : date('H:i:s');
+
+            $telefono_proveedor = $proveedor->telefonoproveedor;
+            if (!$telefono_proveedor) {
+                Yii::$app->session->setFlash('error', 'El teléfono del proveedor es obligatorio.');
+                return $this->redirect(['view', 'id' => $id]);
+            }
+
+            // SELLER (PROVEEDOR) - Siempre tipo documento 6 (NIT) para Documento Soporte
+            $seller = [
+                "identification_number" => (string)($proveedor->cedulanit),
+                "dv" => (int)($proveedor->dv ?? 0),
+                "name" => (string)($proveedor->nombrecorto),
+                "phone" => (string)($telefono_proveedor),
+                "address" => (string)($proveedor->direccionproveedor),
+                "email" => (string)($proveedor->emailproveedor),
+                "merchant_registration" => (string)($proveedor->merchant_registration ?? '0000-00'),
+                "postal_zone_code" => (int)($proveedor->municipio->postal_zone_code ?? 630001),
+                "type_document_identification_id" => 6, // Siempre NIT para Documento Soporte
+                "type_organization_id" => (int)($proveedor->tiporegimen ?? 2),
+                "municipality_id" => (int)($proveedor->municipio->codigo_api_nomina),
+                "type_liability_id" => (int)($proveedor->autoretenedor == 1 ? 9 : 117),
+                "type_regime_id" => (int)($proveedor->tiporegimen ?? 1),
+            ];
+
+            // CÁLCULOS DESDE LA LÍNEA
+            $qty = $round2((float)($documento_detalle->cantidad));
+            $unit_price = $round2((float)($documento_detalle->valor_unitario));
+
+            // Calcular el subtotal de la línea
+            $line_subtotal = $round2($qty * $unit_price);
+
+            $tax_id = 1; // IVA
+
+            // RETENCIONES (si aplica)
+            $line_with_holding_tax_total = [];
+            if ($documento_detalle->valor_retencion > 0 || $documento_detalle->porcentaje_retencion > 0) {
+                $porcentaje_fuente = $round2((float)$documento_detalle->porcentaje_retencion);
+                $retefuente_amount = $round2($line_subtotal * ($porcentaje_fuente / 100));
+
+                $line_with_holding_tax_total[] = [
+                    "tax_id"         => 6, 
+                    "taxable_amount" => $round2($line_subtotal),
+                    "percent"        => $round2($porcentaje_fuente),
+                    "tax_amount"     => $round2($retefuente_amount),
+                ];
+            }
+
+            // LÍNEAS DEL DOCUMENTO
+            $invoice_lines = [[
+                "unit_measure_id" => 70,
+                "invoiced_quantity" => $round2($qty),
+                "line_extension_amount" => $round2($line_subtotal),
+                "free_of_charge_indicator" => false,
+                "tax_totals" => [[
+                    "tax_id" => 1,
+                    "tax_amount" => $round2(0),
+                    "percent" => $round2(0),
+                    "taxable_amount" => $round2($line_subtotal),
+                ]],
+                "description" => (string)($documento_detalle->descripcion),
+                "notes" => (string)($documento->observacion ?? ''),
+                "code" => (string)($documento_detalle->id_detalle),
+                "type_item_identification_id" => 1,
+                "price_amount" => $round2($unit_price),
+                "base_quantity" => $round2($qty),
+                "type_generation_transmition_id" => 1,
+                "start_date" => $date,
+            ]];
+
+            // TOTALES GENERALES
+            $tax_totals = [[
+                "tax_id" => $tax_id,
+                "tax_amount" => $round2(0),
+                "percent" => $round2(0),
+                "taxable_amount" => $round2($line_subtotal),
+            ]];
+
+            $total_con_iva = $round2($line_subtotal);
+
+            $legal_monetary_totals = [
+                "line_extension_amount" => $round2($line_subtotal),
+                "tax_exclusive_amount" => $round2($line_subtotal),
+                "tax_inclusive_amount" => $round2($total_con_iva),
+                "charge_total_amount" => $round2(0),
+                "payable_amount" => $round2($total_con_iva),
+            ];
+
+            // FORMA DE PAGO
+            $plazo_dias = (int)($documento->proveedor->plazopago ?? 0);
+            $es_credito = $plazo_dias > 0;
+            
+            $fecha_inicio = strtotime('+' . $plazo_dias . ' day', strtotime($documento->fecha_elaboracion));
+            $fecha_vencimiento = date('Y-m-d', $fecha_inicio);
+
+            $payment_form = [
+                "payment_form_id" => $es_credito ? 2 : 1, // 1 = Contado, 2 = Crédito
+                "payment_method_id" => (int)($documento->formaPago->codigo_medio_pago_dian ?? 10),
+                "payment_due_date" => $fecha_vencimiento,
+                "duration_measure" => $plazo_dias,
+            ];
+
+
+
+            // PAYLOAD FINAL
+            $payload = [
+                "number" => $number,
+                "type_document_id" => $type_document_id,
+                "date" => $date,
+                "time" => $time,
+                "notes" => (string)($documento->observacion ?? 'SIN OBSERVACIONES'),
+                "sendmail" => true,
+                "email_cc_list" => [
+                    [
+                        "email" => "$nombre_empresa->emailmatricula"
+                    ]
+                ],
+                "resolution_number" => $resolution_number,
+                "prefix" => $prefix,
+                "establishment_name" => $nombre_empresa->razonsocialmatricula,
+                "tarifaica" => (string)($nombre_empresa->tarifaica ?? '0'),
+                "actividadeconomica" => (string)($resolucion->codigoactividad),
+                "seller" => $seller,
+                "payment_form" => $payment_form,
+                "legal_monetary_totals" => $legal_monetary_totals,
+                "tax_totals" => $tax_totals,
+                "with_holding_tax_total" => $line_with_holding_tax_total,
+                "invoice_lines" => $invoice_lines,
+            ];
+
+            // Solo agregar retenciones si existen
+            if (!empty($line_with_holding_tax_total)) {
+                $payload["line_with_holding_tax_total"] = $line_with_holding_tax_total;
+            }
+
+            Yii::info(
+                "JSON DOCUMENTO SOPORTE ENVIADO A DIAN:\n" . json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                'document_support.debug.json'
+            );
+
+            $DEBUG_MODE = false;
+
+            if ($DEBUG_MODE) {
+                $subtotal_bd = $round2($documento_detalle->valor_unitario ?? 0);
+                $iva_bd = $round2($documento->impuesto_iva ?? 0);
+
+                $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Verificación Documento Soporte</title></head><body>';
+                $html .= '<div style="font-family: Arial, sans-serif; max-width: 1400px; margin: 20px auto; padding: 20px;">';
+                $html .= '<h2 style="color: #d9534f;">🔍 MODO DEBUG - VERIFICACIÓN DOCUMENTO SOPORTE</h2>';
+                $html .= '<p style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107;"><strong>⚠️ Advertencia:</strong> El documento NO fue enviado a la DIAN. Esta es solo una verificación.</p>';
+
+                $html .= '<div style="background: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 2px solid #007bff;">';
+                $html .= '<h3 style="margin-top: 0; color: #007bff;">📋 Información del Documento</h3>';
+                $html .= '<p><strong>Número:</strong> ' . $prefix . '-' . $number . '</p>';
+                $html .= '<p><strong>Proveedor:</strong> ' . $proveedor->nombrecorto . ' (NIT: ' . $proveedor->cedulanit . ')</p>';
+                $html .= '<p><strong>Fecha:</strong> ' . $date . ' ' . $time . '</p>';
+                $html .= '</div>';
+
+                $html .= '<div style="background: #f0f0f0; padding: 20px; margin-bottom: 20px; border-radius: 5px;">';
+                $html .= '<h3 style="color: #333; margin-top: 0;">📊 Comparación: Base de Datos vs Calculado</h3>';
+                $html .= '<table style="width: 100%; border-collapse: collapse; background: white;">';
+                $html .= '<thead><tr style="background: #007bff; color: white;">';
+                $html .= '<th style="padding: 10px; text-align: left;">Concepto</th>';
+                $html .= '<th style="padding: 10px; text-align: right;">Valor en BD</th>';
+                $html .= '<th style="padding: 10px; text-align: right;">Valor Calculado</th>';
+                $html .= '<th style="padding: 10px; text-align: center;">Estado</th>';
+                $html .= '</tr></thead><tbody>';
+
+                $dif_subtotal = abs($subtotal_bd - $line_subtotal);
+                $ok_subtotal = $dif_subtotal < 0.02;
+                $html .= '<tr style="background: ' . ($ok_subtotal ? '#d4edda' : '#fff3cd') . ';">';
+                $html .= '<td style="padding: 8px;"><strong>Subtotal</strong></td>';
+                $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($subtotal_bd, 2) . '</td>';
+                $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($line_subtotal, 2) . '</td>';
+                $html .= '<td style="padding: 8px; text-align: center;">' . ($ok_subtotal ? '✅' : '⚠️') . '</td>';
+                $html .= '</tr>';
+
+                $html .= '</tbody></table></div>';
+
+                $html .= '<div style="background: #e7f3ff; padding: 20px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #007bff;">';
+                $html .= '<h3 style="color: #004085; margin-top: 0;">🧮 Cálculos Detallados</h3>';
+                $html .= '<table style="width: 100%; border-collapse: collapse;">';
+                $html .= '<tr><td style="padding: 5px;">Cantidad:</td><td style="text-align: right; font-family: monospace;">' . number_format($qty, 2) . ' unidades</td></tr>';
+                $html .= '<tr><td style="padding: 5px;">Precio Unitario:</td><td style="text-align: right; font-family: monospace;">$' . number_format($unit_price, 2) . '</td></tr>';
+                $html .= '<tr style="border-top: 2px solid #007bff;"><td style="padding: 5px; padding-top: 10px;"><strong>Subtotal:</strong></td><td style="text-align: right; font-family: monospace; padding-top: 10px;"><strong>$' . number_format($line_subtotal, 2) . '</strong></td></tr>';
+                $html .= '<tr style="border-top: 2px solid #007bff; background: #d1ecf1;"><td style="padding: 10px;"><strong>Total:</strong></td><td style="text-align: right; font-family: monospace; font-size: 1.2em;"><strong>$' . number_format($total_con_iva, 2) . '</strong></td></tr>';
+                $html .= '</table></div>';
+
+                $html .= '<h3 style="color: #333;">📄 JSON que se enviaría a la DIAN:</h3>';
+                $json_pretty = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                $html .= '<div style="background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 5px; overflow-x: auto;">';
+                $html .= '<pre style="margin: 0; font-family: Consolas, Monaco, monospace; font-size: 11px;">' . htmlspecialchars($json_pretty) . '</pre>';
+                $html .= '</div>';
+
+                $html .= '<div style="margin-top: 20px; text-align: center;">';
+                $html .= '<a href="' . \yii\helpers\Url::to(['view', 'id' => $id]) . '" style="display: inline-block; padding: 12px 30px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px;">← Volver al documento</a>';
+                $html .= '</div>';
+
+                $html .= '</div></body></html>';
+
+                echo $html;
+                Yii::$app->end();
+            }
+
+            $jsonPayload = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $API_URL,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $jsonPayload,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'Authorization: Bearer ' . $apiBearerToken,
+                ],
+                CURLOPT_TIMEOUT => 120,
+                CURLOPT_SSL_VERIFYPEER => false, 
+                CURLOPT_SSL_VERIFYHOST => false, 
+            ]);
+
             try {
                 $response = curl_exec($curl);
-                if (curl_errno($curl)) {
-                      throw new Exception(curl_error($curl));
-                }
-                curl_close($curl);
-                $data = json_decode($response, true);
-                
-                if ($data === null) {
-                      throw new Exception('Error al decodificar la respuesta JSON');
-                }
-                  // Validar y extraer el CUFE
-                if (isset($data['data']['dse']['cude'])) {
-                    $cuds = $data['data']['dse']['cude'];
-                    $documento->cuds = $cuds;
-                    $fechaRecepcion = isset($data["data"]["sentDetail"]["response"]["send_email_date_time"]) && !empty($data["data"]["sentDetail"]["response"]["send_email_date_time"]) ? $data["data"]["sentDetail"]["response"]["send_email_date_time"] : date("Y-m-d H:i:s");
-                    $documento->fecha_recepcion_dian = $fechaRecepcion;
-                    $documento->fecha_envio_api = date("Y-m-d H:i:s");
-                    $qrstr = $data['data']['dse']['sentDetail']['response']['QRStr'];
-                    $documento->qrstr = $qrstr;
-                    $documento->save(false);
-                    Yii::$app->getSession()->setFlash('success', "El documento de soporte No ($consecutivo) se envió con éxito a la DIAN.");
-                     return $this->redirect(['view','id' => $id]);
-                } else {
-                       Yii::$app->getSession()->setFlash('error', "No se genero el CUDE del este documento");
-                       return $this->redirect(['view','id' => $id]);
-                }
-                
-             } catch (Exception $e) {
-                  Yii::$app->getSession()->setFlash('error', 'Error al enviar el DOCUMENTO DE SOPORTE: ' . $e->getMessage());
-             }
-            return $this->redirect(['view','id' => $id]);
-       }//fin condicional    
+                $info = curl_getinfo($curl);
 
-    }
+                if (curl_errno($curl)) {
+                    $err = curl_error($curl);
+                    curl_close($curl);
+                    throw new \Exception("cURL: " . $err);
+                }
+
+                $headerSize = $info['header_size'] ?? 0;
+                $rawBody = $headerSize ? substr($response, $headerSize) : $response;
+                $httpCode = (int)($info['http_code'] ?? 0);
+                curl_close($curl);
+
+                Yii::info("HTTP_CODE={$httpCode}\nBODY:\n{$rawBody}", 'document_support.debug.response');
+
+                $data = json_decode($rawBody, true);
+                if (!is_array($data)) {
+                    throw new \Exception("API devolvió no-JSON. HTTP {$httpCode}. Body: {$rawBody}");
+                }
+
+                if ($httpCode < 200 || $httpCode >= 300) {
+                    $msg = $data['message'] ?? 'Error API';
+                    $errors = $data['errors'] ?? [];
+
+                    if (!empty($errors)) {
+                        Yii::error([
+                            'http_code' => $httpCode,
+                            'message' => $msg,
+                            'errors' => $errors,
+                        ], 'document_support.debug.validation_errors');
+
+                        $flat = [];
+                        foreach ($errors as $field => $arr) {
+                            $flat[] = $field . ': ' . (is_array($arr) ? implode(' | ', $arr) : $arr);
+                        }
+                        $msg .= " | " . implode(' || ', $flat);
+                    }
+
+                    throw new \Exception($msg);
+                }
+
+                $cuds = $data['cuds'] ?? $data['data']['cuds'] ?? null;
+                $qr = $data['qrstr'] ?? $data['data']['qrstr'] ?? null;
+
+                $documento->fecha_envio_api = date("Y-m-d H:i:s");
+
+                if ($cuds) {
+                    $documento->cuds = $cuds;
+                    $documento->fecha_recepcion_dian = date("Y-m-d H:i:s");
+                }
+
+                if ($qr) {
+                    $documento->qrstr = $qr;
+                }
+
+                $documento->save(false);
+
+                Yii::$app->session->setFlash('success', "Documento de Soporte No ({$number}) fue enviado exitosamente a la DIAN.");
+                return $this->redirect(['view', 'id' => $id]);
+
+            } catch (\Exception $e) {
+                Yii::error("ERROR ENVÍO DOCUMENTO SOPORTE: " . $e->getMessage(), 'document_support.debug.error');
+                Yii::$app->session->setFlash('error', 'Error al enviar documento: ' . $e->getMessage());
+                return $this->redirect(['view', 'id' => $id]);
+            }
+        }
     
     /**
      * Finds the DocumentoSoporte model based on its primary key value.

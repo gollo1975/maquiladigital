@@ -12,7 +12,7 @@ use yii\bootstrap\Modal;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
 
-$this->title = 'Balanceo';
+$this->title = 'Flujo de operaciones';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -132,7 +132,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <td style="width: 25px;">
                                             <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_balanceo', 'id' => $val->idordenproduccion] ) ?>
                                         </td>
-                                        <?php if($val->idtipo == 1){?>
+                                        <?php if($val->idtipo == 1 || $val->idtipo == 2 || $val->idtipo == 4){?>
                                             <td style="width: 25px;">
                                                 <?= Html::a('<span class="glyphicon glyphicon-user"></span> ', ['habilitar_capacitacion', 'id' => $val->idordenproduccion] );?>
                                             </td>     

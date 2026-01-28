@@ -184,7 +184,15 @@ class AgentesComercialesController extends Controller
             return ActiveForm::validate($model);
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            $dv = Html::encode($_POST["dv"]);
+            $model->dv = $dv;
+            $model->nombre_completo = strtoupper($model->primer_nombre .' '. $model->segundo_nombre . ' '. $model->primer_apellido .' '. $model->segundo_apellido);
+            if($model->save()){
+                return $this->redirect(['index']);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al grabar los datos del agente comercial'); 
+            }
             return $this->redirect(['index']);
         }
 

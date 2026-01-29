@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\PulposEstampacion;
 use app\models\PulposEstampacionSearch;
+use app\models\UsuarioDetalle;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -34,14 +35,22 @@ class PulposEstampacionController extends Controller
      * @return mixed
      */
     public function actionIndex()
-    {
-        $searchModel = new PulposEstampacionSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+   {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',191])->all()){
+                $searchModel = new PulposEstampacionSearch();
+                $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+                return $this->render('index', [
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dataProvider,
+                ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }              
     }
 
     /**

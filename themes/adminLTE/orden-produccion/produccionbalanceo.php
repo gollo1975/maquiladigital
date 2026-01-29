@@ -132,7 +132,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         <td style="width: 25px;">
                                             <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['view_balanceo', 'id' => $val->idordenproduccion] ) ?>
                                         </td>
-                                        <?php if($val->idtipo == 1 || $val->idtipo == 2 || $val->idtipo == 4){?>
+                                        <?php if($val->tipo->ver_registro){?>
                                             <td style="width: 25px;">
                                                 <?= Html::a('<span class="glyphicon glyphicon-user"></span> ', ['habilitar_capacitacion', 'id' => $val->idordenproduccion] );?>
                                             </td>     

@@ -2813,6 +2813,33 @@ class OrdenProduccionController extends Controller {
         ]);
     }
     
+    //PERMITE ADICIONAR EL PULPO PÀRA LA ESTAMPACION
+      //SUBIR EL TIEMPO D INDUCCCION
+    public function actionAdicionar_pulpo($id, $id_operacion){
+        $model = new FlujoOperaciones();
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["enviar_pulpo"])) { 
+                $table = FlujoOperaciones::findOne($id_operacion);
+                if($table){
+                    $table->id_pulpo = $model->id_pulpo;
+                    if($table->save()){
+                        Yii::$app->getSession()->setFlash('success', 'Registro modificado exitosamente.');
+                        return $this->redirect(['habilitar_capacitacion', 'id' => $id]);
+                    }else{
+                        
+                        Yii::$app->getSession()->setFlash('error', 'El Registro no se modifico. Valide la información.');
+                        return $this->redirect(['habilitar_capacitacion', 'id' => $id]);
+                    }
+                }
+            }
+            
+        }    
+        return $this->renderAjax('adicionar_pulpo', [
+            'model' => $model,
+            'id' => $id,
+        ]);
+    }
+    
     //EDITAR EL SAM DE LA OPERACCION
     public function actionEditar_sam_operacion($id, $id_operacion){
         $model = new FlujoOperaciones();

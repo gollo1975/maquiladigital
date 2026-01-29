@@ -33,7 +33,7 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
     {
         return [
             [['idproceso'], 'required'],
-            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza','cantidad_operaciones','cantidad_confeccionadas','aplica_induccion','tiempo_induccion','aplica_modulo'], 'integer'],
+            [['idproceso', 'idordenproduccion','orden_aleatorio','operacion','pieza','cantidad_operaciones','cantidad_confeccionadas','aplica_induccion','tiempo_induccion','aplica_modulo','id_pulpo'], 'integer'],
             [['fecha_creacion'], 'safe'],
             [['segundos','minutos'],'number'],
             [['usuariosistema'], 'string', 'max' => 20],
@@ -41,6 +41,7 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
             [['idproceso'], 'exist', 'skipOnError' => true, 'targetClass' => ProcesoProduccion::className(), 'targetAttribute' => ['idproceso' => 'idproceso']],
             [['idordenproduccion'], 'exist', 'skipOnError' => true, 'targetClass' => Ordenproduccion::className(), 'targetAttribute' => ['idordenproduccion' => 'idordenproduccion']],
             [['id_tipo'], 'exist', 'skipOnError' => true, 'targetClass' => TiposMaquinas::className(), 'targetAttribute' => ['id_tipo' => 'id_tipo']],
+            [['id_pulpo'], 'exist', 'skipOnError' => true, 'targetClass' => PulposEstampacion::className(), 'targetAttribute' => ['id_pulpo' => 'id_pulpo']],
         ];
     }
 
@@ -66,6 +67,7 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
             'aplica_induccion' => 'aplica_induccion',
             'observacion' => 'Observacion:',
             'aplica_modulo' => 'aplica_modulo',
+            'id_pulpo' => 'Nombre del pulpo:',
             
         ];
     }
@@ -76,6 +78,14 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
     public function getProceso()
     {
         return $this->hasOne(ProcesoProduccion::className(), ['idproceso' => 'idproceso']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPulpo()
+    {
+        return $this->hasOne(PulposEstampacion::className(), ['id_pulpo' => 'id_pulpo']);
     }
 
     /**

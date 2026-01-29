@@ -7,16 +7,16 @@ use yii\grid\GridView;
 /* @var $searchModel app\models\MarcaSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Marcas';
+$this->title = 'Pulpos de estampación';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="marca-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+ <!--   <h1><?= Html::encode($this->title) ?></h1>-->
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Marca', ['create'], ['class' => 'btn btn-success']) ?>
+       <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Nueva pulpo', ['create'], ['class' => 'btn btn-success btn-sm']) ?>
     </p>
 
     <?= GridView::widget([
@@ -25,9 +25,11 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'id_marca',
-            'marca',
-            'estado',
+            'id_pulpo',
+            'descripcion',
+            'cantidad_brazos',
+            'fecha_registro',
+           
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

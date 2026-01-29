@@ -85,7 +85,9 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                         <th scope="col" style='background-color:#B9D5CE;'>Sam induccion</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Aplica</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Aplica modulo</th>
+                                         <th scope="col" style='background-color:#B9D5CE;'>Pulpo</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Observaciones</th>
+                                        <th scope="col" style='background-color:#B9D5CE;'></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                         <th scope="col" style='background-color:#B9D5CE;'></th>
                                      
@@ -118,6 +120,11 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                                         <?= $registro->aplicaModulo?></a>
                                                <?php }      ?>
                                             </td>
+                                            <?php if($registro->id_pulpo != null){?>
+                                                <td><?= $registro->pulpo->descripcion ?></td>
+                                            <?php  }else{?>
+                                                 <td><?= 'Not Found' ?></td>
+                                            <?php  }?>    
                                             <td><?= $registro->observacion ?></td>
                                             <?php if($registro->aplica_induccion == 0){?> 
                                                 <td style= 'width: 20px; height: 20px;'>
@@ -154,7 +161,29 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                                             <div class="modal-content"></div>
                                                         </div>
                                                     </div>
-                                            </td>     
+                                            </td>  
+                                            <?php  
+                                            $dato = \app\models\ConfiguracionEstampacionApp::findOne(1);
+                                            if($dato->aplica_modulo_estampacion == 1){ ?>
+                                                <td style= 'width: 20px; height: 20px;'>
+                                                    <?= Html::a('<span class="glyphicon glyphicon-home"></span>  ',
+                                                            ['orden-produccion/adicionar_pulpo', 'id' => $model->idordenproduccion, 'id_operacion'=> $registro->id],
+                                                            [
+                                                                'class' => '',   
+                                                                'title' => 'Permite configurar el pulpo de estampación',
+                                                                'data-toggle'=>'modal',
+                                                                'data-target'=>'#modaladicionarpulpo'.$model->idordenproduccion,
+                                                            ])    
+                                                       ?>
+                                                    <div class="modal remote fade" id="modaladicionarpulpo<?= $model->idordenproduccion?>" data-backdrop="static">
+                                                        <div class="modal-dialog modal-lg" style ="width: 550px;">
+                                                            <div class="modal-content"></div>
+                                                        </div>
+                                                    </div>
+                                                </td> 
+                                            <?php }else {?>
+                                                 <td style= 'width: 20px; height: 20px;'></td>
+                                            <?php }?>    
                                         </tr>
                                     <?php endforeach; ?>  
                                 </tbody> 

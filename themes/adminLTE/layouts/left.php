@@ -171,6 +171,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                         ['label' => 'Mecanicos', 'icon' => 'plus-square-o', 'url' => ['/mecanico/index']],
                                                         ['label' => 'Maquinas', 'icon' => 'plus-square-o', 'url' => ['/maquinas/index']],
                                                     ]],
+                                                    ['label' => 'Pulpos', 'icon' => 'plus-square-o', 'url' => ['/pulpos-estampacion/index']],
                                                 ],
                                             ],
                                             [

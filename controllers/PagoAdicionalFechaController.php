@@ -340,10 +340,10 @@ class PagoAdicionalFechaController extends Controller
                 $fecha_corte = Html::encode($_POST["fecha_corte"]);
                 foreach ($_POST["id_interes"] as $intCodigo) {
                     $interes = InteresesCesantia::find()->where(['id_interes' => $intCodigo])->one();
-                    $pagos = PagoAdicionalPermanente::find()
-                        ->where(['=', 'id_contrato', $interes->id_contrato])
-                        ->andWhere(['=', 'fecha_corte', $fecha_corte])
-                        ->all();
+                    $pagos = PagoAdicionalPermanente::find()->where([
+                            'id_contrato' => $interes->id_contrato,
+                            'fecha_corte' =>  $fecha_corte,
+                            'codigo_salario' => $salario->codigo_salario])->all();
                     $reg = count($pagos);
                     if ($reg == 0) {
                         $table = new PagoAdicionalPermanente();
@@ -366,9 +366,14 @@ class PagoAdicionalFechaController extends Controller
                         $table->save(false); 
                         $interes->enviado = 1;
                         $interes->save(false);
+                        $intIndice++;
                     }
+                    
                 }
-               $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
+                if($intIndice > 0){
+                    Yii::$app->getSession()->setFlash('success', 'Se importaron (' . $intIndice.') registros exisotameente.');
+                }
+               return $this->redirect(["pago-adicional-fecha/view", 'id' => $id, 'fecha_corte' => $fecha_corte]);
             }
         } 
         //proceso que cierra el proceso de exportado

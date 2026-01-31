@@ -261,40 +261,68 @@ class ProgramacionNominaController extends Controller {
                             ->all();
                 }
                 //PROCESO QUE ENVIA LA NOMINA ELECTRONICA
-                if (isset($_POST["enviar_documento_electronico"])) { ////entra al ciclo cuando presiona el boton crear documentos
+                if (isset($_POST["enviar_documento_electronico"])) {
                     if (isset($_POST["documento_electronico_dian"])) {
                         $intIndice = 0;
                         $contador = 0;
-                        foreach ($_POST["documento_electronico_dian"] as $intCodigo) { //vector que cargar cada items
-                            $documento = \app\models\NominaElectronica::findOne($intCodigo);// vector del empleado
-                            if($documento)
-                            {
+                         //modelo de llave uuid
+                            $configuracionDocumento = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+                        // ==========================================
+                        // MODO DEBUG - Cambiar a true para verificar sin enviar
+                        // ==========================================
+                        $DEBUG_MODE = true;
+
+                        // ==========================================
+                        // CONFIGURACIÓN DE API
+                        // ==========================================
+                        $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+                        $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA']. '/' . $configuracionDocumento->llave_uuid;
+                        $apiBearerToken = $confi->llave_api_token;
+
+                        // Función de redondeo consistente
+                        $round2 = function($value) {
+                            return (float)number_format((float)$value, 2, '.', '');
+                        };
+
+                        // Para debug múltiple, acumulamos HTML
+                        $debugHtmlContent = '';
+                        $debugDocumentos = [];
+
+                        foreach ($_POST["documento_electronico_dian"] as $intCodigo) {
+                            $documento = \app\models\NominaElectronica::findOne($intCodigo);
+                           
+
+                            if ($documento) {
                                 $periodo = PeriodoNominaElectronica::findOne($documento->id_periodo_electronico);
-                                $total_devengado = intval($documento->total_devengado, 0) . '.00';
-                                $total_deduccion = intval($documento->total_deduccion, 0) . '.00';
+
+                                // ==========================================
+                                // PREPARACIÓN DE VARIABLES
+                                // ==========================================
+                                $total_devengado = number_format($documento->total_devengado, 2, '.', '');
+                                $total_deduccion = number_format($documento->total_deduccion, 2, '.', '');
                                 $tipo_nomina_enviada = $periodo->type_document_id;
                                 $fecha_ingreso_empleado = $documento->fecha_inicio_contrato;
                                 $fecha_inicio_nomina = $documento->fecha_inicio_nomina;
                                 $fecha_corte_nomina = $documento->fecha_final_nomina;
-                                $dias_trabajados = $documento->dias_trabajados;
+                                $dias_trabajados = number_format($documento->dias_trabajados, 2, '.', '');
                                 $fecha_emision_nomina = date('Y-m-d');
                                 $fecha_retiro_empleado = $documento->fecha_terminacion_contrato;
                                 $codigo_empleado = $documento->id_empleado;
                                 $consecutivo = $documento->numero_nomina_electronica;
-                                $codigo_periodo_pago = $documento->periodoPago->codigo_api_nomina;// es el codigo del periodo de pago
+                                $codigo_periodo_pago = $documento->periodoPago->codigo_api_nomina;
                                 $nota = $periodo->nota;
                                 $type_worker_id = $documento->contrato->tipoCotizante->codigo_api_nomina;
                                 $sub_type_worker_id = $documento->contrato->subtipoCotizante->codigo_api_nomina;
                                 $tipo_documento_empleado = $documento->empleado->tipoDocumento->codigo_interface_nomina;
                                 $codigo_municipio = $documento->empleado->municipio->codigo_api_nomina;
                                 $tipo_contrato_empleado = $documento->contrato->tipoContrato->codigo_api_enlace;
-                                $documento_empleado =  $documento->documento_empleado;
+                                $documento_empleado = $documento->documento_empleado;
                                 $primer_apellido = $documento->primer_apellido;
                                 $segundo_apellido = $documento->segundo_apellido;
                                 $primer_nombre = $documento->primer_nombre;
                                 $segundo_nombre = $documento->segundo_nombre;
                                 $direccion_empleado = $documento->direccion_empleado;
-                                $salario_empleado = intval($documento->salario_contrato, 0) . '.00';
+                                $salario_empleado = number_format($documento->salario_contrato, 2, '.', '');
                                 $email_empleado = $documento->email_empleado;
                                 $forma_pago = $documento->empleado->formaPago->codigo_api_nomina;
                                 $nombre_banco = $documento->empleado->bancoEmpleado->banco;
@@ -303,340 +331,888 @@ class ProgramacionNominaController extends Controller {
                                 $tipo_salario = $documento->contrato->tipo_salario;
                                 $eps_type_law_deductions_id = $documento->contrato->pagoEps->codigo_api_nomina;
                                 $pension_type_law_deductions_id = $documento->contrato->pagoPension->codigo_api_nomina;
-                                if($tipo_salario == 'INTEGRAL'){
-                                    $salario_integral = true;
-                                }else{
-                                    $salario_integral = false;
+
+                                // Determinación de flags booleanos
+                                $salario_integral = ($tipo_salario == 'INTEGRAL');
+                                $alto_riesgo = ($altoriesgo == 3);
+
+                                // Tipo de cuenta bancaria según nueva API
+                                if ($tipo == 'S') {
+                                    $tipo_cuenta_bancaria = 'AHORROS';
+                                } else {
+                                    $tipo_cuenta_bancaria = 'CORRIENTE';
                                 }
-                                if($altoriesgo == 3){
-                                    $alto_riesgo = true;
-                                }else{
-                                    $alto_riesgo = false;
-                                }
-                                if($tipo == 'S'){
-                                    $tipo_cuenta_bancaria = 'Ahorro';
-                                }else{
-                                    $tipo_cuenta_bancaria = 'Corriente';
-                                }
+
                                 $numero_cuenta_bancaria = $documento->empleado->cuenta_bancaria;
-                                // Configurar cURL
-                                $curl = curl_init();
-                              //  $API_KEY = Yii::$app->params['API_KEY_DESARROLLO']; //api_key de desarrollo
-                                $API_KEY = Yii::$app->params['API_KEY_PRODUCCION']; //api_key de produccion
+
+                                // ==========================================
+                                // CONSTRUCCIÓN DEL JSON - NUEVA ESTRUCTURA
+                                // ==========================================
                                 $dataBody = [
+                                    "type_document_id" => (int)$tipo_nomina_enviada,
+
                                     "novelty" => [
                                         "novelty" => false,
-                                        "uuidnov" => ""  
+                                        "uuidnov" => ""
                                     ],
 
                                     "period" => [
-                                        "admision_date" => "$fecha_ingreso_empleado",
-                                        "settlement_start_date" => "$fecha_inicio_nomina",
-                                        "settlement_end_date" => "$fecha_corte_nomina",
-                                        "worked_time" => "$dias_trabajados",
-                                        "retirement_date" => "$fecha_retiro_empleado",
-                                        "issue_date" => "$fecha_emision_nomina"
+                                        "admision_date" => $fecha_ingreso_empleado,
+                                        "settlement_start_date" => $fecha_inicio_nomina,
+                                        "settlement_end_date" => $fecha_corte_nomina,
+                                        "worked_time" => $dias_trabajados,
+                                        "issue_date" => $fecha_emision_nomina
                                     ],
 
                                     "sendmail" => false,
                                     "sendmailtome" => false,
-                                    "worker_code" => "$codigo_empleado",
-                                    "prefix" => "NI", // Siempre debe ser NI para nómina individual, NIAD para ajuste
-                                    "consecutive" => $consecutivo,
-                                    "type_document_id" => "$tipo_nomina_enviada",
-                                    "payroll_period_id" => $codigo_periodo_pago,
-                                    "notes" => "$nota",
+                                    "worker_code" => (string)$codigo_empleado,
+                                    "prefix" => "NI",
+                                    "consecutive" => (int)$consecutivo,
+                                    "payroll_period_id" => (int)$codigo_periodo_pago,
+                                    "notes" => $nota,
+
                                     "worker" => [
-                                        "type_worker_id" => $type_worker_id,
-                                        "sub_type_worker_id" => $sub_type_worker_id,
-                                        "payroll_type_document_identification_id" => $tipo_documento_empleado,
-                                        "municipality_id" => $codigo_municipio,
-                                        "type_contract_id" => $tipo_contrato_empleado,
-                                        "high_risk_pension" => $alto_riesgo, //false => si es bajo riesgo y true => si alto riesgo
-                                        "identification_number" => $documento_empleado,
-                                        "surname" => "$primer_apellido",
-                                        "second_surname" => "$segundo_apellido",
-                                        "first_name" => "$primer_nombre",
-                                        "middle_name" => "$segundo_nombre",
-                                        "address" => "$direccion_empleado",
-                                        "integral_salarary" => $salario_integral,//si esl TRUE->es verdadero, False => false
+                                        "type_worker_id" => (int)$type_worker_id,
+                                        "sub_type_worker_id" => (int)$sub_type_worker_id,
+                                        "payroll_type_document_identification_id" => (int)$tipo_documento_empleado,
+                                        "municipality_id" => (int)$codigo_municipio,
+                                        "type_contract_id" => (int)$tipo_contrato_empleado,
+                                        "high_risk_pension" => $alto_riesgo,
+                                        "identification_number" => (int)$documento_empleado,
+                                        "surname" => $primer_apellido,
+                                        "second_surname" => $segundo_apellido,
+                                        "first_name" => $primer_nombre,
+                                        "middle_name" => $segundo_nombre ?: null,
+                                        "address" => $direccion_empleado,
+                                        "integral_salarary" => $salario_integral,
                                         "salary" => $salario_empleado,
-                                        "email" => "$email_empleado"
+                                        "email" => $email_empleado
                                     ],
 
-                                    "payment" => [ //datos del banco
-                                        "payment_method_id" => "$forma_pago",
-                                        "bank_name" => "$nombre_banco",
-                                        "account_type" => "$tipo_cuenta_bancaria",
-                                        "account_number" => "$numero_cuenta_bancaria"
+                                    "payment" => [
+                                        "payment_method_id" => (int)$forma_pago,
+                                        "bank_name" => $nombre_banco,
+                                        "account_type" => $tipo_cuenta_bancaria,
+                                        "account_number" => $numero_cuenta_bancaria
                                     ],
 
                                     "payment_dates" => [
                                         [
-                                            "payment_date" => "$fecha_corte_nomina" // son las fechas de pagos 
+                                            "payment_date" => $fecha_corte_nomina
                                         ]
-
                                     ],
-                                    "accrued" => [],   //se inicia el vector
-                                    "deductions" => [] //inicio el vector de deduccion
-                                    
-                                ]; 
-                               
-                               //CICLO QUE SUBE LOS DETALLES DE LA COLILLA
-                                $detallesPago = \app\models\NominaElectronicaDetalle::find()->where(['=','id_nomina_electronica', $documento->id_nomina_electronica])->orderBy('id_agrupado ASC')->all();
-                                foreach ($detallesPago as $key => $detalle) 
-                                {
-                                    $deduccion_pension = intval($detalle->deduccion_pension, 0) . '.00';
-                                    $deduccion_eps = intval($detalle->deduccion_eps, 0) . '.00';
-                                    $valor_pago_incapacidad = intval($detalle->valor_pago_incapacidad, 0) . '.00';
-                                    $valor_pago_licencia = intval($detalle->valor_pago_licencia, 0) . '.00';
-                                    $deduccion_fondo_solidaridad = intval($detalle->deduccion_fondo_solidaridad, 0) . '.00';
-                                    $devengado = intval($detalle->devengado, 0) . '.00';
-                                    $auxilio_transporte = intval($detalle->auxilio_transporte, 0) . '.00';
-                                    $valor_pago_prima = intval($detalle->valor_pago_prima, 0) . '.00';
-                                    $valor_pago_cesantias = intval($detalle->valor_pago_cesantias, 0) . '.00';
-                                    $deducciones = intval($detalle->deduccion, 0) . '.00';
-                                    $pago_intereses_cesantias = intval($detalle->valor_pago_intereses, 0) . '.00';
-                                    
-                                    if($detalle->codigo_incapacidad <> ''){
+
+                                    "accrued" => [],
+                                    "deductions" => []
+                                ];
+
+                                // ==========================================
+                                // PROCESAMIENTO DE DETALLES - PARA DEBUG
+                                // ==========================================
+                                $detallesPago = \app\models\NominaElectronicaDetalle::find()
+                                    ->where(['=', 'id_nomina_electronica', $documento->id_nomina_electronica])
+                                    ->orderBy('id_agrupado ASC')
+                                    ->all();
+
+                                // Arrays para debug de comparación
+                                $debugDevengados = [];
+                                $debugDeducciones = [];
+                                $totalDevengadoCalculado = 0;
+                                $totalDeduccionCalculado = 0;
+
+                                foreach ($detallesPago as $detalle) {
+                                    $deduccion_pension = number_format($detalle->deduccion_pension, 2, '.', '');
+                                    $deduccion_eps = number_format($detalle->deduccion_eps, 2, '.', '');
+                                    $valor_pago_incapacidad = number_format($detalle->valor_pago_incapacidad, 2, '.', '');
+                                    $valor_pago_licencia = number_format($detalle->valor_pago_licencia, 2, '.', '');
+                                    $deduccion_fondo_solidaridad = number_format($detalle->deduccion_fondo_solidaridad, 2, '.', '');
+                                    $devengado = number_format($detalle->devengado, 2, '.', '');
+                                    $auxilio_transporte = number_format($detalle->auxilio_transporte, 2, '.', '');
+                                    $valor_pago_prima = number_format($detalle->valor_pago_prima, 2, '.', '');
+                                    $valor_pago_cesantias = number_format($detalle->valor_pago_cesantias, 2, '.', '');
+                                    $deducciones = number_format($detalle->deduccion, 2, '.', '');
+                                    $pago_intereses_cesantias = number_format($detalle->valor_pago_intereses, 2, '.', '');
+
+                                    $tipo_incapacidad = '';
+                                    if (!empty($detalle->codigo_incapacidad)) {
                                         $tipo_incapacidad = $detalle->configuracionIncapacidad->codigo_api_nomina;
-                                    }else{
-                                        $tipo_incapacidad = 0;
-                                    }   
-                                    
-                                    //DEVENGADOS
-                                    if($detalle->id_agrupado == 1){ //salario basico
-                                        $dataBody["accrued"]["worked_days"] = $detalle->total_dias;
-                                        $dataBody["accrued"]["salary"] = $devengado;
-                                    }elseif ($detalle->id_agrupado == 2){ //auxilio de transporte
-			                $dataBody["accrued"]["transportation_allowance"] =  $auxilio_transporte;
-                                    }elseif ($detalle->id_agrupado == 3){ //horas extras diurnas
-                                        if(!isset($dataBody["accrued"]['HEDs'])){
-                                            $dataBody["accrued"]['HEDs'] = [];
-                                        }
-                                        $dataBody["accrued"]['HEDs'][] = [
-                                            "start_time" => "2024-12-16T10:00:00",
-                                            "start_date" => "2024-12-16T10:00:00",
-                                            "end_time" => "2024-12-16T10:00:00",
-                                            "end_date" => "2024-12-16T10:00:00",
-                                            "quantity" => "2",
-                                            "percentage" => 1,
-                                            "payment" => "27500"  
-                                        ]; 
-                                    }elseif ($detalle->id_agrupado == 9){ // incapacidades
-                                        if(!isset($dataBody["accrued"]['work_disabilities'])){
-                                              $dataBody["accrued"]['work_disabilities'] = [];
-                                        }
-                                        $dataBody["accrued"]['work_disabilities'][] = [ 
-                                            "start_date" => "$detalle->inicio_incapacidad",
-                                            "end_date" => "$detalle->final_incapacidad",
-                                            "quantity" => "$detalle->dias_incapacidad",
-                                            "type" => "$tipo_incapacidad",
-                                            "payment" => $valor_pago_incapacidad
-
-                                        ];
-                                            
-                                    }elseif($detalle->id_agrupado == 10){ //icencias de maternida
-                                        if(!isset($dataBody["accrued"]['maternity_leave'])){
-                                            $dataBody["accrued"]['maternity_leave'] = [];
-                                        }
-                                        $dataBody["accrued"]['maternity_leave'][] = [
-                                            "start_date" => "$detalle->inicio_licencia",
-                                            "end_date" => "$detalle->final_licencia",
-                                            "quantity" => "$detalle->dias_licencia",
-                                            "payment" => $valor_pago_licencia
-                                            
-                                        ];
-                                    }elseif ($detalle->id_agrupado == 8){ //LICENCIAS REMUNERADAS
-                                        if(!isset($dataBody["accrued"]['paid_leave'])){
-                                             $dataBody["accrued"]['paid_leave'] = [];
-                                        }
-                                        $dataBody["accrued"]['paid_leave'][] = [
-                                            "start_date" => "$detalle->inicio_licencia",
-                                            "end_date" => "$detalle->final_licencia",
-                                            "quantity" => "$detalle->dias_licencia",
-                                            "payment" => $valor_pago_licencia
-                                               
-                                        ];
-                                        
-                                    }elseif ($detalle->id_agrupado == 11){ //PRIMAS DE SERVICIO
-                                        $dataBody["accrued"]['service_bonus'] = [
-                                            [
-                                               "quantity" => "$detalle->dias_prima",
-                                               "payment" => $valor_pago_prima,
-                                               "paymentNS" => 0
-                                            ],
-                                        ];  
-                                    }elseif ($detalle->id_agrupado == 12){ //CESANTIAS
-                                        $dataBody["accrued"]['severance'] = [
-                                            [
-                                               "payment" => $valor_pago_cesantias,
-                                               "percentage" => 12,
-                                               "interest_payment" => 0
-                                            ],
-                                        ];
-                                    }elseif ($detalle->id_agrupado == 13){ //INTERESES A CESANTIAS
-                                        $dataBody["accrued"]['severance'] = [
-                                            [
-                                               "payment" => 0,
-                                               "percentage" => 0,
-                                               "interest_payment" => $pago_intereses_cesantias
-                                            ],
-                                        ];    
-                                    }elseif ($detalle->id_agrupado == 16){ //BONIFICACIONES
-                                       if(!isset($dataBody["accrued"]['bonuses'])){
-                                           $dataBody["accrued"]['bonuses'] = [];
-                                       }
-                                       $dataBody["accrued"]['bonuses'][] =  [
-                                             
-                                               "non_salary_bonus" => $devengado,
-                                        ];
-                                    }elseif ($detalle->id_agrupado == 19){ //BONIFICACIONES PRESTACIONES
-                                       if(!isset($dataBody["accrued"]['bonuses'])){
-                                           $dataBody["accrued"]['bonuses'] = [];
-                                       }
-                                       $dataBody["accrued"]['bonuses'][] =  [
-                                               "salary_bonus" => $devengado,
-                                               "non_salary_bonus" => 0,
-                                        ];   
-                                    }elseif ($detalle->id_agrupado == 15){ //comisiones  
-                                        $dataBody["accrued"]["commissions"] = [
-                                            [    
-                                                "commission" => $devengado,
-                                            ],
-                                        ]; 
-                                     
-                                    }elseif ($detalle->id_agrupado == 20){ //VACACIONES
-                                        if(!isset($dataBody["accrued"]['paid_vacation'])){ 
-                                            $dataBody["accrued"]['paid_vacation'] = [];
-                                        }
-                                        $dataBody["accrued"]['paid_vacation'][] = [
-                                            "quantity" => "$detalle->dias_vacaciones",
-                                            "payment" => "$detalle->devengado"
-                                        ];    
-                                        
-                                    }elseif ($detalle->id_agrupado == 21){ //LICENCIAS NO REMUNERADAS
-                                        if(!isset($dataBody["accrued"]['non_paid_leave'])){ //si no existes lo declaracion vacio
-                                            $dataBody["accrued"]['non_paid_leave'] = [];
-                                        }
-                                        $dataBody["accrued"]['non_paid_leave'][] = [
-                                            "start_date" => "$detalle->inicio_licencia",
-                                            "end_date" => "$detalle->final_licencia",
-                                            "quantity" => "$detalle->dias_licencia_noremuneradas"
-                                        ];
-
-                                    }elseif ($detalle->id_agrupado == 18){//REINTEGRO O REEMBOLSO
-                                        $dataBody["accrued"]["refund"] = $devengado;    
-                                    }   
-                                    
-                                    $dataBody["accrued"]['accrued_total'] = $total_devengado;
-                                    //FIN CONCEPTOS DEVENGADOS
-                                    
-                                    //INICIO DEDUCCIONES
-                                    if($detalle->id_agrupado == 4){ //pension
-                                        $dataBody["deductions"]["pension_type_law_deductions_id"] = $pension_type_law_deductions_id;
-                                        $dataBody["deductions"]["pension_deduction"] = $deduccion_pension;
-                                        
-                                    }elseif ($detalle->id_agrupado == 5){ //salud
-                                        $dataBody["deductions"]["eps_type_law_deductions_id"] = $eps_type_law_deductions_id;
-                                        $dataBody["deductions"]["eps_deduction"] = $deduccion_eps;
-                                        
-                                    }elseif ($detalle->id_agrupado == 6){ //fondo de solidarida
-                                        $dataBody["deductions"]["voluntary_pension"] = $deduccion_fondo_solidaridad; 
-                                    }elseif ($detalle->id_agrupado == 7){ // prestamos empresa y otras deducciones
-                                        if(!isset($dataBody["deductions"]['other_deductions'])){
-                                          $dataBody["deductions"]["other_deductions"] = [];  
-                                        }
-                                        $dataBody["deductions"]['other_deductions'][] = [
-                                            "other_deduction" => $deducciones, 
-                                        ];    
-                                        
-                                    }elseif ($detalle->id_agrupado == 14){ // Libranzas prestamo
-                                        if(!isset($dataBody["deductions"]['orders'])){
-                                          $dataBody["deductions"]["orders"] = [];  
-                                        }
-                                        $dataBody["deductions"]['orders'][] = [
-                                            "description" => "$detalle->descripcion", 
-                                            "deduction" => $deducciones 
-                                        ];
-                                        
-                                    }elseif ($detalle->id_agrupado == 17){//prestamo empresa
-                                        $dataBody["deductions"]["debt"] = $deducciones;
                                     }
-                                    $dataBody["deductions"]['deductions_total'] = $total_deduccion;
-                                    
-                                    
-                                }//CIERRA EL PARA DEL DETALLE DEL PAGO 
-                                
-                                $dataBody = json_encode($dataBody);
-                               
-                                //   //EJECUTA EL DATABODY 
-                               curl_setopt_array($curl, [
-                                    CURLOPT_URL => "https://begranda.com/equilibrium2/public/api-nomina/payroll?key=$API_KEY",
+
+                                    // ==========================================
+                                    // DEVENGADOS
+                                    // ==========================================
+                                    switch ($detalle->id_agrupado) {
+                                        case 1: // Salario básico
+                                            $dataBody["accrued"]["worked_days"] = (int)$detalle->total_dias;
+                                            $dataBody["accrued"]["salary"] = $devengado;
+                                            $debugDevengados[] = ['concepto' => 'Salario Básico', 'dias' => $detalle->total_dias, 'valor' => $devengado];
+                                            $totalDevengadoCalculado += (float)$devengado;
+                                            break;
+
+                                        case 2: // Auxilio de transporte
+                                            $dataBody["accrued"]["transportation_allowance"] = $auxilio_transporte;
+                                            $debugDevengados[] = ['concepto' => 'Auxilio Transporte', 'dias' => '-', 'valor' => $auxilio_transporte];
+                                            $totalDevengadoCalculado += (float)$auxilio_transporte;
+                                            break;
+
+                                        case 3: // Horas extras diurnas
+                                            if (!isset($dataBody["accrued"]['HEDs'])) {
+                                                $dataBody["accrued"]['HEDs'] = [];
+                                            }
+                                            $dataBody["accrued"]['HEDs'][] = [
+                                                "start_time" => $detalle->hora_inicio ?? "00:00:00",
+                                                "start_date" => $detalle->fecha_inicio_extra ?? $fecha_inicio_nomina,
+                                                "end_time" => $detalle->hora_fin ?? "00:00:00",
+                                                "end_date" => $detalle->fecha_fin_extra ?? $fecha_inicio_nomina,
+                                                "quantity" => (string)($detalle->cantidad_horas ?? 0),
+                                                "percentage" => $detalle->porcentaje_extra ?? 25,
+                                                "payment" => $devengado
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Horas Extras Diurnas', 'dias' => $detalle->cantidad_horas ?? 0, 'valor' => $devengado];
+                                            $totalDevengadoCalculado += (float)$devengado;
+                                            break;
+
+                                        case 9: // Incapacidades
+                                            if (!isset($dataBody["accrued"]['work_disabilities'])) {
+                                                $dataBody["accrued"]['work_disabilities'] = [];
+                                            }
+                                            $dataBody["accrued"]['work_disabilities'][] = [
+                                                "start_date" => $detalle->inicio_incapacidad,
+                                                "end_date" => $detalle->final_incapacidad,
+                                                "quantity" => (string)$detalle->dias_incapacidad,
+                                                "type" => (string)$tipo_incapacidad,
+                                                "payment" => $valor_pago_incapacidad
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Incapacidad', 'dias' => $detalle->dias_incapacidad, 'valor' => $valor_pago_incapacidad];
+                                            $totalDevengadoCalculado += (float)$valor_pago_incapacidad;
+                                            break;
+
+                                        case 10: // Licencia de maternidad
+                                            if (!isset($dataBody["accrued"]['maternity_leave'])) {
+                                                $dataBody["accrued"]['maternity_leave'] = [];
+                                            }
+                                            $dataBody["accrued"]['maternity_leave'][] = [
+                                                "start_date" => $detalle->inicio_licencia,
+                                                "end_date" => $detalle->final_licencia,
+                                                "quantity" => (string)$detalle->dias_licencia,
+                                                "payment" => $valor_pago_licencia
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Licencia Maternidad', 'dias' => $detalle->dias_licencia, 'valor' => $valor_pago_licencia];
+                                            $totalDevengadoCalculado += (float)$valor_pago_licencia;
+                                            break;
+
+                                        case 8: // Licencias remuneradas
+                                            if (!isset($dataBody["accrued"]['paid_leave'])) {
+                                                $dataBody["accrued"]['paid_leave'] = [];
+                                            }
+                                            $dataBody["accrued"]['paid_leave'][] = [
+                                                "start_date" => $detalle->inicio_licencia,
+                                                "end_date" => $detalle->final_licencia,
+                                                "quantity" => (string)$detalle->dias_licencia,
+                                                "payment" => $valor_pago_licencia
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Licencia Remunerada', 'dias' => $detalle->dias_licencia, 'valor' => $valor_pago_licencia];
+                                            $totalDevengadoCalculado += (float)$valor_pago_licencia;
+                                            break;
+
+                                        case 11: // Primas de servicio
+                                            if (!isset($dataBody["accrued"]['service_bonus'])) {
+                                                $dataBody["accrued"]['service_bonus'] = [];
+                                            }
+                                            $dataBody["accrued"]['service_bonus'][] = [
+                                                "quantity" => (string)$detalle->dias_prima,
+                                                "payment" => $valor_pago_prima,
+                                                "paymentNS" => "0.00"
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Prima de Servicio', 'dias' => $detalle->dias_prima, 'valor' => $valor_pago_prima];
+                                            $totalDevengadoCalculado += (float)$valor_pago_prima;
+                                            break;
+
+                                        case 12: // Cesantías
+                                            if (!isset($dataBody["accrued"]['severance'])) {
+                                                $dataBody["accrued"]['severance'] = [];
+                                            }
+                                            $existingSeverance = false;
+                                            foreach ($dataBody["accrued"]['severance'] as &$sev) {
+                                                if (isset($sev['payment'])) {
+                                                    $sev['payment'] = $valor_pago_cesantias;
+                                                    $existingSeverance = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!$existingSeverance) {
+                                                $dataBody["accrued"]['severance'][] = [
+                                                    "payment" => $valor_pago_cesantias,
+                                                    "percentage" => 12,
+                                                    "interest_payment" => "0.00"
+                                                ];
+                                            }
+                                            $debugDevengados[] = ['concepto' => 'Cesantías', 'dias' => '-', 'valor' => $valor_pago_cesantias];
+                                            $totalDevengadoCalculado += (float)$valor_pago_cesantias;
+                                            break;
+
+                                        case 13: // Intereses a cesantías
+                                            if (!isset($dataBody["accrued"]['severance'])) {
+                                                $dataBody["accrued"]['severance'] = [];
+                                            }
+                                            $existingInterest = false;
+                                            foreach ($dataBody["accrued"]['severance'] as &$sev) {
+                                                $sev['interest_payment'] = $pago_intereses_cesantias;
+                                                $existingInterest = true;
+                                                break;
+                                            }
+                                            if (!$existingInterest) {
+                                                $dataBody["accrued"]['severance'][] = [
+                                                    "payment" => "0.00",
+                                                    "percentage" => 0,
+                                                    "interest_payment" => $pago_intereses_cesantias
+                                                ];
+                                            }
+                                            $debugDevengados[] = ['concepto' => 'Intereses Cesantías', 'dias' => '-', 'valor' => $pago_intereses_cesantias];
+                                            $totalDevengadoCalculado += (float)$pago_intereses_cesantias;
+                                            break;
+
+                                        case 16: // Bonificaciones no salariales
+                                            if (!isset($dataBody["accrued"]['bonuses'])) {
+                                                $dataBody["accrued"]['bonuses'] = [];
+                                            }
+                                            $dataBody["accrued"]['bonuses'][] = [
+                                                "salary_bonus" => "0.00",
+                                                "non_salary_bonus" => $devengado
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Bonificación No Salarial', 'dias' => '-', 'valor' => $devengado];
+                                            $totalDevengadoCalculado += (float)$devengado;
+                                            break;
+
+                                        case 19: // Bonificaciones salariales
+                                            if (!isset($dataBody["accrued"]['bonuses'])) {
+                                                $dataBody["accrued"]['bonuses'] = [];
+                                            }
+                                            $dataBody["accrued"]['bonuses'][] = [
+                                                "salary_bonus" => $devengado,
+                                                "non_salary_bonus" => "0.00"
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Bonificación Salarial', 'dias' => '-', 'valor' => $devengado];
+                                            $totalDevengadoCalculado += (float)$devengado;
+                                            break;
+
+                                        case 15: // Comisiones
+                                            if (!isset($dataBody["accrued"]['commissions'])) {
+                                                $dataBody["accrued"]['commissions'] = [];
+                                            }
+                                            $dataBody["accrued"]['commissions'][] = [
+                                                "commission" => $devengado
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Comisiones', 'dias' => '-', 'valor' => $devengado];
+                                            $totalDevengadoCalculado += (float)$devengado;
+                                            break;
+
+                                        case 20: // Vacaciones
+                                            if (!isset($dataBody["accrued"]['paid_vacation'])) {
+                                                $dataBody["accrued"]['paid_vacation'] = [];
+                                            }
+                                            $dataBody["accrued"]['paid_vacation'][] = [
+                                                "quantity" => (string)$detalle->dias_vacaciones,
+                                                "payment" => $devengado
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Vacaciones', 'dias' => $detalle->dias_vacaciones, 'valor' => $devengado];
+                                            $totalDevengadoCalculado += (float)$devengado;
+                                            break;
+
+                                        case 21: // Licencias no remuneradas
+                                            if (!isset($dataBody["accrued"]['non_paid_leave'])) {
+                                                $dataBody["accrued"]['non_paid_leave'] = [];
+                                            }
+                                            $dataBody["accrued"]['non_paid_leave'][] = [
+                                                "start_date" => $detalle->inicio_licencia,
+                                                "end_date" => $detalle->final_licencia,
+                                                "quantity" => (string)$detalle->dias_licencia_noremuneradas
+                                            ];
+                                            $debugDevengados[] = ['concepto' => 'Licencia No Remunerada', 'dias' => $detalle->dias_licencia_noremuneradas, 'valor' => '0.00'];
+                                            break;
+
+                                        case 18: // Reintegro
+                                            $dataBody["accrued"]["refund"] = $devengado;
+                                            $debugDevengados[] = ['concepto' => 'Reintegro/Reembolso', 'dias' => '-', 'valor' => $devengado];
+                                            $totalDevengadoCalculado += (float)$devengado;
+                                            break;
+                                    }
+
+                                    // ==========================================
+                                    // DEDUCCIONES
+                                    // ==========================================
+                                    switch ($detalle->id_agrupado) {
+                                        case 4: // Pensión
+                                            $dataBody["deductions"]["pension_type_law_deductions_id"] = (int)$pension_type_law_deductions_id;
+                                            $dataBody["deductions"]["pension_deduction"] = $deduccion_pension;
+                                            $debugDeducciones[] = ['concepto' => 'Pensión', 'valor' => $deduccion_pension];
+                                            $totalDeduccionCalculado += (float)$deduccion_pension;
+                                            break;
+
+                                        case 5: // Salud (EPS)
+                                            $dataBody["deductions"]["eps_type_law_deductions_id"] = (int)$eps_type_law_deductions_id;
+                                            $dataBody["deductions"]["eps_deduction"] = $deduccion_eps;
+                                            $debugDeducciones[] = ['concepto' => 'EPS (Salud)', 'valor' => $deduccion_eps];
+                                            $totalDeduccionCalculado += (float)$deduccion_eps;
+                                            break;
+
+                                        case 6: // Fondo de solidaridad
+                                            $dataBody["deductions"]["voluntary_pension"] = $deduccion_fondo_solidaridad;
+                                            $debugDeducciones[] = ['concepto' => 'Fondo Solidaridad', 'valor' => $deduccion_fondo_solidaridad];
+                                            $totalDeduccionCalculado += (float)$deduccion_fondo_solidaridad;
+                                            break;
+
+                                        case 7: // Otras deducciones
+                                            if (!isset($dataBody["deductions"]["other_deductions"])) {
+                                                $dataBody["deductions"]["other_deductions"] = [];
+                                            }
+                                            $dataBody["deductions"]['other_deductions'][] = [
+                                                "other_deduction" => $deducciones
+                                            ];
+                                            $debugDeducciones[] = ['concepto' => 'Otras Deducciones', 'valor' => $deducciones];
+                                            $totalDeduccionCalculado += (float)$deducciones;
+                                            break;
+
+                                        case 14: // Libranzas
+                                            if (!isset($dataBody["deductions"]["orders"])) {
+                                                $dataBody["deductions"]["orders"] = [];
+                                            }
+                                            $dataBody["deductions"]['orders'][] = [
+                                                "description" => $detalle->descripcion,
+                                                "deduction" => $deducciones
+                                            ];
+                                            $debugDeducciones[] = ['concepto' => 'Libranza: ' . $detalle->descripcion, 'valor' => $deducciones];
+                                            $totalDeduccionCalculado += (float)$deducciones;
+                                            break;
+
+                                        case 17: // Deuda empresa
+                                            $dataBody["deductions"]["debt"] = $deducciones;
+                                            $debugDeducciones[] = ['concepto' => 'Préstamo Empresa', 'valor' => $deducciones];
+                                            $totalDeduccionCalculado += (float)$deducciones;
+                                            break;
+                                    }
+                                }
+
+                                // TOTALES
+                                $dataBody["accrued"]["accrued_total"] = $total_devengado;
+                                $dataBody["deductions"]["deductions_total"] = $total_deduccion;
+
+                                // Calcular neto
+                                $netoAPagar = (float)$total_devengado - (float)$total_deduccion;
+                                $netoCalculado = $totalDevengadoCalculado - $totalDeduccionCalculado;
+
+                                // Guardar para debug
+                                $debugDocumentos[] = [
+                                    'documento' => $documento,
+                                    'dataBody' => $dataBody,
+                                    'debugDevengados' => $debugDevengados,
+                                    'debugDeducciones' => $debugDeducciones,
+                                    'totalDevengadoBD' => (float)$total_devengado,
+                                    'totalDeduccionBD' => (float)$total_deduccion,
+                                    'totalDevengadoCalculado' => $totalDevengadoCalculado,
+                                    'totalDeduccionCalculado' => $totalDeduccionCalculado,
+                                    'netoAPagar' => $netoAPagar,
+                                    'netoCalculado' => $netoCalculado,
+                                    'consecutivo' => $consecutivo,
+                                    'empleado' => $primer_nombre . ' ' . $segundo_nombre . ' ' . $primer_apellido . ' ' . $segundo_apellido,
+                                    'documento_empleado' => $documento_empleado
+                                ];
+
+                                // ==========================================
+                                // SI ES DEBUG, NO ENVIAR
+                                // ==========================================
+                                if ($DEBUG_MODE) {
+                                    continue; // Seguir acumulando para mostrar al final
+                                }
+
+                                // ==========================================
+                                // ENVÍO A LA API
+                                // ==========================================
+                                $dataBodyJson = json_encode($dataBody, JSON_UNESCAPED_UNICODE);
+
+                                Yii::info(
+                                    "JSON NOMINA ELECTRONICA ENVIADO A DIAN:\n" . json_encode($dataBody, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                                    'nomina_electronica.debug.json'
+                                );
+
+                                $curl = curl_init();
+
+                                curl_setopt_array($curl, [
+                                    CURLOPT_URL => $API_URL,
                                     CURLOPT_RETURNTRANSFER => true,
-                                    CURLOPT_ENCODING => '',
-                                    CURLOPT_MAXREDIRS => 10,
-                                    CURLOPT_TIMEOUT => 300,
-                                    CURLOPT_FOLLOWLOCATION => true,
-                                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                                    CURLOPT_CUSTOMREQUEST => 'POST',
-                                    CURLOPT_POSTFIELDS => $dataBody
+                                    CURLOPT_HEADER => true,
+                                    CURLOPT_POST => true,
+                                    CURLOPT_POSTFIELDS => $dataBodyJson,
+                                    CURLOPT_HTTPHEADER => [
+                                        'Content-Type: application/json',
+                                        'Accept: application/json',
+                                        'Authorization: Bearer ' . $apiBearerToken,
+                                    ],
+                                    CURLOPT_TIMEOUT => 120,
+                                    CURLOPT_SSL_VERIFYPEER => false,
+                                    CURLOPT_SSL_VERIFYHOST => false,
                                 ]);
-                               
-                                $response = curl_exec($curl);
-                                $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                                if (curl_errno($curl)) {
-                                   throw new Exception(curl_error($curl));
-                                }
-                                curl_close($curl);
-                                $data = json_decode($response, true);
-                               
-                                Yii::info("Respuesta completa de la API desde Begranda: $response", __METHOD__);
-                                // Verificar errores de conexión o códigos HTTP inesperados
-                                if ($response === false || $httpCode !== 200) {
-                                    $error = $response === false ? curl_error($curl) : "HTTP $httpCode";
-                                    Yii::$app->getSession()->setFlash('error', 'Hubo un problema al comunicarse con la DIAN. Intenta reenviar más tarde.');
-                                    Yii::error("Error en la solicitud CURL: $error", __METHOD__);
-                                    return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
-                                }
-                                if(isset($data) && isset($data['add']['ResponseDian']) && $data['add']['ResponseDian']['Envelope']['Body']['SendNominaSyncResponse']['SendNominaSyncResult']['IsValid'] == "true"){
-                                    if (isset($data['add']['cune'])) {
-                                        $cune = $data['add']['cune'];
+
+                                try {
+                                    $response = curl_exec($curl);
+                                    $info = curl_getinfo($curl);
+
+                                    if (curl_errno($curl)) {
+                                        $err = curl_error($curl);
+                                        curl_close($curl);
+                                        throw new \Exception("cURL: " . $err);
+                                    }
+
+                                    $headerSize = $info['header_size'] ?? 0;
+                                    $rawBody = $headerSize ? substr($response, $headerSize) : $response;
+                                    $httpCode = (int)($info['http_code'] ?? 0);
+                                    curl_close($curl);
+
+                                    Yii::info("HTTP_CODE={$httpCode}\nBODY:\n{$rawBody}", 'nomina_electronica.debug.response');
+
+                                    $data = json_decode($rawBody, true);
+                                    if (!is_array($data)) {
+                                        throw new \Exception("API devolvió no-JSON. HTTP {$httpCode}. Body: {$rawBody}");
+                                    }
+
+                                    if ($httpCode < 200 || $httpCode >= 300) {
+                                        $msg = $data['message'] ?? 'Error API';
+                                        $errors = $data['errors'] ?? [];
+
+                                        if (!empty($errors)) {
+                                            Yii::error([
+                                                'http_code' => $httpCode,
+                                                'message' => $msg,
+                                                'errors' => $errors,
+                                            ], 'nomina_electronica.debug.validation_errors');
+
+                                            $flat = [];
+                                            foreach ($errors as $field => $arr) {
+                                                $flat[] = $field . ': ' . (is_array($arr) ? implode(' | ', $arr) : $arr);
+                                            }
+                                            $msg .= " | " . implode(' || ', $flat);
+                                        }
+
+                                        throw new \Exception($msg);
+                                    }
+
+                                    // Verificar respuesta exitosa
+                                    $cune = $data['cune'] ?? $data['data']['cune'] ?? null;
+                                    $qrstr = $data['qrstr'] ?? $data['data']['qrstr'] ?? $data['QRStr'] ?? null;
+
+                                    if ($cune) {
                                         $documento->cune = $cune;
                                         $documento->fecha_envio_begranda = date("Y-m-d H:i:s");
                                         $documento->fecha_recepcion_dian = date("Y-m-d H:i:s");
-                                        $qrstr = $data['add']['QRStr'];
                                         $documento->qrstr = $qrstr;
                                         $documento->exportado_nomina = 1;
                                         $documento->save(false);
-                                        $contador += 1;                               
-                                    }    
-                               }else{
-                                   $errors = [];
-                                        // Documento no procesado por la DIAN
-                                        if(isset($data["errors"])){ // Control Errores Begranda
-                                            $errors = $data["errors"];
-                                        }else if(isset($data['ResponseDian'])){ // Control de Errores DIAN
-                                            $errors = $data['ResponseDian']['Envelope']['Body']['SendNominaSyncResponse']['SendNominaSyncResult']['ErrorMessage'];
-                                        }else{
-                                            $errorMessage = isset($data['message']) ? $data['message'] : 'Error desconocido';
-                                            // Mostrar el mensaje específico de la API
-                                            Yii::$app->getSession()->setFlash('error', "No se pudo enviar el documento electronico. Error: $errorMessage.");
-                                            Yii::error("Error al reenviar documento de nomina No ($consecutivo): " . print_r($data, true), __METHOD__);
-                                          
-                                        }
-                               }
-                            } 
-                            //Cierre la confirmacion de chequeo de registro que se van a envir.
-                            
-                        }//CIERRA EL PROCESO PARA
-                        
-                        Yii::$app->getSession()->setFlash('success','Se enviaron ('.$contador.') registros a la DIAN para el proceso de nomina electronica.');
-                        return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
-                    }else{
-                        Yii::$app->getSession()->setFlash('error','Debe de seleccionar el registro para enviar a la DIAN. ');
+                                        $contador++;
+
+                                        Yii::info("El consecutivo de Nómina No $consecutivo, fue enviado exitosamente. CUNE: $cune", __METHOD__);
+                                    } else {
+                                        throw new \Exception("No se recibió CUNE en la respuesta");
+                                    }
+
+                                } catch (\Exception $e) {
+                                    Yii::error("ERROR ENVÍO NÓMINA ELECTRÓNICA: " . $e->getMessage(), 'nomina_electronica.debug.error');
+                                    Yii::$app->getSession()->setFlash('error', "Error al enviar nómina $consecutivo: " . $e->getMessage());
+                                }
+                            }
+                        }
+
+                        // ==========================================
+                        // MOSTRAR DEBUG HTML
+                        // ==========================================
+                        if ($DEBUG_MODE && !empty($debugDocumentos)) {
+                            $html = '<!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="UTF-8">
+                                <title>🔍 DEBUG - Verificación Nómina Electrónica</title>
+                                <style>
+                                    * { box-sizing: border-box; }
+                                    body { 
+                                        font-family: "Segoe UI", Arial, sans-serif; 
+                                        background: #1a1a2e; 
+                                        color: #eee; 
+                                        margin: 0; 
+                                        padding: 20px; 
+                                    }
+                                    .container { max-width: 1600px; margin: 0 auto; }
+                                    .header { 
+                                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                        padding: 25px; 
+                                        border-radius: 10px; 
+                                        margin-bottom: 20px;
+                                        text-align: center;
+                                    }
+                                    .header h1 { margin: 0; font-size: 28px; }
+                                    .header p { margin: 10px 0 0; opacity: 0.9; }
+                                    .warning-box {
+                                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                                        padding: 20px;
+                                        border-radius: 10px;
+                                        margin-bottom: 20px;
+                                        text-align: center;
+                                    }
+                                    .warning-box strong { font-size: 18px; }
+                                    .config-box {
+                                        background: #16213e;
+                                        padding: 15px 20px;
+                                        border-radius: 10px;
+                                        margin-bottom: 20px;
+                                        border-left: 4px solid #4ecca3;
+                                    }
+                                    .config-box h3 { margin: 0 0 10px; color: #4ecca3; font-size: 14px; }
+                                    .config-box code { 
+                                        background: #0d1117; 
+                                        padding: 3px 8px; 
+                                        border-radius: 4px; 
+                                        font-size: 12px;
+                                        word-break: break-all;
+                                    }
+                                    .document-card {
+                                        background: #16213e;
+                                        border-radius: 10px;
+                                        margin-bottom: 30px;
+                                        overflow: hidden;
+                                        border: 1px solid #0f3460;
+                                    }
+                                    .document-header {
+                                        background: #0f3460;
+                                        padding: 20px;
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                    }
+                                    .document-header h2 { margin: 0; font-size: 20px; }
+                                    .badge {
+                                        background: #e94560;
+                                        padding: 5px 15px;
+                                        border-radius: 20px;
+                                        font-size: 12px;
+                                        font-weight: bold;
+                                    }
+                                    .document-body { padding: 20px; }
+                                    .info-grid {
+                                        display: grid;
+                                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                                        gap: 15px;
+                                        margin-bottom: 20px;
+                                    }
+                                    .info-item {
+                                        background: #1a1a2e;
+                                        padding: 15px;
+                                        border-radius: 8px;
+                                        border-left: 4px solid #667eea;
+                                    }
+                                    .info-item label { 
+                                        display: block; 
+                                        font-size: 11px; 
+                                        color: #888; 
+                                        margin-bottom: 5px; 
+                                        text-transform: uppercase;
+                                    }
+                                    .info-item span { font-size: 16px; font-weight: 600; }
+                                    .section-title {
+                                        font-size: 16px;
+                                        color: #667eea;
+                                        margin: 25px 0 15px;
+                                        padding-bottom: 10px;
+                                        border-bottom: 2px solid #0f3460;
+                                    }
+                                    table {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        margin-bottom: 20px;
+                                    }
+                                    th {
+                                        background: #0f3460;
+                                        padding: 12px 15px;
+                                        text-align: left;
+                                        font-size: 12px;
+                                        text-transform: uppercase;
+                                    }
+                                    td {
+                                        padding: 12px 15px;
+                                        border-bottom: 1px solid #0f3460;
+                                    }
+                                    tr:hover { background: rgba(102, 126, 234, 0.1); }
+                                    .text-right { text-align: right; }
+                                    .text-center { text-align: center; }
+                                    .money { font-family: "Consolas", monospace; color: #4ecca3; }
+                                    .money-negative { font-family: "Consolas", monospace; color: #e94560; }
+                                    .total-row { 
+                                        background: #0f3460 !important; 
+                                        font-weight: bold;
+                                    }
+                                    .comparison-grid {
+                                        display: grid;
+                                        grid-template-columns: repeat(3, 1fr);
+                                        gap: 15px;
+                                        margin-bottom: 20px;
+                                    }
+                                    .comparison-box {
+                                        background: #1a1a2e;
+                                        padding: 20px;
+                                        border-radius: 8px;
+                                        text-align: center;
+                                    }
+                                    .comparison-box.success { border: 2px solid #4ecca3; }
+                                    .comparison-box.warning { border: 2px solid #ffc107; }
+                                    .comparison-box.error { border: 2px solid #e94560; }
+                                    .comparison-box label { 
+                                        display: block; 
+                                        font-size: 11px; 
+                                        color: #888; 
+                                        margin-bottom: 10px;
+                                    }
+                                    .comparison-box .value { 
+                                        font-size: 24px; 
+                                        font-weight: bold; 
+                                    }
+                                    .comparison-box .diff {
+                                        font-size: 12px;
+                                        margin-top: 5px;
+                                    }
+                                    .json-container {
+                                        background: #0d1117;
+                                        border-radius: 8px;
+                                        overflow: hidden;
+                                        margin-top: 20px;
+                                    }
+                                    .json-header {
+                                        background: #161b22;
+                                        padding: 10px 15px;
+                                        font-size: 12px;
+                                        color: #8b949e;
+                                        border-bottom: 1px solid #30363d;
+                                    }
+                                    .json-body {
+                                        padding: 15px;
+                                        overflow-x: auto;
+                                        max-height: 500px;
+                                        overflow-y: auto;
+                                    }
+                                    .json-body pre {
+                                        margin: 0;
+                                        font-family: "Consolas", "Monaco", monospace;
+                                        font-size: 12px;
+                                        line-height: 1.5;
+                                        color: #c9d1d9;
+                                    }
+                                    .btn {
+                                        display: inline-block;
+                                        padding: 12px 30px;
+                                        border-radius: 8px;
+                                        text-decoration: none;
+                                        font-weight: 600;
+                                        margin: 5px;
+                                        transition: all 0.3s;
+                                    }
+                                    .btn-primary { background: #667eea; color: white; }
+                                    .btn-primary:hover { background: #5a6fd6; }
+                                    .btn-secondary { background: #6c757d; color: white; }
+                                    .btn-secondary:hover { background: #5a6268; }
+                                    .actions { text-align: center; margin-top: 30px; }
+                                    .status-ok { color: #4ecca3; }
+                                    .status-warning { color: #ffc107; }
+                                    .status-error { color: #e94560; }
+                                    .collapse-btn {
+                                        background: #667eea;
+                                        border: none;
+                                        color: white;
+                                        padding: 8px 15px;
+                                        border-radius: 5px;
+                                        cursor: pointer;
+                                        font-size: 12px;
+                                    }
+                                    .collapsible { display: none; }
+                                    .collapsible.show { display: block; }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="container">
+                                    <div class="header">
+                                        <h1>🔍 DEBUG - Verificación Nómina Electrónica</h1>
+                                        <p>Verificación de ' . count($debugDocumentos) . ' documento(s) antes de enviar a la DIAN</p>
+                                    </div>
+
+                                    <div class="warning-box">
+                                        <strong>⚠️ MODO DEBUG ACTIVADO</strong><br>
+                                        Los documentos NO fueron enviados a la DIAN. Esta es solo una verificación de datos.
+                                    </div>
+
+                                    <div class="config-box">
+                                        <h3>⚙️ Configuración API</h3>
+                                        <p><strong>URL:</strong> <code>' . htmlspecialchars($API_URL) . '</code></p>
+                                        <p><strong>Token:</strong> <code>' . htmlspecialchars(substr($apiBearerToken, 0, 20)) . '...</code></p>
+                                    </div>';
+
+                            foreach ($debugDocumentos as $index => $debug) {
+                                $diffDevengado = abs($debug['totalDevengadoBD'] - $debug['totalDevengadoCalculado']);
+                                $diffDeduccion = abs($debug['totalDeduccionBD'] - $debug['totalDeduccionCalculado']);
+                                $diffNeto = abs($debug['netoAPagar'] - $debug['netoCalculado']);
+
+                                $statusDevengado = $diffDevengado < 1 ? 'success' : ($diffDevengado < 100 ? 'warning' : 'error');
+                                $statusDeduccion = $diffDeduccion < 1 ? 'success' : ($diffDeduccion < 100 ? 'warning' : 'error');
+                                $statusNeto = $diffNeto < 1 ? 'success' : ($diffNeto < 100 ? 'warning' : 'error');
+
+                                $html .= '
+                                    <div class="document-card">
+                                        <div class="document-header">
+                                            <h2>📄 Nómina #' . $debug['consecutivo'] . '</h2>
+                                            <span class="badge">Documento ' . ($index + 1) . ' de ' . count($debugDocumentos) . '</span>
+                                        </div>
+                                        <div class="document-body">
+                                            <div class="info-grid">
+                                                <div class="info-item">
+                                                    <label>Empleado</label>
+                                                    <span>' . htmlspecialchars($debug['empleado']) . '</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <label>Documento</label>
+                                                    <span>' . htmlspecialchars($debug['documento_empleado']) . '</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <label>Consecutivo</label>
+                                                    <span>NI-' . $debug['consecutivo'] . '</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <label>Fecha Emisión</label>
+                                                    <span>' . date('Y-m-d') . '</span>
+                                                </div>
+                                            </div>
+
+                                            <h3 class="section-title">📊 Comparación: Base de Datos vs Calculado</h3>
+                                            <div class="comparison-grid">
+                                                <div class="comparison-box ' . $statusDevengado . '">
+                                                    <label>Total Devengado</label>
+                                                    <div class="value money">$' . number_format($debug['totalDevengadoBD'], 2) . '</div>
+                                                    <div class="diff">Calculado: $' . number_format($debug['totalDevengadoCalculado'], 2) . '</div>
+                                                    <div class="diff ' . ($statusDevengado == 'success' ? 'status-ok' : 'status-warning') . '">
+                                                        Dif: $' . number_format($diffDevengado, 2) . ' ' . ($statusDevengado == 'success' ? '✅' : '⚠️') . '
+                                                    </div>
+                                                </div>
+                                                <div class="comparison-box ' . $statusDeduccion . '">
+                                                    <label>Total Deducciones</label>
+                                                    <div class="value money-negative">$' . number_format($debug['totalDeduccionBD'], 2) . '</div>
+                                                    <div class="diff">Calculado: $' . number_format($debug['totalDeduccionCalculado'], 2) . '</div>
+                                                    <div class="diff ' . ($statusDeduccion == 'success' ? 'status-ok' : 'status-warning') . '">
+                                                        Dif: $' . number_format($diffDeduccion, 2) . ' ' . ($statusDeduccion == 'success' ? '✅' : '⚠️') . '
+                                                    </div>
+                                                </div>
+                                                <div class="comparison-box ' . $statusNeto . '">
+                                                    <label>Neto a Pagar</label>
+                                                    <div class="value money">$' . number_format($debug['netoAPagar'], 2) . '</div>
+                                                    <div class="diff">Calculado: $' . number_format($debug['netoCalculado'], 2) . '</div>
+                                                    <div class="diff ' . ($statusNeto == 'success' ? 'status-ok' : 'status-warning') . '">
+                                                        Dif: $' . number_format($diffNeto, 2) . ' ' . ($statusNeto == 'success' ? '✅' : '⚠️') . '
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h3 class="section-title">💰 Detalle de Devengados</h3>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Concepto</th>
+                                                        <th class="text-center">Días/Cantidad</th>
+                                                        <th class="text-right">Valor</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>';
+
+                                foreach ($debug['debugDevengados'] as $dev) {
+                                    $html .= '
+                                                    <tr>
+                                                        <td>' . htmlspecialchars($dev['concepto']) . '</td>
+                                                        <td class="text-center">' . $dev['dias'] . '</td>
+                                                        <td class="text-right money">$' . number_format((float)$dev['valor'], 2) . '</td>
+                                                    </tr>';
+                                }
+
+                                $html .= '
+                                                    <tr class="total-row">
+                                                        <td colspan="2"><strong>TOTAL DEVENGADOS</strong></td>
+                                                        <td class="text-right money"><strong>$' . number_format($debug['totalDevengadoCalculado'], 2) . '</strong></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                            <h3 class="section-title">📉 Detalle de Deducciones</h3>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Concepto</th>
+                                                        <th class="text-right">Valor</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>';
+
+                                foreach ($debug['debugDeducciones'] as $ded) {
+                                    $html .= '
+                                                    <tr>
+                                                        <td>' . htmlspecialchars($ded['concepto']) . '</td>
+                                                        <td class="text-right money-negative">$' . number_format((float)$ded['valor'], 2) . '</td>
+                                                    </tr>';
+                                }
+
+                                $html .= '
+                                                    <tr class="total-row">
+                                                        <td><strong>TOTAL DEDUCCIONES</strong></td>
+                                                        <td class="text-right money-negative"><strong>$' . number_format($debug['totalDeduccionCalculado'], 2) . '</strong></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                            <button class="collapse-btn" onclick="toggleJson(' . $index . ')">📄 Ver/Ocultar JSON</button>
+                                            <div id="json-' . $index . '" class="json-container collapsible">
+                                                <div class="json-header">
+                                                    📋 JSON que se enviará a la DIAN
+                                                </div>
+                                                <div class="json-body">
+                                                    <pre>' . htmlspecialchars(json_encode($debug['dataBody'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) . '</pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>';
+                            }
+
+                            $html .= '
+                                    <div class="actions">
+                                        <a href="' . \yii\helpers\Url::to(['programacion-nomina/listar_nomina_electronica']) . '" class="btn btn-secondary">← Volver al listado</a>
+                                    </div>
+                                </div>
+
+                                <script>
+                                function toggleJson(index) {
+                                    var element = document.getElementById("json-" + index);
+                                    element.classList.toggle("show");
+                                }
+                                </script>
+                            </body>
+                            </html>';
+
+                            echo $html;
+                            Yii::$app->end();
+                        }
+
+                        // Mensaje final si no es DEBUG
+                        if (!$DEBUG_MODE) {
+                            if ($contador > 0) {
+                                Yii::$app->getSession()->setFlash('success', "Se enviaron ($contador) registros a la DIAN para el proceso de nómina electrónica.");
+                            }
+                            return $this->redirect(['programacion-nomina/listar_nomina_electronica']);
+                        }
+
+                    } else {
+                        Yii::$app->getSession()->setFlash('error', 'Debe seleccionar el registro para enviar a la DIAN.');
                     }
-                }    
+                }
+   
                 return $this->render('listar_documentos_electronicos', [
                             'model' => $model,
                             'form' => $form,
@@ -2288,7 +2864,7 @@ class ProgramacionNominaController extends Controller {
             //codigo para actualizar dias de licencia
             $nomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
             foreach ($nomina as $licencia):
-                $this->ModuloActualizarDiasLicencia($licencia);
+               $this->ModuloActualizarDiasLicencia($licencia);
             endforeach;
 
             //codigo que actualiza los valores a pagar del adicion de pago permanente cuando
@@ -2684,8 +3260,13 @@ class ProgramacionNominaController extends Controller {
             $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
             $detalle_nomina_salario->vlr_devengado_no_prestacional = 0;
         } else {
-           $detalle_nomina_salario->vlr_devengado_no_prestacional = $valor_proporcional;
-           $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
+            if($concepto_sal->debito_credito == 2){
+                $detalle_nomina_salario->vlr_devengado_no_prestacional = 0;
+                $detalle_nomina_salario->vlr_devengado = 0;
+            }else{
+                $detalle_nomina_salario->vlr_devengado_no_prestacional = $valor_proporcional;
+                $detalle_nomina_salario->vlr_devengado = $valor_proporcional;
+            }    
         }
 
         // 7. Guardar los cambios

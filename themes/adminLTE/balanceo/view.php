@@ -362,7 +362,11 @@ $operarios = ArrayHelper::map(\app\models\Operarios::find()->where(['=','estado'
                                                     
                                            <tr style="font-size: 85%;">
                                                 <td><?= $val->proceso->idproceso?></td>
-                                                 <td><?= $val->operario->nombrecompleto ?></td>
+                                                <?php if($val->id_operario != null){?>
+                                                    <td><?= $val->operario->nombrecompleto ?></td>
+                                                <?php }else{?>
+                                                     <td><?= 'NO FOUND' ?></td>
+                                                <?php }?>    
                                                 <td><?= $val->proceso->proceso ?></td>
                                                 <td><?= $val->minutos ?></td>
                                                 <td><?= $val->segundos ?></td>

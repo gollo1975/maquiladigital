@@ -46,7 +46,8 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <div class="panel-body">
             <div class="row">
-                  <?= $form->field($modelo, 'llave_api_token')->textInput(['maxlength' => true]) ?>    
+                <?= $form->field($modelo, 'llave_api_token')->textInput(['maxlength' => true]) ?>  
+                <?= $form->field($modelo, 'llave_uuid')->textInput(['maxlength' => true]) ?>   
             </div>
         </div>
     </div>   

@@ -31,7 +31,7 @@ class ConfiguracionDocumentoElectronico extends \yii\db\ActiveRecord
         return [
             [['id_configuracion'], 'required'],
             [['id_configuracion', 'aplica_factura_electronica', 'aplica_documento_soporte', 'aplica_nomina_electronica'], 'integer'],
-            [['llave_api_token'], 'string', 'max' => 2000],
+            [['llave_api_token','llave_uuid'], 'string', 'max' => 2000],
             [['id_configuracion'], 'unique'],
         ];
     }
@@ -47,6 +47,7 @@ class ConfiguracionDocumentoElectronico extends \yii\db\ActiveRecord
             'aplica_documento_soporte' => 'Aplica Documento Soporte',
             'aplica_nomina_electronica' => 'Aplica Nomina Electronica',
             'llave_api_token' => 'Llave Api Token',
+            'llave_uuid' => 'llave_uuid',
         ];
     }
 }

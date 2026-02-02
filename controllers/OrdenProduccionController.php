@@ -3441,55 +3441,50 @@ class OrdenProduccionController extends Controller {
             $ordenproduccion = null;
             $id_tipo = null;
             $condicion = 1;
+            $model = [];
+            $totalRegistro = null;
+            $pages = null;
             $operaciones = ProcesoProduccion::find()->orderBy('proceso ASC')->all();
             $maquinas = \app\models\TiposMaquinas::find()->orderBy('descripcion ASC')->all();
             if ($form->load(Yii::$app->request->get())) {
                 if ($form->validate()) {
                     $idproceso = Html::encode($form->idproceso);
                     $ordenproduccion = Html::encode($form->idordenproduccion);
+                    $totalRegistro = Html::encode($form->totalRegistro);
                     $id_tipo = Html::encode($form->id_tipo);
-                    $table = FlujoOperaciones::find()
-                            ->andFilterWhere(['=', 'idproceso', $idproceso])
-                            ->andFilterWhere(['=', 'idordenproduccion', $ordenproduccion])
-                            ->andFilterWhere(['=', 'id_tipo', $id_tipo])
-                            ->orderBy('fecha_creacion desc');
-                    $tableexcel = $table->all();
-                    $count = clone $table;
-                    $to = $count->count();
+                    if (!$idproceso && !$ordenproduccion && !$id_tipo) {
+                        Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un criterio para la consulta.'); 
+                        return $this->redirect(['indexoperacionprenda']);
+                    }
+                   // 1. Definir la base de la consulta (SIN LIMITES todavía)
+                   $query = FlujoOperaciones::find()
+                        ->andFilterWhere(['idproceso' => $idproceso])
+                        ->andFilterWhere(['idordenproduccion' => $ordenproduccion])
+                        ->andFilterWhere(['id_tipo' => $id_tipo])
+                        ->orderBy('fecha_creacion DESC')
+                        ->limit($totalRegistro); // <--- FORZAMOS EL LÍMITE AQUÍ PARA TODO
+
+                    // 2. Para el Excel, tomamos los datos directamente de la query limitada
+                    $tableexcel = $query->all(); 
+
+                    // 3. Para la vista, ajustamos la paginación para que no exceda ese límite
+                    $totalRegistros = count($tableexcel); // Contamos solo los que trajo el límite (máximo 15)
+
                     $pages = new Pagination([
-                        'pageSize' => 50,
-                        'totalCount' => $count->count()
+                        'pageSize' => $totalRegistro, // Si quieres que se vean todos en una sola página
+                        'totalCount' => $totalRegistros,
                     ]);
-                    $model = $table
-                            ->offset($pages->offset)
-                            ->limit($pages->limit)
-                            ->all();
+
+                    // 4. El modelo para la vista
+                    $model = $tableexcel; // Ya no necesitas hacer otra consulta ->all(), usa los mismos datos
+
                     if(isset($_POST['excel'])){
-                        //$table = $table->all();
-                        $this->actionExcelconsultaoperacionesprenda($tableexcel);
+                        return $this->actionExcelconsultaoperacionesprenda($tableexcel);
                     }
                 } else {
                     $form->getErrors();
                 }
-            } else {
-                $table = FlujoOperaciones::find()
-                        ->orderBy('fecha_creacion desc');
-                $tableexcel = $table->all();
-                $count = clone $table;
-                $pages = new Pagination([
-                    'pageSize' => 40,
-                    'totalCount' => $count->count(),
-                ]);
-                $model = $table
-                        ->offset($pages->offset)
-                        ->limit($pages->limit)
-                        ->all();
-                if(isset($_POST['excel'])){
-                        //$table = $table->all();
-                        $this->actionExcelconsultaoperacionesprenda($tableexcel);
-                }
             }
-
             return $this->render('indexfichaoperaciones', [
                         'model' => $model,
                         'form' => $form,
@@ -4104,6 +4099,24 @@ class OrdenProduccionController extends Controller {
         return $this->renderAjax('ver_informacion_orden', [
             'id' => $id,
             'model' => $model,
+        ]); 
+    }
+    
+    //PERMITE MOSTRAR EL PROMEDIO DE EFICIENCIA DE LA CONFECCION 
+    
+    public function actionVer_informacion_eficiencia($id, $id_operacion) {
+        $model = \app\models\ValorPrendaUnidadDetalles::find()->where([
+                                                'idordenproduccion'=> $id,
+                                                'idproceso' => $id_operacion])->all();
+       
+        if (Yii::$app->request->post()) {
+           
+        }
+       
+        return $this->renderAjax('ver_informacion_eficiencia', [
+            'id' => $id,
+            'model' => $model,
+            'id_operacion' => $id_operacion,
         ]); 
     }
     

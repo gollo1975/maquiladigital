@@ -13,15 +13,16 @@ class FormFiltroConsultaOperaciones extends Model
     public $idproceso;
     public $idordenproduccion;
     public $id_tipo;
-   
-    
+    public $totalRegistro;
+
+
+
+
     public function rules()
     {
         return [
 
-            ['idproceso', 'default' ],
-            ['idordenproduccion', 'default'],
-            ['id_tipo', 'default'],
+            [['idproceso','totalRegistro','idordenproduccion','id_tipo'], 'integer' ],
          
         
         ];
@@ -34,6 +35,7 @@ class FormFiltroConsultaOperaciones extends Model
             'idproceso' => 'Operaciones:',
             'idordenproduccion' => 'Orden de Producción:',
             'id_tipo' => 'Maquina:',
+            'totalRegistro' => 'Cantidad de registros:'
            
         ];
     }

@@ -42,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
         Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
 
-<div class="panel-body" id="filtroproceso" style="display:none">
+<div class="panel-body" id="filtroproceso" style="display:block">
         <div class="row">
             <?= $formulario->field($form, 'idproceso')->widget(Select2::classname(), [
                 'data' => $operaciones,
@@ -58,9 +58,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     'allowClear' => true
                 ],
             ]); ?>
-        </div>
-        <div class="row" >
             <?= $formulario->field($form, "idordenproduccion")->input("search") ?>
+            <?= $formulario->field($form, 'totalRegistro')->dropDownList(['10' => '10', '20' => '20', '50' => '50','100' => '100']) ?>
         </div>
         
         <div class="panel-footer text-right">
@@ -75,52 +74,89 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="table-responsive">
     <div class="panel panel-success ">
         <div class="panel-heading">
-            Registros: <span class="badge"><?= $pagination->totalCount ?></span>
+            Registros <span class="badge"><?= isset($model) ? count($model) : 0 ?></span>
         </div>
         <table class="table table-bordered table-hover">
             <thead>
-            <tr>
+            <tr style="font-size: 85%;">
                 <th scope="col" style='background-color:#B9D5CE;'>Código</th>  
                 <th scope="col" style='background-color:#B9D5CE;'>Operación</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Maquina</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Op Interna</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Referencia</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Op Cliente</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Cliente</th>
-                 <th scope="col" style='background-color:#B9D5CE;'>Producto</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Op Interna</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Segundos</th>
                 <th scope="col" style='background-color:#B9D5CE;'>Minutos</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Tipo Operacion</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Fecha creación</th>
-                <th scope="col" style='background-color:#B9D5CE;'>Usuario</th>
+                <th scope="col" style='background-color:#B9D5CE;'>Tipo proceso</th>
                  <th scope="col" style='background-color:#B9D5CE;'></th>
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($model as $val): ?>
-                <tr style="font-size: 85%;">
-                <td><?= $val->idproceso ?></td>
-               <td><?= $val->proceso->proceso ?></td>
-                <td><?= $val->tipomaquina->descripcion ?></td>
-                <td><?= $val->ordenproduccion->ordenproduccion ?></td>
-                <td><?= $val->ordenproduccion->cliente->nombrecorto ?></td>
-                   <td><?= $val->ordenproduccion->codigoproducto ?></td>
-                 <td><?= $val->idordenproduccion ?></td>
-                <td><?= $val->segundos ?></td>
-                <td><?= $val->minutos ?></td>
-                <?php if($val->operacion == 0){?>
-                    <td style='background-color:#B9D5CE;'><?= 'BALANCEO' ?></td>
-                <?php }else{?>
-                    <td style='background-color:#A5D3E6;'><?= 'PREPARACION' ?></td>
-                <?php } ?>    
-                <td><?= $val->fecha_creacion ?></td>
-                <td><?= $val->usuariosistema ?></td>
-                <td>
-                    <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span> ', ['viewconsultaficha', 'id' => $val->idordenproduccion,'condicion' => $condicion] ) ?>
-                </td>
-            </tr>
-            </tbody>
-            <?php endforeach; ?>
+                <?php
+                
+                if (!empty($model)){
+                    $total_minutos = 0;
+                    foreach ($model as $val):
+                        $total_minutos += $val->minutos;
+                        ?>
+                        <tr style="font-size: 85%;">
+                            <td><?= $val->idproceso ?></td>
+                            <td><?= $val->proceso->proceso ?></td>
+                            <td><?= $val->tipomaquina->descripcion ?></td>
+                            <td><?= $val->idordenproduccion ?></td>
+                            <td><?= $val->ordenproduccion->codigoproducto ?></td>
+                            <td><?= $val->ordenproduccion->ordenproduccion ?></td>
+                            <td><?= $val->ordenproduccion->cliente->nombrecorto ?></td>
+                            <td><?= $val->segundos ?></td>
+                            <td><?= $val->minutos ?></td>
+                            <?php if($val->operacion == 0){?>
+                                <td style='background-color:#B9D5CE;'><?= 'BALANCEO' ?></td>
+                            <?php }else{?>
+                                <td style='background-color:#A5D3E6;'><?= 'PREPARACION' ?></td>
+                            <?php } ?>    
+                                <td style="width: 15px; widows: 15px">
+                                  <?= Html::a('<span class="glyphicon glyphicon-list"></span> ',
+                                               ['orden-produccion/ver_informacion_eficiencia', 'id' => $val->idordenproduccion,'id_operacion' => $val->idproceso],
+                                               [
+                                                   'class' => '',   
+                                                   'title' => 'Ver mas informacion de la OP',
+                                                   'data-toggle'=>'modal',
+                                                   'data-target'=>'#modalverinformacioneficiencia'.$val->idordenproduccion,
+                                                   'data-backdrop' => 'static',
+                                               ])    
+                                          ?>
+                                       <div class="modal remote fade" id="modalverinformacioneficiencia<?= $val->idordenproduccion?>">
+                                           <div class="modal-dialog modal-lg" style ="width: 650px;">
+                                               <div class="modal-content"></div>
+                                           </div>
+                                       </div>
+                               </td>
+                        </tr>
+
+                    <?php endforeach;
+               }else{ ?>
+                            <tr><td colspan="9" class="text-center">No se encontraron resultados para mostrar.</td></tr>
+               <?php } ?>
+           </tbody>                
         </table>
+        <?php if (!empty($model)){
+            $samPromedio = 0;
+            $samPromedio = ($total_minutos / count($model));
+            $segundos = round($samPromedio * 60);
+            ?>
+            <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
+                <tr>
+                     <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                        <b>Sam promedio segundos: </b> <?= $segundos ?> Segundos</b> 
+                    </td>
+                    <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                        <b>Sam promedio minutos: </b> <?= round($samPromedio,2) ?> Minutos</b> 
+                    </td>
+  
+                </tr>    
+            </table> 
+       <?php } ?>    
         <div class="panel-footer text-right" >            
             <?php
                 $form = ActiveForm::begin([
@@ -132,4 +168,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
+<?php if (!empty($model)){?>
 <?= LinkPager::widget(['pagination' => $pagination]) ?>
+<?php }?>

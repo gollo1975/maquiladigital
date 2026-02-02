@@ -47,7 +47,7 @@ class ConfiguracionDocumentoElectronico extends \yii\db\ActiveRecord
             'aplica_documento_soporte' => 'Aplica Documento Soporte',
             'aplica_nomina_electronica' => 'Aplica Nomina Electronica',
             'llave_api_token' => 'Llave Api Token',
-            'llave_uuid' => 'llave_uuid',
+            'llave_uuid' => 'Llave uuid nomina:',
         ];
     }
 }

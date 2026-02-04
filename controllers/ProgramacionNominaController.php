@@ -796,12 +796,9 @@ class ProgramacionNominaController extends Controller {
                                     }
 
                                     // Verificar respuesta exitosa
-                                    $zipKey = null;
-                                    if (isset($data['ResponseDian']['Envelope']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'])) {
-                                        $zipKey = $data['ResponseDian']['Envelope']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'];
-                                    }
+                                    // Forma moderna y limpia
+                                    $zipKey = $data['ResponseDian']['Envelope']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'] ?? null;
 
-                                    
                                     $cune = $data['cune'] ?? $data['data']['cune'] ?? null;
                                     $qrstr = $data['qrstr'] ?? $data['data']['qrstr'] ?? $data['QRStr'] ?? null;
 
@@ -810,12 +807,17 @@ class ProgramacionNominaController extends Controller {
                                         $documento->fecha_envio_begranda = date("Y-m-d H:i:s");
                                         $documento->fecha_recepcion_dian = date("Y-m-d H:i:s");
                                         $documento->qrstr = $qrstr;
-                                        $documento->zipkey = $zipKey;
+
+                                        // Solo guardar zipKey si tiene valor
+                                        if (!empty($zipKey)) {
+                                            $documento->zipkey = $zipKey;
+                                        }
+
                                         $documento->exportado_nomina = 1;
                                         $documento->save(false);
                                         $contador++;
 
-                                        Yii::info("Nómina $consecutivo enviada. CUNE: $cune | ZipKey: $zipKey", __METHOD__);
+                                        Yii::info("Nómina $consecutivo enviada. CUNE: $cune | ZipKey: " . ($zipKey ?? 'N/A'), __METHOD__);
                                     } else {
                                         throw new \Exception("No se recibió CUNE en la respuesta");
                                     }

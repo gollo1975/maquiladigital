@@ -8,5 +8,5 @@ return[
     'API_ENDPOINT_URL' => 'http://109.199.105.98:8089/api/ubl2.1/invoice',
     'API_NOTACREDITO_ENDPOINT' => 'http://109.199.105.98:8089/api/ubl2.1/credit-note',
     'API_DOCUMENTO_SOPORTE' => 'http://109.199.105.98:8089/api/ubl2.1/support-document',
-    'API_NOMINA_ELECTRONICA' => 'http://109.199.105.98:8089/api/ubl2.1/payroll/'
+    'API_NOMINA_ELECTRONICA' => 'http://109.199.105.98:8089/api/ubl2.1/payroll'
 ];

@@ -41,8 +41,8 @@ class Horario extends \yii\db\ActiveRecord
         return [
             [['horario', 'desde', 'hasta', 'total_horas'], 'required'],
             [['desde', 'hasta','abreviatura'], 'string'],
-            [['total_horas','tiempo_desayuno','tiempo_almuerzo','minutos_desuso'],'number'],
-            [['aplica_tiempo_desuso','total_eventos_dia'],'integer'],
+            [['total_horas','tiempo_desayuno','tiempo_almuerzo','minutos_desuso','minutos_sam_maquina','minutos_sam_salud','total_porcentaje_autorizado'],'number'],
+            [['aplica_tiempo_desuso','total_eventos_dia','aplica_sam_maquina','total_evento_maquinas','aplica_sam_salud_ocupacional','total_evento_salud','aplica_tiempo_adicional'],'integer'],
             [['horario'], 'string', 'max' => 20],
         ];
     }
@@ -63,7 +63,19 @@ class Horario extends \yii\db\ActiveRecord
             'abreviatura' => 'Abreviatura',
             'aplica_tiempo_desuso' => 'Aplica tiempo en desuso',
             'minutos_desuso' => 'Minutos en desuso',
-            'total_eventos_dia' => 'Total eventos x dia'
+            'total_eventos_dia' => 'Total eventos x dia',
+            'minutos_sam_maquina' => 'Minutos x maquina:',
+            'minutos_sam_salud' => 'Minutos SO',
+            'aplica_sam_maquina' => 'Aplica sam a maquinas',
+            'total_evento_maquinas' => 'Total eventos para maquinas',
+            'aplica_sam_salud_ocupacional' => 'Aplica sam salud ocupacional',
+            'total_evento_salud' => 'Total eventos salud ocupacional',
+            'aplica_tiempo_adicional' => 'Aplicar tiempo adicional',
+            'total_porcentaje_autorizado' => 'Total porcentaje autorizado'
+            
+            
+            
+            
             
         ];
     }
@@ -93,4 +105,30 @@ class Horario extends \yii\db\ActiveRecord
         }
         return $aplicatiempodesuso;
     }
-}
+     public function getAplicaTiempoSalud(){
+        if($this->aplica_sam_salud_ocupacional == 0){
+            $aplicatiemposalud = 'NO';
+        }else{
+            $aplicatiemposalud = 'SI';
+        }
+        return $aplicatiemposalud;
+    }
+     public function getAplicaTiempoMaquina(){
+        if($this->aplica_sam_maquina == 0){
+            $aplicatiempomaquina= 'NO';
+        }else{
+            $aplicatiempomaquina = 'SI';
+        }
+        return $aplicatiempomaquina;
+    }
+    
+     public function getAplicaTiempoAdicional(){
+        if($this->aplica_tiempo_adicional == 0){
+            $aplicatiempoadicional= 'NO';
+        }else{
+            $aplicatiempoadicional = 'SI';
+        }
+        return $aplicatiempoadicional;
+    }
+    
+} 

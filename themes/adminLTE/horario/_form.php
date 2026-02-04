@@ -46,6 +46,22 @@ $form = ActiveForm::begin([
            <?= $form->field($model, 'minutos_desuso')->textInput(['maxlength' => true]) ?>         
            <?= $form->field($model, 'total_eventos_dia')->textInput(['maxlength' => true]) ?>         
         </div>
+         <div class="row">            
+           <?= $form->field($model, 'aplica_sam_maquina')->dropDownList(['0'=> 'NO', '1'=> 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>      
+           <?= $form->field($model, 'minutos_sam_maquina')->textInput(['maxlength' => true]) ?>         
+        </div>
+         <div class="row">   
+            <?= $form->field($model, 'total_evento_maquinas')->textInput(['maxlength' => true]) ?>   
+           <?= $form->field($model, 'aplica_sam_salud_ocupacional')->dropDownList(['0'=> 'NO', '1'=> 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>      
+        </div>
+         <div class="row">            
+           <?= $form->field($model, 'minutos_sam_salud')->textInput(['maxlength' => true]) ?>         
+           <?= $form->field($model, 'total_evento_salud')->textInput(['maxlength' => true]) ?>         
+        </div>               
+        <div class="row">   
+            <?= $form->field($model, 'aplica_tiempo_adicional')->dropDownList(['0'=> 'NO', '1'=> 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>      
+            <?= $form->field($model, 'total_porcentaje_autorizado')->textInput(['maxlength' => true]) ?>   
+        </div>
         <div class="panel-footer text-right">			
             <a href="<?= Url::toRoute("horario/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-circle-arrow-left'></span> Regresar</a>
             <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Guardar", ["class" => "btn btn-success",]) ?>

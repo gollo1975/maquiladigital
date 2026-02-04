@@ -54,7 +54,32 @@ $this->params['breadcrumbs'][] = $model->id_horario;
                     <td ><?= Html::encode($model->aplicaTiempoDesuso) ?></td>
                     <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'minutos_desuso') ?>:</th>
                     <td ><?= Html::encode($model->minutos_desuso) ?></td>
-                </tr>                    
+                </tr>    
+                <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'aplica_sam_maquina') ?>:</th>
+                    <td><?= Html::encode($model->aplicaTiempoMaquina) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'minutos_sam_maquina') ?>:</th>
+                    <td><?= Html::encode($model->minutos_sam_maquina) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_evento_maquinas') ?>:</th>
+                    <td ><?= Html::encode($model->total_evento_maquinas) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'aplica_sam_salud_ocupacional') ?>:</th>
+                    <td ><?= Html::encode($model->aplicaTiempoSalud) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'minutos_sam_salud') ?>:</th>
+                    <td ><?= Html::encode($model->minutos_sam_salud) ?></td>
+                </tr>   
+                <tr style="font-size: 85%;">
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_evento_salud') ?>:</th>
+                    <td><?= Html::encode($model->total_evento_salud) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'aplica_tiempo_adicional') ?>:</th>
+                    <td ><?= Html::encode($model->aplicaTiempoAdicional) ?></td>
+                    <th style='background-color:#F0F3EF;'><?= Html::activeLabel($model, 'total_porcentaje_autorizado') ?>:</th>
+                    <td><?= Html::encode($model->total_porcentaje_autorizado) ?>%</td>
+                     <th style='background-color:#F0F3EF;'></th>
+                    <td></td>
+                      <th style='background-color:#F0F3EF;'></th>
+                    <td></td>
+                </tr>    
+                
             </table>
         </div>
     </div>

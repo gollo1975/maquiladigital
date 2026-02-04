@@ -69,7 +69,6 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                     ]],
 
                                                     ['label' => 'Departamento', 'icon' => 'plus-square-o', 'url' => ['/departamento/index']],                                                                                                
-                                                    ['label' => 'Horario', 'icon' => 'plus-square-o', 'url' => ['/horario/index']],                                                
                                                     ['label' => 'Municipio', 'icon' => 'plus-square-o', 'url' => ['/municipio/index']],
                                                     ['label' => 'Tipo Documento', 'icon' => 'plus-square-o', 'url' => ['/tipo-documento/index']],
                                                     ['label' => 'Tipo Cargo', 'icon' => 'plus-square-o', 'url' => ['tipocargo/index']],
@@ -172,6 +171,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                         ['label' => 'Maquinas', 'icon' => 'plus-square-o', 'url' => ['/maquinas/index']],
                                                     ]],
                                                     ['label' => 'Pulpos', 'icon' => 'plus-square-o', 'url' => ['/pulpos-estampacion/index']],
+                                                    ['label' => 'Horario', 'icon' => 'plus-square-o', 'url' => ['/horario/index']],   
                                                 ],
                                             ],
                                             [

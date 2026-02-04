@@ -1204,7 +1204,7 @@ class ValorPrendaUnidadController extends Controller
         //Valida si la persona esta en su hora de comida que no se ingresen operaciones
         if($ultimoRegistro){
             if(date('H:i:s') < $ultimoRegistro->hora_corte){
-                Yii::$app->getSession()->setFlash('error', 'Durante el tiempo de alimento y/o tiempo autorizado no se pueden ingresar operaciones.Favor validar la información. ');
+                Yii::$app->getSession()->setFlash('error', 'Mientras que la APP este pausada NO se pueden ingresar operaciones.Favor validar la información. ');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,
@@ -1776,7 +1776,7 @@ class ValorPrendaUnidadController extends Controller
             $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
             $nueva_hora_entrada = $ultimoRegistro->hora_corte;
             if($ultimoRegistro->save()){
-                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del desayuno. Cuenta con '.$horario->tiempo_desayuno. ' minutos. Hora de regreso debe de ser a las : ('.$nueva_hora_entrada.').');
+                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del desayuno. Cuenta con '.$horario->tiempo_desayuno. ' minutos. Hora de regreso : ('.$nueva_hora_entrada.').');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,
@@ -1786,6 +1786,8 @@ class ValorPrendaUnidadController extends Controller
                     'idordenproduccion' => $idordenproduccion,
                     'nueva_hora_entrada' => $nueva_hora_entrada,
                  ]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al guardar: ' . json_encode($ultimoRegistro->getErrors()));
             }
             
         }else{
@@ -1821,7 +1823,7 @@ class ValorPrendaUnidadController extends Controller
             $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
             $nueva_hora_entrada = $ultimoRegistro->hora_corte;
             if($ultimoRegistro->save()){
-                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del almuerzo. Cuenta con '.$horario->tiempo_desayuno. ' minutos. La Hora de regreso debe de ser a las : ('.$nueva_hora_entrada.').');
+                Yii::$app->getSession()->setFlash('success', 'Se activo el horario del almuerzo. Cuenta con '.$horario->tiempo_almuerzo. ' minutos. La Hora de regreso debe de ser a las : ('.$nueva_hora_entrada.').');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,
@@ -1831,6 +1833,8 @@ class ValorPrendaUnidadController extends Controller
                     'idordenproduccion' => $idordenproduccion,
                     'nueva_hora_entrada' => $nueva_hora_entrada,
                  ]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al guardar: ' . json_encode($ultimoRegistro->getErrors()));
             }
             
         }else{
@@ -1854,8 +1858,8 @@ class ValorPrendaUnidadController extends Controller
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([
                 'id_operario' => $tokenOperario,
-                'dia_pago' => date('Y-m-d')
-            ])
+                'dia_pago' => date('Y-m-d'),
+                ])->andWhere(['is', 'tiempo_desuso', new \yii\db\Expression('NULL')])
             ->orderBy(['consecutivo' => SORT_DESC]) 
             ->one();
         if($ultimoRegistro){
@@ -1877,7 +1881,7 @@ class ValorPrendaUnidadController extends Controller
             $nueva_hora_entrada = $ultimoRegistro->hora_corte;
             $ultimoRegistro->tiempo_desuso = 1;
             if($ultimoRegistro->save()){
-                Yii::$app->getSession()->setFlash('warning', 'Se activo el horario para ir al baño o descanso. Cuenta con '.$horario->minutos_desuso. ' minutos. La Hora de regreso debe de ser a las : ('.$nueva_hora_entrada.').');
+                Yii::$app->getSession()->setFlash('warning', 'Se activó la pausa. Cuenta con '.$horario->minutos_desuso. ' minutos. Hora de regreso : ('.$nueva_hora_entrada.').');
                 return $this->redirect([
                     'entrada_operacion_talla',
                     'id_planta' => $id_planta,
@@ -1887,10 +1891,12 @@ class ValorPrendaUnidadController extends Controller
                     'idordenproduccion' => $idordenproduccion,
                     'nueva_hora_entrada' => $nueva_hora_entrada,
                  ]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al guardar: ' . json_encode($ultimoRegistro->getErrors()));
             }
             
         }else{
-           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
+           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar y/o Ya tiene activado el tiempo. Valide la informacion.'); 
             return $this->redirect([
                  'entrada_operacion_talla',
                  'id_planta' => $id_planta,
@@ -1903,8 +1909,8 @@ class ValorPrendaUnidadController extends Controller
         
     }
     
+     
     //PERMITE VALIDAR EL SAM PARA LA INDUCCION DE LA OPERACION
-    //PERMITE INGRESAR LA HORA DE ALMUERZO
     public function actionSam_induccion_operacion($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle, $id_operacion){
         /// 1. prepara el ultimo registro
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
@@ -1929,7 +1935,7 @@ class ValorPrendaUnidadController extends Controller
             $horario->aplica_induccion = 1;
             $horario->save();
             if($ultimoRegistro->save()){
-                Yii::$app->getSession()->setFlash('warning', 'Se activo el horario para la induccion. Cuenta con '.$horario->tiempo_induccion. ' minutos. La Hora de regreso: ('.$ultimoRegistro->hora_corte.').');
+                Yii::$app->getSession()->setFlash('warning', 'Se activo el horario de induccion. Cuenta con '.$horario->tiempo_induccion. ' minutos. Hora de regreso: ('.$ultimoRegistro->hora_corte.').');
                 return $this->redirect(['entrada_operacion_talla',
                     'id_planta' => $id_planta,
                     'id_detalle' => $id_detalle,
@@ -1938,11 +1944,128 @@ class ValorPrendaUnidadController extends Controller
                     'idordenproduccion' => $idordenproduccion,
                     'nueva_hora_entrada' => $nueva_hora_entrada,
                  ]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al guardar: ' . json_encode($ultimoRegistro->getErrors()));
             }
             
         }else{
            Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
             return $this->redirect(['entrada_operacion_talla',
+                 'id_planta' => $id_planta,
+                 'id_detalle' => $id_detalle,
+                 'tokenOperario' => $tokenOperario,
+                 'id' => $id,
+                 'idordenproduccion' => $idordenproduccion,
+             ]);
+        }
+        
+    }
+   
+    //PERMITE VALIDAR EL SAM PARA EL TIMPO DE MAQUINAS
+    public function actionValidar_tiempo_maquina($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle){
+        /// 1. prepara el ultimo registro
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) 
+            ->one();
+        if($ultimoRegistro){
+            
+            $horario = \app\models\Horario::findOne(1);
+            $minutos_decimales = (float)$horario->minutos_sam_maquina; // Ejemplo: 0.2
+
+            // Convertimos los minutos a segundos exactos
+            $segundos_a_sumar = round($minutos_decimales * 60);
+
+            $ultimaHora = $ultimoRegistro->hora_corte; 
+            $tiempo_ultima_hora = new \DateTimeImmutable($ultimaHora);
+
+            // Usamos 'seconds' en lugar de 'minutes' para permitir la fracción
+            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+' . $segundos_a_sumar . ' seconds');
+
+            $ultimoRegistro->hora_inicio_maquina = $ultimoRegistro->hora_corte;
+            $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
+            $ultimoRegistro->tiempo_maquina = 1;
+            $nueva_hora_entrada = $ultimoRegistro->hora_corte;
+            if($ultimoRegistro->save()){
+                Yii::$app->getSession()->setFlash('warning', 'Se activo el tiempo. Cuenta con '.$horario->minutos_sam_maquina. ' minutos. Hora de regreso : ('.$nueva_hora_entrada.').');
+                return $this->redirect([
+                    'entrada_operacion_talla',
+                    'id_planta' => $id_planta,
+                    'id_detalle' => $id_detalle,
+                    'tokenOperario' => $tokenOperario,
+                    'id' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                    'nueva_hora_entrada' => $nueva_hora_entrada,
+                 ]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al guardar: ' . json_encode($ultimoRegistro->getErrors()));
+            }
+            
+        }else{
+           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
+            return $this->redirect([
+                 'entrada_operacion_talla',
+                 'id_planta' => $id_planta,
+                 'id_detalle' => $id_detalle,
+                 'tokenOperario' => $tokenOperario,
+                 'id' => $id,
+                 'idordenproduccion' => $idordenproduccion,
+             ]);
+        }
+        
+    }
+    
+    //PERMITE VALIDAR EL TIEMPO DE SALUD OCUPACIONAL
+    //PERMITE VALIDAR EL SAM PARA EL TIMPO DE MAQUINAS
+    public function actionValidar_tiempo_salud_ocupacional($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle){
+        /// 1. prepara el ultimo registro
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) 
+            ->one();
+        if($ultimoRegistro){
+            
+            $horario = \app\models\Horario::findOne(1);
+            $minutos_decimales = (float)$horario->minutos_sam_salud; 
+
+            // Convertimos los minutos a segundos exactos
+            $segundos_a_sumar = round($minutos_decimales * 60);
+
+            $ultimaHora = $ultimoRegistro->hora_corte; 
+            $tiempo_ultima_hora = new \DateTimeImmutable($ultimaHora);
+
+            // Usamos 'seconds' en lugar de 'minutes' para permitir la fracción
+            $nueva_hora_sumada = $tiempo_ultima_hora->modify('+' . $segundos_a_sumar . ' seconds');
+
+            $ultimoRegistro->hora_inicio_salud_ocupacional = $ultimoRegistro->hora_corte;
+            $ultimoRegistro->hora_corte = $nueva_hora_sumada->format('H:i:s');
+            $ultimoRegistro->tiempo_salud_ocupacional = 1;
+            $nueva_hora_entrada = $ultimoRegistro->hora_corte;
+            if($ultimoRegistro->save()){
+                Yii::$app->getSession()->setFlash('info', 'Se activó el tiempo. Cuenta con '.$horario->minutos_sam_salud. ' minutos. Hora de regreso : ('.$nueva_hora_entrada.').');
+                return $this->redirect([
+                    'entrada_operacion_talla',
+                    'id_planta' => $id_planta,
+                    'id_detalle' => $id_detalle,
+                    'tokenOperario' => $tokenOperario,
+                    'id' => $id,
+                    'idordenproduccion' => $idordenproduccion,
+                    'nueva_hora_entrada' => $nueva_hora_entrada,
+                 ]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'Error al guardar: ' . json_encode($ultimoRegistro->getErrors()));
+            }
+            
+        }else{
+           Yii::$app->getSession()->setFlash('error', 'No hay registro en la tabla para mostrar. Valide la informacion.'); 
+            return $this->redirect([
+                 'entrada_operacion_talla',
                  'id_planta' => $id_planta,
                  'id_detalle' => $id_detalle,
                  'tokenOperario' => $tokenOperario,

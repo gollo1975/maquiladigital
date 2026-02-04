@@ -34,6 +34,20 @@ $operario = \app\models\Operarios::findOne($tokenOperario);
 $this->title = strtoupper($tallas->listadoTallaIndividual) . ' - Referencia:' . strtoupper($model->ordenproduccion->codigoproducto);
 $this->params['breadcrumbs'][] = $this->title;
 $horario = Horario::findOne(1);
+
+    ///**********CALCULO DE LA EFICIENCIA****///
+    if(count($vector_eficiencia) > 0){
+        $total = 0; $con = 0; $varPorcentaje = 0;
+        foreach ($vector_eficiencia as $val) {
+            $con += 1;
+            $total += $val->porcentaje_cumplimiento;
+        }
+        $varPorcentaje = round($total / $con,2);
+    }else{
+       $varPorcentaje = 0; 
+    }   
+
+//busqueda botones de accion
 $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
     ->where([
         'id_operario' => $tokenOperario,
@@ -59,7 +73,29 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
     ])
     ->andWhere(['is not', 'tiempo_desuso', new \yii\db\Expression('null')])
     ->count();
-?>
+//CICLO QUE PERMITE MOSTRA TIEMPO ADICIONAL
+    if($horario->aplica_tiempo_adicional == 1){
+        $tiempo_maquina = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->andWhere(['not', ['tiempo_maquina' => null]]) // Forma recomendada en Yii2
+            ->count();
+    }
+    if($horario->aplica_tiempo_adicional == 1){
+            $tiempo_salud_ocupacional = \app\models\ValorPrendaUnidadDetalles::find()
+                ->where([
+                    'id_operario' => $tokenOperario,
+                    'dia_pago' => date('Y-m-d')
+                ])
+                ->andWhere(['not', ['tiempo_salud_ocupacional' => null]]) // Forma recomendada en Yii2
+                ->count();
+        }
+    //***************TERMINA TIEMPOS ADICOANALES****************///    
+        ?>
+
+
 <p>
     <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_produccion','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario], ['class' => 'btn btn-primary btn-xs'])?>
 
@@ -70,8 +106,28 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
     <?php } else {
           // Opcional: Si ambos ya fueron registrados, no se muestra ningún botón.
     } 
-    if($horario->aplica_tiempo_desuso == 1 && $tiempo_desuso < $horario->total_eventos_dia){?>
-        <?= Html::a('<span class="glyphicon glyphicon-time"></span> Sam autorizado', ['validar_tiempo_desuso','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-warning btn-xs']); 
+    //CONSULTA QUE BUSCA DESHABILITAR BOTONES
+    $SqlRegistro = \app\models\ValorPrendaUnidadDetalles::find()->where([
+                        'id_operario' => $tokenOperario,
+                        'dia_pago' => date('Y-m-d')])
+                        ->orderBy(['consecutivo' => SORT_DESC]) 
+                        ->one();
+    if($SqlRegistro->tiempo_desuso == 1 || $SqlRegistro->tiempo_induccion == 1 ||
+        $SqlRegistro->tiempo_desuso == 1 ||$SqlRegistro->tiempo_maquina == 1 || $SqlRegistro->tiempo_salud_ocupacional == 1 ){
+        
+    }else{
+        if($horario->aplica_sam_salud_ocupacional == 1 && $tiempo_salud_ocupacional < $horario->total_evento_salud){?>
+                <?= Html::a('<span class="glyphicon glyphicon-dashboard"></span> SST.', ['validar_tiempo_salud_ocupacional','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-xs']); 
+            }
+        if($horario->aplica_tiempo_desuso == 1 && $tiempo_desuso < $horario->total_eventos_dia){?>
+            <?= Html::a('<span class="glyphicon glyphicon-time"></span> Sam A.', ['validar_tiempo_desuso','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-warning btn-xs']); 
+        }
+        if ($horario->aplica_tiempo_adicional == 1 &&  $varPorcentaje > $horario->total_porcentaje_autorizado ){
+            if($horario->aplica_sam_maquina == 1 && $tiempo_maquina < $horario->total_evento_maquinas){?>
+                <?= Html::a('<span class="glyphicon glyphicon-dashboard"></span> Sam M.', ['validar_tiempo_maquina','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-default btn-xs']); 
+            }
+            
+        } 
     }?>
     
 </p>

@@ -50,10 +50,10 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
         return [
             [['id_operario', 'idordenproduccion', 'cantidad', 'vlr_prenda', 'vlr_pago', 'id_valor','registro_pagado','exportado','meta_diaria','costo_dia_operaria',
                 'control_fecha','aplica_regla','aplica_sabado','id_planta','id_tipo','aplicar_porcentaje','iddetalleorden','idproceso','alimentacion','hora_descontar','dia_semana',
-                'tiempo_desuso','total_valor_venta','tiempo_induccion','tipo_aplicacion'], 'integer'],
+                'tiempo_desuso','total_valor_venta','tiempo_induccion','tipo_aplicacion','tiempo_maquina','tiempo_salud_ocupacional'], 'integer'],
             [['dia_pago', 'fecha_creacion'], 'safe'],
             [['porcentaje_cumplimiento','minuto_prenda','tiempo_real_confeccion','diferencia_tiempo'], 'number'],
-            [['usuariosistema', 'observacion','hora_inicio_modulo','hora_inicio_desayuno','hora_inicio_almuerzo','hora_inicio_desuso','hora_inicio_induccion'], 'string', 'max' => 20],
+            [['usuariosistema', 'observacion','hora_inicio_modulo','hora_inicio_desayuno','hora_inicio_almuerzo','hora_inicio_desuso','hora_inicio_induccion','hora_inicio_maquina','hora_inicio_salud_ocupacional'], 'string', 'max' => 20],
             [['operacion'], 'string', 'max' => 1],
             [['hora_inicio', 'hora_corte'], 'string'],
             [['id_operario'], 'exist', 'skipOnError' => true, 'targetClass' => Operarios::className(), 'targetAttribute' => ['id_operario' => 'id_operario']],
@@ -99,7 +99,13 @@ class ValorPrendaUnidadDetalles extends \yii\db\ActiveRecord
             'minuto_prenda' => 'minuto_prenda',
             'tiempo_real_confeccion' => 'tiempo_real_confeccion',
             'total_valor_venta' => 'Total venta',
-            'tipo_aplicacion' => 'tipo_aplicacion,'
+            'tipo_aplicacion' => 'tipo_aplicacion',
+            'hora_inicio_maquina' => 'hora_inicio_maquina',
+            'tiempo_maquina' => 'tiempo_maquina',
+            'tiempo_salud_ocupacional' => 'tiempo_salud_ocupacional',
+            'hora_inicio_salud_ocupacional' => 'hora_inicio_salud_ocupacional',
+            
+            
         ];
     }
 

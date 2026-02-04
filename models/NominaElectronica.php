@@ -82,7 +82,7 @@ class NominaElectronica extends \yii\db\ActiveRecord
             [['nombre_banco'], 'string', 'max' => 40],
             [['nombre_cuenta', 'numero_cuenta'], 'string', 'max' => 20],
             [['cune','nuevo_cune'], 'string', 'max' => 350],
-            [['qrstr'], 'string', 'max' => 2000],
+            [['qrstr','zipkey'], 'string', 'max' => 2000],
             [['documento_activo'], 'integer'],
             [['user_name','codigo_documento','consecutivo'], 'string', 'max' => 15],
             [['id_periodo_pago'], 'exist', 'skipOnError' => true, 'targetClass' => PeriodoPago::className(), 'targetAttribute' => ['id_periodo_pago' => 'id_periodo_pago']],
@@ -145,6 +145,7 @@ class NominaElectronica extends \yii\db\ActiveRecord
             'fecha_hora_eliminacion' => 'fecha_hora_eliminacion',
             'nota' => 'nota',
             'nuevo_cune' => 'nuevo_cune',
+            'zipkey' => 'zipkey',
         ];
     }
 

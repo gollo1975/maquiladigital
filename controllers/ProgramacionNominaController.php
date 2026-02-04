@@ -276,7 +276,7 @@ class ProgramacionNominaController extends Controller {
                         // CONFIGURACIÓN DE API
                         // ==========================================
                         $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
-                        $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA']. '/' . $configuracionDocumento->llave_uuid;
+                        $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA']. '' . $configuracionDocumento->llave_uuid;
                         $apiBearerToken = $confi->llave_api_token;
 
                         // Función de redondeo consistente
@@ -578,7 +578,6 @@ class ProgramacionNominaController extends Controller {
                                                 $dataBody["accrued"]['bonuses'] = [];
                                             }
                                             $dataBody["accrued"]['bonuses'][] = [
-                                                "salary_bonus" => "0.00",
                                                 "non_salary_bonus" => $devengado
                                             ];
                                             $debugDevengados[] = ['concepto' => 'Bonificación No Salarial', 'dias' => '-', 'valor' => $devengado];
@@ -591,7 +590,6 @@ class ProgramacionNominaController extends Controller {
                                             }
                                             $dataBody["accrued"]['bonuses'][] = [
                                                 "salary_bonus" => $devengado,
-                                                "non_salary_bonus" => "0.00"
                                             ];
                                             $debugDevengados[] = ['concepto' => 'Bonificación Salarial', 'dias' => '-', 'valor' => $devengado];
                                             $totalDevengadoCalculado += (float)$devengado;
@@ -798,6 +796,16 @@ class ProgramacionNominaController extends Controller {
                                     }
 
                                     // Verificar respuesta exitosa
+                                    $zipKey = null;
+                                    if (isset($data['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'])) {
+                                        $zipKey = $data['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'];
+                                    } elseif (isset($data['ResponseDian']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'])) {
+                                        $zipKey = $data['ResponseDian']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'];
+                                    } elseif (isset($data['zipkey'])) {
+                                        $zipKey = $data['zipkey'];
+                                    } elseif (isset($data['ZipKey'])) {
+                                        $zipKey = $data['ZipKey'];
+}
                                     $cune = $data['cune'] ?? $data['data']['cune'] ?? null;
                                     $qrstr = $data['qrstr'] ?? $data['data']['qrstr'] ?? $data['QRStr'] ?? null;
 
@@ -806,11 +814,12 @@ class ProgramacionNominaController extends Controller {
                                         $documento->fecha_envio_begranda = date("Y-m-d H:i:s");
                                         $documento->fecha_recepcion_dian = date("Y-m-d H:i:s");
                                         $documento->qrstr = $qrstr;
+                                        $documento->zipkey = $zipKey;
                                         $documento->exportado_nomina = 1;
                                         $documento->save(false);
                                         $contador++;
 
-                                        Yii::info("El consecutivo de Nómina No $consecutivo, fue enviado exitosamente. CUNE: $cune", __METHOD__);
+                                        Yii::info("Nómina $consecutivo enviada. CUNE: $cune | ZipKey: $zipKey", __METHOD__);
                                     } else {
                                         throw new \Exception("No se recibió CUNE en la respuesta");
                                     }

@@ -270,7 +270,7 @@ class ProgramacionNominaController extends Controller {
                         // ==========================================
                         // MODO DEBUG - Cambiar a true para verificar sin enviar
                         // ==========================================
-                        $DEBUG_MODE = true;
+                        $DEBUG_MODE = false;
 
                         // ==========================================
                         // CONFIGURACIÓN DE API
@@ -797,15 +797,11 @@ class ProgramacionNominaController extends Controller {
 
                                     // Verificar respuesta exitosa
                                     $zipKey = null;
-                                    if (isset($data['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'])) {
-                                        $zipKey = $data['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'];
-                                    } elseif (isset($data['ResponseDian']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'])) {
-                                        $zipKey = $data['ResponseDian']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'];
-                                    } elseif (isset($data['zipkey'])) {
-                                        $zipKey = $data['zipkey'];
-                                    } elseif (isset($data['ZipKey'])) {
-                                        $zipKey = $data['ZipKey'];
-}
+                                    if (isset($data['ResponseDian']['Envelope']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'])) {
+                                        $zipKey = $data['ResponseDian']['Envelope']['Body']['SendTestSetAsyncResponse']['SendTestSetAsyncResult']['ZipKey'];
+                                    }
+
+                                    
                                     $cune = $data['cune'] ?? $data['data']['cune'] ?? null;
                                     $qrstr = $data['qrstr'] ?? $data['data']['qrstr'] ?? $data['QRStr'] ?? null;
 

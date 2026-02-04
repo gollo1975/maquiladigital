@@ -276,7 +276,7 @@ class ProgramacionNominaController extends Controller {
                         // CONFIGURACIÓN DE API
                         // ==========================================
                         $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
-                        $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA']. '' . $configuracionDocumento->llave_uuid;
+                        $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA'];  //. '' . $configuracionDocumento->llave_uuid;
                         $apiBearerToken = $confi->llave_api_token;
 
                         // Función de redondeo consistente

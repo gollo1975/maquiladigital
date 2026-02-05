@@ -112,10 +112,10 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                         'dia_pago' => date('Y-m-d')])
                         ->orderBy(['consecutivo' => SORT_DESC]) 
                         ->one();
-    if($SqlRegistro->tiempo_desuso == 1 || $SqlRegistro->tiempo_induccion == 1 ||
-        $SqlRegistro->tiempo_desuso == 1 ||$SqlRegistro->tiempo_maquina == 1 || $SqlRegistro->tiempo_salud_ocupacional == 1 ){
+   /* if(!$SqlRegistro->tiempo_desuso == 1 || !$SqlRegistro->tiempo_induccion == 1 ||
+        !$SqlRegistro->tiempo_desuso == 1 || !$SqlRegistro->tiempo_maquina == 1 || !$SqlRegistro->tiempo_salud_ocupacional == 1 ){*/
         
-    }else{
+  
         if($horario->aplica_sam_salud_ocupacional == 1 && $tiempo_salud_ocupacional < $horario->total_evento_salud){?>
                 <?= Html::a('<span class="glyphicon glyphicon-dashboard"></span> SST.', ['validar_tiempo_salud_ocupacional','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-xs']); 
             }
@@ -127,8 +127,8 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                 <?= Html::a('<span class="glyphicon glyphicon-dashboard"></span> Sam M.', ['validar_tiempo_maquina','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-default btn-xs']); 
             }
             
-        } 
-    }?>
+        } ?>
+    
     
 </p>
 

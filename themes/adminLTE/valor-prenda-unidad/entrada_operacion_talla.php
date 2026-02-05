@@ -97,7 +97,7 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
 
 
 <p>
-    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['view_produccion','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario], ['class' => 'btn btn-primary btn-xs'])?>
+    <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Atras', ['view_produccion','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario], ['class' => 'btn btn-primary btn-xs'])?>
 
     <?php if ($desayunoRegistrado == 0) { ?>
         <?= Html::a('<span class="glyphicon glyphicon-film"></span> Desayuno', ['cargar_tiempo_desayuno','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-success btn-xs']); ?>
@@ -106,28 +106,52 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
     <?php } else {
           // Opcional: Si ambos ya fueron registrados, no se muestra ningún botón.
     } 
-    //CONSULTA QUE BUSCA DESHABILITAR BOTONES
-    $SqlRegistro = \app\models\ValorPrendaUnidadDetalles::find()->where([
-                        'id_operario' => $tokenOperario,
-                        'dia_pago' => date('Y-m-d')])
-                        ->orderBy(['consecutivo' => SORT_DESC]) 
-                        ->one();
-   /* if(!$SqlRegistro->tiempo_desuso == 1 || !$SqlRegistro->tiempo_induccion == 1 ||
-        !$SqlRegistro->tiempo_desuso == 1 || !$SqlRegistro->tiempo_maquina == 1 || !$SqlRegistro->tiempo_salud_ocupacional == 1 ){*/
-        
-  
-        if($horario->aplica_sam_salud_ocupacional == 1 && $tiempo_salud_ocupacional < $horario->total_evento_salud){?>
-                <?= Html::a('<span class="glyphicon glyphicon-dashboard"></span> SST.', ['validar_tiempo_salud_ocupacional','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-info btn-xs']); 
-            }
-        if($horario->aplica_tiempo_desuso == 1 && $tiempo_desuso < $horario->total_eventos_dia){?>
-            <?= Html::a('<span class="glyphicon glyphicon-time"></span> Sam A.', ['validar_tiempo_desuso','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-warning btn-xs']); 
-        }
-        if ($horario->aplica_tiempo_adicional == 1 &&  $varPorcentaje > $horario->total_porcentaje_autorizado ){
-            if($horario->aplica_sam_maquina == 1 && $tiempo_maquina < $horario->total_evento_maquinas){?>
-                <?= Html::a('<span class="glyphicon glyphicon-dashboard"></span> Sam M.', ['validar_tiempo_maquina','id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario,'id_detalle' => $id_detalle], ['class' => 'btn btn-default btn-xs']); 
-            }
-            
-        } ?>
+    // 1. Cambiamos count() por one() para obtener los datos del registro
+        $registro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where([
+                'id_operario' => $tokenOperario,
+                'dia_pago' => date('Y-m-d')
+            ])
+            ->orderBy(['consecutivo' => SORT_DESC]) 
+            ->one(); // Obtenemos el objeto del último registro
+
+        // 2. Verificamos que el registro exista
+        if ($registro) {
+            // 3. Evaluamos si ALGUNO de los estados es 1
+            $tieneEstadoActivo = (
+                $registro->tiempo_desuso == 1 || 
+                $registro->tiempo_induccion == 1 || 
+                $registro->tiempo_maquina == 1 || 
+                $registro->tiempo_salud_ocupacional == 1
+            );
+
+            // Si NO tiene ningún estado en 1, mostramos los botones
+            if (!$tieneEstadoActivo) {
+
+                // Botón SST
+                if ($horario->aplica_sam_salud_ocupacional == 1 && $tiempo_salud_ocupacional < $horario->total_evento_salud) {
+                    echo Html::a('<span class="glyphicon glyphicon-dashboard"></span> SST.', 
+                        ['validar_tiempo_salud_ocupacional', 'id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tokenOperario' => $tokenOperario, 'id_detalle' => $id_detalle], 
+                        ['class' => 'btn btn-info btn-xs', 'title' => 'Validar tiempo de Salud Ocupacional']); 
+                }
+
+                // Botón Sam A.
+                if ($horario->aplica_tiempo_desuso == 1 && $tiempo_desuso < $horario->total_eventos_dia) {
+                    echo Html::a('<span class="glyphicon glyphicon-time"></span> Sam A.', 
+                        ['validar_tiempo_desuso', 'id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tokenOperario' => $tokenOperario, 'id_detalle' => $id_detalle], 
+                        ['class' => 'btn btn-warning btn-xs', 'title' => 'Validar tiempo para ir al baño']); 
+                }
+
+                // Botón Sam M.
+                if ($horario->aplica_tiempo_adicional == 1 && $varPorcentaje > $horario->total_porcentaje_autorizado) {
+                    if ($horario->aplica_sam_maquina == 1 && $tiempo_maquina < $horario->total_evento_maquinas){?>
+                        <?= Html::a('<span class="glyphicon glyphicon-dashboard"></span> Sam M.', 
+                            ['validar_tiempo_maquina', 'id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tokenOperario' => $tokenOperario, 'id_detalle' => $id_detalle], 
+                            ['class' => 'btn btn-default btn-xs', 'title' => 'Validar tiempo de maquinas']); ?>
+                    <?php }
+                } 
+            } 
+        }?>
     
     
 </p>
@@ -157,7 +181,6 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                     <tr>
                         <th scope="col" style='background-color:#B9D5CE;'>Codigo</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Descripcion</th>
-                        <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
                         <th scope="col" style='background-color:#B9D5CE;'>T. oper.</th>
                         <th scope="col" style='background-color:#B9D5CE;'>Faltan</th>
                         <th scope="col" style='background-color:#B9D5CE;'></th>
@@ -193,7 +216,7 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                                     <?php if($empresa->maneja_tablet_aplicacion == 0){?>
                                         <td style="text-align: center"><?= $total_unidades?></td>
                                     <?php }else{?>
-                                        <td><?= $val->minutos ?></td> 
+                                        
                                         <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
                                         <td style="text-align: center"><?= $total_unidades?></td>
                                     <?php }
@@ -214,7 +237,7 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                                     <?php if($empresa->maneja_tablet_aplicacion == 0){?>
                                      <td style="text-align: center"><?= $total_unidades?></td>
                                      <?php }else{?>
-                                        <td><?= $val->minutos ?></td> 
+                                       
                                         <td style="text-align: center"><?= $flujo->total_unidades_operacion ?></td> 
                                         <td style="text-align: center"><?= $total_unidades?></td>
                                     <?php }

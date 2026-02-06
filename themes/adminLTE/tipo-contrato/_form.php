@@ -44,7 +44,7 @@ $configuracionformato = ArrayHelper::map(ConfiguracionFormatoPrefijo::find()->al
             <?= $form->field($model, 'estado')->dropdownList(['1' => 'SI', '0' => 'NO']) ?>
         </div>	
         <div class="row">
-            <?= $form->field($model, 'prefijo')->dropdownList(['CAI' => 'CAI', 'CFIA' => 'CFIA','COL' => 'COL','CAS' => 'CAS','CPE' => 'CPE', 'CPD' => 'CPD']) ?>
+            <?= $form->field($model, 'prefijo')->dropdownList(['CAI' => 'CAI', 'CFI' => 'CFI','COL' => 'COL','CAS' => 'CAS','CPE' => 'CPE', 'CPD' => 'CPD']) ?>
         </div>
         <div class="row">
           <?= $form->field($model, 'id_configuracion_prefijo')->dropDownList($configuracionformato, ['prompt' => 'Seleccione...']) ?>                      

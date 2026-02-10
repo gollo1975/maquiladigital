@@ -1465,7 +1465,15 @@ class ValorPrendaUnidadController extends Controller
         $table->idordenproduccion = $idordenproduccion;
         $table->operacion = '1'; // Asumiendo que 1 es un valor fijo
         $table->dia_pago = date('Y-m-d');
-        $table->cantidad = $flujo->pulpo->cantidad_brazos;
+        //permite restar las operaciones
+        $detalleOperacion = \app\models\Ordenproducciondetalle::findOne($id_detalle);
+        $total = $detalleOperacion->cantidad - $detalleOperacion->faltante;
+        if($total >= $flujo->pulpo->cantidad_brazos){
+           $table->cantidad = $flujo->pulpo->cantidad_brazos;  
+        }else{
+            $table->cantidad = $total; 
+        }
+       
         $table->minuto_prenda = $flujo->minutos;
 
         // 3. Lógica de cálculo de valor según el tipo de operario ----personal vinculado---
@@ -1606,7 +1614,7 @@ class ValorPrendaUnidadController extends Controller
         }
 
         // 6. Redirigir siempre después de intentar guardar
-      return $this->redirect([
+        return $this->redirect([
             'entrada_operacion_talla',
             'id_planta' => $id_planta,
             'id_detalle' => $id_detalle,
@@ -1648,8 +1656,16 @@ class ValorPrendaUnidadController extends Controller
             $detalleOrden->cantidad_operada += 1;
         }else{
            $flujo = \app\models\FlujoOperaciones::find()->where(['idproceso' => $operacion, 'idordenproduccion' => $idordenproduccion])->one();
-           $detalleOrden->faltante += $flujo->pulpo->cantidad_brazos;
-           $detalleOrden->cantidad_operada += $flujo->pulpo->cantidad_brazos; 
+            // Busca el ultimo registro de ese empleado
+            $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+                ->where([
+                    'id_operario' => $tokenOperario,
+                    'dia_pago' => date('Y-m-d')
+                ])
+                ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
+                ->one();
+           $detalleOrden->faltante += $ultimoRegistro->cantidad;
+           $detalleOrden->cantidad_operada += $ultimoRegistro->cantidad;
         }
         
         ///guardamos proceso
@@ -1684,7 +1700,15 @@ class ValorPrendaUnidadController extends Controller
         if($configuracionEst->aplica_modulo_estampacion == 0){
              $table->cantidad_terminada = 1;
         }else{
-             $table->cantidad_terminada = $flujo->pulpo->cantidad_brazos;
+            // Busca el ultimo registro de ese empleado
+            $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+                ->where([
+                    'id_operario' => $tokenOperario,
+                    'dia_pago' => date('Y-m-d')
+                ])
+                ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
+                ->one();
+             $table->cantidad_terminada = $ultimoRegistro->cantidad;
         }
        
         $table->nro_operarios = $balanceo->cantidad_empleados;
@@ -2099,7 +2123,7 @@ class ValorPrendaUnidadController extends Controller
 
             $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
             if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
-                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones en esta talla. Valide la información.'); 
+                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones de la  talla ('.$tallas->productodetalle->prendatipo->talla->talla.'). Valide la información.'); 
                 return $this->redirect(['view_produccion',
                      'id_planta' => $id_planta,
                      'tokenOperario' => $tokenOperario,
@@ -2142,7 +2166,7 @@ class ValorPrendaUnidadController extends Controller
 
             $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
             if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
-                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones en esta talla. Valide la información.'); 
+                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones de la  talla ('.$tallas->productodetalle->prendatipo->talla->talla.'). Valide la información.'); 
                 return $this->redirect(['view_produccion',
                      'id_planta' => $id_planta,
                      'tokenOperario' => $tokenOperario,

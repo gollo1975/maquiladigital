@@ -156,9 +156,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <th scope="col" style='background-color:#B9D5CE;'><span title="Bodega o planta" >Planta</span></th>
                                 <th scope="col" style='background-color:#B9D5CE;'>H. inicio</th>
                                 <th scope="col" style='background-color:#B9D5CE;'>H. corte</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Sam</th>
-                                <th scope="col" style='background-color:#B9D5CE;'>Sam_real</th>
-                                <th scope="col" style='background-color:#B9D5CE;'><span title="Diferencia de confeccion">Dif.</span></th>
+                                <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo de la operación">Sam</span></th>
+                                <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo real de la operación">Sam_real</span></th>
+                                <th scope="col" style='background-color:#B9D5CE;'><span title="Diferencia de confeccion en minutos">Dif. M.</span></th>
+                                <th scope="col" style='background-color:#B9D5CE;'><span title="Diferencia de confeccion en segundos">Dif. S.</span></th>
                             </thead>
                             <body>
                                 <?php 
@@ -210,7 +211,12 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 <td style="background-color: #ffe6b3; color: green;"><?= $val->diferencia_tiempo ?></td>
                                             <?php }else{?>
                                                 <td style="background-color: #ffe6b3; color: red;"><?= $val->diferencia_tiempo ?></td>
-                                            <?php }?>    
+                                            <?php }
+                                            if($val->diferencia_tiempo > 0){?>
+                                                <td style="background-color: #c9e2b3 ; color: green;"><?= round($val->diferencia_tiempo * 60) ?></td>
+                                            <?php }else{?>
+                                                <td style="background-color: #c9e2b3; color: red;"><?= round($val->diferencia_tiempo * 60) ?></td>
+                                            <?php }?>     
                                         </tr>
                                     <?php endforeach;
                                 }?>

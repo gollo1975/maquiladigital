@@ -4397,12 +4397,14 @@ class ValorPrendaUnidadController extends Controller
         'R' => 'HORA DESAYUNO',
         'S' => 'HORA ALMUERZO',
         'T' => 'SAM REAL CONFECCION',
-        'U' => 'DIFERENCIA SAM',
-        'V' => 'HORA EN DESUSO',
-        'W' => 'USUARIO',
-        'X' => 'ESTADO_REGISTRO',
-        'Y' => 'OBSERVACION',
-        'Z' => 'LINEA',
+        'U' => 'DIFERENCIA SAM M.',
+        'V' => 'DIFERENCIA SAM S.',
+        'W' => 'HORA EN DESUSO',
+        'X' => 'USUARIO',
+        'Y' => 'ESTADO_REGISTRO',
+        'Z' => 'OBSERVACION',
+        'AA' => 'LINEA',
+        
     ];
 
     // Establecer encabezados de columna y auto-ajustar el tamaño usando el array
@@ -4453,12 +4455,13 @@ class ValorPrendaUnidadController extends Controller
             ->setCellValue('S' . $i, $val->hora_inicio_almuerzo)
             ->setCellValue('T' . $i, $val->tiempo_real_confeccion)
             ->setCellValue('U' . $i, $val->diferencia_tiempo)
-            ->setCellValue('V' . $i, $val->hora_inicio_desuso)
-            ->setCellValue('W' . $i, $val->usuariosistema)
-            ->setCellValue('X' . $i, $val->registroPagado)
-            ->setCellValue('Y' . $i, $val->observacion)
-            ->setCellValue('Z' . $i, $val->hora_descontar);
-
+            ->setCellValue('V' . $i, round($val->diferencia_tiempo * 60))    
+            ->setCellValue('W' . $i, $val->hora_inicio_desuso)
+            ->setCellValue('X' . $i, $val->usuariosistema)
+            ->setCellValue('Y' . $i, $val->registroPagado)
+            ->setCellValue('Z' . $i, $val->observacion)
+            ->setCellValue('AA' . $i, $val->hora_descontar);
+               
         $i++;
     }
 

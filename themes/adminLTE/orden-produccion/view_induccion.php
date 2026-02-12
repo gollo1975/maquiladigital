@@ -21,6 +21,7 @@ use yii\web\Response;
 use yii\filters\AccessControl;
 use yii\db\Expression;
 use yii\db\Query;
+
     
 /* @var $this yii\web\View */
 /* @var $model app\models\Ordenproduccion */
@@ -30,7 +31,15 @@ $this->params['breadcrumbs'][] = ['label' => 'Flujo de operaciones', 'url' => ['
 $this->params['breadcrumbs'][] = $model->idordenproduccion;
 //codigo que permite buscar el si la OP tiene modulo de balanceo
 
+//vector de cantidad
+
+
 ?>
+<?php use app\widgets\Alert; ?>
+<div id="mensaje-flash">
+    <?= Alert::widget() ?>
+</div>
+    
 <div class="orden-produccion-view">
     <div class="btn-group" role="group" aria-label="...">
         <button type="button" class="btn btn-default btn"> <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['produccionbalanceo'],['class' => 'btn btn-primary btn-xs']) ?></button>
@@ -54,9 +63,27 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
 
 
             </table>
+            <?php if($model){?>
+                <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
+                    <tr>
+                        
+                        <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                            <b>Sam de trabajo: <?= round($totalMinutos,2) ?> Minutos</b> 
+                        </td>
+                        
+                    </tr>  
+                    <?php if($totalMinutos > $model->duracion ){ ?>
+                        <tr><td colspan="9" class="text-center" style="color:red">El SAM del proveedor NO puede ser mayor que el SAM de trabajo.</td></tr>
+                    <?php }?>
+                </table> 
+            <?php }else{?>
+                <tr><td colspan="9" class="text-center">No se encontraron resultados para mostrar.</td></tr>
+            <?php }?> 
+                
         </div>
     </div>    
- 
+
+
     <?php $form = ActiveForm::begin([
     'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],
     'fieldConfig' => [
@@ -148,7 +175,7 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
                                             <?php }?> 
                                             <td style= 'width: 20px; height: 20px;'>
                                                     <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>  ',
-                                                            ['orden-produccion/editar_sam_operacion', 'id' => $model->idordenproduccion, 'id_operacion'=> $registro->id],
+                                                            ['orden-produccion/editar_sam_operacion', 'id' => $model->idordenproduccion, 'id_operacion'=> $registro->id, 'codigo_operacion' => $registro->idproceso],
                                                             [
                                                                 'class' => '',   
                                                                 'title' => 'Permite editar el sam de la operacion',
@@ -204,4 +231,14 @@ $this->params['breadcrumbs'][] = $model->idordenproduccion;
     </div>   
     <?php ActiveForm::end(); ?>
 </div>
+
+<?php
+    $script = <<< JS
+    // Escucha el evento de cierre de Bootstrap 3/4
+    $('.modal').on('hidden.bs.modal', function () {
+        window.location.reload();
+    });
+JS;
+$this->registerJs($script);
+?>
 

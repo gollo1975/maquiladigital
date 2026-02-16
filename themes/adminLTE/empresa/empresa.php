@@ -105,10 +105,11 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
         </div>
         <div class="row">
             <?= $form->field($model, 'representante_legal')->textInput(['maxlength' => true]) ?> 
-             <?= $form->field($model, 'porcentaje_minima_eficiencia')->textInput(['maxlength' => true]) ?> 
+            <?= $form->field($model, 'cedula_representante_legal')->textInput(['maxlength' => true]) ?> 
+           
         </div>
         <div class="row">
-             <?= $form->field($model, 'id_banco_factura')->dropDownList($bancos, ['prompt' => 'Seleccione un cliente...']) ?>
+             <?= $form->field($model, 'porcentaje_minima_eficiencia')->textInput(['maxlength' => true]) ?> 
              <?= $form->field($model, 'dias_trabajados')->textInput(['maxlength' => true]) ?>   
             
         </div>
@@ -131,6 +132,10 @@ $municipio = ArrayHelper::map(Municipio::find()->all(), 'idmunicipio', 'municipi
              <?= $form->field($model, 'aplica_regla_castigo')->dropDownList(['0' => 'NO', '1' => 'SI'], ['prompt' => 'Seleccione una opcion...']) ?>
         </div>  
         <div class="row">
+           <?= $form->field($model, 'id_banco_factura')->dropDownList($bancos, ['prompt' => 'Seleccione un cliente...']) ?>
+        </div>  
+        <div class="row">
+             
             <?= $form->field($model, 'declaracion', ['template' => '{label}<div class="col-sm-10 form-group">{input}{error}</div>'])->textarea(['rows' => 3]) ?>
         </div>
         <div class="panel-footer text-right">			                        

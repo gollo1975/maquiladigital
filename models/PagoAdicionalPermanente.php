@@ -48,7 +48,7 @@ class PagoAdicionalPermanente extends \yii\db\ActiveRecord
         return [
             [['id_empleado', 'codigo_salario', 'vlr_adicion'], 'required'],
             [['id_empleado', 'codigo_salario', 'id_contrato', 'tipo_adicion', 'vlr_adicion', 'permanente', 'aplicar_dia_laborado', 'aplicar_prima', 'aplicar_cesantias',
-                'estado_registro', 'estado_periodo','total_dia_prima','id_grupo_pago'], 'integer'],
+                'estado_registro', 'estado_periodo','total_dia_prima','id_grupo_pago','homologar','codigo_salario_homologado','dias_contrato'], 'integer'],
             [['fecha_creacion','fecha_corte'], 'safe'],
             [['detalle'], 'string', 'max' => 50],
             [['usuariosistema'], 'string', 'max' => 30],
@@ -57,6 +57,7 @@ class PagoAdicionalPermanente extends \yii\db\ActiveRecord
             [['id_contrato'], 'exist', 'skipOnError' => true, 'targetClass' => Contrato::className(), 'targetAttribute' => ['id_contrato' => 'id_contrato']],
             [['id_grupo_pago'], 'exist', 'skipOnError' => true, 'targetClass' => GrupoPago::className(), 'targetAttribute' => ['id_grupo_pago' => 'id_grupo_pago']],
             [['id_pago_fecha'], 'exist', 'skipOnError' => true, 'targetClass' => PagoAdicionalFecha::className(), 'targetAttribute' => ['id_pago_fecha' => 'id_pago_fecha']],
+            [['codigo_salario_homologado'], 'exist', 'skipOnError' => true, 'targetClass' => ConceptoSalarios::className(), 'targetAttribute' => ['codigo_salario_homologado' => 'codigo_salario']],
         ];
     }
 
@@ -83,6 +84,9 @@ class PagoAdicionalPermanente extends \yii\db\ActiveRecord
             'fecha_creacion' => 'Fecha Creacion',
             'usuariosistema' => 'Usuariosistema',
             'total_dia_prima' => 'total_dia_prima',
+            'codigo_salario_homologado' => 'codigo_salario_homologado',
+            'homologar' => 'homologar',
+            'dias_contrato' => 'dias_contrato',
         ];
     }
     
@@ -104,6 +108,11 @@ class PagoAdicionalPermanente extends \yii\db\ActiveRecord
     public function getCodigoSalario()
     {
         return $this->hasOne(ConceptoSalarios::className(), ['codigo_salario' => 'codigo_salario']);
+    }
+    
+    public function getCodigoSalarioHomologar()
+    {
+        return $this->hasOne(ConceptoSalarios::className(), ['codigo_salario' => 'codigo_salario_homologado']);
     }
     
     

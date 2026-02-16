@@ -90,6 +90,9 @@ $form = ActiveForm::begin([
         </div>		
         <div class="row" col>
              <?= $form->field($model, 'estado')->dropdownList(['1' => 'SI', '0' => 'NO']) ?>
+            <?= $form->field($model, 'contrato_especial')->dropdownList(['0' => 'NO', '1' => 'SI']) ?>
+        </div>
+        <div class="row" col>
             <?= $form->field($model, 'observacion', ['template' => '{label}<div class="col-sm-4 form-group">{input}{error}</div>'])->textarea(['rows' => 2]) ?>
         </div>
         <div class="panel-footer text-right">                

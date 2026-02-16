@@ -336,7 +336,8 @@ class PeriodoNominaController extends Controller {
         $periodo_pago_nomina->dias_periodo = $periodo_pago->dias;
         $periodo_pago_nomina->estado_periodo = 0;
         $periodo_pago_nomina->usuariosistema = Yii::$app->user->identity->username;
-        $periodo_pago_nomina->save(false);        
+        $periodo_pago_nomina->save(false);  
+        Yii::$app->getSession()->setFlash('success', 'El periodo de nomina se credo exitosamente.');
     }
     
     public function actionCrearPeriodoPrima($id_grupo_pago) {
@@ -367,6 +368,7 @@ class PeriodoNominaController extends Controller {
         $periodo_pago_nomina->estado_periodo = 0;
         $periodo_pago_nomina->usuariosistema = Yii::$app->user->identity->username;
         $periodo_pago_nomina->save(false);
+        Yii::$app->getSession()->setFlash('success', 'El periodo de Prima semestral se credo exitosamente.');
     }
     
     public function actionCrearPeriodoCesantia($id_grupo_pago) {
@@ -391,6 +393,7 @@ class PeriodoNominaController extends Controller {
         $periodo_pago_nomina->estado_periodo = 0;
         $periodo_pago_nomina->usuariosistema = Yii::$app->user->identity->username;
         $periodo_pago_nomina->save(false);
+        Yii::$app->getSession()->setFlash('success', 'El periodo de Cesantias se credo exitosamente.');
     }
     
     public function actionExcelconsulta($tableexcel) {                

@@ -544,6 +544,141 @@ class PagoAdicionalFechaController extends Controller
             'fecha_corte' => $fecha_corte,
 
         ]);
+    }   
+    
+    
+    ///PROCESO QUE IMPORTAR LOS INGRESOS Y DEDCCIONES
+     public function actionImportar_operaciones_contrato($id, $fecha_corte)
+    {
+        $form = new FormBuscarIntereses();
+        $fecha_inicio = null;
+        $fecha_final = null;
+        $table = [];
+         $valoresAgrupados = [];//inicio array
+        if ($form->load(Yii::$app->request->get())) {
+            if ($form->validate()) {
+                $fecha_inicio = Html::encode($form->fecha_inicio); 
+                $fecha_final = Html::encode($form->fecha_final);
+                if($fecha_inicio != null && $fecha_final != null){
+                    $table = \app\models\IngresoPersonalContratoDetalle::find()
+                            ->andFilterWhere(['between','fecha_inicio',$fecha_inicio, $fecha_final])
+                            ->andFilterWhere(['=','importado', 0])
+                            ->orderBy('documento ASC')
+                            ->all();
+                    if($table){           
+                        $valoresAgrupados = [];//inicio array
+                        $empresa = Matriculaempresa::findOne(1);
+                        $sqlConceptoSalario = ConceptoSalarios::find()->where(['codigo_salario' => $empresa->codigo_salario])->one();
+                        foreach ($table as $val) {
+                            $empleadoId = $val->id_empleado;
+                            // Creamos una clave única combinando el ID del empleado y el ID del concepto
+                            $claveAgrupacion = $empleadoId; 
+
+                            if (!isset($valoresAgrupados[$claveAgrupacion])) {
+                                $valoresAgrupados[$claveAgrupacion] = [
+                                    'id_empleado' => $empleadoId,
+                                    'documento' => $val->empleado->identificacion,
+                                    'nombrecompleto' => $val->empleado->nombrecorto,
+                                    'codigo_salario' => $sqlConceptoSalario->codigo_salario,
+                                    'nombre_concepto' => $sqlConceptoSalario->nombre_concepto, // Cambiado 'concepto' a 'nombre_concepto' para mayor claridad
+                                    'fecha_inicio_periodo' => $val->fecha_inicio, // Cambiado a 'fecha_inicio_periodo' para evitar confusión si hay varias fechas_inicio por concepto
+                                    'fecha_corte_periodo' => $fecha_corte, // Cambiado a 'fecha_corte_periodo'
+                                    'total_dias' => $val->total_dias, // Los dias de pagos'
+                                    'total_valor_pagado' => 0, // Cambiado 'total_valor_pago' a 'total_valor_pagado' para mayor claridad
+                                ];
+                            }
+                            // Sumamos el valor pagado al concepto específico para este empleado
+                            $valoresAgrupados[$claveAgrupacion]['total_valor_pagado'] += $val->total_pagar;
+                        }
+                    }else{
+                        Yii::$app->getSession()->setFlash('warning', 'No hay registros para mostrar en esta consulta. valide las fechas de busquedas.');
+                    }    
+                }else{
+                    Yii::$app->getSession()->setFlash('error', 'Los campos de las fechas NO pueden ser vacíos. Por favor, especifica un rango de fechas válido.');
+                }               
+            } else {
+                $form->getErrors();
+            }                    
+        } 
+        //PROCESO QUE GUARDA
+        if (Yii::$app->request->isPost) {
+            if (isset($_POST["enviar_datos"])) {
+                // Obtiene los datos de los elementos seleccionados (los checkboxes marcados)
+                $selectedItems = Yii::$app->request->post('selected_items');
+                // Obtiene todos los datos de las filas enviadas, estén seleccionadas o no
+                $allItemsData = Yii::$app->request->post('items_data');
+
+                //busca el codigo del salario
+                $sqlConcepto = ConceptoSalarios::find()->where(['inicio_nomina' => 1])->one();
+                // Verifica si hay elementos seleccionados
+                if (!empty($selectedItems) && !empty($allItemsData)) {
+                    $transaction = Yii::$app->db->beginTransaction(); // Inicia una transacción para asegurar la integridad
+                    try {
+                        foreach ($selectedItems as $key => $value) {
+                            // Obtiene los datos completos de la fila seleccionada usando la misma clave ($key)
+                            $itemData = $allItemsData[$key];
+
+                            // Aquí puedes crear una nueva instancia de tu modelo o actualizar una existente
+                            // Ejemplo: Crear un nuevo registro para cada operacion seleccionada
+                            $empleado = Contrato::find()->where(['=','id_empleado', $itemData['id_empleado']])->andWhere(['=','contrato_activo', 1])->one();
+                            $table = new PagoAdicionalPermanente(); 
+                            $table->id_empleado = $itemData['id_empleado'];
+                            $table->codigo_salario = $itemData['codigo_salario'];
+                            $table->id_contrato = $empleado->id_contrato;
+                            $table->id_grupo_pago = $empleado->id_grupo_pago;
+                            $table->id_pago_fecha = $id;
+                            $table->fecha_corte = $fecha_corte;
+                            $table->tipo_adicion = 1;
+                            $table->vlr_adicion = $itemData['total_valor_pagado'];
+                            $table->permanente = 2;
+                            $table->aplicar_dia_laborado = 0;
+                            $table->aplicar_prima = 0;
+                            $table->aplicar_cesantias = 0;
+                            $table->estado_registro = 1;
+                            $table->estado_periodo = 1;
+                            $table->homologar = 1;
+                            $table->dias_contrato = $itemData['total_dias'];
+                            $table->codigo_salario_homologado = $sqlConcepto->codigo_salario;
+                            $table->detalle = 'Operaciones del contrato';
+                            $table->usuariosistema = Yii::$app->user->identity->username;
+                            if (!$table->save()) {
+                                // Si hay un error al guardar un modelo, puedes hacer rollback y mostrar un mensaje
+                                $transaction->rollBack();
+                                Yii::$app->session->setFlash('error', 'Error al guardar una deducción: ' . json_encode($table->getErrors()));
+                                return $this->redirect(Yii::$app->request->referrer ?: ['index']); // Redirige de vuelta
+                            }
+                        }
+
+                        $transaction->commit(); // Confirma la transacción si todo fue exitoso
+                        Yii::$app->session->setFlash('success', 'Total operacion seleccionada y guardadas exitosamente.');
+                        //proceso que actualiza los registros
+                        $detalleDed = \app\models\IngresoPersonalContratoDetalle::find()->where(['=','importado', 0])->all();
+                        foreach ($detalleDed as $detalle) {
+                            $detalle->importado = 1;
+                            $detalle->save();
+                        }
+                        return $this->redirect(['pago-adicional-fecha/view','id' => $id, 'fecha_corte' => $fecha_corte]);
+                    } catch (\Exception $e) {
+                        $transaction->rollBack(); // Revierte la transacción en caso de error
+                        Yii::$app->session->setFlash('error', 'Ocurrió un error al guardar las deducciones: ' . $e->getMessage());
+                    }
+                } else {
+                    Yii::$app->session->setFlash('warning', 'No se seleccionó ninguna deducción para guardar.');
+                }
+            } else {
+                // Si no es una solicitud POST, podrías redirigir o mostrar un mensaje de error.
+                Yii::$app->session->setFlash('error', 'Acceso denegado. Solo se permiten solicitudes POST.');
+            }
+        }    
+        
+   
+        return $this->render('_form_ingresos_operaciones', [
+            'table' => $valoresAgrupados,            
+            'id' => $id,
+            'form' => $form,
+            'fecha_corte' => $fecha_corte,
+
+        ]);
     }    
     
     
@@ -884,11 +1019,13 @@ class PagoAdicionalFechaController extends Controller
                     $table->estado_periodo = 1; /// estado activo para el periodo
                     $table->detalle = $model->detalle;
                     $table->usuariosistema = Yii::$app->user->identity->username;
-                   
                     $table->id_contrato = $contrato->id_contrato;
                     $table->id_grupo_pago = $contrato->id_grupo_pago;
                     $table->id_pago_fecha = $pagofecha->id_pago_fecha;
                     $table->fecha_corte = $pagofecha->fecha_corte;
+                    $table->homologar = $model->homologar;
+                    $table->codigo_salario_homologado = $model->codigo_homologado;
+                    $table->dias_contrato = $model->dias_contrato;
                     if ($table->save(false)) {
                         $this->redirect(["pago-adicional-fecha/view", 'id' =>$id, 'fecha_corte' => $fecha_corte]);
                     } else {
@@ -1015,6 +1152,9 @@ class PagoAdicionalFechaController extends Controller
                     $table->aplicar_dia_laborado = $model->aplicar_dia_laborado;
                     $table->aplicar_prima = $model->aplicar_prima;
                     $table->aplicar_cesantias = $model->aplicar_cesantias;
+                    $table->homologar = $model->homologar;
+                    $table->codigo_salario_homologado = $model->codigo_homologado;
+                    $table->dias_contrato = $model->dias_contrato;
                     $table->detalle = $model->detalle;
                     if($table->id_empleado != $model->id_empleado ){
                         $contrato = Contrato::find()->where(['=','id_empleado',$model->id_empleado])->andWhere(['=','contrato_activo', 1])->one();
@@ -1037,6 +1177,9 @@ class PagoAdicionalFechaController extends Controller
                     $model->aplicar_dia_laborado = $table->aplicar_dia_laborado;
                     $model->aplicar_prima = $table->aplicar_prima;
                     $model->aplicar_cesantias = $table->aplicar_cesantias;
+                    $model->homologar = $table->homologar;
+                    $model->codigo_homologado = $table->codigo_salario_homologado;
+                    $model->dias_contrato = $table->dias_contrato;
                     $model->detalle =  $table->detalle;
                 }else{
                        return $this->redirect(['view','id'=>$id,'id_pago_permanente'=>$id_pago_permanente, 'fecha_corte' => $fecha_corte]); 

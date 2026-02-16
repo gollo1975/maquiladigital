@@ -40,7 +40,7 @@ class GrupoPago extends \yii\db\ActiveRecord
     {
         return [
             [['iddepartamento', 'id_sucursal', 'idmunicipio','ultimo_pago_prima', 'ultimo_pago_cesantia','grupo_pago','id_periodo_pago'], 'required', 'message' => 'Este campo no puede ser vacio'],
-            [['estado', 'id_sucursal', 'limite_devengado'], 'integer'],
+            [['estado', 'id_sucursal', 'limite_devengado','contrato_especial'], 'integer'],
             [['ultimo_pago_prima', 'ultimo_pago_cesantia', 'fecha_creacion', 'ultimo_pago_nomina'], 'safe'],
             [['iddepartamento', 'idmunicipio', 'observacion'], 'string'],
             ['limite_devengado', 'match', 'pattern' => '/^[0-9]+$/i', 'message' => 'Sólo se aceptan números'],
@@ -69,6 +69,7 @@ class GrupoPago extends \yii\db\ActiveRecord
             'dias_pago' => 'Dias pago',
             'estado' => 'Estado',
             'observacion' => 'Observación',
+            'contrato_especial' => 'contrato_especial'
         ];
     }
 

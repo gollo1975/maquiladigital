@@ -1,99 +1,70 @@
 <?php
 
 use inquid\pdf\FPDF;
+use app\models\FormatoContratoObralabor;
 use app\models\Contrato;
-use app\models\Matriculaempresa;
+use app\models\FormatoContenido;
 use app\models\Municipio;
 use app\models\Departamento;
-use app\models\TipoContrato;
-use app\models\GrupoPago;
-use app\models\PeriodoPago;
-use app\models\FormatoContenido;
+use app\models\Matriculaempresa;
 use app\models\Empleado;
 
 class PDF extends FPDF {
 
-    function Header() {
-        if ( $this->PageNo() == 1 ) {
-            $id_contrato = $GLOBALS['id_contrato'];
-            $contrato = Contrato::findOne($id_contrato);
-            $config = Matriculaempresa::findOne(1);
-            $municipio = Municipio::findOne($config->idmunicipio);
-            $departamento = Departamento::findOne($config->iddepartamento);
-            //Logo
-            $this->SetXY(53, 10);
-            $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 19);
-            //Encabezado
-            $this->SetFont('Arial', '', 10);
-            $this->SetXY(53, 9);
-            $this->Cell(150, 7, utf8_decode($config->razonsocialmatricula), 0, 0, 'C', 0);
-            $this->SetXY(53, 13.5);
-            $this->Cell(150, 7, utf8_decode(" NIT:" .$config->nitmatricula." - ".$config->dv), 0, 0, 'C', 0);
-            $this->SetXY(53, 18);
-            $this->Cell(150, 7, utf8_decode($config->direccionmatricula. " Teléfono: " .$config->telefonomatricula), 0, 0, 'C', 0);
-            $this->SetXY(53, 23);
-            $this->Cell(150, 7, utf8_decode($config->municipio->municipio." - ".$config->departamento->departamento), 0, 0, 'C', 0);
-            $this->SetXY(53, 28);
-            $this->Cell(150, 7, utf8_decode($config->tipoRegimen->regimen), 0, 0, 'C', 0);
-            //$this->SetXY(10, 42);
-            //$this->Cell(190, 7, utf8_decode("_________________________________________________________________________________________________"), 0, 0, 'C', 0);
-        }                
-    } 
-    
-    function Body($pdf, $modelocontrato) {
+   function Header() {        
+        $config = Matriculaempresa::findOne(1);        
+        // Logo
+        $this->Image('dist/images/logos/logomaquila.jpeg', 10, 10, 30, 19);
+        // Encabezado
+        $this->SetFont('Arial', '', 9);
+        $this->SetXY(53, 9);
+        $this->Cell(150, 7, utf8_decode($config->razonsocialmatricula), 0, 0, 'C', 0);
+        $this->SetXY(53, 13.5);
+        $this->Cell(150, 7, utf8_decode(" NIT:" .$config->nitmatricula." - ".$config->dv), 0, 0, 'C', 0);
+        $this->SetXY(53, 18);
+        $this->Cell(150, 7, utf8_decode($config->direccionmatricula. " Teléfono: " .$config->telefonomatricula), 0, 0, 'C', 0);
+        $this->SetXY(53, 23);
+        $this->Cell(150, 7, utf8_decode($config->municipio->municipio." - ".$config->departamento->departamento), 0, 0, 'C', 0);
+        $this->Ln(15);
+    }
+
+   
+    function Body($pdf, $model) {
         $config = Matriculaempresa::findOne(1);
-        $contrato = Contrato::findOne($modelocontrato->id_contrato);
-        $tipo_contrato = TipoContrato::find()->where(['=','id_tipo_contrato', $contrato->id_tipo_contrato])->one();
-        $formato = FormatoContenido::find()->where(['=','id_configuracion_prefijo', $tipo_contrato->id_configuracion_prefijo])->one();
+        $model = FormatoContratoObralabor::findOne($model->id);
+        $contrato = Contrato::findOne($model->id_contrato);
+        $formato = FormatoContenido::findOne($model->id_formato_contenido);
+        
         $pdf->SetFont('Arial', '', 9);
         $pdf->SetX(10);
+        
         if (!$formato){
            $cadena = "El contrato no tiene asociado un formato tipo contrato"; 
-        } else {                          
+        } else {                           
             $cadena = utf8_decode($formato->contenido);            
         }
-
-        //contenido de la cadena a sustituir
+        
+        // Sustituciones
         $sustitucion1 = $contrato->empleado->identificacion;
         $sustitucion2 = utf8_decode($contrato->empleado->nombrecorto);
-        $sustitucion3 = $contrato->empleado->ciudadExpedicion->municipio .' - '. $contrato->empleado->ciudadExpedicion->departamento->departamento;        
-        $sustitucion4 = utf8_decode($contrato->empleado->direccion);
-        $sustitucion5 = utf8_decode($contrato->empleado->barrio);
-        $sustitucion6 = utf8_decode($contrato->cargo->cargo);
-        $sustitucion7 = $this->numtoletras($contrato->salario);
-        $sustitucion8 = '$ '.number_format($contrato->salario,2);
-        $sustitucion9 = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($contrato->empleado->fecha_nacimiento))) ." de %Y", strtotime($contrato->empleado->fecha_nacimiento));
-        $sustituciona = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($contrato->fecha_inicio))) ." de %Y", strtotime($contrato->fecha_inicio));
-        $sustitucionb = utf8_decode($contrato->grupoPago->periodoPago->nombre_periodo);
-        $sustitucionc = $contrato->ciudadContratado->municipio .' - '. $contrato->ciudadContratado->departamento->departamento;    
-        $sustitucione = $contrato->dias_contrato;
-        $sustituciond = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($contrato->fecha_final))) ." de %Y", strtotime($contrato->fecha_final));
-        $sustitucionw = utf8_decode($contrato->tipoContrato->formatoContenidos->nombre_formato);
-        $sustitucionx = utf8_decode($contrato->id_contrato);
-        $sustitucionf = utf8_decode($config->representante_legal);
-        $sustituciong = utf8_decode($config->cedula_representante_legal);
-        
-        //etiquetas de sustitución
-        $patron1 = '/#1/'; //Documento                
-        $patron2 = '/#2/'; //nombre empleado
-        $patron3 = '/#3/'; //ciudad de expedicion
-        $patron4 = '/#4/'; //direccion empleado
-        $patron5 = '/#5/'; //Barrio empleado
-        $patron6 = '/#6/'; //cargo empleado
-        $patron7 = '/#7/'; //letras salario (ejempl DOS MILLONES DE PESOS)
-        $patron8 = '/#8/'; //Salario (2.000.000.00)
-        $patron9 = '/#9/'; //fecha nacimiento empleado
-        $patrona = '/#a/'; //fecha inicio contrato
-        $patronb = '/#b/'; //forma de pago nomina
-        $patronc = '/#c/'; //Ciudad de contratacion
-        $patrond = '/#d/'; //fecha de terminacion
-        $patrone = '/#e/'; //dias contratados
-        $patronf = '/#f/'; //nombrere presentante legal
-        $patrong = '/#g/'; //cedula representante legal
-        $patronw = '/#w/'; //nombre del formato
-        $patronx = '/#x/'; //nro del contrato
-       
-        //reemplazar en la cadena
+        $sustitucion3 = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($model->fecha_inicio_periodo))) ." de %Y", strtotime($model->fecha_inicio_periodo));
+        $sustitucion4 = '$('.number_format($model->id_ingreso,2).')'; // Ajusta según tu campo de valor
+        $sustitucion5 = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($model->fecha_corte_labor))) ." de %Y", strtotime($model->fecha_corte_labor));
+        $sustitucion6 = '$('.number_format($model->id_ingreso,2).')';
+        $sustitucion7 = $this->numtoletras($model->id_ingreso);
+        $sustitucion8 = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($model->fecha_hora_creacion))) ." de %Y", strtotime($model->fecha_hora_creacion));
+        $sustituciona = $contrato->empleado->ciudadExpedicion->municipio .' - '. $contrato->empleado->ciudadExpedicion->departamento->departamento;        
+        $sustitucionb = $config->razonsocialmatricula;
+        $sustitucionc = $config->nitmatricula;
+        $sustituciond = $model->id;
+        $sustitucione = $config->cedula_representante_legal;
+
+        // Patrones
+        $patron1 = '/#1/'; $patron2 = '/#2/'; $patron3 = '/#3/'; $patron4 = '/#4/';
+        $patron5 = '/#5/'; $patron6 = '/#6/'; $patron7 = '/#7/'; $patron8 = '/#8/'; $patrona = '/#a/';
+        $patronb = '/#b/'; $patronc = '/#c/'; $patrond = '/#d/'; $patrone = '/#e/';
+
+        // Reemplazos
         $cadenaCambiada = preg_replace($patron1, $sustitucion1, $cadena);
         $cadenaCambiada = preg_replace($patron2, $sustitucion2, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patron3, $sustitucion3, $cadenaCambiada);
@@ -101,26 +72,99 @@ class PDF extends FPDF {
         $cadenaCambiada = preg_replace($patron5, $sustitucion5, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patron6, $sustitucion6, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patron7, $sustitucion7, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron8, $sustitucion8, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron9, $sustitucion9, $cadenaCambiada);
+         $cadenaCambiada = preg_replace($patron8, $sustitucion8, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patrona, $sustituciona, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patronb, $sustitucionb, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patronc, $sustitucionc, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patrond, $sustituciond, $cadenaCambiada);
         $cadenaCambiada = preg_replace($patrone, $sustitucione, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patronw, $sustitucionw, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patronx, $sustitucionx, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patronf, $sustitucionf, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patrong, $sustituciong, $cadenaCambiada);
+
+        // Imprimir Texto
         $pdf->MultiCell(0,5, $cadenaCambiada);
-    } 
-      
-   function Footer() {
+        $detalles = (new \yii\db\Query())
+            ->from('ingreso_personal_contrato_detalle')
+            ->where(['id_ingreso' => $model->id_ingreso])
+            ->andWhere(['id_empleado' => $model->id_empleado])    
+            ->all();
+        // --- INSERCIÓN DE LA TABLA ---
+        if ($detalles) {
+            $pdf->Ln(10);
+            $pdf->SetFont('Arial', 'B', 9);
+            $pdf->SetFillColor(250, 250, 250); // Un gris muy tenue para diferenciar
+            // 190 es la suma de los anchos: 80 + 30 + 40 + 40
+            $pdf->Cell(190, 7, utf8_decode('ACTIVIDADES CONTRATADAS'), 1, 1, 'C', 1);
+            $this->EncabezadoDetalles($pdf); // Imprime CÓDIGO, OPERACIÓN, etc.
+            
+            // --- NUEVA FILA: ACTIVIDADES CONTRATADAS ---
+            
+            
+            // --- DATOS DE LA TABLA ---
+            $pdf->SetFont('Arial', '', 8);
+            $w = array(80, 30, 40, 40); 
+            $granTotal = 0;
+
+            foreach ($detalles as $fila) {
+                $pdf->Cell($w[0], 5, utf8_decode($fila['operacion']), 1, 0, 'L');
+                $pdf->Cell($w[1], 5, $fila['cantidad'], 1, 0, 'C');
+                $pdf->Cell($w[2], 5, number_format($fila['valor_unitario'], 2), 1, 0, 'R');
+                $pdf->Cell($w[3], 5, number_format($fila['total_pagar'], 2), 1, 0, 'R');
+                $pdf->Ln();
+                
+                $granTotal += $fila['total_pagar'];
+            }
+
+            // --- FILA DE GRAN TOTAL ---
+            $pdf->SetFont('Arial', 'B', 9);
+            $pdf->SetFillColor(240, 240, 240);
+            $pdf->Cell(150, 7, 'TOTAL VALOR CONTRATO: ', 1, 0, 'R', 1);
+            $pdf->Cell($w[3], 7, '$ ' . number_format($granTotal, 2), 1, 0, 'R', 1);
+            $pdf->Ln(15);
+            
+            $this->SeccionFirmas($pdf, $config, $contrato);
+        }
+        // -----------------------------
+    }                    
+    function SeccionFirmas($pdf, $config, $contrato) {
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Ln(16); // Espacio para que puedan firmar físicamente
+
+        // --- FILA 1: Las líneas de firma ---
+        $pdf->Cell(95, 5, '__________________________________', 0, 0, 'C'); // 0 = sigue en la misma línea
+        $pdf->Cell(95, 5, '__________________________________', 0, 1, 'C'); // 1 = baja a la siguiente línea
+
+        // --- FILA 2: Los nombres ---
+        $pdf->Cell(95, 5, utf8_decode($config->razonsocialmatricula), 0, 0, 'C');
+        $pdf->Cell(95, 5, utf8_decode($contrato->empleado->nombrecorto), 0, 1, 'C');
+
+        // --- FILA 3: Los títulos (EMPLEADOR y TRABAJADOR) ---
+        $pdf->Cell(95, 5, utf8_decode('EMPLEADOR'), 0, 0, 'C');
+        $pdf->Cell(95, 5, utf8_decode('TRABAJADOR'), 0, 1, 'C');
+
+        // --- FILA 4: Documentos de identidad ---
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(95, 5, 'NIT: ' . $config->nitmatricula . " - " . $config->dv, 0, 0, 'C');
+        $pdf->Cell(95, 5, 'C.C. ' . $contrato->empleado->identificacion, 0, 1, 'C');
+       }
+    
+   function EncabezadoDetalles($pdf) {
+        $pdf->SetFillColor(230, 230, 230);
+        $pdf->SetFont('Arial', 'B', 8);
+        $header = array(utf8_decode('OPERACIÓN'), 'CANTIDAD', 'VLR UNITARIO', 'TOTAL PAGAR');
+        $w = array(80, 30, 40, 40); 
+
+        for ($i = 0; $i < count($header); $i++) {
+            $pdf->Cell($w[$i], 7, $header[$i], 1, 0, 'C', 1);
+        }
+        $pdf->Ln();
+    }
+    
+    function Footer() {
+
         $this->SetFont('Arial', '', 8);
-        $this->Text(10, 290, utf8_decode(''));
+        $this->Text(10, 290, utf8_decode('Nuestra compañía, en favor del medio ambiente.'));
         $this->Text(170, 290, utf8_decode('Página ') . $this->PageNo() . ' de {nb}');
-    } 
-      
+    }
+    
     public static function MesesEspañol($mes) {
         
         if ($mes == '01'){
@@ -321,14 +365,16 @@ class PDF extends FPDF {
     }
 
 }
-global $id_contrato;
-$id_contrato = $modelocontrato->id_contrato;
+
+global $codigo;
+$codigo = $model->id;
 $pdf = new PDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();
-$pdf->Body($pdf,$modelocontrato);
+$pdf->Body($pdf, $model);
 $pdf->AliasNbPages();
 $pdf->SetFont('Times', '', 10);
-$pdf->Output("Contrato$modelocontrato->id_contrato.pdf", 'D');
+$pdf->Output("otro_si_labor$model->id.pdf", 'D');
 
 exit;
+

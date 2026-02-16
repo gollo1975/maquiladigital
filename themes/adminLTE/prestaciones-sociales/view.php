@@ -18,11 +18,15 @@ $view = 'prestaciones sociales';
 
    <!--<h1><?= Html::encode($this->title) ?></h1>-->
     <?php 
-
+    $sqlGrupo = app\models\GrupoPago::findOne($model->id_grupo_pago);
     if($model->estado_generado == 0){?>
         <p>
-           <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']) ?>
-           <?= Html::a('<span class="glyphicon glyphicon-export"></span> Generar', ['generarconceptos', 'id' => $model->id_prestacion, 'pagina' =>$pagina], ['class' => 'btn btn-info btn-xs']) ?>
+           <?= Html::a('<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar', ['index'], ['class' => 'btn btn-primary btn-sm']);
+           if($sqlGrupo->contrato_especial == 0){?>
+                <?= Html::a('<span class="glyphicon glyphicon-export"></span> Generar', ['generarconceptos', 'id' => $model->id_prestacion, 'pagina' =>$pagina], ['class' => 'btn btn-info btn-xs', 'title' => 'Permite crear los conceptos de prestaciones sociales']);
+           }else{ ?>
+                <?= Html::a('<span class="glyphicon glyphicon-send"></span> Generar conceptos', ['generar_concepto_prestacion', 'id' => $model->id_prestacion, 'pagina' =>$pagina], ['class' => 'btn btn-success btn-xs', 'title' => 'Permite crear los conceptos de prestaciones sociales']);
+           } ?>
        </p>
     <?php }else{
         if($model->estado_aplicado == 0){

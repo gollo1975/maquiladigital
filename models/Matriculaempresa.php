@@ -67,7 +67,7 @@ class Matriculaempresa extends \yii\db\ActiveRecord
                 'aplica_regla','porcentaje_minima_eficiencia','dias_trabajados','horas_mensuales','tiempo_maximo_operacion','aplica_modulo_compra','horas_realmente_trabajadas','sam_castigo','total_eventos','sam_minimo','maneja_tablet_aplicacion','aplica_regla_castigo'], 'integer'],
             [['porcentajeiva', 'porcentajeretefuente', 'retefuente', 'porcentajereteiva', 'porcentaje_cesantias', 'porcentaje_intereses', 'porcentaje_prima', 'porcentaje_vacacion','porcentaje_empresa','valor_minuto_confeccion','valor_minuto_terminacion'], 'number'],
             [['declaracion','nombresistema', 'representante_legal'], 'string'],
-            [['nitmatricula', 'telefonomatricula', 'celularmatricula', 'iddepartamento', 'idmunicipio'], 'string', 'max' => 15],
+            [['nitmatricula', 'telefonomatricula', 'celularmatricula', 'iddepartamento', 'idmunicipio','cedula_representante_legal'], 'string', 'max' => 15],
             [['razonsocialmatricula', 'nombrematricula', 'apellidomatricula', 'direccionmatricula', 'emailmatricula', 'paginaweb'], 'string', 'max' => 40],
             [['representante_legal'], 'string', 'max' => 50],
             [['nitmatricula'], 'unique'],
@@ -128,6 +128,7 @@ class Matriculaempresa extends \yii\db\ActiveRecord
             'sam_minimo' => 'sam_minimo',
             'maneja_tablet_aplicacion' => 'Aplica tablet:',
             'aplica_regla_castigo' => 'Aplica regla de castigo:',
+            'cedula_representante_legal' => 'Cedula representante legal:'
             
         ];
     }

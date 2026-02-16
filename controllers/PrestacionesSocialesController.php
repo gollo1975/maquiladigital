@@ -1152,6 +1152,151 @@ class PrestacionesSocialesController extends Controller
        }
     }
     
+    
+    //GENERAR CONCEPTOS DE PRESTACIONES SOCIALES PÀRA PERSONAL AL CONTRATO
+    public function actionGenerar_concepto_prestacion($id, $pagina) {
+        
+        //sse inicia vectores
+        $model = PrestacionesSociales::find()->where(['=','id_prestacion', $id])->one();
+        $configuracion_p = ConfiguracionPrestaciones::findOne(1); //primas
+        $configuracion_c = ConfiguracionPrestaciones::findOne(2); //cesanias
+        $configuracion_v = ConfiguracionPrestaciones::findOne(4); //vacaciones
+                
+        //CREAR CONCEPTOS
+        if($configuracion_p){ //primas
+            $sw = 0;
+            $this->VectorGlobalNomina($model, $sw );
+        }
+        if($configuracion_c){ //cesantias
+            $sw = 1;
+            $this->VectorGlobalNomina($model, $sw );
+        }
+        if($configuracion_v){ //vacaciones
+            $sw = 2;
+            $this->VectorGlobalNomina($model, $sw );
+        }
+        $model->estado_generado = 1;
+        $model->save();
+        return $this->redirect(['view', 'id' => $id, 'pagina' => $pagina]);
+            
+    }
+    
+    //proceso de primas contrato por obra labor
+    protected function VectorGlobalNomina($model, $sw){
+        $vector_nomina = ProgramacionNomina::find()->where(['>=', 'fecha_inicio_contrato', $model->fecha_inicio_contrato  ])
+                                                         ->andWhere(['=','id_contrato', $model->id_contrato]) 
+                                                         ->all();
+        $devengado = 0;
+        $auxilio = 0;
+        $total_dias = 0;
+        foreach ($vector_nomina as $colillas) {
+            $devengado += $colillas->ibc_prestacional; 
+            $auxilio += $colillas->total_auxilio_transporte;
+            $total_dias += $colillas->dia_real_pagado; 
+        }   
+        
+        if($sw == 0){ //proceso de prima
+            $this->CrearPrimaContrato($devengado, $auxilio, $total_dias, $model);
+        }
+        if($sw == 1){
+            $this->CrearCesantiaContrato($devengado, $auxilio, $total_dias, $model);
+        }
+        if($sw == 2){
+            $this->CrearVacacionesContrato($devengado, $auxilio, $total_dias, $model);
+        }
+    }
+    
+    //proceso que genera las vacaciones del personal al contrato
+     protected function CrearVacacionesContrato($devengado, $auxilio, $total_dias, $model){
+        $salario_devengado_real = round(($devengado / $total_dias)* 30);
+        $formulaVacaciones = round(($salario_devengado_real * $total_dias)/ 720);
+       
+        /**** INSERTA DATOS DE LAS VACACIONES ***///
+        $concepto = ConceptoSalarios::find()->where(['=','concepto_vacacion', 1])->one();
+        $detalle_prestacion = PrestacionesSocialesDetalle::find()->where(['=','id_prestacion', $model->id_prestacion])->andWhere(['=','codigo_salario', $concepto->codigo_salario])->one();
+        if(!$detalle_prestacion){
+           $detalle = new PrestacionesSocialesDetalle();
+           $detalle->id_prestacion = $model->id_prestacion;
+           $detalle->codigo_salario = $concepto->codigo_salario;
+           $detalle->fecha_inicio = $model->ultimo_pago_vacaciones;
+           $detalle->fecha_final = $model->fecha_termino_contrato;
+           $detalle->nro_dias = $total_dias;
+           $detalle->dias_ausentes = 0;
+           $detalle->total_dias = $total_dias;
+           $detalle->salario_promedio_prima = $salario_devengado_real;
+           $detalle->auxilio_transporte = 0;
+           $detalle->valor_pagar = $formulaVacaciones;
+           $detalle->save();
+        }   
+     }
+    
+    //proceso que genera las cesantias del personal al contrato
+    protected function CrearCesantiaContrato($devengado, $auxilio, $total_dias, $model) {
+       $salario_devengado_real = round(($devengado / $total_dias)* 30);
+       $formulaCesantia = round((($salario_devengado_real + $auxilio)* $total_dias)/ 360);
+       
+        /**** INSERTA DATOS DE LA CESANTIAS ***///
+        $concepto= ConceptoSalarios::find()->where(['=','concepto_cesantias', 1])->one();
+        $detalle_prestacion = PrestacionesSocialesDetalle::find()->where(['=','id_prestacion', $model->id_prestacion])->andWhere(['=','codigo_salario', $concepto->codigo_salario])->one();
+        if(!$detalle_prestacion){
+           $detalle = new PrestacionesSocialesDetalle();
+           $detalle->id_prestacion = $model->id_prestacion;
+           $detalle->codigo_salario = $concepto->codigo_salario;
+           $detalle->fecha_inicio = $model->ultimo_pago_cesantias;
+           $detalle->fecha_final = $model->fecha_termino_contrato;
+           $detalle->nro_dias = $total_dias;
+           $detalle->dias_ausentes = 0;
+           $detalle->total_dias = $total_dias;
+           $detalle->salario_promedio_prima = $salario_devengado_real;
+           $detalle->auxilio_transporte = $auxilio;
+           $detalle->valor_pagar = $formulaCesantia;
+           $detalle->save();
+           
+           /// interesas a las cesantias
+           
+           $concepto_intereses= ConceptoSalarios::find()->where(['intereses' => 1])->one();
+           $detalle = new PrestacionesSocialesDetalle();
+           $detalle->id_prestacion = $model->id_prestacion;
+           $detalle->codigo_salario = $concepto_intereses->codigo_salario;
+           $detalle->fecha_inicio = $model->ultimo_pago_cesantias;
+           $detalle->fecha_final = $model->fecha_termino_contrato;
+           $detalle->nro_dias = $total_dias;
+           $detalle->dias_ausentes = 0;
+           $detalle->total_dias = $total_dias;
+           $detalle->salario_promedio_prima = 0;
+           $detalle->auxilio_transporte = 0;
+           $detalle->valor_pagar = round($formulaCesantia * 0.12);
+           $detalle->save();
+       }
+       
+    }
+    
+    //proceso que genera la prima del contrato pòr obra
+    protected function CrearPrimaContrato($devengado, $auxilio, $total_dias, $model) {
+       $salario_devengado_real = round(($devengado / $total_dias)* 30);
+       $formulaPrima = round((($salario_devengado_real + $auxilio)* $total_dias)/ 360);
+       
+        /**** INSERTA DATOS DE LA PRIMA ***///
+        $concepto = ConceptoSalarios::find()->where(['=','concepto_prima', 1])->one();
+        $detalle_prestacion = PrestacionesSocialesDetalle::find()->where(['=','id_prestacion', $model->id_prestacion])->andWhere(['=','codigo_salario', $concepto->codigo_salario])->one();
+        if(!$detalle_prestacion){
+           $detalle = new PrestacionesSocialesDetalle();
+           $detalle->id_prestacion = $model->id_prestacion;
+           $detalle->codigo_salario = $concepto->codigo_salario;
+           $detalle->fecha_inicio = $model->ultimo_pago_prima;
+           $detalle->fecha_final = $model->fecha_termino_contrato;
+           $detalle->nro_dias = $total_dias;
+           $detalle->dias_ausentes = 0;
+           $detalle->total_dias = $total_dias;
+           $detalle->salario_promedio_prima = $salario_devengado_real;
+           $detalle->auxilio_transporte = $auxilio;
+           $detalle->valor_pagar = $formulaPrima;
+           $detalle->save();
+       }
+       
+    }
+            
+    
     public function actionDesgenerar($id, $pagina)
     {
       $model = PrestacionesSociales::find()->where(['=','id_prestacion', $id])->one();

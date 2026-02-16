@@ -77,10 +77,9 @@ $pension = ArrayHelper::map(ConfiguracionPension::find()->all(), 'id_pension', '
     </div>
     <div class="panel-body">
         <div class="row">
-            <?= $form->field($model, 'id_tipo_contrato')->dropDownList($tipocontrato, ['prompt' => 'Seleccione', 'onchange' => 'tipocontrato()' ,'id' => 'id_tipo_contrato']) ?>
-            <?= $form->field($model, 'id_tiempo')->dropDownList($tiempo, ['prompt' => 'Seleccione el servicio...']) ?>
+           <?= $form->field($model, 'id_tipo_contrato')->dropDownList($tipocontrato, ['prompt' => 'Seleccione','onchange' => 'tipocontrato()','id' => 'id_tipo_contrato']) ?>
+             <?= $form->field($model, 'id_tiempo')->dropDownList($tiempo, ['prompt' => 'Seleccione el servicio...']) ?>
         </div>
-               
         <div class="row">     
              <?= $form->field($model, 'id_empleado')->widget(Select2::classname(), [
             'data' => $empleado,
@@ -100,17 +99,24 @@ $pension = ArrayHelper::map(ConfiguracionPension::find()->all(), 'id_pension', '
                     'orientation' => 'bottom']
                 ]) ?>
        
-            <?=
-            $form->field($model, 'fecha_final')->widget(DatePicker::className(), ['name' => 'check_issue_date',                                
-                'value' => date('d-M-Y', strtotime('+2 days')),
-                'options' => ['id' => 'fecha_final','placeholder' => 'Seleccione una fecha ...'],
-                'pluginOptions' => [
-                    'format' => 'yyyy-mm-dd',
-                    'todayHighlight' => true,
-                    'orientation' => 'bottom']
-                ])
-            ?>
-        </div>                      
+                <?= $form->field($model, 'fecha_final')->widget(DatePicker::className(), [
+                // 'name' => 'check_issue_date', // Si puedes, comenta esta línea para que use el nombre del modelo
+                    'type' => DatePicker::TYPE_COMPONENT_APPEND, // Esto ayuda a manipular el addon (el icono)
+                    'value' => date('Y-m-d', strtotime('+2 days')),
+                    'options' => [
+                        'id' => 'fecha_final',
+                        'placeholder' => 'Seleccione una fecha ...',
+                        'autocomplete' => 'off'
+                    ],
+                    'pluginOptions' => [
+                        'format' => 'yyyy-mm-dd',
+                        'todayHighlight' => true,
+                        'autoclose' => true,
+                        'orientation' => 'bottom'
+                    ]
+                 ]) ?>
+        </div>
+    </div>                       
         <div class="row">
              <?= $form->field($model, 'id_cargo')->widget(Select2::classname(), [
             'data' => $cargo,
@@ -194,14 +200,39 @@ $pension = ArrayHelper::map(ConfiguracionPension::find()->all(), 'id_pension', '
         </div>
     </div>
 <?php $form->end() ?>  
+<?php
+    $script = <<< JS
+    window.tipocontrato = function() {
+        var valor = $('#id_tipo_contrato').val();
+        var campoFecha = $('#fecha_final');
 
- <!--<script type="text/javascript">
-    function tipocontrato(){
-       var tipo = document.getElementById("id_tipo_contrato").value;
-       if(tipo == 1){
-          document.getElementById("fecha_final").value = '2099-12-30';
-       
-       }
+        // En Yii2/Kartik, el input real tiene el ID que definimos
+        if (valor == "1") { 
+            // 1. Ponemos el valor directamente al input
+            campoFecha.val('2099-12-30').trigger('change'); 
 
-    }
-</script> -->      
+            // 2. Deshabilitamos el input y el contenedor del grupo (para que no abran el calendario)
+            campoFecha.prop('disabled', true);
+            campoFecha.closest('.kv-datepicker-container').find('.input-group-addon').hide(); 
+
+            console.log("Contrato Indefinido: Fecha bloqueada");
+        } else {
+            // 1. Limpiamos y habilitamos
+            campoFecha.val('').prop('disabled', false).trigger('change');
+
+            // 2. Mostramos de nuevo el icono del calendario
+            campoFecha.closest('.kv-datepicker-container').find('.input-group-addon').show();
+
+            console.log("Otro contrato: Fecha habilitada");
+        }
+    };
+
+    // Ejecutar al cargar por si viene de un error de validación o edición
+    $(document).ready(function(){
+        if($('#id_tipo_contrato').val() != ""){
+            tipocontrato();
+        }
+    });
+    JS;
+    $this->registerJs($script, \yii\web\View::POS_READY);
+    ?>

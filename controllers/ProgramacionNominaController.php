@@ -276,7 +276,7 @@ class ProgramacionNominaController extends Controller {
                         // CONFIGURACIÓN DE API
                         // ==========================================
                         $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
-                        $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA'];  //. '' . $configuracionDocumento->llave_uuid;
+                        $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA'] ; //. '/' . $configuracionDocumento->llave_uuid;
                         $apiBearerToken = $confi->llave_api_token;
 
                         // Función de redondeo consistente
@@ -1426,15 +1426,25 @@ class ProgramacionNominaController extends Controller {
 
     public function actionCargar($id, $id_grupo_pago, $fecha_desde, $fecha_hasta, $tipo_nomina) {
         $model = PeriodoPagoNomina::findOne($id);
+        $grupoPago = GrupoPago::findOne($id_grupo_pago);
         $registros = 0;
         $configuracion_salario = ConfiguracionSalario::find()->where(['=', 'estado', 1])->one();
         if($tipo_nomina == 1){
-            $registros = Contrato::find()
-                    ->where(['=', 'id_grupo_pago', $model->id_grupo_pago])
+            if($grupoPago->contrato_especial == 0){
+                $registros = Contrato::find()
+                        ->where(['=', 'id_grupo_pago', $model->id_grupo_pago])
+                        ->andWhere(['<=', 'fecha_inicio', $model->fecha_hasta])
+                        ->andWhere(['>=', 'fecha_final', $model->fecha_desde])
+                        ->andWhere(['<','ultimo_pago', $model->fecha_hasta])
+                        ->all();
+            }else{
+                $registros = Contrato::find()
+                    ->where(['id_grupo_pago' => $model->id_grupo_pago]) // Sintaxis limpia para '='
                     ->andWhere(['<=', 'fecha_inicio', $model->fecha_hasta])
-                    ->andWhere(['>=', 'fecha_final', $model->fecha_desde])
-                    ->andWhere(['<','ultimo_pago', $model->fecha_hasta])
+                    ->andWhere(['fecha_final' => null]) // Yii2 transformará esto a: IS NULL
+                    ->andWhere(['<=', 'ultimo_pago', $model->fecha_hasta])
                     ->all();
+            }    
         }else{
             if($tipo_nomina == 2){
                 $registros = Contrato::find()
@@ -1453,7 +1463,7 @@ class ProgramacionNominaController extends Controller {
                         ->all();
                 }
             }
-        }    
+        } 
         $registroscargados = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->all();
         $cont = 0;
         if($registros == 0){
@@ -2159,6 +2169,175 @@ class ProgramacionNominaController extends Controller {
                 'fecha_hasta' => $fecha_hasta,
            ]);
     }// termina el boton de proceso de regitros 
+    
+    
+   //PROCESO QUE GENERA NOMINA DE PERSONAL AL CONTRATO DE OBRA CONTRATADA
+    public function actionIniciar_proceso_pago($id, $id_grupo_pago, $fecha_desde, $fecha_hasta, $tipo_nomina) {
+        $totalNomina = ProgramacionNomina::find()->where([
+                                            'id_periodo_pago_nomina' => $id])->all(); //busca todos los empleados
+        $total_dias = 0;
+        foreach ($totalNomina as $empleados) { // permite agregarle a todos los empleado las colillas
+            $total_dias = $this->SalarioHomologadoEmpleado($empleados, $fecha_desde, $fecha_hasta, $id, $id_grupo_pago);
+            if($total_dias > 0){
+                $this->AuxilioTransporteContratosObra($empleados, $fecha_desde, $fecha_hasta, $id, $id_grupo_pago, $total_dias);
+            }    
+        }
+        
+        //codigo que envia los descuentos y adiciones por fecha
+        $adicion_fecha = PagoAdicionalPermanente::find()->where(['=', 'fecha_corte', $fecha_hasta])
+                    ->andWhere(['=', 'estado_registro', 1])
+                    ->andWhere(['=', 'estado_periodo', 1])
+                    ->andWhere(['=', 'homologar', 0])
+                    ->andWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                    ->all();
+            $contAdicion = count($adicion_fecha);
+            if ($contAdicion > 0) {
+                foreach ($adicion_fecha as $adicionfecha) {
+                   $this->Moduloadicionfecha($fecha_desde, $fecha_hasta, $adicionfecha, $id);
+                }
+            }
+            
+        //CREACION DE INCAPACIDADES
+        $incapacidad = Incapacidad::find()->where(['=', 'id_grupo_pago', $id_grupo_pago])
+                    ->andWhere(['<=', 'fecha_inicio', $fecha_hasta])
+                    ->andWhere(['>=', 'fecha_final', $fecha_desde])
+                    ->all();
+                   
+        if (count($incapacidad) > 0) {
+                foreach ($incapacidad as $valor_incapacidad) {
+                  $this->ModuloIncapacidad($fecha_desde, $fecha_hasta, $valor_incapacidad, $id);
+                  
+            }
+        }    
+         
+        //ACTUALIZA LOS RESGITROS
+        foreach ($totalNomina as $cerrar) { // permite agregarle a todos los empleado las colillas
+           $cerrar->estado_generado = 1;
+           $cerrar->save();
+        }
+        
+        
+        
+        return $this->redirect(["programacion-nomina/view",
+                'id' => $id,
+                'id_grupo_pago' => $id_grupo_pago,
+                'fecha_desde' => $fecha_desde,
+                'fecha_hasta' => $fecha_hasta,
+           ]);                                
+        
+    }
+    
+    ///PROCESO QUE APLICA LOS DESCUENTOS
+    public function actionAplicar_bonificaciones_descuentos($id, $id_grupo_pago, $fecha_desde, $fecha_hasta, $tipo_nomina,) {
+         //codigo que envia parametros de los creditos
+           $creditosempleado = Credito::find()->where(['<=', 'fecha_inicio', $fecha_hasta])
+                            ->andWhere(['=', 'estado_credito', 1])
+                            ->andWhere(['=', 'estado_periodo', 1])
+                            ->andWhere(['>', 'saldo_credito', 0])
+                            ->andWhere(['=', 'id_grupo_pago', $id_grupo_pago])
+                            ->andWhere(['=','id_tipo_pago', $tipo_nomina])
+                            ->orderBy('id_empleado DESC')->all();
+            if (count($creditosempleado) > 0) {
+                foreach ($creditosempleado as $credito) {
+                   $this->Modulocredito($fecha_desde, $fecha_hasta, $credito, $id);
+                }
+            }
+            
+            $sqlNomina = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->all();
+            foreach ($sqlNomina as $acumular_prestacion):
+                $this->ModuloActualizarIbpEpsPension($acumular_prestacion, $fecha_desde, $fecha_hasta, $id_grupo_pago);
+            endforeach;
+            
+            //ACTUALIZA EL ESTADO
+            $totalNomina = ProgramacionNomina::find()->where(['id_periodo_pago_nomina' => $id])->all();
+            foreach ($totalNomina as $fila) {
+                $fila->estado_liquidado = 1;
+                $fila->save();
+            }
+            
+            return $this->redirect(['programacion-nomina/view',
+                   'id' => $id,
+                   'id_grupo_pago' => $id_grupo_pago,
+                   'fecha_desde' => $fecha_desde,
+                   'fecha_hasta' => $fecha_hasta]);
+    }
+    
+    
+    
+    //PROCESO QUE CARGA EL CODIGO DEL SALARIO BASICO A LA COLILLA
+    protected function SalarioHomologadoEmpleado($empleados, $fecha_desde, $fecha_hasta, $id, $id_grupo_pago) {
+        
+        $horas_dia = 0.0;  
+        //vectores
+        $sqlSalario = ConceptoSalarios::find()->where(['inicio_nomina' => 1])->one(); // busca el codigo de salario
+        $sqlEmpresa = \app\models\Matriculaempresa::findOne(1);
+        // busca el salario que esta en pago permanente
+        $pagoAdicional = PagoAdicionalPermanente::find()->where(['id_empleado' => $empleados->id_empleado,
+                                                                'homologar' => 1,
+                                                                'estado_registro' => 1, 'estado_periodo' => 1,
+                                                                'fecha_corte' => $fecha_hasta])->one(); //esta consulta muestra el codigo del salario
+        if(!$pagoAdicional){
+            Yii::$app->getSession()->setFlash('error', 'No hay pagos ingresados para el personal de contratos. Favor valide la información.');
+            return 0;
+                   
+        }
+        $sqlColillas = ProgramacionNominaDetalle::find()->where([
+                                                        'id_programacion' => $empleados->id_programacion,
+                                                        'codigo_salario' => $sqlSalario->codigo_salario])->one();
+        $horas_dia = $sqlEmpresa->horas_mensuales / 30;
+        if(!$sqlColillas){
+            $table = new ProgramacionNominaDetalle();
+            $table->id_programacion = $empleados->id_programacion;
+            $table->codigo_salario = $sqlSalario->codigo_salario;
+            $table->horas_periodo = round($sqlEmpresa->horas_mensuales / 30);
+            $table->horas_periodo_reales =  round($sqlEmpresa->horas_mensuales / 30);
+            $table->dias_reales = $pagoAdicional->dias_contrato;
+            $table->dias_reales = $pagoAdicional->dias_contrato;
+            $table->fecha_desde = $fecha_desde;
+            $table->fecha_hasta = $fecha_hasta;
+            $table->salario_basico = $empleados->salario_contrato;
+            $table->vlr_devengado = $pagoAdicional->vlr_adicion;
+            $table->vlr_hora = (($pagoAdicional->vlr_adicion / $pagoAdicional->dias_contrato) / $horas_dia);
+            $table->vlr_dia = $pagoAdicional->vlr_adicion / $pagoAdicional->dias_contrato;
+            $table->id_periodo_pago_nomina = $id;
+            $table->id_grupo_pago = $id_grupo_pago;
+            $table->dias_salario = $pagoAdicional->dias_contrato;
+            $table->porcentaje = 100;
+            $table->save(false);
+            $total_dias = $pagoAdicional->dias_contrato ;
+            return $total_dias;
+        }
+    }
+    
+    //PROCESO QUE CARGA EL AUXILIO DE TRANSPORTE DE LOS CONTRATOS POR OBRA O LABOR
+    protected function AuxilioTransporteContratosObra($empleados, $fecha_desde, $fecha_hasta, $id, $id_grupo_pago, $total_dias) {
+        $valor_dia = 0;
+        //vectores de conculta;
+        $sqlTransporte = ConceptoSalarios::find()->where(['auxilio_transporte' => 1])->one();
+        $sqlAuxilio = ConfiguracionSalario::find()->where(['estado' => 1])->one();
+        $valor_dia = $sqlAuxilio->auxilio_transporte_actual / 30;   
+        
+        //consulta que valide que no se repita el codigo de salario
+        $sqlColillas = ProgramacionNominaDetalle::find()->where([
+                                                        'id_programacion' => $empleados->id_programacion,
+                                                        'codigo_salario' => $sqlTransporte->codigo_salario])->one();
+        if(!$sqlColillas){
+            $table = new ProgramacionNominaDetalle();
+            $table->id_programacion = $empleados->id_programacion;
+            $table->codigo_salario = $sqlTransporte->codigo_salario;
+            $table->dias_reales = $total_dias;
+            $table->dias_transporte =  $total_dias;
+            $table->fecha_desde = $fecha_desde;
+            $table->fecha_hasta = $fecha_hasta;
+            $table->vlr_dia = $valor_dia;
+            $table->auxilio_transporte = round($total_dias * $valor_dia);
+            $table->id_periodo_pago_nomina = $id;
+            $table->id_grupo_pago = $id_grupo_pago;
+            $table->save(false);
+        }
+    }
+    
+    
     
     //CODIGO QUE GENERA LOS DIAS DE LAS CESANTIAS
     protected function CrearCesantias($cesantias, $sw, $ano)
@@ -3056,19 +3235,35 @@ class ProgramacionNominaController extends Controller {
         $contar = 0;
         $contar_medio = 0;
         $vlr_no_prestacional = 0;
-        $concepto_salario = ConceptoSalarios::find()->where(['=', 'concepto_pension', 1])->one();
+        $SqlGrupo = GrupoPago::findOne($id_grupo_pago);
+       
+        
+       $concepto_salario = ConceptoSalarios::find()->where(['=', 'concepto_pension', 1])->one();
         $concepto_fondo = ConceptoSalarios::find()->where(['=', 'fsp', 1])->one();
         $contratos = Contrato::find()->where(['=', 'id_contrato', $acumular_prestacion->id_contrato])->one();
         $detalle_no = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $acumular_prestacion->id_programacion])->orderBy('id_programacion DESC')->all();
         foreach ($detalle_no as $saldo_devengado):
-            $contar += ($saldo_devengado->vlr_devengado + $saldo_devengado->vlr_ajuste_incapacidad)-  $saldo_devengado->vlr_devengado_no_prestacional;
+            
+            if($SqlGrupo->contrato_especial == 1){
+                if($saldo_devengado->codigoSalario->inicio_nomina == 1){
+                   $contar = $saldo_devengado->vlr_devengado; 
+                }
+                
+            }else{
+               
+               $contar += ($saldo_devengado->vlr_devengado + $saldo_devengado->vlr_ajuste_incapacidad) -  $saldo_devengado->vlr_devengado_no_prestacional; 
+            }
+            
             $vlr_no_prestacional += $saldo_devengado->vlr_licencia_no_pagada; 
             $contar_medio +=  $saldo_devengado->vlr_ibc_medio_tiempo;
         endforeach;
+       
+        //guarda devengados en la table programacion de nomina
         $acumular_prestacion->ibc_prestacional = $contar;
         $acumular_prestacion->total_ibc_no_prestacional = $vlr_no_prestacional;
         $acumular_prestacion->vlr_ibp_medio_tiempo = $contar_medio;
         $acumular_prestacion->save(false);
+        
         //codigo que inserta el codigo de pension
         $con_pension = ConfiguracionPension::find()->all();
         foreach ($con_pension as $pension):
@@ -3385,6 +3580,9 @@ class ProgramacionNominaController extends Controller {
     public function actionAplicarpagos($id, $id_grupo_pago, $fecha_desde, $fecha_hasta, $tipo_nomina)
     {
         if($tipo_nomina == 1){ //CONDICION SI ES DE NOMINA
+                                        
+           $sqlGrupo = GrupoPago::findOne($id_grupo_pago) ;                            
+        
             // consulta las programaciones que tiene creditos
             $creditosempleado = Credito::find()->where(['<=', 'fecha_inicio', $fecha_hasta])->andWhere(['=', 'estado_credito', 1])->andWhere(['=', 'estado_periodo', 1])
                             ->andWhere(['>', 'saldo_credito', 0])->andWhere(['=', 'id_grupo_pago', $id_grupo_pago])->andWhere(['=','id_tipo_pago', $tipo_nomina])->orderBy('id_empleado DESC')->all();
@@ -3394,33 +3592,37 @@ class ProgramacionNominaController extends Controller {
                     $this->ModuloActualizarCreditos($credito, $id, $tipo_nomina);
                 }
             }
+            
             //codigo que actualiza fecha ultimo pago nomina
             $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->all();
             foreach ($nomina as $nomina_empleado) {
                     $contrato = Contrato::find()->where(['=','id_contrato', $nomina_empleado->id_contrato])->one();
                     $contrato->ultimo_pago = $fecha_hasta;
                     $contrato->save(false);
-                }
+            }
             $grupo_pago = GrupoPago::find()->where(['=','id_grupo_pago', $id_grupo_pago])->one();
             $grupo_pago->ultimo_pago_nomina = $fecha_hasta;
             $grupo_pago->save(false);
             
-            //codigo que actualiza el estado de la incapacidad adicional
-            $incapacidad = Incapacidad::find()->where(['=','fecha_aplicacion', $fecha_hasta])->andWhere(['=','estado_incapacidad_adicional', 1])->orderBy('id_empleado asc')->all();
-            foreach ($incapacidad as $buscar){
-                $buscar_incapacidad = ProgramacionNominaDetalle::find(['=','id_incapacidad', $buscar->id_incapacidad])->one();
-                if($buscar_incapacidad){
-                    $buscar->estado_incapacidad_adicional = 2;
-                    $buscar->save(false);
+             //codigo que actualiza el estado de la incapacidad adicional
+            if($sqlGrupo->contrato_especial == 0){
+                $incapacidad = Incapacidad::find()->where(['=','fecha_aplicacion', $fecha_hasta])->andWhere(['=','estado_incapacidad_adicional', 1])->orderBy('id_empleado asc')->all();
+                foreach ($incapacidad as $buscar){
+                    $buscar_incapacidad = ProgramacionNominaDetalle::find(['=','id_incapacidad', $buscar->id_incapacidad])->one();
+                    if($buscar_incapacidad){
+                        $buscar->estado_incapacidad_adicional = 2;
+                        $buscar->save(false);
+                    }
                 }
-            }
+            }  
             
+                       
             //codigo que genera el consecutivo a la nomina nropago de la colilla
             $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
             foreach ($nomina as $generar_consecutivo) {
                     $consecutivo = Consecutivo::findOne(7);
                     $consecutivo->consecutivo = $consecutivo->consecutivo + 1;
-                  //  $consecutivo->save(false);
+                    $consecutivo->save(false);
                     $generar_consecutivo->nro_pago = $consecutivo->consecutivo;
                     $generar_consecutivo->estado_cerrado = 1;
                     $generar_consecutivo->save(false);
@@ -3430,87 +3632,125 @@ class ProgramacionNominaController extends Controller {
                 $periodo_pago->estado_periodo = 1;
                 $periodo_pago->save(false);
                 
-                //inserta concepto de vacacion si tiene vacaciones
-                $concepto_salario = ConceptoSalarios::find()->where(['=','concepto_vacacion', 1])->one();  
-                $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all(); 
-             
-                foreach ($nomina as $vacacion):
-                    $registro_Vacaciones = \app\models\Vacaciones::find()->where(['=','id_empleado', $vacacion->id_empleado])
-                                                                       ->andWhere(['=','total_compensado', 0])
-                                                                        ->orderBy('id_vacacion DESC')->one();
-                    if($registro_Vacaciones){
-                        $saldo = 0;
-                        if($vacacion->fecha_inicio_vacacion != null){
-                            $detalle = new ProgramacionNominaDetalle();
-                           
-                            if($registro_Vacaciones->fecha_desde_disfrute >= $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute > $fecha_hasta){ //las vacacion inician en le mismo periodo pero pasa el corte de nomina
-                                $valor_dia = $registro_Vacaciones->vlr_dia_vacacion;
-                                $total = strtotime($fecha_hasta) - strtotime($registro_Vacaciones->fecha_desde_disfrute);
-                                $total = round($total / 86400)+1;
-                                $detalle->fecha_desde = $registro_Vacaciones->fecha_desde_disfrute;
-                                $detalle->fecha_hasta = $fecha_hasta; 
-                                $detalle->vlr_devengado = round($valor_dia * $total);
-                                $detalle->dias = $total;
-                                $detalle->dias_reales = $total;
-                                $detalle->vlr_vacacion = $detalle->vlr_devengado ;
-                                $registro_Vacaciones->saldo_vacaciones = $registro_Vacaciones->total_pagar - $detalle->vlr_devengado;
-                                $registro_Vacaciones->save();
-                                
-                            }elseif($registro_Vacaciones->fecha_desde_disfrute >= $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute <= $fecha_hasta){ //las fechas estan el mismo rango del corte de nomina
-                                $total = strtotime($registro_Vacaciones->fecha_hasta_disfrute) - strtotime($registro_Vacaciones->fecha_desde_disfrute);
-                                $total = round($total / 86400)+1;
-                                $detalle->fecha_desde = $registro_Vacaciones->fecha_desde_disfrute;
-                                $detalle->fecha_hasta = $registro_Vacaciones->fecha_hasta_disfrute; 
-                                $detalle->vlr_devengado = $registro_Vacaciones->total_pagar;
-                                $detalle->dias = $registro_Vacaciones->dias_disfrutados + $registro_Vacaciones->dias_pagados;
-                                $detalle->dias_reales = $detalle->dias;
-                                $detalle->vlr_vacacion = $detalle->vlr_devengado;
-                                
-                            }elseif($registro_Vacaciones->fecha_desde_disfrute < $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute <= $fecha_hasta){ // las vacaciiones fueron en dos cortes diferentes comenzado el mes anterior
-                                $total = strtotime($registro_Vacaciones->fecha_hasta_disfrute) - strtotime($fecha_desde);
-                                $total = round($total / 86400)+1;
-                                $detalle->fecha_desde = $fecha_desde;
-                                $detalle->fecha_hasta = $registro_Vacaciones->fecha_hasta_disfrute; 
-                                $detalle->vlr_devengado = $registro_Vacaciones->saldo_vacaciones;
-                                $detalle->dias = $total;
-                                $detalle->dias_reales = $detalle->dias;
-                                $detalle->vlr_vacacion = $detalle->vlr_devengado;  
-                                $registro_Vacaciones->saldo_vacaciones = $registro_Vacaciones->saldo_vacaciones - $detalle->vlr_devengado;
-                                if($registro_Vacaciones->saldo_vacaciones == 0){                                
-                                    $registro_Vacaciones->total_compensado = 1;
+                
+                if($sqlGrupo->contrato_especial == 0){
+                    //inserta concepto de vacacion si tiene vacaciones
+                    $concepto_salario = ConceptoSalarios::find()->where(['=','concepto_vacacion', 1])->one();  
+                    $nomina = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all(); 
+
+                    foreach ($nomina as $vacacion):
+                        $registro_Vacaciones = \app\models\Vacaciones::find()->where(['=','id_empleado', $vacacion->id_empleado])
+                                                                           ->andWhere(['=','total_compensado', 0])
+                                                                            ->orderBy('id_vacacion DESC')->one();
+                        if($registro_Vacaciones){
+                            $saldo = 0;
+                            if($vacacion->fecha_inicio_vacacion != null){
+                                $detalle = new ProgramacionNominaDetalle();
+
+                                if($registro_Vacaciones->fecha_desde_disfrute >= $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute > $fecha_hasta){ //las vacacion inician en le mismo periodo pero pasa el corte de nomina
+                                    $valor_dia = $registro_Vacaciones->vlr_dia_vacacion;
+                                    $total = strtotime($fecha_hasta) - strtotime($registro_Vacaciones->fecha_desde_disfrute);
+                                    $total = round($total / 86400)+1;
+                                    $detalle->fecha_desde = $registro_Vacaciones->fecha_desde_disfrute;
+                                    $detalle->fecha_hasta = $fecha_hasta; 
+                                    $detalle->vlr_devengado = round($valor_dia * $total);
+                                    $detalle->dias = $total;
+                                    $detalle->dias_reales = $total;
+                                    $detalle->vlr_vacacion = $detalle->vlr_devengado ;
+                                    $registro_Vacaciones->saldo_vacaciones = $registro_Vacaciones->total_pagar - $detalle->vlr_devengado;
+                                    $registro_Vacaciones->save();
+
+                                }elseif($registro_Vacaciones->fecha_desde_disfrute >= $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute <= $fecha_hasta){ //las fechas estan el mismo rango del corte de nomina
+                                    $total = strtotime($registro_Vacaciones->fecha_hasta_disfrute) - strtotime($registro_Vacaciones->fecha_desde_disfrute);
+                                    $total = round($total / 86400)+1;
+                                    $detalle->fecha_desde = $registro_Vacaciones->fecha_desde_disfrute;
+                                    $detalle->fecha_hasta = $registro_Vacaciones->fecha_hasta_disfrute; 
+                                    $detalle->vlr_devengado = $registro_Vacaciones->total_pagar;
+                                    $detalle->dias = $registro_Vacaciones->dias_disfrutados + $registro_Vacaciones->dias_pagados;
+                                    $detalle->dias_reales = $detalle->dias;
+                                    $detalle->vlr_vacacion = $detalle->vlr_devengado;
+
+                                }elseif($registro_Vacaciones->fecha_desde_disfrute < $fecha_desde && $registro_Vacaciones->fecha_hasta_disfrute <= $fecha_hasta){ // las vacaciiones fueron en dos cortes diferentes comenzado el mes anterior
+                                    $total = strtotime($registro_Vacaciones->fecha_hasta_disfrute) - strtotime($fecha_desde);
+                                    $total = round($total / 86400)+1;
+                                    $detalle->fecha_desde = $fecha_desde;
+                                    $detalle->fecha_hasta = $registro_Vacaciones->fecha_hasta_disfrute; 
+                                    $detalle->vlr_devengado = $registro_Vacaciones->saldo_vacaciones;
+                                    $detalle->dias = $total;
+                                    $detalle->dias_reales = $detalle->dias;
+                                    $detalle->vlr_vacacion = $detalle->vlr_devengado;  
+                                    $registro_Vacaciones->saldo_vacaciones = $registro_Vacaciones->saldo_vacaciones - $detalle->vlr_devengado;
+                                    if($registro_Vacaciones->saldo_vacaciones == 0){                                
+                                        $registro_Vacaciones->total_compensado = 1;
+                                    }
+                                    $registro_Vacaciones->save();
+
                                 }
-                                $registro_Vacaciones->save();
-                                
-                            }
-                            $detalle->codigo_salario = $concepto_salario->codigo_salario;
-                            $detalle->id_programacion = $vacacion->id_programacion;
-                            $detalle->id_periodo_pago_nomina = $id;
-                            $detalle->id_grupo_pago = $id_grupo_pago;
-                            $detalle->save(false);
-                            $saldo = $vacacion->ibc_prestacional;
-                            $vacacion->ibc_prestacional =  $saldo + $detalle->vlr_devengado;
-                            $vacacion->save(false);
-                      }
-                    }  
-               endforeach;
+                                $detalle->codigo_salario = $concepto_salario->codigo_salario;
+                                $detalle->id_programacion = $vacacion->id_programacion;
+                                $detalle->id_periodo_pago_nomina = $id;
+                                $detalle->id_grupo_pago = $id_grupo_pago;
+                                $detalle->save(false);
+                                $saldo = $vacacion->ibc_prestacional;
+                                $vacacion->ibc_prestacional =  $saldo + $detalle->vlr_devengado;
+                                $vacacion->save(false);
+                          }
+                        }  
+                   endforeach;
+                }   
             
             
-              //ACTUALIZAR LAS HORAS Y LA HORA LABORAL
-              $buscar = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
-              $concepto = ConceptoSalarios::findOne(1);
-              $empresa = \app\models\Matriculaempresa::findOne(1);
-              $horas = 0; $horas_generadas = 0;
-              foreach ($buscar as $val) {
-                  $detalle = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $val->id_programacion])->andWhere(['=','codigo_salario', $concepto->codigo_salario])->one();
-                  if($detalle){
-                      $horas = round(($empresa->horas_mensuales * $detalle->dias_reales)/30);
-                      $horas_generadas = round(($empresa->horas_mensuales * $detalle->dias)/30);
-                      $detalle->horas_periodo_reales = $horas;
-                      $detalle->horas_periodo = $horas_generadas;
-                      $detalle->vlr_hora = $detalle->salario_basico / $empresa->horas_mensuales;
-                      $detalle->save(false);
-                  } 
-              }
+               //ACTUALIZAR LAS HORAS Y LA HORA LABORAL
+               $buscar = ProgramacionNomina::find()->where(['=','id_periodo_pago_nomina', $id])->orderBy('id_programacion DESC')->all();
+               $concepto = ConceptoSalarios::findOne(1);
+               $empresa = \app\models\Matriculaempresa::findOne(1);
+               $horas = 0; $horas_generadas = 0;
+               foreach ($buscar as $val) {
+                    $detalle = ProgramacionNominaDetalle::find()->where(['=','id_programacion', $val->id_programacion])->andWhere(['=','codigo_salario', $concepto->codigo_salario])->one();
+                    if($detalle){
+                        $horas = round(($empresa->horas_mensuales * $detalle->dias_reales)/30);
+                        $horas_generadas = round(($empresa->horas_mensuales * $detalle->dias)/30);
+                        $detalle->horas_periodo_reales = $horas;
+                        $detalle->horas_periodo = $horas_generadas;
+                        $detalle->vlr_hora = $detalle->salario_basico / $empresa->horas_mensuales;
+                        $detalle->save(false);
+                    } 
+               }
+               
+               if($sqlGrupo->contrato_especial == 1){
+                $sqlConcepto = ConceptoSalarios::findOne(1);
+                foreach ($nomina as $fila) {
+                    $devengado = 0;
+                    $deduccion = 0;
+                    $auxilio = 0;
+                    $no_prestacional = 0;
+                    $incapacidad = 0;
+                    $dias = 0;
+                    $horas = 0;
+                    $slqDetalleNomina = ProgramacionNominaDetalle::find()->where(['id_programacion' => $fila->id_programacion])->all();
+                    foreach ($slqDetalleNomina as $filadetalle) {
+                        $devengado += $filadetalle->vlr_devengado + $filadetalle->auxilio_transporte;
+                        $deduccion += $filadetalle->vlr_deduccion;
+                        $auxilio += $filadetalle->auxilio_transporte;
+                        $no_prestacional += $filadetalle->vlr_devengado_no_prestacional;
+                        $incapacidad += $filadetalle->vlr_incapacidad;
+                        if($filadetalle->codigo_salario == $sqlConcepto->codigo_salario){
+                            $dias += $filadetalle->dias_reales;
+                            $horas += $filadetalle->horas_periodo_reales;
+                        }
+                    }
+                    $fila->total_devengado = $devengado;
+                    $fila->total_deduccion = $deduccion;
+                    $fila->total_auxilio_transporte = $auxilio;
+                    $fila->ibc_no_prestacional = $no_prestacional;
+                    $fila->total_incapacidad = $incapacidad;
+                    $fila->dia_real_pagado = $dias;
+                    $fila->horas_pago = $horas;
+                    $fila->total_pagar =  $devengado - $deduccion;
+                    $fila->save(false);
+                }
+                
+            }
                 
         }else{ 
             //codigo para prima

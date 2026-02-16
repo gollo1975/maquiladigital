@@ -317,8 +317,9 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                     ['label' => 'Comprobante de pago', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/comprobantepagonomina']],
                                                     ['label' => 'Liquidaciones', 'icon' => 'plus-square-o', 'url' => ['/prestaciones-sociales/comprobantepagoprestaciones']],
                                                     ['label' => 'Vacaciones', 'icon' => 'plus-square-o', 'url' => ['/vacaciones/searchindex']],
+                                                    ['label' => 'Contratos OTRO SI', 'icon' => 'plus-square-o', 'url' => ['/ingreso-personal-contrato/index_search']],
                                                     ['label' => 'Abonos a crteditos', 'icon' => 'plus-square-o', 'url' => ['/credito/search_abono_credito']],
-                                                     ['label' => 'Documentos electronicos', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/search_documentos_electronicos']],
+                                                    ['label' => 'Documentos electronicos', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/search_documentos_electronicos']],
 
                                                 ],
                                             ],
@@ -327,6 +328,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 'icon' => 'exchange',
                                                 'url' => '#',
                                                 'items' => [
+                                                    ['label' => 'Ingresos al contrato', 'icon' => 'plus-square-o', 'url' => ['/ingreso-personal-contrato/index']],
                                                     ['label' => 'Ingresos y deducciones', 'icon' => 'plus-square-o', 'url' => ['/ingresos-deducciones/index']],                                            
                                                     ['label' => 'Pago adicional permanente', 'icon' => 'plus-square-o', 'url' => ['/pago-adicional-permanente/index']],                                            
                                                     ['label' => 'Pago adicional fechas', 'icon' => 'plus-square-o', 'url' => ['/pago-adicional-fecha/index']],                                            

@@ -370,7 +370,7 @@ class ContratoController extends Controller
                     if($fecha_inicio_contrato < $fecha_ultima_nomina){
                         Yii::$app->getSession()->setFlash('error', 'Error de fechas: La fecha de ingreso es menor a la ultima fecha de pago de nomina, favor revisar la fecha de inicio de contrato!');
                     }else{
-                        if($tipo != 'CAI' && $model->fecha_final == '' ){
+                        if($tipo != 'CAI' && $tipo != 'COL' && $model->fecha_final == '' ){
                             Yii::$app->getSession()->setFlash('error', 'Campo vacio: La fecha final no puede ser vacia!');
                         }else{
                             if($tipo == 'CAI'){
@@ -521,6 +521,12 @@ class ContratoController extends Controller
                                  $table->genera_prorroga = 0;
                                  $table->dias_contrato = 0;
                                  $table->fecha_preaviso = '2099-12-31'; 
+                            }
+                            if($tipo_contrato->prefijo == 'COL'){
+                                 $table->fecha_final = '';
+                                 $table->genera_prorroga = 0;
+                                 $table->dias_contrato = 0;
+                                 $table->fecha_preaviso = ''; 
                             }
 
                             if ($table->save(false)) {

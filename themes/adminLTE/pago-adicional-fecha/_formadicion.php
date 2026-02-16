@@ -29,6 +29,8 @@ $empleado = ArrayHelper::map(Empleado::find()->where(['=','contrato',1])->orderB
 $conceptosalario = ArrayHelper::map(ConceptoSalarios::find()->where(['adicion'=> 1])
                     ->andWhere(['=','tipo_adicion', 1]) 
                     ->orderBy('nombre_concepto ASC')->all(), 'codigo_salario', 'nombre_concepto');
+$conceptosalarioHolologar = ArrayHelper::map(ConceptoSalarios::find()->where(['=','inicio_nomina', 1])
+                                                                ->orWhere(['=','auxilio_transporte', 1])->orderBy('nombre_concepto ASC')->all(), 'codigo_salario', 'nombre_concepto');
 ?>
         <div class="panel panel-success">
             <div class="panel-heading">
@@ -51,9 +53,23 @@ $conceptosalario = ArrayHelper::map(ConceptoSalarios::find()->where(['adicion'=>
                     ?>
                 </div>        
                 <div class="row">
-                         <?= $form->field($model, 'vlr_adicion')->textInput(['maxlength' => true]) ?>
-                         <?= $form->field($model, 'detalle')->textarea(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'vlr_adicion')->textInput(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'homologar')->dropdownList(['0' => 'NO', '1' => 'SI']) ?>
                 </div>
+                <div class="row" col>
+                    <?= $form->field($model, 'codigo_homologado')->widget(Select2::classname(), [
+                            'data' => $conceptosalarioHolologar,
+                            'options' => ['placeholder' => 'Seleccione el concepto'],
+                            'pluginOptions' => [
+                                'allowClear' => true ]]);
+                            ?>
+                    <?= $form->field($model, 'dias_contrato')->textInput(['maxlength' => true]) ?>
+                  
+               </div>
+                <div class="row" col>
+                  <?= $form->field($model, 'detalle')->textarea(['maxlength' => true]) ?>
+                  
+               </div>
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         Aplicar a:

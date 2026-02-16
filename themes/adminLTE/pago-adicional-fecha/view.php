@@ -70,6 +70,7 @@ $conceptosalario = ArrayHelper::map(ConceptoSalarios::find()->where(['tipo_adici
             </ul>
        </div> 
       <?= Html::a('<span class="glyphicon glyphicon-import"></span> Importar ingresos y/o Deducciones', ['pago-adicional-fecha/importar_ingresos_deducciones', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-default btn-sm'])?>
+      <?= Html::a('<span class="glyphicon glyphicon-import"></span> Importar operaciones', ['pago-adicional-fecha/importar_operaciones_contrato', 'id' => $id, 'fecha_corte' => $fecha_corte], ['class' => 'btn btn-info btn-sm'])?>
     
   <?php }?>  
 </div>

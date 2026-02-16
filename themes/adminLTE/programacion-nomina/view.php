@@ -106,19 +106,33 @@ $view = 'programacion nomina';
                 }
             }
         endforeach;  
-   }    
-    if($estado_generado == 1){?>                     
-        <div class="panel-footer text-center"> 
-            <?= Html::a('<span class="glyphicon glyphicon-file"></span> Procesar_información', ['procesarregistros', 'id' => $model->id_periodo_pago_nomina, 'tipo_nomina' =>$model->id_tipo_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta], ['class' => 'btn btn-success btn-sm']) ?>
-        </div>     
-    <?php }   
-     if($estado_generado == 2 && $estado_liquidado == 1){?>                     
-        <div class="panel-footer text-center"> 
-            <?= Html::a('<span class="glyphicon glyphicon-triangle-left"></span> Deshacer_proceso', ['deshacer', 'id' => $model->id_periodo_pago_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta], ['class' => 'btn btn-primary btn-sm']) ?>    
-            <?= Html::a('<span class="glyphicon glyphicon-level-up"></span> Validar_registros', ['validarregistros', 'id' => $model->id_periodo_pago_nomina, 'tipo_nomina' =>$model->id_tipo_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta],['class' => 'btn btn-warning btn-sm',
-                      'data' => ['confirm' => 'Este proceso valida todos los registros de las '. $model->tipoNomina->tipo_pago. ' y actualiza licencias e incapacidades. Esta seguro de validar los registros?', 'method' => 'post']]) ?>
-        </div>     
-    <?php }
+   }  
+    $grupoPago = app\models\GrupoPago::findOne($model->id_grupo_pago);
+    if($estado_generado == 1){
+        if($grupoPago->contrato_especial == 0) {?>                     
+            <div class="panel-footer text-center"> 
+                <?= Html::a('<span class="glyphicon glyphicon-file"></span> Procesar_información', ['procesarregistros', 'id' => $model->id_periodo_pago_nomina, 'tipo_nomina' =>$model->id_tipo_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta], ['class' => 'btn btn-success btn-sm']) ?>
+            </div>   
+        <?php }else{ ?>
+             <div class="panel-footer text-center"> 
+                <?= Html::a('<span class="glyphicon glyphicon-file"></span> Iniciar proceso', ['iniciar_proceso_pago', 'id' => $model->id_periodo_pago_nomina, 'tipo_nomina' =>$model->id_tipo_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta], ['class' => 'btn btn-success btn-sm']) ?>
+            </div> 
+        <?php }     
+    }   
+     if($estado_generado == 2 && $estado_liquidado == 1){  
+        if($grupoPago->contrato_especial == 0) {?>
+            <div class="panel-footer text-center"> 
+                <?= Html::a('<span class="glyphicon glyphicon-refresh"></span> Regresar', ['deshacer', 'id' => $model->id_periodo_pago_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta], ['class' => 'btn btn-primary btn-sm']) ?>    
+                <?= Html::a('<span class="glyphicon glyphicon-level-up"></span> Validar_registros', ['validarregistros', 'id' => $model->id_periodo_pago_nomina, 'tipo_nomina' =>$model->id_tipo_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta],['class' => 'btn btn-warning btn-sm',
+                          'data' => ['confirm' => 'Este proceso valida todos los registros de las '. $model->tipoNomina->tipo_pago. ' y actualiza licencias e incapacidades. Esta seguro de validar los registros?', 'method' => 'post']]) ?>
+            </div> 
+        <?php }else{ ?>
+            <div class="panel-footer text-center"> 
+                <?= Html::a('<span class="glyphicon glyphicon-refresh"></span> Regresar', ['deshacer', 'id' => $model->id_periodo_pago_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta], ['class' => 'btn btn-primary btn-sm']) ?>    
+                <?= Html::a('<span class="glyphicon glyphicon-ok"></span> Aplicar descuentos', ['aplicar_bonificaciones_descuentos', 'id' => $model->id_periodo_pago_nomina, 'tipo_nomina' =>$model->id_tipo_nomina, 'id_grupo_pago' =>$model->id_grupo_pago, 'fecha_desde' => $model->fecha_desde, 'fecha_hasta' =>$model->fecha_hasta], ['class' => 'btn btn-success btn-sm']) ?>
+            </div>    
+        <?php }
+    }
     if($estado_cerrado == 1 && $estado_liquidado == 2){?>                     
         <div class="panel-footer text-center"> 
             <div>

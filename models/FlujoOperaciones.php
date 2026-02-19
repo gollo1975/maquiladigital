@@ -53,7 +53,7 @@ class FlujoOperaciones extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'idproceso' => 'Idproceso',
-            'idordenproduccion' => 'Idordenproduccion',
+            'idordenproduccion' => 'Orden producción:',
             'fecha_creacion' => 'Fecha Creacion',
             'segundos' =>'Segundos',
             'orden_aleatorio' => 'Orden aleatorio',

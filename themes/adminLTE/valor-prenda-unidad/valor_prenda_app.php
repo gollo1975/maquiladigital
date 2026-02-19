@@ -22,25 +22,6 @@ use app\models\Matriculaempresa;
 $this->title = 'Resume de pago (APP)';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="panel-footer text-right">
-    
-      <!-- Inicio Nuevo Detalle proceso -->
-        <?= Html::a('<span class="glyphicon glyphicon-plus"></span> Crear pago',
-            ['/valor-prenda-unidad/pagarserviciosoperarios'],
-            [
-                'title' => 'Crear servicios',
-                'data-toggle'=>'modal',
-                'data-target'=>'#modalpagarserviciosoperarios',
-                'class' => 'btn btn-info btn-xs'
-            ])    
-       ?>
-    
-    <div class="modal remote fade" id="modalpagarserviciosoperarios"  data-backdrop="static">
-        <div class="modal-dialog modal-lg" style ="width: 700px;">
-            <div class="modal-content"></div>
-        </div>
-    </div>
-</div>    
     
 <script language="JavaScript">
     function mostrarfiltro() {
@@ -64,6 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
 $servicio= ArrayHelper::map(\app\models\Ordenproducciontipo::find()->all(), 'idtipo', 'tipo');
 $bodegaPlanta= ArrayHelper::map(\app\models\PlantaEmpresa::find()->all(), 'id_planta', 'nombre_planta');
 $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecompleto asc')->all(), 'id_operario', 'nombrecompleto');
+
 ?>
 <div class="panel panel-success panel-filters">
     <div class="panel-heading" onclick="mostrarfiltro()">
@@ -167,55 +149,56 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     $current_operario_id = null;
                                     foreach ($modelo as $val):
                                         // Verificamos si el operario actual es diferente al del registro anterior
-                                        if ($val->id_operario !== $current_operario_id):
+                                        if ($val['id_operario'] !== $current_operario_id):
                                             // Si es diferente, mostramos una fila de encabezado para el nuevo operario.
                                             // Esto crea el efecto de "agrupación".
                                     ?>
                                         <tr style='font-size:95%; font-weight:bold; background-color:#F5F5F5;'>
                                             <td colspan="15">
-                                                <?= $val->operarioProduccion->nombrecompleto ?>
+                                                <?= $val['operarioProduccion']['nombrecompleto'] ?? 'Sin Nombre' ?>
                                             </td>
                                         </tr>
                                     <?php
                                             // Actualizamos la variable con el ID del nuevo operario
-                                            $current_operario_id = $val->id_operario;
+                                            $current_operario_id = $val['id_operario'];
                                         endif;
                                     ?>
                                         <tr style='font-size:85%;'>
-                                            <td><?= $val->idordenproduccion ?></td>
-                                            <td><?= $val->ordenproduccion->codigoproducto ?></td>
-                                            <td><?= $val->operaciones->idproceso ?? 'NO FOUND' ?></td>
-                                            <td><?= $val->operaciones->proceso ?? 'NO FOUND' ?></td>
-                                            <td><?= $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla ?? 'NO FOUND' ?></td>
-                                            <td><?= $val->dia_pago ?></td>
-                                            <td align="right"><?= number_format($val->cantidad, 0) ?></td>
-                                            <td><?= $val->porcentaje_cumplimiento ?> %</td>
-                                            <td><?= $val->planta->nombre_planta ?></td>
-                                            <td><?= $val->hora_inicio ?></td>
+                                            <td><?= $val['idordenproduccion'] ?></td>
+                                            <td><?= $val['ordenproduccion']['codigoproducto'] ?? 'N/A' ?></td>
+                                            <td><?= $val['operaciones']['idproceso'] ?? 'NO FOUND' ?></td>
+                                            <td><?= $val['operaciones']['proceso'] ?? 'NO FOUND' ?></td>
+                                            <td><?= $val['detalleOrdenProduccion']['productodetalle']['prendatipo']['talla']['talla'] ?? 'NO FOUND' ?></td>
+
+                                            <td><?= $val['dia_pago'] ?></td>
+                                            <td align="right"><?= number_format($val['cantidad'], 0) ?></td>
+                                            <td><?= $val['porcentaje_cumplimiento'] ?> %</td>
+                                            <td><?= $val['planta']['nombre_planta'] ?? 'N/A' ?></td>
+                                            <td><?= $val['hora_inicio'] ?></td>
                                             <?php
                                             // Usamos una variable para almacenar la clase CSS
-                                            if (!empty($val->hora_inicio_desayuno)) {?>
+                                            if (!empty($val['hora_inicio_desayuno'])) {?>
                                                
-                                                <td style="background-color: #c9e2b3; color: #385d2a;"><?= $val->hora_inicio_desayuno ?></td>
+                                                <td style="background-color: #c9e2b3; color: #385d2a;"><?= $val['hora_inicio_desayuno'] ?></td>
                                                
-                                            <?php } elseif (!empty($val->hora_inicio_almuerzo)) {?>
-                                                 <td style="background-color: #ffe6b3; color: #664d03;"><?= $val->hora_inicio_almuerzo ?></td>
+                                            <?php } elseif (!empty($val['hora_inicio_almuerzo'])) {?>
+                                                 <td style="background-color: #ffe6b3; color: #664d03;"><?= $val['hora_inicio_almuerzo'] ?></td>
                                                  
                                             <?php } else {?>
-                                                 <td style="background-color: #e9ecef; color: #495057;"><?= $val->hora_corte ?></td>
+                                                 <td style="background-color: #e9ecef; color: #495057;"><?= $val['hora_corte'] ?></td>
                                            <?php } ?>
-                                            <td><?= $val->minuto_prenda ?></td>
-                                            <td><?= $val->tiempo_real_confeccion ?></td>
+                                            <td><?= $val['minuto_prenda'] ?></td>
+                                            <td><?= $val['tiempo_real_confeccion'] ?></td>
                                             <?php
-                                            if($val->diferencia_tiempo > 0){?>
-                                                <td style="background-color: #ffe6b3; color: green;"><?= $val->diferencia_tiempo ?></td>
+                                            if($val['diferencia_tiempo'] > 0){?>
+                                                <td style="background-color: #ffe6b3; color: green;"><?= $val['diferencia_tiempo'] ?></td>
                                             <?php }else{?>
-                                                <td style="background-color: #ffe6b3; color: red;"><?= $val->diferencia_tiempo ?></td>
+                                                <td style="background-color: #ffe6b3; color: red;"><?= $val['diferencia_tiempo'] ?></td>
                                             <?php }
-                                            if($val->diferencia_tiempo > 0){?>
-                                                <td style="background-color: #c9e2b3 ; color: green;"><?= round($val->diferencia_tiempo * 60) ?></td>
+                                            if($val['diferencia_tiempo'] > 0){?>
+                                                <td style="background-color: #c9e2b3 ; color: green;"><?= round($val['diferencia_tiempo'] * 60) ?></td>
                                             <?php }else{?>
-                                                <td style="background-color: #c9e2b3; color: red;"><?= round($val->diferencia_tiempo * 60) ?></td>
+                                                <td style="background-color: #c9e2b3; color: red;"><?= round($val['diferencia_tiempo'] * 60) ?></td>
                                             <?php }?>     
                                         </tr>
                                     <?php endforeach;

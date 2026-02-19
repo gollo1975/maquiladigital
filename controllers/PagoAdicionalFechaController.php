@@ -569,6 +569,10 @@ class PagoAdicionalFechaController extends Controller
                         $valoresAgrupados = [];//inicio array
                         $empresa = Matriculaempresa::findOne(1);
                         $sqlConceptoSalario = ConceptoSalarios::find()->where(['codigo_salario' => $empresa->codigo_salario])->one();
+                        if(!$sqlConceptoSalario){
+                            Yii::$app->getSession()->setFlash('error', 'Debe de configurar el codigo del salario para la importacion de los conceptos. Solicite soporte tecnico.');
+                            return $this->redirect(['importar_operaciones_contrato', 'id' => $id, 'fecha_corte' => $fecha_corte]);
+                        }
                         foreach ($table as $val) {
                             $empleadoId = $val->id_empleado;
                             // Creamos una clave única combinando el ID del empleado y el ID del concepto

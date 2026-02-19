@@ -284,6 +284,7 @@ class ValorPrendaUnidadController extends Controller
                 $pages = null;
                 $sw = 0;
                 $id_planta = null;
+               
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $validar_eficiencia = Html::encode($form->validar_eficiencia);
@@ -291,31 +292,50 @@ class ValorPrendaUnidadController extends Controller
                         $id_operario = Html::encode($form->id_operario);
                         $dia_pago = Html::encode($form->dia_pago);
                         $fecha_corte = Html::encode($form->fecha_corte);
+                        
                         if(empty($dia_pago) || empty($fecha_corte)){
                             Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
                             return $this->redirect(['valor_prenda_app']);
                         }else{
                             if($id_operario != null ){
                                 $sw = 1;
-                                $query = ValorPrendaUnidadDetalles::find()
-                                    ->joinWith('operarioProduccion')
-                                    ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                    ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario])
-                                    ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1]);
+                                 $query = ValorPrendaUnidadDetalles::find()
+                                        ->joinWith('operarioProduccion')
+                                        ->with([
+                                            'ordenproduccion', 
+                                            'operaciones', 
+                                            'planta',
+                                            'operarioProduccion',
+                                            'detalleOrdenProduccion.productodetalle.prendatipo.talla' 
+                                        ])
+                                        ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario])
+                                        ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1])
+                                        ->orderBy('operarios.nombrecompleto ASC, consecutivo DESC')
+                                        ->asArray(); // Mantenemos la optimización de memoria
 
-                                $query->orderBy('operarios.nombrecompleto ASC, valor_prenda_unidad_detalles.consecutivo DESC');
-
-                                $table = $query;
+                                        $tableexcel = (clone $query)->all();
                             }else{
                                 $sw = 2;
                                 if($id_planta != null ){
-                                    $query = ValorPrendaUnidadDetalles::find();
-                                    $query->joinWith('operarioProduccion');
-                                    $query->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
-                                            ->andWhere(['valor_prenda_unidad_detalles.id_planta' => $id_planta])
-                                            ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1]);
-                                    $query->orderBy('operarios.nombrecompleto ASC, consecutivo DESC');
-                                    $table = $query;
+                                    $query = ValorPrendaUnidadDetalles::find()
+                                        ->joinWith('operarioProduccion')
+                                        ->with([
+                                            'ordenproduccion', 
+                                            'operaciones', 
+                                            'planta',
+                                            'operarioProduccion',
+                                            'detalleOrdenProduccion.productodetalle.prendatipo.talla' 
+                                        ])
+                                        ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andWhere(['valor_prenda_unidad_detalles.id_planta' => $id_planta])
+                                        ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1])
+                                        ->orderBy('operarios.nombrecompleto ASC, consecutivo DESC')
+                                        ->asArray(); // Mantenemos la optimización de memoria
+
+                                    // 2. EXCEL: Quieres TODOS los registros para el reporte
+                                    // Clonamos la query original para que no le afecte el offset/limit de la paginación
+                                    $tableexcel = (clone $query)->all();
                                 }else{
                                    Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
                                    return $this->redirect(['valor_prenda_app']);
@@ -323,21 +343,22 @@ class ValorPrendaUnidadController extends Controller
                             }    
                         }
                         
-                        $tableexcel = $table->all();
-                        $count = clone $table;
-                        $to = $count->count();
+                        // 3. PAGINACIÓN: Calculamos el total usando la query original
+                        $count = clone $query;
                         $pages = new Pagination([
                             'pageSize' => 120,
                             'totalCount' => $count->count()
                         ]);
-                        $modelo = $table
-                                ->offset($pages->offset)
-                                ->limit($pages->limit)
-                                ->all();
-                        if (isset($_POST['excel'])) {
-                            $check = isset($_REQUEST['consecutivo  DESC']);
-                            $this->actionExcelResumeValorPrenda($tableexcel);
-                        }
+
+                        // 4. VISTA (GRILLA): Ejecutamos la consulta con límites para la pantalla
+                        $modelo = $query
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                            if (isset($_POST['excel'])) {
+                                $check = isset($_REQUEST['consecutivo  DESC']);
+                                $this->actionExcelResumeValorPrenda($tableexcel);
+                            }
                         
                     } else {
                         $form->getErrors();
@@ -4426,44 +4447,45 @@ class ValorPrendaUnidadController extends Controller
 
     $i = 2; // Fila inicial para los datos
     foreach ($tableexcel as $val) {
-        // Asignación de valores a cada celda de forma secuencial y legible
-        $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A' . $i, $val->consecutivo)
-            ->setCellValue('B' . $i, $val->idordenproduccion)
-            ->setCellValue('C' . $i, $val->operarioProduccion->nombrecompleto)
-            ->setCellValue('D' . $i, $val->idproceso)
-            ->setCellValue('E' . $i, $val->operaciones->proceso)
-            ->setCellValue('F' . $i, $val->dia_pago)
-            ->setCellValue('G' . $i, $val->minuto_prenda)
-            ->setCellValue('H' . $i, $val->cantidad)
-            ->setCellValue('I' . $i, $val->vlr_prenda)
-            ->setCellValue('J' . $i, $val->vlr_pago)
-            ->setCellValue('K' . $i, $val->porcentaje_cumplimiento)
-            ->setCellValue('L' . $i, $val->costo_dia_operaria)
-            ->setCellValue('M' . $i, $val->planta->nombre_planta)
-            ->setCellValue('N' . $i, $val->detalleOrdenProduccion->productodetalle->prendatipo->talla->talla)
-            ->setCellValue('O' . $i, $val->hora_inicio)
-            ->setCellValue('P' . $i, $val->hora_corte);
+        $registroPagado = ($val['registro_pagado'] == 1) ? 'SÍ' : 'NO';
+    $objPHPExcel->setActiveSheetIndex(0)
+        ->setCellValue('A' . $i, $val['consecutivo'])
+        ->setCellValue('B' . $i, $val['idordenproduccion'])
+        ->setCellValue('C' . $i, $val['operarioProduccion']['nombrecompleto'] ?? 'N/A')
+        ->setCellValue('D' . $i, $val['idproceso'])
+        ->setCellValue('E' . $i, $val['operaciones']['proceso'] ?? 'N/A')
+        ->setCellValue('F' . $i, $val['dia_pago'])
+        ->setCellValue('G' . $i, $val['minuto_prenda'])
+        ->setCellValue('H' . $i, $val['cantidad'])
+        ->setCellValue('I' . $i, $val['vlr_prenda'])
+        ->setCellValue('J' . $i, $val['vlr_pago'])
+        ->setCellValue('K' . $i, $val['porcentaje_cumplimiento'])
+        ->setCellValue('L' . $i, $val['costo_dia_operaria'])
+        ->setCellValue('M' . $i, $val['planta']['nombre_planta'] ?? 'N/A')
+        // Acceso profundo a la talla:
+        ->setCellValue('N' . $i, $val['detalleOrdenProduccion']['productodetalle']['prendatipo']['talla']['talla'] ?? 'N/A')
+        ->setCellValue('O' . $i, $val['hora_inicio'])
+        ->setCellValue('P' . $i, $val['hora_corte']);
 
-        // Asignación del día de la semana usando el array de mapeo
-        $dia_semana_nombre = $diasSemana[$val->dia_semana] ?? 'NOT FOUND';
-        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $i, $dia_semana_nombre);
+    // Asignación del día de la semana
+    $dia_semana_nombre = $diasSemana[$val['dia_semana']] ?? 'NOT FOUND';
+    $objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q' . $i, $dia_semana_nombre);
 
-        // Continuación de la asignación de valores
-        $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('R' . $i, $val->hora_inicio_desayuno)
-            ->setCellValue('S' . $i, $val->hora_inicio_almuerzo)
-            ->setCellValue('T' . $i, $val->tiempo_real_confeccion)
-            ->setCellValue('U' . $i, $val->diferencia_tiempo)
-            ->setCellValue('V' . $i, round($val->diferencia_tiempo * 60))    
-            ->setCellValue('W' . $i, $val->hora_inicio_desuso)
-            ->setCellValue('X' . $i, $val->usuariosistema)
-            ->setCellValue('Y' . $i, $val->registroPagado)
-            ->setCellValue('Z' . $i, $val->observacion)
-            ->setCellValue('AA' . $i, $val->hora_descontar);
+    // Continuación
+    $objPHPExcel->setActiveSheetIndex(0)
+        ->setCellValue('R' . $i, $val['hora_inicio_desayuno'])
+        ->setCellValue('S' . $i, $val['hora_inicio_almuerzo'])
+        ->setCellValue('T' . $i, $val['tiempo_real_confeccion'])
+        ->setCellValue('U' . $i, $val['diferencia_tiempo'])
+        ->setCellValue('V' . $i, round(($val['diferencia_tiempo'] ?? 0) * 60))    
+        ->setCellValue('W' . $i, $val['hora_inicio_desuso'])
+        ->setCellValue('X' . $i, $val['usuariosistema'])
+        ->setCellValue('Y' . $i, $val['registroPagado'] ?? $registroPagado)
+        ->setCellValue('Z' . $i, $val['observacion'])
+        ->setCellValue('AA' . $i, $val['hora_descontar']);
                
-        $i++;
-    }
+    $i++;
+}
 
     $objPHPExcel->getActiveSheet()->setTitle('Resumen pago');
     $objPHPExcel->setActiveSheetIndex(0);

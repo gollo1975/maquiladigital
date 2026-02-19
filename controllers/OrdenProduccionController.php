@@ -2848,31 +2848,39 @@ class OrdenProduccionController extends Controller {
    public function actionEditar_sam_operacion($id, $id_operacion, $codigo_operacion){
         $model = new FlujoOperaciones();
         
-        if ($model->load(Yii::$app->request->post())) {
-            if (isset($_POST["editar_sam_operacion"])) { 
+        if ($model->load(Yii::$app->request->post()) && isset($_POST["editar_sam_operacion"])) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
                 $table = FlujoOperaciones::findOne($id_operacion);
-                $operacionPrenda = ProcesoProduccion::findOne($codigo_operacion); 
+                $operacionPrenda = ProcesoProduccion::findOne($codigo_operacion);
 
                 if ($table && $operacionPrenda) {
                     $segundos = $model->segundos;
                     $minutos = round($segundos / 60, 2);
 
+                    // Actualizar tabla principal
                     $table->segundos = $segundos;
                     $table->minutos = $minutos;
 
+                    // Actualizar proceso producción
                     $operacionPrenda->segundos = $segundos;
                     $operacionPrenda->minutos = $minutos;
                     $operacionPrenda->estandarizado = 1;
 
-                   if ($operacionPrenda->save() && $table->save()) {
+                   
+                    if ($operacionPrenda->save() && $table->save()) {
+                        $transaction->commit();
                         Yii::$app->session->setFlash('success', 'Registro modificado exitosamente.');
-                        // Aseguramos que la sesión se escriba antes de salir
-                        Yii::$app->session->close(); 
                         return $this->redirect(['habilitar_capacitacion', 'id' => $id]);
+                    } else {
+                        throw new \Exception("Error en validación de datos");
                     }
                 }
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Yii::$app->session->setFlash('error', 'No se pudo guardar: ' . $e->getMessage());
             }
-        }    
+        }
         return $this->renderAjax('editar_sam_operacion', [
             'model' => $model,
             'id' => $id,

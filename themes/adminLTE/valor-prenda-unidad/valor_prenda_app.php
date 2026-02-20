@@ -21,6 +21,8 @@ use app\models\Matriculaempresa;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 $this->title = 'Resume de pago (APP)';
 $this->params['breadcrumbs'][] = $this->title;
+echo $hora_inicio;
+echo $hora_final;
 ?>
     
 <script language="JavaScript">
@@ -86,6 +88,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                     'todayHighlight' => true,
                     'orientation' => 'bottom']])
             ?>
+            <?= $formulario->field($form, 'inicio_hora_corte')->input ('time'); ?>
+            <?= $formulario->field($form, 'final_hora_corte')->input ('time'); ?>
                     
         </div>
           <div class="row checkbox checkbox-success" align ="center">
@@ -265,6 +269,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             ->leftJoin(['t3' => 'planta_empresa'], 't1.id_planta = t3.id_planta')
                                             ->where(['between', 't1.dia_pago', $dia_pago, $fecha_corte])
                                             ->andWhere(['t1.id_operario' => $id_operario])
+                                            ->andFilterWhere(['between', 't1.hora_corte', $hora_inicio, $hora_final])        
                                             ->andWhere(['t1.tipo_aplicacion' => 1])        
                                             ->groupBy(['t1.id_operario', 't1.dia_pago', 't2.nombrecompleto', 't2.documento', 't3.nombre_planta'])
                                             ->orderBy(['t1.dia_pago' => SORT_DESC, 't1.id_operario' => SORT_ASC])
@@ -390,6 +395,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         ->leftJoin(['t2' => 'operarios'], 't1.id_operario = t2.id_operario')
                                         ->leftJoin(['t3' => 'planta_empresa'], 't1.id_planta = t3.id_planta')
                                         ->where(['between', 't1.dia_pago', $dia_pago, $fecha_corte])
+                                        ->andFilterWhere(['between', 't1.hora_corte', $hora_inicio, $hora_final])         
                                         ->andWhere(['t1.id_planta' => $id_planta])
                                         ->andWhere(['t1.tipo_aplicacion' => 1])        
                                         ->groupBy(['t1.id_operario', 't2.nombrecompleto', 't2.documento', 't3.nombre_planta'])

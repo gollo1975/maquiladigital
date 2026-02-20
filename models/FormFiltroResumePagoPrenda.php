@@ -20,7 +20,10 @@ class FormFiltroResumePagoPrenda extends Model
     public $id_planta;
     public $validar_eficiencia;
     public $tipo_servicio;
-    
+    public $inicio_hora_corte;
+    public $final_hora_corte;
+
+
     /**
      * {@inheritdoc}
      */
@@ -28,7 +31,8 @@ class FormFiltroResumePagoPrenda extends Model
     {
         return [
             [['idordenproduccion', 'id_operario','operacion','registro_pagado','id_planta','validar_eficiencia','tipo_servicio'], 'integer'],
-          [['dia_pago','fecha_corte'], 'safe'],
+            [['dia_pago','fecha_corte'], 'safe'],
+            [['inicio_hora_corte','final_hora_corte'], 'string'],
         ];
     }
 
@@ -47,7 +51,8 @@ class FormFiltroResumePagoPrenda extends Model
             'id_planta' => 'Planta/Bodega:',
             'validar_eficiencia' => 'Buscar eficiencia:',
             'tipo_servicio' => 'Tipo servicio:',
-            
+            'inicio_hora_corte' => 'Hora inicio:',
+            'final_hora_corte' => 'Hora corte:'
             
         ];
     }

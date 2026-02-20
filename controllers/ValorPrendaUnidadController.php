@@ -310,6 +310,7 @@ class ValorPrendaUnidadController extends Controller
                                         ])
                                         ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
                                         ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario])
+                                       ->andFilterWhere(['between', 'valor_prenda_unidad_detalles.hora_corte', $form->inicio_hora_corte, $form->final_hora_corte])
                                         ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1])
                                         ->orderBy('operarios.nombrecompleto ASC, consecutivo DESC')
                                         ->asArray(); // Mantenemos la optimización de memoria
@@ -328,6 +329,7 @@ class ValorPrendaUnidadController extends Controller
                                             'detalleOrdenProduccion.productodetalle.prendatipo.talla' 
                                         ])
                                         ->where(['between', 'dia_pago', $dia_pago, $fecha_corte])
+                                        ->andFilterWhere(['between', 'valor_prenda_unidad_detalles.hora_corte', $form->inicio_hora_corte, $form->final_hora_corte])
                                         ->andWhere(['valor_prenda_unidad_detalles.id_planta' => $id_planta])
                                         ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1])
                                         ->orderBy('operarios.nombrecompleto ASC, consecutivo DESC')
@@ -375,6 +377,8 @@ class ValorPrendaUnidadController extends Controller
                             'fecha_corte' => $fecha_corte,
                             'id_operario' => $id_operario,
                             'id_planta' => $id_planta,
+                            'hora_inicio' => $form->inicio_hora_corte,
+                            'hora_final' => $form->final_hora_corte,
                 ]);
             } else {
                 return $this->redirect(['site/sinpermiso']);

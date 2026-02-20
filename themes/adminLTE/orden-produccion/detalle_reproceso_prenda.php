@@ -6,7 +6,7 @@ use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use app\models\Balanceo;
 use app\models\Ordenproduccion;
-$this->title = 'Detalle del reproceso';
+$this->title = 'Detalle del reproceso (ref: '. $balanceo->ordenproduccion->codigoproducto.')';
 $this->params['breadcrumbs'][] = ['label' => 'Reproceso'];
 $this->params['breadcrumbs'][] = $id_balanceo;
 

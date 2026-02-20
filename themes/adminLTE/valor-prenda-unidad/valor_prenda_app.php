@@ -21,8 +21,7 @@ use app\models\Matriculaempresa;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 $this->title = 'Resume de pago (APP)';
 $this->params['breadcrumbs'][] = $this->title;
-echo $hora_inicio;
-echo $hora_final;
+
 ?>
     
 <script language="JavaScript">

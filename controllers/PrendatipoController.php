@@ -88,14 +88,54 @@ class PrendatipoController extends Controller
     public function actionCreate()
     {
         $model = new Prendatipo();
-        $tallas = Talla::find()->all();
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index']);
-        }
+       
+        if ($model->load(Yii::$app->request->post())) {
+            $tallasSeleccionadas = Yii::$app->request->post('seleccion_tallas');
 
+            // Iniciamos la transacción
+            $transaction = Yii::$app->db->beginTransaction();
+
+            try {
+                if (!empty($tallasSeleccionadas)) {
+                    foreach ($tallasSeleccionadas as $idTalla) {
+                        $nuevaFila = new Prendatipo();
+                        $nuevaFila->prenda = $model->prenda;
+                        $nuevaFila->idtalla = $idTalla;
+
+                        if (!$nuevaFila->save()) {
+                            // Si una talla falla, lanzamos una excepción para ir al catch
+                            throw new \Exception("Error al guardar la talla: " . json_encode($nuevaFila->getErrors()));
+                        }
+                    }
+                } else {
+                    // Opcional: Si es obligatorio elegir al menos una talla
+                    throw new \Exception("Debes seleccionar al menos una talla.");
+                }
+
+                // Si todo salió bien, confirmamos los cambios en la DB
+                $transaction->commit();
+                Yii::$app->session->setFlash('success', "Prenda y tallas guardadas correctamente.");
+                return $this->redirect(['index']);
+
+            } catch (\Exception $e) {
+                // Si algo falló, deshacemos todo lo que se alcanzó a insertar
+                $transaction->rollBack();
+                Yii::$app->session->setFlash('error', $e->getMessage());
+            }
+        }
+        $tallasH = Talla::find()
+            ->where(['sexo' => ['HOMBRE', 'NIÑO']]) // Forma más limpia de hacer el OR
+            ->orderBy(['talla' => SORT_ASC])        // Nota: SORT_ASC es una constante, no un string
+            ->all();
+        
+        $tallasM = Talla::find()
+            ->where(['sexo' => ['MUJER', 'NIÑA']]) // Forma más limpia de hacer el OR
+            ->orderBy(['talla' => SORT_ASC])        // Nota: SORT_ASC es una constante, no un string
+            ->all();
         return $this->render('create', [
             'model' => $model,
-            'tallas' => ArrayHelper::map($tallas, "idtalla", "tindex"),
+            'tallasH' => $tallasH,
+            'tallasM' => $tallasM,
         ]);
     }
 
@@ -108,16 +148,8 @@ class PrendatipoController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-        $tallas = Talla::find()->all();
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index']);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-            'tallas' => ArrayHelper::map($tallas, "idtalla", "tindex"),
-        ]);
+        
+       return $this->redirect(['index']);
     }
 
     /**

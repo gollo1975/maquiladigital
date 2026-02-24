@@ -3736,6 +3736,7 @@ class OrdenProduccionController extends Controller {
                            'reproceso_confeccion' => $reproceso_confeccion,
                            'reproceso_terminacion' => $reproceso_terminacion,
                            'id' => $id,
+                           'balanceo' => $balanceo,
                ]);   
           }     
            return $this->render('detalle_reproceso_prenda', [

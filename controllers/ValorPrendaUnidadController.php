@@ -388,6 +388,141 @@ class ValorPrendaUnidadController extends Controller
         }
     }
     
+     //index de consulta o pago
+    public function actionIndexSamMuerto() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 195])->all()) {
+                $form = new FormFiltroResumePagoPrenda();
+                $id_operario = null;
+                $dia_pago = '';
+                $fecha_corte = '';
+                $validar_eficiencia = 0;
+                $model = [];
+                $pages = null;
+                $sw = 0;
+                $id_planta = null;
+               
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $id_planta = Html::encode($form->id_planta);
+                        $id_operario = Html::encode($form->id_operario);
+                        $dia_pago = Html::encode($form->dia_pago);
+                        $fecha_corte = Html::encode($form->fecha_corte);
+                        $hora_inicio = Html::encode($form->inicio_hora_corte);
+                        $hora_final = Html::encode($form->final_hora_corte);
+                        if(empty($dia_pago) || empty($fecha_corte)){
+                            Yii::$app->getSession()->setFlash('warning', 'El campo fecha inicio y fecha corte NO pueden ser vacios..');
+                            return $this->redirect(['index-sam-muerto']);
+                        }else{
+
+                            if($id_operario != null ){
+                                $sw = 1; // si selecciona el operario
+                                $query = new Query();
+                                $resultados = $query->select([
+                                        't1.id_operario',
+                                        't2.documento',
+                                        't2.nombrecompleto',
+                                        't1.dia_pago',
+                                        't2.vinculado',
+                                        't3.nombre_planta',
+                                        't1.diferencia_tiempo',
+                                        'COUNT(DISTINCT t1.dia_pago) AS dias_laborados',
+                                        'SUM(CASE WHEN t1.diferencia_tiempo > 0 THEN t1.diferencia_tiempo ELSE 0 END) AS sam_positivo',
+                                        'SUM(CASE WHEN t1.diferencia_tiempo < 0 THEN t1.diferencia_tiempo ELSE 0 END) AS sam_negativo',
+                                        'SUM(t1.porcentaje_cumplimiento) AS total_cumplimiento',
+                                        'SUM(t1.vlr_pago) AS total_generado',
+                                        'SUM(t1.total_valor_venta) AS total_venta',
+                                        'COUNT(*) AS total_operaciones'
+                                    ])
+                                    ->from(['t1' => 'valor_prenda_unidad_detalles'])
+                                    ->leftJoin(['t2' => 'operarios'], 't1.id_operario = t2.id_operario')
+                                    ->leftJoin(['t3' => 'planta_empresa'], 't1.id_planta = t3.id_planta')
+                                    ->where(['between', 't1.dia_pago', $dia_pago, $fecha_corte])
+                                    ->andWhere(['t1.id_operario' => $id_operario])
+                                    ->andFilterWhere(['between', 't1.hora_corte', $hora_inicio, $hora_final])        
+                                    ->andWhere(['t1.tipo_aplicacion' => 1])        
+                                    ->groupBy(['t1.id_operario', 't1.dia_pago', 't2.nombrecompleto', 't2.documento', 't3.nombre_planta'])
+                                    ->orderBy(['t1.dia_pago' => SORT_DESC, 't1.id_operario' => SORT_ASC])
+                                    ->all();
+                            }else{
+                              
+                                $sw = 2; // si selecciona la planta
+                                if($id_planta != null ){
+                                    $query = new Query();
+                                    $resultados = $query->select([
+                                        't1.id_operario',
+                                        't2.documento',
+                                        't2.nombrecompleto',
+                                        't3.nombre_planta',
+                                        't2.vinculado',
+                                        'COUNT(DISTINCT t1.dia_pago) AS dias_laborados',
+                                        // Acumuladores de SAM
+                                        'SUM(CASE WHEN t1.diferencia_tiempo > 0 THEN t1.diferencia_tiempo ELSE 0 END) AS total_sam_positivo',
+                                        'SUM(CASE WHEN t1.diferencia_tiempo < 0 THEN t1.diferencia_tiempo ELSE 0 END) AS total_sam_negativo',
+                                        // Otros acumulados
+                                        'SUM(t1.porcentaje_cumplimiento) AS total_porcentaje_cumplimiento',
+                                        'SUM(t1.vlr_pago) AS total_generado',
+                                        'SUM(t1.total_valor_venta) AS total_venta',
+                                        'COUNT(*) AS total_operaciones',
+                                    ])
+                                    ->from(['t1' => 'valor_prenda_unidad_detalles'])
+                                    ->leftJoin(['t2' => 'operarios'], 't1.id_operario = t2.id_operario')
+                                    ->leftJoin(['t3' => 'planta_empresa'], 't1.id_planta = t3.id_planta')
+                                    ->where(['between', 't1.dia_pago', $dia_pago, $fecha_corte])
+                                    ->andFilterWhere(['between', 't1.hora_corte', $hora_inicio, $hora_final])         
+                                    ->andWhere(['t1.id_planta' => $id_planta])
+                                    ->andWhere(['t1.tipo_aplicacion' => 1])        
+                                    ->groupBy(['t1.id_operario', 't2.nombrecompleto', 't2.documento', 't3.nombre_planta', 't2.vinculado'])
+                                    ->all();
+                                }else{
+                                   Yii::$app->getSession()->setFlash('warning', 'Debe de seleccionar el OPERARIO o la PLANTA DE PRODUCCION');
+                                   return $this->redirect(['index-sam-muerto']);
+                                 }    
+                            }    
+                        }
+                        
+                        // 3. PAGINACIÓN: Calculamos el total usando la query original
+                        $count = clone $query;
+                        $pages = new Pagination([
+                            'pageSize' => 100,
+                            'totalCount' => $count->count()
+                        ]);
+
+                        // 4. VISTA (GRILLA): Ejecutamos la consulta con límites para la pantalla
+                        $model = $query
+                            ->offset($pages->offset)
+                            ->limit($pages->limit)
+                            ->all();
+                            if (isset($_POST['excel'])) {
+                                $check = isset($_REQUEST['consecutivo  DESC']);
+                                $this->actionExcelResumeValorPrenda($tableexcel);
+                            }
+                        
+                    } else {
+                        $form->getErrors();
+                    }
+                }    
+               
+               return $this->render('index_tiempo_muerto', [
+                            'model' => $model,
+                            'form' => $form,
+                            'sw' => $sw,
+                            'pagination' => $pages,
+                            'dia_pago' =>$dia_pago,
+                            'fecha_corte' => $fecha_corte,
+                            'id_operario' => $id_operario,
+                            'id_planta' => $id_planta,
+                            'hora_inicio' => $form->inicio_hora_corte,
+                            'hora_final' => $form->final_hora_corte,
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
+    
     //EFICIENCIA DIARIA POR FECHAS
     //index de consulta o pago
     public function actionEficiencia_diaria() {

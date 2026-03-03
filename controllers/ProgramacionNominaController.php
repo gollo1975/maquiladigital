@@ -462,11 +462,11 @@ class ProgramacionNominaController extends Controller {
                                             }
                                             $dataBody["accrued"]['HEDs'][] = [
                                                 "start_time" => $detalle->hora_inicio ?? "00:00:00",
-                                                "start_date" => $detalle->fecha_inicio_extra ?? $fecha_inicio_nomina,
-                                                "end_time" => $detalle->hora_fin ?? "00:00:00",
-                                                "end_date" => $detalle->fecha_fin_extra ?? $fecha_inicio_nomina,
+                                                "start_date" => $detalle->fecha_inicio ?? $fecha_inicio_nomina,
+                                                "end_time" => $detalle->hora_final ?? "00:00:00",
+                                                "end_date" => $detalle->fecha_final ?? $fecha_corte_nomina,
                                                 "quantity" => (string)($detalle->cantidad_horas ?? 0),
-                                                "percentage" => $detalle->porcentaje_extra ?? 25,
+                                                "percentage" => $detalle->porcentaje ?? 125,
                                                 "payment" => $devengado
                                             ];
                                             $debugDevengados[] = ['concepto' => 'Horas Extras Diurnas', 'dias' => $detalle->cantidad_horas ?? 0, 'valor' => $devengado];
@@ -4631,6 +4631,10 @@ class ProgramacionNominaController extends Controller {
                                             $table->id_agrupado = $detalle->codigoSalario->id_agrupado;
                                             $table->id_periodo_electronico = $id_periodo;
                                             $table->save(false);
+                                        }elseif ($detalle->codigoSalario->id_agrupado == 3){ //Horas extras ordinarias diurnas
+                                            
+                                            $buscar->devengado += $detalle->vlr_devengado;
+                                            $buscar->cantidad_hora += $detalle->horas_periodo_reales; 
                                         }  
                                        
                                         $buscar->save(false);      

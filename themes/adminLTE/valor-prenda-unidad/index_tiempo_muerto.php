@@ -188,7 +188,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     $totalSamNegativo += $sam_neg;
                                                 ?>
                                                     <tr style='font-size:85%;'>
-                                                        <td><?= Html::encode($row['documento']) ?></td>
+                                                        <td><?= Html::a(Html::encode($row['documento']), ['view_listado_operacion', 'id_operario' => $row['id_operario'], 'dia_pago' => $row['dia_pago'], 'fecha_corte' => $fecha_corte], [
+                                                                'target' => '_blank', 
+                                                                'data-pjax' => '0', // Importante si usas Pjax
+                                                            ]) ?>
+                                                        </td>
                                                         <td><?= Html::encode($row['nombrecompleto']) ?></td>
                                                         <td><?= Html::encode($row['dia_pago']) ?></td>
                                                         <?php if($eficiencia_formateada > $empresa->porcentaje_empresa){?>
@@ -327,7 +331,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     $total_pagar_operario += $row['total_generado'];
                                                     ?>
                                                     <tr style='font-size:85%;'>
-                                                        <td><?= Html::encode($row['documento']) ?></td>
+                                                        <td><?= Html::a(Html::encode($row['documento']), ['view_listado_operacion', 'id_operario' => $row['id_operario'], 'dia_pago' => $dia_pago, 'fecha_corte' => $fecha_corte], [
+                                                                'target' => '_blank', 
+                                                                'data-pjax' => '0', // Importante si usas Pjax
+                                                            ]) ?>
+                                                        </td>
                                                         <td><?= Html::encode($row['nombrecompleto']) ?></td>
                                                         <td><?= Html::encode($dia_pago) ?></td>
                                                         <td><?= Html::encode($fecha_corte) ?></td>

@@ -523,7 +523,8 @@ class ValorPrendaUnidadController extends Controller
         }
     }
     
-    //EFICIENCIA DIARIA POR FECHAS
+   
+      
     //index de consulta o pago
     public function actionEficiencia_diaria() {
         if (Yii::$app->user->identity) {
@@ -1024,6 +1025,52 @@ class ValorPrendaUnidadController extends Controller
             'id_planta' =>$id_planta,
             'tipo_pago' => $tipo_pago,
         ]);
+    }
+    
+    //vista que envia un listado de las operaciones
+    public function actionView_listado_operacion($id_operario, $dia_pago, $fecha_corte)
+    {
+        $model = Operarios::findOne($id_operario);
+        $pages = null;
+        $query = ValorPrendaUnidadDetalles::find()
+            ->joinWith('operarioProduccion')
+            ->with([
+                'ordenproduccion', 
+                'operaciones', 
+                'planta',
+                'operarioProduccion',
+                'detalleOrdenProduccion.productodetalle.prendatipo.talla' 
+            ])
+           ->where(['between', 'valor_prenda_unidad_detalles.dia_pago', $dia_pago, $fecha_corte])
+            ->andWhere(['valor_prenda_unidad_detalles.id_operario' => $id_operario])
+            ->andWhere(['valor_prenda_unidad_detalles.tipo_aplicacion' => 1])
+            ->orderBy('operarios.nombrecompleto ASC, consecutivo DESC')
+            ->asArray(); // Mantenemos la optimización de memoria
+            $tableexcel = (clone $query)->all();
+             // 3. PAGINACIÓN: Calculamos el total usando la query original
+            $count = clone $query;
+            $pages = new Pagination([
+                'pageSize' => 120,
+                'totalCount' => $count->count()
+            ]);
+
+            // 4. VISTA (GRILLA): Ejecutamos la consulta con límites para la pantalla
+            $modelo = $query
+                ->offset($pages->offset)
+                ->limit($pages->limit)
+                ->all();
+                if (isset($_POST['excel'])) {
+                    $check = isset($_REQUEST['consecutivo  DESC']);
+                    $this->actionExcelResumeValorPrenda($tableexcel);
+                }
+         return $this->render('view_listado_operacion', [
+            'model' => $model,
+            'modelo' => $modelo,
+             'pagination' => $pages,
+            'dia_pago' =>$dia_pago,
+            'fecha_corte' => $fecha_corte,
+        ]);
+         
     }
     
     //VISTA PARA PASARA LA TALLAS DE LA OP

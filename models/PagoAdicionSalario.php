@@ -36,7 +36,7 @@ class PagoAdicionSalario extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_contrato', 'id_formato_contenido', 'vlr_adicion', 'codigo_salario','estado_adicion'], 'integer'],
+            [['id_contrato', 'id_formato_contenido', 'vlr_adicion', 'codigo_salario','estado_adicion','aplica_dia','enviar_registro_adicion'], 'integer'],
             [['id_formato_contenido', 'vlr_adicion', 'fecha_aplicacion', 'codigo_salario'], 'required'],
             [['fecha_aplicacion', 'fecha_proceso'], 'safe'],
             [['usuariosistema'], 'string', 'max' => 30],
@@ -60,6 +60,8 @@ class PagoAdicionSalario extends \yii\db\ActiveRecord
             'fecha_proceso' => 'Fecha Proceso',
             'usuariosistema' => 'Usuariosistema',
             'codigo_salario' => 'Codigo Salario',
+            'aplica_dia' => 'aplica dia',
+            'enviar_registro_adicion' => 'enviar_registro_adicion',
         ];
     }
 

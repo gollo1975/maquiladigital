@@ -49,6 +49,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?= $form->field($modelo, 'llave_api_token')->textInput(['maxlength' => true]) ?>  
                 <?= $form->field($modelo, 'llave_uuid')->textInput(['maxlength' => true]) ?>   
             </div>
+            <div class="row">
+                <?= $form->field($modelo, 'debug')->dropdownList(['0' => 'False', '1' => 'True']) ?>	
+                
+            </div>
         </div>
     </div>   
     <div class="panel-footer text-right">			

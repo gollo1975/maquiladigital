@@ -99,6 +99,7 @@ class EmpresaController extends Controller
                    $table->aplica_nomina_electronica = $modelo->aplica_nomina_electronica;
                    $table->llave_api_token = $modelo->llave_api_token;
                    $table->llave_uuid = $modelo->llave_uuid;
+                   $table->debug = $modelo->debug;
                    $table->save();
                    return $this->redirect(['empresa/configuracion_documentos_electronicos','id' => $id]);
                }

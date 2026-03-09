@@ -16,13 +16,28 @@ $this->title = $empresa->nombresistema;
 $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
 ?>
 <?php
-$fecha_actual = date('Y-m-d');
-    if($cartera->estado_registro == 0){
-        if($fecha_actual > $cartera->fecha_vencimiento){
-           Yii::$app->getSession()->setFlash('error', 'La empresa se encuentra en MORA con la factura Electronica No ('.$cartera->numero_factura.'), dicho documento electrónico se venció el dia ('.$cartera->fecha_vencimiento.'). Lo invitamos a ponerser al dia con la cartera. Fecha de suspensión de los servicios el  ('.$cartera->fecha_suspension.').');
+// Primero validamos que $cartera exista y que el usuario haya iniciado sesión
+if (isset($cartera) && !Yii::$app->user->isGuest) {
+    
+    $fecha_actual = date('Y-m-d');
+    $usuario = Yii::$app->user->identity;
+
+    // Ahora es seguro acceder a $usuario->role porque ya validamos que existe
+    if ($cartera->estado_registro == 0 && $usuario->role != 3) {
+        
+        if (strtotime($fecha_actual) > strtotime($cartera->fecha_vencimiento)) {
+            
+            Yii::$app->getSession()->setFlash('error', 
+                "La empresa se encuentra en MORA con la factura Electrónica No ({$cartera->numero_factura}), " .
+                "dicho documento electrónico se venció el día ({$cartera->fecha_vencimiento}). " .
+                "Lo invitamos a ponerse al día con la cartera. " .
+                "Fecha de suspensión de los servicios el ({$cartera->fecha_suspension})."
+            );
         }
     }
+}
 ?>
+
 <div class="panel panel-success">
     <div class="login-logo">
         <a href="#"><b><?= $empresa->nombresistema ?></a>

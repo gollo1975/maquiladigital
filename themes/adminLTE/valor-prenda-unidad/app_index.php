@@ -30,11 +30,11 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
         <table class="table table-bordered table-hover">
             <thead>
-                <tr style ='font-size:90%;'>                
-                    <th scope="col" style='background-color:#B9D5CE;'>ID</th>
+                <tr style ='font-size:85%;'>                
                     <th scope="col" style='background-color:#B9D5CE;'>OP_INTERNA</th>
                     <th scope="col" style='background-color:#B9D5CE;'>REFERENCIA</th>
                     <th scope="col" style='background-color:#B9D5CE;'>CLIENTE</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>SERVICIO</th>
                     <th scope="col" style='background-color:#B9D5CE;'></th>
 
                 </tr>
@@ -43,11 +43,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?php 
                 if($modelo){ 
                     foreach ($modelo as $val):?>
-                        <tr style='font-size:90%;'>  
-                            <td><?= $val->id_valor ?></td>
+                        <tr style='font-size:85%;'>  
                             <td><?= $val->idordenproduccion ?></td>
                             <td><?= $val->ordenproduccion->codigoproducto ?></td>
                             <td><?= $val->ordenproduccion->cliente->nombrecorto ?></td>
+                            <td><?= $val->ordenproduccion->tipo->tipo ?></td>
                             <td style= 'width: 25px; height: 25px;'>
                                     <a href="<?= Url::toRoute(["valor-prenda-unidad/view_produccion", "id" => $val->id_valor, 'idordenproduccion' => $val->idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' => $tokenOperario]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
                             </td>

@@ -47,7 +47,8 @@ $form = ActiveForm::begin([
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                     'orientation' => 'bottom']])
             ?>
         </div>
         

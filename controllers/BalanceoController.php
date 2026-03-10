@@ -456,15 +456,7 @@ class BalanceoController extends Controller
            
             }else{
                  Yii::$app->getSession()->setFlash('error', 'Debe de seleccionar los ('.$balanceo->cantidad_empleados.') operarios para el balanceo.');
-              /*   return $this->redirect(["balanceo/view",
-                      'id'=> $id,
-                      'flujo_operaciones' => $flujo_operaciones,
-                      'idordenproduccion' => $idordenproduccion,
-                      'balanceo_detalle' => $balanceo_detalle,
-                      'operario'=> $operario,
-                      'id_planta' => $id_planta,
-                      'id_proceso_confeccion' => $id_proceso_confeccion,
-                    ]); */
+              
             }
         }
         //PROCESO QUE ACTIVA O DESACTIVA EL ESTADO DE LA OPERACION
@@ -487,14 +479,7 @@ class BalanceoController extends Controller
                     $intIndice++;
                 endforeach;
             }
-          /*   return $this->redirect(['view',
-                    'id' => $id,
-                    'idordenproduccion' => $idordenproduccion,
-                    'id_proceso_confeccion' => $id_proceso_confeccion,
-                    'operario'=> $operario,
-                    'id_planta' => $id_planta,
-                    'balanceo_detalle' => $balanceo_detalle,
-                    'flujo_operaciones' => $flujo_operaciones]);*/
+          
                     
         }
         
@@ -571,6 +556,10 @@ class BalanceoController extends Controller
                 }else{
                     $horarios = 0;
                     $orden = Ordenproduccion::findOne($idordenproduccion);
+                    if($orden->segundosficha == 0){
+                        Yii::$app->getSession()->setFlash('error', 'Debe de actualizar las operaciones de la ficha tecnica desde el boton EDITAR');
+                         return $this->redirect(["create",'idordenproduccion' => $idordenproduccion]); 
+                    }
                     $table = new Balanceo();
                     $table->idordenproduccion = $idordenproduccion;
                     $table->idcliente = $orden->idcliente;
@@ -620,7 +609,7 @@ class BalanceoController extends Controller
                     $table->total_horas = number_format($totalTiempo/60,2);
                     $table->save(false);
                     $this->actionActualizarfechaterminacion($idordenproduccion, $horarios);
-                    return $this->redirect(["balanceo/index"]); 
+                     return $this->redirect(["balanceo/index"]); 
                 }     
             }else{
                 $model->getErrors();
@@ -632,7 +621,7 @@ class BalanceoController extends Controller
         ]);
     }
     //suproceso para validar la fecha de terminacion
-    protected function                      actionActualizarfechaterminacion($idordenproduccion, $horarios)
+    protected function actionActualizarfechaterminacion($idordenproduccion, $horarios)
     {
         $minutos = 0; $cantidad = 0; $totales = 0; $total_dias = 0;
         $unidades = 0;
@@ -645,23 +634,30 @@ class BalanceoController extends Controller
           $unidades = (60/$minutos);  
         }else{
             $unidades = 0;
-            Yii::$app->getSession()->setFlash('error', 'Debe de crear las operaciones a la OP / Asignarle tiempo a la orden de producción.');
+            Yii::$app->getSession()->setFlash('error', 'Debe de crear las operaciones o el SAM a la OP y/o  actualizar la ficha de operaciones.');
         }
         
         foreach ($balaceo as $val):
             $cantidad += $val->cantidad_empleados;
         endforeach;
-        $totales = round(($unidades * $cantidad) * $horario->total_horas);
-        $total_dias = round($orden->cantidad / $totales);
-        $fecha = date($val->fecha_inicio);
-        $date_dato = strtotime('+'.($total_dias).' day', strtotime($fecha)-1);
-        $date_dato = date('Y-m-d', $date_dato);
-        $val->fecha_terminacion = $date_dato;
-        $total = strtotime($val->fecha_terminacion) - strtotime($val->fecha_inicio);
-        $dias = round($total/ 86400)+1;
+        
+       $totales = ($unidades * $cantidad) * $horario->total_horas;
+
+        if ($totales <= 0) {
+            $total_dias = 1; 
+        } else {
+            $total_dias = ceil($orden->cantidad / $totales);
+        }
+      
+        $fecha_inicio = date_create($val->fecha_inicio);
+        if ($total_dias > 1) {
+            date_modify($fecha_inicio, "+" . ($total_dias - 1) . " days");
+        }
+        $val->fecha_terminacion = date_format($fecha_inicio, 'Y-m-d');
+        
         $val->numero_dias_balanceo = $dias;
         $val->save(false);
-        $orden->fechaentrega = $date_dato;
+        $orden->fechaentrega = $val->fecha_terminacion;
         $orden->save(false);
     }
     
@@ -704,10 +700,10 @@ class BalanceoController extends Controller
                         $totalTiempo = $sumarh;
                         $totalTiempo = ($sumarh * 60) + $sumarm;
                         if($horario->abreviatura === 'LV'){//valida horario de 9.5 horas
-                            if($totalTiempo > 480){
+                            if($totalTiempo > 460){
                               $totalTiempo = $totalTiempo - ($horario->tiempo_desayuno + $horario->tiempo_almuerzo); 
                             }else{
-                                if($totalTiempo < 480 and $totalTiempo > 195){
+                                if($totalTiempo < 460 and $totalTiempo > 195){
                                    $totalTiempo = $totalTiempo - $horario->tiempo_almuerzo; 
                                 }else{
                                    $totalTiempo = $totalTiempo; 

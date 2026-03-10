@@ -265,17 +265,18 @@ class ProgramacionNominaController extends Controller {
                     if (isset($_POST["documento_electronico_dian"])) {
                         $intIndice = 0;
                         $contador = 0;
+                        $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
                          //modelo de llave uuid
                             $configuracionDocumento = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
                         // ==========================================
                         // MODO DEBUG - Cambiar a true para verificar sin enviar
                         // ==========================================
-                        $DEBUG_MODE = false;
+                        $DEBUG_MODE = $confi->debug;
 
                         // ==========================================
                         // CONFIGURACIÓN DE API
                         // ==========================================
-                        $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+                        
                         $API_URL = Yii::$app->params['API_NOMINA_ELECTRONICA'] ; //. '/' . $configuracionDocumento->llave_uuid;
                         $apiBearerToken = $confi->llave_api_token;
 
@@ -461,10 +462,10 @@ class ProgramacionNominaController extends Controller {
                                                 $dataBody["accrued"]['HEDs'] = [];
                                             }
                                             $dataBody["accrued"]['HEDs'][] = [
-                                                "start_time" => $detalle->hora_inicio ?? "00:00:00",
+                                                "start_time" => ($detalle->fecha_inicio ?? $fecha_inicio_nomina) . 'T' . ($detalle->hora_inicio ?? "00:00:00"),
                                                 "start_date" => $detalle->fecha_inicio ?? $fecha_inicio_nomina,
-                                                "end_time" => $detalle->hora_final ?? "00:00:00",
-                                                "end_date" => $detalle->fecha_final ?? $fecha_corte_nomina,
+                                                "end_time"   => ($detalle->fecha_final ?? $fecha_corte_nomina) . 'T' . ($detalle->hora_final ?? "00:00:00"),
+                                                "end_date"   => $detalle->fecha_final ?? $fecha_corte_nomina,
                                                 "quantity" => (string)($detalle->cantidad_horas ?? 0),
                                                 "percentage" => $detalle->porcentaje ?? 125,
                                                 "payment" => $devengado

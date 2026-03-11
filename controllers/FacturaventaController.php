@@ -302,7 +302,7 @@ class FacturaventaController extends Controller
 
         }
         $fecha_actual_dia = date('Y-m-d');
-        if($fecha_actual_dia >= $resolucion->fecha_notificacion){
+        if(strtotime($fecha_actual_dia) >= strtotime($resolucion->fecha_notificacion)){
             $sw = 1; //aviso que se le esta venciendo la resolucion
         }
 
@@ -930,7 +930,7 @@ class FacturaventaController extends Controller
     if ($factura->retencionfuente > 0 || $factura->porcentajefuente > 0) {
         $porcentaje_fuente = (float)$factura->porcentajefuente;
         $retefuente_amount = $round2($line_subtotal * ($porcentaje_fuente / 100));
-        
+
         $line_with_holding_tax_total[] = [
             "tax_id"         => 6, 
             "taxable_amount" => $line_subtotal,
@@ -939,18 +939,21 @@ class FacturaventaController extends Controller
         ];
     }
 
-    if ($factura->retencioniva > 0 || $nombre_empresa->porcentajereteiva > 0) {
+    if ((int)$cliente->autoretenedor === 1) {
         $reteiva_percent = (float)$nombre_empresa->porcentajereteiva;
-        $reteiva_amount = $round2($line_iva * ($reteiva_percent / 100));
-        
+        $reteiva_amount  = $round2($line_iva * ($reteiva_percent / 100));
+
         if ($reteiva_amount > 0) {
             $line_with_holding_tax_total[] = [
-                "tax_id"         => 5, 
+                "tax_id"         => 5,
                 "taxable_amount" => $line_iva,
                 "percent"        => $reteiva_percent,
                 "tax_amount"     => $reteiva_amount,
             ];
         }
+    } else {
+        $reteiva_percent = 0;
+        $reteiva_amount  = 0;
     }
 
     $invoice_lines = [[
@@ -1083,7 +1086,7 @@ class FacturaventaController extends Controller
             $html .= '</tr>';
         }
         
-        if ($factura->retencioniva > 0 || $nombre_empresa->porcentajereteiva > 0) {
+        if ((int)$cliente->autoretenedor === 1 && ($factura->retencioniva > 0 || $nombre_empresa->porcentajereteiva > 0)) {
             $reteiva_calc = $round2($line_iva * ((float)$nombre_empresa->porcentajereteiva / 100));
             $dif_ri = abs($reteiva_bd - $reteiva_calc);
             $ok_ri = $dif_ri < 0.02;
@@ -1093,14 +1096,14 @@ class FacturaventaController extends Controller
             $html .= '<td style="padding: 8px; text-align: right;">$' . number_format($reteiva_calc, 2) . '</td>';
             $html .= '<td style="padding: 8px; text-align: center;">' . ($ok_ri ? '✅' : '⚠️') . '</td>';
             $html .= '</tr>';
-            
+
             if (!$ok_ri) {
                 $html .= '<tr style="background: #f8d7da;">';
                 $html .= '<td colspan="4" style="padding: 5px 8px; font-size: 0.9em; color: #721c24;">';
                 $html .= '⚠️ DIFERENCIA: $' . number_format($dif_ri, 2) . ' - Se usará el valor CALCULADO ($' . number_format($reteiva_calc, 2) . ') en el JSON';
                 $html .= '</td></tr>';
             }
-            
+
             $html .= '<tr style="background: #cfe2ff;">';
             $html .= '<td colspan="4" style="padding: 8px; font-size: 0.9em;">';
             $html .= 'ℹ️ <strong>ReteIVA debe calcularse sobre el IVA causado ($' . number_format($line_iva, 2) . '), NO sobre el subtotal ($' . number_format($line_subtotal, 2) . ')</strong>';

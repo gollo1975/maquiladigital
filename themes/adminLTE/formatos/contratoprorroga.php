@@ -40,58 +40,90 @@ class PDF extends FPDF {
     }
 
     function Body($pdf, $id_prorroga_contrato) {
-        $config = Matriculaempresa::findOne(1);
-        $model = ProrrogaContrato::findOne($id_prorroga_contrato);
-        $contrato = Contrato::findOne($model->id_contrato);
-        $formato = FormatoContenido::findOne($model->id_formato_contenido);
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->SetX(10);
-        //$pdf->Ln(10);
-        if (!$formato){
-           $cadena = "El contrato no tiene asociado un formato tipo contrato"; 
-        } else {                          
-            $cadena = utf8_decode($formato->contenido);            
-        }
-        
-        //contenido de la cadena a sustituir
-        $sustitucion1 = $contrato->empleado->identificacion;                
-        $sustitucion2 = utf8_decode($contrato->empleado->nombrecorto);
-        $sustitucion3 = $contrato->empleado->ciudadExpedicion->municipio .' - '. $contrato->empleado->ciudadExpedicion->departamento->departamento;
-        $sustitucion4 = $contrato->cargo->cargo;
-        $sustitucion5 = $config->razonsocialmatricula;
-        $sustitucion6 = $config->nitmatricula;
-        $sustitucion7 = $contrato->id_contrato;
-        $sustitucion8 = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($model->fecha_ultima_contrato))) ." de %Y", strtotime($model->fecha_ultima_contrato));
-        $sustitucion9 = $model->dias_contratados;
-        $sustituciona = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($model->fecha_creacion))) ." de %Y", strtotime($model->fecha_creacion));
-        $sustitucionb = strftime("%d de ". $this->MesesEspañol(date('m',strtotime($model->fecha_nueva_renovacion))) ." de %Y", strtotime($model->fecha_nueva_renovacion));
-        //etiquetas de sustitución
-        $patron1 = '/#1/'; //Identificación                
-        $patron2 = '/#2/'; //Nombre completo
-        $patron3 = '/#3/'; //municipio y departamento de expedicion identificación
-        $patron4 = '/#4/'; //Cargo
-        $patron5 = '/#5/'; //Nombre Empresa
-        $patron6 = '/#6/'; //Nit Empresa
-        $patron7 = '/#7/'; //Número contrato laboral
-        $patron8 = '/#8/'; //Fecha fin contrato
-        $patron9 = '/#9/'; //Días preaviso
-        $patrona = '/#a/'; //Fecha creacion
-        $patronb = '/#b/'; //Fecha renovacion
-        //reemplazar en la cadena
-        $cadenaCambiada = preg_replace($patron1, $sustitucion1, $cadena);
-        $cadenaCambiada = preg_replace($patron2, $sustitucion2, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron3 , $sustitucion3, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron4, $sustitucion4, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron5, $sustitucion5, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron6, $sustitucion6, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron7, $sustitucion7, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron8, $sustitucion8, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patron9, $sustitucion9, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patrona, $sustituciona, $cadenaCambiada);
-        $cadenaCambiada = preg_replace($patronb, $sustitucionb, $cadenaCambiada);
-        $pdf->MultiCell(0,5, $cadenaCambiada);
-                
+    $config = Matriculaempresa::findOne(1);
+    $model = ProrrogaContrato::findOne($id_prorroga_contrato);
+    $contrato = Contrato::findOne($model->id_contrato);
+    $formato = FormatoContenido::findOne($model->id_formato_contenido);
+
+    if (!$formato) return;
+
+    // 1. DATOS LIMPIOS
+    $nombre = trim(utf8_decode($contrato->empleado->nombrecorto));
+    $identificacion = trim($contrato->empleado->identificacion);
+    $ciudadExp = trim(utf8_decode($contrato->empleado->ciudadExpedicion->municipio));
+    $cargo = trim(utf8_decode($contrato->cargo->cargo));
+    $empresa = trim(utf8_decode($config->razonsocialmatricula));
+    $nit = trim($config->nitmatricula);
+    $fechaHoy = "Itagui, " . date('d', strtotime($model->fecha_creacion)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_creacion))) . " de " . date('Y', strtotime($model->fecha_creacion));
+
+    // 2. POSICIÓN INICIAL
+    $pdf->Ln(20); 
+    $pdf->SetFont('Arial', '', 10);
+
+    // --- 3. ENCABEZADO MANUAL (Esto es lo que SI queremos) ---
+    $pdf->SetX(10);
+    $pdf->Cell(0, 6, $fechaHoy, 0, 1, 'L');
+    $pdf->Cell(0, 6, utf8_decode("Señor (a)"), 0, 1, 'L');
+    $pdf->Cell(0, 6, $nombre, 0, 1, 'L');
+    $pdf->Cell(0, 6, "C.C.: " . $identificacion . " de " . $ciudadExp, 0, 1, 'L');
+    $pdf->Cell(0, 6, $cargo, 0, 1, 'L');
+
+    $pdf->Ln(5);
+
+    // --- 4. TRUCO FINAL: IGNORAR TODO LO ANTERIOR AL ASUNTO ---
+    // Buscamos la posición de la palabra "Asunto:" en el texto original
+    $contenidoOriginal = $formato->contenido;
+    $posAsunto = stripos($contenidoOriginal, 'Asunto:');
+
+    if ($posAsunto !== false) {
+        // Cortamos el texto: solo nos quedamos desde "Asunto:" hacia adelante
+        $soloCuerpo = substr($contenidoOriginal, $posAsunto);
+    } else {
+        $soloCuerpo = $contenidoOriginal;
     }
+
+    // 5. REEMPLAZOS SOLO EN EL CUERPO RESTANTE
+    $reemplazos = [
+        '/#5/' => $empresa,
+        '/#6/' => $nit,
+        '/#7/' => $contrato->id_contrato,
+        '/#8/' => date('d', strtotime($model->fecha_ultima_contrato)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_ultima_contrato))) . " de " . date('Y', strtotime($model->fecha_ultima_contrato)),
+        '/#9/' => $model->dias_contratados,
+        '/#b/' => date('d', strtotime($model->fecha_nueva_renovacion)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_nueva_renovacion))) . " de " . date('Y', strtotime($model->fecha_nueva_renovacion)),
+    ];
+    
+    $textoFinal = utf8_decode(preg_replace(array_keys($reemplazos), array_values($reemplazos), $soloCuerpo));
+
+    // 6. IMPRESIÓN DEL CUERPO (Asunto con línea y resto justificado)
+    $partes = preg_split('/(Asunto:.*?\.)/i', $textoFinal, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+    foreach ($partes as $bloque) {
+        $bloque = trim($bloque);
+        if (empty($bloque)) continue;
+
+        $pdf->SetX(10);
+        if (stripos($bloque, 'Asunto:') === 0) {
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->MultiCell(190, 5, $bloque, 0, 'L');
+            $pdf->Line(10, $pdf->GetY() + 1, 200, $pdf->GetY() + 1);
+            $pdf->Ln(6);
+            $pdf->SetFont('Arial', '', 10);
+        } else {
+            $pdf->MultiCell(190, 5, $bloque, 0, 'J');
+            $pdf->Ln(4);
+        }
+    }
+
+    // --- 7. FIRMAS ---
+    $pdf->Ln(22);
+    $y = $pdf->GetY();
+    if($y > 240) { $pdf->AddPage(); $y = $pdf->GetY() + 10; }
+    $pdf->Line(15, $y, 85, $y); $pdf->Line(115, $y, 185, $y);
+    $pdf->SetXY(15, $y + 2);
+    $pdf->MultiCell(70, 4, $empresa . "\nNit: " . $nit . "-2\nEMPLEADOR", 0, 'L');
+    $pdf->SetXY(115, $y + 2);
+    $pdf->MultiCell(70, 4, $nombre . "\nCC. " . $identificacion . "\nEL TRABAJADOR", 0, 'L');
+}                
 
     function Footer() {
 
@@ -100,46 +132,13 @@ class PDF extends FPDF {
         $this->Text(170, 290, utf8_decode('Página ') . $this->PageNo() . ' de {nb}');
     }
     
-    public static function MesesEspañol($mes) {
-        
-        if ($mes == '01'){
-            $mesEspañol = "Enero";
-        }
-        if ($mes == '02'){
-            $mesEspañol = "Febrero";
-        }
-        if ($mes == '03'){
-            $mesEspañol = "Marzo";
-        }
-        if ($mes == '04'){
-            $mesEspañol = "Abril";
-        }
-        if ($mes == '05'){
-            $mesEspañol = "Mayo";
-        }
-        if ($mes == '06'){
-            $mesEspañol = "Junio";
-        }
-        if ($mes == '07'){
-            $mesEspañol = "Julio";
-        }
-        if ($mes == '08'){
-            $mesEspañol = "Agosto";
-        }
-        if ($mes == '09'){
-            $mesEspañol = "Septiembre";
-        }
-        if ($mes == '10'){
-            $mesEspañol = "Octubre";
-        }
-        if ($mes == '11'){
-            $mesEspañol = "Noviembre";
-        }
-        if ($mes == '12'){
-            $mesEspañol = "Diciembre";
-        }
-
-        return $mesEspañol;
+   public static function MesesEspañol($mes) {
+        $meses = [
+            '01' => "Enero", '02' => "Febrero", '03' => "Marzo", '04' => "Abril",
+            '05' => "Mayo", '06' => "Junio", '07' => "Julio", '08' => "Agosto",
+            '09' => "Septiembre", '10' => "Octubre", '11' => "Noviembre", '12' => "Diciembre"
+        ];
+        return $meses[$mes] ?? "Mes inválido";
     }
     
     public function numtoletras($xcifra) {

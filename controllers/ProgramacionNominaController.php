@@ -3301,7 +3301,7 @@ class ProgramacionNominaController extends Controller {
                         $fondo_solidaridad->id_programacion = $acumular_prestacion->id_programacion;
                         $fondo_solidaridad->codigo_salario = $concepto_fondo->codigo_salario;
                         $fondo_solidaridad->id_periodo_pago_nomina = $acumular_prestacion->id_periodo_pago_nomina;
-                        $detalle_solidaridad->id_grupo_pago = $id_grupo_pago;
+                        $fondo_solidaridad->id_grupo_pago = $id_grupo_pago;
                         $fondo_solidaridad->vlr_deduccion = round(($contar * $valor->porcentaje) / 100);
                         $fondo_solidaridad->descuento_pension = round(($contar * $valor->porcentaje) / 100);
                         $fondo_solidaridad->porcentaje = $valor->porcentaje;

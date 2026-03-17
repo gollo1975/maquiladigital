@@ -991,6 +991,9 @@ class ContratoController extends Controller
         if ($modeloprorroga->load(Yii::$app->request->post())) {           
             if ($modeloprorroga->validate()) {
                if ($contrato){
+                   $conFormato = \app\models\FormatoContenido::findOne($modeloprorroga->id_formato_contenido);
+                   $fechaActual = date('Y-m-d');
+                    if($conFormato->genera_prorroga == 1){ 
                   
                         $table = new ProrrogaContrato();
                         $table->id_contrato = $id;
@@ -1019,11 +1022,31 @@ class ContratoController extends Controller
                         $table->dias_preaviso = 30;
                         $table->dias_contratados = $dias;
                         $table->usuariosistema = Yii::$app->user->identity->username; 
-                        $table->insert(false);
+                        $table->save(false);
                         $contrato->fecha_final = $table->fecha_hasta;
                         $contrato->fecha_preaviso =  $table->fecha_preaviso;
-                        $contrato->update();
-                        $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);  
+                        $table->fecha_notificacion = $fechaActual;
+                        $contrato->save(false);
+                        
+                    }else{
+                        $table = new ProrrogaContrato();
+                        $table->id_contrato = $id;
+                        $table->id_formato_contenido = $modeloprorroga->id_formato_contenido;
+                        $table->fecha_desde = $contrato->fecha_inicio;
+                        $table->fecha_hasta = $contrato->fecha_final;
+                        $table->fecha_preaviso = date('Y-m-d');
+                        $table->usuariosistema = Yii::$app->user->identity->username;
+                        $inicio = strtotime($table->fecha_preaviso);
+                        $fin = strtotime($contrato->fecha_final);
+                         /// calculo de dias
+                        $diferencia_segundos = $fin - $inicio;
+                        $auxiliar = floor($diferencia_segundos / 86400);
+                        $table->dias_preaviso = $auxiliar;    
+                        $table->fecha_notificacion = $fechaActual;
+                        $table->save(false);
+                    }
+                    return $this->redirect(["contrato/view", 'id' => $id, 'token' => $token]);  
+                        
                 }else{                
                     Yii::$app->getSession()->setFlash('error', 'El Número del contrato no existe!');
                 }

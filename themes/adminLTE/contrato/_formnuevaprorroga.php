@@ -12,7 +12,7 @@ $this->title = 'Prorrogas';
 $this->params['breadcrumbs'][] = ['label' => 'Prorrogas al contrato', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$contenido = ArrayHelper::map(FormatoContenido::find()->where(['=','id_configuracion_prefijo', 5])->orderBy('nombre_formato ASC')->all(), 'id_formato_contenido', 'nombre_formato');
+$contenido = ArrayHelper::map(FormatoContenido::find()->where(['ver_listado' => 1])->orderBy('nombre_formato ASC')->all(), 'id_formato_contenido', 'nombre_formato');
 ?>
 <?php $form = ActiveForm::begin([
         'options' => ['class' => 'form-horizontal condensed', 'role' => 'form'],

@@ -38,7 +38,7 @@ class ProrrogaContrato extends \yii\db\ActiveRecord
     {
         return [
             [['id_contrato', 'fecha_preaviso', 'dias_preaviso', 'dias_contratados', 'id_formato_contenido'], 'integer'],
-            [['fecha_desde', 'fecha_hasta', 'fecha_creacion', 'fecha_ultima_contrato', 'fecha_nueva_renovacion'], 'safe'],
+            [['fecha_desde', 'fecha_hasta', 'fecha_creacion', 'fecha_ultima_contrato', 'fecha_nueva_renovacion','fecha_notificacion'], 'safe'],
             [['usuariosistema'], 'string', 'max' => 30],
             [['id_contrato'], 'exist', 'skipOnError' => true, 'targetClass' => Contrato::className(), 'targetAttribute' => ['id_contrato' => 'id_contrato']],
             [['id_formato_contenido'], 'exist', 'skipOnError' => true, 'targetClass' => FormatoContenido::className(), 'targetAttribute' => ['id_formato_contenido' => 'id_formato_contenido']],
@@ -62,7 +62,9 @@ class ProrrogaContrato extends \yii\db\ActiveRecord
             'dias_preaviso' => 'Dias Preaviso',
             'dias_contratados' => 'Dias Contratados',
             'usuariosistema' => 'Usuariosistema',
-            'id_formato_contenido' => 'Tipo formato:'
+            'id_formato_contenido' => 'Tipo formato:',
+            'fecha_notificacion' => 'fecha_notificacion',
+            
         ];
     }
 

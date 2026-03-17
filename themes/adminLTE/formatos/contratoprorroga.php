@@ -54,8 +54,16 @@ class PDF extends FPDF {
     $cargo = trim(utf8_decode($contrato->cargo->cargo));
     $empresa = trim(utf8_decode($config->razonsocialmatricula));
     $nit = trim($config->nitmatricula);
-    $fechaHoy = "Itagui, " . date('d', strtotime($model->fecha_creacion)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_creacion))) . " de " . date('Y', strtotime($model->fecha_creacion));
-
+    $fecha_final = date('d', strtotime($model->fecha_hasta)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_hasta))) . " de " . date('Y', strtotime($model->fecha_hasta));
+    $fechaHoy = $config->municipio->municipio.', '. date('d', strtotime($model->fecha_creacion)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_creacion))) . " de " . date('Y', strtotime($model->fecha_creacion));
+    
+  // BUSCAMO QUE NO SEA VACIA
+    $timestamp = strtotime($model->fecha_notificacion);
+    // Si strtotime falla, usamos la fecha actual o una por defecto
+    if (!$timestamp) {
+        $timestamp = time(); 
+    }
+    
     // 2. POSICIÓN INICIAL
     $pdf->Ln(20); 
     $pdf->SetFont('Arial', '', 10);
@@ -65,7 +73,7 @@ class PDF extends FPDF {
     $pdf->Cell(0, 6, $fechaHoy, 0, 1, 'L');
     $pdf->Cell(0, 6, utf8_decode("Señor (a)"), 0, 1, 'L');
     $pdf->Cell(0, 6, $nombre, 0, 1, 'L');
-    $pdf->Cell(0, 6, "C.C.: " . $identificacion . " de " . $ciudadExp, 0, 1, 'L');
+    $pdf->Cell(0, 6, "Documento: " . $identificacion . " de " . $ciudadExp, 0, 1, 'L');
     $pdf->Cell(0, 6, $cargo, 0, 1, 'L');
 
     $pdf->Ln(5);
@@ -84,12 +92,15 @@ class PDF extends FPDF {
 
     // 5. REEMPLAZOS SOLO EN EL CUERPO RESTANTE
     $reemplazos = [
+      
         '/#5/' => $empresa,
         '/#6/' => $nit,
         '/#7/' => $contrato->id_contrato,
         '/#8/' => date('d', strtotime($model->fecha_ultima_contrato)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_ultima_contrato))) . " de " . date('Y', strtotime($model->fecha_ultima_contrato)),
         '/#9/' => $model->dias_contratados,
+        '/#a/' => date('d', $timestamp) . " de " . self::MesesEspañol(date('m', $timestamp)) . " de " . date('Y', $timestamp),
         '/#b/' => date('d', strtotime($model->fecha_nueva_renovacion)) . " de " . self::MesesEspañol(date('m', strtotime($model->fecha_nueva_renovacion))) . " de " . date('Y', strtotime($model->fecha_nueva_renovacion)),
+        '/#d/' => $fecha_final,
     ];
     
     $textoFinal = utf8_decode(preg_replace(array_keys($reemplazos), array_values($reemplazos), $soloCuerpo));
@@ -122,7 +133,7 @@ class PDF extends FPDF {
     $pdf->SetXY(15, $y + 2);
     $pdf->MultiCell(70, 4, $empresa . "\nNit: " . $nit . "-2\nEMPLEADOR", 0, 'L');
     $pdf->SetXY(115, $y + 2);
-    $pdf->MultiCell(70, 4, $nombre . "\nCC. " . $identificacion . "\nEL TRABAJADOR", 0, 'L');
+    $pdf->MultiCell(70, 4, $nombre . "\nDocumento " . $identificacion . "\nEL TRABAJADOR", 0, 'L');
 }                
 
     function Footer() {

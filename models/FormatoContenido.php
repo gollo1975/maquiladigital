@@ -43,7 +43,7 @@ class FormatoContenido extends \yii\db\ActiveRecord
             [['nombre_formato', 'contenido', 'id_configuracion_prefijo'], 'required'],
             [['fecha_creacion'], 'safe'],
             [['contenido'], 'string'],
-            [['id_configuracion_prefijo'], 'integer'],
+            [['id_configuracion_prefijo','ver_listado','genera_prorroga'], 'integer'],
             [['nombre_formato'], 'string', 'max' => 70],
             [['usuariosistema'], 'string', 'max' => 30],
             [['id_configuracion_prefijo'], 'exist', 'skipOnError' => true, 'targetClass' => ConfiguracionFormatoPrefijo::className(), 'targetAttribute' => ['id_configuracion_prefijo' => 'id_configuracion_prefijo']],

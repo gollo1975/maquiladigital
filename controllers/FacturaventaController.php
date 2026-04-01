@@ -1074,7 +1074,7 @@ class FacturaventaController extends Controller
         $html .= '<td style="padding: 8px; text-align: center;">' . ($ok_iva ? '✅' : '⚠️') . '</td>';
         $html .= '</tr>';
         
-        if ($factura->retencionfuente > 0 || $factura->porcentajefuente > 0) {
+        if ($cliente->retencionfuente != 0) {
             $retefuente_calc = $round2($line_subtotal * ((float)$factura->porcentajefuente / 100));
             $dif_rf = abs($retefuente_bd - $retefuente_calc);
             $ok_rf = $dif_rf < 0.02;

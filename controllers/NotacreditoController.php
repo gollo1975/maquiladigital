@@ -400,13 +400,12 @@ class NotacreditoController extends Controller
         }      
     }
     
-    
     //ENVIAR DOCUMENTO NOTA CREDITO DIAN
-    public function actionEnviar_nota_credito_dian($id)
+public function actionEnviar_nota_credito_dian($id)
 {
-    $nota = Notacredito::findOne($id);
+    $nota         = Notacredito::findOne($id);
     $detalle_nota = Notacreditodetalle::find()->where(['idnotacredito' => $id])->one();
-    $factura = $detalle_nota ? Facturaventa::findOne($detalle_nota->idfactura) : null;
+    $factura      = $detalle_nota ? Facturaventa::findOne($detalle_nota->idfactura) : null;
 
     if (!$nota || !$detalle_nota || !$factura) {
         Yii::$app->session->setFlash('error', 'Datos incompletos para emitir la Nota Crédito.');
@@ -421,35 +420,26 @@ class NotacreditoController extends Controller
         return $this->redirect(['notacredito/view', 'id' => $id]);
     }
 
-   // $fmt = fn($n) => number_format((float)$n, 2, '.', '');
-    
+    $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+
     $emailempresa = $empresa->emailmatricula;
-        
+
     $email_cc_list = [
-                [
-                    "email" => $emailempresa
-                ]
-            ];
+        ["email" => $emailempresa]
+    ];
 
     // ========================
     // DATOS BÁSICOS
     // ========================
-    $resolucion = $factura->numero_resolucion; // Ajusta si sale de DB
-    $observacion = (string)$nota->observacion;
-    $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+    $resolucion    = $factura->numero_resolucion;
+    $observacion   = (string)$nota->observacion;
+    $date          = date('Y-m-d', strtotime($nota->fecha));
+    $time          = date('H:i:s', strtotime($nota->fecha));
+    $prefix        = 'NC';
+    $numero_nc     = (int)$nota->numero;
+    $type_document_id = (int)$nota->id_documento;
 
-    $date = date('Y-m-d', strtotime($nota->fecha));
-    $time = date('H:i:s', strtotime($nota->fecha));
-
-    $prefix = 'NC'; // Ajusta si sale de DB
-    $numero_nc = $nota->numero;
-
-    $type_document_id = $nota->id_documento; // NC
-    
-    $municipality_id_fact = $factura->cliente->municipio->codefacturador;
-
-    // IMPORTANTE: puede ser null si no está relacionada la tabla motivoNota
-    $codigo_respuesta = $nota->motivoNota->codeconceptoapi;
+    $codigo_respuesta = $nota->motivoNota->codeconceptoapi ?? null;
 
     if (!$codigo_respuesta) {
         Yii::$app->session->setFlash('error', 'La Nota Crédito no tiene motivo configurado (concepto discrepancia).');
@@ -468,7 +458,6 @@ class NotacreditoController extends Controller
         "email"                           => (string)$cliente->email_envio_factura_dian,
         "type_document_identification_id" => (int)($cliente->tipo->codigo_api ?? 0),
         "type_organization_id"            => (int)$cliente->tiporegimen,
-       // "municipality_id"                 => 12601,//$municipality_id_fact,
         "type_regime_id"                  => (int)$cliente->tiporegimen,
     ];
 
@@ -477,26 +466,32 @@ class NotacreditoController extends Controller
     // ========================
     $billing_reference = [
         "number"     => $factura->consecutivo . $factura->nrofactura,
-        "uuid"       => $factura->cufe, // CUFE factura original
-        "issue_date" => date('Y-m-d', strtotime($factura->fecha_inicio))
+        "uuid"       => $factura->cufe,
+        "issue_date" => date('Y-m-d', strtotime($factura->fecha_inicio)),
     ];
 
     // ========================
-    // DETALLE NOTA CRÉDITO
+    // MONTOS BASE
     // ========================
-    $qty = (float)$detalle_nota->cantidad;
-    $unit_price = (float)$detalle_nota->precio_unitario;
-    $subtotal = $factura->subtotal;
+    $subtotal  = round((float)$factura->subtotal, 2);
+    $porcIva   = round((float)$factura->porcentajeiva, 2);
+    $iva       = round($subtotal * ($porcIva / 100), 2);
 
-    $porcIva = (float)$factura->porcentajeiva;
-    $iva = $subtotal * ($porcIva / 100);
-
+    // ========================
+    // IVA (tax_totals)
+    // ========================
     $tax_totals = [[
-        "tax_id" => 1,
-        "tax_amount" => $iva,
-        "percent" => $porcIva,
+        "tax_id"         => 1,
+        "tax_amount"     => $iva,
+        "percent"        => $porcIva,
         "taxable_amount" => $subtotal,
     ]];
+
+    // ========================
+    // LÍNEAS NOTA CRÉDITO
+    // ========================
+    $qty        = (float)$detalle_nota->cantidad;
+    $unit_price = round((float)$detalle_nota->precio_unitario, 2);
 
     $credit_note_lines = [[
         "unit_measure_id"             => 70,
@@ -513,53 +508,66 @@ class NotacreditoController extends Controller
     ]];
 
     // ========================
-    // RETENCIONES
+    // RETENCIONES — with_holding_tax_total
+    // DEBE ir ANTES de legal_monetary_totals (orden XSD UBL 2.1)
     // ========================
     $with_holding_tax_total = [];
+    $total_retenciones      = 0;
 
-    if ((float)$factura->retencionfuente > 0) {
+    $reteFuente = round((float)$factura->retencionfuente, 2);
+    $reteIva    = round((float)$factura->retencioniva, 2);
+
+    if ($reteFuente > 0) {
         $with_holding_tax_total[] = [
-            "tax_id" => 6,
+            "tax_id"         => 6,
             "taxable_amount" => $subtotal,
-            "percent" => (float)$factura->porcentajefuente,
-            "tax_amount" => $factura->retencionfuente,
+            "percent"        => round((float)$factura->porcentajefuente, 2),
+            "tax_amount"     => $reteFuente,
         ];
+        $total_retenciones += $reteFuente;
     }
 
-    if ((float)$factura->retencioniva > 0) {
+    if ($reteIva > 0) {
         $with_holding_tax_total[] = [
-            "tax_id" => 5,
+            "tax_id"         => 5,
             "taxable_amount" => $subtotal,
-            "percent" => (float)$factura->porcentajereteiva,
-            "tax_amount" => $factura->retencioniva,
+            "percent"        => round((float)$factura->porcentajereteiva, 2),
+            "tax_amount"     => $reteIva,
         ];
+        $total_retenciones += $reteIva;
     }
 
     // ========================
-    // TOTALES
+    // TOTALES — payable_amount calculado por fórmula DIAN
+    // payable_amount = tax_inclusive_amount - retenciones
     // ========================
-        $legal_monetary_totals = [
-        "line_extension_amount"   => $subtotal,
-        "tax_exclusive_amount"    => $subtotal,
-        "tax_inclusive_amount"    => $subtotal + $iva,
-        "allowance_total_amount"  => 0,
-        "charge_total_amount"     => 0,
-        "payable_amount"          => $nota->total, 
+    $tax_inclusive_amount = round($subtotal + $iva, 2);
+    $payable_amount       = round($tax_inclusive_amount - $total_retenciones, 2);
+
+    $legal_monetary_totals = [
+        "line_extension_amount"  => $subtotal,
+        "tax_exclusive_amount"   => $subtotal,
+        "tax_inclusive_amount"   => $tax_inclusive_amount,
+        "allowance_total_amount" => 0,
+        "charge_total_amount"    => 0,
+        "payable_amount"         => $payable_amount,
     ];
 
     // ========================
     // PAYLOAD FINAL
+    // ORDEN CRÍTICO: tax_totals → with_holding_tax_total → legal_monetary_totals
+    // El serializador respeta el orden de inserción del array en PHP
     // ========================
     $payload = [
         "billing_reference"              => $billing_reference,
-        "discrepancyresponsecode"        => $codigo_respuesta,
+        "discrepancyresponsecode"        => (int)$codigo_respuesta,
         "discrepancyresponsedescription" => $observacion,
         "notes"                          => $observacion,
         "prefix"                         => $prefix,
         "sendmail"                       => true,
         "sendmailtome"                   => false,
         "email_cc_list"                  => $email_cc_list,
-        "resolution_number"              => $resolucion,
+        "resolution_number"              => (string)$resolucion,
         "number"                         => $numero_nc,
         "type_document_id"               => $type_document_id,
         "date"                           => $date,
@@ -567,38 +575,38 @@ class NotacreditoController extends Controller
         "establishment_name"             => (string)$empresa->razonsocialmatricula,
         "establishment_address"          => (string)$empresa->direccionmatricula,
         "establishment_phone"            => (string)$empresa->celularmatricula,
-        "establishment_email"            => $empresa->emailmatricula,
+        "establishment_email"            => (string)$empresa->emailmatricula,
         "customer"                       => $customer,
         "tax_totals"                     => $tax_totals,
-        "legal_monetary_totals"          => $legal_monetary_totals,
+        "with_holding_tax_total"         => $with_holding_tax_total,  // ← ANTES de legal_monetary_totals
+        "legal_monetary_totals"          => $legal_monetary_totals,   // ← SIEMPRE AL FINAL de totales
         "credit_note_lines"              => $credit_note_lines,
-        "with_holding_tax_total"         => $with_holding_tax_total,
     ];
 
     // ========================
     // ENVÍO A API
     // ========================
     $API_URL = Yii::$app->params['API_NOTACREDITO_ENDPOINT'];
-    $API_KEY = $confi->llave_api_token; // Bearer token
+    $API_KEY = $confi->llave_api_token;
 
     $curl = curl_init();
     curl_setopt_array($curl, [
-        CURLOPT_URL => $API_URL,
+        CURLOPT_URL            => $API_URL,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
-        CURLOPT_HTTPHEADER => [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
+        CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
             'Accept: application/json',
             'Authorization: Bearer ' . $API_KEY,
         ],
-        CURLOPT_TIMEOUT => 60,
+        CURLOPT_TIMEOUT        => 60,
         CURLOPT_CONNECTTIMEOUT => 20,
     ]);
 
     try {
         $response = curl_exec($curl);
-        $info = curl_getinfo($curl);
+        $info     = curl_getinfo($curl);
 
         if ($response === false) {
             $curlError = curl_error($curl);
@@ -608,80 +616,70 @@ class NotacreditoController extends Controller
 
         curl_close($curl);
 
-        // asegurar string para substr
         if (!is_string($response)) {
             $response = json_encode($response, JSON_UNESCAPED_UNICODE);
         }
 
         $data_envio = json_decode($response, true);
 
-        // LOG SIEMPRE
-        Yii::info(
-            [
-                'evento' => 'ENVIO_NOTA_CREDITO',
-                'http_code' => $info['http_code'] ?? null,
-                'curl_info' => $info,
-                // 'payload_enviado' => $payload, // <-- comenta si es sensible
-                'respuesta_raw' => $response,
-                'respuesta_json' => $data_envio,
-            ],
-            'api.nota_credito'
-        );
+        Yii::info([
+            'evento'        => 'ENVIO_NOTA_CREDITO',
+            'http_code'     => $info['http_code'] ?? null,
+            'payload'       => $payload,
+            'respuesta_raw' => $response,
+            'respuesta_json'=> $data_envio,
+        ], 'api.nota_credito');
 
         if (!is_array($data_envio)) {
             throw new \Exception("La API no devolvió JSON válido. Respuesta: " . substr($response, 0, 300));
         }
 
         // Buscar CUDE en rutas comunes
-        $cude = $data_envio['data']['fe']['cude'] ?? null;
-        $qr   = $data_envio['qrstr'] ?? $data_envio['data']['qrstr'] ?? ($data_envio['QRStr'] ?? null);
-        
-        if ($qr) {
-            $nota->qrstr = $qr;
-        }
-        
-        if (!$cude) $cude = $data_envio['data']['cude'] ?? null;
-        if (!$cude) $cude = $data_envio['data']['document']['cude'] ?? null;
-        if (!$cude) $cude = $data_envio['cude'] ?? null;
+        $cude = $data_envio['data']['fe']['cude']
+             ?? $data_envio['data']['cude']
+             ?? $data_envio['data']['document']['cude']
+             ?? $data_envio['cude']
+             ?? null;
+
+        $qr = $data_envio['qrstr']
+           ?? $data_envio['data']['qrstr']
+           ?? $data_envio['QRStr']
+           ?? null;
+
+        if ($qr)   $nota->qrstr = $qr;
 
         if (!empty($cude)) {
             $nota->cude = $cude;
-
-            $nota->fecha_recepcion_dian =
-            $data_envio['data']['sentDetail']['response']['send_email_date_time'] ?? ($data_envio['data']['sentDetail']['response']['datetime'] ?? date("Y-m-d H:i:s"));
-
+            $nota->fecha_recepcion_dian = $data_envio['data']['sentDetail']['response']['send_email_date_time']
+                                       ?? $data_envio['data']['sentDetail']['response']['datetime']
+                                       ?? date("Y-m-d H:i:s");
             $nota->fecha_envio_api = date("Y-m-d H:i:s");
             $nota->save(false);
 
             Yii::$app->getSession()->setFlash('success', "La Nota Crédito No. {$numero_nc} fue enviada exitosamente a la DIAN.");
             return $this->redirect(['notacredito/view', 'id' => $id]);
         }
-        
 
-        // Si NO hay CUDE: leer mensaje sin romper por arrays
-        $mensajeError = null;
-
-        if (isset($data_envio['message'])) $mensajeError = $data_envio['message'];
-        elseif (isset($data_envio['error'])) $mensajeError = $data_envio['error'];
-        elseif (isset($data_envio['errors'])) $mensajeError = $data_envio['errors'];
-        elseif (isset($data_envio['data']['errors'])) $mensajeError = $data_envio['data']['errors'];
-        elseif (isset($data_envio['data']['message'])) $mensajeError = $data_envio['data']['message'];
+        // Sin CUDE: leer mensaje de error
+        $mensajeError = $data_envio['message']
+                     ?? $data_envio['error']
+                     ?? $data_envio['errors']
+                     ?? $data_envio['data']['errors']
+                     ?? $data_envio['data']['message']
+                     ?? null;
 
         if (is_array($mensajeError)) {
             $mensajeError = json_encode($mensajeError, JSON_UNESCAPED_UNICODE);
-        } elseif ($mensajeError !== null) {
-            $mensajeError = (string)$mensajeError;
+        } else {
+            $mensajeError = (string)($mensajeError ?? '');
         }
 
-        Yii::warning(
-            [
-                'evento' => 'RESPUESTA_SIN_CUDE',
-                'http_code' => $info['http_code'] ?? null,
-                'respuesta_json' => $data_envio,
-                'mensaje_detectado' => $mensajeError,
-            ],
-            'api.nota_credito'
-        );
+        Yii::warning([
+            'evento'            => 'RESPUESTA_SIN_CUDE',
+            'http_code'         => $info['http_code'] ?? null,
+            'respuesta_json'    => $data_envio,
+            'mensaje_detectado' => $mensajeError,
+        ], 'api.nota_credito');
 
         Yii::$app->getSession()->setFlash(
             'warning',
@@ -692,19 +690,15 @@ class NotacreditoController extends Controller
 
     } catch (\Exception $e) {
 
-        Yii::error(
-            [
-                'evento' => 'ERROR_ENVIO_NOTA_CREDITO',
-                'error' => $e->getMessage(),
-            ],
-            'api.nota_credito'
-        );
+        Yii::error([
+            'evento' => 'ERROR_ENVIO_NOTA_CREDITO',
+            'error'  => $e->getMessage(),
+        ], 'api.nota_credito');
 
         Yii::$app->getSession()->setFlash('error', "Error al enviar la Nota Crédito: " . $e->getMessage());
         return $this->redirect(['notacredito/view', 'id' => $id]);
     }
 }
-
     
     
  

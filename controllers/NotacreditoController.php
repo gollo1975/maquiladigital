@@ -400,7 +400,7 @@ class NotacreditoController extends Controller
         }      
     }
     
-    /ENVIAR DOCUMENTO NOTA CREDITO DIAN
+   //ENVIAR DOCUMENTO NOTA CREDITO DIAN
 public function actionEnviar_nota_credito_dian($id)
 {
     $nota         = Notacredito::findOne($id);

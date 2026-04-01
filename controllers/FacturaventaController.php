@@ -927,7 +927,7 @@ class FacturaventaController extends Controller
 
     $line_with_holding_tax_total = [];
 
-    if ($factura->retencionfuente > 0 || $factura->porcentajefuente > 0) {
+    if ($cliente->retencionfuente != 0) {
         $porcentaje_fuente = (float)$factura->porcentajefuente;
         $retefuente_amount = $round2($line_subtotal * ($porcentaje_fuente / 100));
 

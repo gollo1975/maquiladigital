@@ -680,7 +680,7 @@ public function actionEnviar_nota_credito_dian($id)
         Yii::$app->getSession()->setFlash('error', "Error al enviar la Nota Crédito: " . $e->getMessage());
         return $this->redirect(['notacredito/view', 'id' => $id]);
     }
-}
+}   
     
     
     /**

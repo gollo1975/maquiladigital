@@ -400,7 +400,7 @@ class NotacreditoController extends Controller
         }      
     }
     
-    //ENVIAR DOCUMENTO NOTA CREDITO DIAN
+    /ENVIAR DOCUMENTO NOTA CREDITO DIAN
 public function actionEnviar_nota_credito_dian($id)
 {
     $nota         = Notacredito::findOne($id);
@@ -516,26 +516,8 @@ public function actionEnviar_nota_credito_dian($id)
 
     $reteFuente = round((float)$factura->retencionfuente, 2);
     $reteIva    = round((float)$factura->retencioniva, 2);
-
-    if ($reteFuente > 0) {
-        $with_holding_tax_total[] = [
-            "tax_id"         => 6,
-            "taxable_amount" => $subtotal,
-            "percent"        => round((float)$factura->porcentajefuente, 2),
-            "tax_amount"     => $reteFuente,
-        ];
-        $total_retenciones += $reteFuente;
-    }
-
-    if ($reteIva > 0) {
-        $with_holding_tax_total[] = [
-            "tax_id"         => 5,
-            "taxable_amount" => $subtotal,
-            "percent"        => round((float)$factura->porcentajereteiva, 2),
-            "tax_amount"     => $reteIva,
-        ];
-        $total_retenciones += $reteIva;
-    }
+    $total_retenciones = $reteFuente + $reteIva;
+    
 
     // ========================
     // TOTALES — payable_amount calculado por fórmula DIAN
@@ -578,7 +560,6 @@ public function actionEnviar_nota_credito_dian($id)
         "establishment_email"            => (string)$empresa->emailmatricula,
         "customer"                       => $customer,
         "tax_totals"                     => $tax_totals,
-        "with_holding_tax_total"         => $with_holding_tax_total,  // ← ANTES de legal_monetary_totals
         "legal_monetary_totals"          => $legal_monetary_totals,   // ← SIEMPRE AL FINAL de totales
         "credit_note_lines"              => $credit_note_lines,
     ];
@@ -699,8 +680,6 @@ public function actionEnviar_nota_credito_dian($id)
         return $this->redirect(['notacredito/view', 'id' => $id]);
     }
 }
-    
-    
  
     /**
      * Finds the Notacredito model based on its primary key value.

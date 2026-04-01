@@ -400,7 +400,7 @@ class NotacreditoController extends Controller
         }      
     }
     
-   //ENVIAR DOCUMENTO NOTA CREDITO DIAN
+  //ENVIAR DOCUMENTO NOTA CREDITO DIAN
 public function actionEnviar_nota_credito_dian($id)
 {
     $nota         = Notacredito::findOne($id);
@@ -524,7 +524,8 @@ public function actionEnviar_nota_credito_dian($id)
     // payable_amount = tax_inclusive_amount - retenciones
     // ========================
     $tax_inclusive_amount = round($subtotal + $iva, 2);
-    $payable_amount       = round($tax_inclusive_amount - $total_retenciones, 2);
+    $payable_amount = $tax_inclusive_amount;
+    
 
     $legal_monetary_totals = [
         "line_extension_amount"  => $subtotal,
@@ -532,7 +533,7 @@ public function actionEnviar_nota_credito_dian($id)
         "tax_inclusive_amount"   => $tax_inclusive_amount,
         "allowance_total_amount" => 0,
         "charge_total_amount"    => 0,
-        "payable_amount"         => $payable_amount,
+        "payable_amount"         => $tax_inclusive_amount,
     ];
 
     // ========================
@@ -680,7 +681,8 @@ public function actionEnviar_nota_credito_dian($id)
         return $this->redirect(['notacredito/view', 'id' => $id]);
     }
 }
- 
+    
+    
     /**
      * Finds the Notacredito model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

@@ -41,7 +41,7 @@ class Producto extends \yii\db\ActiveRecord
             ['idcliente', 'cliente_existe'],
             [['observacion','codigo'], 'string'],
             [['fechaproceso'], 'safe'],
-            [['usuariosistema'], 'string', 'max' => 15],
+            [['usuariosistema','codigo'], 'string', 'max' => 15],
             [['idcliente'], 'exist', 'skipOnError' => true, 'targetClass' => Cliente::className(), 'targetAttribute' => ['idcliente' => 'idcliente']],
         ];
     }
@@ -53,13 +53,12 @@ class Producto extends \yii\db\ActiveRecord
     {
         return [
             'idproducto' => 'Id',
-            'idcliente' => 'Cliente',
+            'idcliente' => 'Nombre del cliente:',
             'observacion' => 'Observacion',
             'activo' => 'Activo',
             'fechaproceso' => 'Fecha Proceso',
-            'usuariosistema' => 'Usuariosistema',
-            'usuariosistema' => 'Usuariosistema',
-            'codigo' => 'Código Producto',
+            'usuariosistema' => 'User name:',
+            'codigo' => 'Código /Referencia:',
         ];
     }      
 

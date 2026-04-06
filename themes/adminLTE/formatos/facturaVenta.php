@@ -156,7 +156,7 @@ class PDF extends FPDF {
       
         //Lineas del encabezado
         $this->Line(10,67,10,170);
-        $this->Line(23,67,23,170);
+        $this->Line(36,67,36,170);
         $this->Line(126,67,126,170);
         $this->Line(151,67,151,170);
         $this->Line(176,67,176,170);
@@ -188,7 +188,7 @@ class PDF extends FPDF {
         $this->SetFont('', 'B', 8);
 
         //creamos la cabecera de la tabla.
-        $w = array(13, 103, 25, 25, 25);
+        $w = array(26, 90, 25, 25, 25);
         for ($i = 0; $i < count($header); $i++)
             if ($i == 0 || $i == 1)
                 $this->Cell($w[$i], 4, $header[$i], 1, 0, 'C', 1);
@@ -210,12 +210,12 @@ class PDF extends FPDF {
         $cant = 0;
         foreach ($detalles as $detalle) { 
             $pdf->SetFont('Arial', '', 7);
-            $pdf->Cell(13, 4, $detalle->codigoproducto, 0, 0, 'L');
+            $pdf->Cell(26, 4, $detalle->codigoproducto, 0, 0, 'L');
             $pdf->SetFont('Arial', '', 8);
             if($detalle->idproductodetalle == ''){
-                $pdf->Cell(103, 4, $detalle->conceptoFactura->concepto, 0, 0, 'L');
+                $pdf->Cell(90, 4, $detalle->conceptoFactura->concepto, 0, 0, 'L');
             }else{
-                $pdf->Cell(103, 4, $detalle->productodetalle->prendatipo->prenda.' / '.$detalle->productodetalle->prendatipo->talla->talla, 0, 0, 'L');
+                $pdf->Cell(90, 4, $detalle->productodetalle->prendatipo->prenda.' / '.$detalle->productodetalle->prendatipo->talla->talla, 0, 0, 'L');
             }
             
             $pdf->Cell(25, 4, $detalle->cantidad, 0, 0, 'R');

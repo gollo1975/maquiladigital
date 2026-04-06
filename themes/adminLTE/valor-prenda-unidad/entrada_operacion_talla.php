@@ -132,7 +132,7 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                 if ($horario->aplica_sam_salud_ocupacional == 1 && $tiempo_salud_ocupacional < $horario->total_evento_salud) {
                     echo Html::a('<span class="glyphicon glyphicon-dashboard"></span> SST.', 
                         ['validar_tiempo_salud_ocupacional', 'id' => $model->id_valor, 'idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta, 'tokenOperario' => $tokenOperario, 'id_detalle' => $id_detalle], 
-                        ['class' => 'btn btn-info btn-xs', 'title' => 'Validar tiempo de Salud Ocupacional']); 
+                        ['class' => 'btn btn-success btn-xs', 'title' => 'Validar tiempo de Salud Ocupacional']); 
                 }
 
                 // Botón Sam A.

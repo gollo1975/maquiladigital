@@ -45,28 +45,29 @@ $this->params['breadcrumbs'][] = $this->title;
                 </tr>
             </thead>
             <tbody>
-                <?php
-                    foreach ($detalle_orden as $val):
-                        $total_Faltante = $val->cantidad_operaciones - $val->cantidad_confeccionada;
-                        ?>
-                        <tr style="font-size: 90%;">
-                            <td><?= $val->productodetalle->prendatipo->prenda ?></td>
-                            <td><?= $val->productodetalle->prendatipo->talla->talla ?></td>
-                            <td style="text-align: center"><?= ''.number_format($val->cantidad,0) ?></td> 
-                            <?php if($total_Faltante > 0){?>
-                                <td style="text-align: center"><?= ''.number_format($total_Faltante,0) ?></td>
-                            <?php }else{?>
-                                <td style="text-align: center; background-color: #B9D5CE"><?= ''.number_format($total_Faltante,0) ?></td>
-                            <?php }?>    
-                            <?php if($total_Faltante > 0){?>
-                                <td style= 'width: 15px; height: 10px;'>
-                                    <a href="<?= Url::toRoute(["valor-prenda-unidad/entrada_operacion_talla", "id" => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta,  'tokenOperario' =>$tokenOperario, 'id_detalle' => $val->iddetalleorden]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
-                                </td>
-                            <?php }else{?>
-                                <td style= 'width: 15px; height: 10px;'></td>
-                            <?php }?>    
-                        </tr>     
-                 <?php endforeach;?>
+                <?php foreach ($detalle_orden as $val): 
+                    $total_Faltante = $val->cantidad_operaciones - $val->cantidad_confeccionada;
+                    // Evitamos errores si la relación es nula
+                    $prenda = $val->productodetalle->prendatipo->prenda ?? 'N/A';
+                    $talla = $val->productodetalle->prendatipo->talla->talla ?? 'N/A'; ?>
+                    <tr style="font-size: 90%;">
+                        <td><?= $prenda ?></td>
+                        <td><?= $talla ?></td>
+                        <td style="text-align: center"><?= number_format($val->cantidad, 0) ?></td> 
+
+                        <td style="text-align: center; <?= $total_Faltante <= 0 ? 'background-color: #B9D5CE' : '' ?>">
+                            <?= number_format($total_Faltante, 0) ?>
+                        </td>
+
+                        <td style='width: 15px; height: 10px;'>
+                            <?php if ($total_Faltante > 0): ?>
+                                <a href="<?= Url::toRoute(["valor-prenda-unidad/entrada_operacion_talla", "id" => $id, 'idordenproduccion' => $idordenproduccion, 'id_planta' =>$id_planta, 'tokenOperario' =>$tokenOperario, 'id_detalle' => $val->iddetalleorden]) ?>">
+                                    <span class="glyphicon glyphicon-eye-open"></span>
+                                </a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>      
+                <?php endforeach; ?>
             </tbody>  
         </table>
            

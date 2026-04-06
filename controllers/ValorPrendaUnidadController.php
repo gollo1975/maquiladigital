@@ -1075,11 +1075,19 @@ class ValorPrendaUnidadController extends Controller
     
     //VISTA PARA PASARA LA TALLAS DE LA OP
     public function actionView_produccion($id, $idordenproduccion, $id_planta, $tokenOperario){
-        $detalle_orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
+     //   $detalle_orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
+        $detalle_orden = \app\models\Ordenproducciondetalle::find()
+    ->where(['idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta])
+    ->with([
+        'productodetalle.prendatipo.talla' // <--- TRAE TODO DE UN SOLO GOLPE
+    ])
+    ->all();
        
         //buscamos si hay hora y corte creado
-        $buscaHora = \app\models\HoraCorteEficienciaApp::find()->where(['=','fecha_dia', date('Y-m-d')])
-                              ->andWhere(['=','idordenproduccion', $idordenproduccion])->one();
+        $buscaHora = \app\models\HoraCorteEficienciaApp::find()
+            ->select(['id_corte']) // Solo trae el ID para verificar existencia
+            ->where(['fecha_dia' => date('Y-m-d'), 'idordenproduccion' => $idordenproduccion])
+            ->one();
         if($buscaHora){
             return $this->render('view_app_produccion', [
                 'model' => $this->findModel($id),
@@ -1353,231 +1361,361 @@ class ValorPrendaUnidadController extends Controller
     public function actionEnviar_operacion_individual($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle, $id_operacion)
     {
        
-        $flujo = \app\models\FlujoOperaciones::find()->where(['idproceso' => $id_operacion, 'idordenproduccion' => $idordenproduccion])->one();
+       // $flujo = \app\models\FlujoOperaciones::find()->where(['idproceso' => $id_operacion, 'idordenproduccion' => $idordenproduccion])->one();
 
+       // $operario = \app\models\Operarios::findOne($tokenOperario);
+        
+        // 1. Carga de modelos iniciales con relaciones
+        $flujo = \app\models\FlujoOperaciones::find()
+            ->where(['idproceso' => $id_operacion, 'idordenproduccion' => $idordenproduccion])
+            ->with(['ordenproduccion.cliente'])
+            ->one();
+        
         $operario = \app\models\Operarios::findOne($tokenOperario);
-
-        // Si no se encuentra el flujo, redirigir con un mensaje de error
-        if (!$flujo || !$operario) {
-            Yii::$app->getSession()->setFlash('error', 'Error de comunicación o el código de operación no se encontró en el balanceo.');
-            return $this->redirect([
-                'entrada_operacion_talla',
-                'id_planta' => $id_planta,
-                'id_detalle' => $id_detalle,
-                'tokenOperario' => $tokenOperario,
-                'id' => $id,
-                'idordenproduccion' => $idordenproduccion,
-            ]);
-        }
-
-        // 2. Preparar el nuevo registro
         $empresa = \app\models\Matriculaempresa::findOne(1);
-        $horaCorte = \app\models\HoraCorteEficienciaApp::find()
-            ->where(['id_valor' => $id,
-                    'idordenproduccion' => $idordenproduccion,
-                    'fecha_dia' => date('Y-m-d')
-            ])    
+        
+        if (!$flujo || !$operario) {
+            Yii::$app->getSession()->setFlash('error', 'Error de comunicación o el código de operación no se encontró.');
+            return $this->retornoTalla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle);
+        }
+        
+        // 2. Validaciones de tiempo
+         $horaCorte = \app\models\HoraCorteEficienciaApp::find()
+            ->where(['id_valor' => $id, 'idordenproduccion' => $idordenproduccion, 'fecha_dia' => date('Y-m-d')])
             ->orderBy(['id_valor' => SORT_DESC])
             ->one();
-        
-        ///proceso para a hora de inicio.
-        $horaActual = new \DateTime();
-        // Crea un objeto DateTime a partir de la hora de inicio
-        $horaInicio = \DateTime::createFromFormat('H:i:s', $horaCorte->hora_inicio);
-
-        // Compara si la hora actual es mayor que la hora de inicio
-      
-        if ($horaActual->format('H:i:s') < $horaInicio->format('H:i:s')) {
-            Yii::$app->getSession()->setFlash('error', 'El sistema no esta abierto para ingresar operaciones. Hora de inicio de confeccion : ' . $horaCorte->hora_inicio . '. ');
-            return $this->redirect([
-                'entrada_operacion_talla',
-                'id_planta' => $id_planta,
-                'id_detalle' => $id_detalle,
-                'tokenOperario' => $tokenOperario,
-                'id' => $id,
-                'idordenproduccion' => $idordenproduccion,
-            ]);
-        }
-        
-        // Busca el ultimo registro de ese empleado
-        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
-            ->where([
-                'id_operario' => $tokenOperario,
-                'dia_pago' => date('Y-m-d')
-            ])
-            ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
-            ->one();
-        
-        //Valida si la persona esta en su hora de comida que no se ingresen operaciones
-        if($ultimoRegistro){
-            if(date('H:i:s') < $ultimoRegistro->hora_corte){
-                Yii::$app->getSession()->setFlash('error', 'Mientras que la APP este pausada NO se pueden ingresar operaciones.Favor validar la información. ');
-                return $this->redirect([
-                    'entrada_operacion_talla',
-                    'id_planta' => $id_planta,
-                    'id_detalle' => $id_detalle,
-                    'tokenOperario' => $tokenOperario,
-                    'id' => $id,
-                    'idordenproduccion' => $idordenproduccion,
-                ]); 
-            }
-        }    
          
-        //Inicia proceso de inserccion
+        $horaActualStr = date('H:i:s');
+        if ($horaActualStr < $horaCorte->hora_inicio) {
+            Yii::$app->getSession()->setFlash('error', "El sistema no está abierto. Inicio: {$horaCorte->hora_inicio}");
+            return $this->retornoTalla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle);
+        }
         
-        $table = new \app\models\ValorPrendaUnidadDetalles();
-        $table->id_operario = $tokenOperario;
-        $table->idordenproduccion = $idordenproduccion;
-        $table->operacion = '1'; // Asumiendo que 1 es un valor fijo
-        $table->dia_pago = date('Y-m-d');
-        $table->cantidad = 1;
-        $table->minuto_prenda = $flujo->minutos;
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where(['id_operario' => $tokenOperario, 'dia_pago' => date('Y-m-d')])
+            ->orderBy(['consecutivo' => SORT_DESC])
+            ->one();
 
-        // 3. Lógica de cálculo de valor según el tipo de operario
-        if ($operario->vinculado == 1) {
-            $table->vlr_prenda = round($empresa->vlr_minuto_vinculado * $flujo->minutos);
-            $table->vlr_pago = $table->vlr_prenda;
+        if ($ultimoRegistro && $horaActualStr < $ultimoRegistro->hora_corte) {
+            Yii::$app->getSession()->setFlash('error', 'La APP está pausada. No se pueden ingresar operaciones.');
+            return $this->retornoTalla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle);
+        }
+        
+        // 3. Cálculo de tiempos y eficiencia
+        $hora_inicial = $ultimoRegistro ? $ultimoRegistro->hora_corte : $horaCorte->hora_inicio;
+        $t1 = new \DateTimeImmutable($hora_inicial);
+        $t2 = new \DateTimeImmutable($horaActualStr);
+        $segundos = $t2->getTimestamp() - $t1->getTimestamp();
+        $minutos_reales = round(max($segundos, 1) / 60, 2); // Evitar división por cero
 
-            // Comprobar si es la primera operación del día para este operario
-            $operacionesDelDia = \app\models\ValorPrendaUnidadDetalles::find()
-                ->where(['dia_pago' => date('Y-m-d'), 'id_operario' => $tokenOperario])
-                ->count();
-            if ($operacionesDelDia == 0) {
-                $total_dia = 0;
-                $total_dia = $this->CostoOperarioVinculadoApp($tokenOperario);
-                $table->costo_dia_operaria = $total_dia;
-                $table->control_fecha = 1;
-                $table->hora_descontar = 1;
+        // Lógica de eficiencia
+        $eficienciaCalculada = round(($flujo->minutos / $minutos_reales) * 100, 2);
+        $porcentajeFinal = $eficienciaCalculada;
+        
+        // Reglas de negocio para topes y castigos
+        if ($eficienciaCalculada > $empresa->tiempo_maximo_operacion) {
+            $tiempoMinimoPermitido = round($flujo->minutos / 2, 2);
+            if ($minutos_reales < $tiempoMinimoPermitido) {
+                $porcentajeFinal = $empresa->sam_minimo;
+                $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, 'Tiempo mínimo desbordado', $minutos_reales, $porcentajeFinal);
+            } else {
+                $porcentajeFinal = $empresa->tiempo_maximo_operacion;
             }
-            $table->observacion = 'Vinculado';
-        } else {
-            $table->vlr_prenda = round($empresa->vlr_minuto_contrato * $flujo->minutos);
+        } elseif ($minutos_reales > ($flujo->minutos * $empresa->total_eventos) && $empresa->total_eventos > 0) {
+            $porcentajeFinal = ($empresa->aplica_regla_castigo == 1) ? $empresa->sam_castigo : $eficienciaCalculada;
+            $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, 'Acumulación de unidades sin enviar', $minutos_reales, $porcentajeFinal);
+        }
+        
+        // 4. Inserción de datos con Transacción
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $model = \app\models\ValorPrendaUnidad::findOne($id);
+            $table = new \app\models\ValorPrendaUnidadDetalles();
+            $table->attributes = [
+                'id_operario' => $tokenOperario,
+                'idordenproduccion' => $idordenproduccion,
+                'operacion' => '1',
+                'dia_pago' => date('Y-m-d'),
+                'cantidad' => 1,
+                'minuto_prenda' => $flujo->minutos,
+                'id_valor' => $id,
+                'usuariosistema' => Yii::$app->user->identity->username,
+                'id_planta' => $id_planta,
+                'id_tipo' => $model->idtipo,
+                'iddetalleorden' => $id_detalle,
+                'idproceso' => $id_operacion,
+                'hora_inicio' => $horaCorte->hora_inicio,
+                'hora_corte' => $horaActualStr,
+                'dia_semana' => date('N'),
+                'tipo_aplicacion' => 1,
+                'porcentaje_cumplimiento' => $porcentajeFinal,
+                'tiempo_real_confeccion' => $minutos_reales,
+                'diferencia_tiempo' => $flujo->minutos - $minutos_reales,
+                'aplica_regla' => 1,
+                'aplica_sabado' => $horaCorte->aplica_sabado,
+            ];
+
+            // Valorización
+            $vlr_minuto = ($operario->vinculado == 1) ? $empresa->vlr_minuto_vinculado : $empresa->vlr_minuto_contrato;
+            $table->vlr_prenda = round($vlr_minuto * $flujo->minutos);
             $table->vlr_pago = $table->vlr_prenda;
-            $table->costo_dia_operaria = $table->vlr_prenda;
-            $table->observacion = 'Al contrato';
-        }
+            $table->observacion = ($operario->vinculado == 1) ? 'Vinculado' : 'Al contrato';
 
-        // 4. Asignar atributos adicionales
-        $model = \app\models\ValorPrendaUnidad::findOne($id);
-        $valor_minuto =  $flujo->ordenproduccion->cliente->minuto_confeccion;
-        if($valor_minuto){
-            $table->total_valor_venta = round($valor_minuto * $flujo->minutos); 
-        }else{
-           $table->total_valor_venta = 0;  
-        }
-        
-        $table->id_valor = $id;
-        $table->usuariosistema = Yii::$app->user->identity->username;
-        $table->hora_inicio_modulo = $horaCorte->hora_inicio;
-        $table->aplica_regla = 1;
-        $table->aplica_sabado = $horaCorte->aplica_sabado;
-        $table->id_planta = $id_planta;
-        $table->id_tipo = $model->idtipo;
-        $table->iddetalleorden = $id_detalle;
-        $table->idproceso = $id_operacion;
-        $table->hora_inicio = $horaCorte->hora_inicio;
-        $table->hora_corte = date('H:i:s');
-        $dia_numero = date('N', strtotime($table->dia_pago));
-        $table->dia_semana = $dia_numero;
-        $table->tipo_aplicacion = 1;
-        
-        if(!$ultimoRegistro){// si es primer registro
-           $hora_inicial = $horaCorte->hora_inicio;
-           $hora_final = $table->hora_corte; 
-        }else{
-           $hora_inicial = $ultimoRegistro->hora_corte;
-           $hora_final = $table->hora_corte; 
-        }
-        ///permite calcular el tiempo de demora
-        
-        $tiempo_inicial = new \DateTimeImmutable($hora_inicial);
-        $tiempo_final = new \DateTimeImmutable($hora_final);
-       // Calcular la diferencia entre los dos objetos DateTime
-        $diferencia = $tiempo_final->diff($tiempo_inicial);
+            // Valor Venta
+            $minuto_cliente = $flujo->ordenproduccion->cliente->minuto_confeccion ?? 0;
+            $table->total_valor_venta = round($minuto_cliente * $flujo->minutos);
 
-        // Obtener el número total de segundos
-        $segundos = ($diferencia->days * 86400) + ($diferencia->h * 3600) + ($diferencia->i * 60) + $diferencia->s;
+            // Primer registro del día para vinculados
+            if ($operario->vinculado == 1) {
+                $existe = \app\models\ValorPrendaUnidadDetalles::find()
+                    ->where(['dia_pago' => date('Y-m-d'), 'id_operario' => $tokenOperario])->exists();
+                if (!$existe) {
+                    $table->costo_dia_operaria = $this->CostoOperarioVinculadoApp($tokenOperario);
+                    $table->control_fecha = 1;
+                    $table->hora_descontar = 1;
+                }
+            } else {
+                $table->costo_dia_operaria = $table->vlr_prenda;
+            }
 
-        // Convertir los segundos a minutos y redondear
-        $minutos = round($segundos / 60, 2);
-        //acumula los tres eventos
-        $total_acumulado_minutos = 0;
-        $tiempo_minimo = 0;
-        if($empresa->total_eventos > 0){
-            $total_acumulado_minutos = $flujo->minutos * $empresa->total_eventos;
-        }
-        $tiempo_minimo = round($flujo->minutos / 2, 2);
-        if($minutos > 0){
-           //formula para la eficiencia
-            $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
-            if($EficienciaOperacion > $empresa->tiempo_maximo_operacion){
-               if($minutos < $tiempo_minimo){
-                   $table->porcentaje_cumplimiento = $empresa->sam_minimo; 
-                   //PROCESO QUE GUARDA LA BITACORA
-                   $sam = $table->porcentaje_cumplimiento;
-                   $variable = 'El operario envia una operacion en un tiempo minimo, desborda la eficiencia';
-                   $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam);
-               }else{
-                   $table->porcentaje_cumplimiento = $empresa->tiempo_maximo_operacion; 
-               }    
-            }else{
-               if($minutos > $total_acumulado_minutos){
-                    if($empresa->aplica_regla_castigo == 0){
-                        $table->porcentaje_cumplimiento = $EficienciaOperacion;
-                        
-                    }else{
-                        $table->porcentaje_cumplimiento = $empresa->sam_castigo;
-                    }
-                    $sam = $table->porcentaje_cumplimiento;
-                    //PROCESO QUE GUARDA LA BITACORA
-                    $variable = 'El operario acumula unidades sin eniviarlas a la APP.';
-                    $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam);
-                    
-               }else{
-                    $table->porcentaje_cumplimiento = $EficienciaOperacion;
-               }
-             
-            } //fin si
-        }else{
-           return $this->redirect([
-            'entrada_operacion_talla',
-            'id_planta' => $id_planta,
-            'id_detalle' => $id_detalle,
-            'tokenOperario' => $tokenOperario,
-            'id' => $id,
-            'idordenproduccion' => $idordenproduccion,
-            ]);
-        }
-        
-        
-        $table->tiempo_real_confeccion = $minutos;
-        $table->diferencia_tiempo = $flujo->minutos - $minutos;
-        
-        // 5. Guardar el registro y manejar errores de validación
-        if ($table->save()) {
-           //guarda la unidad en el flujo de operacion
+            if (!$table->save()) {
+                throw new \Exception(json_encode($table->getErrors()));
+            }
+
+            // 5. Actualizaciones secundarias
             $this->ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion);
             $this->ActualizaSoloOperaciones($id_detalle, $id_operacion, $idordenproduccion);
-            //PREGUNA SI LA OPERACION DESCARGAR LAS UNIDADES
-            if($flujo->aplica_modulo == 1){
-               $operacion = $flujo->idproceso;
-               $this->DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta);
+
+            if ($flujo->aplica_modulo == 1) {
+                $this->DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $flujo->idproceso, $tokenOperario, $id_planta);
             }
-            Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente a las : '.$table->hora_corte.'.');
-        } else {
-            // En caso de error, obtenemos y mostramos los detalles
-            $errores = json_encode($table->getErrors());
-            Yii::$app->getSession()->setFlash('error', "Error de comunicación, no se guardaron los registros. Detalles: $errores");
+
+            $transaction->commit();
+            Yii::$app->getSession()->setFlash('success', "Guardado exitosamente a las: {$table->hora_corte}. Eficiencia: {$porcentajeFinal}%");
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::$app->getSession()->setFlash('error', "No se pudo guardar: " . $e->getMessage());
         }
 
-        // 6. Redirigir siempre después de intentar guardar
-      return $this->redirect([
-            'entrada_operacion_talla',
-            'id_planta' => $id_planta,
-            'id_detalle' => $id_detalle,
-            'tokenOperario' => $tokenOperario,
-            'id' => $id,
-            'idordenproduccion' => $idordenproduccion,
+        return $this->retornoTalla($id, $idordenproduccion, $id_planta, $tokenOperario, $id_detalle);
+
+//        // 2. Preparar el nuevo registro
+//        $empresa = \app\models\Matriculaempresa::findOne(1);
+//        $horaCorte = \app\models\HoraCorteEficienciaApp::find()
+//            ->where(['id_valor' => $id,
+//                    'idordenproduccion' => $idordenproduccion,
+//                    'fecha_dia' => date('Y-m-d')
+//            ])    
+//            ->orderBy(['id_valor' => SORT_DESC])
+//            ->one();
+//        
+//        ///proceso para a hora de inicio.
+//        $horaActual = new \DateTime();
+//        // Crea un objeto DateTime a partir de la hora de inicio
+//        $horaInicio = \DateTime::createFromFormat('H:i:s', $horaCorte->hora_inicio);
+//
+//        // Compara si la hora actual es mayor que la hora de inicio
+//      
+//        if ($horaActual->format('H:i:s') < $horaInicio->format('H:i:s')) {
+//            Yii::$app->getSession()->setFlash('error', 'El sistema no esta abierto para ingresar operaciones. Hora de inicio de confeccion : ' . $horaCorte->hora_inicio . '. ');
+//            return $this->redirect([
+//                'entrada_operacion_talla',
+//                'id_planta' => $id_planta,
+//                'id_detalle' => $id_detalle,
+//                'tokenOperario' => $tokenOperario,
+//                'id' => $id,
+//                'idordenproduccion' => $idordenproduccion,
+//            ]);
+//        }
+//        
+//        // Busca el ultimo registro de ese empleado
+//        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+//            ->where([
+//                'id_operario' => $tokenOperario,
+//                'dia_pago' => date('Y-m-d')
+//            ])
+//            ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
+//            ->one();
+//        
+//        //Valida si la persona esta en su hora de comida que no se ingresen operaciones
+//        if($ultimoRegistro){
+//            if(date('H:i:s') < $ultimoRegistro->hora_corte){
+//                Yii::$app->getSession()->setFlash('error', 'Mientras que la APP este pausada NO se pueden ingresar operaciones.Favor validar la información. ');
+//                return $this->redirect([
+//                    'entrada_operacion_talla',
+//                    'id_planta' => $id_planta,
+//                    'id_detalle' => $id_detalle,
+//                    'tokenOperario' => $tokenOperario,
+//                    'id' => $id,
+//                    'idordenproduccion' => $idordenproduccion,
+//                ]); 
+//            }
+//        }    
+//         
+//        //Inicia proceso de inserccion
+//        
+//        $table = new \app\models\ValorPrendaUnidadDetalles();
+//        $table->id_operario = $tokenOperario;
+//        $table->idordenproduccion = $idordenproduccion;
+//        $table->operacion = '1'; // Asumiendo que 1 es un valor fijo
+//        $table->dia_pago = date('Y-m-d');
+//        $table->cantidad = 1;
+//        $table->minuto_prenda = $flujo->minutos;
+//
+//        // 3. Lógica de cálculo de valor según el tipo de operario
+//        if ($operario->vinculado == 1) {
+//            $table->vlr_prenda = round($empresa->vlr_minuto_vinculado * $flujo->minutos);
+//            $table->vlr_pago = $table->vlr_prenda;
+//
+//            // Comprobar si es la primera operación del día para este operario
+//            $operacionesDelDia = \app\models\ValorPrendaUnidadDetalles::find()
+//                ->where(['dia_pago' => date('Y-m-d'), 'id_operario' => $tokenOperario])
+//                ->count();
+//            
+//            if ($operacionesDelDia == 0) {
+//                $total_dia = 0;
+//                $total_dia = $this->CostoOperarioVinculadoApp($tokenOperario);
+//                $table->costo_dia_operaria = $total_dia;
+//                $table->control_fecha = 1;
+//                $table->hora_descontar = 1;
+//            }
+//            $table->observacion = 'Vinculado';
+//        } else {
+//            $table->vlr_prenda = round($empresa->vlr_minuto_contrato * $flujo->minutos);
+//            $table->vlr_pago = $table->vlr_prenda;
+//            $table->costo_dia_operaria = $table->vlr_prenda;
+//            $table->observacion = 'Al contrato';
+//        }
+//
+//        // 4. Asignar atributos adicionales
+//        $model = \app\models\ValorPrendaUnidad::findOne($id);
+//        $valor_minuto =  $flujo->ordenproduccion->cliente->minuto_confeccion;
+//        if($valor_minuto){
+//            $table->total_valor_venta = round($valor_minuto * $flujo->minutos); 
+//        }else{
+//           $table->total_valor_venta = 0;  
+//        }
+//        
+//        $table->id_valor = $id;
+//        $table->usuariosistema = Yii::$app->user->identity->username;
+//        $table->hora_inicio_modulo = $horaCorte->hora_inicio;
+//        $table->aplica_regla = 1;
+//        $table->aplica_sabado = $horaCorte->aplica_sabado;
+//        $table->id_planta = $id_planta;
+//        $table->id_tipo = $model->idtipo;
+//        $table->iddetalleorden = $id_detalle;
+//        $table->idproceso = $id_operacion;
+//        $table->hora_inicio = $horaCorte->hora_inicio;
+//        $table->hora_corte = date('H:i:s');
+//        $dia_numero = date('N', strtotime($table->dia_pago));
+//        $table->dia_semana = $dia_numero;
+//        $table->tipo_aplicacion = 1;
+//        
+//        if(!$ultimoRegistro){// si es primer registro
+//           $hora_inicial = $horaCorte->hora_inicio;
+//           $hora_final = $table->hora_corte; 
+//        }else{
+//           $hora_inicial = $ultimoRegistro->hora_corte;
+//           $hora_final = $table->hora_corte; 
+//        }
+//        ///permite calcular el tiempo de demora
+//        
+//        $tiempo_inicial = new \DateTimeImmutable($hora_inicial);
+//        $tiempo_final = new \DateTimeImmutable($hora_final);
+//       // Calcular la diferencia entre los dos objetos DateTime
+//        $diferencia = $tiempo_final->diff($tiempo_inicial);
+//
+//        // Obtener el número total de segundos
+//        $segundos = ($diferencia->days * 86400) + ($diferencia->h * 3600) + ($diferencia->i * 60) + $diferencia->s;
+//
+//        // Convertir los segundos a minutos y redondear
+//        $minutos = round($segundos / 60, 2);
+//        //acumula los tres eventos
+//        $total_acumulado_minutos = 0;
+//        $tiempo_minimo = 0;
+//        if($empresa->total_eventos > 0){
+//            $total_acumulado_minutos = $flujo->minutos * $empresa->total_eventos;
+//        }
+//        $tiempo_minimo = round($flujo->minutos / 2, 2);
+//        if($minutos > 0){
+//           //formula para la eficiencia
+//            $EficienciaOperacion = round(($flujo->minutos / $minutos)* 100,2); 
+//            if($EficienciaOperacion > $empresa->tiempo_maximo_operacion){
+//               if($minutos < $tiempo_minimo){
+//                   $table->porcentaje_cumplimiento = $empresa->sam_minimo; 
+//                   //PROCESO QUE GUARDA LA BITACORA
+//                   $sam = $table->porcentaje_cumplimiento;
+//                   $variable = 'El operario envia una operacion en un tiempo minimo, desborda la eficiencia';
+//                   $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam);
+//               }else{
+//                   $table->porcentaje_cumplimiento = $empresa->tiempo_maximo_operacion; 
+//               }    
+//            }else{
+//               if($minutos > $total_acumulado_minutos){
+//                    if($empresa->aplica_regla_castigo == 0){
+//                        $table->porcentaje_cumplimiento = $EficienciaOperacion;
+//                        
+//                    }else{
+//                        $table->porcentaje_cumplimiento = $empresa->sam_castigo;
+//                    }
+//                    $sam = $table->porcentaje_cumplimiento;
+//                    //PROCESO QUE GUARDA LA BITACORA
+//                    $variable = 'El operario acumula unidades sin eniviarlas a la APP.';
+//                    $this->GuardarBitacoraEficiencia($tokenOperario, $idordenproduccion, $id_operacion, $id_detalle, $variable, $minutos, $sam);
+//                    
+//               }else{
+//                    $table->porcentaje_cumplimiento = $EficienciaOperacion;
+//               }
+//             
+//            } //fin si
+//        }else{
+//           return $this->redirect([
+//            'entrada_operacion_talla',
+//            'id_planta' => $id_planta,
+//            'id_detalle' => $id_detalle,
+//            'tokenOperario' => $tokenOperario,
+//            'id' => $id,
+//            'idordenproduccion' => $idordenproduccion,
+//            ]);
+//        }
+//        
+//        
+//        $table->tiempo_real_confeccion = $minutos;
+//        $table->diferencia_tiempo = $flujo->minutos - $minutos;
+//        
+//        // 5. Guardar el registro y manejar errores de validación
+//        if ($table->save()) {
+//           //guarda la unidad en el flujo de operacion
+//            $this->ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion);
+//            $this->ActualizaSoloOperaciones($id_detalle, $id_operacion, $idordenproduccion);
+//            //PREGUNA SI LA OPERACION DESCARGAR LAS UNIDADES
+//            if($flujo->aplica_modulo == 1){
+//               $operacion = $flujo->idproceso;
+//               $this->DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta);
+//            }
+//            Yii::$app->getSession()->setFlash('success', 'El registro se guardó exitosamente a las : '.$table->hora_corte.'.');
+//        } else {
+//            // En caso de error, obtenemos y mostramos los detalles
+//            $errores = json_encode($table->getErrors());
+//            Yii::$app->getSession()->setFlash('error', "Error de comunicación, no se guardaron los registros. Detalles: $errores");
+//        }
+//
+//        // 6. Redirigir siempre después de intentar guardar
+//      return $this->redirect([
+//            'entrada_operacion_talla',
+//            'id_planta' => $id_planta,
+//            'id_detalle' => $id_detalle,
+//            'tokenOperario' => $tokenOperario,
+//            'id' => $id,
+//            'idordenproduccion' => $idordenproduccion,
+//        ]);
+    }
+    
+    protected function retornoTalla($id, $idop, $idp, $to, $idd) {
+        return $this->redirect(['entrada_operacion_talla', 
+            'id' => $id, 'idordenproduccion' => $idop, 'id_planta' => $idp, 
+            'tokenOperario' => $to, 'id_detalle' => $idd
         ]);
     }
     
@@ -2315,85 +2453,63 @@ class ValorPrendaUnidadController extends Controller
                                                                     'id_valor' => $id,
                                                                     'fecha_dia' => date('Y-m-d')
                                                                     ])->one();
-        $horaActual = new \DateTime();
-        $horaCierre = \DateTime::createFromFormat('H:i:s', $hora_corte_app->hora_cierre);
-        if($horaCierre == null){
-            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $tokenOperario])
-                                                                                ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                                ->andWhere(['=','estado_operacion', 0])->all();
-           //Permite calcular la eficiencia
-            $vector_eficiencia = ValorPrendaUnidadDetalles::find()
-                    ->where([
-                            'id_operario' => $tokenOperario,
-                            'dia_pago' => date('Y-m-d')
-                            ])->all();
+        
+        // 2. Validación de Cierre (Solo si existe hora de cierre)
+        if ($hora_corte_app && $hora_corte_app->hora_cierre) {
+            $horaActual = new \DateTime();
+            $horaCierre = \DateTime::createFromFormat('H:i:s', $hora_corte_app->hora_cierre);
 
-            $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
-            if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
-                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones de la  talla ('.$tallas->productodetalle->prendatipo->talla->talla.'). Valide la información.'); 
-                return $this->redirect(['view_produccion',
-                     'id_planta' => $id_planta,
-                     'tokenOperario' => $tokenOperario,
-                     'id' => $id,
-                     'idordenproduccion' => $idordenproduccion,
-                 ]);
+            if ($horaActual > $horaCierre) {
+                Yii::$app->getSession()->setFlash('error', 'Esta OP se encuentra cerrada por el día de hoy.');
+                return $this->redirectViewProduccion($id, $idordenproduccion, $id_planta, $tokenOperario);
             }
-            $nueva_hora_entrada = '';
-            return $this->render('entrada_operacion_talla', [
-                'model' => $this->findModel($id),
-                'id_planta' =>$id_planta,
-                'detalle_balanceo' =>  $detalle_balanceo,
-                'id_detalle' => $id_detalle,
-                'tokenOperario' => $tokenOperario,
-                'idordenproduccion' => $idordenproduccion,
-                'tallas' => $tallas,
-                'nueva_hora_entrada' => $nueva_hora_entrada,
-                'vector_eficiencia' => $vector_eficiencia,
-            ]);
         }
         
-        if($horaActual > $horaCierre){
-            Yii::$app->getSession()->setFlash('error', 'Esta OP se encuentra cerrada por el dia de hoy. Valide la informacion con el administrador.'); 
-               return $this->redirect(['view_produccion',
-                     'id_planta' => $id_planta,
-                     'tokenOperario' => $tokenOperario,
-                     'id' => $id,
-                     'idordenproduccion' => $idordenproduccion,
-                 ]); 
-        }else{
-            $detalle_balanceo = \app\models\BalanceoDetalle::find()->where(['=','id_operario', $tokenOperario])
-                                                                                ->andWhere(['=','idordenproduccion', $idordenproduccion])
-                                                                                ->andWhere(['=','estado_operacion', 0])->all();
-           //Permite calcular la eficiencia
-            $vector_eficiencia = ValorPrendaUnidadDetalles::find()
-                    ->where([
-                            'id_operario' => $tokenOperario,
-                            'dia_pago' => date('Y-m-d')
-                            ])->all();
-
-            $tallas = \app\models\Ordenproducciondetalle::findOne($id_detalle);
-            if($tallas->cantidad_operaciones == $tallas->cantidad_confeccionada){
-                Yii::$app->getSession()->setFlash('error', 'No se puede ingresar mas operaciones de la  talla ('.$tallas->productodetalle->prendatipo->talla->talla.'). Valide la información.'); 
-                return $this->redirect(['view_produccion',
-                     'id_planta' => $id_planta,
-                     'tokenOperario' => $tokenOperario,
-                     'id' => $id,
-                     'idordenproduccion' => $idordenproduccion,
-                 ]);
-            }
-            $nueva_hora_entrada = '';
-            return $this->render('entrada_operacion_talla', [
-                'model' => $this->findModel($id),
-                'id_planta' =>$id_planta,
-                'detalle_balanceo' =>  $detalle_balanceo,
-                'id_detalle' => $id_detalle,
-                'tokenOperario' => $tokenOperario,
+        // 3. Eager Loading para evitar las consultas lentas que vimos antes
+        $tallas = \app\models\Ordenproducciondetalle::find()
+            ->where(['iddetalleorden' => $id_detalle])
+            ->with(['productodetalle.prendatipo.talla'])
+            ->one();
+        
+        // 4. Validación de cantidades
+        if ($tallas && $tallas->cantidad_operaciones == $tallas->cantidad_confeccionada) {
+            $nombreTalla = $tallas->productodetalle->prendatipo->talla->talla ?? 'N/D';
+            Yii::$app->getSession()->setFlash('error', "No se puede ingresar más operaciones de la talla ({$nombreTalla}).");
+            return $this->redirectViewProduccion($id, $idordenproduccion, $id_planta, $tokenOperario);
+        }
+        
+        // 5. Carga de datos común (Se hace una sola vez al final)
+        $detalle_balanceo = \app\models\BalanceoDetalle::find()
+            ->where([
+                'id_operario' => $tokenOperario, 
                 'idordenproduccion' => $idordenproduccion,
-                'tallas' => $tallas,
-                'nueva_hora_entrada' => $nueva_hora_entrada,
-                'vector_eficiencia' => $vector_eficiencia,
-            ]);
-        }    
+                'estado_operacion' => 0
+            ])->all();
+        
+        $vector_eficiencia = ValorPrendaUnidadDetalles::find()
+        ->where(['id_operario' => $tokenOperario, 'dia_pago' => date('Y-m-d')])
+        ->all();
+        
+        return $this->render('entrada_operacion_talla', [
+            'model' => $this->findModel($id),
+            'id_planta' => $id_planta,
+            'detalle_balanceo' => $detalle_balanceo,
+            'id_detalle' => $id_detalle,
+            'tokenOperario' => $tokenOperario,
+            'idordenproduccion' => $idordenproduccion,
+            'tallas' => $tallas,
+            'nueva_hora_entrada' => '',
+            'vector_eficiencia' => $vector_eficiencia,
+        ]);
+    }
+    
+    protected function redirectViewProduccion($id, $idordenproduccion, $id_planta, $tokenOperario) {
+        return $this->redirect(['view_produccion',
+            'id_planta' => $id_planta,
+            'tokenOperario' => $tokenOperario,
+            'id' => $id,
+            'idordenproduccion' => $idordenproduccion,
+        ]);
     }
     
     protected function CostoOperarioVinculadoApp($tokenOperario) {
@@ -2432,8 +2548,7 @@ class ValorPrendaUnidadController extends Controller
         return ($total_dia);
     
     }
-    
-    
+        
     //PROCESO QUE CANCULA LA EFICIENCIA DEL OPERARIO
     protected function CalcularEficienciaOperario($operario, $idordenproduccion, $id, $id_detalle) {
         $table = ValorPrendaUnidadDetalles::find()->orderBy('consecutivo DESC')->one();

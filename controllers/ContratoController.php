@@ -373,7 +373,7 @@ class ContratoController extends Controller
                         if($tipo != 'CAI' && $tipo != 'COL' && $model->fecha_final == '' ){
                             Yii::$app->getSession()->setFlash('error', 'Campo vacio: La fecha final no puede ser vacia!');
                         }else{
-                            if($tipo == 'CAI'){
+                            if($tipo == 'CAI' || $tipo == 'COL'){
                                  $table->fecha_final = '2099-12-31';
                             }else{
                                 $table->fecha_final = $model->fecha_final;
@@ -516,17 +516,11 @@ class ContratoController extends Controller
                                $table->fecha_preaviso = $date_dato;
 
                             }
-                            if($tipo_contrato->prefijo == 'CAI'){
+                            if($tipo_contrato->prefijo == 'CAI' || $tipo_contrato->prefijo == 'COL'){
                                  $table->fecha_final = '2099-12-31';
                                  $table->genera_prorroga = 0;
                                  $table->dias_contrato = 0;
                                  $table->fecha_preaviso = '2099-12-31'; 
-                            }
-                            if($tipo_contrato->prefijo == 'COL'){
-                                 $table->fecha_final = '';
-                                 $table->genera_prorroga = 0;
-                                 $table->dias_contrato = 0;
-                                 $table->fecha_preaviso = ''; 
                             }
 
                             if ($table->save(false)) {

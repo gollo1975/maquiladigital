@@ -196,9 +196,9 @@ $pension = ArrayHelper::map(ConfiguracionPension::find()->all(), 'id_pension', '
         var campoFecha = $('#fecha_final');
 
         // En Yii2/Kartik, el input real tiene el ID que definimos
-        if (valor == "1") { 
+        if (valor == "1" || valor == "3") { 
             // 1. Ponemos el valor directamente al input
-            campoFecha.val('2099-12-30').trigger('change'); 
+            campoFecha.val('2099-12-31').trigger('change'); 
 
             // 2. Deshabilitamos el input y el contenedor del grupo (para que no abran el calendario)
             campoFecha.prop('disabled', true);

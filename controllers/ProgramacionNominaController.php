@@ -1436,7 +1436,7 @@ class ProgramacionNominaController extends Controller {
                         ->where(['=', 'id_grupo_pago', $model->id_grupo_pago])
                         ->andWhere(['<=', 'fecha_inicio', $model->fecha_hasta])
                         ->andWhere(['>=', 'fecha_final', $model->fecha_desde])
-                        ->andWhere(['<','ultimo_pago', $model->fecha_hasta])
+                        ->andWhere(['<=','ultimo_pago', $model->fecha_hasta])
                         ->all();
             }else{
                 $registros = Contrato::find()

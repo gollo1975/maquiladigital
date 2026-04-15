@@ -4635,7 +4635,7 @@ class ProgramacionNominaController extends Controller {
                                         }elseif ($detalle->codigoSalario->id_agrupado == 3){ //Horas extras ordinarias diurnas
                                             
                                             $buscar->devengado += $detalle->vlr_devengado;
-                                            $buscar->cantidad_horas += $detalle->horas_periodo_reales; 
+                                            $buscar->cantidad_hora += $detalle->horas_periodo_reales; 
                                         }  
                                        
                                         $buscar->save(false);      

@@ -61,6 +61,12 @@ $config = [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['info', 'warning', 'error'],
+                    'categories' => ['performance'], // 👈 CLAVE
+                    'logFile' => '@runtime/logs/performance.log',
+                ],
             ],
         ],
         

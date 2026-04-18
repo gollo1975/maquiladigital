@@ -900,7 +900,7 @@ class FacturaventaController extends Controller
         "phone"                           => (string)($cliente->telefonocliente),
         "address"                         => (string)($cliente->direccioncliente),
         "email"                           => (string)($cliente->email_envio_factura_dian),
-        "type_document_identification_id" => (int)($cliente->tipo->codigo_api),
+        "type_document_identification_id" => (int)($cliente->tipo->codigo_interface_nomina),
         "type_organization_id"            => (int)($cliente->tiporegimen),
         "municipality_id_fact"            => $municipality_id_fact,
         "type_regime_id"                  => (int)($cliente->tiporegimen),

@@ -517,7 +517,7 @@ class DocumentoSoporteController extends Controller
                 "date" => $date,
                 "time" => $time,
                 "notes" => (string)($documento->observacion ?? 'SIN OBSERVACIONES'),
-                "sendmail" => true,
+                "sendmail" => false,
                 "email_cc_list" => [
                     [
                         "email" => "$nombre_empresa->emailmatricula"

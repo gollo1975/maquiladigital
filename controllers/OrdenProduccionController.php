@@ -3522,6 +3522,92 @@ class OrdenProduccionController extends Controller {
         }
     }
     
+    //APLICAR SAM A VARIAS ORDENES DE PRODUCCION
+    public function actionAplicar_sam_ordenes() {
+        if (Yii::$app->user->identity) {
+            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 196])->all()) {
+
+                $form = new \app\models\FormFiltroConsultaOperaciones();
+                $operaciones = ProcesoProduccion::find()->orderBy('proceso ASC')->all();
+                $model = [];
+                $pages = null;
+
+                // --- BLOQUE NUEVO: PROCESAR ACTUALIZACIÓN MASIVA (POST) ---
+                if (Yii::$app->request->isPost) {
+                    // Capturamos los IDs de los checkboxes
+                    $ids_ordenes = Yii::$app->request->post('listado_ordenes');
+
+                    // Capturamos los filtros desde el GET (URL)
+                    $filtros = Yii::$app->request->get('FormFiltroConsultaOperaciones');
+                    $idproceso = $filtros['idproceso'] ?? null;
+                    $nuevo_sam = $filtros['nuevo_sam'] ?? null;
+
+                    if (!empty($ids_ordenes) && $idproceso && $nuevo_sam !== null) {
+                        $count = 0;
+                        foreach ($ids_ordenes as $id) {
+                            $operacionEnOP = FlujoOperaciones::find()
+                                ->where(['idordenproduccion' => $id, 'idproceso' => $idproceso])
+                                ->one();
+
+                            if ($operacionEnOP) {
+                                $operacionEnOP->segundos = (float)$nuevo_sam;
+                                $operacionEnOP->minutos = round((float)($nuevo_sam / 60), 2);
+
+                                if ($operacionEnOP->save()) {
+                                    $count++;
+                                }
+                            }
+                        }
+                        Yii::$app->getSession()->setFlash('success', "Se actualizaron $count registros correctamente.");
+                        return $this->redirect(['aplicar_sam_ordenes', 'FormFiltroConsultaOperaciones' => $filtros]);
+                    } else {
+                        Yii::$app->getSession()->setFlash('warning', 'Asegúrese de seleccionar registros y que el filtro tenga Proceso y Nuevo SAM.');
+                    }
+                }
+                // --- FIN BLOQUE NUEVO ---
+
+                // Lógica de búsqueda original (GET)
+                if ($form->load(Yii::$app->request->get())) {
+                    if ($form->validate()) {
+                        $idproceso = Html::encode($form->idproceso);
+                        $nuevo_sam = Html::encode($form->nuevo_sam);
+                        $totalRegistro = Html::encode($form->totalRegistro);
+
+                        if (!$idproceso && !$nuevo_sam) {
+                            Yii::$app->getSession()->setFlash('error', 'Debe seleccionar al menos un criterio para la consulta.'); 
+                            return $this->redirect(['aplicar_sam_ordenes']);
+                        }
+
+                        $query = Ordenproduccion::find()->where(['cerrar_orden' => 0])
+                                    ->orderBy(['idordenproduccion' => SORT_DESC])->limit($totalRegistro);
+
+                       $tableexcel = $query->all(); 
+                       
+                       $totalRegistros = count($tableexcel); // Contamos solo los que trajo el límite (máximo 15)
+                       
+                        $pages = new Pagination([
+                            'pageSize' => $totalRegistro, // Si quieres que se vean todos en una sola página
+                            'totalCount' => $totalRegistros,
+                         ]);
+
+                         $model = $tableexcel; // Ya no necesitas hacer otra consulta ->all(), usa los mismos datos
+                    }
+                }
+
+                return $this->render('index_nuevo_sam_ordenes', [
+                    'model' => $model,
+                    'form' => $form,
+                    'pagination' => $pages,
+                    'operaciones' => ArrayHelper::map($operaciones, "idproceso", "proceso"),
+                ]);
+            } else {
+                return $this->redirect(['site/sinpermiso']);
+            }
+        } else {
+            return $this->redirect(['site/login']);
+        }
+    }
+    
     public function actionViewconsulta($id) {
         $modeldetalles = Ordenproducciondetalle::find()->Where(['=', 'idordenproduccion', $id])->all();
         $modeldetalle = new Ordenproducciondetalle();

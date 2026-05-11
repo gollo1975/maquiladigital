@@ -164,6 +164,7 @@ class PagoBancoController extends Controller
                 $table->usuario =  Yii::$app->user->identity->username;
                 $table->nit_empresa = $empresa->id;
                 $table->nit = $empresa->nitmatricula;
+                $table->codigo_oficina = $empresa->bancoFactura->codigo_oficina;
                 $table->save(false);
                 return $this->redirect(['index']);
             }else{
@@ -281,11 +282,12 @@ class PagoBancoController extends Controller
         }
         if (isset($_POST["aplicar_pago"])) {
             $intIndice = 0;
+            $banco = PagoBanco::findOne($id);
             foreach ($_POST["aplicar_pago"] as $intCodigo) {
                 $pago_banco = PagoBanco::findOne($id);
                 
                  //proceso de nomina, CESANTIAS Y PRIMAS
-                if($tipo_proceso == 1 || $tipo_proceso ==  2 || $tipo_proceso == 3){ //nominas, cesantias y primas
+                if($tipo_proceso == 1 || $tipo_proceso ==  2 || $tipo_proceso == 3){ //nominas, cesantias y primas personal vincualdo
                     $nomina = \app\models\ProgramacionNomina::find()->where(['id_programacion' => $intCodigo])->one();
                     $empleado = \app\models\Empleado::findOne($nomina->id_empleado);
                    
@@ -306,7 +308,11 @@ class PagoBancoController extends Controller
                         }    
                         $table->nombres = utf8_decode(mb_substr($nomina->empleado->nombrecorto, 0, 20));
                         $table->tipo_transacion = $empleado->tipo_transacion;
-                        $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                        if($banco->codigo_oficina != 'null'){
+                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_bogota; 
+                        }else{
+                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                        }
                         $table->banco = $empleado->bancoEmpleado->banco;
                         $table->numero_cuenta = $empleado->cuenta_bancaria;
                         $table->valor_transacion = $nomina->total_pagar;
@@ -339,7 +345,12 @@ class PagoBancoController extends Controller
                         }    
                         $table->nombres = utf8_decode(mb_substr($nomina->empleado->nombrecorto, 0, 20));
                         $table->tipo_transacion = $empleado->tipo_transacion;
-                        $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                       
+                        if($banco->codigo_oficina != null){
+                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_bogota; 
+                        }else{
+                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                        }
                         $table->banco = $empleado->bancoEmpleado->banco;
                         $table->numero_cuenta = $empleado->cuenta_bancaria;
                         $table->valor_transacion = $nomina->total_pagar;
@@ -368,7 +379,11 @@ class PagoBancoController extends Controller
                         $table->documento = $nomina->documento;
                         $table->nombres = utf8_decode(mb_substr($nomina->operario,0, 20));
                         $table->tipo_transacion = $operario->tipo_transacion;
-                        $table->codigo_banco = $operario->bancoEmpleado->codigo_interfaz;
+                        if($banco->codigo_oficina != null){
+                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_bogota; 
+                        }else{
+                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                        }
                         $table->banco = $operario->bancoEmpleado->banco;
                         $table->numero_cuenta = $operario->numero_cuenta;
                         $table->valor_transacion = $nomina->total_pagar;
@@ -633,6 +648,94 @@ class PagoBancoController extends Controller
         exit;
     }
     
+    //ARCHIVO PARA BANCO DE BOGOTA
+    public function actionPagoarchivobogota($id) {
+        $model = PagoBanco::findOne($id);
+        $detalles = PagoBancoDetalle::find()->where(['id_pago_banco' => $id])->all();
+
+        $filas = [];
+        $totalCuerpo = 0;
+
+        // 1. PROCESAR REGISTROS DE MOVIMIENTO (Tipo 2) - Longitud: 250
+        foreach ($detalles as $pago) {
+            $valorNumerico = round($pago->valor_transacion, 2);
+            $totalCuerpo += $valorNumerico;
+
+            $linea = "2"; // 1-1: Tipo Registro (9(1))
+            $linea .= str_pad(substr($pago->concepto_documento ?? 'C', 0, 1), 1, "C"); // 2-2: Tipo ID (X(1))
+            $linea .= str_pad(preg_replace('/[^0-9]/', '', $pago->documento), 11, "0", STR_PAD_LEFT); // 3-13: ID (9(11))
+
+            $nombre = str_replace(['Á','É','Í','Ó','Ú','Ñ'], ['A','E','I','O','U','N'], strtoupper($pago->nombres));
+            $linea .= str_pad(substr($nombre, 0, 40), 40, " ", STR_PAD_RIGHT); // 14-53: Nombre (X(40))
+
+            $linea .= "02"; // 54-55: Tipo Cuenta (9(2))
+            $cuentaDestino = preg_replace('/[^0-9]/', '', $pago->numero_cuenta);
+            $linea .= str_pad($cuentaDestino, 17, " ", STR_PAD_RIGHT); // 56-72: Cuenta (X(17))
+
+            $linea .= $this->formatearValorBogota($valorNumerico, 18); // 73-90: Valor (9(18))
+            $linea .= "A"; // 91-91: Forma Pago (X(1))
+            $linea .= str_pad($model->codigo_oficina ?? '000', 3, "0", STR_PAD_LEFT); // 92-94: Ofic (9(3))
+            $linea .= str_pad($pago->codigo_banco, 3, "0", STR_PAD_LEFT); // 95-97: Banco (9(3))
+            $linea .= str_pad($model->nitEmpresa->municipio->codigomunicipio ?? '0001', 4, "0", STR_PAD_LEFT); // 98-101: Ciudad (9(4))
+
+            $linea .= str_pad("PAGO DE NOMINA", 80, " ", STR_PAD_RIGHT); // 102-181: Comentarios (X(80))
+            $linea .= "0"; // 182-182: Valor en cero (9(1))
+            $linea .= str_pad($pago->id_pago_banco, 10, "0", STR_PAD_LEFT); // 183-192: Factura (9(10))
+            $linea .= "N"; // 193-193: Indicador Fax/Correo (X(1))
+            $linea .= str_pad("", 8, " ", STR_PAD_RIGHT); // 194-201: Espacios (X(8))
+            $linea .= str_pad("", 18, " ", STR_PAD_RIGHT); // 202-219: Libranza (9(18)) o espacios
+            $linea .= str_pad("", 11, " ", STR_PAD_RIGHT); // 220-230: Créditos (X(11))
+            $linea .= str_pad("", 11, " ", STR_PAD_RIGHT); // 231-241: Espacios (X(11))
+            $linea .= "N"; // 242-242: Mensaje Adicional (X(1))
+            $linea .= str_pad("", 8, " ", STR_PAD_RIGHT); // 243-250: Espacios (X(8))
+
+            $filas[] = $linea;
+        }
+
+        // 2. CONSTRUIR CABECERA (Tipo 1) - Longitud: 250
+        $cabecera = "1"; // 1-1: Registro (9(1))
+        $cabecera .= date('Ymd', strtotime($model->fecha_aplicacion)); // 2-9: Fecha Aplica (9(8))
+        $cabecera .= str_pad(count($detalles), 5, "0", STR_PAD_LEFT); // 10-14: Cantidad (9(5))
+        $cabecera .= $this->formatearValorBogota($totalCuerpo, 18); // 15-32: Total (9(18))
+        $cabecera .= ($model->banco->producto == 'S') ? "02" : "01"; // 33-34: Tipo Cuenta (9(2))
+
+        $cuentaEmpresa = preg_replace('/[^0-9]/', '', $model->banco->numerocuenta);
+        $cabecera .= str_pad($cuentaEmpresa, 17, "0", STR_PAD_LEFT); // 35-51: Cuenta Empresa (9(17))
+
+        $razonSocial = str_replace(['Á','É','Í','Ó','Ú','Ñ'], ['A','E','I','O','U','N'], strtoupper($model->nitEmpresa->razonsocialmatricula));
+        $cabecera .= str_pad(substr($razonSocial, 0, 40), 40, " ", STR_PAD_RIGHT); // 52-91: Nombre Empresa (X(40))
+
+        $nitLimpio = preg_replace('/[^0-9]/', '', $model->nit . $model->nitEmpresa->dv);
+        $cabecera .= str_pad($nitLimpio, 11, "0", STR_PAD_LEFT); // 92-102: NIT (9(11))
+
+        $cabecera .= "001"; // 103-105: Tipo Movimiento Nomina (9(3))
+        $cabecera .= str_pad($model->nitEmpresa->municipio->codigomunicipio ?? '0002', 4, "0", STR_PAD_LEFT); // 106-109: Ciudad (9(4))
+        $cabecera .= date('Ymd'); // 110-117: Fecha Creación (9(8))
+        $cabecera .= str_pad($model->codigo_oficina ?? '417', 3, "0", STR_PAD_LEFT); // 118-120: Ofic (9(3))
+        $cabecera .= "N"; // 121-121: Tipo ID Titular (9(1))
+        $cabecera .= str_pad("", 29, " ", STR_PAD_RIGHT); // 122-150: Espacios (X(29))
+        $cabecera .= str_pad("", 18, " ", STR_PAD_RIGHT); // 151-168: Valor Libranzas (X(18))
+        $cabecera .= " "; // 169-169: Espacio (X(1))
+        $cabecera .= " "; // 170-170: Envío mensajes (X(1))
+        $cabecera .= str_pad("", 80, " ", STR_PAD_RIGHT); // 171-250: Espacios (X(80))
+
+        // 3. ENSAMBLE FINAL
+        $contenidoFinal = $cabecera . "\r\n" . implode("\r\n", $filas);
+        $contenidoFinal .= "\r\n"; // El banco suele requerir el último CRLF
+
+        $contenidoFinal = mb_convert_encoding($contenidoFinal, "ISO-8859-1", "UTF-8");
+        $nombreArchivo = "NOMINA_BOGOTA_" . date('Ymd_His') . ".txt";
+
+        return Yii::$app->response->sendContentAsFile($contenidoFinal, $nombreArchivo);
+    }
+
+    private function formatearValorBogota($valor, $longitud) {
+        // Convierte el valor a formato 9(X) donde los últimos 2 son decimales sin punto
+        $valorLimpio = number_format($valor, 2, '', ''); 
+        return str_pad($valorLimpio, $longitud, "0", STR_PAD_LEFT);
+    }
+    
+    //bancolombia
     public static function RellenarNr($Nro, $Str, $NroCr) {
         $Longitud = strlen($Nro);
 

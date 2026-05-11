@@ -37,14 +37,23 @@ $view = 'pago-banco';
                     <button type="button" class="btn btn-default btn-sm"><?= Html::a('<span class="glyphicon glyphicon-print"></span> Imprimir', ['imprimir_reporte', 'id' => $model->id_pago_banco, 'tipo_proceso' => $model->id_tipo_nomina, 'token' => $token], ['class' => 'btn btn-default btn-sm'])?> </button>            
                     <button type="button" class="btn btn-default btn-sm"> <?=  Html::a('<span class="glyphicon glyphicon-folder-open"></span> Archivos', ['archivodir/index','numero' => 19, 'codigo' => $model->id_pago_banco,'view' => $view, 'token' => $token,], ['class' => 'btn btn-default btn-sm'])?></button>
                      <div class="btn-group" role="group">
-                         <button type="button" class="btn btn-success btn-lg dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                           Bancolombia
-                           <span class="caret"></span>
-                         </button>
-                           <ul class="dropdown-menu">
-                            <li><?= Html::a('<span class="glyphicon glyphicon-save-file"></span> Archivo PAB', ['pagoarchivopab', 'id' => $model->id_pago_banco]) ?></li>
-                           </ul>
-                     </div>
+                        <button type="button" class="btn btn-success btn-lg dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="glyphicon glyphicon-piggy-bank"></span> Bancos
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <?= Html::a('<span class="glyphicon glyphicon-list-alt"></span> Bancolombia PAB', ['pagoarchivopab', 'id' => $model->id_pago_banco]) ?>
+                            </li>
+                            <li>
+                                <?= Html::a('<span class="glyphicon glyphicon-briefcase"></span> Banco de Bogotá', ['pagoarchivobogota', 'id' => $model->id_pago_banco]) ?>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <?= Html::a('<span class="glyphicon glyphicon-credit-card"></span> Otros Pagos', ['index']) ?>
+                            </li>
+                        </ul>
+                    </div>
                 </div>    
             <?php }    
         }?>

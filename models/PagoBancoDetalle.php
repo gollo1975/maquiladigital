@@ -36,9 +36,9 @@ class PagoBancoDetalle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_pago_banco', 'tipo_documento', 'tipo_transacion', 'codigo_banco','tipo_pago','id_colilla'], 'integer'],
+            [['id_pago_banco', 'tipo_documento', 'tipo_transacion', 'tipo_pago','id_colilla'], 'integer'],
             [['fecha_aplicacion'], 'safe'],
-            [['documento','banco'], 'string', 'max' => 15],
+            [['documento','banco','codigo_banco'], 'string', 'max' => 15],
             [['nombres'], 'string', 'max' => 30],
             [['concepto_documento'], 'max' => 3],
             [['numero_cuenta', 'valor_transacion'], 'string', 'max' => 17],

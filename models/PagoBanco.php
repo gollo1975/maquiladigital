@@ -41,7 +41,7 @@ class PagoBanco extends \yii\db\ActiveRecord
             [['id_banco', 'tipo_pago', 'aplicacion', 'secuencia', 'fecha_creacion', 'fecha_aplicacion','id_tipo_nomina'], 'required'],
             [['fecha_creacion', 'fecha_aplicacion'], 'safe'],
             [['aplicacion', 'secuencia','adicion_numero'], 'string', 'max' => 2],
-            [['descripcion'], 'string', 'max' => 10],
+            [['descripcion','codigo_oficina'], 'string', 'max' => 10],
             [['usuario','nit'], 'string', 'max' => 15],
             [['nit_empresa'], 'exist', 'skipOnError' => true, 'targetClass' => Matriculaempresa::className(), 'targetAttribute' => ['nit_empresa' => 'id']],
             [['id_banco'], 'exist', 'skipOnError' => true, 'targetClass' => Banco::className(), 'targetAttribute' => ['id_banco' => 'idbanco']],
@@ -69,6 +69,7 @@ class PagoBanco extends \yii\db\ActiveRecord
             'total_pagar' => 'Total pagar',
             'id_tipo_nomina' => 'Tipo pago',
             'adicion_numero' => 'adicion_numero',
+            'codigo_oficina' => 'codigo_oficina'
         ];
     }
 

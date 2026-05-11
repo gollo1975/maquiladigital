@@ -207,6 +207,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                     ['label' => 'Panel de procesos', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/panel_procesos']],
                                                      ['label' => 'Control de linea', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/control_linea_confeccion']],
                                                      ['label' => 'Trazabilidad OP', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/trazabilidad_ordenes']],
+                                                    ['label' => 'Actualizar SAM', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/aplicar_sam_ordenes']],
                                                 ],
                                             ],
                                             [

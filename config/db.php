@@ -10,7 +10,7 @@ return [
 
     
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=bd_confeccionsj',
+    'dsn' => 'mysql:host=localhost;dbname=maquiladigital',
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8',

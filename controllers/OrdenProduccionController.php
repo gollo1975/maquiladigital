@@ -4018,21 +4018,18 @@ class OrdenProduccionController extends Controller {
                         foreach ($_POST["operaciones"] as $intCodigo) {
                             $proceso = Ordenproducciondetalleproceso::findOne($intCodigo);
                             if($proceso){
-                                
                                 $detalleorden = Ordenproducciondetalle::findOne($iddetalleorden);
-                                if($proceso->duracion > 0){
-                                    $table = new Ordenproducciondetalleproceso();
-                                    $table->proceso = $proceso->proceso;
-                                    $table->duracion = $proceso->duracion;
-                                    $table->total = $proceso->total;
-                                    $table->idproceso = $proceso->idproceso;
-                                    $table->iddetalleorden = $iddetalleorden;
-                                    $table->id_tipo = $proceso->id_tipo;
-                                    $table->cantidad_operada = 0;
-                                    $table->total_unidades_operacion = $detalleorden->cantidad;
-                                    $cont += 1;
-                                    $table->save();
-                                }   
+                                $table = new Ordenproducciondetalleproceso();
+                                $table->proceso = $proceso->proceso;
+                                $table->duracion = $proceso->duracion;
+                                $table->total = $proceso->total;
+                                $table->idproceso = $proceso->idproceso;
+                                $table->iddetalleorden = $iddetalleorden;
+                                $table->id_tipo = $proceso->id_tipo;
+                                $table->cantidad_operada = 0;
+                                $table->total_unidades_operacion = $detalleorden->cantidad;
+                                $cont += 1;
+                                $table->save();
 
                                 //se replica los procesos a detalles que contengan el mismo codigo de producto, para agilizar la insercion de cada uno de las operaciones por detalle            
                                 $detallesordenproduccion = Ordenproducciondetalle::find()
@@ -4049,20 +4046,18 @@ class OrdenProduccionController extends Controller {
                                                     ->all();
                                             $reg2 = count($detallesp);
                                             if ($reg2 == 0) {
-                                                if($val->duracion > 0){
-                                                    $tableprocesos = new Ordenproducciondetalleproceso();
-                                                    $tableprocesos->idproceso = $val->idproceso;
-                                                    $tableprocesos->proceso = $val->proceso;
-                                                    $tableprocesos->duracion = $val->duracion;
-                                                    $tableprocesos->ponderacion = $val->ponderacion;
-                                                    $tableprocesos->total = $val->total;
-                                                    $tableprocesos->cantidad_operada = 0;
-                                                    $tableprocesos->totalproceso = $dato->cantidad * $tableprocesos->total;
-                                                    $tableprocesos->iddetalleorden = $dato->iddetalleorden;
-                                                    $tableprocesos->id_tipo = $val->id_tipo;
-                                                    $tableprocesos->total_unidades_operacion = $dato->cantidad;
-                                                    $tableprocesos->save();
-                                                }    
+                                                $tableprocesos = new Ordenproducciondetalleproceso();
+                                                $tableprocesos->idproceso = $val->idproceso;
+                                                $tableprocesos->proceso = $val->proceso;
+                                                $tableprocesos->duracion = $val->duracion;
+                                                $tableprocesos->ponderacion = $val->ponderacion;
+                                                $tableprocesos->total = $val->total;
+                                                $tableprocesos->cantidad_operada = 0;
+                                                $tableprocesos->totalproceso = $dato->cantidad * $tableprocesos->total;
+                                                $tableprocesos->iddetalleorden = $dato->iddetalleorden;
+                                                $tableprocesos->id_tipo = $val->id_tipo;
+                                                $tableprocesos->total_unidades_operacion = $dato->cantidad;
+                                                $tableprocesos->save();
                                             }
                                         }
 
@@ -4078,23 +4073,21 @@ class OrdenProduccionController extends Controller {
                             $proceso = ProcesoProduccion::findOne($intCodigo);
                             if($proceso){
                                 $detalleorden = Ordenproducciondetalle::findOne($iddetalleorden);
-                                if($proceso->segundos > 0){
-                                    $table = new Ordenproducciondetalleproceso();
-                                    $table->proceso = $proceso->proceso;
-                                    $table->duracion = $proceso->segundos;
-                                    $table->total = $proceso->segundos;
-                                    $table->idproceso = $intCodigo;
-                                    $table->iddetalleorden = $iddetalleorden;
-                                    if($proceso->id_tipo != null){
-                                         $table->id_tipo = $proceso->id_tipo;
-                                    }else{
-                                         $table->id_tipo = 1;
-                                    }
-                                    $table->cantidad_operada = 0;
-                                    $table->total_unidades_operacion = $detalleorden->cantidad;
-                                    $cont += 1;
-                                    $table->save();
-                                }    
+                                $table = new Ordenproducciondetalleproceso();
+                                $table->proceso = $proceso->proceso;
+                                $table->duracion = $proceso->segundos;
+                                $table->total = $proceso->segundos;
+                                $table->idproceso = $intCodigo;
+                                $table->iddetalleorden = $iddetalleorden;
+                                if($proceso->id_tipo != null){
+                                     $table->id_tipo = $proceso->id_tipo;
+                                }else{
+                                     $table->id_tipo = 1;
+                                }
+                                $table->cantidad_operada = 0;
+                                $table->total_unidades_operacion = $detalleorden->cantidad;
+                                $cont += 1;
+                                $table->save();
                                 
                                 //se replica los procesos a detalles que contengan el mismo codigo de producto, para agilizar la insercion de cada uno de las operaciones por detalle            
                                 $detallesordenproduccion = Ordenproducciondetalle::find()
@@ -4111,20 +4104,18 @@ class OrdenProduccionController extends Controller {
                                                     ->all();
                                             $reg2 = count($detallesp);
                                             if ($reg2 == 0) {
-                                                if($val->duracion > 0){
-                                                    $tableprocesos = new Ordenproducciondetalleproceso();
-                                                    $tableprocesos->idproceso = $val->idproceso;
-                                                    $tableprocesos->proceso = $val->proceso;
-                                                    $tableprocesos->duracion = $val->duracion;
-                                                    $tableprocesos->ponderacion = $val->ponderacion;
-                                                    $tableprocesos->total = $val->total;
-                                                    $tableprocesos->cantidad_operada = 0;
-                                                    $tableprocesos->totalproceso = $dato->cantidad * $tableprocesos->total;
-                                                    $tableprocesos->iddetalleorden = $dato->iddetalleorden;
-                                                    $tableprocesos->id_tipo = $val->id_tipo;
-                                                    $tableprocesos->total_unidades_operacion = $dato->cantidad;
-                                                    $tableprocesos->save();
-                                                }    
+                                                $tableprocesos = new Ordenproducciondetalleproceso();
+                                                $tableprocesos->idproceso = $val->idproceso;
+                                                $tableprocesos->proceso = $val->proceso;
+                                                $tableprocesos->duracion = $val->duracion;
+                                                $tableprocesos->ponderacion = $val->ponderacion;
+                                                $tableprocesos->total = $val->total;
+                                                $tableprocesos->cantidad_operada = 0;
+                                                $tableprocesos->totalproceso = $dato->cantidad * $tableprocesos->total;
+                                                $tableprocesos->iddetalleorden = $dato->iddetalleorden;
+                                                $tableprocesos->id_tipo = $val->id_tipo;
+                                                $tableprocesos->total_unidades_operacion = $dato->cantidad;
+                                                $tableprocesos->save();
                                             }
                                         }
 

@@ -364,6 +364,7 @@ class PagoBancoController extends Controller
                                 
                 //proceso de prestacion de servicio
                 if($pago_banco->id_tipo_nomina == 7){
+                    
                     $nomina = \app\models\PagoNominaServicios::find()->where(['id_pago' => $intCodigo])->one();
                     $operario = \app\models\Operarios::findOne($nomina->id_operario);
                     $table = new PagoBancoDetalle();
@@ -380,9 +381,9 @@ class PagoBancoController extends Controller
                         $table->nombres = utf8_decode(mb_substr($nomina->operario,0, 20));
                         $table->tipo_transacion = $operario->tipo_transacion;
                         if($banco->codigo_oficina != null){
-                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_bogota; 
+                            $table->codigo_banco = $operario->bancoEmpleado->codigo_bogota; 
                         }else{
-                            $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;
+                            $table->codigo_banco = $operario->bancoEmpleado->codigo_interfaz;
                         }
                         $table->banco = $operario->bancoEmpleado->banco;
                         $table->numero_cuenta = $operario->numero_cuenta;

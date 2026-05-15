@@ -70,7 +70,7 @@ class PeriodoNominaController extends Controller {
                         $count = clone $table;
                         $to = $count->count();
                         $pages = new Pagination([
-                            'pageSize' => 80,
+                            'pageSize' => 15,
                             'totalCount' => $count->count()
                         ]);
                         $model = $table
@@ -198,59 +198,56 @@ class PeriodoNominaController extends Controller {
     public function actionCrearPeriodoNomina($id_grupo_pago) {
     $periodo_pago_nomina = new PeriodoPagoNomina();
     $grupo_pago = GrupoPago::findOne($id_grupo_pago);
-    $periodo_pago = PeriodoPago::findOne($grupo_pago->id_periodo_pago);                                     
-    
+    $periodo_pago = PeriodoPago::findOne($grupo_pago->id_periodo_pago);
+
     $dias = (int)$periodo_pago->dias;
     $fecha_inicial_base = $grupo_pago->ultimo_pago_nomina;
-    
-    // 1. IMPORTANTE: Inicializar variables con un valor por defecto
-    // Esto evita el error "Undefined variable" si los IF fallan.
-    $nueva_fecha_inicial = date('Y-m-d', strtotime('+1 day', strtotime($fecha_inicial_base)));
-    $nueva_fecha_final = date('Y-m-d', strtotime('+' . $dias . ' days', strtotime($fecha_inicial_base)));
 
-    $anio_inicio = date('Y', strtotime($fecha_inicial_base));
-    $mes_inicio = date('m', strtotime($fecha_inicial_base));
-    $dia_inicio = (int)date('d', strtotime($fecha_inicial_base));
+    // 1. Definimos la nueva fecha inicial primero
+    $nueva_fecha_inicial = date('Y-m-d', strtotime('+1 day', strtotime($fecha_inicial_base)));
     
+    // Calculamos los datos del NUEVO mes (Mayo en tu caso)
+    $anio_nuevo = date('Y', strtotime($nueva_fecha_inicial));
+    $mes_nuevo = date('m', strtotime($nueva_fecha_inicial));
+    $dia_base = (int)date('d', strtotime($fecha_inicial_base)); // El día del periodo anterior
+    
+    // Cuántos días tiene el mes del nuevo periodo
+    $dias_mes_nuevo = cal_days_in_month(CAL_GREGORIAN, (int)$mes_nuevo, (int)$anio_nuevo);
+
     $sw = 0;
-    
-    // Lógica especial de Febrero para periodos comerciales (15 y 30 días)
-    if (($dia_inicio == 28 || $dia_inicio == 29) && ($dias == 15 || $dias == 30)) {
-        $sw = ($dia_inicio == 28) ? 1 : 2;
-        $fecha_inicial_base = date('Y-m-d', strtotime('+1 day', strtotime($fecha_inicial_base)));
+
+    // Lógica especial de Febrero (se mantiene igual)
+    if (($dia_base == 28 || $dia_base == 29) && ($dias == 15 || $dias == 30)) {
+        $sw = ($dia_base == 28) ? 1 : 2;
     }
 
-    $numero_dias_mes = cal_days_in_month(CAL_GREGORIAN, (int)$mes_inicio, (int)$anio_inicio);
-
-    // 2. LÓGICA DE CÁLCULO SEGÚN TIPO DE PERIODO
+    // 2. LÓGICA DE CÁLCULO
     if ($periodo_pago->continua == 0) {
         if ($dias == 15) {
-            // Re-calculamos solo para el caso quincenal especial
-            $nueva_fecha_inicial = date('Y-m-d', strtotime('+1 day', strtotime($fecha_inicial_base)));
-            if ($dia_inicio <= 15) {
-                $ajuste = ($numero_dias_mes == 28) ? -2 : (($numero_dias_mes == 29) ? -1 : 0);
-                $nueva_fecha_final = date('Y-m-d', strtotime('+' . ($dias + $ajuste) . ' days', strtotime($fecha_inicial_base)));
-            } else {
-                if ($numero_dias_mes == 31) {
-                    $nueva_fecha_inicial = date('Y-m-d', strtotime('+2 days', strtotime($fecha_inicial_base)));
-                    $nueva_fecha_final = date('Y-m-d', strtotime('+16 days', strtotime($fecha_inicial_base)));
+            // Si el periodo anterior terminó el 15, este termina el 30 o fin de mes
+            if ($dia_base == 15) {
+                if ($dias_mes_nuevo == 31) {
+                    // Si mayo tiene 31, la quincena comercial termina en 30
+                    $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-30';
                 } else {
-                    $nueva_fecha_final = date('Y-m-d', strtotime('+' . ($numero_dias_mes - $dia_inicio) . ' days', strtotime($fecha_inicial_base)));
+                    // Si es abril (30) o febrero (28), termina el último día real
+                    $nueva_fecha_final = date('Y-m-t', strtotime($nueva_fecha_inicial));
                 }
+            } else {
+                // Si el periodo anterior terminó a fin de mes, este termina el 15
+                $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-15';
             }
         } elseif ($dias == 30) {
-            // Re-calculamos solo para el caso mensual especial
-            $nueva_fecha_inicial = date('Y-m-d', strtotime('+1 day', strtotime($fecha_inicial_base)));
-            if ($numero_dias_mes == 31) {
-                $nueva_fecha_inicial = date('Y-m-d', strtotime('+2 days', strtotime($fecha_inicial_base)));
-                $nueva_fecha_final = date('Y-m-d', strtotime('+31 days', strtotime($fecha_inicial_base)));
+            // Nómina mensual comercial
+            if ($dias_mes_nuevo == 31) {
+                $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-30';
             } else {
-                $ajuste = ($numero_dias_mes == 28) ? -2 : (($numero_dias_mes == 29) ? -1 : 0);
-                $nueva_fecha_final = date('Y-m-d', strtotime('+' . ($dias + $ajuste) . ' days', strtotime($fecha_inicial_base)));
+                $nueva_fecha_final = date('Y-m-t', strtotime($nueva_fecha_inicial));
             }
         }
-        // NOTA: Si $dias es 7, 10 o 14, NO entrará aquí y usará los valores 
-        // por defecto definidos en el punto 1.
+    } else {
+        // Si no es especial (7, 10, 14 días), simplemente suma los días
+        $nueva_fecha_final = date('Y-m-d', strtotime('+' . ($dias - 1) . ' days', strtotime($nueva_fecha_inicial)));
     }
 
     // 3. ASIGNACIÓN AL MODELO
@@ -262,7 +259,7 @@ class PeriodoNominaController extends Controller {
         $periodo_pago_nomina->fecha_desde = $nueva_fecha_inicial;
         $periodo_pago_nomina->fecha_hasta = $nueva_fecha_final;
     } else {
-        // Caso especial febrero (sw 1 o 2)
+        // Ajuste febrero
         $f_ini = date('Y-m-d', strtotime('-1 day', strtotime($nueva_fecha_inicial)));
         $periodo_pago_nomina->fecha_desde = $f_ini;
         $periodo_pago_nomina->fecha_hasta = date('Y-m-d', strtotime('+14 days', strtotime($f_ini)));
@@ -273,7 +270,7 @@ class PeriodoNominaController extends Controller {
     $periodo_pago_nomina->dias_periodo = $dias;
     $periodo_pago_nomina->estado_periodo = 0;
     $periodo_pago_nomina->usuariosistema = Yii::$app->user->identity->username;
-    
+
     $periodo_pago_nomina->save(false);  
     Yii::$app->getSession()->setFlash('success', 'El periodo de nomina se creó exitosamente.');
 }

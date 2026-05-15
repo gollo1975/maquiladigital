@@ -892,10 +892,10 @@ class IncapacidadController extends Controller
                 $configuracionsalario = ConfiguracionSalario::find()->where(['=','estado', 1])->one();
                 $configuracionincapacidad  = ConfiguracionIncapacidad::find()->where(['codigo_incapacidad'=>$model->codigo_incapacidad])->one();
                 $codigo =  $configuracionincapacidad->codigo;
-                $fecha_contrato = date($contrato->fecha_inicio);
-                $fecha_inicio_inca = date($model->fecha_inicio);
-                $fecha_inicio_incapacidad = date($model->fecha_inicio);
-                $fecha_final_incapacidad = date($model->fecha_final);
+                $fecha_contrato = strtotime($contrato->fecha_inicio);
+                $fecha_inicio_inca = strtotime($model->fecha_inicio);
+                $fecha_inicio_incapacidad = strtotime($model->fecha_inicio);
+                $fecha_final_incapacidad = strtotime($model->fecha_final);
                 if($detalle_nomina){
                    Yii::$app->getSession()->setFlash('error', 'Error: la incapacidad no se puede modificar porque esta relacionada en el proceso de nomina!');           
                 }else{

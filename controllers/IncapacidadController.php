@@ -313,10 +313,10 @@ class IncapacidadController extends Controller
                     $empleado = Empleado::find()->where(['id_empleado'=>$model->id_empleado])->one();
                     $contrato = Contrato::find()->where(['=','id_empleado',$model->id_empleado])->andWhere(['=','contrato_activo',1])->one();
                     $diagnostico = DiagnosticoIncapacidad::find()->where(['=','id_codigo',$model->id_codigo])->one();
-                    $fecha_contrato = date($contrato->fecha_inicio);
-                    $fecha_inicio_inca = date($model->fecha_inicio);
-                    $fecha_inicio_incapacidad = date($model->fecha_inicio);
-                    $fecha_final_incapacidad = date($model->fecha_final);
+                    $fecha_contrato = strtotime($contrato->fecha_inicio);
+                    $fecha_inicio_inca = strtotime($model->fecha_inicio);
+                    $fecha_inicio_incapacidad = strtotime($model->fecha_inicio);
+                    $fecha_final_incapacidad = strtotime($model->fecha_final);
                     //termina
                     if($fecha_contrato > $fecha_inicio_incapacidad){
                          Yii::$app->getSession()->setFlash('error', 'Error de digitalización, La fecha de inicio de la incapacidad No puede ser inferior a la fecha de inicio del contrato.');

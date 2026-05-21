@@ -308,7 +308,7 @@ class PagoBancoController extends Controller
                         }    
                         $table->nombres = utf8_decode(mb_substr($nomina->empleado->nombrecorto, 0, 20));
                         $table->tipo_transacion = $empleado->tipo_transacion;
-                        if($banco->codigo_oficina != 'null'){
+                        if($banco->codigo_oficina != null){
                             $table->codigo_banco = $empleado->bancoEmpleado->codigo_bogota; 
                         }else{
                             $table->codigo_banco = $empleado->bancoEmpleado->codigo_interfaz;

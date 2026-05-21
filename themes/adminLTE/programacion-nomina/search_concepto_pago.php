@@ -129,7 +129,11 @@ $fecha_corte = \Yii::$app->formatter->asDate($form->fecha_corte, 'php:Y-m-d');
                                 <td><?= $nomina->cedula_empleado ?></td>
                                 <td><?= $nomina->empleado->nombrecorto ?? 'N/A' ?></td>
                                 <td><?= $detalle->codigoSalario->nombre_concepto ?? 'N/A' ?></td>
-                                <td style="text-align: right"><?= '$' . number_format($detalle->vlr_deduccion, 0) ?></td>
+                                <?php if($detalle->codigoSalario->devengado_deduccion == 2){?>
+                                    <td style="text-align: right"><?= '$' . number_format($detalle->vlr_deduccion, 0) ?></td>
+                                <?php }else{?>
+                                    <td style="text-align: right"><?= '$' . number_format($detalle->vlr_devengado, 0) ?></td>
+                                <?php }?>    
                             </tr>
                         <?php endforeach; ?>
                     <?php endforeach; ?>

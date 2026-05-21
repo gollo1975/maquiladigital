@@ -1374,6 +1374,75 @@ class ProgramacionNominaController extends Controller {
             return $this->redirect(['site/login']);
         }
     }
+    
+    //PERMITE MOSTRAR TODOS LOS CONCEPTOS DE PAGOS
+     //CONSULTA DE ABONOS A CREDITOS
+    public function actionSearch_concepto_pago() {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',197])->all()){
+                $form = new \app\models\FormConsultaCredito();
+                $pages = null;
+                $model = null;
+
+                if ($form->load(Yii::$app->request->get()) && $form->validate()) {
+                    // Usamos las variables directamente del formulario (ya validadas)
+                    $empleado = $form->id_empleado;
+                    $fecha_inicio = $form->fecha_inicio;
+                    $fecha_corte = $form->fecha_corte;
+                    $concepto = $form->concepto;
+
+                    // 1. Ajuste en innerJoinWith: debe coincidir con el nombre de la relación definida en el modelo
+                    // 2. Ajuste en andWhere: usa las variables correctas
+                    if (empty($empleado) || empty($fecha_inicio) || empty($fecha_corte) || empty($concepto)) {
+                        Yii::$app->getSession()->setFlash('error', 'Todos los campos son obligatorios!');
+                        return $this->redirect(['search_concepto_pago']);
+                    }
+                    
+                    $query = ProgramacionNomina::find()
+                    // 1. innerJoinWith ya hace el join. Solo usamos el callback para filtrar.
+                    ->innerJoinWith(['nominaDetalles' => function($q) use ($concepto) {
+                        $q->andOnCondition(['programacion_nomina_detalle.codigo_salario' => $concepto]);
+                    }])
+                    ->where([
+                        'programacion_nomina.id_empleado' => $empleado,
+                    ])
+                    ->andWhere(['between', 'programacion_nomina.fecha_desde', $fecha_inicio, $fecha_corte]);
+
+                   // Ordenamiento: aplica el orderBy sobre la consulta antes de hacer el count
+                    $query->orderBy(['programacion_nomina_detalle.id_detalle' => SORT_DESC]);
+
+                    // Clonamos para la paginación antes de aplicar offset/limit
+                    $countQuery = clone $query;
+                    $pages = new Pagination([
+                        'pageSize' => 60,
+                        'totalCount' => $countQuery->count(),
+                    ]);
+
+                    // Ejecución para vista
+                    $model = $query->offset($pages->offset)
+                                   ->limit($pages->limit)
+                                   ->all();
+
+                    // Ejecución para Excel (sin paginación)
+                    if (isset($_POST['excel'])) {
+                        $tableexcel = $query->all(); // Obtenemos todos los resultados sin limitar
+                        $this->actionExcelconsultaConceptos($tableexcel);
+                    }
+                }
+             
+                return $this->render('search_concepto_pago', [
+                            'model' => $model,
+                            'form' => $form,
+                            'pagination' => $pages,                       
+               ]);
+            }else{
+                 return $this->redirect(['site/sinpermiso']);
+            }     
+        }else{
+               return $this->redirect(['site/login']);
+        }
+   }
+    
 
     public function actionView($id, $id_grupo_pago, $fecha_desde, $fecha_hasta) {
         $model = PeriodoPagoNomina::findOne($id);
@@ -5089,6 +5158,67 @@ class ProgramacionNominaController extends Controller {
         // Redirect output to a client’s web browser (Excel2007)
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="Nomina general.xlsx"');
+        header('Cache-Control: max-age=0');
+        // If you're serving to IE 9, then the following may be needed
+        header('Cache-Control: max-age=1');
+        // If you're serving to IE over SSL, then the following may be needed
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    } 
+    
+    //consulta de conceptos
+     public function actionExcelconsultaConceptos($tableexcel) {
+         $objPHPExcel = new \PHPExcel();
+         $objPHPExcel->getProperties()->setCreator("EMPRESA")
+            ->setLastModifiedBy("EMPRESA")
+            ->setTitle("Office 2007 XLSX Test Document")
+            ->setSubject("Office 2007 XLSX Test Document")
+            ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Test result file");
+        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+        $objPHPExcel->getActiveSheet()->getStyle('1')->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+      
+                            
+        $objPHPExcel->setActiveSheetIndex(0)
+                    ->setCellValue('A1', 'DOCUMENTO')
+                    ->setCellValue('B1', 'EMPLEADO')
+                    ->setCellValue('C1', 'CONCEPTO')
+                    ->setCellValue('D1', 'VALOR DEDUCCION');
+        $i = 2;
+        
+        foreach ($tableexcel as $nomina) {
+            // Es vital que el incremento de $i ocurra POR CADA DETALLE encontrado
+            foreach ($nomina->nominaDetalles as $detalle) {
+
+                    $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('A' . $i, $nomina->cedula_empleado) // Nota: ¿cedula_empleado está en el detalle o en la cabecera?
+                        ->setCellValue('B' . $i, $nomina->empleado->nombrecorto ?? 'N/A')
+                        ->setCellValue('C' . $i, $detalle->codigoSalario->nombre_concepto ?? 'N/A')
+                        ->setCellValue('D' . $i, $detalle->vlr_deduccion);
+
+                    // Incrementamos $i DENTRO del ciclo de detalles
+                    $i++;
+                
+            }
+        }
+        
+               
+        $objPHPExcel->getActiveSheet()->setTitle('Listado conceptos');
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel2007)
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Conceptos_pago.xlsx"');
         header('Cache-Control: max-age=0');
         // If you're serving to IE 9, then the following may be needed
         header('Cache-Control: max-age=1');

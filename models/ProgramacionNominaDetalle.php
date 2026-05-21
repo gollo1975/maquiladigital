@@ -127,4 +127,12 @@ class ProgramacionNominaDetalle extends \yii\db\ActiveRecord
     {
         return $this->hasOne(NovedadTiempoExtra::className(), ['id_novedad' => 'id_novedad']);
     }
+    
+       /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCredito()
+    {
+        return $this->hasOne(Credito::className(), ['id_credito' => 'id_credito']);
+    }
 }

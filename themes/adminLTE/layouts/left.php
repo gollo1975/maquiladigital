@@ -321,6 +321,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                     ['label' => 'Vacaciones', 'icon' => 'plus-square-o', 'url' => ['/vacaciones/searchindex']],
                                                     ['label' => 'Contratos OTRO SI', 'icon' => 'plus-square-o', 'url' => ['/ingreso-personal-contrato/index_search']],
                                                     ['label' => 'Abonos a crteditos', 'icon' => 'plus-square-o', 'url' => ['/credito/search_abono_credito']],
+                                                    ['label' => 'Concepto de nomina', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/search_concepto_pago']],
                                                     ['label' => 'Documentos electronicos', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/search_documentos_electronicos']],
 
                                                 ],

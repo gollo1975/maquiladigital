@@ -152,4 +152,9 @@ class ProgramacionNomina extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Empleado::className(), ['id_empleado' => 'id_empleado']);
     }
+    
+    public function getNominaDetalles()
+    {
+        return $this->hasMany(ProgramacionNominaDetalle::class, ['id_programacion' => 'id_programacion']);
+    }
 }

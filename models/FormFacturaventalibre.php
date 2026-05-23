@@ -15,12 +15,15 @@ class FormFacturaventalibre extends Model
     public $observacion;
     public $id_factura_venta_tipo;
     public $nrofacturaelectronica;
-    
+    public $porcentajereteiva;
+
+
     public function rules()
     {
         return [            
             [['fechainicio','idcliente','id_factura_venta_tipo'], 'required'],            
             [['observacion'], 'string'],
+            [['porcentajereteiva'], 'number'],
             ['nrofacturaelectronica' , 'string']
         ];
     }
@@ -33,6 +36,7 @@ class FormFacturaventalibre extends Model
             'id_factura_venta_tipo' => 'Tipo',
             'observacion' => 'Observacion',
             'nrofacturaelectronica' => 'Nro Factura Electrónica',
+            'porcentajereteiva' => 'porcentajereteiva',
         ];
     }
     

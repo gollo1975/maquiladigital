@@ -35,7 +35,7 @@ $this->params['breadcrumbs'][] = $this->title;?>
     </div>
     <div class="panel-body">
         <div class="row">
-            <?= $form->field($model,'fechainicio')->widget(DatePicker::className(),['name' => 'check_issue_date',
+            <?= $form->field($model,'fecha_inicio')->widget(DatePicker::className(),['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [

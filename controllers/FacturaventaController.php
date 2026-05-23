@@ -336,7 +336,7 @@ class FacturaventaController extends Controller
             return $this->redirect(['index']);
         }
         //****
-        $model = new FormFacturaventalibre();
+        $model = new Facturaventa();
         $clientes = Cliente::find()->orderBy('nombrecorto ASC')->all();
         $facturastipo = Facturaventatipo::find()->all();
         $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
@@ -347,11 +347,11 @@ class FacturaventaController extends Controller
         if ($model->load(Yii::$app->request->post())) {            
             $table = Cliente::find()->where(['idcliente' => $model->idcliente])->one();
             $empresa = Matriculaempresa::findOne(1);
-            $fecha = date( $model->fechainicio);
+            $fecha = date( $model->fecha_inicio);
             $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
             $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
             $facturalibre = new Facturaventa;
-            $facturalibre->fecha_inicio = $model->fechainicio;
+            $facturalibre->fecha_inicio = $model->fecha_inicio;
             $facturalibre->idcliente = $model->idcliente;
             $facturalibre->observacion = $model->observacion;
             $facturalibre->idresolucion = $resolucion->idresolucion;
@@ -361,9 +361,9 @@ class FacturaventaController extends Controller
             $facturalibre->plazopago = $table->plazopago;
             $facturalibre->porcentajefuente = 0;
             if($table->retencioniva == 0){
-                    $model->porcentajereteiva = 0;
+                $model->porcentajereteiva = 0;
             }else{
-                    $model->porcentajereteiva = $empresa->porcentajereteiva;
+                $model->porcentajereteiva = $empresa->porcentajereteiva;
             }
             $facturalibre->subtotal = 0;
             $facturalibre->retencionfuente = 0;
@@ -462,69 +462,72 @@ class FacturaventaController extends Controller
         ]);
     }
     
-    public function actionUpdatelibre($id) {
-        $model = new FormFacturaventalibre;
-        $clientes = Cliente::find()->all();
-        $facturastipo = Facturaventatipo::find()->all();
-        $table = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post()) && Yii::$app->request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-        if(Facturaventadetalle::find()->where(['=', 'idfactura', $id])->all() or $table->estado <> 0){
-           Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
-        }
-        else{
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->validate()) {
-                
-                if ($table) {
-                    $empresa = Matriculaempresa::findOne(1);
-                    $table->idcliente = $model->idcliente;
-                    $table->fecha_inicio = $model->fechainicio;                    
-                    $table->observacion = $model->observacion;
-                    $table->id_factura_venta_tipo = $model->id_factura_venta_tipo;
-                    $table->nrofacturaelectronica = $model->nrofacturaelectronica;
-                    if($clientes->retencioniva == 0){
+    public function actionUpdatelibre($id)
+    {
+        $model = $this->findModel($id);
+       
+          
+            $clientes = Cliente::find()->all();
+            $table = Facturaventa::find()->where(['idfactura' => $id])->one();
+            $facturastipo = Facturaventatipo::find()->all();
+            $ordenesproduccion = Ordenproduccion::find()->Where(['=', 'idcliente', $table->idcliente])->orderBy('idordenproduccion DESC')->all();
+            $ordenesproduccion = ArrayHelper::map($ordenesproduccion, "idordenproduccion", "ordenProduccion");
+            if(Facturaventadetalle::find()->where(['=', 'idfactura', $id])->all() or $model->estado <> 0){
+               Yii::$app->getSession()->setFlash('warning', 'No se puede modificar la información, tiene detalles asociados');
+            }else {
+            
+                if($model->load(Yii::$app->request->post())){
+                    $model->idordenproduccion = $model->idordenproduccion;
+                    $fecha = date($model->fecha_inicio);
+                    $model->fecha_inicio = $fecha;
+                    $clientes = Cliente::findOne($model->idcliente);
+                     $empresa = Matriculaempresa::findOne(1);
+                    if($model->idcliente != $table->idcliente){
+                        
+                        $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
+                        $fecha = date($model->fecha_inicio);
+                        $nuevafecha = strtotime ( '+'.$clientes->plazopago.' day' , strtotime ($fecha) ) ;
+                        $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                        $model->idresolucion = $resolucion->idresolucion;
+                        $model->numero_resolucion = $resolucion->nroresolucion;
+                        $model->fecha_vencimiento = $nuevafecha;
+                        $model->id_forma_pago = $clientes->id_forma_pago;
+                        $model->plazopago = $clientes->plazopago;
+                        if($clientes->retencioniva == 0){
                             $model->porcentajereteiva = 0;
                         }else{
                             $model->porcentajereteiva = $empresa->porcentajereteiva;
+                        }
+                        $model->save(false);
+                    }else{
+                        if($clientes->retencioniva == 0){
+                            $model->porcentajereteiva = 0;
+                        }else{
+                            $model->porcentajereteiva = $empresa->porcentajereteiva;
+                        }
+                       $nuevafecha = strtotime ( '+'.$clientes->plazopago.' day' , strtotime ($fecha) ) ;
+                       $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                       $model->fecha_vencimiento = $nuevafecha;
+                       $model->save(false); 
                     }
-                    if ($table->save(false)) {
-                        $msg = "El registro ha sido actualizado correctamente";
-                        return $this->redirect(["index"]);
-                    } else {
-                        $msg = "El registro no sufrio ningun cambio";
-                        return $this->redirect(["index"]);
-                    }
-                } else {
-                    $msg = "El registro seleccionado no ha sido encontrado";
-                }
-            } else {
-                $model->getErrors();
+                    return $this->redirect(['view','id' => $id, 'token' => 0]);
+
+                }    
+                  
             }
-        }
-        }
-        if (Yii::$app->request->get("id")) {
-            $table = $this->findModel($id);
-            if ($table) {
-                $model->idcliente = $table->idcliente;
-                $model->fechainicio = $table->fecha_inicio;
-                $model->id_factura_venta_tipo = $table->id_factura_venta_tipo;                
-                $model->observacion = $table->observacion;      
-                $model->nrofacturaelectronica = $table->nrofacturaelectronica;      
-            } else {
-                return $this->redirect(["index"]);
-            }
-        } else {
-            return $this->redirect(["index"]);
-        }
+           
+        
         return $this->render('_formlibre', [
             'model' => $model,
             'clientes' => ArrayHelper::map($clientes, "idcliente", "nombreclientes"),
+          
             'facturastipo' => ArrayHelper::map($facturastipo, "id_factura_venta_tipo", "concepto"),
+           
+
         ]);
     }
+
+    
 
     /**
      * Deletes an existing Facturaventa model.

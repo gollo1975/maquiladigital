@@ -275,30 +275,39 @@ class FacturaventaController extends Controller
         
         if ($model->load(Yii::$app->request->post())){
             $model->save();
-            $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
-            $fecha = date('Y-m-d');
-            $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
-            $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
-            $model->idresolucion = $resolucion->idresolucion;
-            $model->numero_resolucion = $resolucion->nroresolucion;
-            $model->fecha_vencimiento = $nuevafecha;
-            $model->id_forma_pago = $table->id_forma_pago;
-            $model->plazopago = $table->plazopago;
-            $model->porcentajefuente = 0;
-            $model->porcentajeiva = 0;
-            $model->porcentajereteiva = 0;
-            $model->subtotal = 0;
-            $model->retencionfuente = 0;
-            $model->retencioniva = 0;
-            $model->impuestoiva = 0;
-            $model->saldo = 0;
-            $model->totalpagar = 0;
-            $model->valorletras = "-" ;
-            $model->usuariosistema = Yii::$app->user->identity->username;   
-            $model->consecutivo = $resolucion->consecutivo;
-            $model->fecha_inicio = $fecha;
-            $model->save(false);
-            return $this->redirect(['view','id' => $model->idfactura, 'token' => 0]);
+            $table = Cliente::find()->where(['idcliente' =>$model->idcliente])->one();
+            $empresa = Matriculaempresa::findOne(1);
+            if($table){
+                $fecha = date('Y-m-d');
+                $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
+                $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
+                $model->idresolucion = $resolucion->idresolucion;
+                $model->numero_resolucion = $resolucion->nroresolucion;
+                $model->fecha_vencimiento = $nuevafecha;
+                $model->id_forma_pago = $table->id_forma_pago;
+                $model->plazopago = $table->plazopago;
+                if($table->retencioniva == 0){
+                    $model->porcentajereteiva = 0;
+                }else{
+                    $model->porcentajereteiva = $empresa->porcentajereteiva;
+                }
+                $model->porcentajefuente = 0;
+                $model->subtotal = 0;
+                $model->retencionfuente = 0;
+                $model->retencioniva = 0;
+                $model->impuestoiva = 0;
+                $model->saldo = 0;
+                $model->totalpagar = 0;
+                $model->valorletras = "-" ;
+                $model->usuariosistema = Yii::$app->user->identity->username;   
+                $model->consecutivo = $resolucion->consecutivo;
+                $model->fecha_inicio = $fecha;
+                $model->save(false);
+                return $this->redirect(['view','id' => $model->idfactura, 'token' => 0]);
+            }else{
+                Yii::$app->getSession()->setFlash('error', 'No existe el cliente.');
+          
+            }   
 
         }
         $fecha_actual_dia = date('Y-m-d');
@@ -336,7 +345,8 @@ class FacturaventaController extends Controller
             return $this->redirect(['index']);
         } 
         if ($model->load(Yii::$app->request->post())) {            
-            $table = Cliente::find()->where(['=', 'idcliente', $model->idcliente])->one();
+            $table = Cliente::find()->where(['idcliente' => $model->idcliente])->one();
+            $empresa = Matriculaempresa::findOne(1);
             $fecha = date( $model->fechainicio);
             $nuevafecha = strtotime ( '+'.$table->plazopago.' day' , strtotime ( $fecha ) ) ;
             $nuevafecha = date ( 'Y-m-j' , $nuevafecha );
@@ -350,8 +360,11 @@ class FacturaventaController extends Controller
             $facturalibre->id_forma_pago = $table->id_forma_pago;
             $facturalibre->plazopago = $table->plazopago;
             $facturalibre->porcentajefuente = 0;
-            $facturalibre->porcentajeiva = 0;
-            $facturalibre->porcentajereteiva = 0;
+            if($table->retencioniva == 0){
+                    $model->porcentajereteiva = 0;
+            }else{
+                    $model->porcentajereteiva = $empresa->porcentajereteiva;
+            }
             $facturalibre->subtotal = 0;
             $facturalibre->retencionfuente = 0;
             $facturalibre->retencioniva = 0;
@@ -403,7 +416,9 @@ class FacturaventaController extends Controller
                     $fecha = date($model->fecha_inicio);
                     $model->fecha_inicio = $fecha;
                     $clientes = Cliente::findOne($model->idcliente);
+                     $empresa = Matriculaempresa::findOne(1);
                     if($model->idcliente != $table->idcliente){
+                        
                         $resolucion = Resolucion::find()->where(['=', 'activo', 0])->andWhere(['=','id_documento', 1])->one();
                         $fecha = date($model->fecha_inicio);
                         $nuevafecha = strtotime ( '+'.$clientes->plazopago.' day' , strtotime ($fecha) ) ;
@@ -413,9 +428,18 @@ class FacturaventaController extends Controller
                         $model->fecha_vencimiento = $nuevafecha;
                         $model->id_forma_pago = $clientes->id_forma_pago;
                         $model->plazopago = $clientes->plazopago;
+                        if($clientes->retencioniva == 0){
+                            $model->porcentajereteiva = 0;
+                        }else{
+                            $model->porcentajereteiva = $empresa->porcentajereteiva;
+                        }
                         $model->save(false);
                     }else{
-                      
+                        if($clientes->retencioniva == 0){
+                            $model->porcentajereteiva = 0;
+                        }else{
+                            $model->porcentajereteiva = $empresa->porcentajereteiva;
+                        }
                        $nuevafecha = strtotime ( '+'.$clientes->plazopago.' day' , strtotime ($fecha) ) ;
                        $nuevafecha = date ( 'Y-m-d' , $nuevafecha );
                        $model->fecha_vencimiento = $nuevafecha;
@@ -455,11 +479,17 @@ class FacturaventaController extends Controller
             if ($model->validate()) {
                 
                 if ($table) {
+                    $empresa = Matriculaempresa::findOne(1);
                     $table->idcliente = $model->idcliente;
                     $table->fecha_inicio = $model->fechainicio;                    
                     $table->observacion = $model->observacion;
                     $table->id_factura_venta_tipo = $model->id_factura_venta_tipo;
                     $table->nrofacturaelectronica = $model->nrofacturaelectronica;
+                    if($clientes->retencioniva == 0){
+                            $model->porcentajereteiva = 0;
+                        }else{
+                            $model->porcentajereteiva = $empresa->porcentajereteiva;
+                    }
                     if ($table->save(false)) {
                         $msg = "El registro ha sido actualizado correctamente";
                         return $this->redirect(["index"]);
@@ -533,6 +563,7 @@ class FacturaventaController extends Controller
         if(Yii::$app->request->post()) {
             if (isset($_POST["iddetalleorden"])) {
                 $intIndice = 0;
+                $cliente = Cliente::findOne($factura->idcliente);
                 foreach ($_POST["iddetalleorden"] as $intCodigo) {
                     $orden = Ordenproduccion::findOne($idordenproduccion);
                     $detalleOrden = Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->one();
@@ -552,7 +583,12 @@ class FacturaventaController extends Controller
                             $table->cantidad = $orden->cantidad;
                             $table->preciounitario = $detalleOrden->vlrprecio;
                             $table->porcentaje_iva= $items->porcentaje_iva;
-                            $table->porcentaje_retefuente = $items->porcentaje_retencion;
+                            if($cliente->retencionfuente == 0){
+                                $table->porcentaje_retefuente = 0;
+                            }else{
+                                $table->porcentaje_retefuente = $items->porcentaje_retencion;
+                            }
+                            
                             $table->total = round($orden->cantidad * $detalleOrden->vlrprecio);
                             $table->id = $intCodigo;
                             $table->save(false);

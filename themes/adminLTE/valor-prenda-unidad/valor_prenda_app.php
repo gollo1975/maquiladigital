@@ -436,7 +436,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     $total_operaciones_global += 1;
                                                     ?>
                                                     <tr style='font-size:85%;'>
-                                                        <td><?= Html::encode($row['documento']) ?></td>
+                                                        <td><?= Html::a(Html::encode($row['documento']), ['listado_operacion_diaria', 'id_operario' => $row['id_operario'], 'dia_pago' => $dia_pago, 'fecha_corte' => $fecha_corte], [
+                                                                'target' => '_blank', 
+                                                                'data-pjax' => '0', // Importante si usas Pjax
+                                                            ]) ?>
+                                                        </td>
                                                         <td><?= Html::encode($row['nombrecompleto']) ?></td>
                                                         <td><?= Html::encode($dia_pago) ?></td>
                                                         <td><?= Html::encode($fecha_corte) ?></td>

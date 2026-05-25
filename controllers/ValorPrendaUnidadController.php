@@ -1134,6 +1134,39 @@ class ValorPrendaUnidadController extends Controller
         
     }
     
+    //ACUMULA OPERACIONES
+    public function actionListado_operacion_diaria($id_operario, $dia_pago, $fecha_corte) {
+        
+        $model = Operarios::findOne($id_operario);
+        $detalleUnidades = ValorPrendaUnidadDetalles::find()
+            ->select([
+                't.idproceso', 
+                'o.proceso', 
+                'total_cantidad' => new Expression('SUM(t.cantidad)'),
+                // Esto concatena todos los códigos de producto distintos encontrados para este proceso
+                'codigos_productos' => new Expression('GROUP_CONCAT(DISTINCT op.codigoproducto SEPARATOR ", ")')
+            ])
+            ->alias('t')
+            ->innerJoin('proceso_produccion o', 'o.idproceso = t.idproceso')
+            ->innerJoin('ordenproduccion op', 'op.idordenproduccion = t.idordenproduccion')
+            ->where(['t.id_operario' => $id_operario])
+            ->andWhere(['between', 't.dia_pago', $dia_pago, $fecha_corte])
+            ->groupBy(['t.idproceso', 'o.proceso'])
+            ->asArray()
+            ->all();
+
+        if (empty($detalleUnidades)) {
+            Yii::$app->session->setFlash('info', 'No se encontraron registros para los parámetros seleccionados.');
+            return $this->redirect(['index']); // O a la vista anterior
+        }
+
+        return $this->render('_form_acumulado_operaciones', [
+            'id_operario' => $id_operario,
+            'detalleUnidades' => $detalleUnidades,
+            'model' => $model,
+        ]);
+    }
+    
     public function actionCantidad_talla_confeccion($idordenproduccion, $id, $id_planta, $id_detalle,$tokenPlanta, $tipo_pago) {
         $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         $detalle_op = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $id_detalle])->one();

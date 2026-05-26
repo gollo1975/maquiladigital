@@ -2441,7 +2441,7 @@ class ValorPrendaUnidadController extends Controller
             ->select([
                 'AVG(porcentaje_cumplimiento) as promedio',
                 'COUNT(*) as cantidad',
-                'SUM(vlr_pago) as totalPagar' 
+                'SUM(vlr_pago) as totalpagar' 
             ])
             ->where([
                 'id_operario' => $tokenOperario,
@@ -2453,7 +2453,7 @@ class ValorPrendaUnidadController extends Controller
         // Aseguramos que los valores no sean null (si no hay registros)
         $varPorcentaje = isset($datos['promedio']) ? round((float)$datos['promedio'], 2) : 0;
         $cantidadOperaciones = isset($datos['cantidad']) ? (int)$datos['cantidad'] : 0;
-        $totalPagar = isset($datos['totalPagar']) ? (float)$datos['totalPagar'] : 0;
+        $totalpagar = isset($datos['totalpagar']) ? (float)$datos['totalpagar'] : 0;
         
         return $this->render('entrada_operacion_talla', [
             'model' => $this->findModel($id),
@@ -2466,7 +2466,7 @@ class ValorPrendaUnidadController extends Controller
             'nueva_hora_entrada' => '',
             'varPorcentaje' => $varPorcentaje,
             'cantidadOperaciones' => $cantidadOperaciones,
-            'totalPagar' => $totalPagar,
+            'totalpagar' => $totalpagar,
         ]);
     }
     

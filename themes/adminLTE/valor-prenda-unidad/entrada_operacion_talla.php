@@ -266,7 +266,7 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                     <div style="font-size: 170%; text-align: center; display: flex; justify-content: center; gap: 10px;">
                                 <div>Operaciones: <?= $cantidadOperaciones ?></div>
                                 <div>Eficiencia: <?= $varPorcentaje ?>%</div>
-                                <div>Pagar: $<?= number_format($totalPagar,0)?></div>
+                                <div>Pagar: $<?= number_format($totalpagar,0)?></div>
                     </div>
                <?php }else{?>
                    <div style="font-size: 180%; text-align: center; display: flex; justify-content: center; gap: 35px;">

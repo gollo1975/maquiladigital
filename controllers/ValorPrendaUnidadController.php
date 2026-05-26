@@ -2441,7 +2441,7 @@ class ValorPrendaUnidadController extends Controller
             ->select([
                 'AVG(porcentaje_cumplimiento) as promedio',
                 'COUNT(*) as cantidad',
-                'SUM(vlr_prenda) as totalPagar' 
+                'SUM(vlr_pago) as totalPagar' 
             ])
             ->where([
                 'id_operario' => $tokenOperario,

@@ -35,17 +35,6 @@ $this->title = strtoupper($tallas->listadoTallaIndividual) . ' - Referencia:' . 
 $this->params['breadcrumbs'][] = $this->title;
 $horario = Horario::findOne(1);
 
-    ///**********CALCULO DE LA EFICIENCIA****///
-    if(count($vector_eficiencia) > 0){
-        $total = 0; $con = 0; $varPorcentaje = 0;
-        foreach ($vector_eficiencia as $val) {
-            $con += 1;
-            $total += $val->porcentaje_cumplimiento;
-        }
-        $varPorcentaje = round($total / $con,2);
-    }else{
-       $varPorcentaje = 0; 
-    }   
 
 //busqueda botones de accion
 $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
@@ -53,47 +42,52 @@ $desayunoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
         'id_operario' => $tokenOperario,
         'dia_pago' => date('Y-m-d')
     ])
-    ->andWhere(['is not', 'hora_inicio_desayuno', new \yii\db\Expression('null')])
-    ->count();
-
+    ->andWhere(['IS NOT', 'hora_inicio_desayuno', null])
+    ->exists(); // 'exists' es más eficiente que 'count' para botones    
+    
 // Verificar si ya se ha registrado un inicio de almuerzo para el día
 $almuerzoRegistrado = \app\models\ValorPrendaUnidadDetalles::find()
     ->where([
         'id_operario' => $tokenOperario,
-        'dia_pago' => date('Y-m-d')
+        'dia_pago'    => date('Y-m-d')
     ])
-    ->andWhere(['is not', 'hora_inicio_almuerzo', new \yii\db\Expression('null')])
-    ->count();
+    ->andWhere(['IS NOT', 'hora_inicio_almuerzo', null])
+    ->exists();
 
-//busca cuantos eventos veces a ido al baño
+//busca cuantos eventos veces a ido al baño o tiempo autoi
 $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
     ->where([
         'id_operario' => $tokenOperario,
-        'dia_pago' => date('Y-m-d')
+        'dia_pago'    => date('Y-m-d')
     ])
-    ->andWhere(['is not', 'tiempo_desuso', new \yii\db\Expression('null')])
+    ->andWhere(['IS NOT', 'tiempo_desuso', null]) // Eliminamos el new Expression, es más limpio
     ->count();
-//CICLO QUE PERMITE MOSTRA TIEMPO ADICIONAL
-    if($horario->aplica_tiempo_adicional == 1){
-        $tiempo_maquina = \app\models\ValorPrendaUnidadDetalles::find()
+
+    $tiempo_maquina = 0;
+    $tiempo_salud_ocupacional = 0;
+
+    if ($horario->aplica_tiempo_adicional == 1 || $horario->aplica_sam_salud_ocupacional == 1) {
+        $resultados = \app\models\ValorPrendaUnidadDetalles::find()
+            ->select([
+                'count(tiempo_maquina) as total_maquina',
+                'count(tiempo_salud_ocupacional) as total_salud'
+            ])
             ->where([
                 'id_operario' => $tokenOperario,
-                'dia_pago' => date('Y-m-d')
+                'dia_pago'    => date('Y-m-d')
             ])
-            ->andWhere(['not', ['tiempo_maquina' => null]]) // Forma recomendada en Yii2
-            ->count();
-    }
-    if($horario->aplica_tiempo_adicional == 1){
-            $tiempo_salud_ocupacional = \app\models\ValorPrendaUnidadDetalles::find()
-                ->where([
-                    'id_operario' => $tokenOperario,
-                    'dia_pago' => date('Y-m-d')
-                ])
-                ->andWhere(['not', ['tiempo_salud_ocupacional' => null]]) // Forma recomendada en Yii2
-                ->count();
+            ->asArray()
+            ->one();
+
+        // Asignamos los valores solo si la condición se cumple
+        if ($horario->aplica_tiempo_adicional == 1) {
+            $tiempo_maquina = $resultados['total_maquina'];
         }
-    //***************TERMINA TIEMPOS ADICOANALES****************///    
-        ?>
+
+        if ($horario->aplica_sam_salud_ocupacional == 1) {
+            $tiempo_salud_ocupacional = $resultados['total_salud'];
+        }
+    }?>
 
 
 <p>
@@ -266,24 +260,18 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
    <div class="panel panel-success ">
         <div class="panel-heading">
             <?php
-            if(count($vector_eficiencia) > 0){
+            if($varPorcentaje){
                 $operario = app\models\Operarios::findOne($tokenOperario);
-                $total = 0; $con = 0; $total_pagar = 0;
-                foreach ($vector_eficiencia as $val) {
-                    $con += 1;
-                    $total += $val->porcentaje_cumplimiento;
-                    $total_pagar += $val->vlr_pago;
-                }
                 if($operario->vinculado == 0){?>
                     <div style="font-size: 170%; text-align: center; display: flex; justify-content: center; gap: 10px;">
-                                <div>Operaciones: <?= round($con)?></div>
-                                <div>Eficiencia: <?= round($total / $con,2)?>%</div>
-                                 <div>Pagar: <?= number_format($total_pagar,0)?></div>
+                                <div>Operaciones: <?= $cantidadOperaciones ?></div>
+                                <div>Eficiencia: <?= $varPorcentaje ?>%</div>
+                                <div>Pagar: $<?= number_format($totalPagar,0)?></div>
                     </div>
                <?php }else{?>
                    <div style="font-size: 180%; text-align: center; display: flex; justify-content: center; gap: 35px;">
-                        <div>Operaciones: <?= round($con)?></div>
-                        <div>Eficiencia: <?= round($total / $con,2)?>%</div>
+                        <div>Operaciones: <?= $cantidadOperaciones ?></div>
+                        <div>Eficiencia: <?= $varPorcentaje ?>%</div>
                        
                     </div>
                <?php }

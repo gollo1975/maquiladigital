@@ -1960,142 +1960,120 @@ class ValorPrendaUnidadController extends Controller
     }
     
     ////PROCESO QUE DESCARGA LAS UNIDADES DE LA OP
-    protected function DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta) {
-        $total = 0; $dato = 0;
-        //deacarga las unidades por tallas
+   protected function DescargarUnidadeOrdenProduccion($id_detalle, $idordenproduccion, $operacion, $tokenOperario, $id_planta) {
+        // 1. Carga de datos necesarios (solo una vez)
         $configuracionEst = \app\models\ConfiguracionEstampacionApp::findOne(1);
         $detalleOrden = \app\models\Ordenproducciondetalle::findOne($id_detalle);
-        
-        //** preguntamos si es proceso de estampacion---//
-        
-        if($configuracionEst->aplica_modulo_estampacion == 0){
-            $detalleOrden->faltante += 1;
-            $detalleOrden->cantidad_operada += 1;
-        }else{
-           $flujo = \app\models\FlujoOperaciones::find()->where(['idproceso' => $operacion, 'idordenproduccion' => $idordenproduccion])->one();
-            // Busca el ultimo registro de ese empleado
-            $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
-                ->where([
-                    'id_operario' => $tokenOperario,
-                    'dia_pago' => date('Y-m-d')
-                ])
-                ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
-                ->one();
-           $detalleOrden->faltante += $ultimoRegistro->cantidad;
-           $detalleOrden->cantidad_operada += $ultimoRegistro->cantidad;
-        }
-        
-        ///guardamos proceso
-        $total = ($detalleOrden->cantidad_operada / $detalleOrden->cantidad)* 100;
-        $detalleOrden->porcentaje_cantidad = $total;
+
+        // Obtener cantidad del último registro (reutilizable)
+        $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
+            ->where(['id_operario' => $tokenOperario, 'dia_pago' => date('Y-m-d')])
+            ->orderBy(['consecutivo' => SORT_DESC])
+            ->one();
+
+        $cantidad = ($configuracionEst->aplica_modulo_estampacion == 0) ? 1 : ($ultimoRegistro->cantidad ?? 0);
+
+        // 2. Actualizar Detalle de la Orden
+        $detalleOrden->faltante += $cantidad;
+        $detalleOrden->cantidad_operada += $cantidad;
+        $detalleOrden->porcentaje_cantidad = ($detalleOrden->cantidad > 0) ? ($detalleOrden->cantidad_operada / $detalleOrden->cantidad) * 100 : 0;
         $detalleOrden->save();
-        
-        //buscar todas las tallas
-        $detalleOrdenTotal = \app\models\Ordenproducciondetalle::find()->where(['idordenproduccion' => $idordenproduccion])->all();
-        foreach ($detalleOrdenTotal as $totales) {
-            $dato += $totales->cantidad_operada;
-        }
-        $orden = Ordenproduccion::findOne($idordenproduccion);
-        $orden->faltante = $orden->cantidad - $dato;
-        $orden->porcentaje_cantidad = ($dato / $orden->cantidad ) * 100;
+
+        // 3. Actualizar Orden de Producción (SQL sum es más rápido que foreach)
+        $totalOperado = \app\models\Ordenproducciondetalle::find()
+            ->where(['idordenproduccion' => $idordenproduccion])
+            ->sum('cantidad_operada') ?? 0;
+
+        $orden = \app\models\Ordenproduccion::findOne($idordenproduccion);
+        $orden->faltante = $orden->cantidad - $totalOperado;
+        $orden->porcentaje_cantidad = ($orden->cantidad > 0) ? ($totalOperado / $orden->cantidad) * 100 : 0;
         $orden->save();
-        
-        //busca el balanceo
-        $balanceoDetalle = \app\models\BalanceoDetalle::find()->where([
-                                                'idordenproduccion' => $idordenproduccion,
-                                                'id_proceso' => $operacion,
-                                                'id_operario' => $tokenOperario])->one();
-        
+
+        // 4. Registro en Tabla de Terminadas
+        $balanceoDetalle = \app\models\BalanceoDetalle::find()
+            ->where(['idordenproduccion' => $idordenproduccion, 'id_proceso' => $operacion, 'id_operario' => $tokenOperario])
+            ->one();
+
         $balanceo = \app\models\Balanceo::findOne($balanceoDetalle->id_balanceo);
-        // graba las unidades en la tabla cantidad prendas terminadas
+
         $table = new \app\models\CantidadPrendaTerminadas();
-        $table->id_balanceo = $balanceo->id_balanceo; // ojo;
-        $table->idordenproduccion = $idordenproduccion;
-        $table->iddetalleorden = $id_detalle;
-        $table->id_proceso_confeccion = $balanceo->id_proceso_confeccion; 
-        $table->id_planta = $id_planta;
-        if($configuracionEst->aplica_modulo_estampacion == 0){
-             $table->cantidad_terminada = 1;
-        }else{
-            // Busca el ultimo registro de ese empleado
-            $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
-                ->where([
-                    'id_operario' => $tokenOperario,
-                    'dia_pago' => date('Y-m-d')
-                ])
-                ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
-                ->one();
-             $table->cantidad_terminada = $ultimoRegistro->cantidad;
-        }
-       
-        $table->nro_operarios = $balanceo->cantidad_empleados;
-        $table->fecha_entrada = date('Y-m-d');
-        $table->fecha_procesada = date('Y-m-d H:i:s');
-        $table->hora_corte_entrada = date('H:i:s');
-        $table->usuariosistema = Yii::$app->user->identity->username;
-        $table->save();                         
+        $table->attributes = [
+            'id_balanceo' => $balanceo->id_balanceo,
+            'idordenproduccion' => $idordenproduccion,
+            'iddetalleorden' => $id_detalle,
+            'id_proceso_confeccion' => $balanceo->id_proceso_confeccion,
+            'id_planta' => $id_planta,
+            'cantidad_terminada' => $cantidad,
+            'nro_operarios' => $balanceo->cantidad_empleados,
+            'fecha_entrada' => date('Y-m-d'),
+            'fecha_procesada' => date('Y-m-d H:i:s'),
+            'hora_corte_entrada' => date('H:i:s'),
+            'usuariosistema' => Yii::$app->user->identity->username,
+        ];
+        $table->save();
     }
     
     //PROCESO QUE ACTUALIZA LA LAS TALLAS DE LA ORDEN DE PRODUCCION Y LAS OPERACIONES
     protected function ActualizarTallasOperaciones($id_detalle, $idordenproduccion, $flujo, $id_operacion) {
-        $configuracionESt = \app\models\ConfiguracionEstampacionApp::findOne(1);
-        
-        if($configuracionESt->aplica_modulo_estampacion == 0){
-            $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
-                                                        'idordenproduccion' => $idordenproduccion,
-                                                        'idproceso' => $id_operacion,
-                                                        'iddetalleorden' => $id_detalle
-                                                   ])->count();
-        }else{
-           $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
-                                                        'idordenproduccion' => $idordenproduccion,
-                                                        'idproceso' => $id_operacion,
-                                                        'iddetalleorden' => $id_detalle
-                                                   ])->sum('cantidad');
-        }    
-        $flujo->cantidad_confeccionadas = $buscarOperaciones;
-        $flujo->save();
-        
-        //actualiza la orden produccion
-        if($configuracionESt->aplica_modulo_estampacion == 0){
-            $buscarTallas = \app\models\ValorPrendaUnidadDetalles::find()->where([
-                                                        'idordenproduccion' => $idordenproduccion,
-                                                        'iddetalleorden' => $id_detalle
-                                                   ])->count();
-        }else{
-             $buscarTallas = \app\models\ValorPrendaUnidadDetalles::find()->where([
-                                                        'idordenproduccion' => $idordenproduccion,
-                                                        'iddetalleorden' => $id_detalle
-                                                   ])->sum('cantidad');
-        }    
+        // 1. Obtener configuración (se recomienda cachear esto)
+        $config = \app\models\ConfiguracionEstampacionApp::findOne(1);
+        $esContador = ($config->aplica_modulo_estampacion == 0);
+
+        // 2. Ejecutar una única consulta con condiciones OR o filtros inteligentes
+        // Obtenemos los totales agrupando por tipo (si es necesario) o simplemente calculando
+        $totalOperacion = $esContador 
+            ? ValorPrendaUnidadDetalles::find()->where(['idordenproduccion' => $idordenproduccion, 'idproceso' => $id_operacion, 'iddetalleorden' => $id_detalle])->count()
+            : (ValorPrendaUnidadDetalles::find()->where(['idordenproduccion' => $idordenproduccion, 'idproceso' => $id_operacion, 'iddetalleorden' => $id_detalle])->sum('cantidad') ?? 0);
+
+        $totalTallas = $esContador 
+            ? ValorPrendaUnidadDetalles::find()->where(['idordenproduccion' => $idordenproduccion, 'iddetalleorden' => $id_detalle])->count()
+            : (ValorPrendaUnidadDetalles::find()->where(['idordenproduccion' => $idordenproduccion, 'iddetalleorden' => $id_detalle])->sum('cantidad') ?? 0);
+
+        // 3. Actualizar modelos
+        $flujo->cantidad_confeccionadas = $totalOperacion;
+        if (!$flujo->save()) {
+            throw new \Exception("Error al actualizar flujo: " . json_encode($flujo->getErrors()));
+        }
+
         $detalle = \app\models\Ordenproducciondetalle::findOne($id_detalle);
-        $detalle->cantidad_confeccionada = $buscarTallas; 
-        $detalle->save();
+        if ($detalle) {
+            $detalle->cantidad_confeccionada = $totalTallas;
+            $detalle->save();
+        }
     }
     
     //PROCESO QUE SOLO ACTUALIZA LA OPERACIONES
     protected function ActualizaSoloOperaciones($id_detalle, $id_operacion, $idordenproduccion) {
-        $configuracionESt = \app\models\ConfiguracionEstampacionApp::findOne(1);
         
-        if($configuracionESt->aplica_modulo_estampacion == 0){
-            $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
-                                                        'idordenproduccion' => $idordenproduccion,
-                                                        'idproceso' => $id_operacion,
-                                                        'iddetalleorden' => $id_detalle
-                                                   ])->count();
-        }else{
-            $buscarOperaciones = ValorPrendaUnidadDetalles::find()->where([
-                                                        'idordenproduccion' => $idordenproduccion,
-                                                        'idproceso' => $id_operacion,
-                                                        'iddetalleorden' => $id_detalle
-                                                   ])->sum('cantidad');
-        }    
-        //busca la operacion para actualizarla
-        $flujo = \app\models\Ordenproducciondetalleproceso::find()->where([
-                                                                 'idproceso' => $id_operacion,
-                                                                 'iddetalleorden' => $id_detalle])->one();
-        $flujo->unidades_confeccionadas = $buscarOperaciones;
-        $flujo->save();
+        // 1. Obtener configuración (podrías usar caché aquí para evitar el SELECT constante)
+        // En lugar de findOne(1)
+        $config = \Yii::$app->cache->getOrSet('config_estampacion', function () {
+            return \app\models\ConfiguracionEstampacionApp::findOne(1);
+        }, 3600); // Cache por 1 hora
+
+        // 2. Usar una sola consulta eficiente
+        $query = ValorPrendaUnidadDetalles::find()->where([
+            'idordenproduccion' => $idordenproduccion,
+            'idproceso'         => $id_operacion,
+            'iddetalleorden'    => $id_detalle
+        ]);
+
+        $cantidad = ($config->aplica_modulo_estampacion == 0) 
+                    ? $query->count() 
+                    : ($query->sum('cantidad') ?? 0);
+
+        // 3. Buscar el flujo y actualizar
+        $flujo = \app\models\Ordenproducciondetalleproceso::findOne([
+            'idproceso'      => $id_operacion,
+            'iddetalleorden' => $id_detalle
+        ]);
+
+        if ($flujo) {
+            $flujo->unidades_confeccionadas = $cantidad;
+            if (!$flujo->save()) {
+                throw new \Exception("Error al actualizar unidades: " . json_encode($flujo->getErrors()));
+            }
+        }
     }
     
     //PERMITE INGRESAR EL TIEMPO DEL DESAYUNO
@@ -2104,6 +2082,7 @@ class ValorPrendaUnidadController extends Controller
         $ultimoRegistro = \app\models\ValorPrendaUnidadDetalles::find()
             ->where([
                 'id_operario' => $tokenOperario,
+                'tipo_aplicacion' => 1,
                 'dia_pago' => date('Y-m-d')
             ])
             ->orderBy(['consecutivo' => SORT_DESC]) // Corrected column name for ordering
@@ -2458,9 +2437,23 @@ class ValorPrendaUnidadController extends Controller
                 'estado_operacion' => 0
             ])->all();
         
-        $vector_eficiencia = ValorPrendaUnidadDetalles::find()
-        ->where(['id_operario' => $tokenOperario, 'dia_pago' => date('Y-m-d')])
-        ->all();
+        $datos = \app\models\ValorPrendaUnidadDetalles::find()
+            ->select([
+                'AVG(porcentaje_cumplimiento) as promedio',
+                'COUNT(*) as cantidad',
+                'SUM(vlr_prenda) as totalPagar' 
+            ])
+            ->where([
+                'id_operario' => $tokenOperario,
+                'dia_pago'    => date('Y-m-d')
+            ])
+            ->asArray()
+            ->one();
+
+        // Aseguramos que los valores no sean null (si no hay registros)
+        $varPorcentaje = isset($datos['promedio']) ? round((float)$datos['promedio'], 2) : 0;
+        $cantidadOperaciones = isset($datos['cantidad']) ? (int)$datos['cantidad'] : 0;
+        $totalPagar = isset($datos['totalPagar']) ? (float)$datos['totalPagar'] : 0;
         
         return $this->render('entrada_operacion_talla', [
             'model' => $this->findModel($id),
@@ -2471,7 +2464,9 @@ class ValorPrendaUnidadController extends Controller
             'idordenproduccion' => $idordenproduccion,
             'tallas' => $tallas,
             'nueva_hora_entrada' => '',
-            'vector_eficiencia' => $vector_eficiencia,
+            'varPorcentaje' => $varPorcentaje,
+            'cantidadOperaciones' => $cantidadOperaciones,
+            'totalPagar' => $totalPagar,
         ]);
     }
     

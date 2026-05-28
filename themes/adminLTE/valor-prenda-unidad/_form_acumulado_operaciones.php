@@ -35,20 +35,34 @@ $this->params['breadcrumbs'][] = $this->title;
     <table class="table table-bordered table-hover">
         <thead>
             <tr style='font-size:85%;'>
-               
+                <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Nro Orden</th> 
                 <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Referencia</th> 
-                <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Nombre operacion</th>                        
+                <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Nombre de la operación</th>     
+                 <th scope="col" style='background-color:#B9D5CE; width: 290px;'>Talla</th>     
                 <th scope="col" style='background-color:#B9D5CE;width: 75px;'>Total unidades</th> 
                
         </thead>
         <tbody>
-            <?php foreach ($detalleUnidades as $item): ?>
-                <tr style="font-size: 85%;">
-                    <td><?= htmlspecialchars($item['codigos_productos']) ?></td> <td><?= htmlspecialchars($item['proceso']) ?></td>
-                    <td><?= number_format($item['total_cantidad'], 0) ?></td>
-                </tr>
+            <?php 
+            $granTotal = 0;
+            foreach ($detalleUnidades as $item): 
+                $granTotal += $item['total_cantidad'];
+            ?>
+            <tr style='font-size:85%;'>
+                <td><?= htmlspecialchars($item['idordenproduccion']) ?></td>
+                  <td><?= htmlspecialchars($item['codigoproducto']) ?></td>
+                  <td><?= htmlspecialchars($item['proceso']) ?></td>
+                  <td><?= htmlspecialchars($item['talla']) ?></td>
+                  <td class="text-center font-weight-bold"><?= number_format($item['total_cantidad'], 0) ?></td>
+            </tr>      
             <?php endforeach; ?>
         </tbody>
+        <tfoot>
+            <tr class="table-primary">
+                <td colspan="4" class="text-right"><strong>TOTAL GENERAL</strong></td>
+                <td class="text-right"><strong><?= number_format($granTotal, 0) ?></strong></td>
+            </tr>
+        </tfoot>
     </table>
                
 </div>    

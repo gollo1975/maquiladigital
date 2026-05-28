@@ -653,7 +653,9 @@ class PagoBancoController extends Controller
     public function actionPagoarchivobogota($id) {
         $model = PagoBanco::findOne($id);
         $detalles = PagoBancoDetalle::find()->where(['id_pago_banco' => $id])->all();
-
+        if($model->codigo_oficina == null){
+            
+        }
         $filas = [];
         $totalCuerpo = 0;
 

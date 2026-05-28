@@ -1142,19 +1142,35 @@ class ValorPrendaUnidadController extends Controller
             ->select([
                 't.idproceso', 
                 'o.proceso', 
-                'total_cantidad' => new Expression('SUM(t.cantidad)'),
-                // Esto concatena todos los códigos de producto distintos encontrados para este proceso
-                'codigos_productos' => new Expression('GROUP_CONCAT(DISTINCT op.codigoproducto SEPARATOR ", ")')
+                'dop.codigoproducto',      // Referencia (desde la tabla de detalle)
+                't.idordenproduccion',    // Orden de Producción
+                'tp.talla',              // Talla (desde la tabla de detalle)
+                'total_cantidad' => new Expression('SUM(t.cantidad)')
             ])
             ->alias('t')
             ->innerJoin('proceso_produccion o', 'o.idproceso = t.idproceso')
-            ->innerJoin('ordenproduccion op', 'op.idordenproduccion = t.idordenproduccion')
+            // Relación con el detalle de la orden de producción
+            ->innerJoin('ordenproducciondetalle dop', 'dop.iddetalleorden = t.iddetalleorden')
+            ->innerJoin('productodetalle pd', 'pd.idproductodetalle = dop.idproductodetalle')
+            ->innerJoin('prendatipo pt', 'pt.idprendatipo = pd.idprendatipo') 
+            ->innerJoin('talla tp', 'tp.idtalla = pt.idtalla')     
             ->where(['t.id_operario' => $id_operario])
             ->andWhere(['between', 't.dia_pago', $dia_pago, $fecha_corte])
-            ->groupBy(['t.idproceso', 'o.proceso'])
+            // Agrupamos por los campos necesarios
+            ->groupBy([
+                't.idproceso', 
+                'o.proceso', 
+                'dop.codigoproducto', 
+                't.idordenproduccion', 
+                'tp.talla'
+            ])
+            ->orderBy([
+                't.idordenproduccion' => SORT_ASC, 
+                'dop.codigoproducto' => SORT_ASC, 
+                'tp.talla' => SORT_ASC
+            ])
             ->asArray()
             ->all();
-
         if (empty($detalleUnidades)) {
             Yii::$app->session->setFlash('info', 'No se encontraron registros para los parámetros seleccionados.');
             return $this->redirect(['index']); // O a la vista anterior

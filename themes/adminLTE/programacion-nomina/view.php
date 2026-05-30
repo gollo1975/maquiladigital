@@ -197,10 +197,10 @@ $view = 'programacion nomina';
                                     <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>    
                                     <th scope="col" style='background-color:#B9D5CE;'>Inicio Contrato</th>  
                                     <th scope="col" style='background-color:#B9D5CE;'>Fecha final</th>
-                                    <th scope="col" style='background-color:#B9D5CE;'>Contrato</th>  
                                     <th scope="col" style='background-color:#B9D5CE;'>Salario</th>    
                                     <th scope="col"style='background-color:#B9D5CE;'>Devengado</th>                        
-                                    <th scope="col"style='background-color:#B9D5CE;'>Deducción</th>   
+                                    <th scope="col"style='background-color:#B9D5CE;'>Deducción</th> 
+                                    <th scope="col"style='background-color:#B9D5CE;'>N. Pagar</th>                                     
                                     <th scope="col" style='background-color:#B9D5CE;'>D.pagos</th>   
                                     <th scope="col" style='background-color:#B9D5CE;'>H.pagos</th>
                                     <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo servicio">Ts</span></th>
@@ -228,6 +228,18 @@ $view = 'programacion nomina';
                                             <td style="background-color:#DCFFFC;"><?= '$'.number_format($val->salario_contrato,0) ?></td>
                                             <td style="background-color:#DCFFFC;"><?= '$'.number_format($val->total_devengado,0) ?></td>
                                             <td style="background-color:#DCFFFC;"><?= '$'.number_format($val->total_deduccion,0) ?></td>
+                                            <td class="text-right">
+                                                    <?php 
+                                                        // Lógica de colores (estilo CSS para forzar el color)
+                                                        $style = ($val->total_pagar > 0) 
+                                                            ? 'border: 0px solid #28a745; color: #28a745; background: transparent;' 
+                                                            : 'border: 0px solid #dc3545; color: #dc3545; background: transparent;';
+                                                    ?>
+
+                                                    <span class="badge" style="<?= $style ?> padding: 5px 10px; border-radius: 4px;">
+                                                        <?= '$' . number_format($val->total_pagar, 0) ?>
+                                                    </span>
+                                            </td>
                                             <td style="background-color:#DCFFFC;"><?= $val->dia_real_pagado ?></td>
                                             <td style="background-color:#DCFFFC;"><?= $val->horas_pago ?></td>
                                           <?php }else{?>    
@@ -237,10 +249,21 @@ $view = 'programacion nomina';
                                             <td><?= $val->empleado->nombrecorto ?></td>
                                             <td><?= $val->fecha_inicio_contrato ?></td>
                                             <td><?= $val->fecha_final_contrato ?></td>
-                                             <td><?= $val->id_contrato ?></td>
                                             <td><?= '$'.number_format($val->salario_contrato,0) ?></td>
                                             <td><?= '$'.number_format($val->total_devengado,0) ?></td>
                                             <td><?= '$'.number_format($val->total_deduccion,0) ?></td>
+                                            <td class="text-right">
+                                                    <?php 
+                                                        // Lógica de colores (estilo CSS para forzar el color)
+                                                        $style = ($val->total_pagar > 0) 
+                                                            ? 'border: 0px solid #28a745; color: #28a745; background: transparent;' 
+                                                            : 'border: 0px solid #dc3545; color: #dc3545; background: transparent;';
+                                                    ?>
+
+                                                    <span class="badge" style="<?= $style ?> padding: 5px 10px; border-radius: 4px;">
+                                                        <?= '$' . number_format($val->total_pagar, 0) ?>
+                                                    </span>
+                                            </td>
                                             <td><?= $val->dia_real_pagado ?></td>
                                             <td><?= $val->horas_pago ?></td>
                                           <?php }?>  

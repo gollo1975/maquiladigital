@@ -414,37 +414,45 @@ class NotacreditoController extends Controller
 
         $cliente = Cliente::findOne($factura->idcliente);
         $empresa = \app\models\Matriculaempresa::findOne(1);
-        $confi = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
+        $confi   = \app\models\ConfiguracionDocumentoElectronico::findOne(1);
 
         if (!$cliente || !$empresa) {
             Yii::$app->session->setFlash('error', 'No se encontró cliente o empresa para emitir la Nota Crédito.');
             return $this->redirect(['notacredito/view', 'id' => $id]);
         }
-        
-        // Cálculos Básicos
+
+        // ========================
+        // CÓDIGO DE RESPUESTA (MOTIVO)
+        // ========================
         $codigo_respuesta = $nota->motivoNota->codeconceptoapi ?? null;
         if (!$codigo_respuesta) {
             Yii::$app->session->setFlash('error', 'La Nota Crédito no tiene motivo configurado.');
             return $this->redirect(['notacredito/view', 'id' => $id]);
         }
 
+        // ========================
+        // EMAIL CC
+        // ========================
         $emailempresa = $empresa->emailmatricula;
         $email_cc_list = [
             ["email" => $emailempresa]
         ];
-        
+
         // ========================
-        // CÁLCULO DE MONTOS - FUNCIONA PARA PARCIAL Y COMPLETA
+        // CÁLCULO DE MONTOS
         // ========================
+        $round2 = function($val) { return round((float)$val, 2); };
+
         $qty_devuelta        = (float)$detalle_nota->cantidad;
-        $precio_unitario     = round((float)$detalle_nota->precio_unitario, 2);
-        $subtotal_devolucion = round($qty_devuelta * $precio_unitario, 2);
-        $porcentaje_iva      = round((float)$factura->porcentajeiva, 2);
-        $iva_devolucion      = round($subtotal_devolucion * ($porcentaje_iva / 100), 2);
-        
-        $subtotal_factura = round((float)$factura->subtotal, 2);
-        $iva_factura      = round((float)$factura->impuestoiva, 2);
-        
+        $precio_unitario     = $round2($detalle_nota->precio_unitario);
+        $subtotal_devolucion = $round2($qty_devuelta * $precio_unitario);
+        $porcentaje_iva      = $round2($factura->porcentajeiva);
+        $iva_devolucion      = $round2($subtotal_devolucion * ($porcentaje_iva / 100));
+
+        $subtotal_factura = $round2($factura->subtotal);
+        $iva_factura      = $round2($factura->impuestoiva);
+
+        // Si la diferencia es menor a $1 peso, se trata como anulación total
         if (abs($subtotal_devolucion - $subtotal_factura) < 1.00) {
             $subtotal_devolucion = $subtotal_factura;
             $iva_devolucion      = $iva_factura;
@@ -452,122 +460,171 @@ class NotacreditoController extends Controller
         } else {
             $tipo_devolucion = 'PARCIAL';
         }
-        //FUNCION DL REDONDEO
-        $round2 = function($val) { return round((float)$val, 2); };
-        
-        //Obtenemos los porcentajes, asegurando que si no existen sean 0
+
+        // ========================
+        // RETENCIONES
+        // ========================
         $porcentaje_rf = (float)($factura->porcentajefuente ?? 0);
         $porcentaje_ri = (float)($factura->porcentajereteiva ?? 0);
-        
+
         $retefuente_calc = $round2($subtotal_devolucion * ($porcentaje_rf / 100));
-        $reteiva_calc    = $round2($iva_devolucion * ($porcentaje_ri / 100));
-        
-        
-        $withholding_tax_totals = [];
-        
+        $reteiva_calc    = $round2($iva_devolucion      * ($porcentaje_ri / 100));
+
+        // Array de retenciones (raíz y línea usan el mismo contenido)
+        $withholding_tax_total = [];
+
         if ($retefuente_calc > 0) {
-            $withholding_tax_totals[] = [
-                "tax_id" => 6, 
-                "tax_amount" => $retefuente_calc,
-                "percent" => $porcentaje_rf,
+            $withholding_tax_total[] = [
+                "tax_id"         => 6,
+                "tax_amount"     => $retefuente_calc,
+                "percent"        => $porcentaje_rf,
                 "taxable_amount" => $subtotal_devolucion,
             ];
         }
         if ($reteiva_calc > 0) {
-            $withholding_tax_totals[] = [
-                "tax_id" => 5, 
-                "tax_amount" => $reteiva_calc,
-                "percent" => $porcentaje_ri,
+            $withholding_tax_total[] = [
+                "tax_id"         => 5,
+                "tax_amount"     => $reteiva_calc,
+                "percent"        => $porcentaje_ri,
                 "taxable_amount" => $iva_devolucion,
             ];
         }
-        // 2. LUEGO: Define las variables de impuestos (Aquí es donde se define $tax_totals)
-       $tax_totals = [[
-            "tax_id" => 1, 
-            "tax_amount" => $iva_devolucion, 
-            "percent" => $porcentaje_iva, 
-            "taxable_amount" => $subtotal_devolucion
-        ]];
-        
-        // 5. Calcular el total a pagar final
-        $tax_inclusive_amount = round($subtotal_devolucion + $iva_devolucion - $retefuente_calc - $reteiva_calc, 2);
-        
-        
 
-        // 6. Construir el payload
+        // ========================
+        // IVA
+        // ========================
+        $tax_totals = [[
+            "tax_id"         => 1,
+            "tax_amount"     => $iva_devolucion,
+            "percent"        => $porcentaje_iva,
+            "taxable_amount" => $subtotal_devolucion,
+        ]];
+
+        // ========================
+        // TOTALES MONETARIOS
+        // ========================
+        $tax_inclusive_amount = $round2($subtotal_devolucion + $iva_devolucion);
+
+        // ========================
+        // LÍNEA DE NOTA CRÉDITO
+        // ========================
+        $credit_note_line = [
+            "unit_measure_id"        => 70,
+            "invoiced_quantity"      => $qty_devuelta,
+            "line_extension_amount"  => $subtotal_devolucion,
+            "free_of_charge_indicator"    => false, 
+            "tax_totals"             => $tax_totals,
+            "description"            => (string)$nota->observacion,
+            "notes"                  => (string)$nota->observacion,
+            "code"                   => 'NC-' . $factura->nrofactura,
+            "type_item_identification_id" => 1, 
+            "price_amount"           => $precio_unitario,
+            "base_quantity"          => 1,
+        ];
+        
+        // Retenciones solo en la línea (fix ZB01)
+        if (!empty($withholding_tax_total)) {
+            $credit_note_line["with_holding_tax_total"] = $withholding_tax_total;
+        }
+
+
+        // ========================
+        // DATOS DEL CLIENTE
+        // ========================
+        // CORRECCIÓN 2: usar campo de facturación, no de nómina
+        $tipo_doc_id = (int)($cliente->tipo->codigo_interface_factura
+                    ?? $cliente->tipo->codigo_interface_nomina
+                    ?? 6); // 6 = NIT por defecto para empresas
+
+        // CORRECCIÓN 3: type_organization_id es persona natural/jurídica,
+        //               NO es el mismo campo que type_regime_id
+        $tipo_organizacion_id = (int)($cliente->tipoorganizacion ?? 1); // 1 = Jurídica
+        $tipo_regimen_id      = (int)($cliente->tiporegimen ?? 1);
+
+        // ========================
+        // PAYLOAD FINAL
+        // ========================
         $payload = [
-            "billing_reference"              => ["number" => $factura->consecutivo . $factura->nrofactura, "uuid" => $factura->cufe, "issue_date" => date('Y-m-d', strtotime($factura->fecha_inicio))],
+            "billing_reference" => [
+                "number"     => $factura->consecutivo . $factura->nrofactura,
+                "uuid"       => $factura->cufe,
+                "issue_date" => date('Y-m-d', strtotime($factura->fecha_inicio)),
+            ],
             "discrepancyresponsecode"        => (int)$codigo_respuesta,
             "discrepancyresponsedescription" => (string)$nota->observacion,
+            "notes"                          => (string)$nota->observacion,
             "prefix"                         => 'NC',
             "sendmail"                       => true,
             "sendmailtome"                   => false,
             "email_cc_list"                  => $email_cc_list,
             "number"                         => (int)$nota->numero,
+            "notes"                 => (string)$nota->observacion,
+            "resolution_number"     => $factura->numero_resolucion,
+            "type_document_id"      => 4,
+            "establishment_name"    => (string)$empresa->razonsocialmatricula,
+            "establishment_address" => (string)$empresa->direccionmatricula,
+            "establishment_phone"   => (string)$empresa->telefonomatricula,
+            "establishment_email"   => (string)$empresa->emailmatricula, 
             "date"                           => date('Y-m-d', strtotime($nota->fecha)),
             "time"                           => date('H:i:s', strtotime($nota->fecha)),
             "customer" => [
-                "identification_number"      => (string)$cliente->cedulanit, "dv" => (int)$cliente->dv, "name" => (string)$cliente->nombrecorto,
-                "phone"                      => (string)$cliente->telefonocliente, "address" => (string)$cliente->direccioncliente, "email" => (string)$cliente->email_envio_factura_dian,
-                "type_document_identification_id" => (int)($cliente->tipo->codigo_api ?? 0), "type_organization_id" => (int)$cliente->tiporegimen, "type_regime_id" => (int)$cliente->tiporegimen,
+                "identification_number"           => (string)$cliente->cedulanit,
+                "dv"                              => (int)$cliente->dv,
+                "name"                            => (string)$cliente->nombrecorto,
+                "phone"                           => (string)$cliente->telefonocliente,
+                "address"                         => (string)$cliente->direccioncliente,
+                "email"                           => (string)$cliente->email_envio_factura_dian,
+                "type_document_identification_id" => $tipo_doc_id,        // CORREGIDO
+                "type_organization_id"            => $tipo_organizacion_id, // CORREGIDO
+                "type_regime_id"                  => $tipo_regimen_id,
             ],
-            "tax_totals" => $tax_totals,
+            "tax_totals"            => $tax_totals,
             "legal_monetary_totals" => [
-                "line_extension_amount" => $subtotal_devolucion, 
-                "tax_exclusive_amount"  => $subtotal_devolucion, 
-                "tax_inclusive_amount"  => $tax_inclusive_amount, 
-                "payable_amount"        => $tax_inclusive_amount
-            ],
-            "credit_note_lines" => [[
-                "unit_measure_id"       => 70, 
-                "invoiced_quantity"     => $qty_devuelta, 
                 "line_extension_amount" => $subtotal_devolucion,
-                "tax_totals"            => $tax_totals, 
-                "description"           => (string)$nota->observacion, 
-                "price_amount"          => $precio_unitario
-            ]]
+                "tax_exclusive_amount"  => $subtotal_devolucion,
+                "tax_inclusive_amount"  => $tax_inclusive_amount,
+                "allowance_total_amount" => 0,
+                "charge_total_amount"    => 0,
+                "payable_amount"        => $tax_inclusive_amount,  // CORREGIDO: sin restar retenciones
+            ],
+            "credit_note_lines" => [$credit_note_line],
         ];
 
-        if (!empty($withholding_tax_totals)) {
-            $payload["withholding_tax_totals"] = $withholding_tax_totals;
-        }
-       
-       // ========================
-        // MODO DEBUG - ESTRUCTURADO
+        // ========================
+        // MODO DEBUG
         // ========================
         if ($confi->debug ?? false) {
             $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Debug Nota Crédito</title></head><body>';
             $html .= '<div style="font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px;">';
 
-            // Encabezado Empresa
             $html .= '<div style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">';
-            $html .= '<h1 style="margin:0; color:#333;">' . $empresa->razonsocialmatricula . '</h1>';
-            $html .= '<p style="margin:0;">NIT: ' . $empresa->nitmatricula . ' | ' . $empresa->direccionmatricula . '</p>';
+            $html .= '<h1 style="margin:0; color:#333;">' . htmlspecialchars($empresa->razonsocialmatricula) . '</h1>';
+            $html .= '<p style="margin:0;">NIT: ' . htmlspecialchars($empresa->nitmatricula) . ' | ' . htmlspecialchars($empresa->direccionmatricula) . '</p>';
             $html .= '</div>';
 
-            // Info General y Cliente
             $html .= '<div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">';
             $html .= '<div><strong>Nota Crédito No:</strong> ' . $nota->numero . '<br><strong>Fecha:</strong> ' . $nota->fecha . '</div>';
-            $html .= '<div><strong>Cliente:</strong> ' . $cliente->nombrecorto . '<br><strong>NIT/CC:</strong> ' . $cliente->cedulanit . '</div>';
+            $html .= '<div><strong>Cliente:</strong> ' . htmlspecialchars($cliente->nombrecorto) . '<br><strong>NIT/CC:</strong> ' . $cliente->cedulanit . '</div>';
             $html .= '</div>';
 
-            // Detalle de Cálculos
             $html .= '<h3 style="background: #f4f4f4; padding: 10px; border-left: 5px solid #007bff;">🧮 Detalle de Cálculos</h3>';
             $html .= '<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">';
             $html .= '<tr style="background:#eee;"><th style="padding:10px; text-align:left;">Concepto</th><th style="padding:10px; text-align:right;">Valor</th></tr>';
+            $html .= '<tr><td style="padding:8px;">Tipo Devolución</td><td style="text-align:right;">' . $tipo_devolucion . '</td></tr>';
+            $html .= '<tr><td style="padding:8px;">Cantidad</td><td style="text-align:right;">' . $qty_devuelta . '</td></tr>';
+            $html .= '<tr><td style="padding:8px;">Precio Unitario</td><td style="text-align:right;">$' . number_format($precio_unitario, 2) . '</td></tr>';
             $html .= '<tr><td style="padding:8px;">Subtotal Devolución</td><td style="text-align:right;">$' . number_format($subtotal_devolucion, 2) . '</td></tr>';
             $html .= '<tr><td style="padding:8px;">IVA (' . $porcentaje_iva . '%)</td><td style="text-align:right;">$' . number_format($iva_devolucion, 2) . '</td></tr>';
 
-            foreach ($withholding_tax_totals as $ret) {
+            foreach ($withholding_tax_total as $ret) {
                 $nombre = ($ret['tax_id'] == 6) ? 'ReteFuente' : 'ReteIVA';
                 $html .= '<tr><td style="padding:8px;">' . $nombre . ' (' . $ret['percent'] . '%)</td><td style="text-align:right; color:#d9534f;">-$' . number_format($ret['tax_amount'], 2) . '</td></tr>';
             }
 
             $html .= '<tr style="border-top: 2px solid #333; font-weight:bold; font-size:16px;">';
-            $html .= '<td style="padding:10px;">Total a Aplicar</td><td style="text-align:right;">$' . number_format($tax_inclusive_amount, 2) . '</td></tr>';
+            $html .= '<td style="padding:10px;">Total (Base + IVA)</td><td style="text-align:right;">$' . number_format($tax_inclusive_amount, 2) . '</td></tr>';
             $html .= '</table>';
 
-            // Payload JSON
             $html .= '<h3 style="background: #f4f4f4; padding: 10px; border-left: 5px solid #28a745;">📄 JSON Final para API</h3>';
             $html .= '<pre style="background: #272822; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px;">';
             $html .= htmlspecialchars(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -576,17 +633,24 @@ class NotacreditoController extends Controller
             $html .= '<div style="margin-top: 20px; text-align: center;">';
             $html .= '<a href="javascript:history.back()" style="padding: 10px 20px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 5px;">Volver al Sistema</a>';
             $html .= '</div>';
-
             $html .= '</div></body></html>';
+
             echo $html;
             Yii::$app->end();
         }
 
         // ========================
-        // ENVÍO A API
+        // ENVÍO A API DIAN
         // ========================
         $API_URL = Yii::$app->params['API_NOTACREDITO_ENDPOINT'];
         $API_KEY = $confi->llave_api_token;
+
+        // Log del payload antes de enviar (siempre, no solo en debug)
+        Yii::info([
+            'evento'   => 'PAYLOAD_NC_PRE_ENVIO',
+            'payload'  => $payload,
+            'json_raw' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+        ], 'api.nota_credito');
 
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -632,7 +696,7 @@ class NotacreditoController extends Controller
                 throw new \Exception("La API no devolvió JSON válido. Respuesta: " . substr($response, 0, 300));
             }
 
-            // Buscar CUDE en rutas comunes
+            // Buscar CUDE en rutas comunes de la API
             $cude = $data_envio['data']['fe']['cude']
                  ?? $data_envio['data']['cude']
                  ?? $data_envio['data']['document']['cude']
@@ -644,19 +708,22 @@ class NotacreditoController extends Controller
                ?? $data_envio['QRStr']
                ?? null;
 
-            if ($qr) $nota->qrstr = $qr;
+            if ($qr) {
+                $nota->qrstr = $qr;
+            }
 
             if (!empty($cude)) {
-                $nota->cude = $cude;
+                $nota->cude             = $cude;
                 $nota->fecha_recepcion_dian = $data_envio['data']['sentDetail']['response']['send_email_date_time']
                                            ?? $data_envio['data']['sentDetail']['response']['datetime']
                                            ?? date("Y-m-d H:i:s");
-                $nota->fecha_envio_api = date("Y-m-d H:i:s");
+                $nota->fecha_envio_api  = date("Y-m-d H:i:s");
                 $nota->save(false);
 
-                $mensaje_exito = "La Nota Crédito No. {$numero_nc} fue enviada exitosamente a la DIAN. ";
+                // CORRECCIÓN 5: $numero_nc → $nota->numero
+                $mensaje_exito  = "La Nota Crédito No. {$nota->numero} fue enviada exitosamente a la DIAN. ";
                 $mensaje_exito .= "Tipo: {$tipo_devolucion}. ";
-                $mensaje_exito .= "Monto devuelto: $" . number_format($tax_inclusive_amount, 2) . " ";
+                $mensaje_exito .= "Monto devuelto: $" . number_format($tax_inclusive_amount, 2) . ". ";
 
                 if ($tipo_devolucion === 'PARCIAL') {
                     $mensaje_exito .= "({$qty_devuelta} unidades @ $" . number_format($precio_unitario, 2) . ")";
@@ -668,7 +735,7 @@ class NotacreditoController extends Controller
                 return $this->redirect(['notacredito/view', 'id' => $id]);
             }
 
-            // Sin CUDE: leer mensaje de error
+            // Sin CUDE: leer mensaje de error de la API
             $mensajeError = $data_envio['message']
                          ?? $data_envio['error']
                          ?? $data_envio['errors']
@@ -691,7 +758,7 @@ class NotacreditoController extends Controller
 
             Yii::$app->getSession()->setFlash(
                 'warning',
-                "La API respondió pero no entregó CUDE. " . 
+                "La API respondió pero no entregó CUDE. " .
                 ($mensajeError ? "Detalle: {$mensajeError}" : "Revisa runtime/logs/app.log (categoría api.nota_credito).")
             );
 
@@ -708,7 +775,7 @@ class NotacreditoController extends Controller
             Yii::$app->getSession()->setFlash('error', "Error al enviar la Nota Crédito: " . $e->getMessage());
             return $this->redirect(['notacredito/view', 'id' => $id]);
         }
-    } 
+    }
     
     
     /**

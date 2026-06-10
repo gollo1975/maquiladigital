@@ -457,7 +457,7 @@ class NotacreditoController extends Controller
         
         //Obtenemos los porcentajes, asegurando que si no existen sean 0
         $porcentaje_rf = (float)($factura->porcentajefuente ?? 0);
-        $porcentaje_ri = (float)($empresa->porcentajereteiva ?? 0);
+        $porcentaje_ri = (float)($factura->porcentajereteiva ?? 0);
         
         $retefuente_calc = $round2($subtotal_devolucion * ($porcentaje_rf / 100));
         $reteiva_calc    = $round2($iva_devolucion * ($porcentaje_ri / 100));
@@ -494,43 +494,43 @@ class NotacreditoController extends Controller
         
         
 
-    // 6. Construir el payload
-    $payload = [
-        "billing_reference"              => ["number" => $factura->consecutivo . $factura->nrofactura, "uuid" => $factura->cufe, "issue_date" => date('Y-m-d', strtotime($factura->fecha_inicio))],
-        "discrepancyresponsecode"        => (int)$codigo_respuesta,
-        "discrepancyresponsedescription" => (string)$nota->observacion,
-        "prefix"                         => 'NC',
-        "sendmail"                       => true,
-        "sendmailtome"                   => false,
-        "email_cc_list"                  => $email_cc_list,
-        "number"                         => (int)$nota->numero,
-        "date"                           => date('Y-m-d', strtotime($nota->fecha)),
-        "time"                           => date('H:i:s', strtotime($nota->fecha)),
-        "customer" => [
-            "identification_number"      => (string)$cliente->cedulanit, "dv" => (int)$cliente->dv, "name" => (string)$cliente->nombrecorto,
-            "phone"                      => (string)$cliente->telefonocliente, "address" => (string)$cliente->direccioncliente, "email" => (string)$cliente->email_envio_factura_dian,
-            "type_document_identification_id" => (int)($cliente->tipo->codigo_api ?? 0), "type_organization_id" => (int)$cliente->tiporegimen, "type_regime_id" => (int)$cliente->tiporegimen,
-        ],
-        "tax_totals" => $tax_totals,
-        "legal_monetary_totals" => [
-            "line_extension_amount" => $subtotal_devolucion, 
-            "tax_exclusive_amount"  => $subtotal_devolucion, 
-            "tax_inclusive_amount"  => $tax_inclusive_amount, 
-            "payable_amount"        => $tax_inclusive_amount
-        ],
-        "credit_note_lines" => [[
-            "unit_measure_id"       => 70, 
-            "invoiced_quantity"     => $qty_devuelta, 
-            "line_extension_amount" => $subtotal_devolucion,
-            "tax_totals"            => $tax_totals, 
-            "description"           => (string)$nota->observacion, 
-            "price_amount"          => $precio_unitario
-        ]]
-    ];
+        // 6. Construir el payload
+        $payload = [
+            "billing_reference"              => ["number" => $factura->consecutivo . $factura->nrofactura, "uuid" => $factura->cufe, "issue_date" => date('Y-m-d', strtotime($factura->fecha_inicio))],
+            "discrepancyresponsecode"        => (int)$codigo_respuesta,
+            "discrepancyresponsedescription" => (string)$nota->observacion,
+            "prefix"                         => 'NC',
+            "sendmail"                       => true,
+            "sendmailtome"                   => false,
+            "email_cc_list"                  => $email_cc_list,
+            "number"                         => (int)$nota->numero,
+            "date"                           => date('Y-m-d', strtotime($nota->fecha)),
+            "time"                           => date('H:i:s', strtotime($nota->fecha)),
+            "customer" => [
+                "identification_number"      => (string)$cliente->cedulanit, "dv" => (int)$cliente->dv, "name" => (string)$cliente->nombrecorto,
+                "phone"                      => (string)$cliente->telefonocliente, "address" => (string)$cliente->direccioncliente, "email" => (string)$cliente->email_envio_factura_dian,
+                "type_document_identification_id" => (int)($cliente->tipo->codigo_api ?? 0), "type_organization_id" => (int)$cliente->tiporegimen, "type_regime_id" => (int)$cliente->tiporegimen,
+            ],
+            "tax_totals" => $tax_totals,
+            "legal_monetary_totals" => [
+                "line_extension_amount" => $subtotal_devolucion, 
+                "tax_exclusive_amount"  => $subtotal_devolucion, 
+                "tax_inclusive_amount"  => $tax_inclusive_amount, 
+                "payable_amount"        => $tax_inclusive_amount
+            ],
+            "credit_note_lines" => [[
+                "unit_measure_id"       => 70, 
+                "invoiced_quantity"     => $qty_devuelta, 
+                "line_extension_amount" => $subtotal_devolucion,
+                "tax_totals"            => $tax_totals, 
+                "description"           => (string)$nota->observacion, 
+                "price_amount"          => $precio_unitario
+            ]]
+        ];
 
-    if (!empty($withholding_tax_totals)) {
-        $payload["withholding_tax_totals"] = $withholding_tax_totals;
-    }
+        if (!empty($withholding_tax_totals)) {
+            $payload["withholding_tax_totals"] = $withholding_tax_totals;
+        }
        
        // ========================
         // MODO DEBUG - ESTRUCTURADO

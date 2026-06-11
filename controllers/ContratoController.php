@@ -756,6 +756,7 @@ class ContratoController extends Controller
                             $table->id_contrato = $id;
                             $table->documento = $contrato->identificacion;
                             $table->id_grupo_pago = $contrato->id_grupo_pago;
+                            $table->fecha_registro = date('Y-m-d');
                             $table->fecha_inicio_contrato = $contrato->fecha_inicio;
                             $table->fecha_termino_contrato = $model->fecha_final;
                             $table->ultimo_pago_prima = $contrato->ultima_prima;

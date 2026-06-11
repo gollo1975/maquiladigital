@@ -76,7 +76,7 @@ class NominaElectronica extends \yii\db\ActiveRecord
                 'total_deduccion', 'total_pagar','dias_trabajados'], 'number'],
             [['fecha_inicio_nomina', 'fecha_final_nomina', 'fecha_inicio_contrato', 'fecha_terminacion_contrato', 'fecha_envio_nomina', 'fecha_recepcion_dian',
                 'fecha_envio_begranda','fecha_hora_eliminacion'], 'safe'],
-            [['primer_nombre','segundo_nombre', 'primer_apellido', 'segundo_apellido'], 'string', 'max' => 15],
+            [['primer_nombre','segundo_nombre', 'primer_apellido', 'segundo_apellido'], 'string', 'max' => 20],
             [['email_empleado', 'nota'], 'string', 'max' => 60],
             [['direccion_empleado','nombre_completo'], 'string', 'max' => 60],
             [['nombre_banco'], 'string', 'max' => 40],

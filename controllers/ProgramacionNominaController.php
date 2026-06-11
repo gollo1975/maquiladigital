@@ -4575,6 +4575,7 @@ class ProgramacionNominaController extends Controller {
                                             
                                         }elseif ($detalle->codigoSalario->id_agrupado == 20){ //VACACIONES
                                             $table->total_dias = $detalle->dias_reales;  
+                                            $table->dias_vacaciones = $detalle->dias_reales;
                                             $table->devengado = $detalle->vlr_devengado; 
                                             $table->fecha_inicio_vacaciones = $detalle->fecha_desde;
                                             $table->fecha_final_vacaciones = $detalle->fecha_hasta;
@@ -4682,6 +4683,7 @@ class ProgramacionNominaController extends Controller {
                                             $table->fecha_final_vacaciones = $detalle->fecha_hasta;
                                             $table->id_agrupado = $detalle->codigoSalario->id_agrupado;
                                             $table->id_periodo_electronico = $id_periodo;
+                                            $table->dias_vacaciones = $detalle->dias_reales;
                                             $table->save(false);
                                                 
                                         }elseif ($detalle->codigoSalario->id_agrupado == 21){ //licencias NO remuneradas
@@ -4932,6 +4934,83 @@ class ProgramacionNominaController extends Controller {
         ]);    
         
     }
+    
+    public function actionCargar_prestaciones_sociales($token, $id_periodo, $id_nomina) {
+    $conNominaelectronica = \app\models\NominaElectronica::findOne($id_nomina);
+    
+    if($conNominaelectronica){
+        $conPrestacion = \app\models\PrestacionesSociales::find()
+            ->where(['between', 'fecha_registro', $conNominaelectronica->fecha_inicio_nomina, $conNominaelectronica->fecha_final_nomina])
+            ->andWhere(['id_empleado' => $conNominaelectronica->id_empleado, 'proceso_enviado' => 0, 'estado_cerrado' => 1])
+            ->one();
+
+        if (!$conPrestacion) {
+            Yii::$app->getSession()->setFlash('error', 'No se encontraron prestaciones pendientes para este periodo.');
+            return $this->redirect(['vista_empleados', 'token' => $token, 'id_periodo' => $id_periodo]);
+        }
+
+        $detallePrestacion = \app\models\PrestacionesSocialesDetalle::find()
+            ->where(['id_prestacion' => $conPrestacion->id_prestacion])
+            ->all();
+        
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            foreach ($detallePrestacion as $fila) {
+                $table = new \app\models\NominaElectronicaDetalle(); 
+                $table->id_nomina_electronica = $id_nomina;
+                $table->id_empleado           = $conNominaelectronica->id_empleado;
+                $table->codigo_salario        = $fila->codigo_salario;
+                $table->descripcion           = $fila->codigoSalario->nombre_concepto;
+                $table->devengado_deduccion   = $fila->codigoSalario->devengado_deduccion;
+                $table->fecha_inicio          = $conNominaelectronica->fecha_inicio_nomina;
+                $table->fecha_final           = $conNominaelectronica->fecha_final_nomina;
+                $table->devengado             = $fila->valor_pagar;
+                $table->total_dias            = $fila->total_dias;
+                
+                // Mapeo de conceptos
+                if($fila->codigoSalario->concepto_prima == 1) {
+                    $table->dias_prima = $fila->total_dias; 
+                    $table->valor_pago_prima = $fila->valor_pagar;
+                }
+                if($fila->codigoSalario->concepto_cesantias == 1) {
+                    $table->dias_cesantias = $fila->total_dias; 
+                    $table->valor_pago_cesantias = $fila->valor_pagar;
+                }
+                if($fila->codigoSalario->intereses == 1) {
+                    $table->valor_pago_intereses = $fila->valor_pagar;
+                }
+                if($fila->codigoSalario->concepto_vacacion == 1) {
+                    $table->fecha_inicio_vacaciones = $fila->fecha_inicio;
+                    $table->fecha_final_vacaciones = $fila->fecha_final;
+                    $table->dias_vacaciones = $fila->total_dias; 
+                }
+                
+                $table->id_agrupado = $fila->codigoSalario->id_agrupado;
+                $table->id_periodo_electronico = $id_periodo;
+                
+                // --- CORRECCIÓN: Guardar DENTRO del ciclo ---
+                if (!$table->save()) {
+                    throw new \Exception("Error al guardar detalle: " . implode(", ", $table->getFirstErrors()));
+                }
+            }
+
+            // --- CORRECCIÓN: Marcar la prestación como enviada ---
+            $conPrestacion->proceso_enviado = 1;
+            if (!$conPrestacion->save()) {
+                throw new \Exception("Error al actualizar estado de la prestación.");
+            }
+
+            $transaction->commit();
+            Yii::$app->getSession()->setFlash('success', 'Registros cargados exitosamente.');
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::$app->getSession()->setFlash('error', 'Ocurrió un error: ' . $e->getMessage());
+        }
+    }    
+    
+    return $this->redirect(['vista_empleados', 'token' => $token, 'id_periodo' => $id_periodo]);    
+}
     
     //EXCELES
     public function actionExcelpago($id) {

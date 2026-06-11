@@ -195,85 +195,85 @@ class PeriodoNominaController extends Controller {
         }
     }
     
-    public function actionCrearPeriodoNomina($id_grupo_pago) {
-    $periodo_pago_nomina = new PeriodoPagoNomina();
-    $grupo_pago = GrupoPago::findOne($id_grupo_pago);
-    $periodo_pago = PeriodoPago::findOne($grupo_pago->id_periodo_pago);
-
-    $dias = (int)$periodo_pago->dias;
-    $fecha_inicial_base = $grupo_pago->ultimo_pago_nomina;
-
-    // 1. Definimos la nueva fecha inicial primero
-    $nueva_fecha_inicial = date('Y-m-d', strtotime('+1 day', strtotime($fecha_inicial_base)));
+   ///CODIGO QUE CREAS LA NOMINA 
+   public function actionCrearPeriodoNomina($id_grupo_pago) 
+   {
     
-    // Calculamos los datos del NUEVO mes (Mayo en tu caso)
-    $anio_nuevo = date('Y', strtotime($nueva_fecha_inicial));
-    $mes_nuevo = date('m', strtotime($nueva_fecha_inicial));
-    $dia_base = (int)date('d', strtotime($fecha_inicial_base)); // El día del periodo anterior
-    
-    // Cuántos días tiene el mes del nuevo periodo
-    $dias_mes_nuevo = cal_days_in_month(CAL_GREGORIAN, (int)$mes_nuevo, (int)$anio_nuevo);
+        $periodo_pago_nomina = new PeriodoPagoNomina();
+        $grupo_pago = GrupoPago::findOne($id_grupo_pago);
+        $periodo_pago = PeriodoPago::findOne($grupo_pago->id_periodo_pago);
 
-    $sw = 0;
+        $dias = (int)$periodo_pago->dias;
+        $fecha_inicial_base = $grupo_pago->ultimo_pago_nomina;
 
-    // Lógica especial de Febrero (se mantiene igual)
-    if (($dia_base == 28 || $dia_base == 29) && ($dias == 15 || $dias == 30)) {
-        $sw = ($dia_base == 28) ? 1 : 2;
-    }
+        // --- CORRECCIÓN: Definición de fechas ---
+        $timestamp_anterior = strtotime($fecha_inicial_base);
+        $dia_base = (int)date('d', $timestamp_anterior);
 
-    // 2. LÓGICA DE CÁLCULO
-    if ($periodo_pago->continua == 0) {
-        if ($dias == 15) {
-            // Si el periodo anterior terminó el 15, este termina el 30 o fin de mes
-            if ($dia_base == 15) {
-                if ($dias_mes_nuevo == 31) {
-                    // Si mayo tiene 31, la quincena comercial termina en 30
-                    $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-30';
-                } else {
-                    // Si es abril (30) o febrero (28), termina el último día real
-                    $nueva_fecha_final = date('Y-m-t', strtotime($nueva_fecha_inicial));
-                }
-            } else {
-                // Si el periodo anterior terminó a fin de mes, este termina el 15
-                $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-15';
-            }
-        } elseif ($dias == 30) {
-            // Nómina mensual comercial
-            if ($dias_mes_nuevo == 31) {
-                $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-30';
-            } else {
-                $nueva_fecha_final = date('Y-m-t', strtotime($nueva_fecha_inicial));
-            }
+        // Si terminó en 15, empezamos el 16. Si terminó en 28, 29, 30 o 31, empezamos el 1 del mes siguiente.
+        if ($dia_base == 15) {
+            $nueva_fecha_inicial = date('Y-m-d', strtotime('+1 day', $timestamp_anterior));
+        } else {
+            $nueva_fecha_inicial = date('Y-m-01', strtotime('first day of next month', $timestamp_anterior));
         }
-    } else {
-        // Si no es especial (7, 10, 14 días), simplemente suma los días
-        $nueva_fecha_final = date('Y-m-d', strtotime('+' . ($dias - 1) . ' days', strtotime($nueva_fecha_inicial)));
+
+        $anio_nuevo = date('Y', strtotime($nueva_fecha_inicial));
+        $mes_nuevo = date('m', strtotime($nueva_fecha_inicial));
+        $dias_mes_nuevo = cal_days_in_month(CAL_GREGORIAN, (int)$mes_nuevo, (int)$anio_nuevo);
+
+        $sw = 0;
+        // Lógica especial Febrero (mantenida según tu original)
+        if (($dia_base == 28 || $dia_base == 29) && ($dias == 15 || $dias == 30)) {
+            $sw = ($dia_base == 28) ? 1 : 2;
+        }
+
+        // 2. LÓGICA DE CÁLCULO
+        if ($periodo_pago->continua == 0) {
+            if ($dias == 15) {
+                // Si el periodo anterior terminó el 15, este termina el último día del mes (30 o 31)
+                if ($dia_base == 15) {
+                    if ($dias_mes_nuevo == 31) {
+                        $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-30';
+                    } else {
+                        $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-' . $dias_mes_nuevo;
+                    }
+                } else {
+                    // Si el anterior terminó a fin de mes, este termina el 15
+                    $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-15';
+                }
+            } elseif ($dias == 30) {
+                $nueva_fecha_final = $anio_nuevo . '-' . $mes_nuevo . '-' . $dias_mes_nuevo;
+            }
+        } else {
+            $nueva_fecha_final = date('Y-m-d', strtotime('+' . ($dias - 1) . ' days', strtotime($nueva_fecha_inicial)));
+        }
+
+        // 3. ASIGNACIÓN AL MODELO
+        $periodo_pago_nomina->id_grupo_pago = $id_grupo_pago;
+        $periodo_pago_nomina->id_periodo_pago = $periodo_pago->id_periodo_pago;
+        $periodo_pago_nomina->id_tipo_nomina = 1;
+
+        if ($sw == 0) {
+            $periodo_pago_nomina->fecha_desde = $nueva_fecha_inicial;
+            $periodo_pago_nomina->fecha_hasta = $nueva_fecha_final;
+        } else {
+            $f_ini = date('Y-m-d', strtotime('-1 day', strtotime($nueva_fecha_inicial)));
+            $periodo_pago_nomina->fecha_desde = $f_ini;
+            $periodo_pago_nomina->fecha_hasta = date('Y-m-d', strtotime('+14 days', strtotime($f_ini)));
+            $nueva_fecha_final = $periodo_pago_nomina->fecha_hasta;
+        }
+
+        $periodo_pago_nomina->fecha_real_corte = $nueva_fecha_final;
+        $periodo_pago_nomina->dias_periodo = $dias;
+        $periodo_pago_nomina->estado_periodo = 0;
+        $periodo_pago_nomina->usuariosistema = Yii::$app->user->identity->username;
+
+        if ($periodo_pago_nomina->save(false)) {
+            Yii::$app->getSession()->setFlash('success', 'El periodo de nomina se creó exitosamente.');
+        }
     }
-
-    // 3. ASIGNACIÓN AL MODELO
-    $periodo_pago_nomina->id_grupo_pago = $id_grupo_pago;
-    $periodo_pago_nomina->id_periodo_pago = $periodo_pago->id_periodo_pago;
-    $periodo_pago_nomina->id_tipo_nomina = 1;
-
-    if ($sw == 0) {
-        $periodo_pago_nomina->fecha_desde = $nueva_fecha_inicial;
-        $periodo_pago_nomina->fecha_hasta = $nueva_fecha_final;
-    } else {
-        // Ajuste febrero
-        $f_ini = date('Y-m-d', strtotime('-1 day', strtotime($nueva_fecha_inicial)));
-        $periodo_pago_nomina->fecha_desde = $f_ini;
-        $periodo_pago_nomina->fecha_hasta = date('Y-m-d', strtotime('+14 days', strtotime($f_ini)));
-        $nueva_fecha_final = $periodo_pago_nomina->fecha_hasta;
-    }
-
-    $periodo_pago_nomina->fecha_real_corte = $nueva_fecha_final;
-    $periodo_pago_nomina->dias_periodo = $dias;
-    $periodo_pago_nomina->estado_periodo = 0;
-    $periodo_pago_nomina->usuariosistema = Yii::$app->user->identity->username;
-
-    $periodo_pago_nomina->save(false);  
-    Yii::$app->getSession()->setFlash('success', 'El periodo de nomina se creó exitosamente.');
-}
+    
+     ///CODIGO QUE CREAS LAS PRIMAS
     
     public function actionCrearPeriodoPrima($id_grupo_pago) {
         $periodo_pago_nomina = new PeriodoPagoNomina();

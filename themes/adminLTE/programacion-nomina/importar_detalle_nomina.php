@@ -79,6 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th scope="col" style='background-color:#B9D5CE;'>Deduccion</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
                     <th scope="col" style='background-color:#B9D5CE;'></th>
+                     <th scope="col" style='background-color:#B9D5CE;'></th>
                     <th scope="col" style='background-color:#B9D5CE;'><input type="checkbox" onclick="marcar(this);"/></th>
                     
                 </tr>
@@ -101,11 +102,34 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td style="text-align: right"><?= ''.number_format($val->total_devengado,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_deduccion,0)?></td>
                         <td style="text-align: right"><?= ''.number_format($val->total_pagar,0)?></td>
-                        <?php if(app\models\NominaElectronicaDetalle::find()->where(['=','id_nomina_electronica', $val->id_nomina_electronica])->one()){?>
+                        <?php if(app\models\NominaElectronicaDetalle::find()->where(['=','id_nomina_electronica', $val->id_nomina_electronica])->one()){
+                            
+                            $conPrestacion = \app\models\PrestacionesSociales::find()->where(['between','fecha_registro', $val->fecha_inicio_nomina, $val->fecha_final_nomina])
+                                                                                     ->andWhere(['id_empleado' => $val->id_empleado, 'proceso_enviado' => 0, 'estado_cerrado' => 1])->one();
+                          
+                            ?>
                             <td style= 'width: 25px; height: 25px;'>
                                 <a href="<?= Url::toRoute(["programacion-nomina/detalle_documento_electronico",'id_nomina' =>$val->id_nomina_electronica , 'id_periodo' => $val->id_periodo_electronico, 'token' =>$token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                                
                             </td>
-                        <?php }else{?>
+                            <?php
+                            if($conPrestacion){?>
+                                <td style= 'width: 25px; height: 25px;'>
+                                   <?= Html::a('<span class="glyphicon glyphicon-user"></span> ', ['cargar_prestaciones_sociales', 'id_nomina' =>$val->id_nomina_electronica , 'id_periodo' => $val->id_periodo_electronico, 'token' =>$token,], [
+                                               'class' => '',
+                                               'title' => 'Proceso que permite cargar las prestaciones sociales.', 
+                                               'data' => [
+                                                   'confirm' => 'Esta seguro de cargar las prestaciones del empleado ('.$val->empleado->nombrecorto.').',
+                                                   'method' => 'post',
+                                               ],
+                                    ])?> 
+                                 
+                                </td>
+                            <?php }else{ ?>
+                                 <td style= 'width: 25px; height: 25px;'></td>
+                            <?php }     
+                        } else { ?>
+                            <td style= 'width: 25px; height: 25px;'></td>
                             <td style= 'width: 25px; height: 25px;'></td>
                         <?php }?>    
                         <td style= 'width: 25px; height: 25px;'><input type="checkbox" name="documento_electronico[]" value="<?= $val->id_nomina_electronica ?>"></td> 

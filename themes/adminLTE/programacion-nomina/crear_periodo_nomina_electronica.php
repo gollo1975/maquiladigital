@@ -103,6 +103,7 @@ $form = ActiveForm::begin([
                 <th scope="col" style='background-color:#B9D5CE;'></th> 
                 <th scope="col" style='background-color:#B9D5CE;'></th>
                 <th scope="col" style='background-color:#B9D5CE;'></th>
+                
             </tr>
             </thead>
             <tbody>
@@ -132,9 +133,11 @@ $form = ActiveForm::begin([
                     </td>  
                     <?php if($detalle){?>
                         <td style= 'width: 25px; height: 25px;'>
-                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico, 'token' => $token]) ?>" ><span class="glyphicon glyphicon-eye-open"></span></a>
+                            <a href="<?= Url::toRoute(["programacion-nomina/vista_empleados", 'id_periodo' => $val->id_periodo_electronico, 'token' => $token]) ?>" >
+                                 <span class="glyphicon glyphicon-list " title="Proceso que genera la nomina electerónica."></span></a>
                             
                         </td>
+                        
                         <td style= 'width: 25px; height: 25px;'>
                         <?= Html::a('<span class="glyphicon glyphicon-eye-close"></span> ', ['cerrar_periodo_nomina', 'id_periodo' => $val->id_periodo_electronico], [
                                                'class' => '',
@@ -147,6 +150,7 @@ $form = ActiveForm::begin([
                     </td>  
                     <?php }else{?>
                         <td style= 'width: 25px; height: 25px;'></td>
+                      
                         <td style= 'width: 25px; height: 25px;'></td>
                     <?php }
                 }else{?>
@@ -156,6 +160,7 @@ $form = ActiveForm::begin([
                             
                         </td>
                         <td style= 'width: 25px; height: 25px;'></td>
+                       
                 <?php }?>        
             </tr>            
             <?php endforeach; ?>

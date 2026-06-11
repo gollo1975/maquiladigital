@@ -4818,37 +4818,55 @@ class ProgramacionNominaController extends Controller {
     
     //CERRAR PERIODO DE NOMINA ELECTRONICA
     public function actionCerrar_periodo_nomina($id_periodo) {
-        $sw = 0;
+        // 1. Validar existencia del periodo
         $periodo = PeriodoNominaElectronica::findOne($id_periodo);
-        $documentos = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all();
-        foreach ($documentos as $key => $validar) {
-            if($validar->generado_detalle ==0){
-                $sw = 1;
-                break;
-            }
+        if (!$periodo) {
+            Yii::$app->getSession()->setFlash('error', 'Periodo no encontrado.');
+            return $this->redirect(['documento_electronico']);
         }
-        if($sw == 0){
+
+        // 2. Validar si hay pendientes usando una consulta eficiente
+        $pendientes = \app\models\NominaElectronica::find()
+            ->where(['id_periodo_electronico' => $id_periodo, 'generado_detalle' => 0])
+            ->exists();
+
+        if ($pendientes) {
+            Yii::$app->getSession()->setFlash('error', 'El periodo no se puede cerrar porque hay nóminas pendientes por validar.');
+            return $this->redirect(['documento_electronico']);
+        }
+
+        // 3. Ejecutar procesos de forma segura mediante Transacción
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
             $this->AcumularTotalesNominaElectronica($id_periodo);
             $this->GranTotalNominaElectronica($id_periodo);
             $this->GenerarConsecutivos($id_periodo);
+
             $periodo->cerrar_proceso = 1;
-            $periodo->save();
-            return $this->redirect(['documento_electronico']);
-        }else{
-            Yii::$app->getSession()->setFlash('error','El periodo no se puede cerrar porque hay nominas que no se han validado. Consulte con el administrador. ');
-            return $this->redirect(['documento_electronico']);
+
+            if (!$periodo->save()) {
+                throw new \Exception("Error al cerrar el periodo.");
+            }
+
+            $transaction->commit();
+            Yii::$app->getSession()->setFlash('success', 'Periodo cerrado correctamente.');
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::$app->getSession()->setFlash('error', 'Ocurrió un error al procesar el cierre: ' . $e->getMessage());
         }
-        
+
+        return $this->redirect(['documento_electronico']);
     }
     
     //PROCESO DE ACUMULA LOS TOTALES 
     protected function AcumularTotalesNominaElectronica($id_periodo) {
         $documento = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all();
         $devengado = 0; $deduccion = 0;
-        foreach ($documento as $key => $datos) {
+        foreach ($documento as  $datos) {
             $detalles = \app\models\NominaElectronicaDetalle::find()->where(['=','id_empleado', $datos->id_empleado])->andWhere(['=','id_periodo_electronico', $id_periodo])->all();
             if(count($detalles) > 0){
-                foreach ($detalles as $key => $val) {
+                foreach ($detalles as $val) {
                      if($val->devengado_deduccion == 1){
                          $devengado += $val->devengado;
                      }else{
@@ -4870,7 +4888,7 @@ class ProgramacionNominaController extends Controller {
         $periodo = PeriodoNominaElectronica::findOne($id_periodo);
         $nomina = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all(); 
         $total = 0; $devengado = 0; $deduccion = 0;
-        foreach ($nomina as $key => $val) {
+        foreach ($nomina as $val) {
             $devengado += $val->total_devengado;
             $deduccion += $val->total_deduccion;
             $total += $val->total_pagar;
@@ -4887,7 +4905,7 @@ class ProgramacionNominaController extends Controller {
        $nomina = \app\models\NominaElectronica::find()->where(['=','id_periodo_electronico', $id_periodo])->all();
        $documento_electronico = \app\models\DocumentoElectronico::findOne(5);
        $numero = Consecutivo::findOne(23);
-       foreach ($nomina as $key => $validar)
+       foreach ($nomina as $validar)
        {
            $codigo = $numero->consecutivo + 1;
            $validar->numero_nomina_electronica = $codigo;

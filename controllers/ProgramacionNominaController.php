@@ -1597,14 +1597,14 @@ class ProgramacionNominaController extends Controller {
             }        $model->save(false);
         }    
        if ($registros == 0) {
-            $this->redirect(["programacion-nomina/view", 'id' => $id,
+            return $this->redirect(["programacion-nomina/view", 'id' => $id,
                 'id_grupo_pago' => $id_grupo_pago,
                 'fecha_desde' => $fecha_desde,
                 'fecha_hasta' => $fecha_hasta,
             ]);
         } else {
 
-            $this->redirect(["programacion-nomina/view", 'id' => $id,
+            return $this->redirect(["programacion-nomina/view", 'id' => $id,
                 'id_grupo_pago' => $id_grupo_pago,
                 'fecha_desde' => $fecha_desde,
                 'fecha_hasta' => $fecha_hasta,
@@ -1671,7 +1671,7 @@ class ProgramacionNominaController extends Controller {
                     $periodo->cantidad_empleado = $cont;
                 }
                 $periodo->save(false);
-               $this->redirect(["programacion-nomina/view", 'id' => $id,
+                return $this->redirect(["programacion-nomina/view", 'id' => $id,
                                 'id_grupo_pago' => $id_grupo_pago,
                                 'fecha_hasta' => $fecha_hasta,
                                 'fecha_desde' => $fecha_desde,
@@ -1714,7 +1714,7 @@ class ProgramacionNominaController extends Controller {
                             $table->dias_periodo = $model->dias_periodo;
                             $table->usuariosistema = Yii::$app->user->identity->username;
                             if ($table->save(false)) {
-                                $this->redirect(["programacion-nomina/index"]);
+                                return $this->redirect(["programacion-nomina/index"]);
                             } else {
                                 $msg = "error";
                             }
@@ -1795,13 +1795,13 @@ class ProgramacionNominaController extends Controller {
                 try {
                     PeriodoPagoNomina::deleteAll("id_periodo_pago_nomina=:id_periodo_pago_nomina", [":id_periodo_pago_nomina" => $id]);
                     Yii::$app->getSession()->setFlash('success', 'Registro Eliminado con exito.');
-                    $this->redirect(["programacion-nomina/index"]);
+                    return $this->redirect(["programacion-nomina/index"]);
                 } catch (IntegrityException $e) {
                     $this->redirect(["programacion-nomina/index"]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el periodo de pago Nro :' . $periodo->id_periodo_pago_nomina . ', tiene registros asociados en otros procesos');
                 } catch (\Exception $e) {
 
-                    $this->redirect(["programacion-nomina/index"]);
+                   return $this->redirect(["programacion-nomina/index"]);
                     Yii::$app->getSession()->setFlash('error', 'Error al eliminar el periodo de pago Nro : ' . $periodo->id_periodo_pago_nomina . ', tiene registros asociados en otros procesos');
                 }
             } else {
@@ -1809,7 +1809,7 @@ class ProgramacionNominaController extends Controller {
                 echo "<meta http-equiv='refresh' content='3; " . Url::toRoute("programacion-nomina/index") . "'>";
             }
         } else {
-            $this->redirect(["programacion-nomina/index"]);
+            return $this->redirect(["programacion-nomina/index"]);
         }
     }
     
@@ -2045,7 +2045,7 @@ class ProgramacionNominaController extends Controller {
                     }
                     foreach ($vector_nomina as $suma_ibc):
                          $contador +=  $suma_ibc->ibc_prestacional;
-                         $contador2 += $suma_ibc->total_ibc_no_prestacional;
+                         $contador2 += $suma_ibc->total_licencia;
                          if($tabla_prima->aplicar_ausentismo == 1){
                              $contador_licencia = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $suma_ibc->id_programacion])->all();
                              foreach ($contador_licencia as $licencias):
@@ -2054,7 +2054,7 @@ class ProgramacionNominaController extends Controller {
                          }
                     endforeach;
                     if ($ibp_prima_anterior > 0){
-                        $total_ibp = $contador + $contador2 + $ibp_prima_anterior;
+                        $total_ibp = $contador + $ibp_prima_anterior + $contador2;
                     }else{
                        $total_ibp = $contador + $contador2;
                     }    
@@ -2101,6 +2101,7 @@ class ProgramacionNominaController extends Controller {
                          $detalle_momina->fecha_hasta =  $fecha_hasta;
                          $detalle_momina->id_periodo_pago_nomina = $id;
                          $detalle_momina->insert(false);
+                         
                          $prima_semestral->dias_pago = $total_dias;
                          $prima_semestral->dia_real_pagado = $dias_prima_pago_real;
                          $prima_semestral->total_devengado = round($vlr_prima);
@@ -2122,12 +2123,14 @@ class ProgramacionNominaController extends Controller {
                 if ($tipo_nomina == 3){
                     $grupo_pago = GrupoPago::findOne($id_grupo_pago);
                     if(strtotime($grupo_pago->ultimo_pago_nomina) != strtotime($fecha_hasta)){
-                        $this->redirect(["programacion-nomina/view", 'id' => $id,
+                        
+                         Yii::$app->getSession()->setFlash('warning', 'Para procesar las cesantias de este grupo de pago, todo el personal debe de tener todas las nominas a '. $fecha_hasta .'.');
+                         return $this->redirect(["programacion-nomina/view", 'id' => $id,
                                         'id_grupo_pago' => $id_grupo_pago,
                                         'fecha_desde' => $fecha_desde,
                                         'fecha_hasta' => $fecha_hasta,
                                        ]);
-                        Yii::$app->getSession()->setFlash('warning', 'Para procesar las cesantias de este grupo de pago, todo el personal debe de tener todas las nominas a '. $fecha_hasta .'.');
+                       
                     }else{
                         //INICIO DE ACUMULADOS DE NOMINA
                         $configuracion_c= ConfiguracionPrestaciones::findOne(2);
@@ -2138,17 +2141,28 @@ class ProgramacionNominaController extends Controller {
                         }else{
                             $ano = 2;
                         }  
-                        $total_acumulado = 0; $suma = 0; $suma2 = 0;
+                        $total_acumulado = 0; 
                         $total_dias_ausentes = 0; $suma3 = 0; $salario_promedio = 0;
                         $dias_reales = 0; $pago_cesantia = 0; $ibp_cesantia_anterior = 0;
                         foreach ($nominas as $cesantias):
-                            $vector_nomina = ProgramacionNomina::find()->where(['>=', 'fecha_desde', $cesantias->fecha_desde])
-                                                                    ->andWhere(['=','id_contrato', $cesantias->id_contrato])
-                                                                    ->all();
-                            foreach ($vector_nomina as $acumular):
-                                 $suma += $acumular->ibc_prestacional;
-                                 $suma2 += $acumular->total_ibc_no_prestacional;
-                            endforeach;
+                            
+                            //algoritmo que acumula los devengados            
+                            $sumas = ProgramacionNomina::find()
+                                ->select([
+                                    'SUM(ibc_prestacional) AS total_ibc',
+                                    'SUM(total_licencia) AS total_licencias'
+                                ])
+                                ->where(['>=', 'fecha_desde', $cesantias->fecha_desde])
+                                ->andWhere(['<=', 'fecha_hasta', $cesantias->fecha_hasta])
+                                ->andWhere(['id_contrato' => $cesantias->id_contrato])
+                                ->andWhere(['id_tipo_nomina' => '1'])
+                                ->asArray() // Esto es importante para recibir los resultados como un array asociativo
+                                ->one();
+
+                            // Acceso a los resultados:
+                            $totalIbc = $sumas['total_ibc'] ?? 0;
+                            $totalLicencias = $sumas['total_licencias'] ?? 0;            
+
                             //INICIO ACUMULADO DE DIAS A DESCONTAR
                             $auxiliar = 0; 
                             if ($configuracion_c->aplicar_ausentismo == 1){
@@ -2165,16 +2179,14 @@ class ProgramacionNominaController extends Controller {
                                      endforeach; 
                                 endforeach;
                             }
+                            $total_acumulado = 0;
                             $contrato = Contrato::find()->where(['=','id_contrato', $cesantias->id_contrato])->one();
                             $ibp_cesantia_anterior = $contrato->ibp_cesantia_inicial;
                             if($ibp_cesantia_anterior > 0){
-                                $total_acumulado = 0;
-                                $total_acumulado = $suma + $suma2 + $ibp_cesantia_anterior;
-                                $suma = 0; $suma2 = 0 ;
+                                $total_acumulado = $totalIbc + $totalLicencias + $ibp_cesantia_anterior;
+                                
                             }else{
-                                $total_acumulado = 0;
-                                $total_acumulado = $suma + $suma2;
-                                $suma = 0; $suma2 = 0 ; $ibp_cesantia_anterior = 0;
+                                $total_acumulado = $totalIbc + $totalLicencias;
                             }
                            $total_dias_ausentes = $auxiliar;
                             $sw = 0;
@@ -2213,7 +2225,7 @@ class ProgramacionNominaController extends Controller {
                                 $detalle->fecha_desde =  $fecha_desde;
                                 $detalle->fecha_hasta =  $fecha_hasta;
                                 $detalle->id_periodo_pago_nomina = $id;
-                               $detalle->insert(false);
+                                $detalle->insert(false);
                                 $cesantias->dia_real_pagado = $dias_reales;
                                 $cesantias->dias_pago = $total_dias;
                                 $cesantias->total_devengado = $pago_cesantia;
@@ -2233,7 +2245,7 @@ class ProgramacionNominaController extends Controller {
               
             }
         }    
-            $this->redirect(["programacion-nomina/view", 'id' => $id,
+           return $this->redirect(["programacion-nomina/view", 'id' => $id,
                 'id_grupo_pago' => $id_grupo_pago,
                 'fecha_desde' => $fecha_desde,
                 'fecha_hasta' => $fecha_hasta,
@@ -5038,6 +5050,8 @@ class ProgramacionNominaController extends Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setAutoSize(true);
                             
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'NRO PAGO')
@@ -5052,7 +5066,9 @@ class ProgramacionNominaController extends Controller {
                     ->setCellValue('J1', 'TOTAL DEVENGADO')
                     ->setCellValue('K1', 'TOTAL DEDUCCION')
                     ->setCellValue('L1', 'NETO PAGAR')
-                    ->setCellValue('M1', 'IBP');
+                    ->setCellValue('M1', 'IBP')
+                    ->setCellValue('N1', 'DIAS PAGADO')
+                    ->setCellValue('O1', 'SALARIO PROMEDIO')  ;
         $i = 2;
         
         foreach ($nomina as $val) {
@@ -5069,7 +5085,9 @@ class ProgramacionNominaController extends Controller {
                     ->setCellValue('J' . $i, round($val->total_devengado,0))
                     ->setCellValue('K' . $i, round($val->total_deduccion,0))
                     ->setCellValue('L' . $i, round($val->total_pagar,0))
-                     ->setCellValue('M' . $i, round($val->ibc_prestacional,0));
+                    ->setCellValue('M' . $i, round($val->ibc_prestacional,0))
+                    ->setCellValue('N' . $i, $val->dia_real_pagado)
+                    ->setCellValue('O' . $i, round($val->salario_promedio,0));
             $i++;
         }
         $j = $i + 1;

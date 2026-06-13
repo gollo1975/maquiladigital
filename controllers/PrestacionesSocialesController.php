@@ -1072,24 +1072,38 @@ class PrestacionesSocialesController extends Controller
                
         }
         if($sw == 1){
-            $vector_nomina = ProgramacionNomina::find()->where(['>=', 'fecha_desde', $fecha_inicio_dias])
-                                                                       ->andWhere(['=','id_contrato', $model->id_contrato]) 
-                                                                       ->all();
-            foreach ($vector_nomina as $sumar_ibc_prestacional):
-              $suma +=  $sumar_ibc_prestacional->ibc_prestacional;
-              $suma2 += $sumar_ibc_prestacional->total_ibc_no_prestacional;
-            endforeach;
-             $total_suma = $suma + $suma2 + $contrato->ibp_prima_inicial;
+            $sumas = ProgramacionNomina::find()
+                ->select([
+                    'SUM(ibc_prestacional) AS total_ibc',
+                    'SUM(total_licencia) AS total_licencias'
+                ])
+                ->where(['>=', 'fecha_desde', $fecha_inicio_dias])
+                ->andWhere(['id_contrato' => $model->id_contrato])
+                ->asArray() // Esto es importante para recibir los resultados como un array asociativo
+                ->one();
+
+            // Acceso a los resultados:
+            $suma = $sumas['total_ibc'] ?? 0;
+            $suma2 = $sumas['total_licencias'] ?? 0;
+          
+            $total_suma = $suma + $suma2 + $contrato->ibp_prima_inicial;
         }
         if($sw == 2){
-            $vector_nomina = ProgramacionNomina::find()->where(['>=', 'fecha_inicio_contrato', $model->fecha_inicio_contrato])
-                                                                       ->andWhere(['=','id_contrato', $model->id_contrato]) 
-                                                                       ->all();
-            foreach ($vector_nomina as $sumar_ibc_prestacional):
-              $suma +=  $sumar_ibc_prestacional->ibc_prestacional;
-              $suma2 += $sumar_ibc_prestacional->total_ibc_no_prestacional;
-            endforeach;
-             $total_suma = $suma + $suma2 + $contrato->ibp_prima_inicial;
+            $sumas = ProgramacionNomina::find()
+                ->select([
+                    'SUM(ibc_prestacional) AS total_ibc',
+                    'SUM(total_licencia) AS total_licencias'
+                ])
+                ->where(['>=', 'fecha_inicio_contrato', $model->fecha_inicio_contrato])
+                ->andWhere(['id_contrato' => $model->id_contrato])
+                ->asArray() // Esto es importante para recibir los resultados como un array asociativo
+                ->one();
+          
+             // Acceso a los resultados:
+            $suma = $sumas['total_ibc'] ?? 0;
+            $suma2 = $sumas['total_licencias'] ?? 0;
+          
+            $total_suma = $suma + $suma2 + $contrato->ibp_prima_inicial;
         }
         $auxiliar = 0;
         if ($configuracion_p->aplicar_ausentismo == 1){

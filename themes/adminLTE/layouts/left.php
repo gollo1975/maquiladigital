@@ -308,7 +308,7 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                   ['label' => 'Programacion nómina', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/index']],
                                                   ['label' => 'Prestaciones sociales', 'icon' => 'plus-square-o', 'url' => ['/prestaciones-sociales/index']],  
                                                   ['label' => 'Vacaciones', 'icon' => 'plus-square-o', 'url' => ['/vacaciones/index']], 
-                                                  ['label' => 'Proyeccion prestaciones', 'icon' => 'plus-square-o', 'url' => ['/programacion-nomina/proyeccion_prestaciones_sociales']], 
+                                                  ['label' => 'Proyeccion prestaciones', 'icon' => 'plus-square-o', 'url' => ['/proyeccion-prestaciones/index']], 
                                                 ],
                                             ],
                                             [

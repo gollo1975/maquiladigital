@@ -32,7 +32,7 @@ $form = ActiveForm::begin([
         <div class="table table-responsive">
             <div class="panel panel-success ">
                 <div class="panel-heading" style="text-align: left ">
-                   Crear proyeccion prestaciones sociales
+                   Crear proyeccion de prestaciones sociales
                 </div>
                 <div class="panel-body">
                    <div class="row">
@@ -57,7 +57,7 @@ $form = ActiveForm::begin([
                        
                 </div>  
                     <div class="panel-footer text-right">
-                       <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Crear periodo", ["class" => "btn btn-primary", 'name' => 'crear_proyeccion']) ?>                    
+                       <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Crear poryeccion", ["class" => "btn btn-primary", 'name' => 'crear_proyeccion']) ?>                    
                    </div>
                 
             </div>

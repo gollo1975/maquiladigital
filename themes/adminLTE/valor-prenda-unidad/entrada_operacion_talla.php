@@ -186,11 +186,14 @@ $tiempo_desuso = \app\models\ValorPrendaUnidadDetalles::find()
                 $valor_contrato = 0; 
                 $total_unidades = 0;
                 $valor_vinculado = 0;
+               
                 if ($detalle_balanceo){
                     $configuracionEst = \app\models\ConfiguracionEstampacionApp::findOne(1);
                     foreach ($detalle_balanceo as $val):
                         $flujo = app\models\Ordenproducciondetalleproceso::find()->where(['=','idproceso', $val->id_proceso])->andWhere(['=','iddetalleorden', $id_detalle])->one();
-                        if($flujo){
+                        
+                         if($flujo){
+                           
                              $total_unidades = $flujo->total_unidades_operacion - $flujo->unidades_confeccionadas;
                         }else{
                            $total_unidades; 

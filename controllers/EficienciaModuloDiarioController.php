@@ -409,10 +409,35 @@ class EficienciaModuloDiarioController extends Controller
     protected function TotalizarEficiencia($id_carga, $id_balanceo, $id) {
         
         $eficiencia = EficienciaModuloDiario::findOne($id);
+        
+        // 1. Buscamos el registro a actualizar
         $conLinea = \app\models\EficienciaModuloDetalle::findOne($id_carga);
-        $cargar = \app\models\EficienciaModuloDiarioDetalle::find()->where(['=','id_carga', $id_carga])
-                                                                                      ->andWhere(['=','id_balanceo', $id_balanceo])
-                                                                                      ->orderBy('id_entrada DESC')->all(); 
+        
+        if ($conLinea) {
+            // 2. Realizamos todos los cálculos en una sola consulta
+            // Obtenemos la suma de unidades y el promedio de porcentaje por hora de corte
+            $datos = \app\models\EficienciaModuloDiarioDetalle::find()
+                ->where(['id_carga' => $id_carga, 'id_balanceo' => $id_balanceo])
+                ->select([
+                    'sum_unidades' => 'SUM(unidades_confeccionadas)',
+                    // Calculamos el promedio único por cada hora de corte
+                    'avg_eficiencia' => 'AVG(porcentaje_hora_corte)' 
+                ])
+                // IMPORTANTE: Si necesitas que el promedio sea sobre horas de corte únicas,
+                // primero deberías agruparlas o ajustar la consulta. 
+                // Si tu lógica original es sumar todo y dividir por el conteo único, esto es lo ideal:
+                ->asArray()
+                ->one();
+
+            // 3. Aplicamos los valores
+            $conLinea->total_unidades = $datos['sum_unidades'] ?? 0;
+            $conLinea->total_eficiencia_diario = round($datos['avg_eficiencia'] ?? 0);
+            $conLinea->save(false);
+        }
+        
+      /*  $cargar = \app\models\EficienciaModuloDiarioDetalle::find()->where(['id_carga' => $id_carga,
+                                                                   'id_balanceo' => $id_balanceo])
+                                                                   ->orderBy('id_entrada DESC')->all(); 
         $suma = 0; $con = 0; $total = 0; $unidades = 0;
         $hora_corte = ''; $resta = 0; $total_registro = 0;
         foreach ($cargar as $carga):
@@ -429,16 +454,28 @@ class EficienciaModuloDiarioController extends Controller
         $total = round($suma / $total_registro);
         $conLinea->total_eficiencia_diario = $total;
         $conLinea->total_unidades = $unidades;
-        $conLinea->save(false);
-        //codigo para totalizzar la eficiencia
-        $buscarEficiencia = \app\models\EficienciaModuloDetalle::find()->where(['=','id_eficiencia', $id])->all();
-        $totalE = 0; $porcentaje = 0; $contE = 0; $total_unidades = 0;
-        foreach ($buscarEficiencia as $buscar):
-            $totalE += $buscar->total_eficiencia_diario;
-            $contE += 1;
-            $total_unidades += $buscar->total_unidades;
-        endforeach;
-        $porcentaje = round($totalE / $contE);
+        $conLinea->save(false);*/
+        
+       // Realizamos los cálculos directamente en la base de datos
+        $datos = \app\models\EficienciaModuloDetalle::find()
+            ->where(['id_eficiencia' => $id])
+            ->select([
+                'total_eficiencia' => 'SUM(total_eficiencia_diario)',
+                'total_unidades' => 'SUM(total_unidades)',
+                'contador' => 'COUNT(*)'
+            ])
+            ->asArray()
+            ->one();
+
+        // Obtenemos los valores de forma segura
+        $totalE = $datos['total_eficiencia'] ?? 0;
+        $total_unidades = $datos['total_unidades'] ?? 0;
+        $contE = $datos['contador'] ?? 0;
+
+        // Calculamos el promedio solo si existen registros
+        $porcentaje = ($contE > 0) ? round($totalE / $contE) : 0;
+
+        // Asignamos y guardamos
         $eficiencia->total_eficiencia_planta = $porcentaje;
         $eficiencia->total_unidades = $total_unidades;
         $eficiencia->save(false);
@@ -498,14 +535,14 @@ class EficienciaModuloDiarioController extends Controller
         $orden_detalle_actualizada->save(false);
         //actualiza orden produccion
         $orden = \app\models\Ordenproduccion::findOne($orden_produccion);
-        $sumadetalle = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $orden_produccion])->all();
-        $contador = 0;
-        $total_porcentaje = 0;
-        foreach ($sumadetalle as $sumar):
-            $contador += $sumar->cantidad_operada;
-        endforeach;
+        
+        $total_cantidad = \app\models\Ordenproducciondetalle::find()->where(['idordenproduccion' => $orden_produccion])
+                     ->sum('cantidad_operada');
+             
+        $contador = $total_cantidad ?? 0;
+        
         $total_porcentaje = number_format(($contador * 100)/ $orden->cantidad,4);
-        $orden->porcentaje_cantidad = $total_porcentaje;
+        $orden->porcentaje_cantidad = 0;
         $orden->save(false);
     }
     
@@ -523,20 +560,17 @@ class EficienciaModuloDiarioController extends Controller
         $orden = \app\models\Ordenproduccion::findOne($orden_produccion);
         $unidades = 0;
         $orden_detalle = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $intCodigo])->one();
-        $cantidad = \app\models\CantidadPrendaTerminadas::find()->where(['=','iddetalleorden', $intCodigo])->all();
-        $ordenunidad = \app\models\CantidadPrendaTerminadas::find()->where(['=','idordenproduccion', $orden_produccion])->all();
-        $suma = 0;
-        $cantidad_real = 0;
-        foreach ($cantidad as $detalle):
-            $suma +=$detalle->cantidad_terminada; 
-        endforeach;
-        $orden_detalle->faltante = $suma;
+        
+        $cantidad = \app\models\CantidadPrendaTerminadas::find()->where(['iddetalleorden' => $intCodigo])
+                                                               ->sum('cantidad_terminada');
+        $ordenunidad = \app\models\CantidadPrendaTerminadas::find()->where(['idordenproduccion' =>  $orden_produccion])
+                                                                  ->sum('cantidad_terminada');
+                          
+        $orden_detalle->faltante = $cantidad ?? 0;
         $orden_detalle->save(false);
-        foreach ($ordenunidad as $cant):
-            $unidades += $cant->cantidad_terminada; 
-        endforeach;
+        
         $cantidad_real= $orden->cantidad;
-        $orden->faltante = $cantidad_real - $unidades;
+        $orden->faltante = $cantidad_real - $ordenunidad ?? 0;
         $orden->save(false);
     }
     

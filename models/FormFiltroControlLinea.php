@@ -16,6 +16,7 @@ class FormFiltroControlLinea extends Model
     public $operario;
     public $nueva_fecha;
     public $nueva_linea;
+    public $validar_eficiencia;
 
 
     /**
@@ -24,7 +25,7 @@ class FormFiltroControlLinea extends Model
     public function rules()
     {
         return [
-            [['operario','nueva_linea'], 'integer'],
+            [['operario','nueva_linea','validar_eficiencia'], 'integer'],
             [['desde', 'hasta','nueva_fecha'], 'safe'],
         ];
     }
@@ -40,6 +41,7 @@ class FormFiltroControlLinea extends Model
             'hasta' => 'Fecha de corte:',
             'nueva_linea' => 'Ccambio de linea',
             'nueva_fecha' => 'Nueva_fecha',
+            'validar_eficiencia' => 'Aplica ultima linea'
         ];
     }
      

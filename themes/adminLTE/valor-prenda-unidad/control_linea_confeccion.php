@@ -52,31 +52,36 @@ $conOpeario = ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecom
 	
     <div class="panel-body" id="filtro" style="display:block">
         <div class="row" >
-            <?= $formulario->field($form, 'operario')->widget(Select2::classname(), [
-                'data' => $conOpeario,
-                'options' => ['prompt' => 'Seleccione el operario...'],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ]); ?>
-        </div>   
-         <div class="row" >  
+            
+       
             <?= $formulario->field($form, 'desde')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                     'orientation' => 'bottom']])
             ?>
              <?= $formulario->field($form, 'hasta')->widget(DatePicker::className(), ['name' => 'check_issue_date',
                 'value' => date('d-M-Y', strtotime('+2 days')),
                 'options' => ['placeholder' => 'Seleccione una fecha ...'],
                 'pluginOptions' => [
                     'format' => 'yyyy-m-d',
-                    'todayHighlight' => true]])
+                    'todayHighlight' => true,
+                     'orientation' => 'bottom']])
             ?>
-            
+            <?= $formulario->field($form, 'operario')->widget(Select2::classname(), [
+                'data' => $conOpeario,
+                'options' => ['prompt' => 'Seleccione el operario...'],
+                'pluginOptions' => [
+                    'allowClear' => true,
+                    
+                ],
+            ]); ?>
         </div>
+         <div class="row checkbox checkbox-success" align ="center">
+                <?= $formulario->field($form, 'validar_eficiencia')->checkbox(['label' => 'Buscar ultima linea', '1' =>'small', 'class'=>'bs_switch','style'=>'margin-bottom:10px;', 'id'=>'validar_eficiencia']) ?>
+            </div>
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
             <a align="right" href="<?= Url::toRoute("valor-prenda-unidad/control_linea_confeccion") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
@@ -105,7 +110,7 @@ $conOpeario = ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecom
         <li role="presentation" active = "panel"><a href="#detalle_lineas" aria-controls="detalle_linea" role="tab" data-toggle="tab">Detalle de lineas <span class="badge"><?= $contar ?></span></a></li>
     </ul>
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="detalle_lineas">
+        <div role="tabpanel" class="tab-panel active" id="detalle_lineas">
              <div class="table-responsive">
                 <div class="panel panel-success">
                     <div class="panel-body">
@@ -139,18 +144,35 @@ $conOpeario = ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecom
                                             <td><?= $lineas->hora_corte?></td>
                                             <td><?= $lineas->hora_descontar?></td>
                                             <td style ="width: 20px; height: 20px">
-                                              <!-- Inicio Nuevo Detalle proceso -->
-                                                <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>',
-                                                    ['/valor-prenda-unidad/editar_linea_confeccion', 'id_detalle' => $lineas->consecutivo],
-                                                    [
-                                                        'title' => 'Editar lineas de confeccion',
-                                                        'data-toggle'=>'modal',
-                                                        'data-target'=>'#modaleditarlineasconfeccion',
-                                                        'class' => '',
-                                                         'data-backdrop' => 'static',
-                                                    ])    
-                                               ?>
+                                              <!-- Inicio Nuevo de editar lineas -->
+                                              <?php
+                                              if($validar_eficiencia){
+                                                  echo Html::a('<span class="glyphicon glyphicon-pencil"></span>',
+                                                        ['/valor-prenda-unidad/editar_linea_hora_corte', 'id_detalle' => $lineas->consecutivo],
+                                                            [
+                                                                'title' => 'Editar hora corte de la ultima linea',
+                                                                'data-toggle'=>'modal',
+                                                                'data-target'=>'#modaleditarlineahoracorte',
+                                                                'class' => '',
+                                                                 'data-backdrop' => 'static',
+                                                            ]);    
+                                              }else{
+                                                    echo Html::a('<span class="glyphicon glyphicon-pencil"></span>',
+                                                        ['/valor-prenda-unidad/editar_linea_confeccion', 'id_detalle' => $lineas->consecutivo],
+                                                            [
+                                                                'title' => 'Editar lineas de confeccion',
+                                                                'data-toggle'=>'modal',
+                                                                'data-target'=>'#modaleditarlineasconfeccion',
+                                                                'class' => '',
+                                                                 'data-backdrop' => 'static',
+                                                            ]);    
+                                                }?>
                                             </div> 
+                                            <div class="modal remote fade" id="modaleditarlineahoracorte">
+                                                <div class="modal-dialog modal-lg" style ="width: 500px;">
+                                                    <div class="modal-content"></div>
+                                                </div>
+                                            </div>
                                             <div class="modal remote fade" id="modaleditarlineasconfeccion">
                                                 <div class="modal-dialog modal-lg" style ="width: 500px;">
                                                     <div class="modal-content"></div>

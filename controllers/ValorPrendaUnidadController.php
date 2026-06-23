@@ -764,15 +764,26 @@ class ValorPrendaUnidadController extends Controller
                 $operario = null;
                 $desde = null;
                 $hasta = null; $model = null;
+                $validar_eficiencia = 0;
                 if ($form->load(Yii::$app->request->get())) {
                     if ($form->validate()) {
                         $operario = Html::encode($form->operario);
                         $desde = Html::encode($form->desde);
                         $hasta = Html::encode($form->hasta);
+                        $validar_eficiencia = Html::encode($form->validar_eficiencia);
+                        
                         if($hasta <> null && $desde <> null && $hasta <> null){
-                            $table = ValorPrendaUnidadDetalles::find()
-                                        ->andFilterWhere(['=', 'id_operario', $operario])
-                                       ->andFilterWhere(['between', 'dia_pago', $desde, $hasta]);
+                            if($validar_eficiencia){
+                                $table = ValorPrendaUnidadDetalles::find()
+                                            ->andFilterWhere(['=', 'id_operario', $operario])
+                                           ->andFilterWhere(['between', 'dia_pago', $desde, $hasta])
+                                           ->andWhere(['tipo_aplicacion' => 1])
+                                           ->limit($validar_eficiencia);
+                            }else{
+                                $table = ValorPrendaUnidadDetalles::find()
+                                            ->andFilterWhere(['=', 'id_operario', $operario])
+                                           ->andFilterWhere(['between', 'dia_pago', $desde, $hasta]);
+                            }    
                             $table = $table->orderBy('consecutivo DESC');
                             $model = $table->all();
                         }else{
@@ -785,6 +796,7 @@ class ValorPrendaUnidadController extends Controller
                 return $this->render('control_linea_confeccion', [
                             'model' => $model,
                             'form' => $form,
+                            'validar_eficiencia' => $validar_eficiencia,
                 ]);
            } else {
                 return $this->redirect(['site/sinpermiso']);
@@ -2722,6 +2734,23 @@ class ValorPrendaUnidadController extends Controller
             
         }
          return $this->renderAjax('_editar_linea_confeccion', [
+            'model' => $model,       
+        ]);    
+    }
+    
+     //EDITAR LINEA DE CONFECCION
+    public function actionEditar_linea_hora_corte($id_detalle) {
+        
+        $model = ValorPrendaUnidadDetalles::findOne($id_detalle);
+        
+        if ($model->load(Yii::$app->request->post())) {
+            if (isset($_POST["actualizar_linea"])) {
+                $model->save(false);
+                return $this->redirect(['valor-prenda-unidad/control_linea_confeccion']);
+            }
+            
+        }
+         return $this->renderAjax('_editar_linea_hora_corte', [
             'model' => $model,       
         ]);    
     }

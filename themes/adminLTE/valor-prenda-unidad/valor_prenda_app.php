@@ -15,6 +15,7 @@ use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
 use app\models\ValorPrendaUnidadDetalles;
 use app\models\Matriculaempresa;
+use yii\widgets\Pjax;   
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\FichatiempoSearch */
@@ -361,6 +362,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         </td>
                                 </table>
                             <?php }else{?>  <!--TERMINA SI EL SW == 1,-->
+                            <?php Pjax::begin(['id' => 'eficiencia-pjax-container', 'timeout' => false, 'enablePushState' => false]); ?>
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                          <tr style ='font-size:85%;'>    
@@ -623,8 +625,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     chart.render();
                                     </script>
 
-                                    
+                                <?php Pjax::end(); ?>    
                                 <?php
+                                
                                 }
                            } ?>   
                     </div>
@@ -642,16 +645,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
 
 
 <script type="text/javascript">
+    // Ejecutar una recarga automática cada 30 segundos
     setInterval(function() {
-        // Generamos la URL de Yii2 con los parámetros de fecha actuales
-        var urlRefresh = '<?= \yii\helpers\Url::to(['eficiencia-realtime', 'dia_pago' => $dia_pago, 'fecha_corte' => $fecha_corte, 'hora_inicio' => $hora_inicio, 'hora_final' => $hora_final]) ?>';
-
-        fetch(urlRefresh)
-            .then(response => response.json())
-            .then(nuevosDatos => {
-                // ApexCharts actualiza los bloques del mapa con una animación fluida
-                ApexCharts.exec('chart-realtime-heatmap', 'updateSeries', nuevosDatos);
-            })
-            .catch(error => console.error("Error al actualizar tiempo real:", error));
-    }, 30000); // 30000ms = 30 Segundos
+        if ($.support.pjax) {
+            // Pjax se encarga de ir al controlador actual, traer la info nueva y redibujar todo
+            $.pjax.reload({container: '#eficiencia-pjax-container', async: true});
+        }
+    }, 30000); // 30000ms = 30 segundos
 </script>

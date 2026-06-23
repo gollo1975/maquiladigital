@@ -113,8 +113,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
 <div class="table-responsive">
     <?php if($validar_eficiencia == 1){?>
         <ul class="nav nav-tabs" role="tablist">
-           <li role="presentation" class="active"><a href="#listado" aria-controls="listado" role="tab" data-toggle="tab">Listado <span class="badge"><?= $pagination->totalCount ?></span></a></li>
-           <li role="presentation" ><a href="#eficiencia" aria-controls="eficiencia" role="tab" data-toggle="tab">Eficiencia <span class="badge"></span></a></li>
+           <li role="presentation"><a href="#listado" aria-controls="listado" role="tab" data-toggle="tab">Listado <span class="badge"><?= $pagination->totalCount ?></span></a></li>
+           <li role="presentation" class="active"><a href="#eficiencia" aria-controls="eficiencia" role="tab" data-toggle="tab">Eficiencia <span class="badge"></span></a></li>
         </ul>
     <?php }else{ ?>
         <ul class="nav nav-tabs" role="tablist">
@@ -124,7 +124,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         </ul>
     <?php }?>
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="listado">
+        <div role="tabpanel" class="tab-pane" id="listado">
             <div class="table-responsive">
                 <div class="panel panel-success">
                     <div class="panel-body">
@@ -218,7 +218,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
             </div>    
         </div>
         <!-- FIN TABS-->
-         <div role="tabpanel" class="tab-pane" id="eficiencia">
+         <div role="tabpanel" class="tab-pane active" id="eficiencia">
             <div class="table-responsive">
                 <div class="panel panel-success">
                     <div class="panel-body">

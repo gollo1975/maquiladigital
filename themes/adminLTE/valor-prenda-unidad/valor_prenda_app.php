@@ -378,7 +378,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <?php
                                         //valor dia
                                         $parametros = app\models\Parametros::findOne(1);
-                                       $query = new Query();
+                                        $query = new Query();
                                         $resultados = $query->select([
                                             't1.id_operario',
                                             't2.documento',
@@ -470,6 +470,46 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 $total_venta_planta += $acumulado_venta;
                                                 $total_pagar_operario += $row['total_generado'];
                                                 endforeach;
+                                               
+                                                // 1. Agrupar los resultados por Operario para el formato de ApexCharts
+                                                $grupisHeatmap = [];
+
+                                                if (!empty($resultados)) {
+                                                    foreach ($resultados as $row) {
+                                                        // Calculamos el mismo promedio que usas en tu tabla HTML
+                                                        $promedio_operario = ($row['total_operaciones'] > 0) ? ($row['total_porcentaje_cumplimiento'] / $row['total_operaciones']) : 0;
+
+                                                        $operario = $row['nombrecompleto'];
+                                                        $planta = $row['nombre_planta'] ?? 'Sin Planta';
+
+                                                        if (!isset($grupisHeatmap[$operario])) {
+                                                            $grupisHeatmap[$operario] = [];
+                                                        }
+
+                                                        // Añadimos el punto de datos (X = Planta, Y = Eficiencia)
+                                                        $grupisHeatmap[$operario][] = [
+                                                            'x' => $planta,
+                                                            'y' => round($promedio_operario, 2)
+                                                        ];
+                                                    }
+                                                }
+                                                
+                                                // 2. Convertimos al formato final de Series
+                                                $seriesHeatmap = [];
+                                                foreach ($grupisHeatmap as $operario => $dataPoints) {
+                                                    $seriesHeatmap[] = [
+                                                        'name' => $operario, // Eje Y (Filas del mapa de calor)
+                                                        'data' => $dataPoints // Puntos en el Eje X (Columnas)
+                                                    ];
+                                                }
+
+                                                // 3. Lo convertimos a JSON para pasarlo a JavaScript
+                                                $jsonHeatmap = json_encode($seriesHeatmap);
+
+                                                // Obtenemos tus variables de empresa para mapear los mismos colores en el gráfico
+                                                $porcentaje_bonifica = isset($empresa->porcentaje_empresa) ? floatval($empresa->porcentaje_empresa) : 90;
+                                                $porcentaje_minimo   = isset($empresa->porcentaje_minima_eficiencia) ? floatval($empresa->porcentaje_minima_eficiencia) : 70;
+                                                
                                             }else{?>
                                                   
                                                 <tr>
@@ -506,7 +546,83 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                           
                                         </tr>    
                                     </table> 
-                          
+                            
+                                    <div class="row" style="margin-top: 20px; margin-bottom: 20px;">
+                                        <div class="col-md-12">
+                                            <div class="box box-success">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title"><span class="glyphicon glyphicon-th"></span> Mapa de Calor: Eficiencia por Operario y Planta</h3>
+                                                </div>
+                                                <div class="box-body">
+                                                    <div id="heatmap-eficiencia-planta"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+                                    <script>
+                                    // Inyectamos los datos procesados en PHP
+                                    var datosHeatmap = <?= $jsonHeatmap ?>;
+                                    var limiteBonifica = <?= $porcentaje_bonifica ?>;
+                                    var limiteMinimo = <?= $porcentaje_minimo ?>;
+
+                                    var options = {
+                                        series: datosHeatmap,
+                                        chart: {
+                                            id: 'chart-realtime-heatmap',
+                                            height: 450,
+                                            type: 'heatmap',
+                                            toolbar: { show: true }
+                                        },
+                                        dataLabels: {
+                                            enabled: true,
+                                            formatter: function (val) {
+                                                return val + "%"; // Muestra el porcentaje dentro de cada celda
+                                            },
+                                            style: { colors: ['#fff'] }
+                                        },
+                                        plotOptions: {
+                                            heatmap: {
+                                                enableShades: false, // Colores sólidos basados en tus reglas de negocio
+                                                colorScale: {
+                                                    ranges: [
+                                                        { 
+                                                            from: 0, 
+                                                            to: limiteMinimo, 
+                                                            color: '#FF4560', // Rojo
+                                                            name: 'No Cumple (<' + limiteMinimo + '%)' 
+                                                        },
+                                                        { 
+                                                            from: limiteMinimo + 0.01, 
+                                                            to: limiteBonifica, 
+                                                            color: '#00E396', // Verde
+                                                            name: 'Cumple Empresa' 
+                                                        },
+                                                        { 
+                                                            from: limiteBonifica + 0.01, 
+                                                            to: 150, 
+                                                            color: '#008FFB', // Azul (Gana bonificación como pusiste en tu CSS/HTML)
+                                                            name: 'Bonifica (>' + limiteBonifica + '%)' 
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        xaxis: {
+                                            type: 'category',
+                                            title: { text: 'Plantas / Módulos de Producción' }
+                                        },
+                                        title: {
+                                            text: 'Rendimiento Actualizado'
+                                        }
+                                    };
+
+                                    var chart = new ApexCharts(document.querySelector("#heatmap-eficiencia-planta"), options);
+                                    chart.render();
+                                    </script>
+
                                     
                                 <?php
                                 }
@@ -523,3 +639,19 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
 <?php if($modelo){?>
     <?= LinkPager::widget(['pagination' => $pagination]) ?>
 <?php }?>
+
+
+<script type="text/javascript">
+    setInterval(function() {
+        // Generamos la URL de Yii2 con los parámetros de fecha actuales
+        var urlRefresh = '<?= \yii\helpers\Url::to(['eficiencia-realtime', 'dia_pago' => $dia_pago, 'fecha_corte' => $fecha_corte, 'hora_inicio' => $hora_inicio, 'hora_final' => $hora_final]) ?>';
+
+        fetch(urlRefresh)
+            .then(response => response.json())
+            .then(nuevosDatos => {
+                // ApexCharts actualiza los bloques del mapa con una animación fluida
+                ApexCharts.exec('chart-realtime-heatmap', 'updateSeries', nuevosDatos);
+            })
+            .catch(error => console.error("Error al actualizar tiempo real:", error));
+    }, 30000); // 30000ms = 30 Segundos
+</script>

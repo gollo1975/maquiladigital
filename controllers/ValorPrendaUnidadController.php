@@ -388,6 +388,52 @@ class ValorPrendaUnidadController extends Controller
         }
     }
     
+    //PROCESO QUE PERMITE ARMAR LA ESTRUCTURA DEL MAA DE CALOR
+    public function actionEficienciaRealtime($dia_pago, $fecha_corte, $hora_inicio = null, $hora_final = null)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $parametros = app\models\Parametros::findOne(1);
+        $query = new Query();
+        $resultados = $query->select([
+            't1.id_operario',
+            't2.documento',
+            't2.nombrecompleto',
+            't3.nombre_planta',
+            't2.vinculado',
+            'SUM(t1.porcentaje_cumplimiento) AS total_porcentaje_cumplimiento',
+            'SUM(t1.vlr_pago) AS total_generado',
+            'SUM(t1.total_valor_venta) AS total_venta',
+            'COUNT(*) AS total_operaciones',
+        ])
+        ->from(['t1' => 'valor_prenda_unidad_detalles'])
+        ->leftJoin(['t2' => 'operarios'], 't1.id_operario = t2.id_operario')
+        ->leftJoin(['t3' => 'planta_empresa'], 't1.id_planta = t3.id_planta')
+        ->where(['between', 't1.dia_pago', $dia_pago, $fecha_corte])
+        ->andFilterWhere(['between', 't1.hora_corte', $hora_inicio, $hora_final])         
+        ->andWhere(['t1.id_planta' => $id_planta])
+        ->andWhere(['t1.tipo_aplicacion' => 1])        
+        ->groupBy(['t1.id_operario', 't2.nombrecompleto', 't2.documento', 't3.nombre_planta'])
+        ->orderBy(['t1.id_operario' => SORT_ASC]);
+       
+        $resultados = $query->all();
+
+        $grupisHeatmap = [];
+        foreach ($resultados as $row) {
+            $promedio_operario = ($row['total_operaciones'] > 0) ? ($row['total_porcentaje_cumplimiento'] / $row['total_operaciones']) : 0;
+            $grupisHeatmap[$row['nombrecompleto']][] = [
+                'x' => $row['nombre_planta'] ?? 'Sin Planta',
+                'y' => round($promedio_operario, 2)
+            ];
+        }
+
+        $series = [];
+        foreach ($grupisHeatmap as $operario => $dataPoints) {
+            $series[] = ['name' => $operario, 'data' => $dataPoints];
+        }
+
+        return $series; // Yii automáticamente lo envía como JSON legítimo
+    }
+
      //index de consulta o pago
     public function actionIndexSamMuerto() {
         if (Yii::$app->user->identity) {

@@ -54,7 +54,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
         Filtros de busqueda <i class="glyphicon glyphicon-filter"></i>
     </div>
 	
-    <div class="panel-body" id="filtro" style="display:block">
+    <div class="panel-body" id="filtro" style="display:none">
         <div class="row" >
          
             

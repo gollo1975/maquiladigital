@@ -617,7 +617,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             title: { text: 'Plantas / Módulos de Producción' }
                                         },
                                         title: {
-                                            text: 'Rendimiento Actualizado'
+                                            text: ''
                                         }
                                     };
 

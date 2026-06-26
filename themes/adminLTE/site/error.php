@@ -8,37 +8,38 @@ use yii\helpers\Html;
 /* @var $exception Exception */
 
 $this->title = $name;
+
+// Determinar el color del error según el código de estado
+$statusCode = isset($exception) ? $exception->statusCode : 500;
+$textColor = ($statusCode == 404) ? 'text-warning' : 'text-danger';
+$icon = ($statusCode == 404) ? 'fa-exclamation-triangle' : 'fa-ban';
 ?>
-<section class="content">
+<section class="content" style="padding-top: 50px;">
 
-    <div class="error-page">
-        <h2 class="headline text-info"><i class="fa fa-warning text-yellow"></i></h2>
+    <div class="error-page d-flex align-items-start">
+        <h2 class="headline <?= $textColor ?> mr-4" style="font-size: 100px; font-weight: 300; margin-top: -20px;">
+            <?= $statusCode ?>
+        </h2>
 
-        <div class="error-content">
-            <h3><?= $name ?></h3>
+        <div class="error-content" style="margin-left: 20px;">
+            <h3>
+                <i class="fa <?= $icon ?> <?= $textColor ?>"></i> <?= Html::encode($this->title) ?>
+            </h3>
 
-            <p>
+            <p class="lead text-muted" style="margin-top: 15px;">
                 <?= nl2br(Html::encode($message)) ?>
             </p>
 
             <p>
-                The above error occurred while the Web server was processing your request.
-                Please contact us if you think this is a server error. Thank you.
-                Meanwhile, you may <a href='<?= Yii::$app->homeUrl ?>'>return to dashboard</a> or try using the search
-                form.
+                El error anterior ocurrió mientras el servidor web procesaba su solicitud.
+                Por favor, póngase en contacto con el administrador si cree que se trata de un error del sistema. Muchas gracias.
+            </p>
+            
+            <p class="mt-4">
+                Mientras tanto, puede <a class="btn btn-sm btn-primary" href='<?= Yii::$app->homeUrl ?>'><i class="fa fa-home"></i> Regresar al Inicio</a>
             </p>
 
-            <form class='search-form'>
-                <div class='input-group'>
-                    <input type="text" name="search" class='form-control' placeholder="Search"/>
-
-                    <div class="input-group-btn">
-                        <button type="submit" name="submit" class="btn btn-primary"><i class="fa fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
+            </div>
     </div>
 
 </section>

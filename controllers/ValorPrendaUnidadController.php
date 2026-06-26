@@ -152,35 +152,50 @@ class ValorPrendaUnidadController extends Controller
     }
     
    //INDEX DE LA APP
-   public function actionIngreso_eficiencia_empleado() {
-        if (Yii::$app->user->identity) {
-            if (UsuarioDetalle::find()->where(['=', 'codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=', 'id_permiso', 165])->all()) {
-                $tokenUsuario = Yii::$app->user->identity->username;
-                $modelo = null;
-                $tokenOperario = null;
-                $id_planta = null;
-                $tokenPlanta = Operarios::find()->where(['=','documento', Yii::$app->user->identity->username])->one();
-                 $tokenPlanta->id_planta;
-                if($tokenPlanta){
-                    $tokenOperario = $tokenPlanta->id_operario;
-                    $id_planta = $tokenPlanta->id_planta;
-                    $table = ValorPrendaUnidad::find()->where(['=','id_planta', $tokenPlanta->id_planta])->andWhere(['=','cerrar_pago', 0])->orderBy('id_valor DESC')->all();
-                    $modelo = $table;
-                }else{
-                    Yii::$app->getSession()->setFlash('error', 'El documento del operario no coincide con el usuario ingresado. valide la informacion');
-                }
-                return $this->render('app_index', [
-                      'modelo' => $modelo,  
-                      'tokenOperario' =>$tokenOperario,
-                      'id_planta' => $id_planta,
-                ]); 
-            }else{
-              return $this->redirect(['site/sinpermiso']);  
-            }
-        }else{
-           return $this->redirect(['site/login']);
-        }    
-       
+   public function actionIngreso_eficiencia_empleado()
+   {
+      
+        if (!Yii::$app->user->identity) {
+            return $this->redirect(['site/login']);
+        }
+        
+        // OPTIMIZACIÓN: Usar ->exists() en lugar de ->all() es mucho más rápido y consume menos memoria
+        $tienePermiso = UsuarioDetalle::find()
+            ->where(['codusuario' => Yii::$app->user->identity->codusuario])
+            ->andWhere(['id_permiso' => 165])
+            ->exists();
+
+        if (!$tienePermiso) {
+            return $this->redirect(['site/sinpermiso']);  
+        }
+        $tokenUsuario = Yii::$app->user->identity->username;
+        $modelo = null;
+        $tokenOperario = null;
+        $id_planta = null;
+
+        $tokenPlanta = Operarios::find()->where(['documento' => $tokenUsuario])->one();
+        
+        if ($tokenPlanta) {
+            $tokenOperario = $tokenPlanta->id_operario;
+            $id_planta = $tokenPlanta->id_planta;
+
+            // Carga los datos de la tabla si el pago no está cerrado
+            $modelo = ValorPrendaUnidad::find()
+                ->where(['id_planta' => $id_planta])
+                ->andWhere(['cerrar_pago' => 0])
+                ->orderBy('id_valor DESC')
+                ->all();
+        } else {
+            Yii::$app->getSession()->setFlash('error', 'El documento del operario no coincide con el usuario ingresado. Valide la información.');
+            // CORREGIDO: Redirección ajustada al nuevo nombre de la acción
+            return $this->redirect(['ingreso-eficiencia-empleado']);
+        }
+
+        return $this->render('app_index', [
+            'modelo' => $modelo,  
+            'tokenOperario' => $tokenOperario,
+            'id_planta' => $id_planta,
+        ]);
        
    }
     
@@ -1133,13 +1148,13 @@ class ValorPrendaUnidadController extends Controller
     
     //VISTA PARA PASARA LA TALLAS DE LA OP
     public function actionView_produccion($id, $idordenproduccion, $id_planta, $tokenOperario){
-     //   $detalle_orden = \app\models\Ordenproducciondetalle::find()->where(['=','idordenproduccion', $idordenproduccion])->andWhere(['=','id_planta', $id_planta])->all();
+     
         $detalle_orden = \app\models\Ordenproducciondetalle::find()
-    ->where(['idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta])
-    ->with([
-        'productodetalle.prendatipo.talla' // <--- TRAE TODO DE UN SOLO GOLPE
-    ])
-    ->all();
+        ->where(['idordenproduccion' => $idordenproduccion, 'id_planta' => $id_planta])
+        ->with([
+            'productodetalle.prendatipo.talla' // <--- TRAE TODO DE UN SOLO GOLPE
+        ])
+        ->all();
        
         //buscamos si hay hora y corte creado
         $buscaHora = \app\models\HoraCorteEficienciaApp::find()
@@ -1245,10 +1260,11 @@ class ValorPrendaUnidadController extends Controller
         $talla = \app\models\Ordenproducciondetalle::findOne($id_detalle);
         $detalle_op = \app\models\Ordenproducciondetalle::find()->where(['=','iddetalleorden', $id_detalle])->one();
         
-        $listado_confeccion = ValorPrendaUnidadDetalles::find()->where(['=','idordenproduccion', $idordenproduccion])
-                                                               ->andWhere(['=','id_valor', $id])
-                                                               ->andWhere(['=','iddetalleorden', $id_detalle]);
+        $listado_confeccion = ValorPrendaUnidadDetalles::find()->where(['idordenproduccion' => $idordenproduccion,
+                                                                        'id_valor' => $id, 'iddetalleorden' => $id_detalle]);
+        
         $listado_confeccion = $listado_confeccion->orderBy('consecutivo DESC');
+       
         $tableexcel = $listado_confeccion->all();
         $count = clone $listado_confeccion;
         $to = $count->count();

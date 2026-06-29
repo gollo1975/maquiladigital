@@ -119,6 +119,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                 <div class="panel panel-success">
                     <div class="panel-body">
                         <?php
+                        if (!empty($model)){
                              $empresa = Matriculaempresa::findOne(1);
                             
                             if($sw == 1) { ?> <!--<!-- SI SELECCIONA EL OPERARIO -->
@@ -131,6 +132,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <th scope="col" style='background-color:#B9D5CE;'>Cumplimiento</th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo sobrante">Sam P.</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo negativo">Sam N.</span></th>
+                                        <th scope="col" style='background-color:#B9D5CE;'><span title="Diefencia de SAM"># Sam</span></th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
                                         <th scope="col" style='background-color:#B9D5CE;'>Total venta</th>
@@ -149,6 +151,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             $total_margen = 0;
                                             $totalSamPositivo = 0;
                                             $totalSamNegativo = 0;
+                                            $diferenciaSam = 0;
+                                            $diferenciaSam = 0;
+                                            $totalDiferenciaSam = 0;
                                             $parametros = app\models\Parametros::findOne(1);
                                             
                                             // El bucle para mostrar la tabla y acumular los totales
@@ -159,7 +164,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                      // valida los doas
                                                     $sam_pos = isset($row['sam_positivo']) ? (float)$row['sam_positivo'] : 0;
                                                     $sam_neg = isset($row['sam_negativo']) ? (float)$row['sam_negativo'] : 0;
-                                                
+                                                    $diferenciaSam = $sam_neg - $sam_pos;
                                                 
                                                     $eficiencia = ($row['total_operaciones'] > 0) ? ($row['total_cumplimiento'] / $row['total_operaciones']) : 0;
                                                     $eficiencia_formateada = number_format($eficiencia, 2);
@@ -186,6 +191,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     $total_venta_planta += $total_valor_venta;
                                                     $totalSamPositivo += $sam_pos;
                                                     $totalSamNegativo += $sam_neg;
+                                                    $totalDiferenciaSam += $diferenciaSam;
                                                 ?>
                                                     <tr style='font-size:85%;'>
                                                         <td><?= Html::a(Html::encode($row['documento']), ['view_listado_operacion', 'id_operario' => $row['id_operario'], 'dia_pago' => $row['dia_pago'], 'fecha_corte' => $fecha_corte], [
@@ -199,6 +205,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                             <td style="text-align: right; color: blue"><?= $eficiencia_formateada ?>% </td>
                                                             <td style="text-align: right"><?= number_format($sam_pos, 2) ?></td>
                                                             <td style="text-align: right; color: red"><?= number_format($sam_neg, 2)?></td>
+                                                            <td style="text-align: right; color: red"><?= number_format($diferenciaSam, 2)?></td>
                                                             <td style='background-color:#e9d8a6;'><?= 'GANA BONIFICACION' ?> <span class="glyphicon glyphicon-blackboard"></span></td>
                                                         <?php } else {
                                                             if($eficiencia_formateada > $empresa->porcentaje_minima_eficiencia){?>
@@ -223,10 +230,10 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     </tr>
                                                 <?php endforeach;
                                             }else{ ?>
-                                               <tr>
-                                                    <td colspan="10">
-                                                        <div class="alert alert-info" role="alert" style="margin: 20px 0;">
-                                                            No se encontraron datos de eficiencia para el proceso seleccionado.
+                                              <tr>
+                                                    <td colspan ="12">
+                                                        <div class="alert alert-info text-center" role="alert" style="margin: 20px 0;">
+                                                            No hay datos para mostrar. ¡Seleccione las fechas, planta u Operarios para la búsqueda!
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -249,6 +256,9 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
                                                <b>Sam negativo: <?= ''.number_format($totalSamNegativo, 0) ?> Minutos</b> 
                                         </td>
+                                         <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                               <b>Perdida SAM: <?= ''.number_format($totalDiferenciaSam, 0) ?> Minutos</b> 
+                                        </td>
                                         <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
                                                <b>Eficiencia total: <?= ''.number_format($promedio_total_eficiencia, 0) ?> %</b> 
                                         </td>
@@ -265,7 +275,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                             <?php }else{?>  <!--SI SELECCIONA SOLO LA PLANTA,-->
                                 <table class="table table-bordered table-hover">
                                     <thead>
-                                         <tr style ='font-size:85%;'>    
+                                         <tr style ='font-size:80%;'>    
                                          <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Operario</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Fecha inicio</th>
@@ -273,6 +283,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                          <th scope="col" style='background-color:#B9D5CE;'>Dias</th>
                                          <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo sobrante">Sam P</span></th>
                                          <th scope="col" style='background-color:#B9D5CE;'><span title="Tiempo perdido negativo">Sam N</th>
+                                         <th scope="col" style='background-color:#B9D5CE;'><span title="Diferencia de sam entre positivo y perdio"># Sam</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Eficiencia</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Nota</th>
                                          <th scope="col" style='background-color:#B9D5CE;'>Total pagar</th>
@@ -295,6 +306,8 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                         $totalSanNegativo =0;
                                         $totalSanPositivo = 0;
                                         $contador = 0;
+                                        $diferenciaSam = 0;
+                                        $totalDiferenciaSam = 0;
                                             //termina la consulta
                                             if (!empty($model)){  //pregunta si hay datos                                 
                                                 foreach ($model as $row):
@@ -308,7 +321,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     $sam_neg_operario = $row['total_sam_negativo'] ?? 0;
                                                    
                                                    //calcular el total de venta por dia
-                                                   $total_valor_venta = $row['total_venta'] ?? 0;
+                                                    $total_valor_venta = $row['total_venta'] ?? 0;
                                                     if($total_valor_venta > 0){
                                                         $acumulado_venta += $total_valor_venta;
                                                         
@@ -326,11 +339,11 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                     $total_operaciones_global += 1;
                                                     $gran_total_pos += $sam_pos_operario;
                                                     $gran_total_neg += $sam_neg_operario;
-                                                    $total_margen += $margen;
-                                                    $total_venta_planta += $acumulado_venta;
-                                                    $total_pagar_operario += $row['total_generado'];
+                                                   
+                                                    $diferenciaSam += $gran_total_neg - $gran_total_pos ;
+                                                   
                                                     ?>
-                                                    <tr style='font-size:85%;'>
+                                                    <tr style='font-size:80%;'>
                                                         <td><?= Html::a(Html::encode($row['documento']), ['view_listado_operacion', 'id_operario' => $row['id_operario'], 'dia_pago' => $dia_pago, 'fecha_corte' => $fecha_corte], [
                                                                 'target' => '_blank', 
                                                                 'data-pjax' => '0', // Importante si usas Pjax
@@ -342,6 +355,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                         <td style="text-align: center"><?= Html::encode($row['dias_laborados']) ?></td>
                                                         <td style="text-align: right"><?= number_format($gran_total_pos, 2) ?></td>
                                                         <td style="text-align: right; color: red"><?= number_format($gran_total_neg, 2) ?></td>
+                                                        <td style="text-align: right; color: red"><?= number_format($diferenciaSam, 2) ?></td>
                                                         <?php
                                                         if($promedio_formateado > $empresa->porcentaje_empresa){?>
                                                         <td style="text-align: right; color: blue"><?= $promedio_formateado ?>% </td>
@@ -366,19 +380,22 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 <?php
                                                 $totalSanNegativo += $gran_total_neg;
                                                 $totalSanPositivo += $gran_total_pos;
+                                                $totalDiferenciaSam += $diferenciaSam;
                                                 $total_margen += $margen;
                                                 $total_venta_planta += $acumulado_venta;
                                                 $total_pagar_operario += $row['total_generado'];
                                                 $gran_total_pos = 0;
                                                 $gran_total_neg = 0;
+                                                $diferenciaSam = 0;
+                                                $total_valor_venta = 0;
                                                 $contador++;
                                                 endforeach;
                                             }else{?>
                                                   
                                                 <tr>
                                                     <td colspan="12">
-                                                        <div class="alert alert-info" role="alert" style="margin: 20px 0;">
-                                                            No se encontraron datos de eficiencia para el operario en el rango de fechas.
+                                                        <div class="alert alert-info text-center" role="alert" style="margin: 20px 0;">
+                                                            No hay datos para mostrar. ¡Seleccione las fechas, planta u Operarios para la búsqueda!
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -397,16 +414,20 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                 <b>Empleados: <?= number_format($contador) ?></b> 
                                             </td>
                                             <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
-                                                <b>Total San Positivo: <?= number_format($totalSanPositivo, 2) ?> Minutos</b> 
+                                                <b>San Positivo: <?= number_format($totalSanPositivo, 2) ?> Minutos</b> 
                                             </td>
                                             <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
-                                                <b>Total San negativo: <?= number_format($totalSanNegativo, 2) ?> Minutos</b> 
+                                                <b>San negativo: <?= number_format($totalSanNegativo, 2) ?> Minutos</b> 
+                                            </td>
+                                             <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
+                                                <b>Diferenca de Sam: <?= number_format($totalDiferenciaSam, 0) ?>%</b> 
                                             </td>
                                             <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
-                                                <b>Eficiencia total de la planta: <?= number_format($promedio_total_planta, 0) ?>%</b> 
+                                                <b>Eficiencia de planta: <?= number_format($promedio_total_planta, 0) ?>%</b> 
                                             </td>
+                                           
                                             <td colspan="4" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
-                                                <b>Total pagar operarios: <?= '$    '.number_format($total_pagar_operario, 0) ?></b> 
+                                                <b>Pago a operarios: <?= '$    '.number_format($total_pagar_operario, 0) ?></b> 
                                             </td>
                                             <td colspan="4" style="font-size: 90%; background: #277da1; color: #FFFFFF; text-align: center;">
                                                 <b>Total ventas: <?= '$'.number_format($total_venta_planta, 0) ?></b> 
@@ -419,7 +440,16 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                     </table> 
                                                             
                                 <?php
-                                }?>
+                                }
+                       }else{?>
+                            <tr>
+                                <td colspan="12">
+                                    <div class="alert alert-info text-center" role="alert" style="margin: 20px 0;">
+                                        No hay datos para mostrar. ¡Seleccione las fechas, planta u Operarios para la búsqueda!
+                                    </div>
+                                </td>
+                            </tr>
+                       <?php }?>     
                     </div>
                 </div>    
             </div>    

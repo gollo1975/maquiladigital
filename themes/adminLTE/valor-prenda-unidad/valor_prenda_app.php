@@ -629,7 +629,15 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                 <?php
                                 
                                 }
-                           } ?>   
+                           }else{ ?>
+                               <tr>
+    <td colspan="12">
+        <div class="alert alert-info text-center" role="alert" style="margin: 20px 0;">
+            No hay datos para mostrar. ¡Seleccione las fechas, planta u Operarios para la búsqueda!
+        </div>
+    </td>
+</tr>
+                           <?php } ?>   
                     </div>
                 </div>    
             </div>    

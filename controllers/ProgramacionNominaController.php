@@ -2602,155 +2602,144 @@ class ProgramacionNominaController extends Controller {
     //controlador de las incapacidades
     protected function ModuloIncapacidad($fecha_desde, $fecha_hasta, $valor_incapacidad, $id) {
         $contador = 0;
+        
         $contrato = Contrato::findOne($valor_incapacidad->id_contrato);// busca el contrato
         $empresa = \app\models\Matriculaempresa::findOne(1);
-        $configuracion_salario = ConfiguracionSalario::find()->where(['=','estado', 1])->one();
-        $pro_nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $valor_incapacidad->id_empleado])->one();
-        $tipo_incapacidad = ConfiguracionIncapacidad::find()->where(['=', 'codigo_incapacidad', $valor_incapacidad->codigo_incapacidad])->one();
-        $prognomdetalle = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $pro_nonima->id_programacion])
-                ->andWhere(['=', 'codigo_salario', $tipo_incapacidad->codigo_salario])
-                ->andWhere(['=', 'id_incapacidad', $valor_incapacidad->id_incapacidad])
-                ->all();
-        if (!$prognomdetalle) {
+        $configuracion_salario = ConfiguracionSalario::find()->where(['estado' => 1])->one();
+        $pro_nonima = ProgramacionNomina::find()->where(['id_periodo_pago_nomina' => $id, 'id_empleado' => $valor_incapacidad->id_empleado])
+                                                ->one();
+        $tipo_incapacidad = ConfiguracionIncapacidad::find()->where(['codigo_incapacidad' => $valor_incapacidad->codigo_incapacidad])->one();
+        $prognomdetalle = null;
+        if ($pro_nonima && $tipo_incapacidad) {
+            $prognomdetalle = ProgramacionNominaDetalle::find()->where(['id_programacion' => $pro_nonima->id_programacion,
+                                                                    'codigo_salario' => $tipo_incapacidad->codigo_salario,
+                                                                    'id_incapacidad' => $valor_incapacidad->id_incapacidad])
+                                                                    ->one();
+            if (!$prognomdetalle) {
             
-            $detalleIncapacidad = new ProgramacionNominaDetalle();
-            $detalleIncapacidad->id_programacion = $pro_nonima->id_programacion;
-            $detalleIncapacidad->codigo_salario = $tipo_incapacidad->codigo_salario;
-            $detalleIncapacidad->salario_basico = $valor_incapacidad->salario;
-            if($contrato->salario <= $configuracion_salario->salario_incapacidad){
-               $detalleIncapacidad->vlr_dia = $configuracion_salario->salario_minimo_actual /30;
-            }else{
-               $detalleIncapacidad->vlr_dia = (($contrato->salario /30) * $valor_incapacidad->codigoIncapacidad->porcentaje)/100;
-            }
-            
-            $detalleIncapacidad->vlr_hora = $valor_incapacidad->vlr_hora;
-            $detalleIncapacidad->id_incapacidad = $valor_incapacidad->id_incapacidad;
-            
-            if($valor_incapacidad->fecha_inicio <= $fecha_desde && $valor_incapacidad->fecha_final > $fecha_hasta){ //cuando la incapacidad es mayor entre los rangos de pagos
-               $total = strtotime($fecha_hasta) - strtotime($fecha_desde);
-               $total = round($total / 86400)+1;
-               $detalleIncapacidad->fecha_desde = $fecha_desde;
-               $detalleIncapacidad->fecha_hasta = $fecha_hasta; 
-               $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
-        
-            }elseif($valor_incapacidad->fecha_inicio <= $fecha_desde && $valor_incapacidad->fecha_final <= $fecha_hasta){ //cuando la incapacidad es menor que la fecha de inicio y menor que la fecha de corte 
-                $total = strtotime($valor_incapacidad->fecha_final) - strtotime($fecha_desde);
-                $total = round($total / 86400)+1;
-                $detalleIncapacidad->fecha_desde = $fecha_desde;
-                $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final; 
-                $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
-            }elseif($valor_incapacidad->fecha_inicio >= $fecha_desde && $valor_incapacidad->fecha_final > $fecha_hasta){
-                $total = strtotime($fecha_hasta) - strtotime($valor_incapacidad->fecha_inicio);
-                $total = round($total / 86400)+1;
-                $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
-                $detalleIncapacidad->fecha_hasta = $fecha_hasta; 
-                $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
-            }elseif($valor_incapacidad->fecha_inicio >= $fecha_desde && $valor_incapacidad->fecha_final <= $fecha_hasta){
-                $total = strtotime($valor_incapacidad->fecha_final) - strtotime($valor_incapacidad->fecha_inicio);
-                $total = round($total / 86400)+1;
-                $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
-                $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final; 
-                $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
-                
-            }
-            //busca el total de horas por dia
-            $total_horas = $empresa->horas_mensuales / 30;
-          
-            $detalleIncapacidad->nro_horas_incapacidad = $total_horas * $total ;
-            $detalleIncapacidad->horas_periodo = $detalleIncapacidad->nro_horas_incapacidad;
-            $detalleIncapacidad->horas_periodo_reales = $detalleIncapacidad->nro_horas_incapacidad;
-            $detalleIncapacidad->dias = $total;
-            $detalleIncapacidad->dias_reales = $total;
-            $detalleIncapacidad->dias_incapacidad_descontar = $total;
-            $detalleIncapacidad->id_periodo_pago_nomina = $id;
-            $detalleIncapacidad->dias_descontar_transporte = $valor_incapacidad->dias_incapacidad;
-            $detalleIncapacidad->porcentaje = $valor_incapacidad->porcentaje_pago;
-            $detalleIncapacidad->id_grupo_pago = $valor_incapacidad->id_grupo_pago;
-            if ($valor_incapacidad->pagar_empleado == 1) {
-                $detalleIncapacidad->vlr_devengado = $detalleIncapacidad->vlr_incapacidad;
-                $detalleIncapacidad->vlr_ajuste_incapacidad = $valor_incapacidad->ibc_total_incapacidad -  $detalleIncapacidad->vlr_devengado ;
-            }else{
-                $detalleIncapacidad->vlr_ajuste_incapacidad = $valor_incapacidad->ibc_total_incapacidad;
-            }
-            $detalleIncapacidad->save(false);
-            //codigo que actualiza el IBP
-            $Concepto = ConceptoSalarios::find()->where(['=', 'codigo_salario', $tipo_incapacidad->codigo_salario])->andWhere(['=', 'ingreso_base_prestacional', 1])->one();
-            if ($Concepto) {
-                $actualizar_programacion = ProgramacionNomina::find()->where(['=', 'id_programacion', $pro_nonima->id_programacion])->one();
-                if ($valor_incapacidad->pagar_empleado == 1) {
-                    $contador = $actualizar_programacion->ibc_prestacional;
-                    $actualizar_programacion->ibc_prestacional = $contador + $detalleIncapacidad->vlr_devengado;
-                    $actualizar_programacion->save(false);
-                } else {
-                    $contador = $actualizar_programacion->ibc_prestacional;
-                    $actualizar_programacion->ibc_prestacional = $contador + $detalleIncapacidad->vlr_incapacidad;
-                    $actualizar_programacion->save(false);
+                $detalleIncapacidad = new ProgramacionNominaDetalle();
+                $detalleIncapacidad->id_programacion = $pro_nonima->id_programacion;
+                $detalleIncapacidad->codigo_salario = $tipo_incapacidad->codigo_salario;
+                $detalleIncapacidad->salario_basico = $valor_incapacidad->salario;
+                if($contrato->salario <= $configuracion_salario->salario_incapacidad){
+                   $detalleIncapacidad->vlr_dia = $configuracion_salario->salario_minimo_actual /30;
+                }else{
+                   $detalleIncapacidad->vlr_dia = (($contrato->salario /30) * $valor_incapacidad->codigoIncapacidad->porcentaje)/100;
                 }
-            }
+            
+                $detalleIncapacidad->vlr_hora = $valor_incapacidad->vlr_hora;
+                $detalleIncapacidad->id_incapacidad = $valor_incapacidad->id_incapacidad;
+            
+                if($valor_incapacidad->fecha_inicio <= $fecha_desde && $valor_incapacidad->fecha_final > $fecha_hasta){ //cuando la incapacidad es mayor entre los rangos de pagos
+                   $total = strtotime($fecha_hasta) - strtotime($fecha_desde);
+                   $total = round($total / 86400)+1;
+                   $detalleIncapacidad->fecha_desde = $fecha_desde;
+                   $detalleIncapacidad->fecha_hasta = $fecha_hasta; 
+                   $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+
+                }elseif($valor_incapacidad->fecha_inicio <= $fecha_desde && $valor_incapacidad->fecha_final <= $fecha_hasta){ //cuando la incapacidad es menor que la fecha de inicio y menor que la fecha de corte 
+                    $total = strtotime($valor_incapacidad->fecha_final) - strtotime($fecha_desde);
+                    $total = round($total / 86400)+1;
+                    $detalleIncapacidad->fecha_desde = $fecha_desde;
+                    $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final; 
+                    $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+                }elseif($valor_incapacidad->fecha_inicio >= $fecha_desde && $valor_incapacidad->fecha_final > $fecha_hasta){
+                    $total = strtotime($fecha_hasta) - strtotime($valor_incapacidad->fecha_inicio);
+                    $total = round($total / 86400)+1;
+                    $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
+                    $detalleIncapacidad->fecha_hasta = $fecha_hasta; 
+                    $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+                }elseif($valor_incapacidad->fecha_inicio >= $fecha_desde && $valor_incapacidad->fecha_final <= $fecha_hasta){
+                    $total = strtotime($valor_incapacidad->fecha_final) - strtotime($valor_incapacidad->fecha_inicio);
+                    $total = round($total / 86400)+1;
+                    $detalleIncapacidad->fecha_desde = $valor_incapacidad->fecha_inicio;
+                    $detalleIncapacidad->fecha_hasta = $valor_incapacidad->fecha_final; 
+                    $detalleIncapacidad->vlr_incapacidad = round($detalleIncapacidad->vlr_dia * $total);
+
+                }
+                //busca el total de horas por dia
+                $total_horas = $empresa->horas_mensuales / 30;
+
+                $detalleIncapacidad->nro_horas_incapacidad = $total_horas * $total ;
+                $detalleIncapacidad->horas_periodo = $detalleIncapacidad->nro_horas_incapacidad;
+                $detalleIncapacidad->horas_periodo_reales = $detalleIncapacidad->nro_horas_incapacidad;
+                $detalleIncapacidad->dias = $total;
+                $detalleIncapacidad->dias_reales = $total;
+                $detalleIncapacidad->dias_incapacidad_descontar = $total;
+                $detalleIncapacidad->id_periodo_pago_nomina = $id;
+                $detalleIncapacidad->dias_descontar_transporte = $valor_incapacidad->dias_incapacidad;
+                $detalleIncapacidad->porcentaje = $valor_incapacidad->porcentaje_pago;
+                $detalleIncapacidad->id_grupo_pago = $valor_incapacidad->id_grupo_pago;
+                if ($valor_incapacidad->pagar_empleado == 1) {
+                    $detalleIncapacidad->vlr_devengado = $detalleIncapacidad->vlr_incapacidad;
+                    $detalleIncapacidad->vlr_ajuste_incapacidad = $valor_incapacidad->ibc_total_incapacidad -  $detalleIncapacidad->vlr_devengado ;
+                }else{
+                    $detalleIncapacidad->vlr_ajuste_incapacidad = $valor_incapacidad->ibc_total_incapacidad;
+                }
+                $detalleIncapacidad->save(false);
+                //codigo que actualiza el IBP
+                $Concepto = ConceptoSalarios::find()->where(['=', 'codigo_salario', $tipo_incapacidad->codigo_salario])->andWhere(['=', 'ingreso_base_prestacional', 1])->one();
+                if ($Concepto) {
+                    $actualizar_programacion = ProgramacionNomina::find()->where(['=', 'id_programacion', $pro_nonima->id_programacion])->one();
+                    if ($valor_incapacidad->pagar_empleado == 1) {
+                        $contador = $actualizar_programacion->ibc_prestacional;
+                        $actualizar_programacion->ibc_prestacional = $contador + $detalleIncapacidad->vlr_devengado;
+                        $actualizar_programacion->save(false);
+                    } else {
+                        $contador = $actualizar_programacion->ibc_prestacional;
+                        $actualizar_programacion->ibc_prestacional = $contador + $detalleIncapacidad->vlr_incapacidad;
+                        $actualizar_programacion->save(false);
+                    }
+                }
+            }    
         }
     }
 
     //codigo que valide las licencias
     protected function ModuloLicencias($fecha_desde, $fecha_hasta, $valor_licencia, $id) {
         $contador = 0;
-        $pro_nonima = ProgramacionNomina::find()->where(['=', 'id_periodo_pago_nomina', $id])->andWhere(['=', 'id_empleado', $valor_licencia->id_empleado])->one();
-        $tipo_licencia = ConfiguracionLicencia::find()->where(['=', 'codigo_licencia', $valor_licencia->codigo_licencia])->one();
-        $prognomdetalle = ProgramacionNominaDetalle::find()->where(['=', 'id_programacion', $pro_nonima->id_programacion])
-                ->andWhere(['=', 'codigo_salario', $tipo_licencia->codigo_salario])
-                ->andWhere(['=', 'id_licencia', $valor_licencia->id_licencia_pk])
-                ->all();
-        if (!$prognomdetalle) {
-            $detalleLicencia = new ProgramacionNominaDetalle();
-            $detalleLicencia->id_programacion = $pro_nonima->id_programacion;
-            $detalleLicencia->codigo_salario = $tipo_licencia->codigo_salario;
-            $detalleLicencia->salario_basico = $valor_licencia->salario;
-            $detalleLicencia->porcentaje = $tipo_licencia->porcentaje;
-            $detalleLicencia->vlr_dia = $valor_licencia->salario / 30;
-            if ($pro_nonima->factor_dia == 8) {
-                $detalleLicencia->vlr_hora = $valor_licencia->salario / 240;
-            } else {
-                $detalleLicencia->vlr_hora = $valor_licencia->salario / 120;
-            }
-
-            $detalleLicencia->fecha_desde = $valor_licencia->fecha_desde;
-            $detalleLicencia->fecha_hasta = $valor_licencia->fecha_hasta;
-            $detalleLicencia->id_licencia = $valor_licencia->id_licencia_pk;
-            //codigo para calcular los dias
-            $fecha_final_licencia = strtotime($valor_licencia->fecha_hasta);
-            $fecha_inicio_licencia = strtotime($valor_licencia->fecha_desde);
-            $fecha_desde = strtotime($fecha_desde);
-            $fecha_hasta = strtotime($fecha_hasta);
-
-            if ($fecha_inicio_licencia < $fecha_desde) {
-                if ($fecha_final_licencia >= $fecha_hasta) {
-                    $total_dias = ($fecha_hasta) - $fecha_desde;
-                    $total_dias = round($total_dias / 86400) + 1;
+        $pro_nonima = ProgramacionNomina::find()->where([
+                                  'id_periodo_pago_nomina' => $id, 
+                                  'id_empleado' => $valor_licencia->id_empleado])->one();
+        
+        $tipo_licencia = ConfiguracionLicencia::find()
+            ->where(['=', 'codigo_licencia', $valor_licencia->codigo_licencia])
+            ->one();
+        
+        if ($pro_nonima && $tipo_licencia) {
+            $prognomdetalle = ProgramacionNominaDetalle::find()->where([
+                                'id_programacion' => $pro_nonima->id_programacion, 'codigo_salario', $tipo_licencia->codigo_salario,
+                                'id_licencia' => $valor_licencia->id_licencia_pk])->one();
+            if (!$prognomdetalle) {
+                $detalleLicencia = new ProgramacionNominaDetalle();
+                $detalleLicencia->id_programacion = $pro_nonima->id_programacion;
+                $detalleLicencia->codigo_salario = $tipo_licencia->codigo_salario;
+                $detalleLicencia->salario_basico = $valor_licencia->salario;
+                $detalleLicencia->porcentaje = $tipo_licencia->porcentaje;
+                $detalleLicencia->vlr_dia = $valor_licencia->salario / 30;
+                if ($pro_nonima->factor_dia == 8) {
+                    $detalleLicencia->vlr_hora = $valor_licencia->salario / 240;
                 } else {
-                    $total_dias = ($fecha_final_licencia) - $fecha_desde;
-                    $total_dias = round($total_dias / 86400) + 1;
+                    $detalleLicencia->vlr_hora = $valor_licencia->salario / 120;
                 }
-                $detalleLicencia->dias = $total_dias;
-                $detalleLicencia->dias_reales = $total_dias;
-                $detalleLicencia->horas_periodo = $total_dias * $pro_nonima->factor_dia;
-                $detalleLicencia->horas_periodo_reales = $total_dias * $pro_nonima->factor_dia;
-                $detalleLicencia->id_periodo_pago_nomina = $id;
-                $detalleLicencia->nro_horas = $total_dias * $pro_nonima->factor_dia;
-                $detalleLicencia->dias_licencia_descontar = $total_dias;
-                if ($valor_licencia->pagar_empleado == 1) {
-                    $detalleLicencia->vlr_devengado = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                    $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                } else {
-                    $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                    $detalleLicencia->vlr_devengado = 0;
-                    $detalleLicencia->vlr_licencia_no_pagada = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                }
-                if ($valor_licencia->afecta_transporte == 1) {
-                    $detalleLicencia->dias_descontar_transporte = $total_dias;
-                }
-            } else {
-                if ($fecha_final_licencia <= $fecha_hasta) {
-                    $total_dias = $fecha_final_licencia - $fecha_inicio_licencia;
-                    $total_dias = round($total_dias / 86400) + 1;
+
+                $detalleLicencia->fecha_desde = $valor_licencia->fecha_desde;
+                $detalleLicencia->fecha_hasta = $valor_licencia->fecha_hasta;
+                $detalleLicencia->id_licencia = $valor_licencia->id_licencia_pk;
+                //codigo para calcular los dias
+                $fecha_final_licencia = strtotime($valor_licencia->fecha_hasta);
+                $fecha_inicio_licencia = strtotime($valor_licencia->fecha_desde);
+                $fecha_desde = strtotime($fecha_desde);
+                $fecha_hasta = strtotime($fecha_hasta);
+
+                if ($fecha_inicio_licencia < $fecha_desde) {
+                    if ($fecha_final_licencia >= $fecha_hasta) {
+                        $total_dias = ($fecha_hasta) - $fecha_desde;
+                        $total_dias = round($total_dias / 86400) + 1;
+                    } else {
+                        $total_dias = ($fecha_final_licencia) - $fecha_desde;
+                        $total_dias = round($total_dias / 86400) + 1;
+                    }
                     $detalleLicencia->dias = $total_dias;
                     $detalleLicencia->dias_reales = $total_dias;
                     $detalleLicencia->horas_periodo = $total_dias * $pro_nonima->factor_dia;
@@ -2770,32 +2759,52 @@ class ProgramacionNominaController extends Controller {
                         $detalleLicencia->dias_descontar_transporte = $total_dias;
                     }
                 } else {
-                    $total_dias = $fecha_hasta - $fecha_inicio_licencia;
-                    $total_dias = round($total_dias / 86400) + 1;
-                    $detalleLicencia->dias = $total_dias;
-                    $detalleLicencia->dias_reales = $total_dias;
-                    $detalleLicencia->horas_periodo = $total_dias * $pro_nonima->factor_dia;
-                    $detalleLicencia->horas_periodo_reales = $total_dias * $pro_nonima->factor_dia;
-                    $detalleLicencia->id_periodo_pago_nomina = $id;
-                    $detalleLicencia->nro_horas = $total_dias * $pro_nonima->factor_dia;
-                    $detalleLicencia->dias_licencia_descontar = $total_dias;
-                    $detalleLicencia->vlr_devengado = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                    if ($valor_licencia->pagar_empleado == 1) {
-                        $detalleLicencia->vlr_devengado = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                        $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                    if ($fecha_final_licencia <= $fecha_hasta) {
+                        $total_dias = $fecha_final_licencia - $fecha_inicio_licencia;
+                        $total_dias = round($total_dias / 86400) + 1;
+                        $detalleLicencia->dias = $total_dias;
+                        $detalleLicencia->dias_reales = $total_dias;
+                        $detalleLicencia->horas_periodo = $total_dias * $pro_nonima->factor_dia;
+                        $detalleLicencia->horas_periodo_reales = $total_dias * $pro_nonima->factor_dia;
+                        $detalleLicencia->id_periodo_pago_nomina = $id;
+                        $detalleLicencia->nro_horas = $total_dias * $pro_nonima->factor_dia;
+                        $detalleLicencia->dias_licencia_descontar = $total_dias;
+                        if ($valor_licencia->pagar_empleado == 1) {
+                            $detalleLicencia->vlr_devengado = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                            $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                        } else {
+                            $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                            $detalleLicencia->vlr_devengado = 0;
+                            $detalleLicencia->vlr_licencia_no_pagada = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                        }
+                        if ($valor_licencia->afecta_transporte == 1) {
+                            $detalleLicencia->dias_descontar_transporte = $total_dias;
+                        }
                     } else {
-                        $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                        $detalleLicencia->vlr_devengado = 0;
-                        $detalleLicencia->vlr_licencia_no_pagada = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
-                    }
-                    if ($valor_licencia->afecta_transporte == 1) {
-                        $detalleLicencia->dias_descontar_transporte = $total_dias;
+                        $total_dias = $fecha_hasta - $fecha_inicio_licencia;
+                        $total_dias = round($total_dias / 86400) + 1;
+                        $detalleLicencia->dias = $total_dias;
+                        $detalleLicencia->dias_reales = $total_dias;
+                        $detalleLicencia->horas_periodo = $total_dias * $pro_nonima->factor_dia;
+                        $detalleLicencia->horas_periodo_reales = $total_dias * $pro_nonima->factor_dia;
+                        $detalleLicencia->id_periodo_pago_nomina = $id;
+                        $detalleLicencia->nro_horas = $total_dias * $pro_nonima->factor_dia;
+                        $detalleLicencia->dias_licencia_descontar = $total_dias;
+                        $detalleLicencia->vlr_devengado = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                        if ($valor_licencia->pagar_empleado == 1) {
+                            $detalleLicencia->vlr_devengado = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                            $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                        } else {
+                            $detalleLicencia->vlr_licencia = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                            $detalleLicencia->vlr_devengado = 0;
+                            $detalleLicencia->vlr_licencia_no_pagada = round($detalleLicencia->vlr_hora * $detalleLicencia->horas_periodo);
+                        }
+                        if ($valor_licencia->afecta_transporte == 1) {
+                            $detalleLicencia->dias_descontar_transporte = $total_dias;
+                        }
                     }
                 }
-            }
-            $detalleLicencia->id_grupo_pago = $valor_licencia->id_grupo_pago;
-            $detalleLicencia->insert(false);
-            //codigo que actualiza el IBP
+            }                            
         }
     }
 

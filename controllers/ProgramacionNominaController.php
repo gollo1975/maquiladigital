@@ -5236,13 +5236,17 @@ class ProgramacionNominaController extends Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
         $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setAutoSize(true);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setAutoSize(true);
       
                             
         $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue('A1', 'DOCUMENTO')
                     ->setCellValue('B1', 'EMPLEADO')
                     ->setCellValue('C1', 'CONCEPTO')
-                    ->setCellValue('D1', 'VALOR DEDUCCION');
+                    ->setCellValue('D1', 'DESDE')
+                    ->setCellValue('E1', 'HASTA')
+                    ->setCellValue('F1', 'VALOR DEDUCCION');
         $i = 2;
         
         foreach ($tableexcel as $nomina) {
@@ -5253,7 +5257,9 @@ class ProgramacionNominaController extends Controller {
                         ->setCellValue('A' . $i, $nomina->cedula_empleado) // Nota: ¿cedula_empleado está en el detalle o en la cabecera?
                         ->setCellValue('B' . $i, $nomina->empleado->nombrecorto ?? 'N/A')
                         ->setCellValue('C' . $i, $detalle->codigoSalario->nombre_concepto ?? 'N/A')
-                        ->setCellValue('D' . $i, $detalle->vlr_deduccion);
+                        ->setCellValue('D' . $i, $nomina->fecha_desde ?? 'N/A')
+                        ->setCellValue('E' . $i, $nomina->fecha_hasta ?? 'N/A')
+                        ->setCellValue('F' . $i, $detalle->vlr_deduccion);
 
                     // Incrementamos $i DENTRO del ciclo de detalles
                     $i++;

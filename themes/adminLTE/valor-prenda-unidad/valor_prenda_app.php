@@ -583,7 +583,7 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                             formatter: function (val) {
                                                 return val + "%"; // Muestra el porcentaje dentro de cada celda
                                             },
-                                            style: { colors: ['#fff'] }
+                                            style: { colors: ['#ff'] }
                                         },
                                         plotOptions: {
                                             heatmap: {
@@ -593,19 +593,19 @@ $operario= ArrayHelper::map(\app\models\Operarios::find()->orderBy('nombrecomple
                                                         { 
                                                             from: 0, 
                                                             to: limiteMinimo, 
-                                                            color: '#FF4560', // Rojo
+                                                            color: '#b5c99a', // Rojo
                                                             name: 'No Cumple (<' + limiteMinimo + '%)' 
                                                         },
                                                         { 
                                                             from: limiteMinimo + 0.01, 
                                                             to: limiteBonifica, 
-                                                            color: '#00E396', // Verde
+                                                            color: '#83c5be', // Verde
                                                             name: 'Cumple Empresa' 
                                                         },
                                                         { 
                                                             from: limiteBonifica + 0.01, 
                                                             to: 150, 
-                                                            color: '#008FFB', // Azul (Gana bonificación como pusiste en tu CSS/HTML)
+                                                            color: '#e9d8a6', // Azul (Gana bonificación como pusiste en tu CSS/HTML)
                                                             name: 'Bonifica (>' + limiteBonifica + '%)' 
                                                         }
                                                     ]

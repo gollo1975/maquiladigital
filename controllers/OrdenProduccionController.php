@@ -2610,6 +2610,7 @@ class OrdenProduccionController extends Controller {
                                 $tableprocesos->ponderacion = $datoaguardar->ponderacion;
                                 $tableprocesos->total = $datoaguardar->total;
                                 $tableprocesos->totalproceso = $datoaguardar->totalproceso;
+                                $tableprocesos->total_unidades_operacion = $dato->cantidad;
                                 $tableprocesos->update();
                             }
                         }

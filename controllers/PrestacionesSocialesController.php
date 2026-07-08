@@ -1333,73 +1333,77 @@ class PrestacionesSocialesController extends Controller
     // contralador que aplica los pagos, saldos y netos a pagar
      public function actionAplicarpagos($id, $pagina)
      {
+        // 1. Cargar el modelo principal o lanzar un 404 si no existe
         $model_prestacion = PrestacionesSociales::findOne($id);
-        $model = PrestacionesSocialesDetalle::find()->where(['=','id_prestacion', $id])->orderBy('codigo_salario ASC')->all();
-        $model_credito = PrestacionesSocialesCreditos::find()->where(['=','id_prestacion', $id])->all();
-        $model_adicion = PrestacionesSocialesAdicion::find()->where(['=','id_prestacion', $id])->andWhere(['=','tipo_adicion', 1])->all();
-        $model_descuento = PrestacionesSocialesAdicion::find()->where(['=','id_prestacion', $id])->andWhere(['=','tipo_adicion', 2])->all();
-        $conf_prima = ConfiguracionPrestaciones::findone(1);
-        $conf_cesantia = ConfiguracionPrestaciones::findone(2);
-        $conf_interes = ConfiguracionPrestaciones::findone(3);
-        $conf_vacacion = ConfiguracionPrestaciones::findone(4);
+        if (!$model_prestacion) {
+            throw new \yii\web\NotFoundHttpException("La prestación no existe.");
+        } 
+        
+        // 2. Cargar configuraciones de una sola vez (indexadas por ID)
+        $configuraciones = ConfiguracionPrestaciones::find()->where(['id_prestacion' => [1, 2, 3, 4]])->indexBy('id_prestacion')->all();
+        $conf_prima    = $configuraciones[1] ?? null;
+        $conf_cesantia = $configuraciones[2] ?? null;
+        $conf_interes  = $configuraciones[3] ?? null;
+        $conf_vacacion = $configuraciones[4] ?? null;
+        
+        // 3. Consultas optimizadas usando arreglos asociativos
+        $model_detalles   = PrestacionesSocialesDetalle::find()->where(['id_prestacion' => $id])->orderBy('codigo_salario ASC')->all();
+        $model_credito    = PrestacionesSocialesCreditos::find()->where(['id_prestacion' => $id])->all();
+        $model_adicion    = PrestacionesSocialesAdicion::find()->where(['id_prestacion' => $id, 'tipo_adicion' => 1])->all();
+        $model_descuento  = PrestacionesSocialesAdicion::find()->where(['id_prestacion' => $id, 'tipo_adicion' => 2])->all();
+         
+        // Inicializar acumuladores
         $total_prestacion = 0;
-        $total_deduccion_credito = 0;
-        $total_adicion = 0;
-        $deduccion_descuento = 0;
-        //codigo que actualiza los fechas
-        foreach ($model as $actualizar):
-            if($conf_prima->codigo_salario == $actualizar->codigo_salario){
-                $model_prestacion->dias_primas = $actualizar->total_dias;
-                $model_prestacion->ibp_prima = $actualizar->salario_promedio_prima;
-                $model_prestacion->dias_ausencia_prima = $actualizar->dias_ausentes;
-                $model_prestacion->save(false);
-            }
-            if($conf_cesantia->codigo_salario == $actualizar->codigo_salario){
-                $model_prestacion->dias_cesantias = $actualizar->total_dias;
-                $model_prestacion->ibp_cesantias = $actualizar->salario_promedio_prima;
-                $model_prestacion->dias_ausencia_cesantias = $actualizar->dias_ausentes;
-                $model_prestacion->save(false);
-            }
-            if($conf_interes->codigo_salario == $actualizar->codigo_salario){
-                $model_prestacion->interes_cesantia = $actualizar->valor_pagar;
-                $model_prestacion->save(false);
-            }
-            if($conf_vacacion->codigo_salario == $actualizar->codigo_salario){
-                $model_prestacion->dias_vacaciones = $actualizar->total_dias;
-                $model_prestacion->ibp_vacaciones = $actualizar->salario_promedio_prima;
-                $model_prestacion->dias_ausencia_vacaciones = $actualizar->dias_ausentes;
-                $model_prestacion->save(false);
-            }
-            
-        endforeach;
         
-         //calcula todas la prestaciones
-        foreach ($model as $calcular):
-             $total_prestacion +=  $calcular->valor_pagar;
-        endforeach;
+        // 4. Unificación de lógica en un solo ciclo para detalles
+        foreach ($model_detalles as $detalle) {
+            $total_prestacion += $detalle->valor_pagar;
+
+            // Asignación de variables según la configuración (sin guardar en BD aún)
+            if ($conf_prima && $conf_prima->codigo_salario == $detalle->codigo_salario) {
+                $model_prestacion->dias_primas = $detalle->total_dias;
+                $model_prestacion->ibp_prima = $detalle->salario_promedio_prima;
+                $model_prestacion->dias_ausencia_prima = $detalle->dias_ausentes;
+            }
+            if ($conf_cesantia && $conf_cesantia->codigo_salario == $detalle->codigo_salario) {
+                $model_prestacion->dias_cesantias = $detalle->total_dias;
+                $model_prestacion->ibp_cesantias = $detalle->salario_promedio_prima;
+                $model_prestacion->dias_ausencia_cesantias = $detalle->dias_ausentes;
+            }
+            if ($conf_interes && $conf_interes->codigo_salario == $detalle->codigo_salario) {
+                $model_prestacion->interes_cesantia = $detalle->valor_pagar;
+            }
+            if ($conf_vacacion && $conf_vacacion->codigo_salario == $detalle->codigo_salario) {
+                $model_prestacion->dias_vacaciones = $detalle->total_dias;
+                $model_prestacion->ibp_vacaciones = $detalle->salario_promedio_prima;
+                $model_prestacion->dias_ausencia_vacaciones = $detalle->dias_ausentes;
+            }
+        }
         
-         //calculos los creditos
-        foreach ($model_credito as $calcular_credito):
-             $total_deduccion_credito +=  $calcular_credito->deduccion;
-        endforeach;
-        //calculos las adiciones
-        foreach ($model_adicion as $calcular_adicion):
-            $total_adicion +=  $calcular_adicion->valor_adicion;
-        endforeach;
-         //calculos descuentos
-        foreach ($model_descuento as $calcular_descuento):
-            $deduccion_descuento +=  $calcular_descuento->valor_adicion;
-        endforeach;
+        // 5. Cálculos de totales usando funciones nativas de PHP o ciclos limpios
+        $total_deduccion_credito = array_sum(array_column($model_credito, 'deduccion'));
+        $total_adicion           = array_sum(array_column($model_adicion, 'valor_adicion'));
+        $deduccion_descuento     = array_sum(array_column($model_descuento, 'valor_adicion'));
         
-        //codigo que actualizada
+        // 6. Asignación final y UN SOLO guardado en base de datos
         $model_prestacion->total_devengado = $total_prestacion + $model_prestacion->total_indemnizacion + $total_adicion;
         $model_prestacion->total_deduccion = $total_deduccion_credito + $deduccion_descuento;
-        $model_prestacion->total_pagar = $model_prestacion->total_devengado - $model_prestacion->total_deduccion;
+        $model_prestacion->total_pagar     = $model_prestacion->total_devengado - $model_prestacion->total_deduccion;
         $model_prestacion->estado_aplicado = 1;
-        $model_prestacion->save(false);
-        $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina]);  
+        
+       if($model_prestacion->total_pagar < 0){
+           Yii::$app->getSession()->setFlash('error', 'Este es el saldo a pagar (' . $model_prestacion->total_pagar .'). No se puede ser negativo. Favor modificar las deducciones.');
+            return $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina]);
+       }
+        // Guardar todo el bloque junto
+        if ($model_prestacion->save(false)) {
+            return $this->redirect(["prestaciones-sociales/view", 'id' => $id, 'pagina' => $pagina]);
+        }
+        
      }
-    //CERRAR EL PROCESO DE LAS PRESTACIONES
+
+    
+   //CERRAR EL PROCESO DE LAS PRESTACIONES
     public function actionCerrarprestacion($id, $pagina)
     {
         //este codigo salda los creditos y hace el abono

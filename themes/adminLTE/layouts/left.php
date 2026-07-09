@@ -252,7 +252,8 @@ $tokenModulo =  Yii::$app->user->identity->role;
                                                 ['label' => 'Desperdicio de sam', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/index-sam-muerto']],    
                                                 ['label' => 'Prestamo operarios', 'icon' => 'plus-square-o', 'url' => ['/credito-operarios/index']],
                                                 ['label' => 'Reprocesos', 'icon' => 'plus-square-o', 'url' => ['/orden-produccion/indexreprocesoproduccion']],      
-                                                ['label' => 'Costos y gastos', 'icon' => 'plus-square-o', 'url' => ['/costos-gastos-empresa/index']],      
+                                                ['label' => 'Costos y gastos', 'icon' => 'plus-square-o', 'url' => ['/costos-gastos-empresa/index']],
+                                                ['label' => 'Dashboard', 'icon' => 'plus-square-o', 'url' => ['/valor-prenda-unidad/dashboard']],    
                                                 ],
                                             ],
                                             [

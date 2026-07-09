@@ -11,6 +11,7 @@ use app\models\Operarios;
 use app\models\FormFiltroValorPrenda;
 use app\models\FormFiltroResumePagoPrenda;
 use app\models\ModelAplicarPorcentaje;
+use app\models\ValorPrendaUnidadDetallesSearch;
 
 //clases
 use Yii;
@@ -4120,6 +4121,41 @@ class ValorPrendaUnidadController extends Controller
                 'operarios' => ArrayHelper::map($operarios, 'id_operario', 'nombrecompleto'),
         ]);
     }
+    
+    /*************************DASHBOARD DE EFICIENCIA***********/
+    
+    public function actionDashboard()
+    {
+        if (Yii::$app->user->identity){
+            if (UsuarioDetalle::find()->where(['=','codusuario', Yii::$app->user->identity->codusuario])->andWhere(['=','id_permiso',198])->all()){ 
+        
+                $searchModel = new \app\models\ValorPrendaUnidadDetallesSearch();
+                $queryParams = Yii::$app->request->queryParams;
+
+                // Por defecto, si el usuario entra por primera vez, filtramos por la fecha de hoy
+                if (!isset($queryParams['ValorPrendaUnidadDetallesSearch']['fecha'])) {
+                    $queryParams['ValorPrendaUnidadDetallesSearch']['fecha'] = date('Y-m-d');
+                }
+
+                // Ejecutar la consulta con los filtros de la URL
+                $dashboardData = $searchModel->searchDashboard($queryParams);
+
+                return $this->render('dashboard_eficiencia', [
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dashboardData['dataProvider'],
+                    'kpis' => $dashboardData['kpis'],
+                    'chartData' => $dashboardData['chartData'],
+                ]);
+            }else{
+                return $this->redirect(['site/sinpermiso']);
+            }
+        }else{
+            return $this->redirect(['site/login']);
+        }        
+    }
+    
+   /******* FIN DEL DESARROLLO ******/
+    
     
     //EXPORTA A EXCEL LA CONSULTA DE TODOS LOS PAGOS
      public function actionPagoservicioconfeccion($fecha_corte, $fecha_inicio, $bodega) {        

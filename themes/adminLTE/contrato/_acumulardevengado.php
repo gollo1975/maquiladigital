@@ -5,6 +5,9 @@ use app\models\Contrato;
 use yii\helpers\ArrayHelper;
 use kartik\date\DatePicker;
 use kartik\select2\Select2;
+
+
+$grupos = ArrayHelper::map(app\models\GrupoPago::find()->all(), 'id_grupo_pago', 'grupo_pago');
 ?>
 
 
@@ -106,6 +109,9 @@ $form = ActiveForm::begin([
                             ?>                 
                         <?php }?> 
                     </div>  
+                    <div class="row">
+                        <?= $form->field($model, 'id_grupo_pago')->dropdownList($grupos, ['prompt' => 'Seleccione...']) ?>           
+                    </div>    
                 </div> 
                  <div class="panel-footer text-right">			
                 <?= Html::submitButton("<span class='glyphicon glyphicon-floppy-disk'></span> Actualizar", ["class" => "btn btn-primary", 'name' => 'actualizar']) ?>                    

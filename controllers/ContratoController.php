@@ -944,7 +944,8 @@ class ContratoController extends Controller
                     $archivo->ultima_cesantia = $model->ultima_cesantia;
                     $archivo->ultima_vacacion = $model->ultima_vacacion;
                     $archivo->ultimo_pago = $model->ultimo_pago;
-                     $archivo->fecha_final = $model->fecha_final;
+                    $archivo->fecha_final = $model->fecha_final;
+                    $archivo->id_grupo_pago = $model->id_grupo_pago;
                     $archivo->usuario_editor = Yii::$app->user->identity->username; 
                     $fechaActual = $fechaActual = date('Y-m-d H:i:s');
                     $archivo->fecha_editado = $fechaActual;
@@ -963,6 +964,7 @@ class ContratoController extends Controller
                 $model->ultima_cesantia = $table->ultima_cesantia;
                 $model->ultima_vacacion = $table->ultima_vacacion;
                 $model->ultimo_pago = $table->ultimo_pago;
+                $model->id_grupo_pago = $table->id_grupo_pago;
                 $model->ibp_cesantia_inicial = $table->ibp_cesantia_inicial;
                 $model->ibp_prima_inicial = $table->ibp_prima_inicial;
                 $model->ibp_recargo_nocturno = $table->ibp_recargo_nocturno;

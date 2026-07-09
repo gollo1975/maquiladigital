@@ -21,6 +21,7 @@ class FormParametroContrato extends Model
     public $ultima_vacacion;
     public $ultimo_pago;
     public $id_contrato;
+    public $id_grupo_pago;
 
     /**
      * {@inheritdoc}
@@ -29,7 +30,7 @@ class FormParametroContrato extends Model
     {
         return [
             [['ultima_prima','ultima_cesantia','ultima_vacacion','ultimo_pago'],'safe'],
-            [['ibp_prima_inicial','ibp_cesantia_inicial','ibp_recargo_nocturno'],'integer'],
+            [['ibp_prima_inicial','ibp_cesantia_inicial','ibp_recargo_nocturno','id_grupo_pago'],'integer'],
             ['id_contrato','default'],
             ['fecha_final', 'fecha_error'],
         ];
@@ -51,6 +52,7 @@ class FormParametroContrato extends Model
             'ultima_vacacion' => 'Fecha ultima vacacion:',
             'ultimo_pago' => 'Fecha ultimo nomina:',
             'id_contrato' => 'Nro contrato:',
+            'id_grupo_pago' =>  'Grupo de pago:'
         ];
     }
     

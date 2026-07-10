@@ -2698,6 +2698,7 @@ class ProgramacionNominaController extends Controller {
     //codigo que valide las licencias
     protected function ModuloLicencias($fecha_desde, $fecha_hasta, $valor_licencia, $id) {
         $contador = 0;
+        
         $pro_nonima = ProgramacionNomina::find()->where([
                                   'id_periodo_pago_nomina' => $id, 
                                   'id_empleado' => $valor_licencia->id_empleado])->one();
@@ -2707,9 +2708,13 @@ class ProgramacionNominaController extends Controller {
             ->one();
         
         if ($pro_nonima && $tipo_licencia) {
+            
             $prognomdetalle = ProgramacionNominaDetalle::find()->where([
-                                'id_programacion' => $pro_nonima->id_programacion, 'codigo_salario', $tipo_licencia->codigo_salario,
-                                'id_licencia' => $valor_licencia->id_licencia_pk])->one();
+                                'id_programacion' => $pro_nonima->id_programacion,
+                                'codigo_salario' => $tipo_licencia->codigo_salario,
+                                'id_licencia' => $valor_licencia->id_licencia_pk])
+                                ->one();
+            
             if (!$prognomdetalle) {
                 $detalleLicencia = new ProgramacionNominaDetalle();
                 $detalleLicencia->id_programacion = $pro_nonima->id_programacion;
@@ -2803,6 +2808,12 @@ class ProgramacionNominaController extends Controller {
                             $detalleLicencia->dias_descontar_transporte = $total_dias;
                         }
                     }
+                }
+                if (!$detalleLicencia->save()) {
+                    // Si hay un error de validación (campos requeridos faltantes, tipos de datos erróneos),
+                    // esto imprimirá la lista de errores exactos para que sepas qué falló en el modelo.
+                    var_dump($detalleLicencia->getErrors());
+                    die();
                 }
             }                            
         }

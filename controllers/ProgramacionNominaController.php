@@ -4908,6 +4908,7 @@ class ProgramacionNominaController extends Controller {
 
         $detallePrestacion = \app\models\PrestacionesSocialesDetalle::find()
             ->where(['id_prestacion' => $conPrestacion->id_prestacion])
+            ->andWhere(['>','valor_pagar', 0])    
             ->all();
         
         $transaction = Yii::$app->db->beginTransaction();

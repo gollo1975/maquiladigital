@@ -10,10 +10,17 @@ $empresa = Matriculaempresa::findOne(1);
 $municipio = \app\models\Municipio::find()->all();
 $departamento = app\models\Departamento::find()->all();
 $operario = app\models\Operarios::find()->where(['=','estado', 1])->all();
-$ordenConfeccion = \app\models\Ordenproduccion::find()->where(['=','cerrar_orden', 0])->andWhere(['=','idtipo', 1])->all();
-$ordenTerminacion = \app\models\Ordenproduccion::find()->where(['=','cerrar_orden', 0])->andWhere(['=','idtipo', 2])->all();
+$ordenConfeccion = \app\models\Ordenproduccion::find()->all();
 $cliente = \app\models\Cliente::find()->where(['=','proceso', 1])->all();
 
+$dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+$meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+$diaSemana = $dias[date('w')];
+$diaMes = date('j'); // 'j' da el día del mes sin ceros iniciales (1 al 31)
+$mes = $meses[date('n')]; // 'n' da el número de mes (1 al 12)
+$anio = date('Y');
+$fecha = $dias[date('w')] . ', ' . date('j') . ' de ' . $meses[date('n')] . ' de ' . date('Y');
 $this->title = $empresa->nombresistema;
 $this->params['breadcrumbs'][] = ['label' => 'Systime', 'url' => ['index']];
 ?>
@@ -80,13 +87,16 @@ if (isset($cartera) && !Yii::$app->user->isGuest) {
     }?>
 
 <div class="panel panel-success shadow-sm">
-    <div class="panel-heading text-center" style="background-color: #136C5D; color: white; padding: 20px 0;">
-        <h2 class="panel-title" style="font-size: 28px; font-weight: bold; letter-spacing: 1px;">
-            <?= Html::encode($empresa->nombresistema) ?>
+   <div class="panel-heading text-center" style="background-color: #136C5D; color: white; padding: 20px 0;">
+        <h2 class="panel-title" style="font-size: 24px; font-weight: bold; letter-spacing: 1px; margin: 0;">
+            <?= Html::encode($empresa->nombresistema) ?> 
+            <span style="font-size: 16px; font-weight: 300; opacity: 0.85; margin-left: 15px; display: inline-block;">
+                | &nbsp; <?= Html::encode($fecha) ?>
+            </span>
         </h2>
     </div>
     <!-- INICIO DE TARJETASt -->
-    <div class="panel-body" style="padding: 40px 15px;">
+    <div class="panel-body" style="padding: 15px 15px;">
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -127,13 +137,14 @@ if (isset($cartera) && !Yii::$app->user->isGuest) {
                     <div class="col-lg-3 col-sm-6 mb-4">
                         <div class="panel panel-danger text-center custom-box" style="border-color: #d9534f;">
                             <div class="panel-heading" style="background-color: #d9534f; color: white;">
-                                <h4 class="margin-0"><span class="glyphicon glyphicon-file"></span> ÓRDENES COMPRA</h4>
+                                <h4 class="margin-0"><span class="glyphicon glyphicon-file"></span> ÓRDENES PRODUCCIÓN</h4>
                             </div>
                             <div class="panel-body">
                                 <h2 class="text-danger" style="font-weight: bold; margin: 10px 0;"><?= count($ordenConfeccion) ?></h2>
                             </div>
                         </div>
-                    </div>  
+                    </div>                     
+                    
                 </div>
             </div>
         </section> 
@@ -141,7 +152,7 @@ if (isset($cartera) && !Yii::$app->user->isGuest) {
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <div class="row" style="margin-top: 10px; margin-bottom: 30px;">
+        <div class="row" style="margin-top: 4px; margin-bottom: 30px;">
             <div class="col-md-12">
                 <div class="panel panel-default shadow-sm" style="border-radius: 10px; overflow: hidden; border-color: #e7e7e7;">
                     <div class="panel-heading" style="background-color: #fcfcfc; border-bottom: 1px solid #e7e7e7; padding: 15px;">

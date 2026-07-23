@@ -16,7 +16,7 @@ use kartik\select2\Select2;
 use yii\data\Pagination;
 use kartik\depdrop\DepDrop;
 
-$this->title = 'Consulta de conceptos';
+$this->title = 'Devolución de aportes';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -30,7 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--<h1>Lista Facturas</h1>-->
 <?php $formulario = ActiveForm::begin([
     "method" => "get",
-    "action" => Url::toRoute("programacion-nomina/search_concepto_pago"),
+    "action" => Url::toRoute("devolucion-aportes/index"),
     "enableClientValidation" => true,
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
@@ -93,7 +93,7 @@ $fecha_corte = \Yii::$app->formatter->asDate($form->fecha_corte, 'php:Y-m-d');
         
         <div class="panel-footer text-right">
             <?= Html::submitButton("<span class='glyphicon glyphicon-search'></span> Buscar", ["class" => "btn btn-primary",]) ?>
-            <a align="right" href="<?= Url::toRoute("programacion-nomina/search_concepto_pago") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
+            <a align="right" href="<?= Url::toRoute("devolucion-aportes/index") ?>" class="btn btn-primary"><span class='glyphicon glyphicon-refresh'></span> Actualizar</a>
         </div>
     </div>
 </div>
@@ -114,7 +114,7 @@ $fecha_corte = \Yii::$app->formatter->asDate($form->fecha_corte, 'php:Y-m-d');
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>                
-                    <th scope="col" style='background-color:#B9D5CE;'>ID Pago</th>
+                    <th scope="col" style='background-color:#B9D5CE;'>ID</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Documento</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Empleado</th>
                     <th scope="col" style='background-color:#B9D5CE;'>Concepto</th>
@@ -128,37 +128,20 @@ $fecha_corte = \Yii::$app->formatter->asDate($form->fecha_corte, 'php:Y-m-d');
                 $total = 0;                  
 
                 if (!empty($model)): 
-                    foreach ($model as $nomina): ?>
-                        <?php foreach ($nomina->nominaDetalles as $detalle):?>
+                   
+                       foreach ($model as $detalle):?>
                             <tr style="font-size:85%;">
-                                <td><?= $nomina->id_programacion ?></td>
-                                <td><?= $nomina->cedula_empleado ?></td>
-                                <td><?= $nomina->empleado->nombrecorto ?? 'N/A' ?></td>
+                                <td><?= $detalle->id_devolucion ?></td>
+                                <td><?= $detalle->empleado->identificacion ?></td>
+                                <td><?= $detalle->empleado->nombrecorto ?? 'N/A' ?></td>
                                 <td><?= $detalle->codigoSalario->nombre_concepto ?? 'N/A' ?></td>
-                                 <td><?= $nomina->fecha_desde ?? 'N/A' ?></td>
-                                 <td><?= $nomina->fecha_hasta ?? 'N/A' ?></td>
-                                <?php if($detalle->codigoSalario->devengado_deduccion == 2){
-                                     $total += $detalle->vlr_deduccion;
-                                    ?>
-                                    <td style="text-align: right"><?= '$' . number_format($detalle->vlr_deduccion, 0) ?></td>
-                                <?php }else{
-                                    $total += $detalle->vlr_devengado;
-                                    ?>
-                                    <td style="text-align: right"><?= '$' . number_format($detalle->vlr_devengado, 0) ?></td>
-                                <?php }?>    
+                                <td><?= $detalle->fecha_inicio ?? 'N/A' ?></td>
+                                <td><?= $detalle->fecha_corte ?? 'N/A' ?></td>
+                                <td style="text-align: right"><?= '$' . number_format($detalle->total_devolucion, 0) ?></td>
+                                
                             </tr>
-                        <?php endforeach; 
-                         $empleado = $nomina->id_empleado;    
-                     endforeach; ?>
-                     <table class="table table-bordered table-hover" style="margin-left: auto; margin-right: auto;">
-                        <tr>
-                            <td colspan="5" style="font-size: 95%; background: #277da1; color: #FFFFFF; text-align: center;">
-                                <b>Total acumulado: $<?= number_format($total, 0) ?></b> 
-                            </td>
-
-                        </tr>
-                     </table>            
-                            
+                        <?php endforeach; ?>
+                       
                 <?php else: ?>
                     <tr>
                         <td colspan="12" style="text-align: center">
@@ -175,8 +158,7 @@ $fecha_corte = \Yii::$app->formatter->asDate($form->fecha_corte, 'php:Y-m-d');
     <?php if (!empty($model)){ ?>
         <div class="panel-footer text-right" >     
              <?= Html::submitButton("<span class='glyphicon glyphicon-export'></span> Exportar a excel", ['name' => 'excel','class' => 'btn btn-primary btn-sm']); ?>                
-             <?= Html::a('<span class="glyphicon glyphicon-import"></span>  Generar pago', ['generar_pago_aportes', 'id_concepto' => $id_concepto, 'empleado' => $empleado, 'fecha_inicio' => $fecha_inicio, 'fecha_corte' => $fecha_corte],['class' => 'btn btn-success btn-xs',
-                        'data' => ['confirm' => '¿Esta seguro de genera la devolución de aportes voluntarios a este empleado?' , 'method' => 'post']]);?>
+             
         </div>
     <?php }?>
       

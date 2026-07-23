@@ -1383,13 +1383,14 @@ class ProgramacionNominaController extends Controller {
                 $form = new \app\models\FormConsultaCredito();
                 $pages = null;
                 $model = null;
-
+                $concepto= null;                        
                 if ($form->load(Yii::$app->request->get()) && $form->validate()) {
                     // Usamos las variables directamente del formulario (ya validadas)
                     $empleado = $form->id_empleado;
                     $fecha_inicio = $form->fecha_inicio;
                     $fecha_corte = $form->fecha_corte;
                     $concepto = $form->concepto;
+                   
 
                     // 1. Ajuste en innerJoinWith: debe coincidir con el nombre de la relación definida en el modelo
                     // 2. Ajuste en andWhere: usa las variables correctas
@@ -1403,10 +1404,10 @@ class ProgramacionNominaController extends Controller {
                     ->innerJoinWith(['nominaDetalles' => function($q) use ($concepto) {
                         $q->andOnCondition(['programacion_nomina_detalle.codigo_salario' => $concepto]);
                     }])
-                    ->where([
-                        'programacion_nomina.id_empleado' => $empleado,
-                    ])
-                    ->andWhere(['between', 'programacion_nomina.fecha_desde', $fecha_inicio, $fecha_corte]);
+                    ->where(['programacion_nomina.id_empleado' => $empleado,])
+                    ->andWhere(['between', 'programacion_nomina.fecha_desde', $fecha_inicio, $fecha_corte])
+                    ->andWhere(['=', 'programacion_nomina.ahorro_pagado', 0])
+                    ->andWhere(['=', 'programacion_nomina.id_tipo_nomina', 1]);
 
                    // Ordenamiento: aplica el orderBy sobre la consulta antes de hacer el count
                     $query->orderBy(['programacion_nomina_detalle.id_detalle' => SORT_DESC]);
@@ -1433,7 +1434,8 @@ class ProgramacionNominaController extends Controller {
                 return $this->render('search_concepto_pago', [
                             'model' => $model,
                             'form' => $form,
-                            'pagination' => $pages,                       
+                            'pagination' => $pages, 
+                            'id_concepto' => $concepto,            
                ]);
             }else{
                  return $this->redirect(['site/sinpermiso']);
@@ -4892,10 +4894,11 @@ class ProgramacionNominaController extends Controller {
         
     }
     
-    public function actionCargar_prestaciones_sociales($token, $id_periodo, $id_nomina) {
-    $conNominaelectronica = \app\models\NominaElectronica::findOne($id_nomina);
+    public function actionCargar_prestaciones_sociales($token, $id_periodo, $id_nomina)
+    {
+        $conNominaelectronica = \app\models\NominaElectronica::findOne($id_nomina);
     
-    if($conNominaelectronica){
+        if($conNominaelectronica){
         $conPrestacion = \app\models\PrestacionesSociales::find()
             ->where(['between', 'fecha_registro', $conNominaelectronica->fecha_inicio_nomina, $conNominaelectronica->fecha_final_nomina])
             ->andWhere(['id_empleado' => $conNominaelectronica->id_empleado, 'proceso_enviado' => 0, 'estado_cerrado' => 1])
@@ -4967,8 +4970,59 @@ class ProgramacionNominaController extends Controller {
         }
     }    
     
-    return $this->redirect(['vista_empleados', 'token' => $token, 'id_periodo' => $id_periodo]);    
-}
+        return $this->redirect(['vista_empleados', 'token' => $token, 'id_periodo' => $id_periodo]);    
+    }
+
+    //PERMITE GENERAR LA DEVOLUCION  DE APORTES
+    public function actionGenerar_pago_aportes($id_concepto, $empleado, $fecha_inicio, $fecha_corte) 
+   {
+        $totalDevolucion = ProgramacionNomina::find()
+            ->innerJoinWith(['nominaDetalles' => function($q) use ($id_concepto) {
+                $q->andOnCondition(['programacion_nomina_detalle.codigo_salario' => $id_concepto]);
+            }])
+            ->where(['programacion_nomina.id_empleado' => $empleado])
+            ->andWhere(['between', 'programacion_nomina.fecha_desde', $fecha_inicio, $fecha_corte])
+            ->andWhere(['programacion_nomina.ahorro_pagado' => 0])
+            ->sum('programacion_nomina_detalle.vlr_deduccion');
+
+        $totalDevolucion = (float) $totalDevolucion;
+
+        $table = new \app\models\DevolucionAportes();
+        $table->id_empleado = $empleado;
+        $table->fecha_inicio = $fecha_inicio;
+        $table->fecha_corte = $fecha_corte;
+        $table->fecha_hora_registro = date('Y-m-d H:i:s');
+        $table->total_devolucion = $totalDevolucion;
+        $table->user_name = Yii::$app->user->identity->username;
+        $table->codigo_salario = $id_concepto;
+
+        if ($table->save()) {
+            $this->ActualizaEstadoProceso($empleado, $fecha_inicio, $fecha_corte);
+            Yii::$app->getSession()->setFlash('success', 'El proceso se ha generado exitosamente en el sistema de pago!');
+        } else {
+            $error = reset($table->getFirstErrors());
+            Yii::$app->getSession()->setFlash('danger', 'Error al guardar la devolución: ' . $error);
+        }
+
+        return $this->redirect(['search_concepto_pago']);
+    }
+    
+    //PROCESO QUE ACTUALIZA EL ESTADO
+    protected function ActualizaEstadoProceso($empleado, $fecha_inicio, $fecha_corte) {
+        $buscarFila = ProgramacionNomina::find()
+                                        ->where(['id_empleado' => $empleado])
+                                        ->andWhere(['between','fecha_desde', $fecha_inicio, $fecha_corte])
+                                        ->andWhere(['ahorro_pagado' => 0, 'id_tipo_nomina' => 1])
+                                        ->all();
+        if($buscarFila){
+            foreach ($buscarFila as $fila) {
+                $fila->ahorro_pagado = 1;
+                $fila->save();
+            }
+        }
+        
+    }
+
     
     //EXCELES
     public function actionExcelpago($id) {
